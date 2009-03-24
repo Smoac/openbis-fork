@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 
 /**
  * 
@@ -83,9 +84,9 @@ class DataStoreServiceLogger implements IDataStoreService
     }
 
     public void uploadDataSetsToCIFEX(String sessionToken, List<String> dataSetLocations,
-            String comment, String userID, String password) throws InvalidAuthenticationException
+            DataSetUploadContext context) throws InvalidAuthenticationException
     {
-        log("upload_data_sets", "LOCATIONS(%s) USER(%s) COMMENT(%s)", dataSetLocations, userID, comment);
+        log("upload_data_sets", "LOCATIONS(%s) USER(%s)", dataSetLocations, context.getUserID());
     }
 
 }

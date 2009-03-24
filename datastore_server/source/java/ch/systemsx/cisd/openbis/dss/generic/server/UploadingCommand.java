@@ -36,6 +36,7 @@ import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.TokenGenerator;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 
 /**
  * 
@@ -98,21 +99,21 @@ class UploadingCommand implements IDataSetCommand
     private static final Logger notificationLog =
         LogFactory.getLogger(LogCategory.NOTIFY, UploadingCommand.class);
     
-    private final ICIFEXRPCService cifexService;
+    private final ICIFEXRPCServiceFactory cifexServiceFactory;
     private final List<String> dataSetLocations;
     private final String comment;
     private final String userID;
     private final String password;
     private final TokenGenerator tokenGenerator;
 
-    UploadingCommand(ICIFEXRPCService cifexService, List<String> dataSetLocations, String comment,
-            String userID, String password)
+    UploadingCommand(ICIFEXRPCServiceFactory cifexServiceFactory, List<String> dataSetLocations,
+            DataSetUploadContext context)
     {
-        this.cifexService = cifexService;
+        this.cifexServiceFactory = cifexServiceFactory;
         this.dataSetLocations = dataSetLocations;
-        this.userID = userID;
-        this.password = password;
-        this.comment = comment;
+        this.userID = context.getUserID();
+        this.password = context.getPassword();
+        this.comment = context.getComment();
         tokenGenerator = new TokenGenerator();
     }
 
@@ -130,6 +131,7 @@ class UploadingCommand implements IDataSetCommand
                 operationLog.info("Zip file " + zipFile + " with " + dataSetLocations.size()
                         + " data sets has been successfully created.");
             }
+            ICIFEXRPCService cifexService = cifexServiceFactory.createService();
             String sessionToken = cifexService.login(userID, password);
             Uploader uploader = new Uploader(cifexService, sessionToken);
             uploader.addProgressListener(new ProgressListener(zipFile));
@@ -199,11 +201,13 @@ class UploadingCommand implements IDataSetCommand
                 IOUtils.closeQuietly(in);
                 zipOutputStream.closeEntry();
             }
-        }
-        File[] files = file.listFiles();
-        for (File childFile : files)
+        } else
         {
-            addTo(zipOutputStream, childFile);
+            File[] files = file.listFiles();
+            for (File childFile : files)
+            {
+                addTo(zipOutputStream, childFile);
+            }
         }
     }
 

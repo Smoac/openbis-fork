@@ -26,11 +26,13 @@ import org.springframework.beans.factory.InitializingBean;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.client.RPCServiceFactory;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.WrappedIOException;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 
 /**
  * Implementation of {@link IDataStoreService} which will be accessed remotely by the opneBIS
@@ -41,21 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 public class DataStoreService extends AbstractServiceWithLogger<IDataStoreService> implements
         IDataStoreService, InitializingBean
 {
-    private static ICIFEXRPCService createCIFEXService(String baseURL)
-    {
-        final String serviceURL = baseURL + Constants.CIFEX_RPC_PATH;
-        final ICIFEXRPCService service =
-                RPCServiceFactory.createServiceProxy(serviceURL, true);
-        final int serverVersion = service.getVersion();
-        if (ICIFEXRPCService.VERSION != serverVersion)
-        {
-            System.err.println("This client has the wrong service version for the server (client: "
-                    + ICIFEXRPCService.VERSION + ", server: " + serverVersion + ").");
-            return null;
-        }
-        return service;
-    }
-    
     private final SessionTokenManager sessionTokenManager;
     
     private final IDataSetCommandExecutorFactory commandExecutorFactory;
@@ -64,25 +51,22 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     private IDataSetCommandExecutor commandExecuter;
 
-    private final ICIFEXRPCService cifexService;
-
-    public DataStoreService(SessionTokenManager sessionTokenManager, String baseURL)
+    public DataStoreService(SessionTokenManager sessionTokenManager)
     {
         this(sessionTokenManager, new IDataSetCommandExecutorFactory()
             {
                 public IDataSetCommandExecutor create(File store)
                 {
-                    return new DataSetCommandExecuter(new File(store, "commandQueue"));
+                    return new DataSetCommandExecuter(store);
                 }
-            }, createCIFEXService(baseURL));
+            });
     }
 
     DataStoreService(SessionTokenManager sessionTokenManager,
-            IDataSetCommandExecutorFactory commandExecutorFactory, ICIFEXRPCService cifexService)
+            IDataSetCommandExecutorFactory commandExecutorFactory)
     {
         this.sessionTokenManager = sessionTokenManager;
         this.commandExecutorFactory = commandExecutorFactory;
-        this.cifexService = cifexService;
     }
 
     public final void setStoreRoot(File storeRoot)
@@ -162,16 +146,48 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     }
 
     public void uploadDataSetsToCIFEX(String sessionToken, List<String> dataSetLocations,
-            String comment, String userID, String password) throws InvalidAuthenticationException
+            DataSetUploadContext context) throws InvalidAuthenticationException
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
 
-        if (cifexService.login(userID, password) == null)
+        CIFEXRPCServiceFactory serviceFactory = new CIFEXRPCServiceFactory(context.getCifexURL());
+        ICIFEXRPCService service = serviceFactory.createService();
+        String userID = context.getUserID();
+        String password = context.getPassword();
+        if (service.login(userID, password) == null)
         {
             throw new InvalidSessionException("User couldn't be authenticated at CIFEX.");
         }
-        commandExecuter.scheduleCommand(new UploadingCommand(cifexService, dataSetLocations,
-                comment, userID, password));
+        commandExecuter.scheduleCommand(new UploadingCommand(serviceFactory, dataSetLocations, context));
     }
 
+    private static final class CIFEXRPCServiceFactory implements ICIFEXRPCServiceFactory
+    {
+        private static final long serialVersionUID = 1L;
+        private final String cifexURL;
+        
+        private transient ICIFEXRPCService service;
+        
+        CIFEXRPCServiceFactory(String cifexURL)
+        {
+            this.cifexURL = cifexURL;
+        }
+
+        public ICIFEXRPCService createService()
+        {
+            if (service == null)
+            {
+                final String serviceURL = cifexURL + Constants.CIFEX_RPC_PATH;
+                service = RPCServiceFactory.createServiceProxy(serviceURL, true);
+                final int serverVersion = service.getVersion();
+                if (ICIFEXRPCService.VERSION != serverVersion)
+                {
+                    throw new EnvironmentFailureException("The version of the CIFEX server is not "
+                            + ICIFEXRPCService.VERSION + " but " + serverVersion + ".");
+                }
+            }
+            return service;
+        }
+    }
+    
 }
