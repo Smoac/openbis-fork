@@ -21,7 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 
 /**
  * Class to handle the opening and closing of a {@link RandomAccessFile}.

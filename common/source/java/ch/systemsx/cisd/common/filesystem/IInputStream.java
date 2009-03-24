@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.common.filesystem;
 
-import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 
 /**
  * An interface for {@link java.io.InputStream}.

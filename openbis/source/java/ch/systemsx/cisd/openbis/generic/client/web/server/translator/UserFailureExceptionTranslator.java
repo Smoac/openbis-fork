@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 

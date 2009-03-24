@@ -29,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
@@ -42,7 +43,6 @@ import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper.IProcessHandler;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper.OutputReadingStrategy;
 import ch.systemsx.cisd.common.utilities.ITerminable;
-import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
  * A class that encapsulates the <code>rsync</code> call for doing an archive copy.

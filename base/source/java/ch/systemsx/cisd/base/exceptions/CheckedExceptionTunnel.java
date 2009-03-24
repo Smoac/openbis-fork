@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exceptions;
+package ch.systemsx.cisd.base.exceptions;
 
 import java.io.IOException;
 

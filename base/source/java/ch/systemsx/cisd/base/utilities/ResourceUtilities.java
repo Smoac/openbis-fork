@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.base.utilities;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -24,8 +24,8 @@ import java.io.OutputStream;
 
 import org.apache.commons.io.IOUtils;
 
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 
 /**
  * Utilities for handling Java resources.

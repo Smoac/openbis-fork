@@ -18,8 +18,8 @@ package ch.systemsx.cisd.common.filesystem;
 
 import java.io.IOException;
 
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 
 /**
  * An adapter for {@link java.io.InputStream} that implements {@link IInputStream}.

@@ -21,7 +21,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
+import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 
 /**
  * Implementation of a {@link ITerminableFuture} that delegates to appropriate classes.

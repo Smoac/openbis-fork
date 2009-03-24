@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
+import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 
 /**
  * Test cases for the {@link TimerUtilities}.

@@ -39,8 +39,8 @@ import org.springframework.jdbc.core.support.AbstractLobCreatingPreparedStatemen
 import org.springframework.jdbc.support.lob.LobCreator;
 import org.springframework.jdbc.support.lob.LobHandler;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.Script;
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
 /**
  * Class which logs database migration steps in the database.

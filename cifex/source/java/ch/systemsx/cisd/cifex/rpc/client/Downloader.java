@@ -21,11 +21,11 @@ import java.io.IOException;
 
 import org.springframework.remoting.RemoteAccessException;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
 /**
  * Class which downloads file via an implementation of {@link ICIFEXRPCService}, handling the

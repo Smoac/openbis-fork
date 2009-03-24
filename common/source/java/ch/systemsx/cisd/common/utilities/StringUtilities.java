@@ -25,7 +25,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.utilities.OSUtilities;
 
 /**
  * Some useful utlities methods for {@link String}s.

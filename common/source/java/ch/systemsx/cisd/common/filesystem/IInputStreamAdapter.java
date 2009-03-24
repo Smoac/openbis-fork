@@ -19,7 +19,7 @@ package ch.systemsx.cisd.common.filesystem;
 import java.io.IOException;
 import java.io.InputStream;
 
-import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 
 /**
  * An adapter for {@link IInputStream} that extends {@link java.io.InputStream}.

@@ -19,7 +19,7 @@ package ch.systemsx.cisd.common.utilities;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
 /**
  * Functions around {@link Method}.

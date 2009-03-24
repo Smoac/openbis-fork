@@ -24,5 +24,6 @@
 	<classpathentry kind="lib" path="/libraries/jetty/servlet-api-2.5.jar" sourcepath="/libraries/jetty/src/servlet-api-2.5.zip"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring.jar" sourcepath="/libraries/spring/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/cifex/cifex.jar" sourcepath="/cifex/source/java"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/base"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

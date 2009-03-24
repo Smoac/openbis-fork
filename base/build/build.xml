@@ -1,0 +1,56 @@
+<project name="base" default="jar" basedir="..">
+    <target name="clean">
+        <delete dir="${dist}" />
+    </target>
+
+    <import file="../../build_resources/ant/build-common.xml" />
+
+    <project-classpath name="ecp" classes="${classes}" />
+    <property name="mainfolder" value="base" />
+    <property name="jar.file" value="${dist}/cisd-base.jar" />
+    <property name="nativesrc" value="${lib}/unix/native" />
+    <property name="nativeroot" value="${targets}/ant" />
+    <property name="native" value="${nativeroot}/native" />
+
+    <property name="dist.common" value="${dist}/${mainfolder}" />
+    <property name="dist.common.lib" value="${dist.common}/lib" />
+
+
+    <target name="ci" depends="build-common.ci, check-dependencies" />
+
+    <target name="jar" depends="compile-tests">
+        <mkdir dir="${dist.common.lib}" />
+        <build-info revision="revision.number" version="version.number" clean="clean.flag" />
+        <echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+        <copy todir="${native}">
+            <fileset dir="${nativesrc}">
+                <include name="**/unix.so" />
+            </fileset>
+        </copy>
+        <recursive-jar destfile="${jar.file}">
+            <fileset dir="${classes}">
+                <include name="**/*.class" />
+                <include name="${build.info.filename}" />
+            </fileset>
+            <fileset dir="${nativeroot}">
+                <include name="**/unix.so" />
+            </fileset>
+            <manifest>
+                <attribute name="Main-Class" value="ch.systemsx.cisd.base.utilities.BuildAndEnvironmentInfo" />
+                <attribute name="Version" value="${version.number}" />
+                <attribute name="Build-Number"
+                           value="${version.number} (r${revision.number},${clean.flag})" />
+            </manifest>
+        </recursive-jar>
+    </target>
+
+    <!--
+	  // Runs the test suite 'tests.xml'.
+	  -->
+    <target name="run-tests" description="Runs the test suite 'tests.xml'.">
+        <antcall target="build-common.run-tests">
+            <param name="test.suite" value="tests.xml" />
+        </antcall>
+    </target>
+
+</project>

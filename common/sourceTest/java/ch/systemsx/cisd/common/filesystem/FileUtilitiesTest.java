@@ -34,9 +34,9 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.concurrent.IActivityObserver;
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.parser.filter.ExcludeEmptyAndCommentLineFilter;
 

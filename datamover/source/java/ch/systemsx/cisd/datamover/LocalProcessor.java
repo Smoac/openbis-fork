@@ -26,7 +26,7 @@ import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
+import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
 import ch.systemsx.cisd.common.filesystem.IPathHandler;

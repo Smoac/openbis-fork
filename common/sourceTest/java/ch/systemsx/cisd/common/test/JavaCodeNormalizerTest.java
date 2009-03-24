@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.common.test;
 
-import static ch.systemsx.cisd.common.utilities.OSUtilities.LINE_SEPARATOR;
+import static ch.systemsx.cisd.base.utilities.OSUtilities.LINE_SEPARATOR;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;

@@ -41,8 +41,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
 /**
  * Some utilities around <i>Java Bean</i>s.

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.base.utilities;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,8 +23,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-
-import org.apache.commons.io.IOUtils;
 
 /**
  * Bean with build and environment information.
@@ -74,7 +72,13 @@ public final class BuildAndEnvironmentInfo
                 // ignored
             } finally
             {
-                IOUtils.closeQuietly(reader);
+                try {
+                    if (reader != null) {
+                        reader.close();
+                    }
+                } catch (IOException ioe) {
+                    // ignore
+                }
             }
         }
         this.version = extractedVersion;

@@ -19,11 +19,11 @@ package ch.systemsx.cisd.bds.storage.filesystem;
 import java.io.InputStream;
 import java.util.List;
 
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.IFileBasedFile;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 
 /**

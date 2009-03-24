@@ -24,7 +24,7 @@ import java.io.StringWriter;
 
 import org.apache.commons.io.IOUtils;
 
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
 /**
  * Normalizes multiline Java code. All lines are trimmed. All block comments and single line

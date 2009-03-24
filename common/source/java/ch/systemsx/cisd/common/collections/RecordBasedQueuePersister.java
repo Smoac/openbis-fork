@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
 /**
  * An {@link IQueuePersister} that is based on records in a file. This class uses Java serialization

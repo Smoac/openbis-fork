@@ -14,39 +14,35 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exceptions;
+package ch.systemsx.cisd.base.exceptions;
 
-import java.util.concurrent.TimeoutException;
+import java.io.IOException;
 
 /**
- * Exception thrown when a blocking operation times out. This is an unchecked equivalent of
- * {@link TimeoutException}, that is it is derived from {@link CheckedExceptionTunnel}.
- * 
+ * A {@link CheckedExceptionTunnel} for an {@link IOException}. 
+ *
  * @author Bernd Rinn
  */
-public class TimeoutExceptionUnchecked extends CheckedExceptionTunnel
+public class IOExceptionUnchecked extends CheckedExceptionTunnel
 {
-
     private static final long serialVersionUID = 1L;
 
-    public TimeoutExceptionUnchecked()
+    /**
+     * Returns an unchecked exception from a <var>checkedException</var>.
+     * 
+     * @param checkedException The checked exception to tunnel.
+     */
+    public IOExceptionUnchecked(final IOException checkedException)
     {
-    }
+        super(checkedException);
 
-    public TimeoutExceptionUnchecked(String msg)
-    {
-        super(msg);
-    }
-
-    public TimeoutExceptionUnchecked(java.util.concurrent.TimeoutException cause)
-    {
-        super(cause);
+        assert checkedException != null;
     }
 
     @Override
-    public TimeoutException getCause()
+    public IOException getCause()
     {
-        return (TimeoutException) super.getCause();
+        return (IOException) super.getCause();
     }
 
 }

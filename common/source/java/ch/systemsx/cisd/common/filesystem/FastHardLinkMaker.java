@@ -18,9 +18,9 @@ package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
 
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
-import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.os.Unix;
 
 /**

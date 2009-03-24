@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.base.utilities;
 
 import java.io.File;
 import java.util.Arrays;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exceptions;
+package ch.systemsx.cisd.base.exceptions;
 
 /**
  * Exception that signals that whoever gets it should stop its current work. This is an unchecked

@@ -26,6 +26,7 @@ import java.util.Set;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 

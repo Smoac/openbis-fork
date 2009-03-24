@@ -29,8 +29,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
  * Test cases for corresponding {@link WebClientFilesUpdater} class.

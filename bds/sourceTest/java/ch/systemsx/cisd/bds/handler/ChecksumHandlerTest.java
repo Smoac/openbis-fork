@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.bds.handler;
 
-import static ch.systemsx.cisd.common.utilities.OSUtilities.LINE_SEPARATOR;
+import static ch.systemsx.cisd.base.utilities.OSUtilities.LINE_SEPARATOR;
 
 import java.io.File;
 import java.io.FileOutputStream;

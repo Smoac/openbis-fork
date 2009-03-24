@@ -17,7 +17,7 @@ package ch.systemsx.cisd.common.test;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
 /**
  * An exception handler that stores the first occurring exception for later investigation. Needs to

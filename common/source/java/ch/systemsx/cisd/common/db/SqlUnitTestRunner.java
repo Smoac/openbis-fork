@@ -27,9 +27,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
  * Runner of SQL Unit tests. Needs an implementation of {@link ISqlScriptExecutor} to do the actual

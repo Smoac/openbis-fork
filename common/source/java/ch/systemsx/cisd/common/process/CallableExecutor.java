@@ -18,9 +18,9 @@ package ch.systemsx.cisd.common.process;
 
 import java.util.concurrent.Callable;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.Constants;
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 
 /**
  * Executes given {@link Callable}.

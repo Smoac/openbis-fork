@@ -20,9 +20,9 @@ import java.io.File;
 import java.io.IOException;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
-import ch.systemsx.cisd.common.utilities.NativeLibraryUtilities;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.base.utilities.NativeLibraryUtilities;
 
 /**
  * A utility class that provides access to common Unix system calls. Obviously, this will only work

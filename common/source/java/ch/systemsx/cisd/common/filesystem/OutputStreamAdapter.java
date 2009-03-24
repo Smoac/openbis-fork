@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.filesystem;
 
 import java.io.IOException;
 
-import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 
 /**
  * An adapter for {@link java.io.OutputStream} that implements {@link IOutputStream}.

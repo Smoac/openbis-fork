@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.compression.file.InPlaceCompressionMethod;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -27,7 +28,6 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
-import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
  * A compression method for TIFF files using the ImageMagick <code>convert</code> utility with

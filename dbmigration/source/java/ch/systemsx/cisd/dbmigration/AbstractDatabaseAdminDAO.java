@@ -26,8 +26,8 @@ import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
 /**
  * 

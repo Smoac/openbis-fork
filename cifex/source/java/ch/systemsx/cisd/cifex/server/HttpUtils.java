@@ -23,8 +23,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.server.business.IBusinessContext;
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
 /**
  * Some utilities around <i>Http</i>.

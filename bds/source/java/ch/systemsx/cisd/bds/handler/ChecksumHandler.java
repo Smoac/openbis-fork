@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.bds.Constants;
 import ch.systemsx.cisd.bds.IDataStructureHandler;
 import ch.systemsx.cisd.bds.Utilities;
@@ -38,7 +39,6 @@ import ch.systemsx.cisd.common.collections.CollectionIO;
 import ch.systemsx.cisd.common.collections.IFromStringConverter;
 import ch.systemsx.cisd.common.collections.IToStringConverter;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 

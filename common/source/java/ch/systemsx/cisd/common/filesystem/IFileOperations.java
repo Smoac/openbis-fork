@@ -25,8 +25,8 @@ import java.util.List;
 
 import org.apache.commons.io.FileSystemUtils;
 
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
-import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 
 /**
  * Operations on {@link File} that are good to monitor when being performed on remote file systems

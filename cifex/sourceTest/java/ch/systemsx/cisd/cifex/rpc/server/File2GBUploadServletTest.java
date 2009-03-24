@@ -32,6 +32,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileUploadClient;
 import ch.systemsx.cisd.cifex.rpc.server.File2GBUploadServlet;
 import ch.systemsx.cisd.cifex.rpc.server.IExtendedCIFEXRPCService;
@@ -39,7 +40,6 @@ import ch.systemsx.cisd.cifex.server.CIFEXServiceImpl;
 import ch.systemsx.cisd.cifex.server.business.IBusinessContext;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.utilities.Template;
 
 /**

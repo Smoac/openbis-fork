@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exceptions;
+package ch.systemsx.cisd.base.exceptions;
 
 /**
  * An exception that signals that <code>Thread.stop()</code> has been called on the current thread.

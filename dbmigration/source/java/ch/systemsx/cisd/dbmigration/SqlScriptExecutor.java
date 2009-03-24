@@ -27,10 +27,10 @@ import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutionLogger;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 

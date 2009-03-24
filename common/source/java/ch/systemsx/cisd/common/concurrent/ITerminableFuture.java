@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.concurrent;
 
 import java.util.concurrent.Future;
 
-import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
+import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 
 /**

@@ -23,8 +23,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.concurrent.ExecutionStatus;
-import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
  * Class that keeps around the result of running an Operating System process.

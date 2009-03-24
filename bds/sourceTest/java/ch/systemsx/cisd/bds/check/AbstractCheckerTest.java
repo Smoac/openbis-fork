@@ -21,10 +21,10 @@ import java.io.File;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
 import ch.systemsx.cisd.common.test.Retry10;
-import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
  * An abstract test class for the checkers.

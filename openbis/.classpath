@@ -48,5 +48,6 @@
 	<classpathentry kind="lib" path="/libraries/beanlib-hibernate/beanlib-hibernate.jar" sourcepath="/libraries/beanlib-hibernate/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/beanlib/beanlib.jar" sourcepath="/libraries/beanlib/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/apgdiff/apgdiff.jar" sourcepath="/libraries/apgdiff/src.zip"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/base"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
