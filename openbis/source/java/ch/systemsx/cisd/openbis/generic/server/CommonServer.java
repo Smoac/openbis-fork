@@ -28,6 +28,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.DataStoreServerSessionManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;

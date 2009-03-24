@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.DataStoreServerSessionManager;
+import ch.systemsx.cisd.openbis.generic.server.business.DataStoreServerSessionManager;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;

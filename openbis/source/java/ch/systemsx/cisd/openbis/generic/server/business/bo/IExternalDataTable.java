@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.server.DataStoreServerSessionManager;
+import ch.systemsx.cisd.openbis.generic.server.business.DataStoreServerSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;

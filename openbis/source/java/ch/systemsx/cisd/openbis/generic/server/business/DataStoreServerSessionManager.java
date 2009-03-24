@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server;
+package ch.systemsx.cisd.openbis.generic.server.business;
 
 import java.util.ArrayList;
 import java.util.Collection;

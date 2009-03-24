@@ -24,7 +24,7 @@ import java.util.Set;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.DataStoreServerSessionManager;
+import ch.systemsx.cisd.openbis.generic.server.business.DataStoreServerSessionManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
