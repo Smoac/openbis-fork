@@ -130,36 +130,6 @@ public final class FileUtilities
             }
         }
     }
-    
-    /**
-     * Copies the source directory recursively to the destination directory
-     * 
-     * @param sourcePath source which will be copied
-     * @param destinationPath where the copy will be made
-     */
-    public static void copyDirectory(File sourcePath, File destinationPath)
-    {
-        if (sourcePath.isDirectory())
-        {
-            if (!destinationPath.exists())
-            {
-                destinationPath.mkdir();
-            }
-            String files[] = sourcePath.list();
-            for (int i = 0; i < files.length; i++)
-            {
-                copyDirectory(new File(sourcePath, files[i]), new File(destinationPath, files[i]));
-            }
-        } else
-        {
-            if (!sourcePath.exists())
-            {
-                throw new EnvironmentFailureException("File or directory does not exist: "
-                        + sourcePath);
-            }
-            copyFileTo(sourcePath, destinationPath, false);
-        }
-    }
 
     /**
      * Loads a text file to a {@link String}.
