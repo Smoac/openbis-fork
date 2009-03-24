@@ -21,7 +21,7 @@ import java.io.Serializable;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 
 /**
- * 
+ * Context data needed for uploading data sets to a CIFEX server.
  *
  * @author Franz-Josef Elmer
  */
@@ -36,6 +36,8 @@ public class DataSetUploadContext implements Serializable
     private String password;
     
     private String comment;
+
+    private String email;
 
     public final String getCifexURL()
     {
@@ -75,5 +77,15 @@ public class DataSetUploadContext implements Serializable
     public final void setComment(String comment)
     {
         this.comment = comment;
+    }
+    
+    public final String getUserEMail()
+    {
+        return email;
+    }
+
+    public final void setUserEMail(String email)
+    {
+        this.email = email;
     }
 }
