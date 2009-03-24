@@ -156,6 +156,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         uploadContext.setCifexURL(cifexURL);
         uploadContext.setUserID(session.getUserName());
         uploadContext.setPassword(password);
+        uploadContext.setUserEMail(session.getPrincipal().getEmail());
         uploadContext.setComment(createUploadComment());
         for (DataStoreServerSession dssSession : sessions)
         {
