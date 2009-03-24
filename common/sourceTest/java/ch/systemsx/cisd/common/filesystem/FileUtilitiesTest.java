@@ -24,17 +24,14 @@ import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.Constants;
@@ -372,67 +369,6 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         root = workingDirectory.getAbsolutePath();
         relativeFile = FileUtilities.getRelativeFile(new File(root), file);
         assertEquals("hello", relativeFile);
-    }
-
-    @Test(expectedExceptions = IllegalArgumentException.class)
-    public final void testCopyResourceToTempFileIllegalResource()
-    {
-        FileUtilities.copyResourceToTempFile("nonexistent", "pre", "post");
-    }
-
-    @Test
-    public final void testCopyResourceToTempFile()
-    {
-        final String resourceName =
-                "/" + FileUtilities.class.getCanonicalName().replaceAll("\\.", "/") + ".class";
-        final String absoluteTempFileName =
-                FileUtilities.copyResourceToTempFile(resourceName, "pre", "post");
-        assertNotNull(absoluteTempFileName);
-        final File tempFile = new File(absoluteTempFileName);
-        final String tempFileName = tempFile.getName();
-        assertTrue(tempFile.exists());
-        assertTrue(tempFile.length() > 0);
-        assertTrue(tempFileName.startsWith("pre"));
-        assertTrue(tempFileName.endsWith("post"));
-        assertTrue(Arrays.equals(resourceToByteArray(resourceName),
-                fileToByteArray(absoluteTempFileName)));
-
-    }
-
-    private byte[] resourceToByteArray(String resourcename)
-    {
-        final InputStream is = FileUtilitiesTest.class.getResourceAsStream(resourcename);
-        if (is == null)
-        {
-            return null;
-        }
-        try
-        {
-            return IOUtils.toByteArray(is);
-        } catch (IOException ex)
-        {
-            return null;
-        } finally
-        {
-            IOUtils.closeQuietly(is);
-        }
-    }
-
-    private byte[] fileToByteArray(String filename)
-    {
-        InputStream is = null;
-        try
-        {
-            is = new FileInputStream(filename);
-            return IOUtils.toByteArray(is);
-        } catch (IOException ex)
-        {
-            return null;
-        } finally
-        {
-            IOUtils.closeQuietly(is);
-        }
-
     }
 
     private class CountingActivityObserver implements IActivityObserver

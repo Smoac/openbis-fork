@@ -22,7 +22,7 @@ import java.io.IOException;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.WrappedIOException;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.utilities.NativeLibraryUtilities;
 
 /**
  * A utility class that provides access to common Unix system calls. Obviously, this will only work
@@ -47,7 +47,7 @@ public class Unix
 
     static
     {
-        operational = FileUtilities.loadNativeLibraryFromResource("unix");
+        operational = NativeLibraryUtilities.loadNativeLibraryFromResource("unix");
         if (operational)
         {
             init();
