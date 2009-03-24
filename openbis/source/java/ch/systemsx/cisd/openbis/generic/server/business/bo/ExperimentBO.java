@@ -323,14 +323,11 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
 
     private void updateProperties(List<ExperimentProperty> properties)
     {
-        final ArrayList<ExperimentPropertyPE> existingProperties =
-                new ArrayList<ExperimentPropertyPE>(experiment.getProperties());
-        final String type = experiment.getExperimentType().getCode();
-        final ExperimentProperty[] newProperties =
-                properties.toArray(ExperimentProperty.EMPTY_ARRAY);
+        final Set<ExperimentPropertyPE> existingProperties = experiment.getProperties();
+        final ExperimentTypePE type = experiment.getExperimentType();
         final PersonPE registrator = findRegistrator();
         experiment.setProperties(propertiesConverter.updateProperties(existingProperties, type,
-                newProperties, registrator));
+                properties, registrator));
     }
 
 }

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -29,7 +30,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
@@ -183,11 +183,10 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return entityTypePropertyType;
     }
 
-    private final <T extends EntityPropertyPE, ET extends EntityType, ETPT extends EntityTypePropertyType<ET>> T tryConvertProperty(
-            final PersonPE registrator, final EntityTypePE entityTypePE,
-            final EntityProperty<ET, ETPT> property)
+    private final <T extends EntityPropertyPE> T tryConvertProperty(final PersonPE registrator,
+            final EntityTypePE entityTypePE, final EntityProperty<?, ?> property)
     {
-        final ETPT entityTypePropertyType = property.getEntityTypePropertyType();
+        EntityTypePropertyType<?> entityTypePropertyType = property.getEntityTypePropertyType();
         final String propertyCode = entityTypePropertyType.getPropertyType().getCode();
         final PropertyTypePE propertyType = getPropertyType(propertyCode);
         final String valueOrNull = property.getValue();
@@ -225,8 +224,16 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     // IEntityPropertiesConverter
     //
 
-    public final <T extends EntityPropertyPE, ET extends EntityType, ETPT extends EntityTypePropertyType<ET>> List<T> convertProperties(
-            final EntityProperty<ET, ETPT>[] properties, final String entityTypeCode,
+    private final <T extends EntityPropertyPE> List<T> convertProperties(
+            final List<? extends EntityProperty<?, ?>> properties, final String entityTypeCode,
+            final PersonPE registrator)
+    {
+        EntityProperty<?, ?>[] propsArray = properties.toArray(new EntityProperty<?, ?>[0]);
+        return convertProperties(propsArray, entityTypeCode, registrator);
+    }
+
+    public final <T extends EntityPropertyPE> List<T> convertProperties(
+            final EntityProperty<?, ?>[] properties, final String entityTypeCode,
             final PersonPE registrator)
     {
         assert entityTypeCode != null : "Unspecified entity type code.";
@@ -238,7 +245,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         }
         final EntityTypePE entityTypePE = getEntityType(entityTypeCode);
         final List<T> list = new ArrayList<T>();
-        for (final EntityProperty<ET, ETPT> property : properties)
+        for (final EntityProperty<?, ?> property : properties)
         {
             final T convertedPropertyOrNull =
                     tryConvertProperty(registrator, entityTypePE, property);
@@ -250,9 +257,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return list;
     }
 
-    public final <T extends EntityPropertyPE, ET extends EntityType, ETPT extends EntityTypePropertyType<ET>> T createProperty(
-            PropertyTypePE propertyType, EntityTypePropertyTypePE entityTypPropertyType,
-            final PersonPE registrator, String value)
+    public final <T extends EntityPropertyPE> T createProperty(PropertyTypePE propertyType,
+            EntityTypePropertyTypePE entityTypPropertyType, final PersonPE registrator, String value)
     {
         if (entityTypPropertyType.isMandatory() && value == null)
         {
@@ -268,41 +274,40 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return null;
     }
 
-    public <T extends EntityPropertyPE, ET extends EntityType, ETPT extends EntityTypePropertyType<ET>, P extends EntityProperty<ET, ETPT>> Set<T> updateProperties(
-            List<T> oldProperties, String experiemntTypeCode, P[] newProperties,
+    public <T extends EntityPropertyPE, P extends EntityProperty<?, ?>> Set<T> updateProperties(
+            Collection<T> oldProperties, EntityTypePE entityType, List<P> newProperties,
             PersonPE registrator)
     {
         final List<T> convertedProperties =
-                convertProperties(newProperties, experiemntTypeCode, registrator);
+                convertProperties(newProperties, entityType.getCode(), registrator);
         final Set<T> set = new HashSet<T>();
-        for (T p : convertedProperties)
+        for (T newProperty : convertedProperties)
         {
-            int index = find(oldProperties, p);
-            if (index > -1)
+            T existingProperty = tryFind(oldProperties, newProperty);
+            if (existingProperty != null)
             {
-                final T existingProperty = oldProperties.get(index);
-                existingProperty.setUntypedValue(p.getValue(), p.getVocabularyTerm(), p
-                        .getMaterialValue());
+                existingProperty.setUntypedValue(newProperty.getValue(), newProperty
+                        .getVocabularyTerm(), newProperty.getMaterialValue());
                 set.add(existingProperty);
             } else
             {
-                set.add(p);
+                set.add(newProperty);
             }
         }
         return set;
     }
 
-    static private <T extends EntityPropertyPE> int find(List<T> oldProperties, T p)
+    private static <T extends EntityPropertyPE> T tryFind(Collection<T> oldProperties, T p)
     {
-        for (int i = 0; i < oldProperties.size(); i++)
+        for (T oldProperty : oldProperties)
         {
-            if (oldProperties.get(i).getEntityTypePropertyType().getPropertyType().equals(
+            if (oldProperty.getEntityTypePropertyType().getPropertyType().equals(
                     p.getEntityTypePropertyType().getPropertyType()))
             {
-                return i;
+                return oldProperty;
             }
         }
-        return -1;
+        return null;
     }
 
     //

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
@@ -27,6 +28,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -113,13 +115,11 @@ public final class MaterialBO extends AbstractBusinessObject implements IMateria
 
     private void updateProperties(List<MaterialProperty> properties)
     {
-        final ArrayList<MaterialPropertyPE> existingProperties =
-                new ArrayList<MaterialPropertyPE>(material.getProperties());
-        final String type = material.getMaterialType().getCode();
-        final MaterialProperty[] newProperties = properties.toArray(MaterialProperty.EMPTY_ARRAY);
+        final Set<MaterialPropertyPE> existingProperties = material.getProperties();
+        final EntityTypePE type = material.getMaterialType();
         final PersonPE registrator = findRegistrator();
         material.setProperties(propertiesConverter.updateProperties(existingProperties, type,
-                newProperties, registrator));
+                properties, registrator));
     }
 
     public MaterialPE getMaterial()

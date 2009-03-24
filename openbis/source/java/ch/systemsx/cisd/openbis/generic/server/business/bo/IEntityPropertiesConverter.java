@@ -16,13 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -45,19 +45,19 @@ public interface IEntityPropertiesConverter
      * 
      * @param registrator Will appear in the objects of the output.
      */
-    public <T extends EntityPropertyPE, ET extends EntityType, ETPT extends EntityTypePropertyType<ET>> List<T> convertProperties(
-            final EntityProperty<ET, ETPT>[] properties, final String entityTypeCode,
+    public <T extends EntityPropertyPE> List<T> convertProperties(
+            final EntityProperty<?, ?>[] properties, final String entityTypeCode,
             final PersonPE registrator);
 
     /**
      * Creates {@link EntityPropertyPE}.
      */
-    public <T extends EntityPropertyPE, ET extends EntityType, ETPT extends EntityTypePropertyType<ET>> T createProperty(
-            PropertyTypePE propertyType, EntityTypePropertyTypePE entityTypePropertyType,
-            final PersonPE registrator, String value);
+    public <T extends EntityPropertyPE> T createProperty(PropertyTypePE propertyType,
+            EntityTypePropertyTypePE entityTypePropertyType, final PersonPE registrator,
+            String value);
 
     /** Updates Set<T> of properties. */
-    public <T extends EntityPropertyPE, ET extends EntityType, ETPT extends EntityTypePropertyType<ET>, P extends EntityProperty<ET, ETPT>> Set<T> updateProperties(
-            List<T> oldProperties, String experiemntTypeCode, P[] newProperties,
+    public <T extends EntityPropertyPE, P extends EntityProperty<?, ?>> Set<T> updateProperties(
+            Collection<T> oldProperties, EntityTypePE entityType, List<P> newProperties,
             PersonPE registrator);
 }

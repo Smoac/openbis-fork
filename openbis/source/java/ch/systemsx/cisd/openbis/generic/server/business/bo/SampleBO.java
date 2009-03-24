@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -323,12 +324,10 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
 
     private void updateProperties(List<SampleProperty> properties)
     {
-        final ArrayList<SamplePropertyPE> existingProperties =
-                new ArrayList<SamplePropertyPE>(sample.getProperties());
-        final String type = sample.getSampleType().getCode();
-        final SampleProperty[] newProperties = properties.toArray(SampleProperty.EMPTY_ARRAY);
+        final Set<SamplePropertyPE> existingProperties = sample.getProperties();
+        final EntityTypePE type = sample.getSampleType();
         final PersonPE registrator = findRegistrator();
         sample.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
-                newProperties, registrator));
+                properties, registrator));
     }
 }
