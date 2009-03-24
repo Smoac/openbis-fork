@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import ch.systemsx.cisd.common.exceptions.HardStopException;
+import ch.systemsx.cisd.common.exceptions.StopException;
 
 /**
  * A class that provides the framework for guarding a {@link Thread} such that it can be stopped
@@ -53,7 +53,7 @@ final class ThreadGuard
     @SuppressWarnings("deprecation")
     private static void stopNow(Thread t)
     {
-        t.stop(new HardStopException());
+        t.stop(new StopException());
     }
 
     // Do not synchronize this or things will stop working!

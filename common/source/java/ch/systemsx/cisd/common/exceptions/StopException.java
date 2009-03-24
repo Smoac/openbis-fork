@@ -21,7 +21,7 @@ package ch.systemsx.cisd.common.exceptions;
  *
  * @author Bernd Rinn
  */
-public class HardStopException extends InterruptedExceptionUnchecked
+public class StopException extends InterruptedExceptionUnchecked
 {
 
     private static final long serialVersionUID = 1L;

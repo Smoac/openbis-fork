@@ -19,7 +19,7 @@ package ch.systemsx.cisd.common.concurrent;
 import java.util.concurrent.Callable;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.HardStopException;
+import ch.systemsx.cisd.common.exceptions.StopException;
 import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 
@@ -323,7 +323,7 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
             if (throwableOrNull == null)
             {
                 cause = FinishCause.COMPLETED;
-            } else if (throwableOrNull instanceof HardStopException)
+            } else if (throwableOrNull instanceof StopException)
             {
                 cause = FinishCause.STOPPED;
             } else if (throwableOrNull instanceof InterruptedExceptionUnchecked
