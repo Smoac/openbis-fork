@@ -109,7 +109,7 @@
         </property>
     </bean>
     
-    <bean id="dss-session-manager" class="ch.systemsx.cisd.openbis.generic.server.DataStoreServerSessionManager"/>
+    <bean id="dss-session-manager" class="ch.systemsx.cisd.openbis.generic.server.business.DataStoreServerSessionManager"/>
 
     <bean id="exception-translator"
         class="ch.systemsx.cisd.common.spring.ServiceExceptionTranslator">
