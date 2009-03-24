@@ -62,7 +62,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.SearchAnalyzer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -328,9 +327,9 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         }
     }
 
-    public List<DataSetSearchHitDTO> searchForDataSets(final DataSetSearchCriteria criteria)
+    public List<ExternalDataPE> searchForDataSets(final DataSetSearchCriteria criteria)
     {
-        final List<DataSetSearchHitDTO> list =
+        final List<ExternalDataPE> list =
                 AbstractDAO.cast((List<?>) getHibernateTemplate().execute(new HibernateCallback()
                     {
                         public final Object doInHibernate(final Session session)
@@ -348,7 +347,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         return list;
     }
 
-    private List<DataSetSearchHitDTO> searchForDataSets(Session session,
+    private List<ExternalDataPE> searchForDataSets(Session session,
             DataSetSearchCriteria datasetSearchCriteria)
     {
         BooleanQuery query = new BooleanQuery();
@@ -372,7 +371,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         // NOTE: there is a limit on the number of JOINs, so we have to initialize sample properties
         // manually
         initSamplesWithProperties(datasets);
-        return asDataSetHits(datasets);
+        return datasets;
     }
 
     private void initSamplesWithProperties(List<ExternalDataPE> datasets)
@@ -394,13 +393,5 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         }
     }
 
-    private static List<DataSetSearchHitDTO> asDataSetHits(List<ExternalDataPE> datasets)
-    {
-        List<DataSetSearchHitDTO> result = new ArrayList<DataSetSearchHitDTO>();
-        for (ExternalDataPE dataset : datasets)
-        {
-            result.add(new DataSetSearchHitDTO(dataset));
-        }
-        return result;
-    }
+
 }

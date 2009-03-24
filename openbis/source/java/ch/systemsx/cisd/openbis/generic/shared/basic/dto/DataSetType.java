@@ -16,28 +16,27 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 
 /**
- * The <i>GWT</i> counterpart to
- * {@link ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind}.
+ * The <i>GWT</i> equivalent to {@link DataSetTypePE}.
  * 
- * @author Christian Ribeaud
+ * @author Izabela Adamczyk
  */
-public enum EntityKind implements IsSerializable
+public class DataSetType extends EntityType
 {
-    MATERIAL("Material"), EXPERIMENT("Experiment"), SAMPLE("Sample"), DATA_SET("Data Set");
+    private List<DataSetTypePropertyType> dataSetTypePropertyTypes;
 
-    private final String description;
-
-    private EntityKind(final String description)
+    public List<DataSetTypePropertyType> getDataSetTypePropertyTypes()
     {
-        this.description = description;
+        return dataSetTypePropertyTypes;
     }
 
-    public final String getDescription()
+    public void setDataSetTypePropertyTypes(
+            List<DataSetTypePropertyType> dataSetTypePropertyTypes)
     {
-        return description;
+        this.dataSetTypePropertyTypes = dataSetTypePropertyTypes;
     }
-
 }

@@ -14,25 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.dto;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 
 /**
- * Single result of data set search.
+ * The {@link EntityTypePropertyType} extension for <i>Data Set Type</i>.
  * 
  * @author Izabela Adamczyk
  */
-public class DataSetSearchHitDTO
+public class DataSetTypePropertyType extends EntityTypePropertyType<DataSetType> implements
+        IsSerializable
 {
-    private final ExternalDataPE dataSet;
-
-    public DataSetSearchHitDTO(ExternalDataPE dataSet)
+    public DataSetTypePropertyType()
     {
-        this.dataSet = dataSet;
+        super(EntityKind.DATA_SET);
     }
-
-    public ExternalDataPE getDataSet()
-    {
-        return dataSet;
-    }
-
 }

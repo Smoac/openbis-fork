@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -59,316 +60,377 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
  * 
  * @author Franz-Josef Elmer
  */
-public interface ICommonClientService extends IClientService
-{
-    /**
-     * Returns a list of all groups which belong to the specified database instance.
-     */
-    public List<Group> listGroups(String databaseInstanceCode) throws UserFailureException;
+public interface ICommonClientService extends IClientService {
+	/**
+	 * Returns a list of all groups which belong to the specified database
+	 * instance.
+	 */
+	public List<Group> listGroups(String databaseInstanceCode)
+			throws UserFailureException;
 
-    /**
-     * Registers a new group with specified code and optional description and group leader ID.
-     */
-    public void registerGroup(String groupCode, String descriptionOrNull, String groupLeaderOrNull)
-            throws UserFailureException;
+	/**
+	 * Registers a new group with specified code and optional description and
+	 * group leader ID.
+	 */
+	public void registerGroup(String groupCode, String descriptionOrNull,
+			String groupLeaderOrNull) throws UserFailureException;
 
-    /**
-     * Returns a list of all persons which belong to the current database instance.
-     */
-    public List<Person> listPersons() throws UserFailureException;
+	/**
+	 * Returns a list of all persons which belong to the current database
+	 * instance.
+	 */
+	public List<Person> listPersons() throws UserFailureException;
 
-    /**
-     * Registers a new person with specified code.
-     */
-    public void registerPerson(String code) throws UserFailureException;
+	/**
+	 * Registers a new person with specified code.
+	 */
+	public void registerPerson(String code) throws UserFailureException;
 
-    /**
-     * Returns a list of all roles.
-     */
-    public List<RoleAssignment> listRoles() throws UserFailureException;
+	/**
+	 * Returns a list of all roles.
+	 */
+	public List<RoleAssignment> listRoles() throws UserFailureException;
 
-    /**
-     * Registers a new role from given role set code, group code and person code
-     */
-    public void registerGroupRole(RoleSetCode roleSetCode, String group, String person)
-            throws UserFailureException;
+	/**
+	 * Registers a new role from given role set code, group code and person code
+	 */
+	public void registerGroupRole(RoleSetCode roleSetCode, String group,
+			String person) throws UserFailureException;
 
-    /**
-     * Deletes the role described by given role set code, group code and person code
-     */
-    public void deleteGroupRole(RoleSetCode roleSetCode, String group, String person)
-            throws UserFailureException;
+	/**
+	 * Deletes the role described by given role set code, group code and person
+	 * code
+	 */
+	public void deleteGroupRole(RoleSetCode roleSetCode, String group,
+			String person) throws UserFailureException;
 
-    /**
-     * Registers a new role from given role set code and person code
-     */
-    public void registerInstanceRole(RoleSetCode roleSetCode, String person)
-            throws UserFailureException;
+	/**
+	 * Registers a new role from given role set code and person code
+	 */
+	public void registerInstanceRole(RoleSetCode roleSetCode, String person)
+			throws UserFailureException;
 
-    /**
-     * Deletes the role described by given role set code and person code
-     */
-    public void deleteInstanceRole(RoleSetCode roleSetCode, String person)
-            throws UserFailureException;
+	/**
+	 * Deletes the role described by given role set code and person code
+	 */
+	public void deleteInstanceRole(RoleSetCode roleSetCode, String person)
+			throws UserFailureException;
 
-    /**
-     * Returns a list of sample types.
-     */
-    public List<SampleType> listSampleTypes() throws UserFailureException;
+	/**
+	 * Returns a list of sample types.
+	 */
+	public List<SampleType> listSampleTypes() throws UserFailureException;
 
-    /**
-     * Returns a list of samples for given sample type.
-     */
-    public ResultSet<Sample> listSamples(final ListSampleCriteria criteria)
-            throws UserFailureException;
+	/**
+	 * Returns a list of samples for given sample type.
+	 */
+	public ResultSet<Sample> listSamples(final ListSampleCriteria criteria)
+			throws UserFailureException;
 
-    /**
-     * Returns a key which can be used be the export servlet (and eventually
-     * {@link #getExportTable(String, String)}) to reference the export criteria in an easy way.
-     */
-    public String prepareExportSamples(final TableExportCriteria<Sample> criteria)
-            throws UserFailureException;
+	/**
+	 * Returns a key which can be used be the export servlet (and eventually
+	 * {@link #getExportTable(String, String)}) to reference the export criteria
+	 * in an easy way.
+	 */
+	public String prepareExportSamples(
+			final TableExportCriteria<Sample> criteria)
+			throws UserFailureException;
 
-    /**
-     * Returns a list of experiments.
-     */
-    public ResultSet<Experiment> listExperiments(final ListExperimentsCriteria criteria)
-            throws UserFailureException;
+	/**
+	 * Returns a list of experiments.
+	 */
+	public ResultSet<Experiment> listExperiments(
+			final ListExperimentsCriteria criteria) throws UserFailureException;
 
-    /**
-     * Returns a list of materials.
-     */
-    public ResultSet<Material> listMaterials(final ListMaterialCriteria criteria)
-            throws UserFailureException;
+	/**
+	 * Returns a list of materials.
+	 */
+	public ResultSet<Material> listMaterials(final ListMaterialCriteria criteria)
+			throws UserFailureException;
 
-    /**
-     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for experiments.
-     */
+	/**
+	 * Like {@link #prepareExportSamples(TableExportCriteria)}, but for
+	 * experiments.
+	 */
 
-    public String prepareExportExperiments(final TableExportCriteria<Experiment> criteria)
-            throws UserFailureException;
+	public String prepareExportExperiments(
+			final TableExportCriteria<Experiment> criteria)
+			throws UserFailureException;
 
-    /**
-     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for data set search hits.
-     */
-    public String prepareExportDataSetSearchHits(TableExportCriteria<ExternalData> exportCriteria)
-            throws UserFailureException;
+	/**
+	 * Like {@link #prepareExportSamples(TableExportCriteria)}, but for data set
+	 * search hits.
+	 */
+	public String prepareExportDataSetSearchHits(
+			TableExportCriteria<ExternalData> exportCriteria)
+			throws UserFailureException;
 
-    /**
-     * Lists the entities matching the search.
-     */
-    public ResultSet<MatchingEntity> listMatchingEntities(
-            final SearchableEntity searchableEntityOrNull, final String queryText,
-            final IResultSetConfig<String, MatchingEntity> resultSetConfig)
-            throws UserFailureException;
+	/**
+	 * Lists the entities matching the search.
+	 */
+	public ResultSet<MatchingEntity> listMatchingEntities(
+			final SearchableEntity searchableEntityOrNull,
+			final String queryText,
+			final IResultSetConfig<String, MatchingEntity> resultSetConfig)
+			throws UserFailureException;
 
-    /**
-     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for matching entites.
-     */
-    public String prepareExportMatchingEntities(final TableExportCriteria<MatchingEntity> criteria)
-            throws UserFailureException;
+	/**
+	 * Like {@link #prepareExportSamples(TableExportCriteria)}, but for matching
+	 * entites.
+	 */
+	public String prepareExportMatchingEntities(
+			final TableExportCriteria<MatchingEntity> criteria)
+			throws UserFailureException;
 
-    /**
-     * Returns a chunk of the property types list.
-     */
-    public ResultSet<PropertyType> listPropertyTypes(
-            DefaultResultSetConfig<String, PropertyType> criteria) throws UserFailureException;
+	/**
+	 * Returns a chunk of the property types list.
+	 */
+	public ResultSet<PropertyType> listPropertyTypes(
+			DefaultResultSetConfig<String, PropertyType> criteria)
+			throws UserFailureException;
 
-    /**
-     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for property types.
-     */
-    public String prepareExportPropertyTypes(final TableExportCriteria<PropertyType> criteria)
-            throws UserFailureException;
+	/**
+	 * Like {@link #prepareExportSamples(TableExportCriteria)}, but for property
+	 * types.
+	 */
+	public String prepareExportPropertyTypes(
+			final TableExportCriteria<PropertyType> criteria)
+			throws UserFailureException;
 
-    /**
-     * Returns a chunk of the property types assignment list.
-     */
-    public ResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignments(
-            DefaultResultSetConfig<String, EntityTypePropertyType<?>> criteria);
+	/**
+	 * Returns a chunk of the property types assignment list.
+	 */
+	public ResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignments(
+			DefaultResultSetConfig<String, EntityTypePropertyType<?>> criteria);
 
-    /**
-     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for property types assignments.
-     */
-    public String prepareExportPropertyTypeAssignments(
-            final TableExportCriteria<EntityTypePropertyType<?>> criteria)
-            throws UserFailureException;
+	/**
+	 * Like {@link #prepareExportSamples(TableExportCriteria)}, but for property
+	 * types assignments.
+	 */
+	public String prepareExportPropertyTypeAssignments(
+			final TableExportCriteria<EntityTypePropertyType<?>> criteria)
+			throws UserFailureException;
 
-    /**
-     * Returns a list of all projects.
-     */
-    public ResultSet<Project> listProjects(DefaultResultSetConfig<String, Project> criteria)
-            throws UserFailureException;
+	/**
+	 * Returns a list of all projects.
+	 */
+	public ResultSet<Project> listProjects(
+			DefaultResultSetConfig<String, Project> criteria)
+			throws UserFailureException;
 
-    /**
-     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for projects.
-     */
-    public String prepareExportProjects(final TableExportCriteria<Project> criteria)
-            throws UserFailureException;
+	/**
+	 * Like {@link #prepareExportSamples(TableExportCriteria)}, but for
+	 * projects.
+	 */
+	public String prepareExportProjects(
+			final TableExportCriteria<Project> criteria)
+			throws UserFailureException;
 
-    /**
-     * Returns a list of all vocabularies.
-     * <p>
-     * Note that the vocabulary terms are included/loaded.
-     * </p>
-     */
-    public ResultSet<Vocabulary> listVocabularies(boolean withTerms, boolean excludeInternal,
-            DefaultResultSetConfig<String, Vocabulary> criteria) throws UserFailureException;
+	/**
+	 * Returns a list of all vocabularies.
+	 * <p>
+	 * Note that the vocabulary terms are included/loaded.
+	 * </p>
+	 */
+	public ResultSet<Vocabulary> listVocabularies(boolean withTerms,
+			boolean excludeInternal,
+			DefaultResultSetConfig<String, Vocabulary> criteria)
+			throws UserFailureException;
 
-    /**
-     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for Vocabularies.
-     */
-    public String prepareExportVocabularies(final TableExportCriteria<Vocabulary> criteria)
-            throws UserFailureException;
+	/**
+	 * Like {@link #prepareExportSamples(TableExportCriteria)}, but for
+	 * Vocabularies.
+	 */
+	public String prepareExportVocabularies(
+			final TableExportCriteria<Vocabulary> criteria)
+			throws UserFailureException;
 
-    /**
-     * Returns a list of all vocabulary terms for a specified vocabulary.
-     */
-    public ResultSet<VocabularyTermWithStats> listVocabularyTerms(Vocabulary vocabulary,
-            DefaultResultSetConfig<String, VocabularyTermWithStats> resultSetConfig);
+	/**
+	 * Returns a list of all vocabulary terms for a specified vocabulary.
+	 */
+	public ResultSet<VocabularyTermWithStats> listVocabularyTerms(
+			Vocabulary vocabulary,
+			DefaultResultSetConfig<String, VocabularyTermWithStats> resultSetConfig);
 
-    /**
-     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for Vocabulary Terms.
-     */
-    public String prepareExportVocabularyTerms(TableExportCriteria<VocabularyTermWithStats> criteria);
+	/**
+	 * Like {@link #prepareExportSamples(TableExportCriteria)}, but for
+	 * Vocabulary Terms.
+	 */
+	public String prepareExportVocabularyTerms(
+			TableExportCriteria<VocabularyTermWithStats> criteria);
 
-    public ResultSet<? extends EntityType> listMaterialTypes(
-            DefaultResultSetConfig<String, MaterialType> criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+	public ResultSet<? extends EntityType> listMaterialTypes(
+			DefaultResultSetConfig<String, MaterialType> criteria)
+			throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
-    /**
-     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for MaterialType.
-     */
-    public String prepareExportMaterialTypes(final TableExportCriteria<MaterialType> criteria)
-            throws UserFailureException;
+	/**
+	 * Like {@link #prepareExportSamples(TableExportCriteria)}, but for
+	 * MaterialType.
+	 */
+	public String prepareExportMaterialTypes(
+			final TableExportCriteria<MaterialType> criteria)
+			throws UserFailureException;
 
-    public ResultSet<? extends EntityType> listSampleTypes(
-            DefaultResultSetConfig<String, SampleType> criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+	public ResultSet<? extends EntityType> listSampleTypes(
+			DefaultResultSetConfig<String, SampleType> criteria)
+			throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
-    /**
-     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for SampleType.
-     */
-    public String prepareExportSampleTypes(final TableExportCriteria<SampleType> criteria)
-            throws UserFailureException;
+	/**
+	 * Like {@link #prepareExportSamples(TableExportCriteria)}, but for
+	 * SampleType.
+	 */
+	public String prepareExportSampleTypes(
+			final TableExportCriteria<SampleType> criteria)
+			throws UserFailureException;
 
-    public ResultSet<? extends EntityType> listExperimentTypes(
-            DefaultResultSetConfig<String, ExperimentType> criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+	public ResultSet<? extends EntityType> listExperimentTypes(
+			DefaultResultSetConfig<String, ExperimentType> criteria)
+			throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
-    /**
-     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for ExperimentType.
-     */
-    public String prepareExportExperimentTypes(final TableExportCriteria<ExperimentType> criteria)
-            throws UserFailureException;
+	/**
+	 * Like {@link #prepareExportSamples(TableExportCriteria)}, but for
+	 * ExperimentType.
+	 */
+	public String prepareExportExperimentTypes(
+			final TableExportCriteria<ExperimentType> criteria)
+			throws UserFailureException;
 
-    /**
-     * Assumes that preparation of the export ({@link #prepareExportSamples(TableExportCriteria)}
-     * or {@link #prepareExportExperiments(TableExportCriteria)} has been invoked before and
-     * returned with an exportDataKey passed here as a parameter.
-     */
-    public String getExportTable(String exportDataKey, String lineSeparator)
-            throws UserFailureException;
+	/**
+	 * Assumes that preparation of the export (
+	 * {@link #prepareExportSamples(TableExportCriteria)} or
+	 * {@link #prepareExportExperiments(TableExportCriteria)} has been invoked
+	 * before and returned with an exportDataKey passed here as a parameter.
+	 */
+	public String getExportTable(String exportDataKey, String lineSeparator)
+			throws UserFailureException;
 
-    /**
-     * Removes the session result set associated with given key.
-     */
-    public void removeResultSet(final String resultSetKey) throws UserFailureException;
+	/**
+	 * Removes the session result set associated with given key.
+	 */
+	public void removeResultSet(final String resultSetKey)
+			throws UserFailureException;
 
-    /**
-     * For given <var>sampleIdentifier</var> returns corresponding list of {@link ExternalData}.
-     */
-    public ResultSet<ExternalData> listSampleDataSets(final String sampleIdentifier,
-            DefaultResultSetConfig<String, ExternalData> criteria) throws UserFailureException;
+	/**
+	 * For given <var>sampleIdentifier</var> returns corresponding list of
+	 * {@link ExternalData}.
+	 */
+	public ResultSet<ExternalData> listSampleDataSets(
+			final String sampleIdentifier,
+			DefaultResultSetConfig<String, ExternalData> criteria)
+			throws UserFailureException;
 
-    public ResultSet<ExternalData> listExperimentDataSets(String experimentIdentifier,
-            DefaultResultSetConfig<String, ExternalData> criteria) throws UserFailureException;
+	public ResultSet<ExternalData> listExperimentDataSets(
+			String experimentIdentifier,
+			DefaultResultSetConfig<String, ExternalData> criteria)
+			throws UserFailureException;
 
-    /**
-     * Lists the searchable entities.
-     */
-    public List<SearchableEntity> listSearchableEntities() throws UserFailureException;
+	/**
+	 * Lists the searchable entities.
+	 */
+	public List<SearchableEntity> listSearchableEntities()
+			throws UserFailureException;
 
-    /**
-     * Returns a list of all experiment types.
-     */
-    public List<ExperimentType> listExperimentTypes() throws UserFailureException;
+	/**
+	 * Returns a list of all experiment types.
+	 */
+	public List<ExperimentType> listExperimentTypes()
+			throws UserFailureException;
 
-    /**
-     * Returns a list of all data types.
-     */
-    public List<DataType> listDataTypes() throws UserFailureException;
+	/**
+	 * Returns a list of all data types.
+	 */
+	public List<DataType> listDataTypes() throws UserFailureException;
 
-    /**
-     * Assigns property type to entity type.
-     */
-    public String assignPropertyType(EntityKind entityKind, String propertyTypeCode,
-            String entityTypeCode, boolean isMandatory, String defaultValue)
-            throws UserFailureException;
+	/**
+	 * Assigns property type to entity type.
+	 */
+	public String assignPropertyType(EntityKind entityKind,
+			String propertyTypeCode, String entityTypeCode,
+			boolean isMandatory, String defaultValue)
+			throws UserFailureException;
 
-    /**
-     * Registers given {@link PropertyType}.
-     */
-    public void registerPropertyType(final PropertyType propertyType) throws UserFailureException;
+	/**
+	 * Registers given {@link PropertyType}.
+	 */
+	public void registerPropertyType(final PropertyType propertyType)
+			throws UserFailureException;
 
-    /**
-     * Registers given {@link Vocabulary}.
-     */
-    public void registerVocabulary(final Vocabulary vocabulary) throws UserFailureException;
+	/**
+	 * Registers given {@link Vocabulary}.
+	 */
+	public void registerVocabulary(final Vocabulary vocabulary)
+			throws UserFailureException;
 
-    /**
-     * Registers given {@link Project}.
-     */
-    public void registerProject(final Project project) throws UserFailureException;
+	/**
+	 * Registers given {@link Project}.
+	 */
+	public void registerProject(final Project project)
+			throws UserFailureException;
 
-    /**
-     * Returns {@link ExternalData} fulfilling given {@link DataSetSearchCriteria}.
-     */
-    public ResultSet<ExternalData> searchForDataSets(DataSetSearchCriteria criteria,
-            final IResultSetConfig<String, ExternalData> resultSetConfig)
-            throws UserFailureException;
+	/**
+	 * Returns {@link ExternalData} fulfilling given
+	 * {@link DataSetSearchCriteria}.
+	 */
+	public ResultSet<ExternalData> searchForDataSets(
+			DataSetSearchCriteria criteria,
+			final IResultSetConfig<String, ExternalData> resultSetConfig)
+			throws UserFailureException;
 
-    /**
-     * Returns a list of all material types.
-     */
-    public List<MaterialType> listMaterialTypes() throws UserFailureException;
+	/**
+	 * Returns a list of all material types.
+	 */
+	public List<MaterialType> listMaterialTypes() throws UserFailureException;
 
-    /**
-     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for materials.
-     */
-    public String prepareExportMaterials(final TableExportCriteria<Material> criteria)
-            throws UserFailureException;
+	/**
+	 * Like {@link #prepareExportSamples(TableExportCriteria)}, but for
+	 * materials.
+	 */
+	public String prepareExportMaterials(
+			final TableExportCriteria<Material> criteria)
+			throws UserFailureException;
 
-    /** Registers a new material type */
-    public void registerMaterialType(MaterialType entityType) throws UserFailureException;
+	/** Registers a new material type */
+	public void registerMaterialType(MaterialType entityType)
+			throws UserFailureException;
 
-    /** Registers a new sample type */
-    public void registerSampleType(SampleType entityType) throws UserFailureException;
+	/** Registers a new sample type */
+	public void registerSampleType(SampleType entityType)
+			throws UserFailureException;
 
-    /** Registers a new experiment type */
-    public void registerExperimentType(ExperimentType entityType) throws UserFailureException;
+	/** Registers a new experiment type */
+	public void registerExperimentType(ExperimentType entityType)
+			throws UserFailureException;
 
-    /**
-     * Updates experiment.
-     */
-    public void updateExperiment(String attachmentSessionKey, final String experimentIdentifier,
-            List<ExperimentProperty> properties, String newProjectIdentifier, Date version)
-            throws UserFailureException;
+	/**
+	 * Updates experiment.
+	 */
+	public void updateExperiment(String attachmentSessionKey,
+			final String experimentIdentifier,
+			List<ExperimentProperty> properties, String newProjectIdentifier,
+			Date version) throws UserFailureException;
 
-    /**
-     * Updates material.
-     */
-    public void updateMaterial(final String materialIdentifier, List<MaterialProperty> properties,
-            Date version) throws UserFailureException;
+	/**
+	 * Updates material.
+	 */
+	public void updateMaterial(final String materialIdentifier,
+			List<MaterialProperty> properties, Date version)
+			throws UserFailureException;
 
-    /**
-     * Updates sample.
-     */
-    public void updateSample(final String sampleIdentifier, List<SampleProperty> properties,
-            ExperimentIdentifier experimentIdentifierOrNull, Date version)
-            throws UserFailureException;
+	/**
+	 * Updates sample.
+	 */
+	public void updateSample(final String sampleIdentifier,
+			List<SampleProperty> properties,
+			ExperimentIdentifier experimentIdentifierOrNull, Date version)
+			throws UserFailureException;
 
-    /** Deletes the specified data sets. */
-    public void deleteDataSets(List<String> dataSetCodes, String reason)
-            throws UserFailureException;
+	/** Deletes the specified data sets. */
+	public void deleteDataSets(List<String> dataSetCodes, String reason)
+			throws UserFailureException;
+
+	/**
+	 * Returns a list of all available data set types.
+	 */
+	public List<DataSetType> listDataSetTypes() throws UserFailureException;
 
 }

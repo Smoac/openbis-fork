@@ -46,13 +46,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -239,7 +239,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         return codes;
     }
 
-    private List<DataSetSearchHitDTO> searchForDatasets(DataSetSearchCriteria criteria)
+    private List<ExternalDataPE> searchForDatasets(DataSetSearchCriteria criteria)
     {
         final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
         return hibernateSearchDAO.searchForDataSets(criteria);
@@ -250,11 +250,11 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     private void assertCorrectDatasetsFound(DataSetSearchCriteria criteria,
             DSLoc... expectedLocations)
     {
-        List<DataSetSearchHitDTO> dataSets = searchForDatasets(criteria);
+        List<ExternalDataPE> dataSets = searchForDatasets(criteria);
         AssertJUnit.assertEquals(expectedLocations.length, dataSets.size());
-        for (DataSetSearchHitDTO dataSet : dataSets)
+        for (ExternalDataPE dataSet : dataSets)
         {
-            assertContains(expectedLocations, dataSet.getDataSet().getLocation());
+            assertContains(expectedLocations, dataSet.getLocation());
         }
     }
 

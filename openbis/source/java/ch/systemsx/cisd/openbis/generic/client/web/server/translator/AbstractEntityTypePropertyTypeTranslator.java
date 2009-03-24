@@ -23,6 +23,7 @@ import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -65,7 +66,11 @@ abstract public class AbstractEntityTypePropertyTypeTranslator<ET extends Entity
             result.setPropertyType(propertyType);
         } else
         {
-            result.setPropertyType(PropertyTypeTranslator.translate(etptPE.getPropertyType()));
+        	if(entityType != null && (entityType instanceof MaterialType)){
+        		result.setPropertyType(PropertyTypeTranslator.translate(etptPE.getPropertyType(), (MaterialType)entityType));
+            }else{
+            	result.setPropertyType(PropertyTypeTranslator.translate(etptPE.getPropertyType()));
+            }
         }
         if (entityType != null)
         {

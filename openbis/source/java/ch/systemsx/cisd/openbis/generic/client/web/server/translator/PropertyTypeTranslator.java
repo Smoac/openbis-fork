@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
@@ -47,9 +48,8 @@ public final class PropertyTypeTranslator
         return result;
     }
 
-    public final static PropertyType translate(final PropertyTypePE propertyType)
-    {
-        final PropertyType result = new PropertyType();
+    public final static PropertyType translate(final PropertyTypePE propertyType, MaterialType materialType){
+    	final PropertyType result = new PropertyType();
         result.setCode(StringEscapeUtils.escapeHtml(propertyType.getCode()));
         result.setSimpleCode(StringEscapeUtils.escapeHtml(propertyType.getSimpleCode()));
         result.setInternalNamespace(propertyType.isInternalNamespace());
@@ -57,7 +57,11 @@ public final class PropertyTypeTranslator
         result.setLabel(StringEscapeUtils.escapeHtml(propertyType.getLabel()));
         result.setDataType(DataTypeTranslator.translate(propertyType.getType()));
         result.setVocabulary(VocabularyTranslator.translate(propertyType.getVocabulary()));
-        result.setMaterialType(MaterialTypeTranslator.translate(propertyType.getMaterialType()));
+        if(materialType == null){
+        	result.setMaterialType(MaterialTypeTranslator.translate(propertyType.getMaterialType()));
+        }else{
+        	result.setMaterialType(materialType);
+        }
         result.setDescription(StringEscapeUtils.escapeHtml(propertyType.getDescription()));
         result.setSampleTypePropertyTypes(SampleTypePropertyTypeTranslator.translate(propertyType
                 .getSampleTypePropertyTypes(), result));
@@ -66,5 +70,10 @@ public final class PropertyTypeTranslator
         result.setExperimentTypePropertyTypes(ExperimentTypePropertyTypeTranslator.translate(
                 propertyType.getExperimentTypePropertyTypes(), result));
         return result;
+    }
+    
+    public final static PropertyType translate(final PropertyTypePE propertyType)
+    {
+        return translate(propertyType, null);
     }
 }

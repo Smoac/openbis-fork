@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -38,32 +37,22 @@ import org.hibernate.validator.NotNull;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 
 /**
- * Persistence entity representing sample type - property type relation.
+ * Persistence entity representing experiment type - property type relation.
  * 
  * @author Izabela Adamczyk
  */
 @Entity
-@Table(name = TableNames.SAMPLE_TYPE_PROPERTY_TYPE_TABLE, uniqueConstraints = { @UniqueConstraint(columnNames = {
-		ColumnNames.SAMPLE_TYPE_COLUMN, ColumnNames.PROPERTY_TYPE_COLUMN }) })
-public class SampleTypePropertyTypePE extends EntityTypePropertyTypePE {
+@Table(name = TableNames.DATA_SET_TYPE_PROPERTY_TYPE_TABLE, uniqueConstraints = { @UniqueConstraint(columnNames = {
+		ColumnNames.DATA_SET_TYPE_COLUMN, ColumnNames.PROPERTY_TYPE_COLUMN }) })
+public class DataSetTypePropertyTypePE extends EntityTypePropertyTypePE {
+
 	private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
-	public static final SampleTypePropertyTypePE[] EMPTY_ARRAY = new SampleTypePropertyTypePE[0];
+	public static final DataSetTypePropertyTypePE[] EMPTY_ARRAY = new DataSetTypePropertyTypePE[0];
 
-	private boolean displayed;
-
-	@Column(name = ColumnNames.IS_DISPLAYED)
-	public boolean isDisplayed() {
-		return displayed;
-	}
-
-	public void setDisplayed(final boolean displayed) {
-		this.displayed = displayed;
-	}
-
-	@NotNull(message = ValidationMessages.SAMPLE_TYPE_NOT_NULL_MESSAGE)
-	@ManyToOne(fetch = FetchType.EAGER, targetEntity = SampleTypePE.class)
-	@JoinColumn(name = ColumnNames.SAMPLE_TYPE_COLUMN)
+	@NotNull(message = ValidationMessages.DATA_SET_TYPE_NOT_NULL_MESSAGE)
+	@ManyToOne(fetch = FetchType.EAGER, targetEntity = ExperimentTypePE.class)
+	@JoinColumn(name = ColumnNames.DATA_SET_TYPE_COLUMN)
 	private EntityTypePE getEntityTypeInternal() {
 		return entityType;
 	}
@@ -72,7 +61,7 @@ public class SampleTypePropertyTypePE extends EntityTypePropertyTypePE {
 	// EntityTypePropertyTypePE
 	//
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entityTypePropertyType", targetEntity = SamplePropertyPE.class)
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entityTypePropertyType", targetEntity = DataSetPropertyPE.class)
 	public Set<EntityPropertyPE> getPropertyValues() {
 		return propertyValues;
 	}
@@ -87,20 +76,19 @@ public class SampleTypePropertyTypePE extends EntityTypePropertyTypePE {
 	// another internal
 	// plain setter for Hibernate.
 	public void setEntityType(EntityTypePE entityType) {
-		((SampleTypePE) entityType).addSampleTypePropertyType(this);
+		((DataSetTypePE) entityType).addDataSetTypePropertyType(this);
 	}
 
-	@SequenceGenerator(name = SequenceNames.SAMPLE_TYPE_PROPERTY_TYPE_SEQUENCE, sequenceName = SequenceNames.SAMPLE_TYPE_PROPERTY_TYPE_SEQUENCE, allocationSize = 1)
+	@SequenceGenerator(name = SequenceNames.DATA_SET_TYPE_PROPERTY_TYPE_SEQUENCE, sequenceName = SequenceNames.DATA_SET_TYPE_PROPERTY_TYPE_SEQUENCE, allocationSize = 1)
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.SAMPLE_TYPE_PROPERTY_TYPE_SEQUENCE)
-	@Column(insertable = false, updatable = false)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DATA_SET_TYPE_PROPERTY_TYPE_SEQUENCE)
 	public Long getId() {
 		return id;
 	}
 
 	@Override
 	public void setPropertyType(PropertyTypePE propertyType) {
-		propertyType.addSampleTypePropertyType(this);
+		propertyType.addDataSetTypePropertyType(this);
 	}
 
 }

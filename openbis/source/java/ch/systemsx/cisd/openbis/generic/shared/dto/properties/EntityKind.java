@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto.properties;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -37,70 +41,65 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
  * 
  * @author Franz-Josef Elmer
  */
-public enum EntityKind
-{
-    MATERIAL("material", MaterialPE.class, MaterialTypePE.class, MaterialTypePropertyTypePE.class,
-            MaterialPropertyPE.class),
+public enum EntityKind {
+	MATERIAL("material", MaterialPE.class, MaterialTypePE.class,
+			MaterialTypePropertyTypePE.class, MaterialPropertyPE.class),
 
-    EXPERIMENT("experiment", ExperimentPE.class, ExperimentTypePE.class,
-            ExperimentTypePropertyTypePE.class, ExperimentPropertyPE.class),
+	EXPERIMENT("experiment", ExperimentPE.class, ExperimentTypePE.class,
+			ExperimentTypePropertyTypePE.class, ExperimentPropertyPE.class),
 
-    SAMPLE("sample", SamplePE.class, SampleTypePE.class, SampleTypePropertyTypePE.class,
-            SamplePropertyPE.class);
+	SAMPLE("sample", SamplePE.class, SampleTypePE.class,
+			SampleTypePropertyTypePE.class, SamplePropertyPE.class),
 
-    private final String entityLabel;
+	DATA_SET("dataSet", DataPE.class, DataSetTypePE.class,
+			DataSetTypePropertyTypePE.class, DataSetPropertyPE.class);
 
-    private transient final Class<?> entityClass;
+	private final String entityLabel;
 
-    private transient final Class<?> typeClass;
+	private transient final Class<?> entityClass;
 
-    private transient final Class<?> assignmentClass;
+	private transient final Class<?> typeClass;
 
-    private transient final Class<?> propertyClass;
+	private transient final Class<?> assignmentClass;
 
-    private EntityKind(final String entityLabel, final Class<?> entityClass,
-            final Class<?> typeClass, final Class<?> assignmentClass, Class<?> propertyClass)
-    {
-        this.entityLabel = entityLabel;
-        this.entityClass = entityClass;
-        this.typeClass = typeClass;
-        this.assignmentClass = assignmentClass;
-        this.propertyClass = propertyClass;
-    }
+	private transient final Class<?> propertyClass;
 
-    @SuppressWarnings("unchecked")
-    private final static <T> Class<T> cast(final Class<?> clazz)
-    {
-        return (Class<T>) clazz;
-    }
+	private EntityKind(final String entityLabel, final Class<?> entityClass,
+			final Class<?> typeClass, final Class<?> assignmentClass,
+			Class<?> propertyClass) {
+		this.entityLabel = entityLabel;
+		this.entityClass = entityClass;
+		this.typeClass = typeClass;
+		this.assignmentClass = assignmentClass;
+		this.propertyClass = propertyClass;
+	}
 
-    public final String getLabel()
-    {
-        return entityLabel;
-    }
+	@SuppressWarnings("unchecked")
+	private final static <T> Class<T> cast(final Class<?> clazz) {
+		return (Class<T>) clazz;
+	}
 
-    public final <T extends EntityTypePE> Class<T> getTypeClass()
-    {
-        return cast(typeClass);
-    }
+	public final String getLabel() {
+		return entityLabel;
+	}
 
-    public final <T extends EntityTypePropertyTypePE> Class<T> getEntityTypePropertyTypeAssignmentClass()
-    {
-        return cast(assignmentClass);
-    }
+	public final <T extends EntityTypePE> Class<T> getTypeClass() {
+		return cast(typeClass);
+	}
 
-    public final <T extends EntityPropertyPE> Class<T> getEntityPropertyClass()
-    {
-        return cast(propertyClass);
-    }
+	public final <T extends EntityTypePropertyTypePE> Class<T> getEntityTypePropertyTypeAssignmentClass() {
+		return cast(assignmentClass);
+	}
 
-    public final <T> Class<T> getEntityClass()
-    {
-        return cast(entityClass);
-    }
+	public final <T extends EntityPropertyPE> Class<T> getEntityPropertyClass() {
+		return cast(propertyClass);
+	}
 
-    public final String getEntityTypeFieldName()
-    {
-        return entityLabel + "Type";
-    }
+	public final <T> Class<T> getEntityClass() {
+		return cast(entityClass);
+	}
+
+	public final String getEntityTypeFieldName() {
+		return entityLabel + "Type";
+	}
 }

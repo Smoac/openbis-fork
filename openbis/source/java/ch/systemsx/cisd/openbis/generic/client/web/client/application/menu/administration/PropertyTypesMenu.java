@@ -48,6 +48,12 @@ public class PropertyTypesMenu extends MenuItem
         menu.add(new ActionMenu(
                 TopMenu.ActionMenuKind.PROPERTY_TYPES_MENU_ASSIGN_TO_EXPERIMENT_TYPE,
                 messageProvider, componentProvider.getPropertyTypeExperimentTypeAssignmentForm()));
+        menu.add(new ActionMenu(
+                TopMenu.ActionMenuKind.PROPERTY_TYPES_MENU_ASSIGN_TO_MATERIAL_TYPE,
+                messageProvider, componentProvider.getPropertyTypeMaterialTypeAssignmentForm()));
+        menu.add(new ActionMenu(
+                TopMenu.ActionMenuKind.PROPERTY_TYPES_MENU_ASSIGN_TO_DATA_SET_TYPE,
+                messageProvider, componentProvider.getPropertyTypeDataSetTypeAssignmentForm()));
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.PROPERTY_TYPES_MENU_ASSIGN_TO_SAMPLE_TYPE,
                 messageProvider, componentProvider.getPropertyTypeSampleTypeAssignmentForm()));
         setSubMenu(menu);

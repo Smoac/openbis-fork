@@ -5,10 +5,11 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.server.translator.DataSetSearchHitTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExternalDataTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
  * A {@link IOriginalDataProvider} implementation for search data sets.
@@ -35,12 +36,13 @@ final class ListDataSetsOriginalDataProvider extends AbstractOriginalDataProvide
 
     public final List<ExternalData> getOriginalData()
     {
-        final List<DataSetSearchHitDTO> hits =
+        final List<ExternalDataPE> hits =
                 commonServer.searchForDataSets(sessionToken, criteria);
         final List<ExternalData> list = new ArrayList<ExternalData>(hits.size());
-        for (final DataSetSearchHitDTO hit : hits)
+        for (final ExternalDataPE hit : hits)
         {
-            list.add(DataSetSearchHitTranslator.translate(hit, dataStoreBaseURL));
+            list.add(ExternalDataTranslator.translate(hit, dataStoreBaseURL,true,
+                    LoadableFields.PROPERTIES));
         }
         return list;
     }

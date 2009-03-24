@@ -16,6 +16,23 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm.InfoBoxResetListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetTypeSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -32,292 +49,289 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm.InfoBoxResetListener;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-
 /**
  * The property type assignment panel.
  * 
  * @author Izabela Adamczyk
  */
-public final class PropertyTypeAssignmentForm extends LayoutContainer
-{
-    private static final String UNSUPPORTED_ENTITY_KIND = "Unsupported entity kind";
+public final class PropertyTypeAssignmentForm extends LayoutContainer {
+	private static final String UNSUPPORTED_ENTITY_KIND = "Unsupported entity kind";
 
-    private static final int LABEL_WIDTH = 130;
+	private static final int LABEL_WIDTH = 130;
 
-    private static final int FIELD_WIDTH = 400;
+	private static final int FIELD_WIDTH = 400;
 
-    private static final String PREFIX = "property-type-assignment_";
+	private static final String PREFIX = "property-type-assignment_";
 
-    public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
+	public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    public static final String PROPERTY_TYPE_ID_SUFFIX = "property_type";
+	public static final String PROPERTY_TYPE_ID_SUFFIX = "property_type";
 
-    public static final String SAMPLE_TYPE_ID_SUFFIX = ID_PREFIX + "sample_type";
+	public static final String SAMPLE_TYPE_ID_SUFFIX = ID_PREFIX
+			+ "sample_type";
 
-    public static final String EXPERIMENT_TYPE_ID_SUFFIX = ID_PREFIX + "experiment_type";
+	public static final String EXPERIMENT_TYPE_ID_SUFFIX = ID_PREFIX
+			+ "experiment_type";
 
-    public static final String MANDATORY_CHECKBOX_ID_SUFFIX = "mandatory_checkbox";
+	public static final String MATERIAL_TYPE_ID_SUFFIX = ID_PREFIX
+			+ "material_type";
 
-    public static final String SAVE_BUTTON_ID_SUFFIX = "save-button";
+	public static final String DATA_SET_TYPE_ID_SUFFIX = ID_PREFIX
+			+ "data_set_type";
 
-    protected static final String DEFAULT_VALUE_ID_PART = "default_value";
+	public static final String MANDATORY_CHECKBOX_ID_SUFFIX = "mandatory_checkbox";
 
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
+	public static final String SAVE_BUTTON_ID_SUFFIX = "save-button";
 
-    private SampleTypeSelectionWidget sampleTypeSelectionWidget;
+	protected static final String DEFAULT_VALUE_ID_PART = "default_value";
 
-    private ExperimentTypeSelectionWidget experimentTypeSelectionWidget;
+	private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private PropertyTypeSelectionWidget propertyTypeSelectionWidget;
+	private SampleTypeSelectionWidget sampleTypeSelectionWidget;
 
-    private Field<?> defaultValueField;
+	private ExperimentTypeSelectionWidget experimentTypeSelectionWidget;
 
-    private CheckBox mandatoryCheckbox;
+	private MaterialTypeSelectionWidget materialTypeSelectionWidget;
 
-    private final InfoBox infoBox;
+	private DataSetTypeSelectionWidget dataSetTypeSelectionWidget;
 
-    private final FormPanel formPanel;
+	private PropertyTypeSelectionWidget propertyTypeSelectionWidget;
 
-    private final EntityKind entityKind;
+	private Field<?> defaultValueField;
 
-    public PropertyTypeAssignmentForm(final IViewContext<ICommonClientServiceAsync> viewContext,
-            EntityKind entityKind)
-    {
-        this.entityKind = entityKind;
-        setLayout(new FlowLayout(5));
-        setId(createId(entityKind));
-        this.viewContext = viewContext;
-        setScrollMode(Scroll.AUTO);
-        add(infoBox = createInfoBox());
-        add(formPanel = createFormPanel());
-    }
+	private CheckBox mandatoryCheckbox;
 
-    public static final String createId(EntityKind entityKind)
-    {
-        return ID_PREFIX + entityKind.name();
-    }
+	private final InfoBox infoBox;
 
-    private String createChildId(String childSuffix)
-    {
-        return getId() + childSuffix;
-    }
+	private final FormPanel formPanel;
 
-    private final static InfoBox createInfoBox()
-    {
-        final InfoBox infoBox = new InfoBox();
-        return infoBox;
-    }
+	private final EntityKind entityKind;
 
-    private PropertyTypeSelectionWidget getPropertyTypeWidget()
-    {
-        if (propertyTypeSelectionWidget == null)
-        {
-            propertyTypeSelectionWidget =
-                    new PropertyTypeSelectionWidget(viewContext,
-                            createChildId(PROPERTY_TYPE_ID_SUFFIX));
-            propertyTypeSelectionWidget
-                    .addListener(Events.Focus, new InfoBoxResetListener(infoBox));
-            FieldUtil.markAsMandatory(propertyTypeSelectionWidget);
-            propertyTypeSelectionWidget.addListener(Events.SelectionChange,
-                    new Listener<BaseEvent>()
-                        {
-                            public void handleEvent(BaseEvent be)
-                            {
-                                updateDefaultField();
-                            }
-                        });
-        }
-        return propertyTypeSelectionWidget;
-    }
+	public PropertyTypeAssignmentForm(
+			final IViewContext<ICommonClientServiceAsync> viewContext,
+			EntityKind entityKind) {
+		this.entityKind = entityKind;
+		setLayout(new FlowLayout(5));
+		setId(createId(entityKind));
+		this.viewContext = viewContext;
+		setScrollMode(Scroll.AUTO);
+		add(infoBox = createInfoBox());
+		add(formPanel = createFormPanel());
+	}
 
-    private ComboBox<?> getTypeSelectionWidget()
-    {
-        switch (entityKind)
-        {
-            case EXPERIMENT:
-                if (experimentTypeSelectionWidget == null)
-                {
-                    experimentTypeSelectionWidget =
-                            new ExperimentTypeSelectionWidget(viewContext,
-                                    EXPERIMENT_TYPE_ID_SUFFIX);
-                    experimentTypeSelectionWidget.addListener(Events.Focus,
-                            new InfoBoxResetListener(infoBox));
-                    FieldUtil.markAsMandatory(experimentTypeSelectionWidget);
-                }
-                return experimentTypeSelectionWidget;
-            case SAMPLE:
-                if (sampleTypeSelectionWidget == null)
-                {
-                    sampleTypeSelectionWidget =
-                            new SampleTypeSelectionWidget(viewContext, SAMPLE_TYPE_ID_SUFFIX, false);
-                    sampleTypeSelectionWidget.addListener(Events.Focus, new InfoBoxResetListener(
-                            infoBox));
-                    FieldUtil.markAsMandatory(sampleTypeSelectionWidget);
-                }
-                return sampleTypeSelectionWidget;
-            default:
-                throw new IllegalArgumentException(UNSUPPORTED_ENTITY_KIND);
-        }
-    }
+	public static final String createId(EntityKind entityKind) {
+		return ID_PREFIX + entityKind.name();
+	}
 
-    private CheckBox getMandatoryCheckbox()
-    {
-        if (mandatoryCheckbox == null)
-        {
-            mandatoryCheckbox = new CheckBox();
-            mandatoryCheckbox.setId(createChildId(MANDATORY_CHECKBOX_ID_SUFFIX));
-            mandatoryCheckbox.setFieldLabel(viewContext.getMessage(Dict.MANDATORY));
-            mandatoryCheckbox.setValue(false);
-            mandatoryCheckbox.addListener(Events.Change, new InfoBoxResetListener(infoBox));
-        }
-        return mandatoryCheckbox;
-    }
+	private String createChildId(String childSuffix) {
+		return getId() + childSuffix;
+	}
 
-    private final FormPanel createFormPanel()
-    {
-        final FormPanel panel = new FormPanel();
-        panel.setHeaderVisible(false);
-        panel.setBodyBorder(false);
-        panel.setWidth(LABEL_WIDTH + FIELD_WIDTH + 40);
-        panel.setLabelWidth(LABEL_WIDTH);
-        panel.setFieldWidth(FIELD_WIDTH);
-        panel.setButtonAlign(HorizontalAlignment.RIGHT);
-        final Button saveButton = new Button(viewContext.getMessage(Dict.BUTTON_SAVE));
-        saveButton.setStyleAttribute("marginRight", "20px");
-        saveButton.setId(createChildId(SAVE_BUTTON_ID_SUFFIX));
-        saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-            {
-                @Override
-                public final void componentSelected(final ButtonEvent ce)
-                {
-                    submitForm();
-                }
-            });
-        final Button resetButton = new Button(viewContext.getMessage(Dict.BUTTON_RESET));
-        resetButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-            {
-                @Override
-                public final void componentSelected(final ButtonEvent ce)
-                {
-                    resetForm();
-                }
-            });
-        panel.addButton(resetButton);
-        panel.addButton(saveButton);
-        return panel;
-    }
+	private final static InfoBox createInfoBox() {
+		final InfoBox infoBox = new InfoBox();
+		return infoBox;
+	}
 
-    private String getDefaultValue()
-    {
-        if (defaultValueField != null)
-        {
-            return PropertyFieldFactory.valueToString(defaultValueField.getValue());
-        }
-        return null;
-    }
+	private PropertyTypeSelectionWidget getPropertyTypeWidget() {
+		if (propertyTypeSelectionWidget == null) {
+			propertyTypeSelectionWidget = new PropertyTypeSelectionWidget(
+					viewContext, createChildId(PROPERTY_TYPE_ID_SUFFIX));
+			propertyTypeSelectionWidget.addListener(Events.Focus,
+					new InfoBoxResetListener(infoBox));
+			FieldUtil.markAsMandatory(propertyTypeSelectionWidget);
+			propertyTypeSelectionWidget.addListener(Events.SelectionChange,
+					new Listener<BaseEvent>() {
+						public void handleEvent(BaseEvent be) {
+							updateDefaultField();
+						}
+					});
+		}
+		return propertyTypeSelectionWidget;
+	}
 
-    private String getSelectedEntityCode()
-    {
-        switch (entityKind)
-        {
-            case EXPERIMENT:
-                return experimentTypeSelectionWidget.tryGetSelectedExperimentType().getCode();
-            case SAMPLE:
-                return sampleTypeSelectionWidget.tryGetSelectedSampleType().getCode();
-            default:
-                throw new IllegalArgumentException(UNSUPPORTED_ENTITY_KIND);
-        }
-    }
+	private ComboBox<?> getTypeSelectionWidget() {
+		switch (entityKind) {
+		case EXPERIMENT:
+			if (experimentTypeSelectionWidget == null) {
+				experimentTypeSelectionWidget = new ExperimentTypeSelectionWidget(
+						viewContext, EXPERIMENT_TYPE_ID_SUFFIX);
+				experimentTypeSelectionWidget.addListener(Events.Focus,
+						new InfoBoxResetListener(infoBox));
+				FieldUtil.markAsMandatory(experimentTypeSelectionWidget);
+			}
+			return experimentTypeSelectionWidget;
+		case SAMPLE:
+			if (sampleTypeSelectionWidget == null) {
+				sampleTypeSelectionWidget = new SampleTypeSelectionWidget(
+						viewContext, SAMPLE_TYPE_ID_SUFFIX, false);
+				sampleTypeSelectionWidget.addListener(Events.Focus,
+						new InfoBoxResetListener(infoBox));
+				FieldUtil.markAsMandatory(sampleTypeSelectionWidget);
+			}
+			return sampleTypeSelectionWidget;
+		case MATERIAL:
+			if (materialTypeSelectionWidget == null) {
+				materialTypeSelectionWidget = new MaterialTypeSelectionWidget(
+						viewContext, MATERIAL_TYPE_ID_SUFFIX);
+				materialTypeSelectionWidget.addListener(Events.Focus,
+						new InfoBoxResetListener(infoBox));
+				FieldUtil.markAsMandatory(materialTypeSelectionWidget);
+			}
+			return materialTypeSelectionWidget;
+		case DATA_SET:
+			if (dataSetTypeSelectionWidget == null) {
+				dataSetTypeSelectionWidget = new DataSetTypeSelectionWidget(
+						viewContext, DATA_SET_TYPE_ID_SUFFIX);
+				dataSetTypeSelectionWidget.addListener(Events.Focus,
+						new InfoBoxResetListener(infoBox));
+				FieldUtil.markAsMandatory(dataSetTypeSelectionWidget);
+			}
+			return dataSetTypeSelectionWidget;
+		}
+		throw new IllegalArgumentException(UNSUPPORTED_ENTITY_KIND);
+	}
 
-    private final void addFormFields()
-    {
-        formPanel.add(getPropertyTypeWidget());
-        formPanel.add(getTypeSelectionWidget());
-        formPanel.add(getMandatoryCheckbox());
-        updateDefaultField();
-    }
+	private CheckBox getMandatoryCheckbox() {
+		if (mandatoryCheckbox == null) {
+			mandatoryCheckbox = new CheckBox();
+			mandatoryCheckbox
+					.setId(createChildId(MANDATORY_CHECKBOX_ID_SUFFIX));
+			mandatoryCheckbox.setFieldLabel(viewContext
+					.getMessage(Dict.MANDATORY));
+			mandatoryCheckbox.setValue(false);
+			mandatoryCheckbox.addListener(Events.Change,
+					new InfoBoxResetListener(infoBox));
+		}
+		return mandatoryCheckbox;
+	}
 
-    @Override
-    protected final void onRender(final Element target, final int index)
-    {
-        super.onRender(target, index);
-        addFormFields();
-    }
+	private final FormPanel createFormPanel() {
+		final FormPanel panel = new FormPanel();
+		panel.setHeaderVisible(false);
+		panel.setBodyBorder(false);
+		panel.setWidth(LABEL_WIDTH + FIELD_WIDTH + 40);
+		panel.setLabelWidth(LABEL_WIDTH);
+		panel.setFieldWidth(FIELD_WIDTH);
+		panel.setButtonAlign(HorizontalAlignment.RIGHT);
+		final Button saveButton = new Button(viewContext
+				.getMessage(Dict.BUTTON_SAVE));
+		saveButton.setStyleAttribute("marginRight", "20px");
+		saveButton.setId(createChildId(SAVE_BUTTON_ID_SUFFIX));
+		saveButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			@Override
+			public final void componentSelected(final ButtonEvent ce) {
+				submitForm();
+			}
+		});
+		final Button resetButton = new Button(viewContext
+				.getMessage(Dict.BUTTON_RESET));
+		resetButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			@Override
+			public final void componentSelected(final ButtonEvent ce) {
+				resetForm();
+			}
+		});
+		panel.addButton(resetButton);
+		panel.addButton(saveButton);
+		return panel;
+	}
 
-    public final class AssignPropertyTypeCallback extends AbstractAsyncCallback<String>
-    {
-        AssignPropertyTypeCallback(final IViewContext<?> viewContext)
-        {
-            super(viewContext, new InfoBoxCallbackListener<String>(infoBox));
-        }
+	private String getDefaultValue() {
+		if (defaultValueField != null) {
+			return PropertyFieldFactory.valueToString(defaultValueField
+					.getValue());
+		}
+		return null;
+	}
 
-        @Override
-        protected final void process(final String result)
-        {
-            infoBox.displayInfo(result);
-            resetForm();
-        }
-    }
+	private String getSelectedEntityCode() {
+		switch (entityKind) {
+		case EXPERIMENT:
+			return experimentTypeSelectionWidget.tryGetSelectedExperimentType()
+					.getCode();
+		case SAMPLE:
+			return sampleTypeSelectionWidget.tryGetSelectedSampleType()
+					.getCode();
+		case MATERIAL:
+			return materialTypeSelectionWidget.tryGetSelectedMaterialType()
+					.getCode();
+		case DATA_SET:
+			return dataSetTypeSelectionWidget.tryGetSelectedDataSetType()
+					.getCode();
+		}
+		throw new IllegalArgumentException(UNSUPPORTED_ENTITY_KIND);
+	}
 
-    private void updateDefaultField()
-    {
-        hideDefaultField();
-        final PropertyType propertyType = propertyTypeSelectionWidget.tryGetSelectedPropertyType();
-        if (propertyType != null)
-        {
-            String fieldId =
-                    createChildId(DEFAULT_VALUE_ID_PART + propertyType.isInternalNamespace()
-                            + propertyType.getSimpleCode());
-            Field<?> field =
-                    PropertyFieldFactory.createField(propertyType, false, viewContext
-                            .getMessage(Dict.DEFAULT_VALUE), fieldId, null, viewContext);
-            field.setToolTip(viewContext.getMessage(Dict.DEFAULT_VALUE_TOOLTIP));
-            defaultValueField = field;
-            defaultValueField.show();
-            formPanel.add(defaultValueField);
-        }
-        layout();
-    }
+	private final void addFormFields() {
+		formPanel.add(getPropertyTypeWidget());
+		formPanel.add(getTypeSelectionWidget());
+		formPanel.add(getMandatoryCheckbox());
+		updateDefaultField();
+	}
 
-    private void hideDefaultField()
-    {
-        if (defaultValueField != null)
-        {
-            defaultValueField.hide();
-            formPanel.remove(defaultValueField);
-            defaultValueField = null;
-        }
-    }
+	@Override
+	protected final void onRender(final Element target, final int index) {
+		super.onRender(target, index);
+		addFormFields();
+	}
 
-    private final void submitForm()
-    {
-        if (formPanel.isValid())
-        {
-            viewContext.getService().assignPropertyType(entityKind,
-                    propertyTypeSelectionWidget.tryGetSelectedPropertyTypeCode(),
-                    getSelectedEntityCode(), getMandatoryCheckbox().getValue(), getDefaultValue(),
-                    new AssignPropertyTypeCallback(viewContext));
-        }
-    }
+	public final class AssignPropertyTypeCallback extends
+			AbstractAsyncCallback<String> {
+		AssignPropertyTypeCallback(final IViewContext<?> viewContext) {
+			super(viewContext, new InfoBoxCallbackListener<String>(infoBox));
+		}
 
-    private void resetForm()
-    {
-        formPanel.reset();
-        updateDefaultField();
-    }
+		@Override
+		protected final void process(final String result) {
+			infoBox.displayInfo(result);
+			resetForm();
+		}
+	}
+
+	private void updateDefaultField() {
+		hideDefaultField();
+		final PropertyType propertyType = propertyTypeSelectionWidget
+				.tryGetSelectedPropertyType();
+		if (propertyType != null) {
+			String fieldId = createChildId(DEFAULT_VALUE_ID_PART
+					+ propertyType.isInternalNamespace()
+					+ propertyType.getSimpleCode());
+			Field<?> field = PropertyFieldFactory.createField(propertyType,
+					false, viewContext.getMessage(Dict.DEFAULT_VALUE), fieldId,
+					null, viewContext);
+			field
+					.setToolTip(viewContext
+							.getMessage(Dict.DEFAULT_VALUE_TOOLTIP));
+			defaultValueField = field;
+			defaultValueField.show();
+			formPanel.add(defaultValueField);
+		}
+		layout();
+	}
+
+	private void hideDefaultField() {
+		if (defaultValueField != null) {
+			defaultValueField.hide();
+			formPanel.remove(defaultValueField);
+			defaultValueField = null;
+		}
+	}
+
+	private final void submitForm() {
+		if (formPanel.isValid()) {
+			viewContext.getService().assignPropertyType(
+					entityKind,
+					propertyTypeSelectionWidget
+							.tryGetSelectedPropertyTypeCode(),
+					getSelectedEntityCode(), getMandatoryCheckbox().getValue(),
+					getDefaultValue(),
+					new AssignPropertyTypeCallback(viewContext));
+		}
+	}
+
+	private void resetForm() {
+		formPanel.reset();
+		updateDefaultField();
+	}
 
 }

@@ -37,6 +37,11 @@ public final class TableNames
     public static final String DATA_STORES_TABLE = "data_stores";
 
     public static final String DATA_TABLE = "data";
+    
+    public static final String DATA_SET_PROPERTIES_TABLE = "data_set_properties";
+
+    public static final String DATA_SET_TYPE_PROPERTY_TYPE_TABLE =
+        "data_set_type_property_types";
 
     public static final String DATA_TYPES_TABLE = "data_types";
 
@@ -48,7 +53,7 @@ public final class TableNames
     public static final String EXPERIMENT_ATTACHMENTS_TABLE = "experiment_attachments";
 
     public static final String EXPERIMENT_PROPERTIES_TABLE = "experiment_properties";
-
+     
     public static final String EXPERIMENT_TYPE_PROPERTY_TYPE_TABLE =
             "experiment_type_property_types";
 
