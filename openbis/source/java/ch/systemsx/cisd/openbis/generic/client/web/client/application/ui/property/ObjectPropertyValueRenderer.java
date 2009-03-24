@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  * 
  * @author Christian Ribeaud
  */
-public class ObjectPropertyValueRenderer extends AbstractPropertyValueRenderer<Object>
+public class ObjectPropertyValueRenderer extends AbstractSimplePropertyValueRenderer<Object>
 {
     public ObjectPropertyValueRenderer(final IMessageProvider messageProvider)
     {

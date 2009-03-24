@@ -130,7 +130,8 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         container.add(panel, new RowData(1, 0.5, new Margins(0, 5, 5, 0)));
         // External data
         panel = createContentPanel(viewContext.getMessage(Dict.EXTERNAL_DATA_HEADING));
-        disposableBrowser = SampleDataSetBrowser.create(viewContext, sampleIdentifier, getId() + DATA_POSTFIX);
+        disposableBrowser =
+                SampleDataSetBrowser.create(viewContext, sampleIdentifier, getId() + DATA_POSTFIX);
         panel.add(disposableBrowser.getComponent());
         container.add(panel, new RowData(1, 0.5, new Margins(0, 5, 0, 0)));
         return container;
@@ -223,6 +224,14 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         properties.put(messageProvider.getMessage(Dict.REGISTRATOR), sample.getRegistrator());
         properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE), sample
                 .getRegistrationDate());
+        
+        // TODO 2009-03-24 Piotr Buczek: Uncomment after lazy initialization problem is resolved
+        // final Procedure procedure = sample.getValidProcedure();
+        // if (procedure != null)
+        // {
+        // properties.put(messageProvider.getMessage(Dict.EXPERIMENT), procedure.getExperiment());
+        // }
+
         if (generated.length > 0)
         {
             properties.put(messageProvider.getMessage(Dict.GENERATED_SAMPLES), generated);
@@ -264,22 +273,23 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     }
 
     public static PropertyGrid createPropertyGrid(String sampleIdentifier,
-            final SampleGeneration sampleGeneration, final IMessageProvider messageProvider)
+            final SampleGeneration sampleGeneration, final IViewContext<?> viewContext)
     {
-        final Map<String, Object> properties = createProperties(messageProvider, sampleGeneration);
-        final PropertyGrid propertyGrid = new PropertyGrid(messageProvider, properties.size());
+        final Map<String, Object> properties = createProperties(viewContext, sampleGeneration);
+        final PropertyGrid propertyGrid = new PropertyGrid(viewContext, properties.size());
         propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + sampleIdentifier);
         propertyGrid.registerPropertyValueRenderer(Person.class, PropertyValueRenderers
-                .createPersonPropertyValueRenderer(messageProvider));
+                .createPersonPropertyValueRenderer(viewContext));
         propertyGrid.registerPropertyValueRenderer(SampleType.class, PropertyValueRenderers
-                .createSampleTypePropertyValueRenderer(messageProvider));
+                .createSampleTypePropertyValueRenderer(viewContext));
         propertyGrid.registerPropertyValueRenderer(Sample.class, PropertyValueRenderers
-                .createSamplePropertyValueRenderer(messageProvider, true));
+                .createSamplePropertyValueRenderer(viewContext, true));
         propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
-                .createInvalidationPropertyValueRenderer(messageProvider));
+                .createInvalidationPropertyValueRenderer(viewContext));
         propertyGrid.registerPropertyValueRenderer(SampleProperty.class, PropertyValueRenderers
-                .createSamplePropertyPropertyValueRenderer(messageProvider));
+                .createSamplePropertyPropertyValueRenderer(viewContext));
         propertyGrid.setProperties(properties);
+
         return propertyGrid;
     }
 

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property;
 
+import com.google.gwt.user.client.ui.Widget;
+
 /**
  * A property value renderer for <code>Object</code>.
  * 
@@ -26,8 +28,7 @@ public interface IPropertyValueRenderer<T>
 {
 
     /**
-     * Renders given <var>object</var> found at given <var>row</var> as <code>String</code>
-     * object.
+     * @return A {@link Widget} displaying given <var>object</var>.
      */
-    public String render(final T object);
+    public Widget getAsWidget(final T object);
 }

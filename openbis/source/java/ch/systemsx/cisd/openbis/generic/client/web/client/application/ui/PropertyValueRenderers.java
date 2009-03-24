@@ -16,16 +16,32 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import com.google.gwt.user.client.ui.ClickListener;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Hyperlink;
+import com.google.gwt.user.client.ui.InlineHTML;
+import com.google.gwt.user.client.ui.Widget;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.AbstractPropertyValueRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.AbstractSimplePropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DOMUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
@@ -50,9 +66,9 @@ public final class PropertyValueRenderers
      * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link Sample}.
      */
     public final static IPropertyValueRenderer<Sample> createSamplePropertyValueRenderer(
-            final IMessageProvider messageProvider, final boolean withType)
+            final IViewContext<?> viewContext, final boolean withType)
     {
-        return new SamplePropertyValueRenderer(messageProvider, withType);
+        return new SamplePropertyValueRenderer(viewContext, withType);
     }
 
     /**
@@ -101,9 +117,12 @@ public final class PropertyValueRenderers
     {
         private final boolean withType;
 
-        SamplePropertyValueRenderer(final IMessageProvider messageProvider, final boolean withType)
+        private final IViewContext<?> viewContext;
+
+        SamplePropertyValueRenderer(final IViewContext<?> viewContext, final boolean withType)
         {
-            super(messageProvider);
+            super(viewContext);
+            this.viewContext = viewContext;
             this.withType = withType;
         }
 
@@ -111,23 +130,51 @@ public final class PropertyValueRenderers
         // AbstractPropertyValueRenderer
         //
 
-        @Override
-        protected final String renderNotNull(final Sample sample)
+        public Widget getAsWidget(final Sample sample)
         {
             final String code = sample.getCode();
-            final StringBuilder builder = new StringBuilder();
-            if (sample.getInvalidation() != null)
-            {
-                builder.append(DOMUtils.createDelElement(code));
-            } else
-            {
-                builder.append(code);
-            }
+            final boolean invalidate = sample.getInvalidation() != null;
+            final ClickListener listener =
+                    new OpenSampleDetailsTabClickListener(sample, viewContext);
+            final Hyperlink link = LinkRenderer.getLinkWidget(code, listener, invalidate);
+
+            FlowPanel panel = new FlowPanel();
+            panel.add(link);
             if (withType)
             {
-                builder.append(" [").append(sample.getSampleType().getCode()).append("]");
+                panel.add(new InlineHTML(" [" + sample.getSampleType().getCode() + "]"));
             }
-            return builder.toString();
+            return panel;
+        }
+
+        /** A {@link ClickListener} that opens Sample details tab on click. */
+        private static final class OpenSampleDetailsTabClickListener implements ClickListener
+        {
+            private final Sample sample;
+
+            private final IViewContext<?> viewContext;
+
+            public OpenSampleDetailsTabClickListener(Sample sample,
+                    final IViewContext<?> viewContext)
+            {
+                super();
+                this.sample = sample;
+                this.viewContext = viewContext;
+            }
+
+            public void onClick(Widget sender)
+            {
+
+                final EntityKind entityKind = EntityKind.SAMPLE;
+                final IClientPluginFactory clientPluginFactory =
+                        viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
+                                entityKind, sample.getSampleType());
+                final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder, IEditableEntity<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>>> createClientPlugin =
+                        clientPluginFactory.createClientPlugin(entityKind);
+                final ITabItemFactory tabView = createClientPlugin.createEntityViewer(sample);
+
+                DispatcherHelper.dispatchNaviEvent(tabView);
+            }
         }
     }
 
@@ -137,7 +184,7 @@ public final class PropertyValueRenderers
      * @author Christian Ribeaud
      */
     private final static class SampleTypePropertyValueRenderer extends
-            AbstractPropertyValueRenderer<SampleType>
+            AbstractSimplePropertyValueRenderer<SampleType>
     {
 
         SampleTypePropertyValueRenderer(final IMessageProvider messageProvider)
@@ -162,7 +209,7 @@ public final class PropertyValueRenderers
      * @author Christian Ribeaud
      */
     private final static class PersonPropertyValueRenderer extends
-            AbstractPropertyValueRenderer<Person>
+            AbstractSimplePropertyValueRenderer<Person>
     {
 
         PersonPropertyValueRenderer(final IMessageProvider messageProvider)
@@ -187,7 +234,7 @@ public final class PropertyValueRenderers
      * @author Christian Ribeaud
      */
     private final static class InvalidationPropertyValueRenderer extends
-            AbstractPropertyValueRenderer<Invalidation>
+            AbstractSimplePropertyValueRenderer<Invalidation>
     {
 
         InvalidationPropertyValueRenderer(final IMessageProvider messageProvider)
@@ -224,7 +271,7 @@ public final class PropertyValueRenderers
      * @author Christian Ribeaud
      */
     private final static class EntityPropertyPropertyValueRenderer<T extends EntityProperty<?, ?>>
-            extends AbstractPropertyValueRenderer<T>
+            extends AbstractSimplePropertyValueRenderer<T>
     {
 
         EntityPropertyPropertyValueRenderer(final IMessageProvider messageProvider)
@@ -258,7 +305,7 @@ public final class PropertyValueRenderers
      * @author Izabela Adamczyk
      */
     private final static class ExperimentTypePropertyValueRenderer extends
-            AbstractPropertyValueRenderer<ExperimentType>
+            AbstractSimplePropertyValueRenderer<ExperimentType>
     {
 
         ExperimentTypePropertyValueRenderer(final IMessageProvider messageProvider)

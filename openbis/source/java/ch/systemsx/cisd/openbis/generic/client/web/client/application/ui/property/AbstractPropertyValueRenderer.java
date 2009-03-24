@@ -19,17 +19,13 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.proper
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * A default <code>PropertyValueRenderer</code> implementation which catches <code>null</code>
- * value by rendering <code>-</code>.
+ * A default <code>PropertyValueRenderer</code> implementation.
  * 
  * @author Christian Ribeaud
  */
 public abstract class AbstractPropertyValueRenderer<T> implements IPropertyValueRenderer<T>
 {
     private final IMessageProvider messageProvider;
-
-    /** The table <code>null</code> value representation. */
-    public static final String TABLE_NULL_VALUE = "-";
 
     public AbstractPropertyValueRenderer(final IMessageProvider messageProvider)
     {
@@ -39,21 +35,5 @@ public abstract class AbstractPropertyValueRenderer<T> implements IPropertyValue
     protected final IMessageProvider getMessageProvider()
     {
         return messageProvider;
-    }
-
-    /** Here we are sure to get a non-<code>null</code> value. */
-    protected abstract String renderNotNull(final T value);
-
-    //
-    // PropertyValueRenderer
-    //
-
-    public final String render(final T object)
-    {
-        if (object == null)
-        {
-            return TABLE_NULL_VALUE;
-        }
-        return renderNotNull(object);
     }
 }

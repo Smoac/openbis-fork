@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DOMUtils;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Widget;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * A <code>PropertyValueRenderer</code> implementation for <code>Object[]</code>.
+ * A <code>PropertyValueRenderer</code> implementation for <code>Object[]</code> that renders as a
+ * one column table.
  * 
  * @author Christian Ribeaud
  */
@@ -35,32 +38,17 @@ public final class ObjectArrayPropertyValueRenderer<T> extends AbstractPropertyV
         this.propertyValueRenderer = propertyValueRenderer;
     }
 
-    protected String getItemSeparator()
-    {
-        return DOMUtils.BR;
-    }
-
     //
     // AbstractPropertyValueRenderer
     //
 
-    @Override
-    public final String renderNotNull(final T[] objects)
+    public Widget getAsWidget(T[] objects)
     {
-        if (objects.length == 0)
+        FlowPanel panel = new FlowPanel();
+        for (T object : objects)
         {
-            return "";
+            panel.add(propertyValueRenderer.getAsWidget(object));
         }
-        final String itemSeparator = getItemSeparator();
-        final StringBuffer buffer = new StringBuffer();
-        for (int i = 0; i < objects.length; i++)
-        {
-            if (buffer.length() > 1)
-            {
-                buffer.append(itemSeparator);
-            }
-            buffer.append(propertyValueRenderer.render(objects[i]));
-        }
-        return buffer.toString();
+        return panel;
     }
 }

@@ -24,6 +24,7 @@ import java.util.Map;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.SourcesTableEvents;
 import com.google.gwt.user.client.ui.TableListener;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
@@ -116,10 +117,10 @@ public final class PropertyGrid extends Grid
     }
 
     /**
-     * Adds a <code>GridCellListener</code> for given <var>row</var>.
+     * Adds a <code>GridCellListener</code> for given <var>key</var>.
      * <p>
-     * If there is already a <code>GridCellListener</code> registered for given <var>row</var>,
-     * the new one will replace it.
+     * If there is already a <code>GridCellListener</code> registered for given <var>key</var>, the
+     * new one will replace it.
      * </p>
      */
     public final void addGridCellListener(final String key, final GridCellListener listener)
@@ -137,17 +138,17 @@ public final class PropertyGrid extends Grid
         this.properties = properties;
         fillTable();
     }
-    
+
     public Map<String, ?> getProperties()
     {
         return properties;
     }
 
-    private final <T> String renderValue(final T value)
+    private final <T> Widget getAsWidget(final T value)
     {
         final IPropertyValueRenderer<? super T> propertyValueRenderer =
                 getPropertyValueRenderer(value);
-        return propertyValueRenderer.render(value);
+        return propertyValueRenderer.getAsWidget(value);
     }
 
     private final void fillTable()
@@ -157,8 +158,10 @@ public final class PropertyGrid extends Grid
         for (final Iterator<String> iterator = properties.keySet().iterator(); iterator.hasNext(); row++)
         {
             final String key = iterator.next();
+            final Object value = properties.get(key);
+            final Widget widget = getAsWidget(value);
             setHTML(row, 0, key);
-            setHTML(row, 1, renderValue(properties.get(key)));
+            setWidget(row, 1, widget);
         }
     }
 
@@ -179,15 +182,14 @@ public final class PropertyGrid extends Grid
             // Only for property value (index 1).
             if (column == 1)
             {
-                final String cellValue = getText(row, column);
-                final GridCellListener listener = listeners.get(cellValue);
+                final String keyValue = getText(row, 0);
+                final GridCellListener listener = listeners.get(keyValue);
                 if (listener != null)
                 {
                     listener.onCellClicked();
                 }
             }
         }
-
     }
 
     /** Event listener interface for property table events. */

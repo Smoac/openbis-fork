@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  * 
  * @author Christian Ribeaud
  */
-public class DatePropertyValueRenderer extends AbstractPropertyValueRenderer<Date>
+public class DatePropertyValueRenderer extends AbstractSimplePropertyValueRenderer<Date>
 {
     private final String pattern;
 
