@@ -54,6 +54,8 @@ public abstract class AbstractClientService implements IClientService
     @Resource(name = "request-context-provider")
     private IRequestContextProvider requestContextProvider;
 
+    private String cifexURL;
+
     protected AbstractClientService()
     {
     }
@@ -61,6 +63,11 @@ public abstract class AbstractClientService implements IClientService
     protected AbstractClientService(final IRequestContextProvider requestContextProvider)
     {
         this.requestContextProvider = requestContextProvider;
+    }
+
+    public final void setCifexURL(String cifexURL)
+    {
+        this.cifexURL = cifexURL;
     }
 
     private final SessionContext createSessionContext(final Session session)
@@ -144,6 +151,7 @@ public abstract class AbstractClientService implements IClientService
     {
         final ApplicationInfo applicationInfo = new ApplicationInfo();
         applicationInfo.setVersion(BuildAndEnvironmentInfo.INSTANCE.getFullVersion());
+        applicationInfo.setCIFEXURL(cifexURL);
         return applicationInfo;
     }
 

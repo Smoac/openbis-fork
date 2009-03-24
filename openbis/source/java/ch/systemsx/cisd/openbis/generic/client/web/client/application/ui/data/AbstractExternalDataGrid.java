@@ -53,6 +53,31 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
 {
     public static final String GRID_POSTFIX = "-grid";
     
+    private static abstract class AbstractConfirmationDialog extends Dialog
+    {
+        protected final IViewContext<?> viewContext;
+
+        protected final List<String> dataSetCodes;
+
+        protected final IBrowserGridActionInvoker invoker;
+
+        AbstractConfirmationDialog(IViewContext<?> viewContext, List<ExternalData> dataSets,
+                IBrowserGridActionInvoker invoker, String titleKey)
+        {
+            this.viewContext = viewContext;
+            this.invoker = invoker;
+            dataSetCodes = new ArrayList<String>();
+            for (ExternalData externalData : dataSets)
+            {
+                dataSetCodes.add(externalData.getCode());
+            }
+            setHeading(viewContext.getMessage(titleKey));
+            setButtons(Dialog.OKCANCEL);
+            setHideOnButtonClick(true);
+            setModal(true);
+        }
+    }
+    
     static final class DeletionCallback extends AbstractAsyncCallback<Void>
     {
         private final IBrowserGridActionInvoker invoker;
@@ -70,28 +95,14 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
         }
     }
     
-    private static final class DeletionConfirmationDialog extends Dialog
+    private static final class DeletionConfirmationDialog extends AbstractConfirmationDialog
     {
-        private final IViewContext<?> viewContext;
-
-        private final List<String> dataSetCodes;
-
-        private final IBrowserGridActionInvoker invoker;
-
         private final TextField<String> reason;
 
         public DeletionConfirmationDialog(IViewContext<?> viewContext, List<ExternalData> dataSets,
                 IBrowserGridActionInvoker invoker)
         {
-            this.viewContext = viewContext;
-            this.invoker = invoker;
-            dataSetCodes = new ArrayList<String>();
-            for (ExternalData externalData : dataSets)
-            {
-                dataSetCodes.add(externalData.getCode());
-            }
-            setHeading(viewContext.getMessage(Dict.CONFIRM_DATASET_DELETION_TITLE));
-            setButtons(Dialog.OKCANCEL);
+            super(viewContext, dataSets, invoker, Dict.CONFIRM_DATASET_DELETION_TITLE);
             addText(viewContext.getMessage(Dict.CONFIRM_DATASET_DELETION_MSG, dataSets.size()));
             reason = new TextField<String>();
             reason.setSelectOnFocus(true);
@@ -107,8 +118,6 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
                     }
                 });
             add(reason);
-            setHideOnButtonClick(true);
-            setModal(true);
         }
         
         @Override
@@ -123,6 +132,73 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
         }
     }
     
+    static final class UploadCallback extends AbstractAsyncCallback<Void>
+    {
+        private UploadCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+        
+        @Override
+        protected void process(Void result)
+        {
+        }
+    }
+    
+    private static final class UploadConfirmationDialog extends AbstractConfirmationDialog
+    {
+        private final String cifexURL;
+        private final TextField<String> password;
+
+        public UploadConfirmationDialog(IViewContext<?> viewContext, List<ExternalData> dataSets,
+                IBrowserGridActionInvoker invoker)
+        {
+            super(viewContext, dataSets, invoker, Dict.CONFIRM_DATASET_UPLOAD_TITLE);
+            cifexURL = viewContext.getModel().getApplicationInfo().getCIFEXURL();
+            addText(viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_MSG, dataSets.size(), cifexURL));
+            password = new TextField<String>();
+            password.setPassword(true);
+            password.setSelectOnFocus(true);
+            password.setHideLabel(true);
+            password.setWidth("100%");
+            password.setMaxLength(50);
+            add(password);
+        }
+        
+        @Override
+        protected void onButtonPressed(Button button)
+        {
+            super.onButtonPressed(button);
+            if (button.getItemId().equals(Dialog.OK))
+            {
+                viewContext.getCommonService().uploadDataSets(dataSetCodes, cifexURL, password.getValue(),
+                        new UploadCallback(viewContext));
+            }
+        }
+    }
+    
+    private abstract class AbstractDataSetAction extends SelectionListener<ButtonEvent>
+    {
+        @Override
+        public void componentSelected(ButtonEvent ce)
+        {
+            List<BaseEntityModel<ExternalData>> items = getSelectedItems();
+            if (items.isEmpty() == false)
+            {
+                List<ExternalData> dataSets = new ArrayList<ExternalData>();
+                for (BaseEntityModel<ExternalData> item : items)
+                {
+                    dataSets.add(item.getBaseObject());
+                }
+                IBrowserGridActionInvoker invoker = asActionInvoker();
+                createDialog(dataSets, invoker).show();
+            }
+        }
+
+        protected abstract Dialog createDialog(List<ExternalData> dataSets,
+                IBrowserGridActionInvoker invoker);
+    }
+    
     protected AbstractExternalDataGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             String browserId)
     {
@@ -135,28 +211,32 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
                             DataSetUtils.showDataSet(rowItem, viewContext.getModel());
                         }
                     });
-        Button deleteButton = new Button(viewContext.getMessage(Dict.BUTTON_DELETE_DATASETS));
-        deleteButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+        addButton(Dict.BUTTON_DELETE_DATASETS, new AbstractDataSetAction()
             {
                 @Override
-                public void componentSelected(ButtonEvent ce)
+                protected Dialog createDialog(List<ExternalData> dataSets,
+                        IBrowserGridActionInvoker invoker)
                 {
-                    List<BaseEntityModel<ExternalData>> items = getSelectedItems();
-                    if (items.isEmpty() == false)
-                    {
-                        List<ExternalData> dataSets = new ArrayList<ExternalData>();
-                        for (BaseEntityModel<ExternalData> item : items)
-                        {
-                            dataSets.add(item.getBaseObject());
-                        }
-                        IBrowserGridActionInvoker invoker = asActionInvoker();
-                        new DeletionConfirmationDialog(viewContext, dataSets, invoker).show();
-                    }
-                    
+                    return new DeletionConfirmationDialog(viewContext, dataSets, invoker);
                 }
             });
-        pagingToolbar.add(new AdapterToolItem(deleteButton));
+        addButton(Dict.BUTTON_UPLOAD_DATASETS, new AbstractDataSetAction()
+            {
+                @Override
+                protected Dialog createDialog(List<ExternalData> dataSets,
+                        IBrowserGridActionInvoker invoker)
+                {
+                    return new UploadConfirmationDialog(viewContext, dataSets, invoker);
+                }
+            });
         allowMultipleSelection();
+    }
+    
+    private void addButton(String labelKey, SelectionListener<ButtonEvent> action)
+    {
+        Button button = new Button(viewContext.getMessage(labelKey));
+        button.addSelectionListener(action);
+        pagingToolbar.add(new AdapterToolItem(button));
     }
 
     @Override

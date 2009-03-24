@@ -325,11 +325,16 @@ final class CommonServerLogger extends AbstractServerLogger implements
 				dataSetCodes, reason);
 	}
 
-	public void editMaterial(String sessionToken,
-			MaterialIdentifier identifier, List<MaterialProperty> properties,
-			Date version) {
-		logTracking(sessionToken, "edit_material", "MATERIAL(%s)", identifier);
+    public void uploadDataSets(String sessionToken, List<String> dataSetCodes, String cifexURL,
+            String password)
+    {
+        logTracking(sessionToken, "upload_data_sets", "CODES(%s) CIFEX-URL(%s)", dataSetCodes, cifexURL);
+    }
 
+    public void editMaterial(String sessionToken, MaterialIdentifier identifier,
+            List<MaterialProperty> properties, Date version)
+    {
+        logTracking(sessionToken, "edit_material", "MATERIAL(%s)", identifier);
 	}
 
 	public void editSample(String sessionToken, SampleIdentifier identifier,

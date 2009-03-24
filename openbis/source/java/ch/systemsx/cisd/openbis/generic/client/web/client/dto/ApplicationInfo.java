@@ -26,6 +26,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public final class ApplicationInfo implements IsSerializable
 {
     private String version;
+    private String cifexURL;
 
     public final String getVersion()
     {
@@ -35,6 +36,16 @@ public final class ApplicationInfo implements IsSerializable
     public final void setVersion(final String version)
     {
         this.version = version;
+    }
+
+    public void setCIFEXURL(String cifexURL)
+    {
+        this.cifexURL = cifexURL;
+    }
+
+    public final String getCIFEXURL()
+    {
+        return cifexURL;
     }
 
 }

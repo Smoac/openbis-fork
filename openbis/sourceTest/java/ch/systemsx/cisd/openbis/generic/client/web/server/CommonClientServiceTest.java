@@ -64,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 public final class CommonClientServiceTest extends AbstractClientServiceTest
 {
     private static final String DATA_STORE_BASE_URL = "baseURL";
+    private static final String CIFEX_URL = "cifexURL";
 
     private CommonClientService commonClientService;
 
@@ -123,7 +124,9 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     {
         super.setUp();
         commonServer = context.mock(ICommonServer.class);
-        commonClientService = new CommonClientService(commonServer, requestContextProvider, DATA_STORE_BASE_URL);
+        commonClientService = new CommonClientService(commonServer, requestContextProvider);
+        commonClientService.setDataStoreBaseURL(DATA_STORE_BASE_URL);
+        commonClientService.setCifexURL(CIFEX_URL);
     }
 
     @Test

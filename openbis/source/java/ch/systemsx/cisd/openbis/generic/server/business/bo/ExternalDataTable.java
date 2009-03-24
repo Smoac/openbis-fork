@@ -17,11 +17,20 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.DataStoreServerSessionManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
+import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
@@ -44,6 +53,11 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public final class ExternalDataTable extends AbstractExternalDataBusinessObject implements
         IExternalDataTable
 {
+    private static final String NEW_LINE = "\n";
+    private static final int MAX_LENGTH_OF_CIFEX_COMMENT = 1000;
+    private static final String AND_MORE_TEMPLATE = "and %d more.";
+    @Private static final String DELETION_DESCRIPTION = "single deletion";
+
     private List<ExternalDataPE> externalData;
 
     public ExternalDataTable(final IDAOFactory daoFactory, final Session session)
@@ -59,6 +73,20 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     {
         assert externalData != null : "External data not loaded.";
         return externalData;
+    }
+
+    public void loadByDataSetCodes(List<String> dataSetCodes)
+    {
+        IExternalDataDAO externalDataDAO = getExternalDataDAO();
+        externalData = new ArrayList<ExternalDataPE>();
+        for (String dataSetCode : dataSetCodes)
+        {
+            ExternalDataPE dataSet = externalDataDAO.tryToFindFullDataSetByCode(dataSetCode);
+            if (dataSet != null)
+            {
+                externalData.add(dataSet);
+            }
+        }
     }
 
     public final void loadBySampleIdentifier(final SampleIdentifier sampleIdentifier)
@@ -100,5 +128,101 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                 }
             }
         }
+    }
+
+    public void deleteLoadedDataSets(DataStoreServerSessionManager dssSessionManager, String reason)
+    {
+        assertDataSetsAreKnown(dssSessionManager);
+        for (ExternalDataPE dataSet : externalData)
+        {
+            IExternalDataDAO externalDataDAO = getExternalDataDAO();
+            externalDataDAO.markAsDeleted(dataSet, session.tryGetPerson(), DELETION_DESCRIPTION, reason);
+        }
+        Collection<DataStoreServerSession> sessions = dssSessionManager.getSessions();
+        List<String> locations = getLocations();
+        for (DataStoreServerSession dssSession : sessions)
+        {
+            dssSession.getService().deleteDataSets(dssSession.getSessionToken(), locations);
+        }
+    }
+
+    public void uploadLoadedDataSetsToCIFEX(DataStoreServerSessionManager dssSessionManager,
+            String cifexURL, String password)
+    {
+        assertDataSetsAreKnown(dssSessionManager);
+        Collection<DataStoreServerSession> sessions = dssSessionManager.getSessions();
+        List<String> locations = getLocations();
+        DataSetUploadContext uploadContext = new DataSetUploadContext();
+        uploadContext.setCifexURL(cifexURL);
+        uploadContext.setUserID(session.getUserName());
+        uploadContext.setPassword(password);
+        uploadContext.setComment(createUploadComment());
+        for (DataStoreServerSession dssSession : sessions)
+        {
+            dssSession.getService().uploadDataSetsToCIFEX(dssSession.getSessionToken(), locations,
+                    uploadContext);
+        }
+    }
+
+    private String createUploadComment()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Uploaded zip file contains the following data sets:");
+        for (int i = 0, n = externalData.size(); i < n; i++)
+        {
+            builder.append(NEW_LINE);
+            String code = externalData.get(i).getCode();
+            int length = builder.length() + code.length();
+            if (i < n - 1)
+            {
+                length += NEW_LINE.length() + String.format(AND_MORE_TEMPLATE, n - i - 1).length();
+            }
+            if (length < MAX_LENGTH_OF_CIFEX_COMMENT)
+            {
+                builder.append(code);
+            } else
+            {
+                builder.append(String.format(AND_MORE_TEMPLATE, n - i));
+            }
+        }
+        return builder.toString();
+    }
+    
+    private void assertDataSetsAreKnown(DataStoreServerSessionManager dssSessionManager)
+    {
+        List<String> locations = getLocations();
+        Set<String> knownLocations = new LinkedHashSet<String>();
+        Collection<DataStoreServerSession> sessions = dssSessionManager.getSessions();
+        for (DataStoreServerSession dssSession : sessions)
+        {
+            IDataStoreService service = dssSession.getService();
+            String dssSessionToken = dssSession.getSessionToken();
+            knownLocations.addAll(service.getKnownDataSets(dssSessionToken, locations));
+        }
+        List<String> unknownDataSets = new ArrayList<String>();
+        for (ExternalDataPE dataSet : externalData)
+        {
+            if (knownLocations.contains(dataSet.getLocation()) == false)
+            {
+                unknownDataSets.add(dataSet.getCode());
+            }
+        }
+        if (unknownDataSets.isEmpty() == false)
+        {
+            throw new UserFailureException(
+                    "The following data sets are unknown by any registered Data Store Server. "
+                            + "May be the responsible Data Store Server is not running.\n"
+                            + unknownDataSets);
+        }
+    }
+    
+    private List<String> getLocations()
+    {
+        List<String> locations = new ArrayList<String>();
+        for (ExternalDataPE dataSet : externalData)
+        {
+            locations.add(dataSet.getLocation());
+        }
+        return locations;
     }
 }

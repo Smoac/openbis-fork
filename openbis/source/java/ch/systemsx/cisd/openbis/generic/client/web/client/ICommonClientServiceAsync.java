@@ -373,4 +373,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync {
 
 	/** @see ICommonClientService#listDataSetTypes() */
 	public void listDataSetTypes(AsyncCallback<List<DataSetType>> callback);
+
+    /** @see ICommonClientService#uploadDataSets(List, String, String) */
+    public void uploadDataSets(List<String> dataSetCodes, String cifexURL, String password,
+            AsyncCallback<Void> abstractAsyncCallback);
 }

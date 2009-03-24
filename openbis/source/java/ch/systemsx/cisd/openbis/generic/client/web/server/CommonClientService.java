@@ -125,16 +125,19 @@ public final class CommonClientService extends AbstractClientService implements
 		ICommonClientService {
 	private final ICommonServer commonServer;
 
-	private final String dataStoreBaseURL;
+    private String dataStoreBaseURL;
 
-	public CommonClientService(final ICommonServer commonServer,
-			final IRequestContextProvider requestContextProvider,
-			String dataStoreBaseURL) {
-		super(requestContextProvider);
-		this.commonServer = commonServer;
-		this.dataStoreBaseURL = dataStoreBaseURL + "/"
-				+ DATA_STORE_SERVER_WEB_APPLICATION_NAME;
-	}
+    public CommonClientService(final ICommonServer commonServer,
+            final IRequestContextProvider requestContextProvider)
+    {
+        super(requestContextProvider);
+        this.commonServer = commonServer;
+    }
+
+    public final void setDataStoreBaseURL(String dataStoreBaseURL)
+    {
+        this.dataStoreBaseURL = dataStoreBaseURL + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
+    }
 
 	@Override
 	protected final IServer getServer() {
@@ -946,6 +949,35 @@ public final class CommonClientService extends AbstractClientService implements
 
 	}
 
+    public void uploadDataSets(List<String> dataSetCodes, String cifexURL, String password)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.uploadDataSets(sessionToken, dataSetCodes, cifexURL, password);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public void updateMaterial(String materialIdentifier, List<MaterialProperty> properties,
+            Date version)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final MaterialIdentifier identifier =
+                    MaterialIdentifier.tryParseIdentifier(materialIdentifier);
+            commonServer.editMaterial(sessionToken, identifier, properties, version);
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+    
 	public void deleteDataSets(List<String> dataSetCodes, String reason)
 			throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException {
 		try {
@@ -955,22 +987,7 @@ public final class CommonClientService extends AbstractClientService implements
 			throw UserFailureExceptionTranslator.translate(e);
 		}
 	}
-
-	public void updateMaterial(String materialIdentifier,
-			List<MaterialProperty> properties, Date version)
-			throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException {
-		try {
-			final String sessionToken = getSessionToken();
-			final MaterialIdentifier identifier = MaterialIdentifier
-					.tryParseIdentifier(materialIdentifier);
-			commonServer.editMaterial(sessionToken, identifier, properties,
-					version);
-		} catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e) {
-			throw UserFailureExceptionTranslator.translate(e);
-		}
-
-	}
-
+	
 	public void updateSample(
 			String sampleIdentifier,
 			List<SampleProperty> properties,

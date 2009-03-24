@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 
 /**
  * Service interface of Data Store Server.
@@ -63,12 +64,12 @@ public interface IDataStoreService
             throws InvalidAuthenticationException;
     
     /**
-     * Uploads the specified data sets to CIFEX for the specified user (id and password) and with
-     * specified comment.
+     * Uploads the specified data sets to CIFEX.
      * 
      * @param sessionToken Valid token to identify authorised access.
+     * @param context Context data needed for uploading.
      * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
      */
     public void uploadDataSetsToCIFEX(String sessionToken, List<String> dataSetLocations,
-            String comment, String userID, String password) throws InvalidAuthenticationException;
+            DataSetUploadContext context) throws InvalidAuthenticationException;
 }

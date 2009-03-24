@@ -366,18 +366,25 @@ public interface ICommonServer extends IServer {
 			@AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> dataSetCodes,
 			String reason);
 
-	/**
-	 * Saves changed experiment.
-	 */
-	@Transactional
-	@RolesAllowed(RoleSet.USER)
-	public void editExperiment(
-			String sessionToken,
-			@AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ExperimentIdentifier experimentIdentifier,
-			List<ExperimentProperty> properties,
-			List<AttachmentPE> attachments,
-			@AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier newProjectIdentifier,
-			Date version);
+    /**
+     * Uploads specified data sets to CIFEX server of specified URL with specified password.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.OBSERVER)
+    public void uploadDataSets(String sessionToken, List<String> dataSetCodes, String cifexURL,
+            String password);
+    
+    /**
+     * Saves changed experiment.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.USER)
+    public void editExperiment(String sessionToken,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
+            ExperimentIdentifier experimentIdentifier, List<ExperimentProperty> properties,
+            List<AttachmentPE> attachments,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
+            ProjectIdentifier newProjectIdentifier, Date version);
 
 	/**
 	 * Saves changed material.

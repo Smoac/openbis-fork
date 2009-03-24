@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
-import static ch.systemsx.cisd.openbis.generic.server.CommonServer.DELETION_DESCRIPTION;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,13 +26,11 @@ import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
@@ -42,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -70,7 +65,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=CommonServer.class)
 public final class CommonServerTest extends AbstractServerTestCase
 {
     private static final String MATERIAL_TYPE_1 = "MATERIAL-TYPE-1";
@@ -90,8 +84,6 @@ public final class CommonServerTest extends AbstractServerTestCase
     private ICommonBusinessObjectFactory commonBusinessObjectFactory;
 
     private DataStoreServerSessionManager dssSessionManager;
-
-    private IDataStoreService dataStoreService;
 
     private final ICommonServer createServer()
     {
@@ -116,7 +108,6 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         super.setUp();
         dssSessionManager = new DataStoreServerSessionManager();
-        dataStoreService = context.mock(IDataStoreService.class);
         commonBusinessObjectFactory = context.mock(ICommonBusinessObjectFactory.class);
     }
 
@@ -725,75 +716,6 @@ public final class CommonServerTest extends AbstractServerTestCase
     }
 
     @Test
-    public void testDeleteDataSetButDataStoreServerIsDown()
-    {
-        prepareGetSession();
-        final ExternalDataPE d1 = createDataSet("d1");
-        context.checking(new Expectations()
-            {
-                {
-                    one(externalDataDAO).tryToFindFullDataSetByCode(d1.getCode());
-                    will(returnValue(d1));
-                }
-            });
-
-        try
-        {
-            createServer().deleteDataSets(SESSION_TOKEN, Arrays.asList(d1.getCode()), "");
-            fail("UserFailureException expected");
-        } catch (UserFailureException e)
-        {
-            assertEquals(
-                    "The following data sets are unknown by any registered Data Store Server. "
-                            + "May be the responsible Data Store Server is not running.\n[d1]", e
-                            .getMessage());
-        }
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testDeleteDataSetsButOneDataSetIsUnknown()
-    {
-        prepareGetSession();
-        dssSessionManager.registerDataStoreServer(new DataStoreServerSession("url",
-                dataStoreService));
-        final ExternalDataPE d1 = createDataSet("d1");
-        final ExternalDataPE d2 = createDataSet("d2");
-        context.checking(new Expectations()
-            {
-                {
-                    one(externalDataDAO).tryToFindFullDataSetByCode(d1.getCode());
-                    will(returnValue(d1));
-
-                    one(externalDataDAO).tryToFindFullDataSetByCode(d2.getCode());
-                    will(returnValue(d2));
-
-                    List<String> locations = Arrays.asList(d1.getLocation(), d2.getLocation());
-                    one(dataStoreService).getKnownDataSets(with(any(String.class)),
-                            with(equal(locations)));
-                    will(returnValue(Arrays.asList(d1.getLocation())));
-
-                }
-            });
-
-        try
-        {
-            createServer().deleteDataSets(SESSION_TOKEN, Arrays.asList(d1.getCode(), d2.getCode()),
-                    "");
-            fail("UserFailureException expected");
-        } catch (UserFailureException e)
-        {
-            assertEquals(
-                    "The following data sets are unknown by any registered Data Store Server. "
-                            + "May be the responsible Data Store Server is not running.\n[d2]", e
-                            .getMessage());
-        }
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
     public void testEditMaterialNothingChanged() throws Exception
     {
         final MaterialIdentifier identifier = new MaterialIdentifier(MATERIAL_1, MATERIAL_TYPE_1);
@@ -871,42 +793,42 @@ public final class CommonServerTest extends AbstractServerTestCase
     public void testDeleteDataSets()
     {
         prepareGetSession();
-        dssSessionManager.registerDataStoreServer(new DataStoreServerSession("url",
-                dataStoreService));
-        final ExternalDataPE d1 = createDataSet("d1");
-        final ExternalDataPE d2 = createDataSet("d2");
+        final List<String> dataSetCodes = Arrays.asList("a", "b");
         context.checking(new Expectations()
             {
                 {
-                    one(externalDataDAO).tryToFindFullDataSetByCode(d1.getCode());
-                    will(returnValue(d1));
-
-                    one(externalDataDAO).tryToFindFullDataSetByCode(d2.getCode());
-                    will(returnValue(d2));
-
-                    List<String> locations = Arrays.asList(d1.getLocation(), d2.getLocation());
-                    one(dataStoreService).getKnownDataSets(with(any(String.class)),
-                            with(equal(locations)));
-                    will(returnValue(locations));
-
-                    one(externalDataDAO).markAsDeleted(d1, SESSION.tryGetPerson(), DELETION_DESCRIPTION, "reason");
-                    one(externalDataDAO).markAsDeleted(d2, SESSION.tryGetPerson(), DELETION_DESCRIPTION, "reason");
-                    one(dataStoreService).deleteDataSets(with(any(String.class)),
-                            with(equal(locations)));
+                    one(commonBusinessObjectFactory).createExternalDataTable(SESSION);
+                    will(returnValue(externalDataTable));
+                    
+                    one(externalDataTable).loadByDataSetCodes(dataSetCodes);
+                    one(externalDataTable).deleteLoadedDataSets(dssSessionManager, "reason");
                 }
             });
 
-        createServer().deleteDataSets(SESSION_TOKEN, Arrays.asList(d1.getCode(), d2.getCode()),
-                "reason");
+        createServer().deleteDataSets(SESSION_TOKEN, dataSetCodes, "reason");
 
         context.assertIsSatisfied();
     }
-
-    private ExternalDataPE createDataSet(String code)
+    
+    @Test
+    public void testUploadDataSets()
     {
-        ExternalDataPE data = new ExternalDataPE();
-        data.setCode(code);
-        data.setLocation("here/" + code);
-        return data;
+        prepareGetSession();
+        final List<String> dataSetCodes = Arrays.asList("a", "b");
+        context.checking(new Expectations()
+        {
+            {
+                one(commonBusinessObjectFactory).createExternalDataTable(SESSION);
+                will(returnValue(externalDataTable));
+                
+                one(externalDataTable).loadByDataSetCodes(dataSetCodes);
+                one(externalDataTable).uploadLoadedDataSetsToCIFEX(dssSessionManager, "cifexURL", "pwd");
+            }
+        });
+        
+        createServer().uploadDataSets(SESSION_TOKEN, dataSetCodes, "cifexURL", "pwd");
+        
+        context.assertIsSatisfied();
     }
+
 }

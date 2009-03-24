@@ -310,10 +310,16 @@ public abstract class Dict {
 
 	public static final String CONFIRM_DATASET_DELETION_MSG = "confirm_dataset_deletion_msg";
 
-	//
-	// Sample Registration
-	//
-
+    public static final String BUTTON_UPLOAD_DATASETS = "button_upload_datasets";
+    
+    public static final String CONFIRM_DATASET_UPLOAD_TITLE = "confirm_dataset_upload_title";
+    
+    public static final String CONFIRM_DATASET_UPLOAD_MSG = "confirm_dataset_upload_msg";
+    
+    //
+    // Sample Registration
+    //
+    
 	public static final String INSTANCE_SAMPLE = "instance_sample";
 
 	public static final String GENERATED_FROM_SAMPLE = "generated_from_sample";

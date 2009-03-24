@@ -17,16 +17,12 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
@@ -49,12 +45,10 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -67,7 +61,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -104,11 +97,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * 
  * @author Franz-Josef Elmer
  */
-public final class CommonServer extends AbstractServer<ICommonServer> implements
-		ICommonServer {
-	@Private
-	static final String DELETION_DESCRIPTION = "single deletion";
-
+public final class CommonServer extends AbstractServer<ICommonServer> implements ICommonServer
+{
 	private final IAuthenticationService authenticationService;
 
 	private final ICommonBusinessObjectFactory businessObjectFactory;
@@ -577,59 +567,37 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 		}
 	}
 
-	public void deleteDataSets(String sessionToken, List<String> dataSetCodes,
-			String reason) {
-		Session session = getSessionManager().getSession(sessionToken);
-		IExternalDataDAO externalDataDAO = getDAOFactory().getExternalDataDAO();
-		List<ExternalDataPE> dataSets = new ArrayList<ExternalDataPE>();
-		List<String> locations = new ArrayList<String>();
-		for (String dataSetCode : dataSetCodes) {
-			ExternalDataPE dataSet = externalDataDAO
-					.tryToFindFullDataSetByCode(dataSetCode);
-			if (dataSet != null) {
-				dataSets.add(dataSet);
-				locations.add(dataSet.getLocation());
-			}
-		}
-		assertDataSetsAreKnown(dataSets, locations);
+    public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IExternalDataTable externalDataTable =
+                    businessObjectFactory.createExternalDataTable(session);
+            externalDataTable.loadByDataSetCodes(dataSetCodes);
+            externalDataTable.deleteLoadedDataSets(dssSessionManager, reason);
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
 
-		for (ExternalDataPE dataSet : dataSets) {
-			externalDataDAO.markAsDeleted(dataSet, session.tryGetPerson(),
-					DELETION_DESCRIPTION, reason);
-		}
-		Collection<DataStoreServerSession> sessions = dssSessionManager
-				.getSessions();
-		for (DataStoreServerSession dssSession : sessions) {
-			dssSession.getService().deleteDataSets(
-					dssSession.getSessionToken(), locations);
-		}
-	}
-
-	private void assertDataSetsAreKnown(List<ExternalDataPE> dataSets,
-			List<String> locations) {
-		Set<String> knownLocations = new LinkedHashSet<String>();
-		Collection<DataStoreServerSession> sessions = dssSessionManager
-				.getSessions();
-		for (DataStoreServerSession session : sessions) {
-			IDataStoreService service = session.getService();
-			String dssSessionToken = session.getSessionToken();
-			knownLocations.addAll(service.getKnownDataSets(dssSessionToken,
-					locations));
-		}
-		List<String> unknownDataSets = new ArrayList<String>();
-		for (ExternalDataPE dataSet : dataSets) {
-			if (knownLocations.contains(dataSet.getLocation()) == false) {
-				unknownDataSets.add(dataSet.getCode());
-			}
-		}
-		if (unknownDataSets.isEmpty() == false) {
-			throw new UserFailureException(
-					"The following data sets are unknown by any registered Data Store Server. "
-							+ "May be the responsible Data Store Server is not running.\n"
-							+ unknownDataSets);
-		}
-	}
-
+    public void uploadDataSets(String sessionToken, List<String> dataSetCodes, String cifexURL,
+            String password)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IExternalDataTable externalDataTable =
+                    businessObjectFactory.createExternalDataTable(session);
+            externalDataTable.loadByDataSetCodes(dataSetCodes);
+            externalDataTable.uploadLoadedDataSetsToCIFEX(dssSessionManager, cifexURL, password);
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+    
 	public void editExperiment(String sessionToken,
 			ExperimentIdentifier identifier,
 			List<ExperimentProperty> properties,

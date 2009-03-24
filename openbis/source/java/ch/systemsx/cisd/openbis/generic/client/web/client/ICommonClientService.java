@@ -433,4 +433,8 @@ public interface ICommonClientService extends IClientService {
 	 */
 	public List<DataSetType> listDataSetTypes() throws UserFailureException;
 
+    /** Uploads the specified data sets to the specified CIFEX server using the specified password. */
+    public void uploadDataSets(List<String> dataSetCodes, String cifexURL, String password)
+            throws UserFailureException;
+
 }

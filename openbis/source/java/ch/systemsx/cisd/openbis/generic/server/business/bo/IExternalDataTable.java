@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.server.DataStoreServerSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -29,7 +30,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  */
 public interface IExternalDataTable
 {
-
+    /**
+     * Loads data sets specified by their codes. Data set codes will be ignored if no 
+     * {@link ExternalDataPE} could be found.
+     */
+    void loadByDataSetCodes(List<String> dataSetCodes);
+    
     /**
      * Loads the internal {@link ExternalDataPE} for given <var>identifier</var>.
      */
@@ -45,5 +51,9 @@ public interface IExternalDataTable
      * Returns the loaded {@link ExternalDataPE}.
      */
     List<ExternalDataPE> getExternalData();
+    
+    void deleteLoadedDataSets(DataStoreServerSessionManager dssSessionManager, String reason);
+    
+    void uploadLoadedDataSetsToCIFEX(DataStoreServerSessionManager dssSessionManager, String cifexURL, String password);
 
 }
