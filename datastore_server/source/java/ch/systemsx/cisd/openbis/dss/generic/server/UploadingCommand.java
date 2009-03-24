@@ -35,6 +35,8 @@ import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.utilities.TokenGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 
@@ -45,7 +47,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
  */
 class UploadingCommand implements IDataSetCommand
 {
-    private static final class ProgressListener implements IProgressListener
+    private static final long serialVersionUID = 1L;
+    
+    private static final Logger operationLog =
+        LogFactory.getLogger(LogCategory.OPERATION, UploadingCommand.class);
+
+    private static final Logger notificationLog =
+        LogFactory.getLogger(LogCategory.NOTIFY, UploadingCommand.class);
+    
+    private final class ProgressListener implements IProgressListener
     {
         private final File zipFile;
 
@@ -61,9 +71,9 @@ class UploadingCommand implements IDataSetCommand
 
         public void start(File file, long fileSize)
         {
-            if (notificationLog.isInfoEnabled())
+            if (operationLog.isInfoEnabled())
             {
-                notificationLog.info("Start uploading of zip file " + file);
+                operationLog.info("Start uploading of zip file " + file);
             }
         }
 
@@ -81,38 +91,39 @@ class UploadingCommand implements IDataSetCommand
                 }
             } else
             {
-                operationLog.warn("Uploading of zip file " + zipFile + " has been aborted or failed.");
+                operationLog.warn("Uploading of zip file " + zipFile
+                        + " has been aborted or failed.");
+                sendEMail("Uploading of zip file " + zipFile.getName()
+                        + " with requested data sets failed.");
             }
         }
 
         public void exceptionOccured(Throwable throwable)
         {
-            notificationLog.error("An error occured during uploading of zip file " + zipFile + ".", throwable);
+            notificationLog.error("An error occured during uploading of zip file " + zipFile + ".",
+                    throwable);
         }
     }
 
-    private static final long serialVersionUID = 1L;
-    
-    private static final Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, UploadingCommand.class);
-
-    private static final Logger notificationLog =
-        LogFactory.getLogger(LogCategory.NOTIFY, UploadingCommand.class);
-    
     private final ICIFEXRPCServiceFactory cifexServiceFactory;
     private final List<String> dataSetLocations;
     private final String comment;
     private final String userID;
     private final String password;
+    private final String userEMail;
+    private final MailClientParameters mailClientParameters;
     private final TokenGenerator tokenGenerator;
 
-    UploadingCommand(ICIFEXRPCServiceFactory cifexServiceFactory, List<String> dataSetLocations,
+    UploadingCommand(ICIFEXRPCServiceFactory cifexServiceFactory,
+            MailClientParameters mailClientParameters, List<String> dataSetLocations,
             DataSetUploadContext context)
     {
         this.cifexServiceFactory = cifexServiceFactory;
+        this.mailClientParameters = mailClientParameters;
         this.dataSetLocations = dataSetLocations;
         this.userID = context.getUserID();
         this.password = context.getPassword();
+        userEMail = context.getUserEMail();
         this.comment = context.getComment();
         tokenGenerator = new TokenGenerator();
     }
@@ -136,7 +147,11 @@ class UploadingCommand implements IDataSetCommand
             Uploader uploader = new Uploader(cifexService, sessionToken);
             uploader.addProgressListener(new ProgressListener(zipFile));
             uploader.upload(Arrays.asList(zipFile), Constants.USER_ID_PREFIX + userID, comment);
+        } else
+        {
+            sendEMail("Couldn't create zip file " + zipFile.getName() + " with requested data sets");
         }
+        zipFile.delete();
     }
 
     private boolean fillZipFile(File store, File zipFile)
@@ -145,13 +160,14 @@ class UploadingCommand implements IDataSetCommand
         ZipOutputStream zipOutputStream = null;
         try
         {
+            String rootPath = store.getCanonicalPath();
             outputStream = new FileOutputStream(zipFile);
             zipOutputStream = new ZipOutputStream(outputStream);
             for (String location : dataSetLocations)
             {
                 try
                 {
-                    addTo(zipOutputStream, new File(store, location));
+                    addTo(zipOutputStream, rootPath, new File(store, location));
                 } catch (IOException ex)
                 {
                     notificationLog.error("Couldn't add data set '" + location + "' to zip file.",
@@ -173,15 +189,13 @@ class UploadingCommand implements IDataSetCommand
                     zipOutputStream.close();
                 } catch (IOException ex)
                 {
-                    // ignored
+                    notificationLog.error("Couldn't close zip file", ex);
                 }
             }
-            IOUtils.closeQuietly(outputStream);
         }
-
     }
 
-    private void addTo(ZipOutputStream zipOutputStream, File file) throws IOException
+    private void addTo(ZipOutputStream zipOutputStream, String rootPath, File file) throws IOException
     {
         if (file.isFile())
         {
@@ -189,7 +203,11 @@ class UploadingCommand implements IDataSetCommand
             try
             {
                 in = new FileInputStream(file);
-                zipOutputStream.putNextEntry(new ZipEntry(file.getPath()));
+                String path = file.getCanonicalPath().substring(rootPath.length() + 1);
+                ZipEntry zipEntry = new ZipEntry(path);
+                zipEntry.setTime(file.lastModified());
+                zipEntry.setMethod(ZipEntry.DEFLATED);
+                zipOutputStream.putNextEntry(zipEntry);
                 int len;
                 byte[] buffer = new byte[1024];
                 while ((len = in.read(buffer)) > 0)
@@ -206,9 +224,19 @@ class UploadingCommand implements IDataSetCommand
             File[] files = file.listFiles();
             for (File childFile : files)
             {
-                addTo(zipOutputStream, childFile);
+                addTo(zipOutputStream, rootPath, childFile);
             }
         }
+    }
+
+    private void sendEMail(String message)
+    {
+        String from = mailClientParameters.getFrom();
+        String smtpHost = mailClientParameters.getSmtpHost();
+        String smtpUser = mailClientParameters.getSmtpUser();
+        String smtpPassword = mailClientParameters.getSmtpPassword();
+        IMailClient mailClient = new MailClient(from, smtpHost, smtpUser, smtpPassword);
+        mailClient.sendMessage("[Data Set Server] Uploading failed", message, "", userEMail);
     }
 
 }

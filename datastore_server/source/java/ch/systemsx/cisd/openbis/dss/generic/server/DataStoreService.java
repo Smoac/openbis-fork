@@ -24,9 +24,6 @@ import java.util.List;
 import org.springframework.beans.factory.InitializingBean;
 
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
-import ch.systemsx.cisd.cifex.rpc.client.RPCServiceFactory;
-import ch.systemsx.cisd.cifex.shared.basic.Constants;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.WrappedIOException;
@@ -47,11 +44,13 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     
     private final IDataSetCommandExecutorFactory commandExecutorFactory;
     
+    private final MailClientParameters mailClientParameters;
+    
     private File storeRoot;
 
     private IDataSetCommandExecutor commandExecuter;
 
-    public DataStoreService(SessionTokenManager sessionTokenManager)
+    public DataStoreService(SessionTokenManager sessionTokenManager, MailClientParameters mailClientParameters)
     {
         this(sessionTokenManager, new IDataSetCommandExecutorFactory()
             {
@@ -59,14 +58,15 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
                 {
                     return new DataSetCommandExecuter(store);
                 }
-            });
+            }, mailClientParameters);
     }
 
     DataStoreService(SessionTokenManager sessionTokenManager,
-            IDataSetCommandExecutorFactory commandExecutorFactory)
+            IDataSetCommandExecutorFactory commandExecutorFactory, MailClientParameters mailClientParameters)
     {
         this.sessionTokenManager = sessionTokenManager;
         this.commandExecutorFactory = commandExecutorFactory;
+        this.mailClientParameters = mailClientParameters;
     }
 
     public final void setStoreRoot(File storeRoot)
@@ -158,36 +158,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         {
             throw new InvalidSessionException("User couldn't be authenticated at CIFEX.");
         }
-        commandExecuter.scheduleCommand(new UploadingCommand(serviceFactory, dataSetLocations, context));
-    }
-
-    private static final class CIFEXRPCServiceFactory implements ICIFEXRPCServiceFactory
-    {
-        private static final long serialVersionUID = 1L;
-        private final String cifexURL;
-        
-        private transient ICIFEXRPCService service;
-        
-        CIFEXRPCServiceFactory(String cifexURL)
-        {
-            this.cifexURL = cifexURL;
-        }
-
-        public ICIFEXRPCService createService()
-        {
-            if (service == null)
-            {
-                final String serviceURL = cifexURL + Constants.CIFEX_RPC_PATH;
-                service = RPCServiceFactory.createServiceProxy(serviceURL, true);
-                final int serverVersion = service.getVersion();
-                if (ICIFEXRPCService.VERSION != serverVersion)
-                {
-                    throw new EnvironmentFailureException("The version of the CIFEX server is not "
-                            + ICIFEXRPCService.VERSION + " but " + serverVersion + ".");
-                }
-            }
-            return service;
-        }
+        commandExecuter.scheduleCommand(new UploadingCommand(serviceFactory, mailClientParameters,
+                dataSetLocations, context));
     }
     
 }

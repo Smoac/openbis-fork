@@ -32,6 +32,14 @@
         <property name="service">
             <bean class="ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService">
                 <constructor-arg ref="session-token-manager" />
+                <constructor-arg>
+                    <bean class="ch.systemsx.cisd.openbis.dss.generic.server.MailClientParameters">
+                        <property name="from" value="${mail.from}"/>
+                        <property name="smtpHost" value="${mail.smtp.host}"/>
+                        <property name="smtpUser" value="${mail.smtp.user}"/>
+                        <property name="smtpPassword" value="${mail.smtp.password}"/>
+                    </bean>
+                </constructor-arg>
                 <property name="storeRoot" value="${storeroot-dir}"/>
             </bean>
         </property>

@@ -61,7 +61,7 @@ class DataStoreServiceLogger implements IDataStoreService
         final String invocationStatusMessage = invocationSuccessful ? RESULT_SUCCESS : RESULT_FAILURE;
         // We put on purpose 2 spaces between the command and the message derived from the
         // parameters.
-        operationLog.info(String.format(": %s  %s%s", commandName, message, invocationStatusMessage));
+        operationLog.info(String.format("%s  %s%s", commandName, message, invocationStatusMessage));
     }
     
     public int getVersion(String sessionToken)
@@ -86,7 +86,7 @@ class DataStoreServiceLogger implements IDataStoreService
     public void uploadDataSetsToCIFEX(String sessionToken, List<String> dataSetLocations,
             DataSetUploadContext context) throws InvalidAuthenticationException
     {
-        log("upload_data_sets", "LOCATIONS(%s) USER(%s)", dataSetLocations, context.getUserID());
+        log("upload_data_sets", "USER(%s) LOCATIONS(%s)", context.getUserID(), dataSetLocations);
     }
 
 }
