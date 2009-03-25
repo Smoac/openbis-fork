@@ -284,6 +284,11 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     public void registerVocabulary(final String sessionToken, final Vocabulary vocabulary);
 
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    public void addVocabularyTerms(String sessionToken, String vocabularyCode,
+            List<String> vocabularyTerms);
+
     /**
      * Registers new project.
      */
