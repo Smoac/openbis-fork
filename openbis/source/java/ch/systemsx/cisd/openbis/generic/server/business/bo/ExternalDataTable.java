@@ -53,10 +53,36 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public final class ExternalDataTable extends AbstractExternalDataBusinessObject implements
         IExternalDataTable
 {
-    private static final String NEW_LINE = "\n";
-    private static final int MAX_LENGTH_OF_CIFEX_COMMENT = 1000;
-    private static final String AND_MORE_TEMPLATE = "and %d more.";
+    @Private static final int MAX_LENGTH_OF_CIFEX_COMMENT = 1000;
+    @Private static final String UPLOAD_COMMENT_TEXT = "Uploaded zip file contains the following data sets:";
+    @Private static final String NEW_LINE = "\n";
+    @Private static final String AND_MORE_TEMPLATE = "and %d more.";
     @Private static final String DELETION_DESCRIPTION = "single deletion";
+    
+    @Private static String createUploadComment(List<ExternalDataPE> dataSets)
+    {
+        StringBuilder builder = new StringBuilder(UPLOAD_COMMENT_TEXT);
+        for (int i = 0, n = dataSets.size(); i < n; i++)
+        {
+            builder.append(NEW_LINE);
+            String code = dataSets.get(i).getCode();
+            int length = builder.length() + code.length();
+            if (i < n - 1)
+            {
+                length += NEW_LINE.length() + String.format(AND_MORE_TEMPLATE, n - i - 1).length();
+            }
+            if (length < MAX_LENGTH_OF_CIFEX_COMMENT)
+            {
+                builder.append(code);
+            } else
+            {
+                builder.append(String.format(AND_MORE_TEMPLATE, n - i));
+                break;
+            }
+        }
+        return builder.toString();
+    }
+    
 
     private List<ExternalDataPE> externalData;
 
@@ -157,7 +183,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         uploadContext.setUserID(session.getUserName());
         uploadContext.setPassword(password);
         uploadContext.setUserEMail(session.getPrincipal().getEmail());
-        uploadContext.setComment(createUploadComment());
+        uploadContext.setComment(createUploadComment(externalData));
         for (DataStoreServerSession dssSession : sessions)
         {
             dssSession.getService().uploadDataSetsToCIFEX(dssSession.getSessionToken(), locations,
@@ -165,30 +191,6 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         }
     }
 
-    private String createUploadComment()
-    {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Uploaded zip file contains the following data sets:");
-        for (int i = 0, n = externalData.size(); i < n; i++)
-        {
-            builder.append(NEW_LINE);
-            String code = externalData.get(i).getCode();
-            int length = builder.length() + code.length();
-            if (i < n - 1)
-            {
-                length += NEW_LINE.length() + String.format(AND_MORE_TEMPLATE, n - i - 1).length();
-            }
-            if (length < MAX_LENGTH_OF_CIFEX_COMMENT)
-            {
-                builder.append(code);
-            } else
-            {
-                builder.append(String.format(AND_MORE_TEMPLATE, n - i));
-            }
-        }
-        return builder.toString();
-    }
-    
     private void assertDataSetsAreKnown(DataStoreServerSessionManager dssSessionManager)
     {
         List<String> locations = getLocations();

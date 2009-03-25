@@ -16,12 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
 import static ch.systemsx.cisd.openbis.generic.server.business.bo.ExternalDataTable.DELETION_DESCRIPTION;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -32,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.DataStoreServerSessionMa
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -330,7 +334,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
                             with(equal(locations)));
                     will(returnValue(locations));
 
-                    PersonPE person = ManagerTestTool.EXAMPLE_SESSION.tryGetPerson();
+                    PersonPE person = EXAMPLE_SESSION.tryGetPerson();
                     one(externalDataDAO).markAsDeleted(d1, person, DELETION_DESCRIPTION, "reason");
                     one(externalDataDAO).markAsDeleted(d2, person, DELETION_DESCRIPTION, "reason");
                     one(dataStoreService).deleteDataSets(with(any(String.class)),
@@ -343,6 +347,93 @@ public final class ExternalDataTableTest extends AbstractBOTest
         externalDataTable.deleteLoadedDataSets(dssSessionManager, "reason");
 
         context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testUploadDataSets()
+    {
+        dssSessionManager.registerDataStoreServer(new DataStoreServerSession("url",
+                dataStoreService));
+        final ExternalDataPE d1 = createDataSet("d1");
+        final ExternalDataPE d2 = createDataSet("d2");
+        context.checking(new Expectations()
+            {
+                {
+                    one(externalDataDAO).tryToFindFullDataSetByCode(d1.getCode());
+                    will(returnValue(d1));
+
+                    one(externalDataDAO).tryToFindFullDataSetByCode(d2.getCode());
+                    will(returnValue(d2));
+
+                    List<String> locations = Arrays.asList(d1.getLocation(), d2.getLocation());
+                    one(dataStoreService).getKnownDataSets(with(any(String.class)),
+                            with(equal(locations)));
+                    will(returnValue(locations));
+
+                    DataSetUploadContext uploadContext = new DataSetUploadContext();
+                    uploadContext.setCifexURL("cifexURL");
+                    uploadContext.setUserID(EXAMPLE_SESSION.getUserName());
+                    uploadContext.setPassword("pwd");
+                    uploadContext.setUserEMail(EXAMPLE_SESSION.getPrincipal().getEmail());
+                    uploadContext.setComment(ExternalDataTable.createUploadComment(Arrays.asList(d1, d2)));
+                    one(dataStoreService).uploadDataSetsToCIFEX(with(any(String.class)),
+                            with(equal(locations)), with(equal(uploadContext)));
+                }
+            });
+
+        ExternalDataTable externalDataTable = createExternalDataTable();
+        externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()));
+        externalDataTable.uploadLoadedDataSetsToCIFEX(dssSessionManager, "cifexURL", "pwd");
+
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testCreateUploadComment()
+    {
+        createAndCheckUploadComment(18, 50, 18);
+        createAndCheckUploadComment(18, 50, 19);
+        createAndCheckUploadComment(18, 50, 20);
+        createAndCheckUploadComment(18, 50, 21);
+        
+        createAndCheckUploadComment(17, 51, 29);
+        createAndCheckUploadComment(17, 52, 29);
+        createAndCheckUploadComment(17, 53, 29);
+        createAndCheckUploadComment(17, 54, 29);
+        createAndCheckUploadComment(16, 54, 129);
+    }
+    
+    private void createAndCheckUploadComment(int expectedCodesShown, int codeLength, int dataSetCount)
+    {
+        List<ExternalDataPE> dataSets = new ArrayList<ExternalDataPE>(dataSetCount);
+        StringBuilder builder = new StringBuilder(ExternalDataTable.UPLOAD_COMMENT_TEXT);
+        for (int i = 0; i < dataSetCount; i++)
+        {
+            ExternalDataPE dataSet = new ExternalDataPE();
+            String code = generateDataSetCode(codeLength, i);
+            dataSet.setCode(code);
+            dataSets.add(dataSet);
+            if (i < expectedCodesShown)
+            {
+                builder.append(ExternalDataTable.NEW_LINE);
+                builder.append(code);
+            } else if (i == expectedCodesShown)
+            {
+                builder.append(ExternalDataTable.NEW_LINE);
+                builder.append(String.format(ExternalDataTable.AND_MORE_TEMPLATE, dataSetCount - expectedCodesShown));
+            }
+        }
+        String comment = ExternalDataTable.createUploadComment(dataSets);
+        System.out.println(comment.length() + ":" + comment);
+        assertEquals(builder.toString(), comment);
+        assertTrue(comment.length() <= ExternalDataTable.MAX_LENGTH_OF_CIFEX_COMMENT);
+    }
+    
+    private String generateDataSetCode(int codeLength, int codeIndex)
+    {
+        String result = "-" + (codeIndex + 1);
+        String sequence = StringUtils.repeat("1234567890", (codeLength / 10) + 1);
+        return sequence.substring(0, codeLength - result.length()) + result;
     }
     
     private ExternalDataPE createDataSet(String code)
