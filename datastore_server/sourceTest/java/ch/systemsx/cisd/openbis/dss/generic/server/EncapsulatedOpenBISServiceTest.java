@@ -60,8 +60,8 @@ public class EncapsulatedOpenBISServiceTest
             final DataSetInformation dataSetInformation)
     {
         exp.one(limsService).authenticate(LIMS_USER, LIMS_PASSWORD);
-        exp.one(limsService).registerDataStoreServer(
-                exp.with(Expectations.equal("")), 0, exp.with(Expectations.any(String.class)));
+        exp.one(limsService).registerDataStoreServer(exp.with(Expectations.equal("")),
+                exp.with(Expectations.equal(0)), exp.with(Expectations.any(String.class)));
         exp.one(limsService).tryToGetBaseExperiment("", dataSetInformation.getSampleIdentifier());
     }
 
@@ -76,7 +76,7 @@ public class EncapsulatedOpenBISServiceTest
                     one(limsService).authenticate(LIMS_USER, LIMS_PASSWORD);
                     
                     one(limsService).registerDataStoreServer(
-                            with(equal("")), 0, with(any(String.class)));
+                            with(equal("")), with(equal(0)), with(any(String.class)));
                 }
             });
         encapsulatedLimsService =
