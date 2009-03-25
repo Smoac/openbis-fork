@@ -353,13 +353,14 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         BooleanQuery query = new BooleanQuery();
         query.add(LuceneQueryBuilder.createQuery(datasetSearchCriteria), Occur.MUST);
         SearchAnalyzer searchAnalyzer = LuceneQueryBuilder.createSearchAnalyzer();
-        query.add(LuceneQueryBuilder.parseQuery(SearchFieldConstants.DELETED, "false", searchAnalyzer),
-                Occur.MUST);
+        query.add(LuceneQueryBuilder.parseQuery(SearchFieldConstants.DELETED, "false",
+                searchAnalyzer), Occur.MUST);
         final FullTextSession fullTextSession = Search.getFullTextSession(session);
         final FullTextQuery hibernateQuery =
                 fullTextSession.createFullTextQuery(query, ExternalDataPE.class);
 
         Criteria criteria = getSession().createCriteria(ExternalDataPE.class);
+        criteria.setFetchMode("dataSetProperties", FetchMode.JOIN);
         criteria.setFetchMode("parents", FetchMode.JOIN);
         criteria.setFetchMode("procedure", FetchMode.JOIN);
         criteria.setFetchMode("procedure.experimentInternal", FetchMode.JOIN);
@@ -383,7 +384,6 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         }
     }
 
-
     private void initSamplesWithProperties(SamplePE sampleOrNull)
     {
         if (sampleOrNull != null)
@@ -392,6 +392,5 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             HibernateUtils.initialize(sampleOrNull.getProperties());
         }
     }
-
 
 }

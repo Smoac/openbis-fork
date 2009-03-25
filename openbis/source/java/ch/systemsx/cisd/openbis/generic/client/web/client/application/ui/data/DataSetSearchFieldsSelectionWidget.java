@@ -20,9 +20,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -35,7 +32,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 /**
  * {@link ComboBox} containing list of search fields loaded from the server (property types) and
@@ -74,8 +75,8 @@ public final class DataSetSearchFieldsSelectionWidget extends
     }
 
     @Override
-    /**
-     * Always returns null.
+    /*
+     * * Always returns null.
      */
     public PropertyType tryGetSelected()
     {
@@ -183,6 +184,7 @@ public final class DataSetSearchFieldsSelectionWidget extends
         Collections.sort(types);
         List<String> allExpProps = addExperimentPropertyTypes(result, types);
         List<String> allSampleProps = addSamplePropertyTypes(result, types);
+        List<String> allDataSetProps = addDataSetPropertyTypes(result, types);
 
         DataSetSearchField anyExperimentProperty =
                 DataSetSearchField.createAnyExperimentProperty(allExpProps);
@@ -193,7 +195,7 @@ public final class DataSetSearchFieldsSelectionWidget extends
         addFieldComboModel(result, anySampleProperty);
 
         DataSetSearchField anyField =
-                DataSetSearchField.createAnyField(allExpProps, allSampleProps);
+                DataSetSearchField.createAnyField(allExpProps, allSampleProps, allDataSetProps);
         addFieldComboModel(result, anyField);
 
         return result;
@@ -215,7 +217,15 @@ public final class DataSetSearchFieldsSelectionWidget extends
     {
         List<PropertyType> relevantPropertyTypes =
                 DataSetSearchHitModel.filterSamplePropertyTypes(propertyTypes);
-        return addPropertyTypes(result, relevantPropertyTypes, false);
+        return addPropertyTypes(result, relevantPropertyTypes, EntityKind.SAMPLE);
+    }
+
+    private static List<String> addDataSetPropertyTypes(
+            final List<DataSetSearchFieldComboModel> result, List<PropertyType> propertyTypes)
+    {
+        List<PropertyType> relevantPropertyTypes =
+                DataSetSearchHitModel.filterDataSetPropertyTypes(propertyTypes);
+        return addPropertyTypes(result, relevantPropertyTypes, EntityKind.DATA_SET);
     }
 
     private static List<String> addExperimentPropertyTypes(
@@ -223,12 +233,12 @@ public final class DataSetSearchFieldsSelectionWidget extends
     {
         List<PropertyType> relevantPropertyTypes =
                 DataSetSearchHitModel.filterExperimentPropertyTypes(propertyTypes);
-        return addPropertyTypes(result, relevantPropertyTypes, true);
+        return addPropertyTypes(result, relevantPropertyTypes, EntityKind.EXPERIMENT);
     }
 
     // returns codes of added properties
     private static List<String> addPropertyTypes(final List<DataSetSearchFieldComboModel> result,
-            List<PropertyType> types, boolean isExperimentProperty)
+            List<PropertyType> types, EntityKind kind)
     {
         List<String> allProps = new ArrayList<String>();
         for (final PropertyType st : types)
@@ -236,12 +246,19 @@ public final class DataSetSearchFieldsSelectionWidget extends
             String code = st.getCode();
             allProps.add(code);
             DataSetSearchField field;
-            if (isExperimentProperty)
+            switch (kind)
             {
-                field = DataSetSearchField.createExperimentProperty(code);
-            } else
-            {
-                field = DataSetSearchField.createSampleProperty(code);
+                case EXPERIMENT:
+                    field = DataSetSearchField.createExperimentProperty(code);
+                    break;
+                case SAMPLE:
+                    field = DataSetSearchField.createSampleProperty(code);
+                    break;
+                case DATA_SET:
+                    field = DataSetSearchField.createDataSetProperty(code);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported entity kind.");
             }
             DataSetSearchFieldComboModel comboModel =
                     createPropertyComboModel(st, field, isLabelDuplicated(st, types));

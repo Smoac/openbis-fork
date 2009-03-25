@@ -41,12 +41,13 @@ import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchFieldKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * @author Tomasz Pylak
@@ -99,10 +100,13 @@ public class LuceneQueryBuilder
                 return getSamplePropertyIndexFields(searchField);
             case ANY_EXPERIMENT_PROPERTY:
                 return getExperimentPropertyIndexFields(searchField);
+            case ANY_DATA_SET_PROPERTY:
+                return getDataSetPropertyIndexFields(searchField);
             case ANY_FIELD:
                 List<String> fields = new ArrayList<String>();
                 fields.addAll(getSamplePropertyIndexFields(searchField));
                 fields.addAll(getExperimentPropertyIndexFields(searchField));
+                fields.addAll(getDataSetPropertyIndexFields(searchField));
                 fields.addAll(getAllIndexSimpleFieldNames());
                 return fields;
             default:
@@ -131,28 +135,43 @@ public class LuceneQueryBuilder
 
     private static List<String> getExperimentPropertyIndexFields(DataSetSearchField searchField)
     {
-        return getPropertyIndexFields(searchField.getAllExperimentPropertyCodes(), true);
+        return getPropertyIndexFields(searchField.getAllExperimentPropertyCodes(),
+                EntityKind.EXPERIMENT);
+    }
+
+    private static List<String> getDataSetPropertyIndexFields(DataSetSearchField searchField)
+    {
+        return getPropertyIndexFields(searchField.getAllDataSetPropertyCodesOrNull(),
+                EntityKind.DATA_SET);
     }
 
     private static List<String> getSamplePropertyIndexFields(DataSetSearchField searchField)
     {
-        return getPropertyIndexFields(searchField.getAllSamplePropertyCodesOrNull(), false);
+        return getPropertyIndexFields(searchField.getAllSamplePropertyCodesOrNull(),
+                EntityKind.SAMPLE);
     }
 
     private static List<String> getPropertyIndexFields(List<String> allPropertyCodes,
-            boolean isExperiment)
+            EntityKind kind)
     {
         List<String> fields = new ArrayList<String>();
         assert allPropertyCodes != null;
         for (String propertyCode : allPropertyCodes)
         {
             DataSetSearchField searchField;
-            if (isExperiment)
+            switch (kind)
             {
-                searchField = DataSetSearchField.createExperimentProperty(propertyCode);
-            } else
-            {
-                searchField = DataSetSearchField.createSampleProperty(propertyCode);
+                case EXPERIMENT:
+                    searchField = DataSetSearchField.createExperimentProperty(propertyCode);
+                    break;
+                case SAMPLE:
+                    searchField = DataSetSearchField.createSampleProperty(propertyCode);
+                    break;
+                case DATA_SET:
+                    searchField = DataSetSearchField.createDataSetProperty(propertyCode);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported entity kind");
             }
             String fieldIndex = tryGetIndexFieldName(searchField);
             fields.add(fieldIndex);
@@ -171,6 +190,8 @@ public class LuceneQueryBuilder
                 return CODE;
             case DATA_SET_TYPE:
                 return SearchFieldConstants.PREFIX_DATASET_TYPE + CODE;
+            case DATA_SET_PROPERTY:
+                return getPropertyIndexField(searchField.getPropertyCode());
             case FILE_TYPE:
                 return SearchFieldConstants.PREFIX_FILE_FORMAT_TYPE + CODE;
             case GROUP:
@@ -191,6 +212,7 @@ public class LuceneQueryBuilder
                 return PREFIX_SAMPLE + getPropertyIndexField(searchField.getPropertyCode());
             case ANY_SAMPLE_PROPERTY:
             case ANY_EXPERIMENT_PROPERTY:
+            case ANY_DATA_SET_PROPERTY:
             case ANY_FIELD:
                 return null;
             default:

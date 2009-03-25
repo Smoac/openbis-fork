@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -33,7 +34,7 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         IInvalidationProvider
 {
     private String dataStoreBaseURL;
-    
+
     private ProcedureType procedureType;
 
     private boolean derived;
@@ -65,6 +66,8 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     private SampleType sampleType;
 
     private List<SampleProperty> sampleProperties;
+
+    private List<DataSetProperty> dataSetProperties;
 
     public final ProcedureType getProcedureType()
     {
@@ -234,5 +237,15 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     public final void setDataStoreBaseURL(String dataStoreBaseURL)
     {
         this.dataStoreBaseURL = dataStoreBaseURL;
+    }
+
+    public void setDataSetProperties(List<DataSetProperty> dataSetProperties)
+    {
+        this.dataSetProperties = dataSetProperties;
+    }
+
+    public List<DataSetProperty> getDataSetProperties()
+    {
+        return dataSetProperties;
     }
 }

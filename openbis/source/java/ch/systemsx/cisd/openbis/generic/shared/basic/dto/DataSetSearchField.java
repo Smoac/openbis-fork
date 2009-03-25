@@ -35,29 +35,42 @@ public class DataSetSearchField implements IsSerializable
 
     private List<String> allSamplePropertyCodesOrNull;
 
+    private List<String> allDataSetPropertyCodesOrNull;
+
     public static DataSetSearchField createAnyField(List<String> allExperimentPropertyCodes,
-            List<String> allSamplePropertyCodes)
+            List<String> allSamplePropertyCodes, List<String> allDataSetPropertyCodes)
     {
         return new DataSetSearchField(DataSetSearchFieldKind.ANY_FIELD, null,
-                allExperimentPropertyCodes, allSamplePropertyCodes);
+                allExperimentPropertyCodes, allSamplePropertyCodes, allDataSetPropertyCodes);
     }
 
     public static DataSetSearchField createAnyExperimentProperty(
             List<String> allExperimentPropertyCodes)
     {
         return new DataSetSearchField(DataSetSearchFieldKind.ANY_EXPERIMENT_PROPERTY, null,
-                allExperimentPropertyCodes, null);
+                allExperimentPropertyCodes, null, null);
     }
 
     public static DataSetSearchField createAnySampleProperty(List<String> allSamplePropertyCodes)
     {
         return new DataSetSearchField(DataSetSearchFieldKind.ANY_SAMPLE_PROPERTY, null, null,
-                allSamplePropertyCodes);
+                allSamplePropertyCodes, null);
+    }
+
+    public static DataSetSearchField createAnyDataSetProperty(List<String> allDataSetPropertyCodes)
+    {
+        return new DataSetSearchField(DataSetSearchFieldKind.ANY_DATA_SET_PROPERTY, null, null,
+                null, allDataSetPropertyCodes);
     }
 
     public static DataSetSearchField createExperimentProperty(String propertyCode)
     {
         return new DataSetSearchField(DataSetSearchFieldKind.EXPERIMENT_PROPERTY, propertyCode);
+    }
+
+    public static DataSetSearchField createDataSetProperty(String propertyCode)
+    {
+        return new DataSetSearchField(DataSetSearchFieldKind.DATA_SET_PROPERTY, propertyCode);
     }
 
     public static DataSetSearchField createSampleProperty(String propertyCode)
@@ -80,16 +93,18 @@ public class DataSetSearchField implements IsSerializable
 
     private DataSetSearchField(DataSetSearchFieldKind kind, String propertyCodeOrNull)
     {
-        this(kind, propertyCodeOrNull, null, null);
+        this(kind, propertyCodeOrNull, null, null, null);
     }
 
     private DataSetSearchField(DataSetSearchFieldKind kind, String propertyCodeOrNull,
-            List<String> allExperimentPropertyCodesOrNull, List<String> allSamplePropertyCodesOrNull)
+            List<String> allExperimentPropertyCodesOrNull,
+            List<String> allSamplePropertyCodesOrNull, List<String> allDataSetPropertyCodesOrNull)
     {
         this.kind = kind;
         this.propertyCodeOrNull = propertyCodeOrNull;
         this.allExperimentPropertyCodesOrNull = allExperimentPropertyCodesOrNull;
         this.allSamplePropertyCodesOrNull = allSamplePropertyCodesOrNull;
+        this.allDataSetPropertyCodesOrNull = allDataSetPropertyCodesOrNull;
     }
 
     public DataSetSearchFieldKind getKind()
@@ -100,7 +115,8 @@ public class DataSetSearchField implements IsSerializable
     public String getPropertyCode()
     {
         assert kind == DataSetSearchFieldKind.EXPERIMENT_PROPERTY
-                || kind == DataSetSearchFieldKind.SAMPLE_PROPERTY;
+                || kind == DataSetSearchFieldKind.SAMPLE_PROPERTY
+                || kind == DataSetSearchFieldKind.DATA_SET_PROPERTY;
         return propertyCodeOrNull;
     }
 
@@ -118,13 +134,21 @@ public class DataSetSearchField implements IsSerializable
         return allSamplePropertyCodesOrNull;
     }
 
+    public List<String> getAllDataSetPropertyCodesOrNull()
+    {
+        assert kind == DataSetSearchFieldKind.ANY_DATA_SET_PROPERTY
+                || kind == DataSetSearchFieldKind.ANY_FIELD;
+        return allDataSetPropertyCodesOrNull;
+    }
+
     @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
         sb.append(getKind());
         if (getKind().equals(DataSetSearchFieldKind.EXPERIMENT_PROPERTY)
-                || getKind().equals(DataSetSearchFieldKind.SAMPLE_PROPERTY))
+                || getKind().equals(DataSetSearchFieldKind.SAMPLE_PROPERTY)
+                || getKind().equals(DataSetSearchFieldKind.DATA_SET_PROPERTY))
         {
             sb.append(".");
             sb.append(getPropertyCode());

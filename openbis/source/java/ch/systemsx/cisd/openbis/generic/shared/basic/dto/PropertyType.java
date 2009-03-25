@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
  * The <i>GWT</i> pendant to {@link PropertyTypePE}.
@@ -60,6 +60,8 @@ public class PropertyType extends Code<PropertyType> implements IsSerializable
     private List<MaterialTypePropertyType> materialTypePropertyTypes;
 
     private List<ExperimentTypePropertyType> experimentTypePropertyTypes;
+    
+    private List<DataSetTypePropertyType> dataSetTypePropertyTypes;
 
     public String getSimpleCode()
     {
@@ -131,6 +133,15 @@ public class PropertyType extends Code<PropertyType> implements IsSerializable
     {
         this.sampleTypePropertyTypes = sampleTypePropertyTypes;
     }
+    
+    public List<DataSetTypePropertyType> getDataSetTypePropertyTypes() {
+		return dataSetTypePropertyTypes;
+	}
+
+	public void setDataSetTypePropertyTypes(
+			final List<DataSetTypePropertyType> dataSetTypePropertyTypes) {
+		this.dataSetTypePropertyTypes = dataSetTypePropertyTypes;
+	}
 
     public List<MaterialTypePropertyType> getMaterialTypePropertyTypes()
     {

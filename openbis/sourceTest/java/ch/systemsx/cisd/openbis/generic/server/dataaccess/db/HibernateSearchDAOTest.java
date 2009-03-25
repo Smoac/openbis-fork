@@ -299,7 +299,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
 
     private static DataSetSearchField createAnySearchField(List<String> propertyTypes)
     {
-        return DataSetSearchField.createAnyField(propertyTypes, propertyTypes);
+        return DataSetSearchField.createAnyField(propertyTypes, propertyTypes, propertyTypes);
     }
 
     @Test

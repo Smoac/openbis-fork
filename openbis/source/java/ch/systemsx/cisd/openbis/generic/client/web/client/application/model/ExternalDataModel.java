@@ -71,7 +71,9 @@ public final class ExternalDataModel extends BaseEntityModel<ExternalData>
     public static ColumnDefsAndConfigs<ExternalData> createColumnsSchema(
             IMessageProvider messageProvider)
     {
-        return BaseEntityModel.createColumnConfigs(CommonExternalDataColDefKind.values(),
-                messageProvider);
+        ColumnDefsAndConfigs<ExternalData> columns =
+                BaseEntityModel.createColumnConfigs(CommonExternalDataColDefKind.values(),
+                        messageProvider);
+        return columns;
     }
 }

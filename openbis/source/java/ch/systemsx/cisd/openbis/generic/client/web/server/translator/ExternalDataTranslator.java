@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ProcedureType;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -39,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -99,8 +101,21 @@ public class ExternalDataTranslator
             externalData.setSampleProperties(SamplePropertyTranslator.translate(sample
                     .getProperties()));
         }
+        setProperties(externalDataPE, externalData);
         externalData.setProcedure(getProcedure(externalDataPE, withExperimentFields));
         return externalData;
+    }
+
+    private static void setProperties(ExternalDataPE externalDataPE, ExternalData externalData)
+    {
+        if (HibernateUtils.isInitialized(externalDataPE.getProperties()))
+        {
+            externalData.setDataSetProperties(DataSetPropertyTranslator.translate(externalDataPE
+                    .getProperties()));
+        } else
+        {
+            externalData.setDataSetProperties(new ArrayList<DataSetProperty>());
+        }
     }
 
     private static ProcedureType getProcedureType(ExternalDataPE externalDataPE)

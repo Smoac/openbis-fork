@@ -33,6 +33,8 @@ public enum DataSetSearchFieldKind implements IsSerializable
     ANY_EXPERIMENT_PROPERTY("Any Experiment Property", true),
 
     ANY_SAMPLE_PROPERTY("Any Sample Property", true),
+    
+    ANY_DATA_SET_PROPERTY("Any Data Set Property", true),
 
     DATA_SET_CODE("Data Set Code"),
 
@@ -53,8 +55,11 @@ public enum DataSetSearchFieldKind implements IsSerializable
     SAMPLE_TYPE("Sample Type"),
 
     EXPERIMENT_PROPERTY("Experiment Property", true),
+    
+    DATA_SET_PROPERTY("Data Set Property", true),
 
     SAMPLE_PROPERTY("Sample Property", true);
+    
 
     private final String description;
 

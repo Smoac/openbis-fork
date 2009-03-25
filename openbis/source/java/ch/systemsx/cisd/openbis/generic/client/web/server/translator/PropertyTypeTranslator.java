@@ -48,8 +48,10 @@ public final class PropertyTypeTranslator
         return result;
     }
 
-    public final static PropertyType translate(final PropertyTypePE propertyType, MaterialType materialType){
-    	final PropertyType result = new PropertyType();
+    public final static PropertyType translate(final PropertyTypePE propertyType,
+            MaterialType materialType)
+    {
+        final PropertyType result = new PropertyType();
         result.setCode(StringEscapeUtils.escapeHtml(propertyType.getCode()));
         result.setSimpleCode(StringEscapeUtils.escapeHtml(propertyType.getSimpleCode()));
         result.setInternalNamespace(propertyType.isInternalNamespace());
@@ -57,10 +59,14 @@ public final class PropertyTypeTranslator
         result.setLabel(StringEscapeUtils.escapeHtml(propertyType.getLabel()));
         result.setDataType(DataTypeTranslator.translate(propertyType.getType()));
         result.setVocabulary(VocabularyTranslator.translate(propertyType.getVocabulary()));
-        if(materialType == null){
-        	result.setMaterialType(MaterialTypeTranslator.translate(propertyType.getMaterialType()));
-        }else{
-        	result.setMaterialType(materialType);
+        if (materialType == null)
+        {
+            result
+                    .setMaterialType(MaterialTypeTranslator.translate(propertyType
+                            .getMaterialType()));
+        } else
+        {
+            result.setMaterialType(materialType);
         }
         result.setDescription(StringEscapeUtils.escapeHtml(propertyType.getDescription()));
         result.setSampleTypePropertyTypes(SampleTypePropertyTypeTranslator.translate(propertyType
@@ -69,9 +75,11 @@ public final class PropertyTypeTranslator
                 propertyType.getMaterialTypePropertyTypes(), result));
         result.setExperimentTypePropertyTypes(ExperimentTypePropertyTypeTranslator.translate(
                 propertyType.getExperimentTypePropertyTypes(), result));
+        result.setDataSetTypePropertyTypes(DataSetTypePropertyTypeTranslator.translate(propertyType
+                .getDataSetTypePropertyTypes(), result));
         return result;
     }
-    
+
     public final static PropertyType translate(final PropertyTypePE propertyType)
     {
         return translate(propertyType, null);

@@ -37,58 +37,66 @@ import org.hibernate.validator.NotNull;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 
 /**
- * Persistence entity representing experiment type - property type relation.
+ * Persistence entity representing data set type - property type relation.
  * 
  * @author Izabela Adamczyk
  */
 @Entity
-@Table(name = TableNames.DATA_SET_TYPE_PROPERTY_TYPE_TABLE, uniqueConstraints = { @UniqueConstraint(columnNames = {
-		ColumnNames.DATA_SET_TYPE_COLUMN, ColumnNames.PROPERTY_TYPE_COLUMN }) })
-public class DataSetTypePropertyTypePE extends EntityTypePropertyTypePE {
+@Table(name = TableNames.DATA_SET_TYPE_PROPERTY_TYPE_TABLE, uniqueConstraints =
+    { @UniqueConstraint(columnNames =
+        { ColumnNames.DATA_SET_TYPE_COLUMN, ColumnNames.PROPERTY_TYPE_COLUMN }) })
+public class DataSetTypePropertyTypePE extends EntityTypePropertyTypePE
+{
 
-	private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
-	public static final DataSetTypePropertyTypePE[] EMPTY_ARRAY = new DataSetTypePropertyTypePE[0];
+    public static final DataSetTypePropertyTypePE[] EMPTY_ARRAY = new DataSetTypePropertyTypePE[0];
 
-	@NotNull(message = ValidationMessages.DATA_SET_TYPE_NOT_NULL_MESSAGE)
-	@ManyToOne(fetch = FetchType.EAGER, targetEntity = ExperimentTypePE.class)
-	@JoinColumn(name = ColumnNames.DATA_SET_TYPE_COLUMN)
-	private EntityTypePE getEntityTypeInternal() {
-		return entityType;
-	}
+    @NotNull(message = ValidationMessages.DATA_SET_TYPE_NOT_NULL_MESSAGE)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = DataSetTypePE.class)
+    @JoinColumn(name = ColumnNames.DATA_SET_TYPE_COLUMN)
+    private EntityTypePE getEntityTypeInternal()
+    {
+        return entityType;
+    }
 
-	//
-	// EntityTypePropertyTypePE
-	//
+    //
+    // EntityTypePropertyTypePE
+    //
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entityTypePropertyType", targetEntity = DataSetPropertyPE.class)
-	public Set<EntityPropertyPE> getPropertyValues() {
-		return propertyValues;
-	}
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entityTypePropertyType", targetEntity = DataSetPropertyPE.class)
+    public Set<EntityPropertyPE> getPropertyValues()
+    {
+        return propertyValues;
+    }
 
-	@Transient
-	public EntityTypePE getEntityType() {
-		return getEntityTypeInternal();
-	}
+    @Transient
+    public EntityTypePE getEntityType()
+    {
+        return getEntityTypeInternal();
+    }
 
-	@Override
-	// This setter sets the bidirectional connection. That's why we must have an
-	// another internal
-	// plain setter for Hibernate.
-	public void setEntityType(EntityTypePE entityType) {
-		((DataSetTypePE) entityType).addDataSetTypePropertyType(this);
-	}
+    @Override
+    // This setter sets the bidirectional connection. That's why we must have an
+    // another internal
+    // plain setter for Hibernate.
+    public void setEntityType(EntityTypePE entityType)
+    {
+        ((DataSetTypePE) entityType).addDataSetTypePropertyType(this);
+    }
 
-	@SequenceGenerator(name = SequenceNames.DATA_SET_TYPE_PROPERTY_TYPE_SEQUENCE, sequenceName = SequenceNames.DATA_SET_TYPE_PROPERTY_TYPE_SEQUENCE, allocationSize = 1)
-	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DATA_SET_TYPE_PROPERTY_TYPE_SEQUENCE)
-	public Long getId() {
-		return id;
-	}
+    @SequenceGenerator(name = SequenceNames.DATA_SET_TYPE_PROPERTY_TYPE_SEQUENCE, sequenceName = SequenceNames.DATA_SET_TYPE_PROPERTY_TYPE_SEQUENCE, allocationSize = 1)
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DATA_SET_TYPE_PROPERTY_TYPE_SEQUENCE)
+    public Long getId()
+    {
+        return id;
+    }
 
-	@Override
-	public void setPropertyType(PropertyTypePE propertyType) {
-		propertyType.addDataSetTypePropertyType(this);
-	}
+    @Override
+    public void setPropertyType(PropertyTypePE propertyType)
+    {
+        propertyType.addDataSetTypePropertyType(this);
+    }
 
 }
