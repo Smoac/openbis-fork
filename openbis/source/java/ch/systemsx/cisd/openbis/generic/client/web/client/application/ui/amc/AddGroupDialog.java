@@ -22,7 +22,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelagatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
 /**
  * {@link Window} containing group registration form.
@@ -39,7 +39,7 @@ public class AddGroupDialog extends AbstractRegistrationDialog
     private final TextField<String> descriptionField;
 
     public AddGroupDialog(final CommonViewContext viewContext,
-            final IDelagatedAction postRegistrationCallback)
+            final IDelegatedAction postRegistrationCallback)
     {
         super(viewContext, "Add a new group", postRegistrationCallback);
         this.viewContext = viewContext;

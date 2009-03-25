@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelagatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
@@ -42,9 +42,9 @@ class EntityChooserDialog<T> extends SimpleDialog
 
     private final DisposableEntityChooser<T> entityBrowser;
 
-    private final IDelagatedAction onAcceptAction;
+    private final IDelegatedAction onAcceptAction;
 
-    private final IDelagatedAction onCancelAction;
+    private final IDelegatedAction onCancelAction;
 
     interface ChosenEntitySetter<T>
     {
@@ -86,11 +86,11 @@ class EntityChooserDialog<T> extends SimpleDialog
         super.onComponentEvent(ce);
     }
 
-    private static <T> IDelagatedAction createAcceptAction(
+    private static <T> IDelegatedAction createAcceptAction(
             final ChosenEntitySetter<T> chosenEntitySetter,
             final DisposableEntityChooser<T> entityBrowser)
     {
-        return new IDelagatedAction()
+        return new IDelegatedAction()
             {
                 public void execute()
                 {
@@ -101,11 +101,11 @@ class EntityChooserDialog<T> extends SimpleDialog
             };
     }
 
-    private static <T> IDelagatedAction createCancelAction(
+    private static <T> IDelegatedAction createCancelAction(
             final ChosenEntitySetter<T> chosenEntitySetter,
             final DisposableComponent componentDisposer)
     {
-        return new IDelagatedAction()
+        return new IDelegatedAction()
             {
                 public void execute()
                 {

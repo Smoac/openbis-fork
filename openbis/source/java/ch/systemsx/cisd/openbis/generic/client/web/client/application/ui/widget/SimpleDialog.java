@@ -27,7 +27,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelagatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
@@ -42,9 +42,9 @@ public class SimpleDialog extends Dialog
 
     private final IMessageProvider messageProvider;
 
-    private IDelagatedAction acceptActionOrNull;
+    private IDelegatedAction acceptActionOrNull;
 
-    private IDelagatedAction cancelActionOrNull;
+    private IDelegatedAction cancelActionOrNull;
 
     public SimpleDialog(final Widget widget, final String heading, String acceptButtonLabel,
             IMessageProvider messageProvider)
@@ -100,12 +100,12 @@ public class SimpleDialog extends Dialog
         return button;
     }
 
-    public void setAcceptAction(IDelagatedAction acceptActionOrNull)
+    public void setAcceptAction(IDelegatedAction acceptActionOrNull)
     {
         this.acceptActionOrNull = acceptActionOrNull;
     }
 
-    public void setCancelAction(IDelagatedAction cancelActionOrNull)
+    public void setCancelAction(IDelegatedAction cancelActionOrNull)
     {
         this.cancelActionOrNull = cancelActionOrNull;
     }

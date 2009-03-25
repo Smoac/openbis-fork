@@ -22,7 +22,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelagatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
 /**
  * {@link Window} containing person registration form.
@@ -36,7 +36,7 @@ public class AddPersonDialog extends AbstractRegistrationDialog
     private final TextField<String> codeField;
 
     public AddPersonDialog(final CommonViewContext viewContext,
-            final IDelagatedAction postRegistrationCallback)
+            final IDelegatedAction postRegistrationCallback)
     {
         super(viewContext, "Add a new person", postRegistrationCallback);
 

@@ -64,7 +64,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelagatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
@@ -214,7 +214,18 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         columnListener.registerCellClickListener(columnID, listener);
     }
-    
+
+    /**
+     * Registers the specified listener for clicks on links in the specified column.
+     * 
+     * @param columnID Column ID. Not case sensitive.
+     * @param listener Listener handle single clicks.
+     */
+    public void registerLinkClickListenerFor(final String columnID, final ICellListener<T> listener)
+    {
+        columnListener.registerLinkClickListener(columnID, listener);
+    }
+
     /**
      * Allows multiple selection instead of single selection.
      */
@@ -228,9 +239,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return createFilterWidgets(getAvailableFilters(), createApplyFiltersDelagator());
     }
 
-    private IDelagatedAction createApplyFiltersDelagator()
+    private IDelegatedAction createApplyFiltersDelagator()
     {
-        return new IDelagatedAction()
+        return new IDelegatedAction()
             {
                 public void execute()
                 {
@@ -243,7 +254,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     private static <T> List<PagingColumnFilter<T>> createFilterWidgets(
-            List<IColumnDefinition<T>> availableFilters, IDelagatedAction onFilterAction)
+            List<IColumnDefinition<T>> availableFilters, IDelegatedAction onFilterAction)
     {
         List<PagingColumnFilter<T>> filterWidgets = new ArrayList<PagingColumnFilter<T>>();
         for (IColumnDefinition<T> columnDefinition : availableFilters)

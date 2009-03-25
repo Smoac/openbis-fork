@@ -22,7 +22,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelagatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
 /**
  * Dialog to register a new material type.
@@ -40,7 +40,7 @@ abstract public class AddEntityTypeDialog extends AbstractRegistrationDialog
     private final TextField<String> descriptionField;
 
     public AddEntityTypeDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
-            String title, final IDelagatedAction postRegistrationCallback)
+            String title, final IDelegatedAction postRegistrationCallback)
     {
         super(viewContext, title, postRegistrationCallback);
         this.codeField = createCodeField();

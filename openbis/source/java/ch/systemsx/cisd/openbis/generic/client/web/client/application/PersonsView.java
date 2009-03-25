@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnF
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddPersonDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelagatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
@@ -164,7 +164,7 @@ public class PersonsView extends ContentPanel
                         public void componentSelected(ComponentEvent ce)
                         {
                             AddPersonDialog dialog =
-                                    new AddPersonDialog(viewContext, new IDelagatedAction()
+                                    new AddPersonDialog(viewContext, new IDelegatedAction()
                                         {
                                             public void execute()
                                             {

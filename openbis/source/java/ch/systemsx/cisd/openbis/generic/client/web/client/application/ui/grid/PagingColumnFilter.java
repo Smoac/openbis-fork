@@ -20,7 +20,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.StoreFilterField;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelagatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 
@@ -33,10 +33,10 @@ public class PagingColumnFilter<T/* entity */> extends StoreFilterField<ModelDat
 {
     private final IColumnDefinition<T> filteredField;
 
-    private final IDelagatedAction onFilterAction;
+    private final IDelegatedAction onFilterAction;
 
     /** @param onFilterAction callback executed when data are about to be filtered. */
-    public PagingColumnFilter(IColumnDefinition<T> filteredField, IDelagatedAction onFilterAction)
+    public PagingColumnFilter(IColumnDefinition<T> filteredField, IDelegatedAction onFilterAction)
     {
         this.filteredField = filteredField;
         this.onFilterAction = onFilterAction;

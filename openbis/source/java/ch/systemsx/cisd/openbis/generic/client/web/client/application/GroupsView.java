@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnF
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddGroupDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelagatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 
 /**
@@ -163,7 +163,7 @@ public class GroupsView extends ContentPanel
                                 public void componentSelected(ComponentEvent ce)
                                 {
                                     AddGroupDialog dialog =
-                                            new AddGroupDialog(viewContext, new IDelagatedAction()
+                                            new AddGroupDialog(viewContext, new IDelegatedAction()
                                                 {
                                                     public void execute()
                                                     {

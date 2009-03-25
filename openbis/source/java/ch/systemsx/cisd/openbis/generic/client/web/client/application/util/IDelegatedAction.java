@@ -22,7 +22,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
  * 
  * @author Tomasz Pylak
  */
-public interface IDelagatedAction
+public interface IDelegatedAction
 {
     void execute();
 }

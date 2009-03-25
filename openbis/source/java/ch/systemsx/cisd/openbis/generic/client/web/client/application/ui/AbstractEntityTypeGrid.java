@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.EntityTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.AddEntityTypeDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelagatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 
@@ -74,7 +74,7 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
 
     private Window createRegisterEntityTypeDialog(final String title)
     {
-        IDelagatedAction postRegistrationCallback = new IDelagatedAction()
+        IDelegatedAction postRegistrationCallback = new IDelegatedAction()
             {
                 public void execute()
                 {

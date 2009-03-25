@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelagatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
 /**
  * Abstract {@link Window} with Save and Cancel buttons, useful when simple registration operation
@@ -60,14 +60,14 @@ abstract public class AbstractRegistrationDialog extends Window
 
     public static final String CODE_FIELD_ID = GenericConstants.ID_PREFIX + "dialog-code-field";
 
-    private final IDelagatedAction postRegistrationCallback;
+    private final IDelegatedAction postRegistrationCallback;
 
     private final IViewContext<?> viewContext;
 
     private final FormPanel form;
 
     public AbstractRegistrationDialog(final IViewContext<?> viewContext, String title,
-            final IDelagatedAction postRegistrationCallback)
+            final IDelegatedAction postRegistrationCallback)
     {
         this.postRegistrationCallback = postRegistrationCallback;
         this.viewContext = viewContext;
