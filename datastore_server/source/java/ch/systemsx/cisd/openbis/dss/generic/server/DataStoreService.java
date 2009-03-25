@@ -74,7 +74,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         this.storeRoot = storeRoot;
     }
 
-    public void afterPropertiesSet() throws Exception
+    public void afterPropertiesSet()
     {
         String prefix = "Property 'storeRoot' ";
         if (storeRoot == null)
@@ -141,8 +141,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             throws InvalidAuthenticationException
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
-        
-        commandExecuter.scheduleCommand(new DeletionCommand(dataSetLocations));
+
+        commandExecuter.scheduleDeletionOfDataSets(dataSetLocations);
     }
 
     public void uploadDataSetsToCIFEX(String sessionToken, List<String> dataSetLocations,
@@ -150,7 +150,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
 
-        CIFEXRPCServiceFactory serviceFactory = new CIFEXRPCServiceFactory(context.getCifexURL());
+        ICIFEXRPCServiceFactory serviceFactory =
+                createCIFEXRPCServiceFactory(context.getCifexURL());
         ICIFEXRPCService service = serviceFactory.createService();
         String userID = context.getUserID();
         String password = context.getPassword();
@@ -158,8 +159,13 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         {
             throw new InvalidSessionException("User couldn't be authenticated at CIFEX.");
         }
-        commandExecuter.scheduleCommand(new UploadingCommand(serviceFactory, mailClientParameters,
-                dataSetLocations, context));
+        commandExecuter.scheduleUploadingDataSetsToCIFEX(serviceFactory, mailClientParameters,
+                dataSetLocations, context);
+    }
+    
+    protected ICIFEXRPCServiceFactory createCIFEXRPCServiceFactory(String cifexURL)
+    {
+        return new CIFEXRPCServiceFactory(cifexURL);
     }
     
 }

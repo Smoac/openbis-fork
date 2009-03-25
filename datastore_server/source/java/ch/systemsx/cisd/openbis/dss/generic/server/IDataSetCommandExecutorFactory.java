@@ -19,11 +19,14 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.io.File;
 
 /**
- * 
+ * Factory of {@link IDataSetCommandExecutor} operating on a specified data store.
  *
  * @author Franz-Josef Elmer
  */
 interface IDataSetCommandExecutorFactory
 {
+    /**
+     * Creates command executor for the specified data store.
+     */
     IDataSetCommandExecutor create(File store);
 }

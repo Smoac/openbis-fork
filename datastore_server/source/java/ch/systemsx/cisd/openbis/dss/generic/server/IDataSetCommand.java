@@ -20,11 +20,14 @@ import java.io.File;
 import java.io.Serializable;
 
 /**
- * 
+ * Interface of all commands operating on data sets in a data store.
  *
  * @author Franz-Josef Elmer
  */
 interface IDataSetCommand extends Serializable
 {
+    /**
+     * Executes the command in the provided data store. 
+     */
     void execute(File store);
 }

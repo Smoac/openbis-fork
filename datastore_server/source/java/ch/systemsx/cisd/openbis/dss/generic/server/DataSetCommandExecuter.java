@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
+import java.util.List;
 
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
@@ -26,6 +27,7 @@ import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.collections.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 
 /**
  * 
@@ -83,9 +85,20 @@ class DataSetCommandExecuter implements IDataSetCommandExecutor
         thread.start();
     }
 
+    public void scheduleDeletionOfDataSets(List<String> locations)
+    {
+        scheduleCommand(new DeletionCommand(locations));
+    }
 
+    public void scheduleUploadingDataSetsToCIFEX(ICIFEXRPCServiceFactory cifexServiceFactory,
+            MailClientParameters mailClientParameters, List<String> locations,
+            DataSetUploadContext uploadContext)
+    {
+        scheduleCommand(new UploadingCommand(cifexServiceFactory, mailClientParameters, locations,
+                uploadContext));
+    }
 
-    public void scheduleCommand(IDataSetCommand command)
+    private void scheduleCommand(IDataSetCommand command)
     {
         if (operationLog.isDebugEnabled())
         {
