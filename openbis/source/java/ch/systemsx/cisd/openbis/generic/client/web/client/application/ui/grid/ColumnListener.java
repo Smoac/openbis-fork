@@ -99,7 +99,8 @@ public final class ColumnListener<T, M extends BaseEntityModel<T>> implements Li
     /** @return is the target element for given <var>event</var> a link */
     private boolean isLinkTarget(GridEvent event)
     {
-        return event.getTarget().getTagName().equals(LINK_TAG_NAME);
+        // check for null needed because of fake events in system tests
+        return event.getTarget() != null && event.getTarget().getTagName().equals(LINK_TAG_NAME);
     }
 
 }
