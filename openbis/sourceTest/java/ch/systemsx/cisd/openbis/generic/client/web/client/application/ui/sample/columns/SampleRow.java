@@ -63,10 +63,23 @@ public class SampleRow extends Row
     public SampleRow experiment(final String projectCode, final String experimentCode)
     {
         withCell(CommonSampleColDefKind.PROJECT, projectCode);
-        withCell(CommonSampleColDefKind.EXPERIMENT, experimentCode);
+        withCell(CommonSampleColDefKind.EXPERIMENT, createLinkString(experimentCode));
         final String experimentIdentifier = groupIdentifier + projectCode + "/" + experimentCode;
         withCell(CommonSampleColDefKind.EXPERIMENT_IDENTIFIER, experimentIdentifier);
         return this;
+    }
+
+    private static final String LINK_PREFIX = "<div><a href=\"#\">";
+
+    private static final String LINK_SUFFIX = "</a></div>";
+
+    private String createLinkString(String string)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(LINK_PREFIX);
+        sb.append(string);
+        sb.append(LINK_SUFFIX);
+        return sb.toString();
     }
 
     public SampleRow noExperiment()
@@ -113,7 +126,8 @@ public class SampleRow extends Row
     }
 
     /**
-     * Creates a {@link SampleRow} with given <var>propertyCode</var> associated to given <i>value</i>.
+     * Creates a {@link SampleRow} with given <var>propertyCode</var> associated to given
+     * <i>value</i>.
      * <p>
      * Note that we assume that computed {@link PropertyType} is from internal namespace.
      * </p>
@@ -127,7 +141,8 @@ public class SampleRow extends Row
     }
 
     /**
-     * Creates a {@link SampleRow} with given <var>propertyCode</var> associated to given <i>value</i>.
+     * Creates a {@link SampleRow} with given <var>propertyCode</var> associated to given
+     * <i>value</i>.
      */
     public final SampleRow property(final String propertyCode, final boolean internalNamespace,
             final Object value)

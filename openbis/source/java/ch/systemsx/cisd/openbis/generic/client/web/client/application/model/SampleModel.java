@@ -50,8 +50,12 @@ public final class SampleModel extends BaseEntityModel<Sample>
         super(entity, createColumnsSchema(entity));
         set(ModelDataPropertyNames.SAMPLE_TYPE, entity.getSampleType() != null ? entity
                 .getSampleType().getCode() : null);
+        // add a link for experiment
         String experimentId = CommonSampleColDefKind.EXPERIMENT.id();
-        set(experimentId, LinkRenderer.renderAsLinkWithAnchor(get(experimentId).toString()));
+        String value = get(experimentId);
+        if (value.length() > 0) // only for not null value
+            value = LinkRenderer.renderAsLinkWithAnchor(get(experimentId).toString());
+        set(experimentId, value);
     }
 
     public static ColumnDefsAndConfigs<Sample> createColumnsSchema(
