@@ -100,473 +100,495 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 public final class CommonServer extends AbstractServer<ICommonServer> implements ICommonServer
 {
-	private final IAuthenticationService authenticationService;
+    private final IAuthenticationService authenticationService;
 
-	private final ICommonBusinessObjectFactory businessObjectFactory;
+    private final ICommonBusinessObjectFactory businessObjectFactory;
 
-	private final DataStoreServerSessionManager dssSessionManager;
+    private final DataStoreServerSessionManager dssSessionManager;
 
-	public CommonServer(final IAuthenticationService authenticationService,
-			final ISessionManager<Session> sessionManager,
-			DataStoreServerSessionManager dssSessionManager,
-			final IDAOFactory daoFactory,
-			final ICommonBusinessObjectFactory businessObjectFactory) {
-		super(sessionManager, daoFactory);
-		this.authenticationService = authenticationService;
-		this.dssSessionManager = dssSessionManager;
-		this.businessObjectFactory = businessObjectFactory;
-	}
+    public CommonServer(final IAuthenticationService authenticationService,
+            final ISessionManager<Session> sessionManager,
+            DataStoreServerSessionManager dssSessionManager, final IDAOFactory daoFactory,
+            final ICommonBusinessObjectFactory businessObjectFactory)
+    {
+        super(sessionManager, daoFactory);
+        this.authenticationService = authenticationService;
+        this.dssSessionManager = dssSessionManager;
+        this.businessObjectFactory = businessObjectFactory;
+    }
 
-	ICommonBusinessObjectFactory getBusinessObjectFactory() {
-		return businessObjectFactory;
-	}
+    ICommonBusinessObjectFactory getBusinessObjectFactory()
+    {
+        return businessObjectFactory;
+    }
 
-	// Call this when session object is not needed but you want just to
-	// refresh/check the session.
-	private void checkSession(final String sessionToken) {
-		getSessionManager().getSession(sessionToken);
-	}
+    // Call this when session object is not needed but you want just to
+    // refresh/check the session.
+    private void checkSession(final String sessionToken)
+    {
+        getSessionManager().getSession(sessionToken);
+    }
 
-	private static UserFailureException createUserFailureException(
-			final DataAccessException ex) {
-		return new UserFailureException(ex.getMostSpecificCause().getMessage(),
-				ex);
-	}
+    private static UserFailureException createUserFailureException(final DataAccessException ex)
+    {
+        return new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
+    }
 
-	//
-	// AbstractServerWithLogger
-	//
+    //
+    // AbstractServerWithLogger
+    //
 
-	@Override
-	protected final Class<ICommonServer> getProxyInterface() {
-		return ICommonServer.class;
-	}
+    @Override
+    protected final Class<ICommonServer> getProxyInterface()
+    {
+        return ICommonServer.class;
+    }
 
-	//
-	// IInvocationLoggerFactory
-	//
+    //
+    // IInvocationLoggerFactory
+    //
 
-	/**
-	 * Creates a logger used to log invocations of objects of this class.
-	 */
-	public final ICommonServer createLogger(final boolean invocationSuccessful) {
-		return new CommonServerLogger(getSessionManager(), invocationSuccessful);
-	}
+    /**
+     * Creates a logger used to log invocations of objects of this class.
+     */
+    public final ICommonServer createLogger(final boolean invocationSuccessful)
+    {
+        return new CommonServerLogger(getSessionManager(), invocationSuccessful);
+    }
 
-	//
-	// IGenericServer
-	//
+    //
+    // IGenericServer
+    //
 
-	public final List<GroupPE> listGroups(final String sessionToken,
-			final DatabaseInstanceIdentifier identifier) {
-		final Session session = getSessionManager().getSession(sessionToken);
-		final DatabaseInstancePE databaseInstance = GroupIdentifierHelper
-				.getDatabaseInstance(identifier, getDAOFactory());
-		final List<GroupPE> groups = getDAOFactory().getGroupDAO().listGroups(
-				databaseInstance);
-		final Long homeGroupID = session.tryGetHomeGroupId();
-		for (final GroupPE group : groups) {
-			group.setHome(homeGroupID != null
-					&& homeGroupID.equals(group.getId()));
-		}
-		Collections.sort(groups);
-		return groups;
-	}
+    public final List<GroupPE> listGroups(final String sessionToken,
+            final DatabaseInstanceIdentifier identifier)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final DatabaseInstancePE databaseInstance =
+                GroupIdentifierHelper.getDatabaseInstance(identifier, getDAOFactory());
+        final List<GroupPE> groups = getDAOFactory().getGroupDAO().listGroups(databaseInstance);
+        final Long homeGroupID = session.tryGetHomeGroupId();
+        for (final GroupPE group : groups)
+        {
+            group.setHome(homeGroupID != null && homeGroupID.equals(group.getId()));
+        }
+        Collections.sort(groups);
+        return groups;
+    }
 
-	public final void registerGroup(final String sessionToken,
-			final String groupCode, final String descriptionOrNull,
-			final String groupLeaderOrNull) {
-		final Session session = getSessionManager().getSession(sessionToken);
-		final IGroupBO groupBO = businessObjectFactory.createGroupBO(session);
-		groupBO.define(groupCode, descriptionOrNull, groupLeaderOrNull);
-		groupBO.save();
-	}
+    public final void registerGroup(final String sessionToken, final String groupCode,
+            final String descriptionOrNull, final String groupLeaderOrNull)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IGroupBO groupBO = businessObjectFactory.createGroupBO(session);
+        groupBO.define(groupCode, descriptionOrNull, groupLeaderOrNull);
+        groupBO.save();
+    }
 
-	public final void registerPerson(final String sessionToken,
-			final String userID) {
-		final Session session = getSessionManager().getSession(sessionToken);
-		final PersonPE person = getDAOFactory().getPersonDAO()
-				.tryFindPersonByUserId(userID);
-		if (person != null) {
-			throw UserFailureException.fromTemplate(
-					"Person '%s' already exists.", userID);
-		}
-		final String applicationToken = authenticationService
-				.authenticateApplication();
-		if (applicationToken == null) {
-			throw new EnvironmentFailureException(
-					"Authentication service cannot be accessed.");
-		}
-		try {
-			final Principal principal = authenticationService.getPrincipal(
-					applicationToken, userID);
-			createPerson(principal, session.tryGetPerson());
-		} catch (final IllegalArgumentException e) {
-			throw new UserFailureException("Person '" + userID
-					+ "' unknown by the authentication service.");
-		}
-	}
+    public final void registerPerson(final String sessionToken, final String userID)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userID);
+        if (person != null)
+        {
+            throw UserFailureException.fromTemplate("Person '%s' already exists.", userID);
+        }
+        final String applicationToken = authenticationService.authenticateApplication();
+        if (applicationToken == null)
+        {
+            throw new EnvironmentFailureException("Authentication service cannot be accessed.");
+        }
+        try
+        {
+            final Principal principal =
+                    authenticationService.getPrincipal(applicationToken, userID);
+            createPerson(principal, session.tryGetPerson());
+        } catch (final IllegalArgumentException e)
+        {
+            throw new UserFailureException("Person '" + userID
+                    + "' unknown by the authentication service.");
+        }
+    }
 
-	public final List<RoleAssignmentPE> listRoles(final String sessionToken) {
-		checkSession(sessionToken);
-		return getDAOFactory().getRoleAssignmentDAO().listRoleAssignments();
-	}
+    public final List<RoleAssignmentPE> listRoles(final String sessionToken)
+    {
+        checkSession(sessionToken);
+        return getDAOFactory().getRoleAssignmentDAO().listRoleAssignments();
+    }
 
-	public final void registerGroupRole(final String sessionToken,
-			final RoleCode roleCode, final GroupIdentifier groupIdentifier,
-			final String person) {
-		final Session session = getSessionManager().getSession(sessionToken);
+    public final void registerGroupRole(final String sessionToken, final RoleCode roleCode,
+            final GroupIdentifier groupIdentifier, final String person)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
 
-		final NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
-		newRoleAssignment.setUserId(person);
-		newRoleAssignment.setGroupIdentifier(groupIdentifier);
-		newRoleAssignment.setRole(roleCode);
+        final NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
+        newRoleAssignment.setUserId(person);
+        newRoleAssignment.setGroupIdentifier(groupIdentifier);
+        newRoleAssignment.setRole(roleCode);
 
-		final IRoleAssignmentTable table = businessObjectFactory
-				.createRoleAssignmentTable(session);
-		table.add(newRoleAssignment);
-		table.save();
+        final IRoleAssignmentTable table = businessObjectFactory.createRoleAssignmentTable(session);
+        table.add(newRoleAssignment);
+        table.save();
 
-	}
+    }
 
-	public final void registerInstanceRole(final String sessionToken,
-			final RoleCode roleCode, final String person) {
-		final Session session = getSessionManager().getSession(sessionToken);
+    public final void registerInstanceRole(final String sessionToken, final RoleCode roleCode,
+            final String person)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
 
-		final NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
-		newRoleAssignment.setUserId(person);
-		newRoleAssignment
-				.setDatabaseInstanceIdentifier(new DatabaseInstanceIdentifier(
-						DatabaseInstanceIdentifier.HOME));
-		newRoleAssignment.setRole(roleCode);
+        final NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
+        newRoleAssignment.setUserId(person);
+        newRoleAssignment.setDatabaseInstanceIdentifier(new DatabaseInstanceIdentifier(
+                DatabaseInstanceIdentifier.HOME));
+        newRoleAssignment.setRole(roleCode);
 
-		final IRoleAssignmentTable table = businessObjectFactory
-				.createRoleAssignmentTable(session);
-		table.add(newRoleAssignment);
-		table.save();
+        final IRoleAssignmentTable table = businessObjectFactory.createRoleAssignmentTable(session);
+        table.add(newRoleAssignment);
+        table.save();
 
-	}
+    }
 
-	public final void deleteGroupRole(final String sessionToken,
-			final RoleCode roleCode, final GroupIdentifier groupIdentifier,
-			final String person) {
-		final Session session = getSessionManager().getSession(sessionToken);
+    public final void deleteGroupRole(final String sessionToken, final RoleCode roleCode,
+            final GroupIdentifier groupIdentifier, final String person)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
 
-		final RoleAssignmentPE roleAssignment = getDAOFactory()
-				.getRoleAssignmentDAO().tryFindGroupRoleAssignment(roleCode,
-						groupIdentifier.getGroupCode(), person);
-		if (roleAssignment == null) {
-			throw new UserFailureException("Given group role does not exist.");
-		}
-		final PersonPE personPE = session.tryGetPerson();
-		if (roleAssignment.getPerson().equals(personPE)
-				&& roleAssignment.getRole().equals(RoleCode.ADMIN)) {
-			boolean isInstanceAdmin = false;
-			for (final RoleAssignmentPE roleAssigment : personPE
-					.getRoleAssignments()) {
-				if (roleAssigment.getDatabaseInstance() != null
-						&& roleAssigment.getRole().equals(RoleCode.ADMIN)) {
-					isInstanceAdmin = true;
-				}
-			}
-			if (isInstanceAdmin == false) {
-				throw new UserFailureException(
-						"For safety reason you cannot give away your own group admin power. "
-								+ "Ask instance admin to do that for you.");
-			}
-		}
-		getDAOFactory().getRoleAssignmentDAO().deleteRoleAssignment(
-				roleAssignment);
-	}
+        final RoleAssignmentPE roleAssignment =
+                getDAOFactory().getRoleAssignmentDAO().tryFindGroupRoleAssignment(roleCode,
+                        groupIdentifier.getGroupCode(), person);
+        if (roleAssignment == null)
+        {
+            throw new UserFailureException("Given group role does not exist.");
+        }
+        final PersonPE personPE = session.tryGetPerson();
+        if (roleAssignment.getPerson().equals(personPE)
+                && roleAssignment.getRole().equals(RoleCode.ADMIN))
+        {
+            boolean isInstanceAdmin = false;
+            for (final RoleAssignmentPE roleAssigment : personPE.getRoleAssignments())
+            {
+                if (roleAssigment.getDatabaseInstance() != null
+                        && roleAssigment.getRole().equals(RoleCode.ADMIN))
+                {
+                    isInstanceAdmin = true;
+                }
+            }
+            if (isInstanceAdmin == false)
+            {
+                throw new UserFailureException(
+                        "For safety reason you cannot give away your own group admin power. "
+                                + "Ask instance admin to do that for you.");
+            }
+        }
+        getDAOFactory().getRoleAssignmentDAO().deleteRoleAssignment(roleAssignment);
+    }
 
-	public final void deleteInstanceRole(final String sessionToken,
-			final RoleCode roleCode, final String person) {
-		final Session session = getSessionManager().getSession(sessionToken);
-		final IRoleAssignmentDAO roleAssignmentDAO = getDAOFactory()
-				.getRoleAssignmentDAO();
-		final RoleAssignmentPE roleAssignment = roleAssignmentDAO
-				.tryFindInstanceRoleAssignment(roleCode, person);
-		if (roleAssignment == null) {
-			throw new UserFailureException(
-					"Given database instance role does not exist.");
-		}
-		if (roleAssignment.getPerson().equals(session.tryGetPerson())
-				&& roleAssignment.getRole().equals(RoleCode.ADMIN)
-				&& roleAssignment.getDatabaseInstance() != null) {
-			throw new UserFailureException(
-					"For safety reason you cannot give away your own omnipotence. "
-							+ "Ask another instance admin to do that for you.");
-		}
-		roleAssignmentDAO.deleteRoleAssignment(roleAssignment);
-	}
+    public final void deleteInstanceRole(final String sessionToken, final RoleCode roleCode,
+            final String person)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IRoleAssignmentDAO roleAssignmentDAO = getDAOFactory().getRoleAssignmentDAO();
+        final RoleAssignmentPE roleAssignment =
+                roleAssignmentDAO.tryFindInstanceRoleAssignment(roleCode, person);
+        if (roleAssignment == null)
+        {
+            throw new UserFailureException("Given database instance role does not exist.");
+        }
+        if (roleAssignment.getPerson().equals(session.tryGetPerson())
+                && roleAssignment.getRole().equals(RoleCode.ADMIN)
+                && roleAssignment.getDatabaseInstance() != null)
+        {
+            throw new UserFailureException(
+                    "For safety reason you cannot give away your own omnipotence. "
+                            + "Ask another instance admin to do that for you.");
+        }
+        roleAssignmentDAO.deleteRoleAssignment(roleAssignment);
+    }
 
-	public final List<PersonPE> listPersons(final String sessionToken) {
-		checkSession(sessionToken);
-		final List<PersonPE> persons = getDAOFactory().getPersonDAO()
-				.listPersons();
-		Collections.sort(persons);
-		return persons;
-	}
+    public final List<PersonPE> listPersons(final String sessionToken)
+    {
+        checkSession(sessionToken);
+        final List<PersonPE> persons = getDAOFactory().getPersonDAO().listPersons();
+        Collections.sort(persons);
+        return persons;
+    }
 
-	public final List<ProjectPE> listProjects(final String sessionToken) {
-		checkSession(sessionToken);
-		final List<ProjectPE> projects = getDAOFactory().getProjectDAO()
-				.listProjects();
-		Collections.sort(projects);
-		return projects;
-	}
+    public final List<ProjectPE> listProjects(final String sessionToken)
+    {
+        checkSession(sessionToken);
+        final List<ProjectPE> projects = getDAOFactory().getProjectDAO().listProjects();
+        Collections.sort(projects);
+        return projects;
+    }
 
-	public final List<SampleTypePE> listSampleTypes(final String sessionToken) {
-		checkSession(sessionToken);
-		final List<SampleTypePE> sampleTypes = getDAOFactory()
-				.getSampleTypeDAO().listSampleTypes();
-		Collections.sort(sampleTypes);
-		return sampleTypes;
-	}
+    public final List<SampleTypePE> listSampleTypes(final String sessionToken)
+    {
+        checkSession(sessionToken);
+        final List<SampleTypePE> sampleTypes = getDAOFactory().getSampleTypeDAO().listSampleTypes();
+        Collections.sort(sampleTypes);
+        return sampleTypes;
+    }
 
-	public final List<SamplePE> listSamples(final String sessionToken,
-			final ListSampleCriteriaDTO criteria) {
-		final Session session = getSessionManager().getSession(sessionToken);
-		final ISampleTable sampleTable = businessObjectFactory
-				.createSampleTable(session);
-		sampleTable.loadSamplesByCriteria(criteria);
-		sampleTable.enrichWithValidProcedure();
-		sampleTable.enrichWithProperties();
-		final List<SamplePE> samples = sampleTable.getSamples();
-		Collections.sort(samples);
-		return samples;
-	}
+    public final List<SamplePE> listSamples(final String sessionToken,
+            final ListSampleCriteriaDTO criteria)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
+        sampleTable.loadSamplesByCriteria(criteria);
+        sampleTable.enrichWithValidProcedure();
+        sampleTable.enrichWithProperties();
+        final List<SamplePE> samples = sampleTable.getSamples();
+        Collections.sort(samples);
+        return samples;
+    }
 
-	public final List<ExternalDataPE> listExternalData(
-			final String sessionToken, final SampleIdentifier identifier) {
-		final Session session = getSessionManager().getSession(sessionToken);
-		final IExternalDataTable externalDataTable = businessObjectFactory
-				.createExternalDataTable(session);
-		externalDataTable.loadBySampleIdentifier(identifier);
-		return getSortedExternalDataFrom(externalDataTable);
-	}
+    public final List<ExternalDataPE> listExternalData(final String sessionToken,
+            final SampleIdentifier identifier)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IExternalDataTable externalDataTable =
+                businessObjectFactory.createExternalDataTable(session);
+        externalDataTable.loadBySampleIdentifier(identifier);
+        return getSortedExternalDataFrom(externalDataTable);
+    }
 
-	public List<ExternalDataPE> listExternalData(String sessionToken,
-			ExperimentIdentifier identifier) {
-		final Session session = getSessionManager().getSession(sessionToken);
-		final IExternalDataTable externalDataTable = businessObjectFactory
-				.createExternalDataTable(session);
-		externalDataTable.loadByExperimentIdentifier(identifier);
-		return getSortedExternalDataFrom(externalDataTable);
-	}
+    public List<ExternalDataPE> listExternalData(String sessionToken,
+            ExperimentIdentifier identifier)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IExternalDataTable externalDataTable =
+                businessObjectFactory.createExternalDataTable(session);
+        externalDataTable.loadByExperimentIdentifier(identifier);
+        return getSortedExternalDataFrom(externalDataTable);
+    }
 
-	private List<ExternalDataPE> getSortedExternalDataFrom(
-			final IExternalDataTable externalDataTable) {
-		final List<ExternalDataPE> externalData = externalDataTable
-				.getExternalData();
-		Collections.sort(externalData);
-		return externalData;
-	}
+    private List<ExternalDataPE> getSortedExternalDataFrom(
+            final IExternalDataTable externalDataTable)
+    {
+        final List<ExternalDataPE> externalData = externalDataTable.getExternalData();
+        Collections.sort(externalData);
+        return externalData;
+    }
 
-	public final List<PropertyTypePE> listPropertyTypes(
-			final String sessionToken) {
-		final Session session = getSessionManager().getSession(sessionToken);
-		final IPropertyTypeTable propertyTypeTable = businessObjectFactory
-				.createPropertyTypeTable(session);
-		propertyTypeTable.load();
-		propertyTypeTable.enrichWithRelations();
-		final List<PropertyTypePE> propertyTypes = propertyTypeTable
-				.getPropertyTypes();
-		Collections.sort(propertyTypes);
-		return propertyTypes;
-	}
+    public final List<PropertyTypePE> listPropertyTypes(final String sessionToken)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IPropertyTypeTable propertyTypeTable =
+                businessObjectFactory.createPropertyTypeTable(session);
+        propertyTypeTable.load();
+        propertyTypeTable.enrichWithRelations();
+        final List<PropertyTypePE> propertyTypes = propertyTypeTable.getPropertyTypes();
+        Collections.sort(propertyTypes);
+        return propertyTypes;
+    }
 
-	public final List<SearchHit> listMatchingEntities(
-			final String sessionToken,
-			final SearchableEntity[] searchableEntities, final String queryText) {
-		checkSession(sessionToken);
-		final List<SearchHit> list = new ArrayList<SearchHit>();
-		try {
-			for (final SearchableEntity searchableEntity : searchableEntities) {
-				final List<SearchHit> entities = getDAOFactory()
-						.getHibernateSearchDAO().searchEntitiesByTerm(
-								searchableEntity.getMatchingEntityClass(),
-								queryText);
-				list.addAll(entities);
-			}
-		} catch (final DataAccessException ex) {
-			throw createUserFailureException(ex);
-		}
-		return list;
-	}
+    public final List<SearchHit> listMatchingEntities(final String sessionToken,
+            final SearchableEntity[] searchableEntities, final String queryText)
+    {
+        checkSession(sessionToken);
+        final List<SearchHit> list = new ArrayList<SearchHit>();
+        try
+        {
+            for (final SearchableEntity searchableEntity : searchableEntities)
+            {
+                final List<SearchHit> entities =
+                        getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(
+                                searchableEntity.getMatchingEntityClass(), queryText);
+                list.addAll(entities);
+            }
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+        return list;
+    }
 
-	public final List<ExperimentPE> listExperiments(final String sessionToken,
-			final ExperimentTypePE experimentType,
-			final ProjectIdentifier projectIdentifier) {
-		final Session session = getSessionManager().getSession(sessionToken);
-		final IExperimentTable experimentTable = businessObjectFactory
-				.createExperimentTable(session);
-		experimentTable.load(experimentType.getCode(), projectIdentifier);
-		experimentTable.enrichWithProperties();
-		final List<ExperimentPE> experiments = experimentTable.getExperiments();
-		Collections.sort(experiments);
-		return experiments;
-	}
+    public final List<ExperimentPE> listExperiments(final String sessionToken,
+            final ExperimentTypePE experimentType, final ProjectIdentifier projectIdentifier)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IExperimentTable experimentTable =
+                businessObjectFactory.createExperimentTable(session);
+        experimentTable.load(experimentType.getCode(), projectIdentifier);
+        experimentTable.enrichWithProperties();
+        final List<ExperimentPE> experiments = experimentTable.getExperiments();
+        Collections.sort(experiments);
+        return experiments;
+    }
 
-	public final List<ExperimentTypePE> listExperimentTypes(
-			final String sessionToken) {
-		return listEntityTypes(sessionToken, EntityKind.EXPERIMENT);
-	}
+    public final List<ExperimentTypePE> listExperimentTypes(final String sessionToken)
+    {
+        return listEntityTypes(sessionToken, EntityKind.EXPERIMENT);
+    }
 
-	public List<MaterialTypePE> listMaterialTypes(String sessionToken) {
-		return listEntityTypes(sessionToken, EntityKind.MATERIAL);
-	}
+    public List<MaterialTypePE> listMaterialTypes(String sessionToken)
+    {
+        return listEntityTypes(sessionToken, EntityKind.MATERIAL);
+    }
 
-	private <T extends EntityTypePE> List<T> listEntityTypes(
-			String sessionToken, EntityKind entityKind) {
-		checkSession(sessionToken);
-		final List<T> types = getDAOFactory().getEntityTypeDAO(entityKind)
-				.listEntityTypes();
-		Collections.sort(types);
-		return types;
-	}
+    private <T extends EntityTypePE> List<T> listEntityTypes(String sessionToken,
+            EntityKind entityKind)
+    {
+        checkSession(sessionToken);
+        final List<T> types = getDAOFactory().getEntityTypeDAO(entityKind).listEntityTypes();
+        Collections.sort(types);
+        return types;
+    }
 
-	public final List<DataTypePE> listDataTypes(final String sessionToken) {
-		assert sessionToken != null : "Unspecified session token";
-		checkSession(sessionToken);
-		final List<DataTypePE> dataTypes = getDAOFactory().getPropertyTypeDAO()
-				.listDataTypes();
-		Collections.sort(dataTypes);
-		return dataTypes;
-	}
+    public final List<DataTypePE> listDataTypes(final String sessionToken)
+    {
+        assert sessionToken != null : "Unspecified session token";
+        checkSession(sessionToken);
+        final List<DataTypePE> dataTypes = getDAOFactory().getPropertyTypeDAO().listDataTypes();
+        Collections.sort(dataTypes);
+        return dataTypes;
+    }
 
-	public final List<VocabularyPE> listVocabularies(final String sessionToken,
-			final boolean withTerms, boolean excludeInternal) {
-		assert sessionToken != null : "Unspecified session token";
-		checkSession(sessionToken);
-		final List<VocabularyPE> vocabularies = getDAOFactory()
-				.getVocabularyDAO().listVocabularies(excludeInternal);
-		if (withTerms) {
-			for (final VocabularyPE vocabularyPE : vocabularies) {
-				enrichWithTerms(vocabularyPE);
-			}
-		}
-		Collections.sort(vocabularies);
-		return vocabularies;
-	}
+    public final List<VocabularyPE> listVocabularies(final String sessionToken,
+            final boolean withTerms, boolean excludeInternal)
+    {
+        assert sessionToken != null : "Unspecified session token";
+        checkSession(sessionToken);
+        final List<VocabularyPE> vocabularies =
+                getDAOFactory().getVocabularyDAO().listVocabularies(excludeInternal);
+        if (withTerms)
+        {
+            for (final VocabularyPE vocabularyPE : vocabularies)
+            {
+                enrichWithTerms(vocabularyPE);
+            }
+        }
+        Collections.sort(vocabularies);
+        return vocabularies;
+    }
 
-	private void enrichWithTerms(final VocabularyPE vocabularyPE) {
-		HibernateUtils.initialize(vocabularyPE.getTerms());
-	}
+    private void enrichWithTerms(final VocabularyPE vocabularyPE)
+    {
+        HibernateUtils.initialize(vocabularyPE.getTerms());
+    }
 
-	public String assignPropertyType(final String sessionToken,
-			final EntityKind entityKind, final String propertyTypeCode,
-			final String entityTypeCode, final boolean isMandatory,
-			final String defaultValue) {
-		assert sessionToken != null : "Unspecified session token";
-		Session session = getSessionManager().getSession(sessionToken);
+    public String assignPropertyType(final String sessionToken, final EntityKind entityKind,
+            final String propertyTypeCode, final String entityTypeCode, final boolean isMandatory,
+            final String defaultValue)
+    {
+        assert sessionToken != null : "Unspecified session token";
+        Session session = getSessionManager().getSession(sessionToken);
 
-		IEntityTypePropertyTypeBO etptBO = businessObjectFactory
-				.createEntityTypePropertyTypeBO(session, entityKind);
-		etptBO.createAssignment(propertyTypeCode, entityTypeCode, isMandatory,
-				defaultValue);
-		return String.format(
-				"%s property type '%s' successfully assigned to %s type '%s'",
-				isMandatory ? "Mandatory" : "Optional", propertyTypeCode,
-				entityKind.getLabel(), entityTypeCode);
+        IEntityTypePropertyTypeBO etptBO =
+                businessObjectFactory.createEntityTypePropertyTypeBO(session, entityKind);
+        etptBO.createAssignment(propertyTypeCode, entityTypeCode, isMandatory, defaultValue);
+        return String.format("%s property type '%s' successfully assigned to %s type '%s'",
+                isMandatory ? "Mandatory" : "Optional", propertyTypeCode, entityKind.getLabel(),
+                entityTypeCode);
 
-	}
+    }
 
-	public final void registerPropertyType(final String sessionToken,
-			final PropertyType propertyType) {
-		assert sessionToken != null : "Unspecified session token";
-		assert propertyType != null : "Unspecified property type";
+    public final void registerPropertyType(final String sessionToken,
+            final PropertyType propertyType)
+    {
+        assert sessionToken != null : "Unspecified session token";
+        assert propertyType != null : "Unspecified property type";
 
-		final Session session = getSessionManager().getSession(sessionToken);
-		final IPropertyTypeBO propertyTypeBO = businessObjectFactory
-				.createPropertyTypeBO(session);
-		propertyTypeBO.define(propertyType);
-		propertyTypeBO.save();
-	}
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IPropertyTypeBO propertyTypeBO = businessObjectFactory.createPropertyTypeBO(session);
+        propertyTypeBO.define(propertyType);
+        propertyTypeBO.save();
+    }
 
-	public final void registerVocabulary(final String sessionToken,
-			final Vocabulary vocabulary) {
-		assert sessionToken != null : "Unspecified session token";
-		assert vocabulary != null : "Unspecified vocabulary";
+    public final void registerVocabulary(final String sessionToken, final Vocabulary vocabulary)
+    {
+        assert sessionToken != null : "Unspecified session token";
+        assert vocabulary != null : "Unspecified vocabulary";
 
-		final Session session = getSessionManager().getSession(sessionToken);
-		final IVocabularyBO vocabularyBO = businessObjectFactory
-				.createVocabularyBO(session);
-		vocabularyBO.define(vocabulary);
-		vocabularyBO.save();
-	}
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
+        vocabularyBO.define(vocabulary);
+        vocabularyBO.save();
+    }
 
-	public void registerProject(String sessionToken,
-			ProjectIdentifier projectIdentifier, String description,
-			String leaderId) {
-		final Session session = getSessionManager().getSession(sessionToken);
-		final IProjectBO projectBO = businessObjectFactory
-				.createProjectBO(session);
-		projectBO.define(projectIdentifier, description, leaderId);
-		projectBO.save();
+    public void addVocabularyTerms(String sessionToken, String vocabularyCode,
+            List<String> vocabularyTerms)
+    {
+        System.out.println(vocabularyCode+":"+vocabularyTerms);
+        
+    }
 
-	}
+    public void registerProject(String sessionToken, ProjectIdentifier projectIdentifier,
+            String description, String leaderId)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
+        projectBO.define(projectIdentifier, description, leaderId);
+        projectBO.save();
 
-	public List<ExternalDataPE> searchForDataSets(String sessionToken,
-			DataSetSearchCriteria criteria) {
-		checkSession(sessionToken);
-		try {
-			IHibernateSearchDAO searchDAO = getDAOFactory()
-					.getHibernateSearchDAO();
-			return searchDAO.searchForDataSets(criteria);
-		} catch (final DataAccessException ex) {
-			throw createUserFailureException(ex);
-		}
-	}
+    }
 
-	public List<MaterialPE> listMaterials(String sessionToken,
-			MaterialTypePE materialType) {
-		final Session session = getSessionManager().getSession(sessionToken);
-		final IMaterialTable materialTable = businessObjectFactory
-				.createMaterialTable(session);
-		materialTable.load(materialType.getCode());
-		final List<MaterialPE> materials = materialTable.getMaterials();
-		Collections.sort(materials);
-		return materials;
-	}
+    public List<ExternalDataPE> searchForDataSets(String sessionToken,
+            DataSetSearchCriteria criteria)
+    {
+        checkSession(sessionToken);
+        try
+        {
+            IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
+            return searchDAO.searchForDataSets(criteria);
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
 
-	public void registerSampleType(String sessionToken, SampleType entityType) {
-		final Session session = getSessionManager().getSession(sessionToken);
-		try {
-			IEntityTypeBO entityTypeBO = businessObjectFactory
-					.createEntityTypeBO(session);
-			entityTypeBO.define(entityType);
-			entityTypeBO.save();
-		} catch (final DataAccessException ex) {
-			throw createUserFailureException(ex);
-		}
-	}
+    public List<MaterialPE> listMaterials(String sessionToken, MaterialTypePE materialType)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IMaterialTable materialTable = businessObjectFactory.createMaterialTable(session);
+        materialTable.load(materialType.getCode());
+        final List<MaterialPE> materials = materialTable.getMaterials();
+        Collections.sort(materials);
+        return materials;
+    }
 
-	public void registerMaterialType(String sessionToken,
-			MaterialType entityType) {
-		final Session session = getSessionManager().getSession(sessionToken);
-		try {
-			IEntityTypeBO entityTypeBO = businessObjectFactory
-					.createEntityTypeBO(session);
-			entityTypeBO.define(entityType);
-			entityTypeBO.save();
-		} catch (final DataAccessException ex) {
-			throw createUserFailureException(ex);
-		}
-	}
+    public void registerSampleType(String sessionToken, SampleType entityType)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IEntityTypeBO entityTypeBO = businessObjectFactory.createEntityTypeBO(session);
+            entityTypeBO.define(entityType);
+            entityTypeBO.save();
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
 
-	public void registerExperimentType(String sessionToken,
-			ExperimentType entityType) {
-		final Session session = getSessionManager().getSession(sessionToken);
-		try {
-			IEntityTypeBO entityTypeBO = businessObjectFactory
-					.createEntityTypeBO(session);
-			entityTypeBO.define(entityType);
-			entityTypeBO.save();
-		} catch (final DataAccessException ex) {
-			throw createUserFailureException(ex);
-		}
-	}
+    public void registerMaterialType(String sessionToken, MaterialType entityType)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IEntityTypeBO entityTypeBO = businessObjectFactory.createEntityTypeBO(session);
+            entityTypeBO.define(entityType);
+            entityTypeBO.save();
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
+    public void registerExperimentType(String sessionToken, ExperimentType entityType)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IEntityTypeBO entityTypeBO = businessObjectFactory.createEntityTypeBO(session);
+            entityTypeBO.define(entityType);
+            entityTypeBO.save();
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
 
     public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason)
     {
@@ -598,105 +620,105 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             throw createUserFailureException(ex);
         }
     }
-    
-	public void editExperiment(String sessionToken,
-			ExperimentIdentifier identifier,
-			List<ExperimentProperty> properties,
-			List<AttachmentPE> attachments,
-			ProjectIdentifier newProjectIdentifier, Date version) {
-		final Session session = getSessionManager().getSession(sessionToken);
-		if (newProjectIdentifier.equals(identifier) == false) {
-			checkExternalData(identifier, session);
-			checkSampleConsistency(identifier, newProjectIdentifier, session);
-		}
 
-		final IExperimentBO experimentBO = businessObjectFactory
-				.createExperimentBO(session);
-		experimentBO.edit(identifier, properties, attachments,
-				newProjectIdentifier, version);
-		experimentBO.save();
-	}
+    public void editExperiment(String sessionToken, ExperimentIdentifier identifier,
+            List<ExperimentProperty> properties, List<AttachmentPE> attachments,
+            ProjectIdentifier newProjectIdentifier, Date version)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        if (newProjectIdentifier.equals(identifier) == false)
+        {
+            checkExternalData(identifier, session);
+            checkSampleConsistency(identifier, newProjectIdentifier, session);
+        }
 
-	private void checkExternalData(ExperimentIdentifier identifier,
-			final Session session) {
-		final IExternalDataTable externalDataTable = businessObjectFactory
-				.createExternalDataTable(session);
-		externalDataTable.loadByExperimentIdentifier(identifier);
-		if (externalDataTable.getExternalData().size() > 0) {
-			throw new UserFailureException(
-					"Changing the project of experiment containing data sets is not allowed.");
-		}
-	}
+        final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+        experimentBO.edit(identifier, properties, attachments, newProjectIdentifier, version);
+        experimentBO.save();
+    }
 
-	private void checkSampleConsistency(ExperimentIdentifier identifier,
-			ProjectIdentifier newProjectIdentifier, final Session session) {
-		ListSampleCriteriaDTO criteria = ListSampleCriteriaDTO
-				.createExperimentIdentifier(identifier);
-		final ISampleTable sampleTable = businessObjectFactory
-				.createSampleTable(session);
-		sampleTable.loadSamplesByCriteria(criteria);
-		final List<SamplePE> samples = sampleTable.getSamples();
-		if (samples.size() > 0) {
-			checkExperimentGroupMatches(samples.get(0).getSampleIdentifier(),
-					newProjectIdentifier);
-		}
-	}
+    private void checkExternalData(ExperimentIdentifier identifier, final Session session)
+    {
+        final IExternalDataTable externalDataTable =
+                businessObjectFactory.createExternalDataTable(session);
+        externalDataTable.loadByExperimentIdentifier(identifier);
+        if (externalDataTable.getExternalData().size() > 0)
+        {
+            throw new UserFailureException(
+                    "Changing the project of experiment containing data sets is not allowed.");
+        }
+    }
 
-	private void checkExperimentGroupMatches(SampleIdentifier sampleIdentifier,
-			ProjectIdentifier newProjectIdentifier) {
-		assert sampleIdentifier != null : "Sample identifier not specified";
-		assert newProjectIdentifier != null : "Project identifier not specified";
-		final GroupIdentifier sampleGroup = sampleIdentifier.getGroupLevel();
-		if (sampleGroup == null) {
-			throw new UserFailureException(
-					"Inconsistency detected: shared sample found in experiment.");
-		}
-		if (sampleGroup.getDatabaseInstanceCode().equals(
-				newProjectIdentifier.getDatabaseInstanceCode()) == false
-				|| sampleGroup.getGroupCode().equals(
-						newProjectIdentifier.getGroupCode()) == false) {
-			throw new UserFailureException(
-					String
-							.format(
-									"Project cannot be changed to '%s' because experiment containes samples from group '%s'.",
-									newProjectIdentifier, sampleGroup));
-		}
-	}
+    private void checkSampleConsistency(ExperimentIdentifier identifier,
+            ProjectIdentifier newProjectIdentifier, final Session session)
+    {
+        ListSampleCriteriaDTO criteria =
+                ListSampleCriteriaDTO.createExperimentIdentifier(identifier);
+        final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
+        sampleTable.loadSamplesByCriteria(criteria);
+        final List<SamplePE> samples = sampleTable.getSamples();
+        if (samples.size() > 0)
+        {
+            checkExperimentGroupMatches(samples.get(0).getSampleIdentifier(), newProjectIdentifier);
+        }
+    }
 
-	public void editMaterial(String sessionToken,
-			MaterialIdentifier identifier, List<MaterialProperty> properties,
-			Date version) {
-		final Session session = getSessionManager().getSession(sessionToken);
-		final IMaterialBO materialBO = businessObjectFactory
-				.createMaterialBO(session);
-		materialBO.edit(identifier, properties, version);
-		materialBO.save();
+    private void checkExperimentGroupMatches(SampleIdentifier sampleIdentifier,
+            ProjectIdentifier newProjectIdentifier)
+    {
+        assert sampleIdentifier != null : "Sample identifier not specified";
+        assert newProjectIdentifier != null : "Project identifier not specified";
+        final GroupIdentifier sampleGroup = sampleIdentifier.getGroupLevel();
+        if (sampleGroup == null)
+        {
+            throw new UserFailureException(
+                    "Inconsistency detected: shared sample found in experiment.");
+        }
+        if (sampleGroup.getDatabaseInstanceCode().equals(
+                newProjectIdentifier.getDatabaseInstanceCode()) == false
+                || sampleGroup.getGroupCode().equals(newProjectIdentifier.getGroupCode()) == false)
+        {
+            throw new UserFailureException(
+                    String
+                            .format(
+                                    "Project cannot be changed to '%s' because experiment containes samples from group '%s'.",
+                                    newProjectIdentifier, sampleGroup));
+        }
+    }
 
-	}
+    public void editMaterial(String sessionToken, MaterialIdentifier identifier,
+            List<MaterialProperty> properties, Date version)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
+        materialBO.edit(identifier, properties, version);
+        materialBO.save();
 
-	public void editSample(String sessionToken, SampleIdentifier identifier,
-			List<SampleProperty> properties,
-			ExperimentIdentifier experimentIdentifierOrNull, Date version) {
-		final Session session = getSessionManager().getSession(sessionToken);
-		final ISampleBO sampleBO = businessObjectFactory
-				.createSampleBO(session);
-		sampleBO.edit(identifier, properties, experimentIdentifierOrNull,
-				version);
-		sampleBO.save();
+    }
 
-	}
+    public void editSample(String sessionToken, SampleIdentifier identifier,
+            List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
+            Date version)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        sampleBO.edit(identifier, properties, experimentIdentifierOrNull, version);
+        sampleBO.save();
 
-	public List<VocabularyTermWithStats> listVocabularyTerms(
-			String sessionToken, Vocabulary vocabulary) {
-		final Session session = getSessionManager().getSession(sessionToken);
-		final IVocabularyBO vocabularyBO = businessObjectFactory
-				.createVocabularyBO(session);
-		vocabularyBO.load(vocabulary);
-		return vocabularyBO.countTermsUsageStatistics();
-	}
+    }
 
-	public List<DataSetTypePE> listDataSetTypes(String sessionToken) {
-		return listEntityTypes(sessionToken, EntityKind.DATA_SET);
-	}
+    public List<VocabularyTermWithStats> listVocabularyTerms(String sessionToken,
+            Vocabulary vocabulary)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
+        vocabularyBO.load(vocabulary);
+        return vocabularyBO.countTermsUsageStatistics();
+    }
+
+    public List<DataSetTypePE> listDataSetTypes(String sessionToken)
+    {
+        return listEntityTypes(sessionToken, EntityKind.DATA_SET);
+    }
 
 }

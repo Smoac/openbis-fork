@@ -360,6 +360,10 @@ public interface ICommonClientService extends IClientService {
 	 */
 	public void registerVocabulary(final Vocabulary vocabulary)
 			throws UserFailureException;
+	
+	/** Adds specified terms to the specified vocabulary. */
+    public void addVocabularyTerms(String vocabularyCode, List<String> vocabularyTerms)
+            throws UserFailureException;
 
 	/**
 	 * Registers given {@link Project}.

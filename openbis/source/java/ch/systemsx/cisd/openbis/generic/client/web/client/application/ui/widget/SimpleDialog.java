@@ -42,9 +42,12 @@ public class SimpleDialog extends Dialog
 
     private final IMessageProvider messageProvider;
 
+    private final Button acceptButton;
+    
     private IDelegatedAction acceptActionOrNull;
 
     private IDelegatedAction cancelActionOrNull;
+
 
     public SimpleDialog(final Widget widget, final String heading, String acceptButtonLabel,
             IMessageProvider messageProvider)
@@ -58,7 +61,8 @@ public class SimpleDialog extends Dialog
         setModal(true);
 
         add(widget);
-        addButton(createAcceptButton(acceptButtonLabel));
+        acceptButton = createAcceptButton(acceptButtonLabel);
+        addButton(acceptButton);
         addButton(createCancelButton());
 
         addWindowListener(new WindowListener()
@@ -70,7 +74,12 @@ public class SimpleDialog extends Dialog
                 }
             });
     }
-
+    
+    public void setEnableOfAcceptButton(boolean enable)
+    {
+        acceptButton.setEnabled(enable);
+    }
+    
     private Button createCancelButton()
     {
         final Button button =

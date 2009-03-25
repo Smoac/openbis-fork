@@ -145,7 +145,7 @@ var common = {
   type_of: "Entity",
   vocabulary: "Vocabulary",
   vocabulary_terms: "Terms",
-  vocabulary_terms_empty: "White space or comma separated list",
+  vocabulary_terms_empty: "Space or comma separated list",
   mandatory: "Mandatory",
   default_value: "Initial Value",
   default_value_tooltip: "The value of the assigned property for all currently existing entities.",
@@ -248,6 +248,10 @@ var common = {
  TERM_FOR_EXPERIMENTS_USAGE: "Usages for Experiments",
  TERM_FOR_MATERIALS_USAGE: "Usages for Materials",
  TERM_TOTAL_USAGE: "Total Usages Number",
+ add_vocabulary_terms_button: "Add New Terms",
+ add_vocabulary_terms_title: "Add New Terms",
+ add_vocabulary_terms_ok_button: "OK",
+ vocabulary_terms_validation_message: "Term '{0}' already exists.", 
  
  //
  // Project Browser

@@ -419,6 +419,14 @@ public abstract class Dict {
 	public static final String TERM_FOR_MATERIALS_USAGE = "TERM_FOR_MATERIALS_USAGE";
 
 	public static final String TERM_TOTAL_USAGE = "TERM_TOTAL_USAGE";
+	
+	public static final String ADD_VOCABULARY_TERMS_BUTTON = "add_vocabulary_terms_button";
+	
+	public static final String ADD_VOCABULARY_TERMS_TITLE = "add_vocabulary_terms_title";
+	
+	public static final String ADD_VOCABULARY_TERMS_OK_BUTTON = "add_vocabulary_terms_ok_button";
+	
+	public static final String VOCABULARY_TERMS_VALIDATION_MESSAGE = "vocabulary_terms_validation_message";
 
 	//
 	// Project Browser
@@ -483,6 +491,8 @@ public abstract class Dict {
 	public static final String EDIT_TITLE = "edit_title";
 
 	public static final String BUTTON_EDIT = "edit";
+
+
 
 	// ----- end generic ------------------
 }

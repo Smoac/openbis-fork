@@ -18,14 +18,26 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabu
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.KeyListener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.HorizontalPanel;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.TextArea;
+import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyTermColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -42,6 +54,20 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
 {
     // browser consists of the grid and the paging toolbar
     private static final String BROWSER_ID = GenericConstants.ID_PREFIX + "vocabulary-term-browser";
+    
+    final class VoidCallback extends AbstractAsyncCallback<Void>
+    {
+        private VoidCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        protected void process(Void result)
+        {
+            refresh();
+        }
+    }
 
     private final Vocabulary vocabulary;
 
@@ -56,6 +82,16 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
     {
         super(viewContext, createBrowserId(vocabulary), createGridId(vocabulary.getCode()));
         this.vocabulary = vocabulary;
+        Button button = new Button(viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_BUTTON));
+        button.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public void componentSelected(ButtonEvent ce)
+                {
+                    askForNewTerms();
+                }
+            });
+        pagingToolbar.add(new AdapterToolItem(button));
     }
 
     public static String createGridId(String vocabularyCode)
@@ -99,5 +135,40 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportVocabularyTerms(exportCriteria, callback);
+    }
+    
+    private void askForNewTerms()
+    {
+        final TextArea textArea = new TextArea();
+        textArea.setWidth(250);
+        textArea.setHeight(200);
+        textArea.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERMS_EMPTY));
+        textArea.setValidator(new VocabularyTermValidator(viewContext, vocabulary.getTerms()));
+        String heading = viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_TITLE);
+        String okButtonLabel = viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_OK_BUTTON);
+        HorizontalPanel panel = new HorizontalPanel();
+        panel.setWidth(300);
+        panel.add(textArea);
+        panel.setBorders(true);
+        final SimpleDialog dialog = new SimpleDialog(panel, heading, okButtonLabel, viewContext);
+        textArea.addKeyListener(new KeyListener()
+            {
+                @Override
+                public void handleEvent(ComponentEvent ce)
+                {
+                    textArea.validate();
+                    dialog.setEnableOfAcceptButton(textArea.isValid());
+                }
+            });
+        dialog.setAcceptAction(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    viewContext.getCommonService().addVocabularyTerms(vocabulary.getCode(),
+                            VocabularyTermValidator.getTerms(textArea.getValue()),
+                            new VoidCallback(viewContext));
+                }
+            });
+        dialog.show();
     }
 }

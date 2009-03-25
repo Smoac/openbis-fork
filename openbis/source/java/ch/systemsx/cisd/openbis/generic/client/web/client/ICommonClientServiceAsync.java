@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client;
 import java.util.Date;
 import java.util.List;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
@@ -54,8 +56,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
-
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * Asynchronous version of {@link ICommonClientService}.
@@ -299,6 +299,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync {
 	public void registerVocabulary(final Vocabulary vocabulary,
 			final AsyncCallback<Void> asyncCallback);
 
+	/** @see ICommonClientService#addVocabularyTerms(String, List) */
+    public void addVocabularyTerms(String vocabularyCode, List<String> vocabularyTerms,
+            AsyncCallback<Void> callback);
+    
 	/** @see ICommonClientService#registerProject(Project) */
 	public void registerProject(Project project,
 			final AsyncCallback<Void> projectRegistrationCallback);
@@ -376,5 +380,6 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync {
 
     /** @see ICommonClientService#uploadDataSets(List, String, String) */
     public void uploadDataSets(List<String> dataSetCodes, String cifexURL, String password,
-            AsyncCallback<Void> abstractAsyncCallback);
+            AsyncCallback<Void> callback);
+
 }
