@@ -165,9 +165,15 @@ class UploadingCommand implements IDataSetCommand
             zipOutputStream = new ZipOutputStream(outputStream);
             for (String location : dataSetLocations)
             {
+                File dataSetFile = new File(store, location);
+                if (dataSetFile.exists() == false)
+                {
+                    notificationLog.error("Data set '" + location + "' does not exist.");
+                    return false;
+                }
                 try
                 {
-                    addTo(zipOutputStream, rootPath, new File(store, location));
+                    addTo(zipOutputStream, rootPath, dataSetFile);
                 } catch (IOException ex)
                 {
                     notificationLog.error("Couldn't add data set '" + location + "' to zip file.",
@@ -236,7 +242,7 @@ class UploadingCommand implements IDataSetCommand
         String smtpUser = mailClientParameters.getSmtpUser();
         String smtpPassword = mailClientParameters.getSmtpPassword();
         IMailClient mailClient = new MailClient(from, smtpHost, smtpUser, smtpPassword);
-        mailClient.sendMessage("[Data Set Server] Uploading failed", message, "", userEMail);
+        mailClient.sendMessage("[Data Set Server] Uploading failed", message, null, userEMail);
     }
 
 }
