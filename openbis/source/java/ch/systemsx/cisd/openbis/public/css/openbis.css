@@ -9,6 +9,10 @@ body,div,td {
     cursor: pointer;
 }
 
+.inline {
+    display: inline;
+}
+
 /*****************************
  * Login
  *****************************/
@@ -41,6 +45,12 @@ body,div,td {
 .invalid {
     text-decoration: line-through;
 }
+
+/* uncomment if we don't want an underline for an invalidated link
+.invalid a {
+    text-decoration: none;
+}
+*/
 
 /*****************************
  * Property grid
