@@ -26,11 +26,11 @@ import java.util.regex.Pattern;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.ant.common.StringUtils;
+import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.process.InputStreamReaderGobbler;
-import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
  * Some utility methods helping with subversion paths.

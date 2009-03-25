@@ -22,8 +22,8 @@ import java.util.List;
 
 import ch.systemsx.cisd.ant.common.StringUtils;
 import ch.systemsx.cisd.ant.task.subversion.SVNUtilities.ProcessInfo;
+import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
-import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
  * A class that provides a wrapper for actions performed on a subversion path by wrapping the

@@ -3,17 +3,17 @@
   <import file="../../build_resources/ant/build-common.xml" />
   <project-classpath name="ecp" classes="${classes}" />
 
-	<property name="mainfolder" value="ant_tasks"/>
-	<property name="jar.dir" value="${targets}/jar"/>
-	<property name="jar.file" value="${jar.dir}/cisd-ant-tasks.jar"/>
+  <property name="mainfolder" value="ant_tasks"/>
+  <property name="jar.dir" value="${targets}/jar"/>
+  <property name="jar.file" value="${jar.dir}/cisd-ant-tasks.jar"/>
 
-	<target name="clean">
+  <target name="clean">
      <delete dir="${jar.dir}"/>
-	</target>
+  </target>
 
   <target name="compile" depends="build-common.compile, clean"/>
 
-	<target name="jar" depends="compile">
+  <target name="jar" depends="compile">
         <mkdir dir="${jar.dir}"/>
         <build-info revision="revision.number" version="version.number" clean="clean.flag"/>
         <echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
@@ -24,7 +24,7 @@
                 <include name="${build.info.filename}" />
             </fileset>
             <manifest>
-                <attribute name="Main-Class" value="ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo" />
+                <attribute name="Main-Class" value="ch.systemsx.cisd.base.utilities.BuildAndEnvironmentInfo" />
                 <attribute name="Version" value="${version.number}" />
                 <attribute name="Build-Number" value="${version.number} (r${revision.number},${clean.flag})" />
             </manifest>
