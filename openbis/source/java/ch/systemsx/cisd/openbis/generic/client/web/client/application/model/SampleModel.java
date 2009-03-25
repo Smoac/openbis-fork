@@ -54,7 +54,7 @@ public final class SampleModel extends BaseEntityModel<Sample>
         String experimentId = CommonSampleColDefKind.EXPERIMENT.id();
         String value = get(experimentId);
         if (value.length() > 0) // only for not null value
-            value = LinkRenderer.renderAsLinkWithAnchor(get(experimentId).toString());
+            value = LinkRenderer.renderAsLinkWithAnchor(value);
         set(experimentId, value);
     }
 
