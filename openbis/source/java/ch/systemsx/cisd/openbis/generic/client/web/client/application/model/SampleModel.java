@@ -22,6 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.ParentContainerSampleColDef;
@@ -49,6 +50,8 @@ public final class SampleModel extends BaseEntityModel<Sample>
         super(entity, createColumnsSchema(entity));
         set(ModelDataPropertyNames.SAMPLE_TYPE, entity.getSampleType() != null ? entity
                 .getSampleType().getCode() : null);
+        String experimentId = CommonSampleColDefKind.EXPERIMENT.id();
+        set(experimentId, LinkRenderer.renderAsLinkWithAnchor(get(experimentId).toString()));
     }
 
     public static ColumnDefsAndConfigs<Sample> createColumnsSchema(

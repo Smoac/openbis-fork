@@ -30,11 +30,23 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 public class LinkRenderer
 {
 
+    /** renders a div witch looks like an anchor (hand cursor is on div - block) */
     public static String renderAsLink(final String message)
     {
         final Element div = DOM.createDiv();
         div.setInnerHTML(message);
         div.setClassName("link-style");
+        return DOM.toString(div);
+    }
+
+    /** renders a div with an inline anchor inside (hand cursor is on anchor - inline) */
+    public static String renderAsLinkWithAnchor(final String text)
+    {
+        final Element div = DOM.createDiv();
+        final Element anchor = DOM.createAnchor();
+        DOM.appendChild(div, anchor);
+        DOM.setInnerText(anchor, text);
+        DOM.setElementProperty(anchor, "href", "#");
         return DOM.toString(div);
     }
 

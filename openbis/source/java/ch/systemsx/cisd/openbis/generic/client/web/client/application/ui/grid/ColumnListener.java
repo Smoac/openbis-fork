@@ -28,14 +28,17 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 
 /**
- * Listener for a Grid which delegates click on a cell to a registered {@link ICellListener}.
- *
+ * Listener for a Grid which delegates click on a cell or link in a cell to a registered
+ * {@link ICellListener}.
+ * 
  * @author Franz-Josef Elmer
  */
-public final class ColumnListener<T, M extends BaseEntityModel<T>> implements
-        Listener<GridEvent>
+public final class ColumnListener<T, M extends BaseEntityModel<T>> implements Listener<GridEvent>
 {
-    private final Map<String, ICellListener<T>> listeners =
+    private final Map<String, ICellListener<T>> cellListeners =
+            new HashMap<String, ICellListener<T>>();
+
+    private final Map<String, ICellListener<T>> linkListeners =
             new HashMap<String, ICellListener<T>>();
 
     private final Grid<M> grid;
@@ -54,24 +57,49 @@ public final class ColumnListener<T, M extends BaseEntityModel<T>> implements
      */
     public void registerCellClickListener(String columnID, ICellListener<T> listener)
     {
-        listeners.put(columnID.toLowerCase(), listener);
+        cellListeners.put(columnID.toLowerCase(), listener);
     }
 
     /**
-     * Invokes {@link ICellListener#handle(Object)} with the base object of the row specified
-     * by the row index of the event. The cell listener is determined by the column index. This
-     * method does nothing if no cell listener has been registered for column determined by the
-     * event.
+     * Registers the specified link listener for the specified column.
+     */
+    public void registerLinkClickListener(String columnID, ICellListener<T> listener)
+    {
+        linkListeners.put(columnID.toLowerCase(), listener);
+    }
+
+    /**
+     * Invokes {@link ICellListener#handle(Object)} with the base object of the row specified by the
+     * row index of the event. The cell listener is determined by the column index. This method does
+     * nothing if no cell listener has been registered for column determined by the event.
      */
     @SuppressWarnings("unchecked")
     public void handleEvent(GridEvent be)
     {
-        String columnID = grid.getColumnModel().getColumn(be.colIndex).getId().toLowerCase();
-        ICellListener<T> listener = listeners.get(columnID);
+        ICellListener<T> listener = getCellListener(be);
         if (listener != null)
         {
             ListStore store = be.grid.getStore();
             listener.handle(((BaseEntityModel<T>) store.getAt(be.rowIndex)).getBaseObject());
         }
     }
+
+    /** @return appropriate cell or link listener for given <var>event</var> */
+    private ICellListener<T> getCellListener(GridEvent event)
+    {
+        String columnID = grid.getColumnModel().getColumn(event.colIndex).getId().toLowerCase();
+
+        ICellListener<T> listener =
+                (isLinkTarget(event) ? linkListeners.get(columnID) : cellListeners.get(columnID));
+        return listener;
+    }
+
+    private static String LINK_TAG_NAME = "A";
+
+    /** @return is the target element for given <var>event</var> a link */
+    private boolean isLinkTarget(GridEvent event)
+    {
+        return event.getTarget().getTagName().equals(LINK_TAG_NAME);
+    }
+
 }
