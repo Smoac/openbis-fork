@@ -430,6 +430,16 @@ public abstract class Dict {
 	
 	public static final String VOCABULARY_TERMS_VALIDATION_MESSAGE = "vocabulary_terms_validation_message";
 
+    public static final String DELETE_VOCABULARY_TERMS_BUTTON = "delete_vocabulary_terms_button";
+    
+    public static final String DELETE_VOCABULARY_TERMS_INVALID_TITLE = "delete_vocabulary_terms_invalid_title";
+
+    public static final String DELETE_VOCABULARY_TERMS_INVALID_MESSAGE = "delete_vocabulary_terms_invalid_message";
+    
+    public static final String DELETE_VOCABULARY_TERMS_ORIGINAL_COLUMN = "delete_vocabulary_terms_original_column";
+    
+    public static final String DELETE_VOCABULARY_TERMS_REPLACEMENT_COLUMN = "delete_vocabulary_terms_replacement_column";
+
 	//
 	// Project Browser
 	//
@@ -493,7 +503,6 @@ public abstract class Dict {
 	public static final String EDIT_TITLE = "edit_title";
 
 	public static final String BUTTON_EDIT = "edit";
-
 
 
 	// ----- end generic ------------------

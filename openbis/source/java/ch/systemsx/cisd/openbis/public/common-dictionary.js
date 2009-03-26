@@ -253,6 +253,11 @@ var common = {
  add_vocabulary_terms_title: "Add New Terms",
  add_vocabulary_terms_ok_button: "OK",
  vocabulary_terms_validation_message: "Term '{0}' already exists.", 
+ delete_vocabulary_terms_button: "Delete/Replace Terms",
+ delete_vocabulary_terms_invalid_title: "Invalid Deletion",
+ delete_vocabulary_terms_invalid_message: "Can not delete all terms. A vocabulary should have at least one term.",
+ delete_vocabulary_terms_original_column: "Term",        
+ delete_vocabulary_terms_replacement_column: "Replacement",        
  
  //
  // Project Browser

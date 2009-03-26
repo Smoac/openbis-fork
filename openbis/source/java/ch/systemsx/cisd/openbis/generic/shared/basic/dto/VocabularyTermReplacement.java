@@ -16,31 +16,35 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
- * Stores the usage statistics for one vocabulary term and one entity kind.
- * 
- * @author Tomasz Pylak
+ * Wrapper of a {@link VocabularyTerm} and its replacment.
+ *
+ * @author Franz-Josef Elmer
  */
-public class VocabularyTermUsage
+public class VocabularyTermReplacement implements IsSerializable
 {
     private VocabularyTerm term;
-
-    // how many times is this term used as a value
-    private int usageCounter;
-
-    public VocabularyTermUsage(VocabularyTerm term, int usage)
-    {
-        this.term = term;
-        this.usageCounter = usage;
-    }
-
-    public VocabularyTerm getTerm()
+    private VocabularyTerm replacement;
+    
+    public final VocabularyTerm getTerm()
     {
         return term;
     }
-
-    public int getUsageCounter()
+    
+    public final void setTerm(VocabularyTerm term)
     {
-        return usageCounter;
+        this.term = term;
+    }
+    
+    public final VocabularyTerm getReplacement()
+    {
+        return replacement;
+    }
+    
+    public final void setReplacement(VocabularyTerm replacement)
+    {
+        this.replacement = replacement;
     }
 }
