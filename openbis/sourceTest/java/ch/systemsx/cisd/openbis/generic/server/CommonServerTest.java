@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -89,7 +90,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     private final ICommonServer createServer()
     {
         return new CommonServer(authenticationService, sessionManager, dssSessionManager,
-                daoFactory, commonBusinessObjectFactory);
+                daoFactory, commonBusinessObjectFactory, new LastModificationState());
     }
 
     private final static PersonPE createSystemUser()
@@ -800,7 +801,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                 {
                     one(commonBusinessObjectFactory).createExternalDataTable(SESSION);
                     will(returnValue(externalDataTable));
-                    
+
                     one(externalDataTable).loadByDataSetCodes(dataSetCodes);
                     one(externalDataTable).deleteLoadedDataSets(dssSessionManager, "reason");
                 }
@@ -810,25 +811,26 @@ public final class CommonServerTest extends AbstractServerTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testUploadDataSets()
     {
         prepareGetSession();
         final List<String> dataSetCodes = Arrays.asList("a", "b");
         context.checking(new Expectations()
-        {
             {
-                one(commonBusinessObjectFactory).createExternalDataTable(SESSION);
-                will(returnValue(externalDataTable));
-                
-                one(externalDataTable).loadByDataSetCodes(dataSetCodes);
-                one(externalDataTable).uploadLoadedDataSetsToCIFEX(dssSessionManager, "cifexURL", "pwd");
-            }
-        });
-        
+                {
+                    one(commonBusinessObjectFactory).createExternalDataTable(SESSION);
+                    will(returnValue(externalDataTable));
+
+                    one(externalDataTable).loadByDataSetCodes(dataSetCodes);
+                    one(externalDataTable).uploadLoadedDataSetsToCIFEX(dssSessionManager,
+                            "cifexURL", "pwd");
+                }
+            });
+
         createServer().uploadDataSets(SESSION_TOKEN, dataSetCodes, "cifexURL", "pwd");
-        
+
         context.assertIsSatisfied();
     }
 

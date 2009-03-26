@@ -27,7 +27,8 @@ public class ServerInterfaceRegressionTest extends RegressionTestCase
     @Test
     public void testICommonServer()
     {
-        assertMandatoryMethodAnnotations(ICommonServer.class);
+        assertMandatoryMethodAnnotations(ICommonServer.class,
+                "getLastModificationState: Transactional\n");
         assertNormalizedSourceFilesAreEqual(ICommonServer.class);
     }
 
@@ -37,7 +38,7 @@ public class ServerInterfaceRegressionTest extends RegressionTestCase
         assertMandatoryMethodAnnotations(IPluginCommonServer.class);
         assertNormalizedSourceFilesAreEqual(IPluginCommonServer.class);
     }
-    
+
     @Test
     public void testIETLLIMSService()
     {

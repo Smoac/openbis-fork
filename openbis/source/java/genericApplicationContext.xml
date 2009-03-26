@@ -64,6 +64,9 @@
         <constructor-arg ref="dao-factory" />
     </bean>
 
+    <bean id="last-modification-state"
+          class="ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState" />
+          
     <!-- 
         // Common
     -->
@@ -74,6 +77,7 @@
         <constructor-arg ref="dss-session-manager" />
         <constructor-arg ref="dao-factory" />
         <constructor-arg ref="common-business-object-factory" />
+        <constructor-arg ref="last-modification-state" />
     </bean>
 
     <bean id="common-service" class="ch.systemsx.cisd.openbis.generic.client.web.server.CommonClientService">
@@ -143,6 +147,15 @@
             <bean
                 class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource" />
         </property>
+    </bean>
+
+    <!-- 
+        // Database Last Modification Monitor
+        // This advice will auto-magically used as an interceptor for server methods (e.g. ICommonServer)
+    -->
+    
+    <bean class="ch.systemsx.cisd.openbis.generic.server.DatabaseLastModificationAdvisor">
+        <constructor-arg ref="last-modification-state" />
     </bean>
 
     <!-- 

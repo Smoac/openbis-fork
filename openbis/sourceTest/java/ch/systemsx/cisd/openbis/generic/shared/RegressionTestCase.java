@@ -79,6 +79,11 @@ public class RegressionTestCase extends AssertJUnit
 
     protected void assertMandatoryMethodAnnotations(Class<?> clazz)
     {
+        assertMandatoryMethodAnnotations(clazz, "");
+    }
+
+    protected void assertMandatoryMethodAnnotations(Class<?> clazz, String exceptions)
+    {
         List<Class<? extends Annotation>> mandatoryAnnotations =
                 new ArrayList<Class<? extends Annotation>>();
         mandatoryAnnotations.add(RolesAllowed.class);
@@ -103,6 +108,6 @@ public class RegressionTestCase extends AssertJUnit
                         missingAnnotations, ", ")));
             }
         }
-        assertEquals(noMissingAnnotationsMsg, problems.toString());
+        assertEquals(noMissingAnnotationsMsg + exceptions, problems.toString());
     }
 }

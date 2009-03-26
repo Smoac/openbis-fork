@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectVa
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -43,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
@@ -93,6 +95,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.GROUP)
     public void registerGroup(String sessionToken, String groupCode, String descriptionOrNull,
             String groupLeaderOrNull);
 
@@ -120,6 +123,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.PERSON)
     public void registerPerson(String sessionToken, String userID);
 
     /**
@@ -134,15 +138,19 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.GROUP_ADMIN)
-    public void registerGroupRole(String sessionToken, RoleCode roleCode,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
-            GroupIdentifier identifier, String person);
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE)
+    public void registerGroupRole(
+            String sessionToken,
+            RoleCode roleCode,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) GroupIdentifier identifier,
+            String person);
 
     /**
      * Registers a new instance role.
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE)
     public void registerInstanceRole(String sessionToken, RoleCode roleCode, String person);
 
     /**
@@ -150,15 +158,19 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.GROUP_ADMIN)
-    public void deleteGroupRole(String sessionToken, RoleCode roleCode,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
-            GroupIdentifier groupIdentifier, String person);
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE)
+    public void deleteGroupRole(
+            String sessionToken,
+            RoleCode roleCode,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) GroupIdentifier groupIdentifier,
+            String person);
 
     /**
      * Deletes role described by given role code and user id.
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE)
     public void deleteInstanceRole(String sessionToken, RoleCode roleCode, String person);
 
     /**
@@ -187,10 +199,10 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<ExperimentPE> listExperiments(final String sessionToken,
+    public List<ExperimentPE> listExperiments(
+            final String sessionToken,
             ExperimentTypePE experimentType,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
-            ProjectIdentifier project);
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier project);
 
     /**
      * For given {@link SampleIdentifier} returns the corresponding list of {@link ExternalDataPE}.
@@ -199,9 +211,9 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<ExternalDataPE> listExternalData(final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            final SampleIdentifier identifier);
+    public List<ExternalDataPE> listExternalData(
+            final String sessionToken,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) final SampleIdentifier identifier);
 
     /**
      * For given {@link ExperimentIdentifier} returns the corresponding list of
@@ -211,9 +223,9 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<ExternalDataPE> listExternalData(final String sessionToken,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
-            final ExperimentIdentifier identifier);
+    public List<ExternalDataPE> listExternalData(
+            final String sessionToken,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) final ExperimentIdentifier identifier);
 
     /**
      * Performs an <i>Hibernate Search</i> based on given parameters.
@@ -266,6 +278,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.PROPERTY_TYPE)
     public void registerPropertyType(final String sessionToken, final PropertyType propertyType);
 
     /**
@@ -273,6 +286,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.PROPERTY_TYPE_ASSIGNMENT)
     public String assignPropertyType(final String sessionToken, final EntityKind entityKind,
             final String propertyTypeCode, final String entityTypeCode, final boolean isMandatory,
             final String defaultValue);
@@ -282,6 +296,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY)
     public void registerVocabulary(final String sessionToken, final Vocabulary vocabulary);
 
     /**
@@ -297,9 +312,11 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.GROUP_ADMIN)
-    public void registerProject(String sessionToken,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
-            ProjectIdentifier projectIdentifier, String description, String leaderId);
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.PROJECT)
+    public void registerProject(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier projectIdentifier,
+            String description, String leaderId);
 
     /**
      * Performs an <i>Hibernate Search</i> based on given parameters.
@@ -333,6 +350,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL_TYPE)
     public void registerMaterialType(String sessionToken, MaterialType entityType);
 
     /**
@@ -340,6 +358,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE_TYPE)
     public void registerSampleType(String sessionToken, SampleType entityType);
 
     /**
@@ -347,6 +366,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT_TYPE)
     public void registerExperimentType(String sessionToken, ExperimentType entityType);
 
     /**
@@ -354,9 +374,10 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.GROUP_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
     public void deleteDataSets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
-            List<String> dataSetCodes, String reason);
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> dataSetCodes,
+            String reason);
 
     /**
      * Uploads specified data sets to CIFEX server of specified URL with specified password.
@@ -371,18 +392,21 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.USER)
-    public void editExperiment(String sessionToken,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
-            ExperimentIdentifier experimentIdentifier, List<ExperimentProperty> properties,
+    @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
+    public void editExperiment(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ExperimentIdentifier experimentIdentifier,
+            List<ExperimentProperty> properties,
             List<AttachmentPE> attachments,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
-            ProjectIdentifier newProjectIdentifier, Date version);
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier newProjectIdentifier,
+            Date version);
 
     /**
      * Saves changed material.
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseUpdateModification(value = ObjectKind.MATERIAL)
     public void editMaterial(String sessionToken, MaterialIdentifier identifier,
             List<MaterialProperty> properties, Date version);
 
@@ -391,11 +415,13 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.USER)
-    public void editSample(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            SampleIdentifier identifier, List<SampleProperty> properties,
-            @AuthorizationGuard(guardClass = NullableGroupIdentifierPredicate.class)
-            ExperimentIdentifier experimentIdentifierOrNull, Date version);
+    @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
+    public void editSample(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) SampleIdentifier identifier,
+            List<SampleProperty> properties,
+            @AuthorizationGuard(guardClass = NullableGroupIdentifierPredicate.class) ExperimentIdentifier experimentIdentifierOrNull,
+            Date version);
 
     /**
      * Lists vocabulary terms of a given vocabulary. Includes terms usage statistics.
@@ -413,5 +439,12 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public List<DataSetTypePE> listDataSetTypes(String sessionToken);
+
+    /**
+     * @return Information about the time and kind of the last modification, separately for each
+     *         kind of database object.
+     */
+    @RolesAllowed(RoleSet.OBSERVER)
+    public LastModificationState getLastModificationState(String sessionToken);
 
 }

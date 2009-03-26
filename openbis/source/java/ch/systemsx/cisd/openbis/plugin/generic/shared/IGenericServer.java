@@ -21,6 +21,7 @@ import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.IPluginCommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
@@ -32,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -68,6 +70,7 @@ public interface IGenericServer extends IPluginCommonServer
      */
     @Transactional
     @RolesAllowed(RoleSet.USER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
     public void registerSamples(final String sessionToken, SampleType sampleType,
             @AuthorizationGuard(guardClass = NewSamplePredicate.class)
             final List<NewSample> newSamples) throws UserFailureException;
@@ -79,6 +82,7 @@ public interface IGenericServer extends IPluginCommonServer
      */
     @Transactional
     @RolesAllowed(RoleSet.USER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT)
     public void registerExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = NewExperimentPredicate.class)
             final NewExperiment experiment, List<AttachmentPE> attachments);
@@ -88,6 +92,7 @@ public interface IGenericServer extends IPluginCommonServer
      */
     @Transactional
     @RolesAllowed(RoleSet.USER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
     public void registerMaterials(String sessionToken, String materialTypeCode,
             List<NewMaterial> newMaterials);
 

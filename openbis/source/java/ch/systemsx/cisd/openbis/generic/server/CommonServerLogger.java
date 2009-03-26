@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -365,6 +366,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public List<DataSetTypePE> listDataSetTypes(String sessionToken)
     {
         logAccess(sessionToken, "list_data_set_types");
+        return null;
+    }
+
+    public LastModificationState getLastModificationState(String sessionToken)
+    {
+        logAccess(sessionToken, "getLastModificationState");
         return null;
     }
 }

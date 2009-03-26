@@ -25,13 +25,14 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAll
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * Common interface for all plugin client-server interfaces.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IPluginCommonServer extends IServer
@@ -46,17 +47,18 @@ public interface IPluginCommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public SampleGenerationDTO getSampleInfo(final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            final SampleIdentifier sampleIdentifier) throws UserFailureException;
+    public SampleGenerationDTO getSampleInfo(
+            final String sessionToken,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) final SampleIdentifier sampleIdentifier)
+            throws UserFailureException;
 
     /**
      * Registers a new sample.
      */
     @Transactional
     @RolesAllowed(RoleSet.USER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
     public void registerSample(final String sessionToken,
-            @AuthorizationGuard(guardClass = NewSamplePredicate.class)
-            final NewSample newSample);
+            @AuthorizationGuard(guardClass = NewSamplePredicate.class) final NewSample newSample);
 
 }

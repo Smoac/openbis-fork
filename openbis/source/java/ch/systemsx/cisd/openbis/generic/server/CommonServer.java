@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -106,15 +107,19 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     private final DataStoreServerSessionManager dssSessionManager;
 
+    private final LastModificationState lastModificationState;
+
     public CommonServer(final IAuthenticationService authenticationService,
             final ISessionManager<Session> sessionManager,
             DataStoreServerSessionManager dssSessionManager, final IDAOFactory daoFactory,
-            final ICommonBusinessObjectFactory businessObjectFactory)
+            final ICommonBusinessObjectFactory businessObjectFactory,
+            LastModificationState lastModificationState)
     {
         super(sessionManager, daoFactory);
         this.authenticationService = authenticationService;
         this.dssSessionManager = dssSessionManager;
         this.businessObjectFactory = businessObjectFactory;
+        this.lastModificationState = lastModificationState;
     }
 
     ICommonBusinessObjectFactory getBusinessObjectFactory()
@@ -510,8 +515,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public void addVocabularyTerms(String sessionToken, String vocabularyCode,
             List<String> vocabularyTerms)
     {
-        System.out.println(vocabularyCode+":"+vocabularyTerms);
-        
+        System.out.println(vocabularyCode + ":" + vocabularyTerms);
+
     }
 
     public void registerProject(String sessionToken, ProjectIdentifier projectIdentifier,
@@ -721,4 +726,9 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return listEntityTypes(sessionToken, EntityKind.DATA_SET);
     }
 
+    public LastModificationState getLastModificationState(String sessionToken)
+    {
+        checkSession(sessionToken);
+        return lastModificationState;
+    }
 }

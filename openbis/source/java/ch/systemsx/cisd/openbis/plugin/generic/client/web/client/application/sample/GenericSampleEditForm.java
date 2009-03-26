@@ -92,13 +92,13 @@ public final class GenericSampleEditForm
                 experimentFieldOrNull != null ? experimentFieldOrNull.getValue() : null;
         viewContext.getCommonService().updateSample(entity.getIdentifier(), properties,
                 experimentIdent, entity.getModificationDate(),
-                new RegisterSampleCallback(viewContext));
+                new UpdateSampleCallback(viewContext));
     }
 
-    public final class RegisterSampleCallback extends AbstractAsyncCallback<Void>
+    public final class UpdateSampleCallback extends AbstractAsyncCallback<Void>
     {
 
-        RegisterSampleCallback(final IViewContext<?> viewContext)
+        UpdateSampleCallback(final IViewContext<?> viewContext)
         {
             super(viewContext, new InfoBoxCallbackListener<Void>(infoBox));
         }
