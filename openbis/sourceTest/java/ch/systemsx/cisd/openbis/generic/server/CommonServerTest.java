@@ -648,6 +648,28 @@ public final class CommonServerTest extends AbstractServerTestCase
         createServer().registerVocabulary(SESSION_TOKEN, new Vocabulary());
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public void testAddVocabularyTerms()
+    {
+        final List<String> terms = Arrays.asList("a", "b");
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createVocabularyBO(SESSION);
+                    will(returnValue(vocabularyBO));
+
+                    one(vocabularyBO).load("v-code");
+                    one(vocabularyBO).addNewTerms(terms);
+                    one(vocabularyBO).save();
+                }
+            });
+        
+        createServer().addVocabularyTerms(SESSION_TOKEN, "v-code", terms);
+        
+        context.assertIsSatisfied();
+    }
 
     @Test
     public final void testAssignPropertyType()

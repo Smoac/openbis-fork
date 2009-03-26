@@ -31,9 +31,9 @@ public interface IVocabularyDAO
 {
 
     /**
-     * Creates the <var>vocabularyCode</var> in the database.
+     * Creates or updates the specified vocabulary in the database.
      */
-    void createVocabulary(final VocabularyPE vocabularyPE);
+    void createOrUpdateVocabulary(final VocabularyPE vocabularyPE);
 
     /**
      * Returns the {@link VocabularyPE} object for the given <var>vocabularyCode</var>, or

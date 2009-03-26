@@ -225,7 +225,7 @@ public final class PropertyTypeBOTest extends AbstractBOTest
 
                     one(vocabularyDAO).tryFindVocabularyByCode(vocabulary.getCode());
 
-                    one(vocabularyDAO).createVocabulary(with(aNonNull(VocabularyPE.class)));
+                    one(vocabularyDAO).createOrUpdateVocabulary(with(aNonNull(VocabularyPE.class)));
                 }
             });
         final PropertyTypeBO propertyTypeBO = createPropertyTypeBO();

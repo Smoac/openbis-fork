@@ -59,7 +59,7 @@ final class VocabularyDAO extends AbstractDAO implements IVocabularyDAO
     // IVocabularyDAO
     //
 
-    public final void createVocabulary(final VocabularyPE vocabularyPE)
+    public final void createOrUpdateVocabulary(final VocabularyPE vocabularyPE)
     {
         assert vocabularyPE != null : "Given vocabulary can not be null.";
         validatePE(vocabularyPE);
@@ -69,7 +69,7 @@ final class VocabularyDAO extends AbstractDAO implements IVocabularyDAO
         template.flush();
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("ADD: vocabulary '%s'.", vocabularyPE));
+            operationLog.info(String.format("ADD/UPDATE: vocabulary '%s'.", vocabularyPE));
         }
 
     }

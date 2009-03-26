@@ -49,11 +49,16 @@ public interface IVocabularyBO extends IBusinessObject
     /**
      * Loads specified vocabulary from the database.
      * 
-     * @throws UserFailureException if given <var>vocabulary</var> does not exist.
+     * @throws UserFailureException if no vocabulary found for <code>vocabularyCode</code>.
      */
-    public void load(Vocabulary vocabulary) throws UserFailureException;
+    public void load(String vocabularyCode) throws UserFailureException;
 
     /** @return terms with their usage statistics for the loaded vocabulary */
     public List<VocabularyTermWithStats> countTermsUsageStatistics();
+    
+    /**
+     * Add the specified terms to a loaded vocabulary.
+     */
+    public void addNewTerms(List<String> newTerms);
 
 }

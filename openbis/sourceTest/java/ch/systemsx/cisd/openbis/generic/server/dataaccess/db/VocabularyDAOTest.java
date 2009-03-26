@@ -74,7 +74,7 @@ public final class VocabularyDAOTest extends AbstractDAOTest
         boolean fail = true;
         try
         {
-            vocabularyDAO.createVocabulary(null);
+            vocabularyDAO.createOrUpdateVocabulary(null);
         } catch (final AssertionError e)
         {
             fail = false;
@@ -92,7 +92,7 @@ public final class VocabularyDAOTest extends AbstractDAOTest
         vocabularyPE.addTerm(createVocabularyTerm("BIG"));
         try
         {
-            vocabularyDAO.createVocabulary(vocabularyPE);
+            vocabularyDAO.createOrUpdateVocabulary(vocabularyPE);
             fail(String.format("'%s' expected.", DataIntegrityViolationException.class
                     .getSimpleName()));
         } catch (final DataIntegrityViolationException ex)
@@ -100,7 +100,7 @@ public final class VocabularyDAOTest extends AbstractDAOTest
             // Nothing to do here.
         }
         vocabularyPE.setCode("USER.FORMAT");
-        vocabularyDAO.createVocabulary(vocabularyPE);
+        vocabularyDAO.createOrUpdateVocabulary(vocabularyPE);
         // Check saved vocabulary.
         assertNull(vocabularyDAO.tryFindVocabularyByCode(vocabularyCode));
         final VocabularyPE savedVocabulary =

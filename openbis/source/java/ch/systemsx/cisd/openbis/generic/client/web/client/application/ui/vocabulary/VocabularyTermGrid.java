@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabu
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.KeyListener;
@@ -92,6 +93,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                 }
             });
         pagingToolbar.add(new AdapterToolItem(button));
+        allowMultipleSelection();
     }
 
     public static String createGridId(String vocabularyCode)
@@ -149,8 +151,9 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         HorizontalPanel panel = new HorizontalPanel();
         panel.setWidth(300);
         panel.add(textArea);
-        panel.setBorders(true);
+        panel.setBorders(false);
         final SimpleDialog dialog = new SimpleDialog(panel, heading, okButtonLabel, viewContext);
+        dialog.setScrollMode(Scroll.NONE);
         textArea.addKeyListener(new KeyListener()
             {
                 @Override
@@ -169,6 +172,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                             new VoidCallback(viewContext));
                 }
             });
+        dialog.setEnableOfAcceptButton(false);
         dialog.show();
     }
 }

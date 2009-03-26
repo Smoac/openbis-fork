@@ -16,8 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.jmock.Expectations;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
 /**
  * Test cases for corresponding {@link VocabularyBO} class.
@@ -42,7 +47,7 @@ public final class VocabularyBOTest extends AbstractBOTest
 
     private final VocabularyBO createVocabularyBO()
     {
-        return new VocabularyBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION);
+        return new VocabularyBO(daoFactory, EXAMPLE_SESSION);
     }
 
     static final Vocabulary createVocabulary()
@@ -141,7 +146,7 @@ public final class VocabularyBOTest extends AbstractBOTest
                     one(daoFactory).getHomeDatabaseInstance();
                     will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
 
-                    one(vocabularyDAO).createVocabulary(with(aNonNull(VocabularyPE.class)));
+                    one(vocabularyDAO).createOrUpdateVocabulary(with(aNonNull(VocabularyPE.class)));
                 }
             });
         final Vocabulary vocabulary = createVocabulary();
@@ -160,7 +165,7 @@ public final class VocabularyBOTest extends AbstractBOTest
                     one(daoFactory).getHomeDatabaseInstance();
                     will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
 
-                    one(vocabularyDAO).createVocabulary(with(aNonNull(VocabularyPE.class)));
+                    one(vocabularyDAO).createOrUpdateVocabulary(with(aNonNull(VocabularyPE.class)));
                     will(throwException(new DataIntegrityViolationException(null)));
                 }
             });
@@ -174,6 +179,50 @@ public final class VocabularyBOTest extends AbstractBOTest
         {
             // Nothing to do here.
         }
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testLoad()
+    {
+        final VocabularyPE vocabulary = new VocabularyPE();
+        context.checking(new Expectations()
+            {
+                {
+                    one(vocabularyDAO).tryFindVocabularyByCode("voc-code");
+                    will(returnValue(vocabulary));
+                }
+            });
+        
+        VocabularyBO vocabularyBO = createVocabularyBO();
+        vocabularyBO.load("voc-code");
+        
+        assertSame(vocabulary, vocabularyBO.getVocabulary());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testAddNewTerms()
+    {
+        final VocabularyPE vocabulary = new VocabularyPE();
+        context.checking(new Expectations()
+            {
+                {
+                    one(vocabularyDAO).tryFindVocabularyByCode("voc-code");
+                    will(returnValue(vocabulary));
+                }
+            });
+        
+        VocabularyBO vocabularyBO = createVocabularyBO();
+        vocabularyBO.load("voc-code");
+        List<String> newTerms = Arrays.asList("a");
+        vocabularyBO.addNewTerms(newTerms);
+        
+        Set<VocabularyTermPE> terms = vocabularyBO.getVocabulary().getTerms();
+        assertEquals(1, terms.size());
+        VocabularyTermPE term = terms.iterator().next();
+        assertEquals("A", term.getCode());
+        assertSame(EXAMPLE_SESSION.tryGetPerson(), term.getRegistrator());
         context.assertIsSatisfied();
     }
 }

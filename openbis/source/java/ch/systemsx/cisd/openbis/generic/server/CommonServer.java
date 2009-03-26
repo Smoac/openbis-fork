@@ -515,8 +515,14 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public void addVocabularyTerms(String sessionToken, String vocabularyCode,
             List<String> vocabularyTerms)
     {
-        System.out.println(vocabularyCode + ":" + vocabularyTerms);
+        assert sessionToken != null : "Unspecified session token";
+        assert vocabularyCode != null : "Unspecified vocabulary code";
 
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
+        vocabularyBO.load(vocabularyCode);
+        vocabularyBO.addNewTerms(vocabularyTerms);
+        vocabularyBO.save();
     }
 
     public void registerProject(String sessionToken, ProjectIdentifier projectIdentifier,
@@ -717,7 +723,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
-        vocabularyBO.load(vocabulary);
+        vocabularyBO.load(vocabulary.getCode());
         return vocabularyBO.countTermsUsageStatistics();
     }
 

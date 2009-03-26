@@ -129,9 +129,12 @@ public class SimpleDialog extends Dialog
 
     private void fireCancel()
     {
-        if (acceptActionOrNull != null)
+        if (cancelActionOrNull != null)
         {
             cancelActionOrNull.execute();
+        } else
+        {
+            close();
         }
     }
 }

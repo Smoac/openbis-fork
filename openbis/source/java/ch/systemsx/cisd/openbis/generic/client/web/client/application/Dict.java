@@ -238,6 +238,8 @@ public abstract class Dict {
 
 	public static final String VOCABULARY_TERMS_EMPTY = "vocabulary_terms_empty";
 
+    public static final String MISSING_VOCABULARY_TERMS = "missing_vocabulary_terms";
+
 	public static final String MANDATORY = "mandatory";
 
 	public static final String DEFAULT_VALUE = "default_value";

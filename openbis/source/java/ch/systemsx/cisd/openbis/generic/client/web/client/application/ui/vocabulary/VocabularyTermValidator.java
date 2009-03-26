@@ -43,13 +43,16 @@ final class VocabularyTermValidator implements Validator<String, TextArea>
 
     final static List<String> getTerms(final String value)
     {
-        final String[] split = value.split("[,\n\r\t\f ]");
         final List<String> terms = new ArrayList<String>();
-        for (final String text : split)
+        if (StringUtils.isBlank(value) == false)
         {
-            if (StringUtils.isBlank(text) == false)
+            final String[] split = value.split("[,\n\r\t\f ]");
+            for (final String text : split)
             {
-                terms.add(text);
+                if (StringUtils.isBlank(text) == false)
+                {
+                    terms.add(text);
+                }
             }
         }
         return terms;
@@ -61,14 +64,10 @@ final class VocabularyTermValidator implements Validator<String, TextArea>
 
     public final String validate(final TextArea field, final String value)
     {
-        if (StringUtils.isBlank(value))
-        {
-            return null;
-        }
         final List<String> terms = VocabularyTermValidator.getTerms(value);
         if (terms.size() == 0)
         {
-            return null;
+            return messageProvider.getMessage(Dict.MISSING_VOCABULARY_TERMS);
         }
         for (final String term : terms)
         {

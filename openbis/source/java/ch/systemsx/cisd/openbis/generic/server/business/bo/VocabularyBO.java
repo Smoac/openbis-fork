@@ -61,11 +61,24 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         vocabularyPE.setRegistrator(findRegistrator());
         for (final VocabularyTerm term : vocabulary.getTerms())
         {
-            final VocabularyTermPE vocabularyTermPE = new VocabularyTermPE();
-            vocabularyTermPE.setCode(term.getCode());
-            vocabularyTermPE.setRegistrator(findRegistrator());
-            vocabularyPE.addTerm(vocabularyTermPE);
+            addTerm(term.getCode());
         }
+    }
+
+    public void addNewTerms(List<String> newTerms)
+    {
+        for (String term : newTerms)
+        {
+            addTerm(term);
+        }
+    }
+
+    private void addTerm(String term)
+    {
+        final VocabularyTermPE vocabularyTermPE = new VocabularyTermPE();
+        vocabularyTermPE.setCode(term);
+        vocabularyTermPE.setRegistrator(findRegistrator());
+        vocabularyPE.addTerm(vocabularyTermPE);
     }
 
     public void save() throws UserFailureException
@@ -73,7 +86,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         assert vocabularyPE != null : "Unspecified vocabulary";
         try
         {
-            getVocabularyDAO().createVocabulary(vocabularyPE);
+            getVocabularyDAO().createOrUpdateVocabulary(vocabularyPE);
         } catch (final DataAccessException e)
         {
             throwException(e, String.format("Vocabulary '%s'.", vocabularyPE.getCode()));
@@ -111,13 +124,13 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         return stats;
     }
 
-    public void load(Vocabulary vocabulary) throws UserFailureException
+    public void load(String vocabularyCode) throws UserFailureException
     {
-        vocabularyPE = getVocabularyDAO().tryFindVocabularyByCode(vocabulary.getCode());
+        vocabularyPE = getVocabularyDAO().tryFindVocabularyByCode(vocabularyCode);
         if (vocabularyPE == null)
         {
-            throw UserFailureException.fromTemplate("Vocabulary '%s' does not exist.", vocabulary
-                    .getCode());
+            throw UserFailureException.fromTemplate("Vocabulary '%s' does not exist.",
+                    vocabularyCode);
         }
     }
 
