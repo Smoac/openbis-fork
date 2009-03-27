@@ -27,31 +27,58 @@ public final class MDFloatArray extends MDAbstractArray<Float>
 {
     private final float[] flattenedArray;
 
+    /**
+     * Creates an empty {@link MDDoubleArray} with the <var>dimensions</var>. Convenience method if
+     * <var>dimensions</var> are available as {@code long[]}.
+     */
     public MDFloatArray(long[] dimensions)
     {
         this(new float[getLength(dimensions)], toInt(dimensions), false);
     }
 
+    /**
+     * Creates a {@link MDDoubleArray} from the given {@code flattenedArray} and {@code dimensions}.
+     * It is checked that the arguments are compatible. Convenience method if <var>dimensions</var>
+     * are available as {@code long[]}.
+     */
     public MDFloatArray(float[] flattenedArray, long[] dimensions)
     {
         this(flattenedArray, toInt(dimensions), true);
     }
 
+    /**
+     * Creates a {@link MDDoubleArray} from the given <var>flattenedArray</var> and
+     * <var>dimensions</var>. If <var>checkDimensions/var>} is {@code true}, it is checked that the
+     * arguments are compatible. Convenience method if <var>dimensions</var> are available as
+     * {@code long[]}.
+     */
     public MDFloatArray(float[] flattenedArray, long[] dimensions, boolean checkdimensions)
     {
         this(flattenedArray, toInt(dimensions), checkdimensions);
     }
 
+    /**
+     * Creates an empty {@link MDDoubleArray} with the <var>dimensions</var>.
+     */
     public MDFloatArray(int[] dimensions)
     {
         this(new float[getLength(dimensions)], dimensions, false);
     }
 
+    /**
+     * Creates a {@link MDDoubleArray} from the given {@code flattenedArray} and {@code dimensions}.
+     * It is checked that the arguments are compatible.
+     */
     public MDFloatArray(float[] flattenedArray, int[] dimensions)
     {
         this(flattenedArray, dimensions, true);
     }
 
+    /**
+     * Creates a {@link MDDoubleArray} from the given <var>flattenedArray</var> and
+     * <var>dimensions</var>. If <var>checkDimensions/var>} is {@code true}, it is checked that the
+     * arguments are compatible.
+     */
     public MDFloatArray(float[] flattenedArray, int[] dimensions, boolean checkdimensions)
     {
         super(dimensions);
@@ -69,11 +96,22 @@ public final class MDFloatArray extends MDAbstractArray<Float>
         this.flattenedArray = flattenedArray;
     }
 
+    /**
+     * Creates a {@link MDFloatArray} from the given <var>matrix</var> of rank 2. Note that the
+     * values in <var>matrix</var> will be copied and thus the created {@link MDDoubleArray} will be
+     * independent from <var>matrix</var> after construction.
+     */
     public MDFloatArray(float[][] matrix)
     {
         this(matrix, getDimensions(matrix));
     }
     
+    /**
+     * Creates a {@link MDFloatArray} from the given <var>matrix</var> of rank 2 and the
+     * <var>dimension</var> which need to be less or equal the dimensions of <var>matrix</var>. Note
+     * that the values in <var>matrix</var> will be copied and thus the created
+     * {@link MDDoubleArray} will be independent from <var>matrix</var> after construction.
+     */
     public MDFloatArray(float[][] matrix, int[] dimensions)
     {
         super(dimensions);

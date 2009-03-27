@@ -19,7 +19,7 @@ package ch.systemsx.cisd.base.mdarray;
 import java.util.Arrays;
 
 /**
- * A multi-dimensional array of type <code>T</code>.
+ * A multi-dimensional array of generic type <code>T</code>.
  * 
  * @author Bernd Rinn
  */
@@ -27,32 +27,60 @@ public class MDArray<T> extends MDAbstractArray<T>
 {
 
     private final T[] flattenedArray;
-    
+
+    /**
+     * Creates an empty {@link MDArray} with the given <var>componentClass</var> and
+     * <var>dimensions</var>. Convenience method if <var>dimensions</var> are available as {@code
+     * long[]}.
+     */
     public MDArray(Class<T> componentClass, long[] dimensions)
     {
         this(createArray(componentClass, getLength(dimensions)), toInt(dimensions), false);
     }
 
+    /**
+     * Creates a {@link MDArray} from the given {@code flattenedArray} and {@code dimensions}. It is
+     * checked that the arguments are compatible. Convenience method if <var>dimensions</var> are
+     * available as {@code long[]}.
+     */
     public MDArray(T[] flattenedArray, long[] dimensions)
     {
         this(flattenedArray, toInt(dimensions), true);
     }
 
+    /**
+     * Creates a {@link MDArray} from the given <var>flattenedArray</var> and <var>dimensions</var>.
+     * If <var>checkDimensions/var>} is {@code true}, it is checked that the arguments are
+     * compatible. Convenience method if <var>dimensions</var> are available as {@code long[]}.
+     */
     public MDArray(T[] flattenedArray, long[] dimensions, boolean checkdimensions)
     {
         this(flattenedArray, toInt(dimensions), checkdimensions);
     }
 
+    /**
+     * Creates an empty {@link MDArray} with the given <var>componentClass</var> and
+     * <var>dimensions</var>.
+     */
     public MDArray(Class<T> componentClass, int[] dimensions)
     {
         this(createArray(componentClass, getLength(dimensions)), dimensions, false);
     }
 
+    /**
+     * Creates a {@link MDArray} from the given {@code flattenedArray} and {@code dimensions}. It is
+     * checked that the arguments are compatible.
+     */
     public MDArray(T[] flattenedArray, int[] dimensions)
     {
         this(flattenedArray, dimensions, true);
     }
 
+    /**
+     * Creates a {@link MDArray} from the given <var>flattenedArray</var> and <var>dimensions</var>.
+     * If <var>checkDimensions/var>} is {@code true}, it is checked that the arguments are
+     * compatible.
+     */
     public MDArray(T[] flattenedArray, int[] dimensions, boolean checkdimensions)
     {
         super(dimensions);
@@ -73,8 +101,7 @@ public class MDArray<T> extends MDAbstractArray<T>
     @SuppressWarnings("unchecked")
     private static <V> V[] createArray(Class<V> componentClass, final int vectorLength)
     {
-        final V[] value =
-                (V[]) java.lang.reflect.Array.newInstance(componentClass, vectorLength);
+        final V[] value = (V[]) java.lang.reflect.Array.newInstance(componentClass, vectorLength);
         return value;
     }
 
@@ -194,11 +221,11 @@ public class MDArray<T> extends MDAbstractArray<T>
     {
         return (Class<T>) flattenedArray.getClass().getComponentType();
     }
-    
+
     //
     // Object
     //
-    
+
     @Override
     public int hashCode()
     {
@@ -235,7 +262,7 @@ public class MDArray<T> extends MDAbstractArray<T>
         }
         return true;
     }
-    
+
     @SuppressWarnings("unchecked")
     private MDArray<T> toMDArray(Object obj)
     {

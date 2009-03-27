@@ -27,31 +27,58 @@ public final class MDLongArray extends MDAbstractArray<Long>
 {
     private final long[] flattenedArray;
 
+    /**
+     * Creates an empty {@link MDLongArray} with the <var>dimensions</var>. Convenience method if
+     * <var>dimensions</var> are available as {@code long[]}.
+     */
     public MDLongArray(long[] dimensions)
     {
         this(new long[getLength(dimensions)], toInt(dimensions), false);
     }
 
+    /**
+     * Creates a {@link MDLongArray} from the given {@code flattenedArray} and {@code dimensions}.
+     * It is checked that the arguments are compatible. Convenience method if <var>dimensions</var>
+     * are available as {@code long[]}.
+     */
     public MDLongArray(long[] flattenedArray, long[] dimensions)
     {
         this(flattenedArray, toInt(dimensions), true);
     }
 
+    /**
+     * Creates a {@link MDLongArray} from the given <var>flattenedArray</var> and
+     * <var>dimensions</var>. If <var>checkDimensions/var>} is {@code true}, it is checked that the
+     * arguments are compatible. Convenience method if <var>dimensions</var> are available as
+     * {@code long[]}.
+     */
     public MDLongArray(long[] flattenedArray, long[] dimensions, boolean checkdimensions)
     {
         this(flattenedArray, toInt(dimensions), checkdimensions);
     }
 
+    /**
+     * Creates an empty {@link MDLongArray} with the <var>dimensions</var>.
+     */
     public MDLongArray(int[] dimensions)
     {
         this(new long[getLength(dimensions)], dimensions, false);
     }
 
+    /**
+     * Creates a {@link MDLongArray} from the given {@code flattenedArray} and {@code dimensions}.
+     * It is checked that the arguments are compatible.
+     */
     public MDLongArray(long[] flattenedArray, int[] dimensions)
     {
         this(flattenedArray, dimensions, true);
     }
 
+    /**
+     * Creates a {@link MDLongArray} from the given <var>flattenedArray</var> and
+     * <var>dimensions</var>. If <var>checkDimensions/var>} is {@code true}, it is checked that the
+     * arguments are compatible.
+     */
     public MDLongArray(long[] flattenedArray, int[] dimensions, boolean checkdimensions)
     {
         super(dimensions);
@@ -69,11 +96,22 @@ public final class MDLongArray extends MDAbstractArray<Long>
         this.flattenedArray = flattenedArray;
     }
 
+    /**
+     * Creates a {@link MDLongArray} from the given <var>matrix</var> of rank 2. Note that the
+     * values in <var>matrix</var> will be copied and thus the created {@link MDDoubleArray} will be
+     * independent from <var>matrix</var> after construction.
+     */
     public MDLongArray(long[][] matrix)
     {
         this(matrix, getDimensions(matrix));
     }
     
+    /**
+     * Creates a {@link MDLongArray} from the given <var>matrix</var> of rank 2 and the
+     * <var>dimension</var> which need to be less or equal the dimensions of <var>matrix</var>. Note
+     * that the values in <var>matrix</var> will be copied and thus the created
+     * {@link MDDoubleArray} will be independent from <var>matrix</var> after construction.
+     */
     public MDLongArray(long[][] matrix, int[] dimensions)
     {
         super(dimensions);

@@ -27,31 +27,58 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
 {
     private final double[] flattenedArray;
 
+    /**
+     * Creates an empty {@link MDDoubleArray} with the <var>dimensions</var>. Convenience method if
+     * <var>dimensions</var> are available as {@code long[]}.
+     */
     public MDDoubleArray(long[] dimensions)
     {
         this(new double[getLength(dimensions)], toInt(dimensions), false);
     }
 
+    /**
+     * Creates a {@link MDDoubleArray} from the given {@code flattenedArray} and {@code dimensions}.
+     * It is checked that the arguments are compatible. Convenience method if <var>dimensions</var>
+     * are available as {@code long[]}.
+     */
     public MDDoubleArray(double[] flattenedArray, long[] dimensions)
     {
         this(flattenedArray, toInt(dimensions), true);
     }
 
+    /**
+     * Creates a {@link MDDoubleArray} from the given <var>flattenedArray</var> and
+     * <var>dimensions</var>. If <var>checkDimensions/var>} is {@code true}, it is checked that the
+     * arguments are compatible. Convenience method if <var>dimensions</var> are available as
+     * {@code long[]}.
+     */
     public MDDoubleArray(double[] flattenedArray, long[] dimensions, boolean checkdimensions)
     {
         this(flattenedArray, toInt(dimensions), checkdimensions);
     }
 
+    /**
+     * Creates an empty {@link MDDoubleArray} with the <var>dimensions</var>.
+     */
     public MDDoubleArray(int[] dimensions)
     {
         this(new double[getLength(dimensions)], dimensions, false);
     }
 
+    /**
+     * Creates a {@link MDDoubleArray} from the given {@code flattenedArray} and {@code dimensions}.
+     * It is checked that the arguments are compatible.
+     */
     public MDDoubleArray(double[] flattenedArray, int[] dimensions)
     {
         this(flattenedArray, dimensions, true);
     }
 
+    /**
+     * Creates a {@link MDDoubleArray} from the given <var>flattenedArray</var> and
+     * <var>dimensions</var>. If <var>checkDimensions/var>} is {@code true}, it is checked that the
+     * arguments are compatible.
+     */
     public MDDoubleArray(double[] flattenedArray, int[] dimensions, boolean checkdimensions)
     {
         super(dimensions);
@@ -69,11 +96,22 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
         this.flattenedArray = flattenedArray;
     }
 
+    /**
+     * Creates a {@link MDDoubleArray} from the given <var>matrix</var> of rank 2. Note that the
+     * values in <var>matrix</var> will be copied and thus the created {@link MDDoubleArray} will be
+     * independent from <var>matrix</var> after construction.
+     */
     public MDDoubleArray(double[][] matrix)
     {
         this(matrix, getDimensions(matrix));
     }
-    
+
+    /**
+     * Creates a {@link MDDoubleArray} from the given <var>matrix</var> of rank 2 and the
+     * <var>dimension</var> which need to be less or equal the dimensions of <var>matrix</var>. Note
+     * that the values in <var>matrix</var> will be copied and thus the created
+     * {@link MDDoubleArray} will be independent from <var>matrix</var> after construction.
+     */
     public MDDoubleArray(double[][] matrix, int[] dimensions)
     {
         super(dimensions);
@@ -95,8 +133,9 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
     private static int[] getDimensions(double[][] matrix)
     {
         assert matrix != null;
-        
-        return new int[] { matrix.length, matrix.length == 0 ? 0 : matrix[0].length };
+
+        return new int[]
+            { matrix.length, matrix.length == 0 ? 0 : matrix[0].length };
     }
 
     @Override
@@ -133,7 +172,7 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
     {
         return flattenedArray[computeIndex(indices)];
     }
-    
+
     /**
      * Returns the value of a one-dimensional array at the position defined by <var>index</var>.
      * <p>
@@ -223,11 +262,11 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
         }
         return result;
     }
-    
+
     //
     // Object
     //
-    
+
     @Override
     public int hashCode()
     {
