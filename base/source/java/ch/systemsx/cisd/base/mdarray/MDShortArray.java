@@ -48,7 +48,7 @@ public final class MDShortArray extends MDAbstractArray<Short>
 
     /**
      * Creates a {@link MDShortArray} from the given <var>flattenedArray</var> and
-     * <var>dimensions</var>. If <var>checkDimensions/var>} is {@code true}, it is checked that the
+     * <var>dimensions</var>. If <var>checkDimensions</var> is {@code true}, it is checked that the
      * arguments are compatible. Convenience method if <var>dimensions</var> are available as
      * {@code long[]}.
      */
@@ -76,7 +76,7 @@ public final class MDShortArray extends MDAbstractArray<Short>
 
     /**
      * Creates a {@link MDShortArray} from the given <var>flattenedArray</var> and
-     * <var>dimensions</var>. If <var>checkDimensions/var>} is {@code true}, it is checked that the
+     * <var>dimensions</var>. If <var>checkDimensions</var> is {@code true}, it is checked that the
      * arguments are compatible.
      */
     public MDShortArray(short[] flattenedArray, int[] dimensions, boolean checkdimensions)
@@ -98,7 +98,7 @@ public final class MDShortArray extends MDAbstractArray<Short>
 
     /**
      * Creates a {@link MDShortArray} from the given <var>matrix</var> of rank 2. Note that the
-     * values in <var>matrix</var> will be copied and thus the created {@link MDDoubleArray} will be
+     * values in <var>matrix</var> will be copied and thus the created {@link MDShortArray} will be
      * independent from <var>matrix</var> after construction.
      */
     public MDShortArray(short[][] matrix)
@@ -110,7 +110,7 @@ public final class MDShortArray extends MDAbstractArray<Short>
      * Creates a {@link MDShortArray} from the given <var>matrix</var> of rank 2 and the
      * <var>dimension</var> which need to be less or equal the dimensions of <var>matrix</var>. Note
      * that the values in <var>matrix</var> will be copied and thus the created
-     * {@link MDDoubleArray} will be independent from <var>matrix</var> after construction.
+     * {@link MDShortArray} will be independent from <var>matrix</var> after construction.
      */
     public MDShortArray(short[][] matrix, int[] dimensions)
     {
