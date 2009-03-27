@@ -32,13 +32,21 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.AbstractSimplePropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
@@ -65,12 +73,21 @@ public final class PropertyValueRenderers
     }
 
     /**
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link Experiment}.
+     */
+    public final static IPropertyValueRenderer<Experiment> createExperimentPropertyValueRenderer(
+            final IViewContext<?> viewContext)
+    {
+        return new ExperimentPropertyValueRenderer(viewContext);
+    }
+
+    /**
      * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link SampleType}.
      */
     public final static IPropertyValueRenderer<SampleType> createSampleTypePropertyValueRenderer(
             final IMessageProvider messageProvider)
     {
-        return new SampleTypePropertyValueRenderer(messageProvider);
+        return new EntityTypePropertyValueRenderer<SampleType>(messageProvider);
     }
 
     /**
@@ -92,12 +109,50 @@ public final class PropertyValueRenderers
     }
 
     /**
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link ExperimentType}.
+     */
+    public final static IPropertyValueRenderer<ExperimentType> createExperimentTypePropertyValueRenderer(
+            final IMessageProvider messageProvider)
+    {
+        return new EntityTypePropertyValueRenderer<ExperimentType>(messageProvider);
+    }
+
+    /**
      * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link SampleProperty}.
      */
     public final static IPropertyValueRenderer<SampleProperty> createSamplePropertyPropertyValueRenderer(
+            final IViewContext<?> viewContext)
+    {
+        return new EntityPropertyPropertyValueRenderer<SampleProperty>(viewContext);
+    }
+
+    /**
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering
+     * {@link ExperimentProperty}.
+     */
+    public final static IPropertyValueRenderer<ExperimentProperty> createExperimentPropertyPropertyValueRenderer(
+            final IViewContext<?> viewContext)
+    {
+        return new EntityPropertyPropertyValueRenderer<ExperimentProperty>(viewContext);
+    }
+
+    /**
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering
+     * {@link MaterialProperty}.
+     */
+    public final static IPropertyValueRenderer<MaterialProperty> createMaterialPropertyPropertyValueRenderer(
+            final IViewContext<?> viewContext)
+    {
+        return new EntityPropertyPropertyValueRenderer<MaterialProperty>(viewContext);
+    }
+
+    /**
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link MaterialType}.
+     */
+    public final static IPropertyValueRenderer<MaterialType> createMaterialTypePropertyValueRenderer(
             final IMessageProvider messageProvider)
     {
-        return new EntityPropertyPropertyValueRenderer<SampleProperty>(messageProvider);
+        return new EntityTypePropertyValueRenderer<MaterialType>(messageProvider);
     }
 
     /**
@@ -140,31 +195,6 @@ public final class PropertyValueRenderers
             return panel;
         }
 
-    }
-
-    /**
-     * Renderer for {@link SampleType}.
-     * 
-     * @author Christian Ribeaud
-     */
-    private final static class SampleTypePropertyValueRenderer extends
-            AbstractSimplePropertyValueRenderer<SampleType>
-    {
-
-        SampleTypePropertyValueRenderer(final IMessageProvider messageProvider)
-        {
-            super(messageProvider);
-        }
-
-        //
-        // AbstractPropertyValueRenderer
-        //
-
-        @Override
-        public final String renderNotNull(final SampleType value)
-        {
-            return value.getCode();
-        }
     }
 
     /**
@@ -235,10 +265,110 @@ public final class PropertyValueRenderers
      * @author Christian Ribeaud
      */
     private final static class EntityPropertyPropertyValueRenderer<T extends EntityProperty<?, ?>>
-            extends AbstractSimplePropertyValueRenderer<T>
+            extends AbstractPropertyValueRenderer<T>
     {
 
-        EntityPropertyPropertyValueRenderer(final IMessageProvider messageProvider)
+        private final IViewContext<?> viewContext;
+
+        EntityPropertyPropertyValueRenderer(final IViewContext<?> viewContext)
+        {
+            super(viewContext);
+            this.viewContext = viewContext;
+        }
+
+        //
+        // AbstractPropertyValueRenderer
+        //
+
+        public Widget getAsWidget(T object)
+        {
+            if (isMaterialProperty(object))
+            {
+                return createLinkToMaterial(object);
+            } else
+            {
+                return new InlineHTML(object.getValue());
+            }
+        }
+
+        private Widget createLinkToMaterial(T object)
+        {
+            String value = object.getValue();
+            MaterialIdentifier materialIdentifier = MaterialIdentifier.tryParseIdentifier(value);
+
+            final EntityKind entityKind = EntityKind.MATERIAL;
+            final EntityType entityType = new MaterialType();
+            entityType.setCode(materialIdentifier.getTypeCode());
+            final String identifier = value;
+
+            final IEntityInformationHolder entity =
+                    createEntityInformationHolder(entityKind, entityType, identifier);
+            final String code = materialIdentifier.getCode();
+            final ClickListener listener =
+                    new OpenEntityDetailsTabClickListener(entity, viewContext);
+
+            final Hyperlink link = LinkRenderer.getLinkWidget(code, listener);
+
+            FlowPanel panel = new FlowPanel();
+            panel.add(link);
+            // if all material types are allowed material type will be displayed too
+            if (isAllowedMaterialTypeUnspecified(object))
+            {
+                panel.add(new InlineHTML(" [" + materialIdentifier.getTypeCode() + "]"));
+            }
+            return panel;
+        }
+
+        private boolean isMaterialProperty(T property)
+        {
+            return getPropertyType(property).getDataType().getCode().equals(DataTypeCode.MATERIAL);
+        }
+
+        private boolean isAllowedMaterialTypeUnspecified(T property)
+        {
+            return getPropertyType(property).getMaterialType() == null;
+        }
+
+        private PropertyType getPropertyType(T property)
+        {
+            return property.getEntityTypePropertyType().getPropertyType();
+        }
+
+        private IEntityInformationHolder createEntityInformationHolder(final EntityKind entityKind,
+                final EntityType entityType, final String identifier)
+        {
+            return new IEntityInformationHolder()
+                {
+
+                    public EntityKind getEntityKind()
+                    {
+                        return entityKind;
+                    }
+
+                    public EntityType getEntityType()
+                    {
+                        return entityType;
+                    }
+
+                    public String getIdentifier()
+                    {
+                        return identifier;
+                    }
+
+                };
+        }
+    }
+
+    /**
+     * Renderer for {@link EntityType}.
+     * 
+     * @author Christian Ribeaud
+     */
+    private final static class EntityTypePropertyValueRenderer<T extends EntityType> extends
+            AbstractSimplePropertyValueRenderer<T>
+    {
+
+        EntityTypePropertyValueRenderer(final IMessageProvider messageProvider)
         {
             super(messageProvider);
         }
@@ -250,62 +380,42 @@ public final class PropertyValueRenderers
         @Override
         protected final String renderNotNull(final T value)
         {
-            return value.getValue();
+            return value.getCode();
         }
     }
 
     /**
-     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link ExperimentType}.
-     */
-    public final static IPropertyValueRenderer<ExperimentType> createExperimentTypePropertyValueRenderer(
-            final IMessageProvider messageProvider)
-    {
-        return new ExperimentTypePropertyValueRenderer(messageProvider);
-    }
-
-    /**
-     * Renderer for {@link ExperimentType}.
+     * Renderer for {@link Experiment}.
      * 
-     * @author Izabela Adamczyk
+     * @author Christian Ribeaud
      */
-    private final static class ExperimentTypePropertyValueRenderer extends
-            AbstractSimplePropertyValueRenderer<ExperimentType>
+    private final static class ExperimentPropertyValueRenderer extends
+            AbstractPropertyValueRenderer<Experiment>
     {
 
-        ExperimentTypePropertyValueRenderer(final IMessageProvider messageProvider)
+        private final IViewContext<?> viewContext;
+
+        ExperimentPropertyValueRenderer(final IViewContext<?> viewContext)
         {
-            super(messageProvider);
+            super(viewContext);
+            this.viewContext = viewContext;
         }
 
         //
         // AbstractPropertyValueRenderer
         //
 
-        @Override
-        public final String renderNotNull(final ExperimentType value)
+        public Widget getAsWidget(final Experiment experiment)
         {
-            return value.getCode();
+            final String code = experiment.getCode();
+            final boolean invalidate = experiment.getInvalidation() != null;
+            final ClickListener listener =
+                    new OpenEntityDetailsTabClickListener(experiment, viewContext);
+            final Hyperlink link = LinkRenderer.getLinkWidget(code, listener, invalidate);
+
+            return link;
         }
-    }
 
-    /**
-     * Creates a {@link IPropertyValueRenderer} implementation for rendering
-     * {@link ExperimentProperty}.
-     */
-    public final static IPropertyValueRenderer<ExperimentProperty> createExperimentPropertyPropertyValueRenderer(
-            final IMessageProvider messageProvider)
-    {
-        return new EntityPropertyPropertyValueRenderer<ExperimentProperty>(messageProvider);
-    }
-
-    /**
-     * Creates a {@link IPropertyValueRenderer} implementation for rendering
-     * {@link MaterialProperty}.
-     */
-    public final static IPropertyValueRenderer<MaterialProperty> createMaterialPropertyPropertyValueRenderer(
-            final IMessageProvider messageProvider)
-    {
-        return new EntityPropertyPropertyValueRenderer<MaterialProperty>(messageProvider);
     }
 
 }

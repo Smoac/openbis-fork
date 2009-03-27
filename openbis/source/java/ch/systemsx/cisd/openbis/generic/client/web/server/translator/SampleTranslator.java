@@ -16,9 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -35,13 +40,18 @@ public final class SampleTranslator
 
     public final static Sample translate(final SamplePE samplePE)
     {
+        return translate(samplePE, true);
+    }
+
+    public final static Sample translate(final SamplePE samplePE, final boolean withDetails)
+    {
         if (samplePE == null)
         {
             return null;
         }
         final int containerDep = samplePE.getSampleType().getContainerHierarchyDepth();
         final int generatedFromDep = samplePE.getSampleType().getGeneratedFromHierarchyDepth();
-        return translate(samplePE, containerDep, generatedFromDep, true);
+        return translate(samplePE, containerDep, generatedFromDep, withDetails);
 
     }
 
@@ -52,10 +62,11 @@ public final class SampleTranslator
         result.setCode(StringEscapeUtils.escapeHtml(samplePE.getCode()));
         result.setModificationDate(samplePE.getModificationDate());
         result.setId(samplePE.getId());
-        result.setIdentifier(StringEscapeUtils.escapeHtml(samplePE.getSampleIdentifier().toString()));
+        result.setIdentifier(StringEscapeUtils
+                .escapeHtml(samplePE.getSampleIdentifier().toString()));
+        result.setSampleType(SampleTypeTranslator.translate(samplePE.getSampleType()));
         if (withDetails)
         {
-            result.setSampleType(SampleTypeTranslator.translate(samplePE.getSampleType()));
             result.setGroup(GroupTranslator.translate(samplePE.getGroup()));
             result.setDatabaseInstance(DatabaseInstanceTranslator.translate(samplePE
                     .getDatabaseInstance()));
@@ -76,6 +87,23 @@ public final class SampleTranslator
         }
         result.setInvalidation(InvalidationTranslator.translate(samplePE.getInvalidation()));
         return result;
+    }
+
+    public final static SampleGeneration translate(final SampleGenerationDTO sampleGenerationDTO)
+    {
+        final SampleGeneration sampleGeneration = new SampleGeneration();
+
+        sampleGeneration.setGenerator(SampleTranslator
+                .translate(sampleGenerationDTO.getGenerator()));
+
+        final List<Sample> generated = new ArrayList<Sample>();
+        for (SamplePE samplePE : sampleGenerationDTO.getGenerated())
+        {
+            generated.add(SampleTranslator.translate(samplePE, false));
+        }
+        sampleGeneration.setGenerated(generated.toArray(new Sample[generated.size()]));
+
+        return sampleGeneration;
     }
 
 }

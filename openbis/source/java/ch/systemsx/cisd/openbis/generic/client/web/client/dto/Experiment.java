@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import java.util.Date;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -32,8 +31,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
  * 
  * @author Tomasz Pylak
  */
-public class Experiment extends CodeWithRegistration<Experiment> implements IIdentifierHolder,
-        IInvalidationProvider, IEntityInformationHolder
+public class Experiment extends CodeWithRegistration<Experiment> implements IInvalidationProvider,
+        IEntityInformationHolder
 {
     private Project project;
 

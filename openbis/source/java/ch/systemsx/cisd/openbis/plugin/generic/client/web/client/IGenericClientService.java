@@ -21,6 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
@@ -62,6 +63,11 @@ public interface IGenericClientService extends IClientService
      */
     public Experiment getExperimentInfo(final String experimentIdentifier)
             throws UserFailureException;
+
+    /**
+     * For given <var>materialIdentifier</var> returns corresponding {@link Material}.
+     */
+    public Material getMaterialInfo(final String materialIdentifier) throws UserFailureException;
 
     /**
      * Registers a new experiment.

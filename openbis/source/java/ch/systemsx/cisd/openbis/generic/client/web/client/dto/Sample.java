@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -35,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * @author Izabela Adamczyk
  */
 public final class Sample extends CodeWithRegistration<Sample> implements IInvalidationProvider,
-        Comparable<Sample>, IIdentifierHolder, IEntityInformationHolder
+        Comparable<Sample>, IEntityInformationHolder
 {
     public static final Sample[] EMPTY_ARRAY = new Sample[0];
 

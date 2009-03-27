@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * The unique {@link IMaterialBO} implementation.
@@ -75,7 +76,7 @@ public final class MaterialBO extends AbstractBusinessObject implements IMateria
 
     private MaterialPE getMaterialByIdentifier(final MaterialIdentifier identifier)
     {
-        assert identifier != null : "Experiment identifier unspecified.";
+        assert identifier != null : "Material identifier unspecified.";
         final MaterialPE mat = getMaterialDAO().tryFindMaterial(identifier);
         if (mat == null)
         {
@@ -83,6 +84,14 @@ public final class MaterialBO extends AbstractBusinessObject implements IMateria
                     "No material could be found for identifier '%s'.", identifier);
         }
         return mat;
+    }
+
+    public final void enrichWithProperties()
+    {
+        if (material != null)
+        {
+            HibernateUtils.initialize(material.getProperties());
+        }
     }
 
     public void save() throws UserFailureException

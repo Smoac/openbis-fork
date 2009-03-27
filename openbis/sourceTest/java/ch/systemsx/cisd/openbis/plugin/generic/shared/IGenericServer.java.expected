@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAll
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperimentPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -36,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
@@ -51,19 +53,26 @@ public interface IGenericServer extends IPluginCommonServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public ExperimentPE getExperimentInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
-            ExperimentIdentifier identifier);
+    public ExperimentPE getExperimentInfo(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ExperimentIdentifier identifier);
+
+    /**
+     * For given {@link MaterialIdentifier} returns the corresponding {@link MaterialPE}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public MaterialPE getMaterialInfo(String sessionToken, MaterialIdentifier identifier);
 
     /**
      * Returns attachment described by given experiment identifier, filename and version.
      */
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
-    public AttachmentPE getExperimentFileAttachment(String sessionToken,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
-            ExperimentIdentifier experimentIdentifier, String filename, int version)
-            throws UserFailureException;
+    public AttachmentPE getExperimentFileAttachment(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ExperimentIdentifier experimentIdentifier,
+            String filename, int version) throws UserFailureException;
 
     /**
      * Registers samples in batch.
@@ -71,9 +80,11 @@ public interface IGenericServer extends IPluginCommonServer
     @Transactional
     @RolesAllowed(RoleSet.USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
-    public void registerSamples(final String sessionToken, SampleType sampleType,
-            @AuthorizationGuard(guardClass = NewSamplePredicate.class)
-            final List<NewSample> newSamples) throws UserFailureException;
+    public void registerSamples(
+            final String sessionToken,
+            SampleType sampleType,
+            @AuthorizationGuard(guardClass = NewSamplePredicate.class) final List<NewSample> newSamples)
+            throws UserFailureException;
 
     /**
      * Registers experiment.
@@ -83,9 +94,10 @@ public interface IGenericServer extends IPluginCommonServer
     @Transactional
     @RolesAllowed(RoleSet.USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT)
-    public void registerExperiment(String sessionToken,
-            @AuthorizationGuard(guardClass = NewExperimentPredicate.class)
-            final NewExperiment experiment, List<AttachmentPE> attachments);
+    public void registerExperiment(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = NewExperimentPredicate.class) final NewExperiment experiment,
+            List<AttachmentPE> attachments);
 
     /**
      * Registers materials in batch.

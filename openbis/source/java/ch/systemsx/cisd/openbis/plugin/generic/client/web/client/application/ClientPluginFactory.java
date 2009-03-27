@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.exp
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material.GenericMaterialBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material.GenericMaterialEditForm;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material.GenericMaterialViewer;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationForm;
@@ -115,6 +116,18 @@ public final class ClientPluginFactory extends
                 "Generic plugin factory supports every sample type.");
     }
 
+    private String getDetailsTitle(final String entityKindDictKey, final String identifier)
+    {
+        return getViewContext().getMessage(Dict.DETAILS_TITLE,
+                getViewContext().getMessage(entityKindDictKey), identifier);
+    }
+
+    private String getEditTitle(final String entityKindDictKey, final String identifier)
+    {
+        return getViewContext().getMessage(Dict.EDIT_TITLE,
+                getViewContext().getMessage(entityKindDictKey), identifier);
+    }
+
     //
     // Helper classes
     //
@@ -137,7 +150,8 @@ public final class ClientPluginFactory extends
                     {
                         final GenericSampleViewer sampleViewer =
                                 new GenericSampleViewer(getViewContext(), identifier);
-                        return new ViewerTabItem(identifier, sampleViewer, false);
+                        return new ViewerTabItem(getDetailsTitle(Dict.SAMPLE, identifier),
+                                sampleViewer, false);
                     }
 
                     public String getId()
@@ -165,8 +179,8 @@ public final class ClientPluginFactory extends
                     {
                         Component component =
                                 new GenericSampleEditForm(getViewContext(), entity, true);
-                        return new DefaultTabItem(getViewContext().getMessage(Dict.EDIT_TITLE,
-                                entity.getIdentifier()), component, true);
+                        return new DefaultTabItem(
+                                getEditTitle(Dict.SAMPLE, entity.getIdentifier()), component, true);
                     }
 
                     public String getId()
@@ -190,6 +204,27 @@ public final class ClientPluginFactory extends
         }
 
         @Override
+        public final ITabItemFactory createEntityViewer(final IIdentifierHolder identifiable)
+        {
+            final String identifier = identifiable.getIdentifier();
+            return new ITabItemFactory()
+                {
+                    public ITabItem create()
+                    {
+                        final GenericMaterialViewer materialViewer =
+                                new GenericMaterialViewer(getViewContext(), identifier);
+                        return new ViewerTabItem(getDetailsTitle(Dict.MATERIAL, identifier),
+                                materialViewer, false);
+                    }
+
+                    public String getId()
+                    {
+                        return GenericExperimentViewer.createId(identifier);
+                    }
+                };
+        }
+
+        @Override
         public ITabItemFactory createEntityEditor(final EditableMaterial entity)
         {
             return new ITabItemFactory()
@@ -198,8 +233,8 @@ public final class ClientPluginFactory extends
                     {
                         Component component =
                                 new GenericMaterialEditForm(getViewContext(), entity, true);
-                        return new DefaultTabItem(getViewContext().getMessage(Dict.EDIT_TITLE,
-                                entity.getIdentifier()), component, true);
+                        return new DefaultTabItem(getEditTitle(Dict.MATERIAL, entity
+                                .getIdentifier()), component, true);
                     }
 
                     public String getId()
@@ -229,7 +264,8 @@ public final class ClientPluginFactory extends
                     {
                         final GenericExperimentViewer experimentViewer =
                                 new GenericExperimentViewer(getViewContext(), identifier);
-                        return new ViewerTabItem(identifier, experimentViewer, false);
+                        return new ViewerTabItem(getDetailsTitle(Dict.EXPERIMENT, identifier),
+                                experimentViewer, false);
                     }
 
                     public String getId()
@@ -254,8 +290,8 @@ public final class ClientPluginFactory extends
                     {
                         Component component =
                                 new GenericExperimentEditForm(getViewContext(), entity, true);
-                        return new DefaultTabItem(getViewContext().getMessage(Dict.EDIT_TITLE,
-                                getViewContext().getMessage(Dict.EXPERIMENT)), component, true);
+                        return new DefaultTabItem(getEditTitle(Dict.EXPERIMENT, entity
+                                .getIdentifier()), component, true);
                     }
 
                     public String getId()
@@ -264,6 +300,5 @@ public final class ClientPluginFactory extends
                     }
                 };
         }
-
     }
 }

@@ -23,6 +23,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -37,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  */
 public interface IGenericClientServiceAsync extends IClientServiceAsync
 {
-
     /**
      * @see IGenericClientService#getSampleInfo(String)
      */
@@ -51,17 +51,23 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             throws UserFailureException;
 
     /**
+     * @see IGenericClientService#registerSamples(SampleType, String)
+     */
+    public void registerSamples(final SampleType sampleType, final String sessionKey,
+            final AsyncCallback<List<BatchRegistrationResult>> asyncCallback)
+            throws UserFailureException;
+
+    /**
      * @see IGenericClientService#getExperimentInfo(String)
      */
     public void getExperimentInfo(String experimentIdentifier,
             final AsyncCallback<Experiment> experimentInfoCallback);
 
     /**
-     * @see IGenericClientService#registerSamples(SampleType, String)
+     * @see IGenericClientService#getMaterialInfo(String)
      */
-    public void registerSamples(final SampleType sampleType, final String sessionKey,
-            final AsyncCallback<List<BatchRegistrationResult>> asyncCallback)
-            throws UserFailureException;
+    public void getMaterialInfo(String materialIdentifier,
+            final AsyncCallback<Material> materialInfoCallback);
 
     /**
      * @see IGenericClientService#registerExperiment(String,NewExperiment)

@@ -107,6 +107,8 @@ public final class GenericServerTest extends AbstractServerTestCase
 
                     one(sampleBO).loadBySampleIdentifier(sampleIdentifier);
 
+                    one(sampleBO).enrichWithValidProcedure();
+
                     one(sampleBO).getSample();
                     will(returnValue(samplePE));
 

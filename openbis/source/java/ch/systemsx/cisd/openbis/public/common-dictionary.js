@@ -15,6 +15,7 @@ var common = {
   filter: "Filter",
   not_implemented: "Sorry, feature has not been implemented yet!",
   edit: "Edit",
+  material: "Material",
   
   //
   // Field

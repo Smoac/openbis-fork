@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Mate
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableMaterial;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.material.CommonMaterialColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
@@ -47,6 +48,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
@@ -56,7 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyTyp
  * 
  * @author Izabela Adamczyk
  */
-public final class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialModel>
+public class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialModel>
 {
     private static final String PREFIX = "material-browser";
 
@@ -82,16 +86,18 @@ public final class MaterialBrowserGrid extends AbstractBrowserGrid<Material, Mat
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final MaterialBrowserToolbar toolbar = new MaterialBrowserToolbar(viewContext, null);
+        final ICriteriaProvider criteriaProvider = new ICriteriaProvider()
+            {
+                public ListMaterialCriteria tryGetCriteria()
+                {
+                    return toolbar.tryGetCriteria();
+                }
+            };
         final MaterialBrowserGrid browserGrid =
-                new MaterialBrowserGrid(viewContext, false, new ICriteriaProvider()
-                    {
-                        public ListMaterialCriteria tryGetCriteria()
-                        {
-                            return toolbar.tryGetCriteria();
-                        }
-                    });
+                createBrowserGridForChooser(viewContext, criteriaProvider);
         browserGrid.extendTopToolbar(toolbar);
         return browserGrid.asDisposableWithToolbar(toolbar);
+
     }
 
     /**
@@ -114,15 +120,33 @@ public final class MaterialBrowserGrid extends AbstractBrowserGrid<Material, Mat
     private static DisposableEntityChooser<Material> createWithoutTypeChooser(
             final IViewContext<ICommonClientServiceAsync> viewContext, final MaterialType initValue)
     {
+        final ICriteriaProvider criteriaProvider = new ICriteriaProvider()
+            {
+                public ListMaterialCriteria tryGetCriteria()
+                {
+                    return new ListMaterialCriteria(initValue);
+                }
+            };
         final MaterialBrowserGrid browserGrid =
-                new MaterialBrowserGrid(viewContext, true, new ICriteriaProvider()
-                    {
-                        public ListMaterialCriteria tryGetCriteria()
-                        {
-                            return new ListMaterialCriteria(initValue);
-                        }
-                    });
+                createBrowserGridForChooser(viewContext, criteriaProvider);
         return browserGrid.asDisposableWithoutToolbar();
+    }
+
+    private static MaterialBrowserGrid createBrowserGridForChooser(
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            final ICriteriaProvider criteriaProvider)
+    {
+        final MaterialBrowserGrid browserGrid =
+                new MaterialBrowserGrid(viewContext, true, criteriaProvider)
+                    {
+                        @Override
+                        protected void showEntityViewer(MaterialModel materialModel,
+                                boolean editMode)
+                        {
+                            // do nothing - avoid showing the details after double click
+                        }
+                    };
+        return browserGrid;
     }
 
     private MaterialBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
@@ -224,23 +248,29 @@ public final class MaterialBrowserGrid extends AbstractBrowserGrid<Material, Mat
     }
 
     @Override
-    protected final void showEntityViewer(MaterialModel modelData, boolean editMode)
+    protected void showEntityViewer(MaterialModel modelData, boolean editMode)
     {
+        final Material material = modelData.getBaseObject();
+        final EntityKind entityKind = EntityKind.MATERIAL;
+        ITabItemFactory tabView;
+        final IClientPluginFactory clientPluginFactory =
+                viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
+                        material.getMaterialType());
+
         if (editMode)
         {
-            final Material material = modelData.getBaseObject();
-            final EntityKind entityKind = EntityKind.MATERIAL;
-            ITabItemFactory tabView = null;
-            final IClientPluginFactory clientPluginFactory =
-                    viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
-                            material.getMaterialType());
             final IClientPlugin<MaterialType, MaterialTypePropertyType, MaterialProperty, IIdentifierHolder, EditableMaterial> createClientPlugin =
                     clientPluginFactory.createClientPlugin(entityKind);
-            final EditableMaterial entity =
+            final EditableMaterial editableEntity =
                     createEditableEntity(material, criteria.getMaterialType());
-            tabView = createClientPlugin.createEntityEditor(entity);
-            DispatcherHelper.dispatchNaviEvent(tabView);
+            tabView = createClientPlugin.createEntityEditor(editableEntity);
+        } else
+        {
+            final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder, IEditableEntity<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>>> createClientPlugin =
+                    clientPluginFactory.createClientPlugin(entityKind);
+            tabView = createClientPlugin.createEntityViewer(material);
         }
+        DispatcherHelper.dispatchNaviEvent(tabView);
     }
 
     private EditableMaterial createEditableEntity(Material entity, MaterialType selectedType)

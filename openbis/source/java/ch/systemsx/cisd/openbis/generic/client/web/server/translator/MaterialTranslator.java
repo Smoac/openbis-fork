@@ -47,7 +47,7 @@ public final class MaterialTranslator
         return result;
     }
 
-    private final static Material translate(final MaterialPE materialPE, final boolean withDetails)
+    public final static Material translate(final MaterialPE materialPE, final boolean withDetails)
     {
         if (materialPE == null)
         {

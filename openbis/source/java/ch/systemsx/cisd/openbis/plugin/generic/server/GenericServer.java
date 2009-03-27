@@ -28,16 +28,19 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProcedureBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
@@ -114,6 +117,7 @@ public final class GenericServer extends AbstractPluginServer<IGenericServer> im
         final Session session = getSessionManager().getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(identifier);
+        sampleBO.enrichWithValidProcedure();
         final SamplePE sample = sampleBO.getSample();
         return getSampleTypeSlaveServerPlugin(sample.getSampleType())
                 .getSampleInfo(session, sample);
@@ -140,6 +144,16 @@ public final class GenericServer extends AbstractPluginServer<IGenericServer> im
         experimentBO.enrichWithAttachments();
         final ExperimentPE experiment = experimentBO.getExperiment();
         return experiment;
+    }
+
+    public MaterialPE getMaterialInfo(final String sessionToken, final MaterialIdentifier identifier)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
+        materialBO.loadByMaterialIdentifier(identifier);
+        materialBO.enrichWithProperties();
+        final MaterialPE material = materialBO.getMaterial();
+        return material;
     }
 
     public AttachmentPE getExperimentFileAttachment(final String sessionToken,

@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -116,9 +117,22 @@ public class Material extends CodeWithRegistration<Material> implements IEntityI
         return EntityKind.MATERIAL;
     }
 
+    //
+    // IIdentifierHolder
+    //
+
     public String getIdentifier()
     {
-        // TODO 2009-03-24 Piotr Buczek: Implement this with detail view of materials
-        return null;
+        return new MaterialIdentifier(getCode(), getMaterialType().getCode()).print();
+    }
+
+    //
+    // Comparable
+    //
+
+    @Override
+    public final int compareTo(final Material o)
+    {
+        return getIdentifier().compareTo(o.getIdentifier());
     }
 }

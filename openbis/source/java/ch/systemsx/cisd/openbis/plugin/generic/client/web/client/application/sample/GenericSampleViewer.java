@@ -59,8 +59,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
@@ -224,13 +226,12 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         properties.put(messageProvider.getMessage(Dict.REGISTRATOR), sample.getRegistrator());
         properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE), sample
                 .getRegistrationDate());
-        
-        // TODO 2009-03-24 Piotr Buczek: Uncomment after lazy initialization problem is resolved
-        // final Procedure procedure = sample.getValidProcedure();
-        // if (procedure != null)
-        // {
-        // properties.put(messageProvider.getMessage(Dict.EXPERIMENT), procedure.getExperiment());
-        // }
+
+        final Procedure procedure = sample.getValidProcedure();
+        if (procedure != null)
+        {
+            properties.put(messageProvider.getMessage(Dict.EXPERIMENT), procedure.getExperiment());
+        }
 
         if (generated.length > 0)
         {
@@ -288,6 +289,8 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
                 .createInvalidationPropertyValueRenderer(viewContext));
         propertyGrid.registerPropertyValueRenderer(SampleProperty.class, PropertyValueRenderers
                 .createSamplePropertyPropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(Experiment.class, PropertyValueRenderers
+                .createExperimentPropertyValueRenderer(viewContext));
         propertyGrid.setProperties(properties);
 
         return propertyGrid;
