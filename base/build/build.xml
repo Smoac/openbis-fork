@@ -101,6 +101,7 @@
 
 	<target name="src-zip">
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
+		<mkdir dir="${classes}" />
 		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
 		<jar destfile="${src.zip.file}">
 			<fileset dir="${classes}">
