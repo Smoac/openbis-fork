@@ -9,6 +9,7 @@
 	<property name="mainfolder" value="base" />
 	<property name="jar.file" value="${dist}/cisd-base.jar" />
 	<property name="jar.test.file" value="${dist}/cisd-base-test.jar" />
+	<property name="src.zip.file" value="${dist}/cisd-base-src.zip" />
 	<property name="nativesrc" value="${lib}/unix/native" />
 	<property name="nativeroot" value="${targets}/ant" />
 	<property name="native" value="${nativeroot}/native" />
@@ -19,7 +20,7 @@
 
 	<target name="ci" depends="build-common.ci, check-dependencies" />
 
-	<target name="dist" depends="clean, jar" />
+	<target name="dist" depends="clean, jar, src-zip" />
 
 	<target name="jar" depends="compile">
 		<mkdir dir="${dist.common.lib}" />
@@ -71,6 +72,24 @@
 			<manifest>
 				<attribute name="Main-Class"
 				           value="ch.systemsx.cisd.base.unix.UnixTests" />
+				<attribute name="Version" value="${version.number}" />
+				<attribute name="Build-Number"
+				           value="${version.number} (r${revision.number},${clean.flag})" />
+			</manifest>
+		</recursive-jar>
+	</target>
+
+	<target name="src-zip">
+		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
+		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+		<recursive-jar destfile="${src.zip.file}">
+			<fileset dir="${classes}">
+				<include name="${build.info.filename}" />
+			</fileset>
+			<fileset dir="${sources}">
+				<include name="**/*.java" />
+			</fileset>
+			<manifest>
 				<attribute name="Version" value="${version.number}" />
 				<attribute name="Build-Number"
 				           value="${version.number} (r${revision.number},${clean.flag})" />
