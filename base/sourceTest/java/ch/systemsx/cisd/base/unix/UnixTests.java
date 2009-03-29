@@ -279,6 +279,11 @@ public class UnixTests extends AbstractFileSystemTestCase
     {
         System.out.println(BuildAndEnvironmentInfo.INSTANCE);
         System.out.println();
+        if (Unix.isOperational() == false)
+        {
+            System.err.println("No unix library found.");
+            System.exit(1);
+        }
         final UnixTests test = new UnixTests();
         try
         {
