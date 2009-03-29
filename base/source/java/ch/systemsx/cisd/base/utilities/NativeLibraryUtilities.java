@@ -30,6 +30,7 @@ public final class NativeLibraryUtilities
      * Loads the native library <var>libraryName</var>. The native library will be searched for in
      * this way:
      * <ol>
+     * <li>Try to use {@link System#loadLibrary(String)}. If this fails, use the next method.</li>
      * <li>The library path can either be provided as a Java property {@code
      * native.libpath.<libraryName>}.</li>
      * <li>Or a prefix on the filesystem can be provided by specifying the Java property {@code
@@ -44,6 +45,11 @@ public final class NativeLibraryUtilities
      */
     public static boolean loadNativeLibrary(final String libraryName)
     {
+        // Try system dependent loading
+        if (loadSystemLibrary(libraryName))
+        {
+            return true;
+        }
         // Try specific path
         String linkLibNameOrNull = System.getProperty("native.libpath." + libraryName);
         if (linkLibNameOrNull != null)
@@ -68,9 +74,9 @@ public final class NativeLibraryUtilities
         return false;
     }
 
-    private static boolean loadLib(String linkLibName)
+    private static boolean loadLib(String libPath)
     {
-        final File linkLib = new File(linkLibName);
+        final File linkLib = new File(libPath);
         if (linkLib.exists() && linkLib.canRead() && linkLib.isFile())
         {
             final String linkLibNameAbsolute = linkLib.getAbsolutePath();
@@ -88,6 +94,19 @@ public final class NativeLibraryUtilities
         {
             System.err.printf("Native library '%s' does not exist or is not readable.\n", linkLib
                     .getAbsolutePath());
+            return false;
+        }
+    }
+
+    private static boolean loadSystemLibrary(String libName)
+    {
+        try
+        {
+            System.loadLibrary(libName);
+            return true;
+        } catch (Throwable th)
+        {
+            // Silence this - we have other means of loading the library.
             return false;
         }
     }
