@@ -6,10 +6,13 @@
 	<import file="../../build_resources/ant/build-common.xml" />
 
 	<project-classpath name="ecp" classes="${classes}" />
-	<property name="mainfolder" value="base" />
+	<property name="mainfolder" value="cisd-base" />
 	<property name="jar.file" value="${dist}/cisd-base.jar" />
+	<property name="dist.file" value="${dist}/cisd-base" />
 	<property name="jar.test.file" value="${dist}/cisd-base-test.jar" />
 	<property name="src.zip.file" value="${dist}/cisd-base-src.zip" />
+	<property name="javadoc.zip.file" value="${dist}/cisd-base-javadoc.zip" />
+	<property name="original.dist" value="../${ant.project.name}/dist" />
 	<property name="nativesrc" value="${lib}/unix/native" />
 	<property name="nativeroot" value="${targets}/ant" />
 	<property name="native" value="${nativeroot}/native" />
@@ -19,8 +22,6 @@
 
 
 	<target name="ci" depends="build-common.ci, check-dependencies" />
-
-	<target name="dist" depends="clean, jar, src-zip" />
 
 	<target name="jar" depends="compile">
 		<mkdir dir="${dist.common.lib}" />
@@ -70,8 +71,7 @@
 			<zipfileset src="${lib}/commons-lang/commons-lang.jar" />
 			<zipfileset src="${lib}/commons-io/commons-io.jar" />
 			<manifest>
-				<attribute name="Main-Class"
-				           value="ch.systemsx.cisd.base.unix.UnixTests" />
+				<attribute name="Main-Class" value="ch.systemsx.cisd.base.unix.UnixTests" />
 				<attribute name="Version" value="${version.number}" />
 				<attribute name="Build-Number"
 				           value="${version.number} (r${revision.number},${clean.flag})" />
@@ -95,6 +95,29 @@
 				           value="${version.number} (r${revision.number},${clean.flag})" />
 			</manifest>
 		</recursive-jar>
+	</target>
+
+	<target name="doc">
+		<delete dir="targets/doc" />
+		<javadoc sourcepath="source/java"
+		         packagenames="ch.systemsx.cisd.base.*"
+		         classpath="../libraries/commons-lang/commons-lang.jar:../libraries/commons-io/commons-io.jar:../libraries/restrictionchecker/restrictions.jar"
+		         destdir="targets/doc"
+		         access="public" />
+	</target>
+
+	<target name="dist" depends="clean, jar, src-zip, doc">
+		<zip destfile="${javadoc.zip.file}" basedir="${targets}" includes="doc/**" />
+		<delete dir="${dist}/${mainfolder}" />
+		<move file="${jar.file}" todir="${dist}/${mainfolder}/lib" />
+		<move file="${src.zip.file}" todir="${dist}/${mainfolder}/src" />
+		<move file="${javadoc.zip.file}" todir="${dist}/${mainfolder}/doc" />
+	  <copy todir="${dist}/${mainfolder}">
+	    <fileset dir="${original.dist}"/>
+	  </copy>
+		<zip destfile="${dist.file}-${version.number}.zip"
+		     basedir="${dist}"
+		     includes="${mainfolder}/**" />
 	</target>
 
 	<!--
