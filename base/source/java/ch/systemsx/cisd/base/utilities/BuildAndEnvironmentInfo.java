@@ -213,7 +213,7 @@ public final class BuildAndEnvironmentInfo
             builder.append(environmentInfo.get(i));
             if (i < n - 1)
             {
-                builder.append(OSUtilities.LINE_SEPARATOR);
+                builder.append(System.getProperty("line.separator"));
             }
         }
         return builder.toString();

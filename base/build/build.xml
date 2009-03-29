@@ -102,7 +102,7 @@
 	<target name="src-zip">
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
-		<recursive-jar destfile="${src.zip.file}">
+		<jar destfile="${src.zip.file}">
 			<fileset dir="${classes}">
 				<include name="${build.info.filename}" />
 			</fileset>
@@ -117,7 +117,7 @@
 				<attribute name="Build-Number"
 				           value="${version.number} (r${revision.number},${clean.flag})" />
 			</manifest>
-		</recursive-jar>
+		</jar>
 	</target>
 
 	<target name="doc">
