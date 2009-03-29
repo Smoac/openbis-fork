@@ -31,7 +31,8 @@
 		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
 		<copy todir="${native}">
 			<fileset dir="${nativesrc}">
-				<include name="**/unix.so" />
+				<include name="**/libunix.so" />
+				<include name="**/libunix.jnilib" />
 			</fileset>
 		</copy>
 		<recursive-jar destfile="${jar.file}">
@@ -40,7 +41,8 @@
 				<include name="${build.info.filename}" />
 			</fileset>
 			<fileset dir="${nativeroot}">
-				<include name="**/unix.so" />
+				<include name="**/libunix.so" />
+				<include name="**/libunix.jnilib" />
 			</fileset>
 			<manifest>
 				<attribute name="Main-Class"
@@ -76,7 +78,8 @@
 		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
 		<copy todir="${native}">
 			<fileset dir="${nativesrc}">
-				<include name="**/unix.so" />
+				<include name="**/libunix.so" />
+				<include name="**/libunix.jnilib" />
 			</fileset>
 		</copy>
 		<recursive-jar destfile="${jar.test.complete.file}">
@@ -85,7 +88,8 @@
 				<include name="${build.info.filename}" />
 			</fileset>
 			<fileset dir="${nativeroot}">
-				<include name="**/unix.so" />
+				<include name="**/libunix.so" />
+				<include name="**/libunix.jnilib" />
 			</fileset>
 			<zipfileset src="${lib}/testng/testng-jdk15.jar" />
 			<zipfileset src="${lib}/commons-lang/commons-lang.jar" />

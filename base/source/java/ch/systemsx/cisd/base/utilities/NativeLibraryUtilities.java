@@ -25,6 +25,28 @@ import java.io.File;
  */
 public final class NativeLibraryUtilities
 {
+    private static final String JNI_LIB_PREFIX = getJNILibPrefixForSystem();
+
+    private static final String JNI_LIB_EXTENSION = getJNILibExtensionForSystem();
+
+    private static String getJNILibPrefixForSystem()
+    {
+        return OSUtilities.isWindows() ? "" : "lib";
+    }
+    
+    private static String getJNILibExtensionForSystem()
+    {
+        if (OSUtilities.isMacOS())
+        {
+            return "jnilib";
+        } else if (OSUtilities.isWindows())
+        {
+            return "dll";
+        } else
+        {
+            return "so";
+        }
+    }
 
     /**
      * Loads the native library <var>libraryName</var>. The native library will be searched for in
@@ -45,11 +67,6 @@ public final class NativeLibraryUtilities
      */
     public static boolean loadNativeLibrary(final String libraryName)
     {
-        // Try system dependent loading
-        if (loadSystemLibrary(libraryName))
-        {
-            return true;
-        }
         // Try specific path
         String linkLibNameOrNull = System.getProperty("native.libpath." + libraryName);
         if (linkLibNameOrNull != null)
@@ -71,7 +88,8 @@ public final class NativeLibraryUtilities
         {
             return loadLib(linkLibNameOrNull);
         }
-        return false;
+        // Finally, try system dependent loading
+        return loadSystemLibrary(libraryName);
     }
 
     private static boolean loadLib(String libPath)
@@ -106,7 +124,7 @@ public final class NativeLibraryUtilities
             return true;
         } catch (Throwable th)
         {
-            // Silence this - we have other means of loading the library.
+            // Silence this - we return failure back as boolean value.
             return false;
         }
     }
@@ -129,8 +147,8 @@ public final class NativeLibraryUtilities
 
     private static String getLibPath(final String prefix, final String libraryName)
     {
-        return String.format("%s/%s/%s/%s.so", prefix, libraryName, OSUtilities
-                .getCompatibleComputerPlatform(), libraryName);
+        return String.format("%s/%s/%s/%s%s.%s", prefix, libraryName, OSUtilities
+                .getCompatibleComputerPlatform(), JNI_LIB_PREFIX, libraryName, JNI_LIB_EXTENSION);
     }
-
+    
 }
