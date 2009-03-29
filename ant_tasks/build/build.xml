@@ -23,6 +23,7 @@
                 <include name="**/*.class" />
                 <include name="${build.info.filename}" />
             </fileset>
+	    			<zipfileset src="${lib}/cisd-base/cisd-base.jar" />
             <manifest>
                 <attribute name="Main-Class" value="ch.systemsx.cisd.base.utilities.BuildAndEnvironmentInfo" />
                 <attribute name="Version" value="${version.number}" />

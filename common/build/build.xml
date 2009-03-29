@@ -35,6 +35,7 @@
             <fileset dir="${nativeroot}">
                 <include name="**/unix.so" />
             </fileset>
+          <zipfileset src="${lib}/cisd-base/cisd-base.jar" />
             <zipfileset src="${lib}/log4j/log4j.jar" />
             <zipfileset src="${lib}/testng/testng-jdk15.jar" />
             <zipfileset src="${lib}/commons-lang/commons-lang.jar" />

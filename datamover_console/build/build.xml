@@ -161,6 +161,9 @@
       <lib dir="${dist}">
         <include name="${jar.file.name}" />
       </lib>
+      <lib dir="${lib}/cisd-base">
+        <include name="cisd-base.jar" />
+      </lib>
       <lib dir="${lib}/commons-lang">
         <include name="commons-lang.jar" />
       </lib>

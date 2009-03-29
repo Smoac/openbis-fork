@@ -16,7 +16,7 @@
 	<property name="cifex.server.resource" value="../${ant.project.name}/${server-resource}" />
 
 	<property name="cifex.client.jarfiles"
-	          value="cifex.jar log4j.jar jline.jar commons-lang.jar commons-io.jar commons-logging.jar commons-codec.jar commons-httpclient.jar spring-core.jar spring-web.jar spring-context.jar spring-beans.jar spring-aop.jar aopalliance.jar" />
+	          value="cifex.jar cisd-base.jar cisd-args4j.jar log4j.jar jline.jar commons-lang.jar commons-io.jar commons-logging.jar commons-codec.jar commons-httpclient.jar spring-core.jar spring-web.jar spring-context.jar spring-beans.jar spring-aop.jar aopalliance.jar" />
 
 	<property name="webapp.dist" value="${dist}/webapp" />
 	<property name="webapp.dist.web-inf" value="${webapp.dist}/WEB-INF" />
@@ -178,6 +178,14 @@
 			<param name="jar" value="${jar.file.name}" />
 		</antcall>
 		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/cisd-base" />
+			<param name="jar" value="cisd-base.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/cisd-args4j" />
+			<param name="jar" value="cisd-args4j.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
 			<param name="dir" value="${lib}/spring" />
 			<param name="jar" value="spring-web.jar" />
 		</antcall>
@@ -285,6 +293,9 @@
 			</classes>
 			<lib dir="${dist}">
 				<include name="${jar.file.name}" />
+			</lib>
+			<lib dir="${lib}/cisd-base">
+				<include name="cisd-base.jar" />
 			</lib>
 			<lib dir="${lib}/commons-codec">
 				<include name="commons-codec.jar" />
