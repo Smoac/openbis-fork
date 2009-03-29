@@ -86,6 +86,8 @@ public final class NativeLibraryUtilities
             }
         } else
         {
+            System.err.printf("Native library '%s' does not exist or is not readable.\n", linkLib
+                    .getAbsolutePath());
             return false;
         }
     }
