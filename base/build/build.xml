@@ -11,6 +11,7 @@
 	<property name="jar.file" value="${dist}/cisd-base.jar" />
 	<property name="dist.file" value="${dist}/cisd-base" />
 	<property name="jar.test.file" value="${dist}/cisd-base-test.jar" />
+	<property name="jar.test.complete.file" value="${dist}/cisd-base-test-complete.jar" />
 	<property name="src.zip.file" value="${dist}/cisd-base-src.zip" />
 	<property name="javadoc.zip.file" value="${dist}/cisd-base-javadoc.zip" />
 	<property name="original.dist" value="../${ant.project.name}/dist" />
@@ -55,12 +56,30 @@
 		<mkdir dir="${dist.common.lib}" />
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+		<recursive-jar destfile="${jar.test.file}">
+			<fileset dir="${classes}">
+				<include name="ch/systemsx/cisd/base/tests/**/*.class" />
+				<include name="${build.info.filename}" />
+			</fileset>
+			<manifest>
+				<attribute name="Main-Class" value="ch.systemsx.cisd.base.unix.UnixTests" />
+				<attribute name="Version" value="${version.number}" />
+				<attribute name="Build-Number"
+				           value="${version.number} (r${revision.number},${clean.flag})" />
+			</manifest>
+		</recursive-jar>
+	</target>
+
+	<target name="jar-test-complete" depends="compile-tests">
+		<mkdir dir="${dist.common.lib}" />
+		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
+		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
 		<copy todir="${native}">
 			<fileset dir="${nativesrc}">
 				<include name="**/unix.so" />
 			</fileset>
 		</copy>
-		<recursive-jar destfile="${jar.test.file}">
+		<recursive-jar destfile="${jar.test.complete.file}">
 			<fileset dir="${classes}">
 				<include name="**/*.class" />
 				<include name="${build.info.filename}" />
@@ -90,6 +109,9 @@
 			<fileset dir="${sources}">
 				<include name="**/*.java" />
 			</fileset>
+			<fileset dir="${sources.test}">
+				<include name="ch/systemsx/cisd/base/tests/**/*.java" />
+			</fileset>
 			<manifest>
 				<attribute name="Version" value="${version.number}" />
 				<attribute name="Build-Number"
@@ -107,17 +129,18 @@
 		         access="public" />
 	</target>
 
-	<target name="dist" depends="clean, jar, src-zip, doc">
+	<target name="dist" depends="clean, jar, jar-test, src-zip, doc">
 		<zip destfile="${javadoc.zip.file}" basedir="${targets}" includes="doc/**" />
 		<delete dir="${dist}/${mainfolder}" />
 		<delete dir="${dist}/${distfolder}" />
 		<move file="${jar.file}" todir="${dist}/${distfolder}/lib" />
+		<move file="${jar.test.file}" todir="${dist}/${distfolder}/lib" />
 		<move file="${src.zip.file}" todir="${dist}/${distfolder}/src" />
 		<move file="${javadoc.zip.file}" todir="${dist}/${distfolder}/doc" />
 	  <copy todir="${dist}/${distfolder}">
 	    <fileset dir="${original.dist}"/>
 	  </copy>
-		<zip destfile="${dist.file}-${version.number}.zip"
+		<zip destfile="${dist.file}-${version.number}-r${revision.number}.zip"
 		     basedir="${dist}"
 		     includes="${distfolder}/**" />
 		<delete dir="${dist}/${distfolder}" />
