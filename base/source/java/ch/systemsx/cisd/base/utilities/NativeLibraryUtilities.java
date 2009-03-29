@@ -19,7 +19,7 @@ package ch.systemsx.cisd.base.utilities;
 import java.io.File;
 
 /**
- * A library for loading native libraries from jar files.
+ * A library for loading native libraries.
  * 
  * @author Bernd Rinn
  */
@@ -27,40 +27,74 @@ public final class NativeLibraryUtilities
 {
 
     /**
-     * Loads the native library <var>libraryName</var> from a Java resource that follows a naming
-     * convention described in {@link #tryCopyNativeLibraryToTempFile(String)}.
+     * Loads the native library <var>libraryName</var>. The native library will be searched for in
+     * this way:
+     * <ol>
+     * <li>The library path can either be provided as a Java property {@code
+     * native.libpath.<libraryName>}.</li>
+     * <li>Or a prefix on the filesystem can be provided by specifying the Java property {@code
+     * native.libpath} and then the library is expected to be in {@code
+     * <native.libpath>/<libraryName>/<platform_id>/<libraryName>.so}.</li>
+     * <li>Finally, the routine will try to find the library as a resource in the class path with
+     * resource name {@code /native/<libraryName>/<platform_id>/<libraryName>.so}.</li>
+     * </ol>
      * 
      * @return <code>true</code> if the library has been loaded successfully and <code>false</code>
      *         otherwise.
      */
-    public static boolean loadNativeLibraryFromResource(final String libraryName)
+    public static boolean loadNativeLibrary(final String libraryName)
     {
-        final String filename = tryCopyNativeLibraryToTempFile(libraryName);
-
-        if (filename != null)
+        // Try specific path
+        String linkLibNameOrNull = System.getProperty("native.libpath." + libraryName);
+        if (linkLibNameOrNull != null)
         {
-            final File linkLib = new File(filename);
-            if (linkLib.exists() && linkLib.canRead() && linkLib.isFile())
-            {
-                try
-                {
-                    System.load(filename);
-                    return true;
-                } catch (final Throwable err)
-                {
-                    System.err.printf("Native library '%s' failed to load:\n", filename);
-                    err.printStackTrace();
-                }
-            }
+            return loadLib(linkLibNameOrNull);
+        }
+
+        // Try generic path
+        final String linkLibPathOrNull = System.getProperty("native.libpath");
+        if (linkLibPathOrNull != null)
+        {
+            linkLibNameOrNull = getLibPath(linkLibPathOrNull, libraryName);
+            return loadLib(linkLibNameOrNull);
+        }
+
+        // Try resource
+        linkLibNameOrNull = tryCopyNativeLibraryToTempFile(libraryName);
+        if (linkLibNameOrNull != null)
+        {
+            return loadLib(linkLibNameOrNull);
         }
         return false;
+    }
+
+    private static boolean loadLib(String linkLibName)
+    {
+        final File linkLib = new File(linkLibName);
+        if (linkLib.exists() && linkLib.canRead() && linkLib.isFile())
+        {
+            final String linkLibNameAbsolute = linkLib.getAbsolutePath();
+            try
+            {
+                System.load(linkLibNameAbsolute);
+                return true;
+            } catch (final Throwable err)
+            {
+                System.err.printf("Native library '%s' failed to load:\n", linkLibNameAbsolute);
+                err.printStackTrace();
+                return false;
+            }
+        } else
+        {
+            return false;
+        }
     }
 
     /**
      * Tries to copy a native library which is available as a resource to a temporary file. It will
      * use the following naming schema to locate the resource containing the native library:
      * <p>
-     * <code>/native/&lt;libname&gt;/&lt;platform_id&gt;/&lt;libname&gt;.so</code>.
+     * {@code /native/<libraryName>/<platform_id>/<libraryName>.so}.
      * 
      * @param libraryName The name of the library.
      * @return The name of the temporary file, or <code>null</code>, if the resource could not be
@@ -68,9 +102,14 @@ public final class NativeLibraryUtilities
      */
     public static String tryCopyNativeLibraryToTempFile(final String libraryName)
     {
-        return ResourceUtilities.tryCopyResourceToTempFile(String.format("/native/%s/%s/%s.so",
-                libraryName, OSUtilities.getCompatibleComputerPlatform(), libraryName),
+        return ResourceUtilities.tryCopyResourceToTempFile(getLibPath("/native", libraryName),
                 libraryName, ".so");
+    }
+
+    private static String getLibPath(final String prefix, final String libraryName)
+    {
+        return String.format("%s/%s/%s/%s.so", prefix, libraryName, OSUtilities
+                .getCompatibleComputerPlatform(), libraryName);
     }
 
 }

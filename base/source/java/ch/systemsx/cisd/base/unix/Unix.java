@@ -47,7 +47,7 @@ public final class Unix
 
     static
     {
-        operational = NativeLibraryUtilities.loadNativeLibraryFromResource("unix");
+        operational = NativeLibraryUtilities.loadNativeLibrary("unix");
         if (operational)
         {
             init();
