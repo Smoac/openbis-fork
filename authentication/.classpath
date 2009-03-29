@@ -20,6 +20,6 @@
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/objenesis/objenesis-1.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-library.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/base"/>
+	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

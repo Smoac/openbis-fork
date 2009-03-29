@@ -35,6 +35,7 @@
 	<classpathentry kind="lib" path="/libraries/jmock/objenesis/objenesis-1.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/jline/jline.jar" sourcepath="/libraries/jline/src.zip"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/args4j"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/base"/>
+	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base-test.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
