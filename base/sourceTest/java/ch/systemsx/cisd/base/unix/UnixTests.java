@@ -35,6 +35,7 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.base.unix.Unix.Group;
 import ch.systemsx.cisd.base.unix.Unix.Password;
 import ch.systemsx.cisd.base.unix.Unix.Stat;
+import ch.systemsx.cisd.base.utilities.BuildAndEnvironmentInfo;
 
 /**
  * Test cases for the {@link Unix} system calls.
@@ -276,6 +277,8 @@ public class UnixTests extends AbstractFileSystemTestCase
     
     public static void main(String[] args) throws Throwable
     {
+        System.out.println(BuildAndEnvironmentInfo.INSTANCE);
+        System.out.println();
         final UnixTests test = new UnixTests();
         try
         {
