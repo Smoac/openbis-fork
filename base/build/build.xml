@@ -118,6 +118,7 @@
 		<zip destfile="${dist.file}-${version.number}.zip"
 		     basedir="${dist}"
 		     includes="${mainfolder}/**" />
+		<delete dir="${dist}/${mainfolder}" />
 	</target>
 
 	<!--
