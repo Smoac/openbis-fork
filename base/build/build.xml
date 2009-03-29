@@ -6,7 +6,8 @@
 	<import file="../../build_resources/ant/build-common.xml" />
 
 	<project-classpath name="ecp" classes="${classes}" />
-	<property name="mainfolder" value="cisd-base" />
+	<property name="distfolder" value="cisd-base" />
+	<property name="mainfolder" value="base" />
 	<property name="jar.file" value="${dist}/cisd-base.jar" />
 	<property name="dist.file" value="${dist}/cisd-base" />
 	<property name="jar.test.file" value="${dist}/cisd-base-test.jar" />
@@ -109,16 +110,17 @@
 	<target name="dist" depends="clean, jar, src-zip, doc">
 		<zip destfile="${javadoc.zip.file}" basedir="${targets}" includes="doc/**" />
 		<delete dir="${dist}/${mainfolder}" />
-		<move file="${jar.file}" todir="${dist}/${mainfolder}/lib" />
-		<move file="${src.zip.file}" todir="${dist}/${mainfolder}/src" />
-		<move file="${javadoc.zip.file}" todir="${dist}/${mainfolder}/doc" />
-	  <copy todir="${dist}/${mainfolder}">
+		<delete dir="${dist}/${distfolder}" />
+		<move file="${jar.file}" todir="${dist}/${distfolder}/lib" />
+		<move file="${src.zip.file}" todir="${dist}/${distfolder}/src" />
+		<move file="${javadoc.zip.file}" todir="${dist}/${distfolder}/doc" />
+	  <copy todir="${dist}/${distfolder}">
 	    <fileset dir="${original.dist}"/>
 	  </copy>
 		<zip destfile="${dist.file}-${version.number}.zip"
 		     basedir="${dist}"
-		     includes="${mainfolder}/**" />
-		<delete dir="${dist}/${mainfolder}" />
+		     includes="${distfolder}/**" />
+		<delete dir="${dist}/${distfolder}" />
 	</target>
 
 	<!--
