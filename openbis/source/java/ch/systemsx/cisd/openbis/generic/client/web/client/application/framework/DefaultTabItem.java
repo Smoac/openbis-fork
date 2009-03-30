@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
-import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.TabPanelEvent;
+
 import com.extjs.gxt.ui.client.widget.Component;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
 /**
  * A default {@link ITabItem} implementation.
@@ -34,48 +34,52 @@ public class DefaultTabItem implements ITabItem
 
     private final Component component;
 
-    private final Listener<TabPanelEvent> tabPanelEventListener;
+    private final IDelegatedAction disposerActionOrNull;
 
     private final boolean isCloseConfirmationNeeded;
 
+    private final LastModificationStateUpdater lastModificationStateUpdaterOrNull;
+
+    // TODO 2009-03-26, Tomasz Pylak: add Database Modification Observer
     public DefaultTabItem(final String title, final Component component,
             boolean isCloseConfirmationNeeded)
     {
-        this(title, component, isCloseConfirmationNeeded, null);
+        this(title, component, null, null, isCloseConfirmationNeeded);
     }
 
-    public static ITabItem create(final String title, final DisposableComponent component)
+    public static ITabItem create(final String title, final DisposableComponent component,
+            IViewContext<?> viewContext)
     {
         boolean isCloseConfirmationNeeded = false;
-        Listener<TabPanelEvent> eventListener = createCloseEventListener(component);
-        return new DefaultTabItem(title, component.getComponent(), isCloseConfirmationNeeded,
-                eventListener);
+        LastModificationStateUpdater updater =
+                new LastModificationStateUpdater(viewContext, component);
+        IDelegatedAction disposer = createDisposer(component);
+        return new DefaultTabItem(title, component.getComponent(), updater, disposer,
+                isCloseConfirmationNeeded);
     }
 
-    private static Listener<TabPanelEvent> createCloseEventListener(
-            final DisposableComponent component)
+    private static IDelegatedAction createDisposer(final DisposableComponent disposableComponent)
     {
-        return new Listener<TabPanelEvent>()
+        return new IDelegatedAction()
             {
-                public final void handleEvent(final TabPanelEvent be)
+                public void execute()
                 {
-                    if (be.type == Events.Close)
-                    {
-                        component.dispose();
-                    }
+                    disposableComponent.dispose();
                 }
             };
     }
 
     private DefaultTabItem(final String title, final Component component,
-            boolean isCloseConfirmationNeeded, final Listener<TabPanelEvent> tabPanelEventListener)
+            LastModificationStateUpdater lastModificationStateUpdaterOrNull,
+            IDelegatedAction disposerActionOrNull, boolean isCloseConfirmationNeeded)
     {
         assert title != null : "Unspecified title.";
         assert component != null : "Unspecified component.";
         this.title = title;
         this.component = component;
+        this.lastModificationStateUpdaterOrNull = lastModificationStateUpdaterOrNull;
+        this.disposerActionOrNull = disposerActionOrNull;
         this.isCloseConfirmationNeeded = isCloseConfirmationNeeded;
-        this.tabPanelEventListener = tabPanelEventListener;
     }
 
     //
@@ -92,13 +96,24 @@ public class DefaultTabItem implements ITabItem
         return title;
     }
 
-    public final Listener<TabPanelEvent> tryGetEventListener()
-    {
-        return tabPanelEventListener;
-    }
-
     public boolean isCloseConfirmationNeeded()
     {
         return isCloseConfirmationNeeded;
+    }
+
+    public void onActivate()
+    {
+        if (lastModificationStateUpdaterOrNull != null)
+        {
+            lastModificationStateUpdaterOrNull.update();
+        }
+    }
+
+    public void onClose()
+    {
+        if (disposerActionOrNull != null)
+        {
+            disposerActionOrNull.execute();
+        }
     }
 }

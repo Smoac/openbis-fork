@@ -17,6 +17,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
+
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -33,7 +36,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * Grid with data set search results.
@@ -117,6 +122,15 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
     protected ColumnDefsAndConfigs<ExternalData> createColumnsDefinition()
     {
         return DataSetSearchHitModel.createColumnsSchema(viewContext, availablePropertyTypes);
+    }
+
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return new DatabaseModificationKind[]
+            { createOrDelete(ObjectKind.DATA_SET), edit(ObjectKind.EXPERIMENT),
+                    edit(ObjectKind.SAMPLE),
+                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    createOrDelete(ObjectKind.VOCABULARY_TERM) };
     }
 
 }

@@ -86,21 +86,31 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     // can be null only during tests
     protected final IViewContext<?> viewContext;
 
-    /**
-     * Creates an instance for the specified view context.
-     */
+    // should the login page appear when the 'session terminated' exception occurs
+    private final boolean reloadWhenSessionTerminated;
+
     public AbstractAsyncCallback(final IViewContext<?> viewContext)
     {
-        this(viewContext, null);
+        this(viewContext, false);
     }
 
-    /**
-     * Creates an instance for the specified view context.
-     */
     public AbstractAsyncCallback(final IViewContext<?> viewContext,
             final ICallbackListener<T> callbackListenerOrNull)
     {
+        this(viewContext, callbackListenerOrNull, true);
+    }
+
+    public AbstractAsyncCallback(final IViewContext<?> viewContext,
+            boolean reloadWhenSessionTerminated)
+    {
+        this(viewContext, null, reloadWhenSessionTerminated);
+    }
+
+    private AbstractAsyncCallback(final IViewContext<?> viewContext,
+            final ICallbackListener<T> callbackListenerOrNull, boolean reloadWhenSessionTerminated)
+    {
         this.viewContext = viewContext;
+        this.reloadWhenSessionTerminated = reloadWhenSessionTerminated;
         // If static ICallbackListener is not DEFAULT_CALLBACK_LISTENER, then we assume being in
         // testing mode. So no customized ICallbackListener (specified in the constructor) possible.
         if (staticCallbackListener != DEFAULT_CALLBACK_LISTENER)
@@ -206,7 +216,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
                 @Override
                 public void windowHide(WindowEvent we)
                 {
-                    if (viewContext != null)
+                    if (viewContext != null && reloadWhenSessionTerminated)
                     {
                         final IPageController pageController = viewContext.getPageController();
                         pageController.reload(true);

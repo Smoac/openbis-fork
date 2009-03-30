@@ -42,7 +42,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * Grid displaying vocabularies.
@@ -128,7 +130,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                     String tabTitle =
                             viewContext.getMessage(Dict.VOCABULARY_TERMS_BROWSER, vocabulary
                                     .getCode());
-                    return DefaultTabItem.create(tabTitle, component);
+                    return DefaultTabItem.create(tabTitle, component, viewContext);
                 }
 
                 public String getId()
@@ -137,6 +139,12 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                 }
             };
         DispatcherHelper.dispatchNaviEvent(tabFactory);
+    }
+
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return new DatabaseModificationKind[]
+            { DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY) };
     }
 
 }

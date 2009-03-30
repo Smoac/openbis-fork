@@ -18,12 +18,15 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
 import com.extjs.gxt.ui.client.widget.Component;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
+
 /**
  * Component which should be disposed at the end of the life cycle
  * 
  * @author Tomasz Pylak
  */
-public interface DisposableComponent
+// TODO 2009-03-26, Tomasz Pylak: add 'I' prefix
+public interface DisposableComponent extends IDatabaseModificationObserver
 {
     Component getComponent();
 

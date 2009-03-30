@@ -44,21 +44,22 @@ public class DatabaseModificationKind implements IsSerializable
     private OperationKind operationKind;
 
     // GWT only
+    @SuppressWarnings("unused")
     private DatabaseModificationKind()
     {
     }
 
-    public static final DatabaseModificationKind createNew(ObjectKind objectType)
+    public static final DatabaseModificationKind createOrDelete(ObjectKind objectType)
     {
         return new DatabaseModificationKind(objectType, OperationKind.CREATE_OR_DELETE);
     }
 
-    public static final DatabaseModificationKind createUpdate(ObjectKind objectType)
+    public static final DatabaseModificationKind edit(ObjectKind objectType)
     {
         return new DatabaseModificationKind(objectType, OperationKind.UPDATE);
     }
 
-    private DatabaseModificationKind(ObjectKind objectType, OperationKind operationKind)
+    public DatabaseModificationKind(ObjectKind objectType, OperationKind operationKind)
     {
         this.objectType = objectType;
         this.operationKind = operationKind;
@@ -72,6 +73,23 @@ public class DatabaseModificationKind implements IsSerializable
     public OperationKind getOperationKind()
     {
         return operationKind;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == null || obj instanceof DatabaseModificationKind == false)
+        {
+            return false;
+        }
+        DatabaseModificationKind that = (DatabaseModificationKind) obj;
+        return objectType == that.objectType && operationKind == that.operationKind;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return 17 * objectType.hashCode() + operationKind.hashCode();
     }
 
     @Override

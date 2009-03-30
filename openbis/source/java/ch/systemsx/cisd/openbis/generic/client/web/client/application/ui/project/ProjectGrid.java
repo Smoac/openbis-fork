@@ -31,6 +31,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * Grid displaying projects.
@@ -80,5 +82,11 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
     {
         return asColumnFilters(new ProjectColDefKind[]
             { ProjectColDefKind.CODE, ProjectColDefKind.GROUP });
+    }
+
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return new DatabaseModificationKind[]
+            { DatabaseModificationKind.createOrDelete(ObjectKind.PROJECT) };
     }
 }

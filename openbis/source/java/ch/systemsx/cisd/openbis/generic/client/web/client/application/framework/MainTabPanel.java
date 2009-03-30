@@ -128,16 +128,42 @@ public class MainTabPanel extends TabPanel
             setText(tabItem.getTabTitle());
             addStyleName("pad-text");
             add(tabItem.getComponent());
-            final Listener<TabPanelEvent> tabPanelEventListener = tabItem.tryGetEventListener();
             if (tabItem.isCloseConfirmationNeeded())
             {
                 addListener(Events.BeforeClose, createBeforeCloseListener(this, idPrefix));
             }
-            if (tabPanelEventListener != null)
-            {
-                addListener(Events.Close, tabPanelEventListener);
-            }
-            addListener(Events.Close, createTabCloseListener(idPrefix));
+            addListener(Events.Close, createCloseTabListener(tabItem, idPrefix));
+            addListener(Events.Select, createActivateTabListener(tabItem));
+        }
+
+        private Listener<TabPanelEvent> createCloseTabListener(final ITabItem tabItem,
+                final String id)
+        {
+            return new Listener<TabPanelEvent>()
+                {
+                    public final void handleEvent(final TabPanelEvent be)
+                    {
+                        if (be.type == Events.Close)
+                        {
+                            tabItem.onClose();
+                            openTabs.remove(id);
+                        }
+                    }
+                };
+        }
+
+        private Listener<TabPanelEvent> createActivateTabListener(final ITabItem tabItem)
+        {
+            return new Listener<TabPanelEvent>()
+                {
+                    public final void handleEvent(final TabPanelEvent be)
+                    {
+                        if (be.type == Events.Select)
+                        {
+                            tabItem.onActivate();
+                        }
+                    }
+                };
         }
 
         private Listener<TabPanelEvent> createBeforeCloseListener(final MainTabItem mainTabItem,
@@ -158,17 +184,6 @@ public class MainTabPanel extends TabPanel
                                     openTabs.remove(id);
                                 }
                             }.show();
-                    }
-                };
-        }
-
-        private Listener<TabPanelEvent> createTabCloseListener(final String id)
-        {
-            return new Listener<TabPanelEvent>()
-                {
-                    public void handleEvent(final TabPanelEvent be)
-                    {
-                        openTabs.remove(id);
                     }
                 };
         }

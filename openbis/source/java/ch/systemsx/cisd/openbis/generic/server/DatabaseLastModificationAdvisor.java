@@ -137,7 +137,7 @@ public final class DatabaseLastModificationAdvisor extends DefaultPointcutAdviso
         }
         for (ObjectKind objectKind : annotation.value())
         {
-            categories.add(DatabaseModificationKind.createUpdate(objectKind));
+            categories.add(DatabaseModificationKind.edit(objectKind));
         }
     }
 
@@ -152,7 +152,7 @@ public final class DatabaseLastModificationAdvisor extends DefaultPointcutAdviso
         }
         for (ObjectKind objectKind : annotation.value())
         {
-            categories.add(DatabaseModificationKind.createNew(objectKind));
+            categories.add(DatabaseModificationKind.createOrDelete(objectKind));
         }
     }
 }

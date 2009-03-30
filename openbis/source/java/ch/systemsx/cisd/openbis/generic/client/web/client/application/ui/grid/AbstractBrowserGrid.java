@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -61,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -75,12 +77,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo.SortDir;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 
 /**
  * @author Tomasz Pylak
  */
 public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityModel<T>> extends
-        LayoutContainer
+        LayoutContainer implements IDatabaseModificationObserver
 {
     /**
      * Shows the detail view for the specified entity
@@ -204,13 +207,24 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         add(contentPanel);
     }
 
+    // TODO 2009-03-26, Tomasz Pylak: delete this and implement in subclasses
+    // !!!!!!!!!!!!!!!!!!!!!!!!!
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        System.out.println("grid refresh requested: " + observedModifications);
+        grid.setLoadMask(false);
+        refresh();
+        grid.setLoadMask(true);
+    }
+
     /**
      * Registers the specified listener for clicks on cells in the specified column.
      * 
      * @param columnID Column ID. Not case sensitive.
      * @param listener Listener handle single clicks.
      */
-    public void registerCellClickListenerFor(final String columnID, final ICellListener<T> listener)
+    protected void registerCellClickListenerFor(final String columnID,
+            final ICellListener<T> listener)
     {
         columnListener.registerCellClickListener(columnID, listener);
     }
@@ -221,7 +235,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
      * @param columnID Column ID. Not case sensitive.
      * @param listener Listener handle single clicks.
      */
-    public void registerLinkClickListenerFor(final String columnID, final ICellListener<T> listener)
+    protected void registerLinkClickListenerFor(final String columnID,
+            final ICellListener<T> listener)
     {
         columnListener.registerLinkClickListener(columnID, listener);
     }
@@ -229,7 +244,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     /**
      * Allows multiple selection instead of single selection.
      */
-    public void allowMultipleSelection()
+    protected void allowMultipleSelection()
     {
         grid.getSelectionModel().setSelectionMode(SelectionMode.MULTI);
     }
@@ -285,6 +300,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private DisposableEntityChooser<T> asDisposableMaterialChooser(final Component mainComponent)
     {
+        final AbstractBrowserGrid<T, M> self = this;
         return new DisposableEntityChooser<T>()
             {
                 public T tryGetSingleSelected()
@@ -301,12 +317,22 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
                 public void dispose()
                 {
-                    disposeCache();
+                    self.disposeCache();
                 }
 
                 public Component getComponent()
                 {
                     return mainComponent;
+                }
+
+                public DatabaseModificationKind[] getRelevantModifications()
+                {
+                    return self.getRelevantModifications();
+                }
+
+                public void update(Set<DatabaseModificationKind> observedModifications)
+                {
+                    self.update(observedModifications);
                 }
             };
     }

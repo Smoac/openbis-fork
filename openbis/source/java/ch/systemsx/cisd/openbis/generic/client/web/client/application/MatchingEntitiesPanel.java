@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
+
 import java.util.List;
 
 import com.extjs.gxt.ui.client.XDOM;
@@ -32,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
@@ -39,10 +43,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * A {@link LayoutContainer} extension which displays the matching entities.
@@ -59,15 +65,25 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
 
     private final String queryText;
 
-    MatchingEntitiesPanel(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final SearchableEntity searchableEntity, final String queryText)
+    public DisposableComponent asDisposableComponent()
+    {
+        return asDisposableWithoutToolbar();
+    }
+
+    public MatchingEntitiesPanel(IViewContext<ICommonClientServiceAsync> viewContext,
+            SearchableEntity searchableEntity, String queryText)
     {
         // NOTE: refreshAutomatically is false, refreshing should be called manually
         super(viewContext, GRID_ID, false, false);
         this.searchableEntity = searchableEntity;
         this.queryText = queryText;
-        setId(PREFIX + XDOM.getUniqueId());
+        setId(createId());
         updateDefaultRefreshButton();
+    }
+
+    private static String createId()
+    {
+        return PREFIX + XDOM.getUniqueId();
     }
 
     @Override
@@ -139,4 +155,13 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
                     MatchingEntityColumnKind.MATCHING_FIELD });
     }
 
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return new DatabaseModificationKind[]
+            { createOrDelete(ObjectKind.MATERIAL), edit(ObjectKind.MATERIAL),
+                    createOrDelete(ObjectKind.SAMPLE), edit(ObjectKind.SAMPLE),
+                    createOrDelete(ObjectKind.EXPERIMENT), edit(ObjectKind.EXPERIMENT),
+                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    createOrDelete(ObjectKind.VOCABULARY_TERM) };
+    }
 }

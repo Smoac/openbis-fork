@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Header;
@@ -33,23 +31,14 @@ public final class ContentPanelAdapter implements ITabItem
 {
     private final ContentPanel contentPanel;
 
-    private final Listener<TabPanelEvent> tabPanelEventListener;
-
     private final boolean isCloseConfirmationNeeded;
 
     public ContentPanelAdapter(final ContentPanel contentPanel, boolean isCloseConfirmationNeeded)
-    {
-        this(contentPanel, isCloseConfirmationNeeded, null);
-    }
-
-    public ContentPanelAdapter(final ContentPanel contentPanel, boolean isCloseConfirmationNeeded,
-            final Listener<TabPanelEvent> tabPanelEventListener)
     {
         // Note that if not set, is then automatically generated. So this is why we test for
         // 'ID_PREFIX'. We want the user to set an unique id.
         assert contentPanel.getId().startsWith(GenericConstants.ID_PREFIX) : "Unspecified component id.";
         this.contentPanel = contentPanel;
-        this.tabPanelEventListener = tabPanelEventListener;
         this.isCloseConfirmationNeeded = isCloseConfirmationNeeded;
     }
 
@@ -78,13 +67,18 @@ public final class ContentPanelAdapter implements ITabItem
         // Does nothing.
     }
 
-    public final Listener<TabPanelEvent> tryGetEventListener()
-    {
-        return tabPanelEventListener;
-    }
-
     public boolean isCloseConfirmationNeeded()
     {
         return isCloseConfirmationNeeded;
+    }
+
+    public void onActivate()
+    {
+        // TODO 2009-03-26, Tomasz Pylak: add refresh on db modifications support
+    }
+
+    public void onClose()
+    {
+        // do nothing
     }
 }

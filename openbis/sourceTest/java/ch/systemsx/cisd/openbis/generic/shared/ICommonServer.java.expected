@@ -306,14 +306,18 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
     public void addVocabularyTerms(String sessionToken, String vocabularyCode,
             List<String> vocabularyTerms);
 
+    /**
+     * Deletes from the specified vocabulary the specified terms.
+     */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     public void deleteVocabularyTerms(String sessionToken, String vocabularyCode,
             List<VocabularyTerm> termsToBeDeleted, List<VocabularyTermReplacement> termsToBeReplaced);
-            
+
     /**
      * Registers new project.
      */

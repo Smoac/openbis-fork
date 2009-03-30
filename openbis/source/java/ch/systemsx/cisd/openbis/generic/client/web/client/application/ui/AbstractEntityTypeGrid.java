@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.AddEntityTypeDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 
 /**
@@ -104,4 +105,11 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
         return asColumnFilters(new EntityTypeColDefKind[]
             { EntityTypeColDefKind.CODE });
     }
+
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        // grid is refreshed manually when a new type is added, so there can be no auto-refresh
+        return new DatabaseModificationKind[] {};
+    }
+
 }

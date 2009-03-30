@@ -148,10 +148,12 @@ public final class SearchWidget extends LayoutContainer
         enableSearch(false);
         final SearchableEntity selectedSearchableEntityOrNull =
                 entityChooser.getSelectedSearchableEntity();
+
         final MatchingEntitiesPanel matchingEntitiesGrid =
                 new MatchingEntitiesPanel(viewContext, selectedSearchableEntityOrNull, queryText);
         String title = createTabTitle(queryText);
-        final ITabItemFactory tabFactory = createTabFactory(matchingEntitiesGrid, title);
+        final ITabItemFactory tabFactory =
+                createTabFactory(matchingEntitiesGrid, title, viewContext);
 
         matchingEntitiesGrid.refresh(new IDataRefreshCallback()
             {
@@ -184,9 +186,12 @@ public final class SearchWidget extends LayoutContainer
     }
 
     private static ITabItemFactory createTabFactory(
-            final MatchingEntitiesPanel matchingEntitiesPanel, String title)
+            final MatchingEntitiesPanel matchingEntitiesPanel, String title,
+            IViewContext<?> viewContext)
     {
-        final DefaultTabItem tab = new DefaultTabItem(title, matchingEntitiesPanel, false);
+        final ITabItem tab =
+                DefaultTabItem.create(title, matchingEntitiesPanel.asDisposableComponent(),
+                        viewContext);
         // this tab cannot be opened for the second time, so we can create it outside of the
         // factory
         return new ITabItemFactory()

@@ -24,21 +24,23 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Di
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class SampleDataSetBrowser extends AbstractExternalDataGrid
 {
-    static DisposableComponent create(IViewContext<?> viewContext, String sampleIdentifier, String browserID)
+    static DisposableComponent create(IViewContext<?> viewContext, String sampleIdentifier,
+            String browserID)
     {
         IViewContext<ICommonClientServiceAsync> commonViewContext =
                 viewContext.getCommonViewContext();
         return new SampleDataSetBrowser(commonViewContext, sampleIdentifier, browserID)
                 .asDisposableWithoutToolbar();
     }
+
     private final String sampleIdentifier;
 
     private SampleDataSetBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
@@ -53,6 +55,13 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
             AbstractAsyncCallback<ResultSet<ExternalData>> callback)
     {
         viewContext.getService().listSampleDataSets(sampleIdentifier, resultSetConfig, callback);
+    }
+
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return new DatabaseModificationKind[]
+            { DatabaseModificationKind.createOrDelete(ObjectKind.SAMPLE),
+                    DatabaseModificationKind.edit(ObjectKind.SAMPLE) };
     }
 
 }

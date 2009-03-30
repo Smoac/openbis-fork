@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.TabItem;
 
@@ -41,10 +39,17 @@ public interface ITabItem
      */
     public Component getComponent();
 
+    /** Performs cleaning operations, should be called before the tab is closed. */
+    public void onClose();
+
     /**
-     * Returns a {@link Listener} that should be registered to the tab item.
+     * Performs operations relevant to the tab when it is activated, namely when we opened this tab
+     * for the first time or we switched from another tab to this one.
+     * <p>
+     * Usually refreshes the tab if it was detected that relevant database objects have changed.
+     * </p>
      */
-    public Listener<TabPanelEvent> tryGetEventListener();
+    public void onActivate();
 
     /**
      * Returns true if the confirmation dialog should be displayed before closing the tab.

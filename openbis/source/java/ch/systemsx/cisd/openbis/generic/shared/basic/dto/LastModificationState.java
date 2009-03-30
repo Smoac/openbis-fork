@@ -33,9 +33,13 @@ public class LastModificationState implements IsSerializable
 {
     private Map<DatabaseModificationKind, Long/* timestamp */> state;
 
+    private long initializationTimestamp;
+
+    /** Creates a state marking all */
     public LastModificationState()
     {
         this.state = new HashMap<DatabaseModificationKind, Long>();
+        this.initializationTimestamp = new Date().getTime();
     }
 
     public synchronized void registerModification(DatabaseModificationKind kind,
@@ -49,9 +53,24 @@ public class LastModificationState implements IsSerializable
         state.put(kind, currentTimestamp);
     }
 
-    public Long tryGetLastModification(DatabaseModificationKind kind)
+    /**
+     * To avoid expensive computation of the last modification time at the beginning (which would
+     * require browsing the whole database) at the beginning we assume that it's equal to the
+     * initialization time of the whole state. We can do this since all the future modifications
+     * will happen after this moment.
+     * 
+     * @return The last registered time of the specified kind of database modification.
+     */
+    public long getLastModificationTime(DatabaseModificationKind kind)
     {
-        return state.get(kind);
+        Long lastModification = state.get(kind);
+        if (lastModification == null)
+        {
+            return initializationTimestamp;
+        } else
+        {
+            return lastModification;
+        }
     }
 
     @Override

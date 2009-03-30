@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWithStats;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
@@ -108,7 +109,8 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                 }
             });
         pagingToolbar.add(new AdapterToolItem(addButton));
-        Button deleteButton = new Button(viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_BUTTON));
+        Button deleteButton =
+                new Button(viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_BUTTON));
         deleteButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override
@@ -158,12 +160,13 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<VocabularyTermWithStats> exportCriteria,
+    protected void prepareExportEntities(
+            TableExportCriteria<VocabularyTermWithStats> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportVocabularyTerms(exportCriteria, callback);
     }
-    
+
     private void askForNewTerms()
     {
         final TextArea textArea = new TextArea();
@@ -200,7 +203,13 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         dialog.setEnableOfAcceptButton(false);
         dialog.show();
     }
-    
+
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        // grid is refreshed manually when a new object is added, so there can be no auto-refresh
+        return new DatabaseModificationKind[] {};
+    }
+
     private void deleteTerms()
     {
         List<BaseEntityModel<VocabularyTermWithStats>> terms = getSelectedItems();
@@ -210,14 +219,14 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         }
         if (terms.size() == vocabulary.getTerms().size())
         {
-            MessageBox.alert(
-                    viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_INVALID_TITLE),
+            MessageBox.alert(viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_INVALID_TITLE),
                     viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_INVALID_MESSAGE), null);
             return;
         }
         Set<String> selectedTerms = new HashSet<String>();
         List<VocabularyTerm> termsToBeDeleted = new ArrayList<VocabularyTerm>();
-        List<VocabularyTermReplacement> termsToBeReplaced = new ArrayList<VocabularyTermReplacement>();
+        List<VocabularyTermReplacement> termsToBeReplaced =
+                new ArrayList<VocabularyTermReplacement>();
         for (BaseEntityModel<VocabularyTermWithStats> model : terms)
         {
             VocabularyTerm term = model.getBaseObject().getTerm();
