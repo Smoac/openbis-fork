@@ -354,7 +354,7 @@ public final class Unix
             String errorMessage)
     {
         throw new IOExceptionUnchecked(new IOException(String.format(
-                "Creating %s link '%s' -> '%s': %s", type, source, target, errorMessage)));
+                "Creating %s link '%s' -> '%s': %s", type, target, source, errorMessage)));
     }
 
     private static void throwStatException(String filename, String errorMessage)
@@ -525,10 +525,10 @@ public final class Unix
     //
 
     /**
-     * Creates a hard link from <var>fileName</var> to <var>linkName</var>.
+     * Creates a hard link <var>linkName</var> that points to <var>fileName</var>.
      * 
      * @throws IOExceptionUnchecked If the underlying system call fails, e.g. because
-     *             <var>fileName</var> does not exist or because <var>linkName</var> already exists.
+     *             <var>linkName</var> already exists or <var>fileName</var> does not exist.
      */
     public static final void createHardLink(String fileName, String linkName)
             throws IOExceptionUnchecked
@@ -549,10 +549,10 @@ public final class Unix
     }
 
     /**
-     * Creates a symbolic link from <var>fileName</var> to <var>linkName</var>.
+     * Creates a symbolic link <var>linkName</var> that points to <var>fileName</var>.
      * 
      * @throws IOExceptionUnchecked If the underlying system call fails, e.g. because
-     *             <var>fileName</var> does not exist or because <var>linkName</var> already exists.
+     *             <var>linkName</var> already exists.
      */
     public static final void createSymbolicLink(String fileName, String linkName)
             throws IOExceptionUnchecked
