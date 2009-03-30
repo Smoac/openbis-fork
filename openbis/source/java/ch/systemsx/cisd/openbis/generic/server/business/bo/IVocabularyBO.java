@@ -20,6 +20,8 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 
@@ -60,5 +62,11 @@ public interface IVocabularyBO extends IBusinessObject
      * Add the specified terms to a loaded vocabulary.
      */
     public void addNewTerms(List<String> newTerms);
+
+    /**
+     * Deletes the specified terms from a loaded vocabulary and replaces terms which are used.
+     */
+    public void delete(List<VocabularyTerm> termsToBeDeleted,
+            List<VocabularyTermReplacement> termsToBeReplaced);
 
 }

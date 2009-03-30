@@ -530,8 +530,14 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public void deleteVocabularyTerms(String sessionToken, String vocabularyCode,
             List<VocabularyTerm> termsToBeDeleted, List<VocabularyTermReplacement> termsToBeReplaced)
     {
-        // TODO Auto-generated method stub
-        
+        assert sessionToken != null : "Unspecified session token";
+        assert vocabularyCode != null : "Unspecified vocabulary code";
+
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
+        vocabularyBO.load(vocabularyCode);
+        vocabularyBO.delete(termsToBeDeleted, termsToBeReplaced);
+        vocabularyBO.save();
     }
 
     public void registerProject(String sessionToken, ProjectIdentifier projectIdentifier,

@@ -181,7 +181,16 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
         child.setVocabularyInternal(this);
         getVocabularyTerms().add(child);
     }
-
+    
+    void removeTerm(VocabularyTermPE child)
+    {
+        if (this.equals(child.getVocabulary()) == false)
+        {
+            throw new IllegalArgumentException("Not a term of this vocabulary: " + child);
+        }
+        getVocabularyTerms().remove(child);
+    }
+    
     @SequenceGenerator(name = SequenceNames.CONTROLLED_VOCABULARY_SEQUENCE, sequenceName = SequenceNames.CONTROLLED_VOCABULARY_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.CONTROLLED_VOCABULARY_SEQUENCE)

@@ -111,7 +111,13 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
 
     public void setVocabulary(final VocabularyPE vocabulary)
     {
-        vocabulary.addTerm(this);
+        if (vocabulary == null && getVocabulary() != null)
+        {
+            getVocabulary().removeTerm(this);
+        } else
+        {
+            vocabulary.addTerm(this);
+        }
     }
 
     @Transient

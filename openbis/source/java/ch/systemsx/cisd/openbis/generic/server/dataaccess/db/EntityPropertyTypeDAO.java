@@ -150,4 +150,34 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         }
         return count;
     }
+    
+    public List<EntityPropertyPE> listPropertiesByVocabularyTerm(String vocabularyTermCode)
+    {
+        String query =
+                String.format("from %s props where props.vocabularyTerm.code = ?", entityKind
+                        .getEntityPropertyClass().getSimpleName());
+        List<EntityPropertyPE> properties =
+                cast(getHibernateTemplate().find(query, toArray(vocabularyTermCode)));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("Term '%s' is used in %d properties of kind %s.",
+                    vocabularyTermCode, properties.size(), entityKind));
+        }
+        return properties;
+    }
+    
+    public void updateProperties(List<EntityPropertyPE> properties)
+    {
+        final HibernateTemplate template = getHibernateTemplate();
+        for (EntityPropertyPE entityProperty : properties)
+        {
+            template.save(entityProperty);
+        }
+        template.flush();
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("UPDATE: " + properties.size() + " of kind " + entityKind + " updated.");
+        }
+
+    }
 }

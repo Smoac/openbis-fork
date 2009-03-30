@@ -22,10 +22,16 @@ import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
+import ch.systemsx.cisd.common.collections.IKeyExtractor;
+import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
@@ -79,6 +85,49 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         vocabularyTermPE.setCode(term);
         vocabularyTermPE.setRegistrator(findRegistrator());
         vocabularyPE.addTerm(vocabularyTermPE);
+    }
+
+    public void delete(List<VocabularyTerm> termsToBeDeleted,
+            List<VocabularyTermReplacement> termsToBeReplaced)
+    {
+        assert vocabularyPE != null : "Unspecified vocabulary";
+        
+        Set<VocabularyTermPE> terms = vocabularyPE.getTerms();
+        System.out.println(terms.size());
+        IKeyExtractor<String, VocabularyTermPE> keyExtractor = KeyExtractorFactory.<VocabularyTermPE>createCodeKeyExtractor();
+        TableMap<String, VocabularyTermPE> termsMap = new TableMap<String, VocabularyTermPE>(terms, keyExtractor);
+        
+        for (VocabularyTerm termToBeDeleted : termsToBeDeleted)
+        {
+            termsMap.remove(termToBeDeleted.getCode()).setVocabulary(null);
+        }
+        for (VocabularyTermReplacement termToBeReplaced : termsToBeReplaced)
+        {
+            termsMap.remove(termToBeReplaced.getTerm().getCode()).setVocabulary(null);
+        }
+        System.out.println(terms.size());
+        for (VocabularyTermReplacement termToBeReplaced : termsToBeReplaced)
+        {
+            String code = termToBeReplaced.getTerm().getCode();
+            String replacement = termToBeReplaced.getReplacement();
+            VocabularyTermPE term = termsMap.tryGet(replacement);
+            if (term == null)
+            {
+                throw new IllegalArgumentException(
+                        "Invalid vocabulary replacement because of unknown replacement: "
+                        + termToBeReplaced);
+            }
+            for (EntityKind entityKind : EntityKind.values())
+            {
+                IEntityPropertyTypeDAO dao = getEntityPropertyTypeDAO(entityKind);
+                List<EntityPropertyPE> properties = dao.listPropertiesByVocabularyTerm(code);
+                for (EntityPropertyPE entityProperty : properties)
+                {
+                    entityProperty.setVocabularyTerm(term);
+                }
+                dao.updateProperties(properties);
+            }
+        }
     }
 
     public void save() throws UserFailureException

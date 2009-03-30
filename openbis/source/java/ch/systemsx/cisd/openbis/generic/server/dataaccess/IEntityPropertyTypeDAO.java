@@ -69,4 +69,9 @@ public interface IEntityPropertyTypeDAO
      */
     public long countTermUsageStatistics(final VocabularyTermPE vocabularyTerm)
             throws DataAccessException;
+    
+    public List<EntityPropertyPE> listPropertiesByVocabularyTerm(String vocabularyTermCode);
+    
+    public void updateProperties(List<EntityPropertyPE> properties);
+
 }
