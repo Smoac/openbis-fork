@@ -430,18 +430,29 @@ public abstract class Dict
 
     public static final String ADD_VOCABULARY_TERMS_OK_BUTTON = "add_vocabulary_terms_ok_button";
 
-    public static final String VOCABULARY_TERMS_VALIDATION_MESSAGE = "vocabulary_terms_validation_message";
+    public static final String VOCABULARY_TERMS_VALIDATION_MESSAGE =
+            "vocabulary_terms_validation_message";
 
     public static final String DELETE_VOCABULARY_TERMS_BUTTON = "delete_vocabulary_terms_button";
 
-    public static final String DELETE_VOCABULARY_TERMS_INVALID_TITLE = "delete_vocabulary_terms_invalid_title";
+    public static final String DELETE_VOCABULARY_TERMS_INVALID_TITLE =
+            "delete_vocabulary_terms_invalid_title";
 
-    public static final String DELETE_VOCABULARY_TERMS_INVALID_MESSAGE = "delete_vocabulary_terms_invalid_message";
+    public static final String DELETE_VOCABULARY_TERMS_INVALID_MESSAGE =
+            "delete_vocabulary_terms_invalid_message";
 
-    public static final String DELETE_VOCABULARY_TERMS_ORIGINAL_COLUMN = "delete_vocabulary_terms_original_column";
+    public static final String DELETE_VOCABULARY_TERMS_CONFIRMATION_TITLE =
+            "delete_vocabulary_terms_confirmation_title";
 
-    public static final String DELETE_VOCABULARY_TERMS_REPLACEMENT_COLUMN = "delete_vocabulary_terms_replacement_column";
-
+    public static final String DELETE_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_NO_REPLACEMENTS_SINGULAR =
+            "delete_vocabulary_terms_confirmation_message_no_replacements_singular";
+    
+    public static final String DELETE_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_NO_REPLACEMENTS =
+        "delete_vocabulary_terms_confirmation_message_no_replacements";
+    
+    public static final String DELETE_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_FOR_REPLACEMENTS =
+        "delete_vocabulary_terms_confirmation_message_for_replacements";
+    
     //
     // Project Browser
     //

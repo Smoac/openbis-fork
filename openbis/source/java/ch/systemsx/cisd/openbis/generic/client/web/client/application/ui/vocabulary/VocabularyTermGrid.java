@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,19 +25,16 @@ import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.KeyListener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.Text;
+import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.LabelField;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
-import com.extjs.gxt.ui.client.widget.grid.CellEditor;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnData;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -47,11 +43,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermReplacementModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyTermColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VocabularyTermSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -226,15 +224,48 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
             selectedTerms.add(term.getCode());
             if (model.getBaseObject().getTotalUsageCounter() > 0)
             {
-                VocabularyTermReplacement termTpBeReplaced = new VocabularyTermReplacement();
-                termTpBeReplaced.setTerm(term);
-                termsToBeReplaced.add(termTpBeReplaced);
+                VocabularyTermReplacement termToBeReplaced = new VocabularyTermReplacement();
+                termToBeReplaced.setTerm(term);
+                termsToBeReplaced.add(termToBeReplaced);
             } else
             {
                 termsToBeDeleted.add(term);
             }
         }
-        if (termsToBeReplaced.isEmpty() == false)
+        deleteAndReplace(selectedTerms, termsToBeDeleted, termsToBeReplaced);
+    }
+
+    private void deleteAndReplace(Set<String> selectedTerms,
+            final List<VocabularyTerm> termsToBeDeleted,
+            final List<VocabularyTermReplacement> termsToBeReplaced)
+    {
+        if (termsToBeReplaced.isEmpty())
+        {
+            String title = viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_CONFIRMATION_TITLE);
+            int size = termsToBeDeleted.size();
+            String message;
+            if (size == 1)
+            {
+                message =
+                        viewContext
+                                .getMessage(Dict.DELETE_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_NO_REPLACEMENTS_SINGULAR);
+            } else
+            {
+                message =
+                        viewContext.getMessage(
+                                Dict.DELETE_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_NO_REPLACEMENTS,
+                                size);
+            }
+            ConfirmationDialog confirmationDialog = new ConfirmationDialog(title, message)
+                {
+                    @Override
+                    protected void onYes()
+                    {
+                        deleteAndReplace(termsToBeDeleted, termsToBeReplaced);
+                    }
+                };
+            confirmationDialog.show();
+        } else
         {
             List<VocabularyTerm> termsForReplacement = new ArrayList<VocabularyTerm>();
             for (VocabularyTerm term : vocabulary.getTerms())
@@ -244,44 +275,71 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                     termsForReplacement.add(term);
                 }
             }
-            if (termsForReplacement.size() == 1)
-            {
-                VocabularyTerm replacement = termsForReplacement.get(0);
-                for (VocabularyTermReplacement termToBeReplaced : termsToBeReplaced)
-                {
-                    termToBeReplaced.setReplacement(replacement);
-                }
-            } else
-            {
-                ColumnConfig originalColumn = new ColumnConfig();
-                originalColumn.setRenderer(new GridCellRenderer<VocabularyTermReplacementModel>()
-                    {
-                        public String render(VocabularyTermReplacementModel model, String property,
-                                ColumnData config, int rowIndex, int colIndex,
-                                ListStore<VocabularyTermReplacementModel> store)
-                        {
-                            VocabularyTermReplacementModel row = store.getAt(rowIndex);
-                            return row.getTermReplacement().getTerm().getCode();
-                        }
-                    });
-                originalColumn.setHeader(viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_ORIGINAL_COLUMN));
-                originalColumn.setWidth(200);
-                
-                ColumnConfig replacementColumn = new ColumnConfig();
-                replacementColumn.setHeader(viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_REPLACEMENT_COLUMN));
-                replacementColumn.setWidth(200);
-                replacementColumn.setEditor(new CellEditor(new LabelField()));
-                ColumnModel columnModel = new ColumnModel(Arrays.asList(originalColumn, replacementColumn));
-                ListStore<VocabularyTermReplacementModel> store = new ListStore<VocabularyTermReplacementModel>();
-                for (VocabularyTermReplacement termToBeReplaced : termsToBeReplaced)
-                {
-                    store.add(new VocabularyTermReplacementModel(termToBeReplaced));
-                }
-                Grid<VocabularyTermReplacementModel> replacementGrid = new Grid<VocabularyTermReplacementModel>(store, columnModel);
-                SimpleDialog dialog = new SimpleDialog(replacementGrid, "h", "o", viewContext);
-                dialog.setScrollMode(Scroll.AUTOY);
-                dialog.show();
-            }
+            askForReplacements(termsToBeDeleted, termsToBeReplaced, termsForReplacement);
         }
+    }
+
+    private void askForReplacements(final List<VocabularyTerm> termsToBeDeleted,
+            final List<VocabularyTermReplacement> termsToBeReplaced,
+            List<VocabularyTerm> termsForReplacement)
+    {
+        VerticalPanel panel = new VerticalPanel();
+        int totalNumber = termsToBeDeleted.size() + termsToBeReplaced.size();
+        panel.add(new Text(viewContext.getMessage(
+                Dict.DELETE_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_FOR_REPLACEMENTS, totalNumber)));
+        final FormPanel formPanel = new FormPanel();
+        formPanel.setBorders(false);
+        formPanel.setHeaderVisible(false);
+        formPanel.setBodyBorder(false);
+        panel.add(formPanel);
+        String title = viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_CONFIRMATION_TITLE);
+        String okButtonLable = viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_OK_BUTTON);
+        final SimpleDialog dialog = new SimpleDialog(panel, title, okButtonLable, viewContext);
+        dialog.setScrollMode(Scroll.AUTOY);
+        dialog.setWidth(420);
+        dialog.setEnableOfAcceptButton(false);
+        for (final VocabularyTermReplacement termToBeReplaced : termsToBeReplaced)
+        {
+            String term = termToBeReplaced.getTerm().getCode();
+            final VocabularyTermSelectionWidget s =
+                    new VocabularyTermSelectionWidget(getId() + term, term, termsForReplacement,
+                            true);
+            s.addSelectionChangedListener(new SelectionChangedListener<VocabularyTermModel>()
+                {
+                    @Override
+                    public void selectionChanged(SelectionChangedEvent<VocabularyTermModel> se)
+                    {
+                        VocabularyTermModel selectedItem = se.getSelectedItem();
+                        termToBeReplaced.setReplacement(selectedItem == null ? null : selectedItem
+                                .getTerm());
+                        dialog.setEnableOfAcceptButton(formPanel.isValid());
+                    }
+                });
+            formPanel.add(s);
+        }
+        dialog.setAcceptAction(new IDelegatedAction()
+            {
+
+                public void execute()
+                {
+                    deleteAndReplace(termsToBeDeleted, termsToBeReplaced);
+                }
+
+            });
+        dialog.show();
+    }
+    
+    private void deleteAndReplace(List<VocabularyTerm> termsToBeDeleted,
+            List<VocabularyTermReplacement> termsToBeReplaced)
+    {
+        for (VocabularyTerm vocabularyTerm : termsToBeDeleted)
+        {
+            System.out.println("delete " + vocabularyTerm.getCode());
+        }
+        for (VocabularyTermReplacement replacemnet : termsToBeReplaced)
+        {
+            System.out.println(replacemnet.getTerm().getCode()+" -> "+replacemnet.getReplacement());
+        }
+        
     }
 }

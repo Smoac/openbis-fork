@@ -257,8 +257,10 @@ var common = {
  delete_vocabulary_terms_button: "Delete/Replace Terms",
  delete_vocabulary_terms_invalid_title: "Invalid Deletion",
  delete_vocabulary_terms_invalid_message: "Can not delete all terms. A vocabulary should have at least one term.",
- delete_vocabulary_terms_original_column: "Term",        
- delete_vocabulary_terms_replacement_column: "Replacement",        
+ delete_vocabulary_terms_confirmation_title: "Deletion of Vocabulary Terms",
+ delete_vocabulary_terms_confirmation_message_no_replacements_singular: "Do you want to delete the selected term?",
+ delete_vocabulary_terms_confirmation_message_no_replacements: "Do you want to delete the {0} selected terms?",
+ delete_vocabulary_terms_confirmation_message_for_replacements: "{0} terms will be deleted.\n\nThe terms below are used. They have to be replaced by one of the remaining terms.",
  
  //
  // Project Browser

@@ -26,7 +26,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class VocabularyTermReplacement implements IsSerializable
 {
     private VocabularyTerm term;
-    private VocabularyTerm replacement;
+    private String replacement;
     
     public final VocabularyTerm getTerm()
     {
@@ -38,12 +38,12 @@ public class VocabularyTermReplacement implements IsSerializable
         this.term = term;
     }
     
-    public final VocabularyTerm getReplacement()
+    public final String getReplacement()
     {
         return replacement;
     }
     
-    public final void setReplacement(VocabularyTerm replacement)
+    public final void setReplacement(String replacement)
     {
         this.replacement = replacement;
     }
