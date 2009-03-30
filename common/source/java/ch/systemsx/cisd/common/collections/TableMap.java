@@ -189,6 +189,22 @@ public class TableMap<K, E> implements Iterable<E>
     {
         return Collections.unmodifiableSet(map.keySet());
     }
+    
+    /**
+     * Removes and returns the row for the specified key.
+     * 
+     * @return stored row.
+     */
+    public E remove(K key)
+    {
+        E row = map.remove(key);
+        if (row == null)
+        {
+            throw new IllegalArgumentException("Couldn't remove row for key '" + key
+                    + "' because there was no row.");
+        }
+        return row;
+    }
 
     //
     // Object
