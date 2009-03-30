@@ -57,6 +57,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 
 /**
  * Asynchronous version of {@link ICommonClientService}.
@@ -278,6 +280,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void addVocabularyTerms(String vocabularyCode, List<String> vocabularyTerms,
             AsyncCallback<Void> callback);
 
+    /** @see ICommonClientService#deleteVocabularyTerms(String, List, List) */
+    public void deleteVocabularyTerms(String vocabularyCode, List<VocabularyTerm> termsToBeDeleted,
+            List<VocabularyTermReplacement> termsToBeReplaced, AsyncCallback<Void> callback);
+    
     /** @see ICommonClientService#registerProject(Project) */
     public void registerProject(Project project,
             final AsyncCallback<Void> projectRegistrationCallback);
@@ -348,4 +354,5 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /** @see ICommonClientService#getLastModificationState() */
     public void getLastModificationState(AsyncCallback<LastModificationState> asyncCallback);
+
 }

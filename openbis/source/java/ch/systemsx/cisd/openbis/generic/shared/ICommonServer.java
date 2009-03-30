@@ -44,6 +44,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
@@ -306,6 +308,14 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     public void addVocabularyTerms(String sessionToken, String vocabularyCode,
             List<String> vocabularyTerms);
+
+    /**
+     * Deletes from the specified vocabulary the specified terms.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    public void deleteVocabularyTerms(String sessionToken, String vocabularyCode,
+            List<VocabularyTerm> termsToBeDeleted, List<VocabularyTermReplacement> termsToBeReplaced);
 
     /**
      * Registers new project.

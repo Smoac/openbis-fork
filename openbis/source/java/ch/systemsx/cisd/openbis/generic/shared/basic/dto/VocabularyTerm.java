@@ -26,4 +26,10 @@ public final class VocabularyTerm extends CodeWithRegistration<Vocabulary>
     public VocabularyTerm()
     {
     }
+
+    @Override
+    public String toString()
+    {
+        return getCode();
+    }
 }

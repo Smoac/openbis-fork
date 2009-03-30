@@ -71,9 +71,9 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
     // browser consists of the grid and the paging toolbar
     private static final String BROWSER_ID = GenericConstants.ID_PREFIX + "vocabulary-term-browser";
     
-    final class VoidCallback extends AbstractAsyncCallback<Void>
+    final class RefreshCallback extends AbstractAsyncCallback<Void>
     {
-        private VoidCallback(IViewContext<?> viewContext)
+        private RefreshCallback(IViewContext<?> viewContext)
         {
             super(viewContext);
         }
@@ -194,7 +194,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                 {
                     viewContext.getCommonService().addVocabularyTerms(vocabulary.getCode(),
                             VocabularyTermValidator.getTerms(textArea.getValue()),
-                            new VoidCallback(viewContext));
+                            new RefreshCallback(viewContext));
                 }
             });
         dialog.setEnableOfAcceptButton(false);
@@ -332,14 +332,10 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
     private void deleteAndReplace(List<VocabularyTerm> termsToBeDeleted,
             List<VocabularyTermReplacement> termsToBeReplaced)
     {
-        for (VocabularyTerm vocabularyTerm : termsToBeDeleted)
-        {
-            System.out.println("delete " + vocabularyTerm.getCode());
-        }
-        for (VocabularyTermReplacement replacemnet : termsToBeReplaced)
-        {
-            System.out.println(replacemnet.getTerm().getCode()+" -> "+replacemnet.getReplacement());
-        }
+        String code = vocabulary.getCode();
+        RefreshCallback callback = new RefreshCallback(viewContext);
+        viewContext.getService().deleteVocabularyTerms(code, termsToBeDeleted, termsToBeReplaced,
+                callback);
         
     }
 }

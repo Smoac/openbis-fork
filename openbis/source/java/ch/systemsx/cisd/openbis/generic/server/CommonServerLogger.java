@@ -34,6 +34,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
@@ -278,6 +280,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "add_vocabulary_terms", "VOCABULARY(%s) NUMBER_OF_TERMS(%s)",
                 vocabularyCode, Integer.toString(vocabularyTerms.size()));
+    }
+
+    public void deleteVocabularyTerms(String sessionToken, String vocabularyCode,
+            List<VocabularyTerm> termsToBeDeleted, List<VocabularyTermReplacement> termsToBeReplaced)
+    {
+        logTracking(sessionToken, "delete_vocabulary_terms",
+                "VOCABULARY(%s) NUMBER_OF_TERMS(%s) REPLACEMENTS(%s)", vocabularyCode,
+                termsToBeDeleted.size() + termsToBeReplaced.size(), termsToBeReplaced);
     }
 
     public void registerProject(String sessionToken, ProjectIdentifier projectIdentifier,

@@ -93,6 +93,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
@@ -897,6 +899,25 @@ public final class CommonClientService extends AbstractClientService implements
             {
                 throw UserFailureExceptionTranslator.translate(e);
             }
+        }
+    }
+
+    public void deleteVocabularyTerms(String vocabularyCode, List<VocabularyTerm> termsToBeDeleted,
+            List<VocabularyTermReplacement> termsToBeReplaced)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        assert vocabularyCode != null : "Unspecified vocabulary code.";
+        assert termsToBeDeleted != null : "Unspecified term to be deleted.";
+        assert termsToBeReplaced != null : "Unspecified term to be replaced.";
+        
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.deleteVocabularyTerms(sessionToken, vocabularyCode, termsToBeDeleted,
+                    termsToBeReplaced);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
         }
     }
 

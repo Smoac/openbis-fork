@@ -55,6 +55,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 
 /**
  * Service interface for the generic GWT client.
@@ -320,7 +322,13 @@ public interface ICommonClientService extends IClientService
 	/** Adds specified terms to the specified vocabulary. */
     public void addVocabularyTerms(String vocabularyCode, List<String> vocabularyTerms)
             throws UserFailureException;
-
+    
+    /**
+     * Deletes the specified terms of the specified vocabulary. Terms in use will be replaced. 
+     */
+    public void deleteVocabularyTerms(String vocabularyCode, List<VocabularyTerm> termsToBeDeleted,
+            List<VocabularyTermReplacement> termsToBeReplaced) throws UserFailureException;
+    
     /**
      * Registers given {@link Project}.
      */

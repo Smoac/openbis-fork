@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * Wrapper of a {@link VocabularyTerm} and its replacment.
+ * Wrapper of a {@link VocabularyTerm} and its replacement.
  *
  * @author Franz-Josef Elmer
  */
@@ -46,5 +46,11 @@ public class VocabularyTermReplacement implements IsSerializable
     public final void setReplacement(String replacement)
     {
         this.replacement = replacement;
+    }
+
+    @Override
+    public String toString()
+    {
+        return term + " -> " + replacement;
     }
 }
