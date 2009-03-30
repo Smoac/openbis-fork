@@ -44,7 +44,7 @@
 			<manifest>
 				<attribute name="Main-Class" value="ch.systemsx.cisd.datamover.Main" />
 				<attribute name="Class-Path"
-				           value="log4j.jar cisd-base.jar commons-lang.jar commons-io.jar activation.jar mail.jar" />
+				           value="log4j.jar cisd-base.jar cisd-args4j.jar commons-lang.jar commons-io.jar activation.jar mail.jar" />
 				<attribute name="Version" value="${version.number}" />
 				<attribute name="Build-Number"
 				           value="${version.number} (r${revision.number},${clean.flag})" />
