@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.E
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -31,8 +32,12 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * Test cases for corresponding {@link VocabularyBO} class.
@@ -224,5 +229,186 @@ public final class VocabularyBOTest extends AbstractBOTest
         assertEquals("A", term.getCode());
         assertSame(EXAMPLE_SESSION.tryGetPerson(), term.getRegistrator());
         context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testDeleteAllTerms()
+    {
+        final VocabularyPE vocabulary = new VocabularyPE();
+        VocabularyTerm term1 = createTerm("1");
+        vocabulary.addTerm(translate(term1));
+        context.checking(new Expectations()
+            {
+                {
+                    one(vocabularyDAO).tryFindVocabularyByCode("voc-code");
+                    will(returnValue(vocabulary));
+                }
+            });
+        
+        VocabularyBO vocabularyBO = createVocabularyBO();
+        vocabularyBO.load("voc-code");
+        try
+        {
+            vocabularyBO.delete(Arrays.asList(term1), Collections.<VocabularyTermReplacement>emptyList());
+        } catch (IllegalArgumentException e)
+        {
+            assertEquals("Deletion of all 1 terms are not allowed.", e.getMessage());
+        }
+        
+        assertEquals(1, vocabulary.getTerms().size());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testDeleteTermsWithDeletedReplacement()
+    {
+        final VocabularyPE vocabulary = new VocabularyPE();
+        VocabularyTerm term1 = createTerm("1");
+        VocabularyTerm term2 = createTerm("2");
+        VocabularyTerm term3 = createTerm("3");
+        vocabulary.addTerm(translate(term1));
+        vocabulary.addTerm(translate(term2));
+        vocabulary.addTerm(translate(term3));
+        context.checking(new Expectations()
+            {
+                {
+                    one(vocabularyDAO).tryFindVocabularyByCode("voc-code");
+                    will(returnValue(vocabulary));
+                }
+            });
+
+        VocabularyBO vocabularyBO = createVocabularyBO();
+        vocabularyBO.load("voc-code");
+        try
+        {
+            vocabularyBO.delete(Arrays.asList(term1), Arrays.asList(createTermWithReplacement(term2,
+                    term1)));
+            fail("IllegalArgumentException expected.");
+        } catch (IllegalArgumentException e)
+        {
+            assertEquals("Invalid vocabulary replacement because of unknown replacement: 2 -> 1", e
+                    .getMessage());
+        }
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testDeleteTermsWithUnkownReplacement()
+    {
+        final VocabularyPE vocabulary = new VocabularyPE();
+        VocabularyTerm term1 = createTerm("1");
+        VocabularyTerm term2 = createTerm("2");
+        VocabularyTerm term3 = createTerm("3");
+        vocabulary.addTerm(translate(term1));
+        vocabulary.addTerm(translate(term2));
+        context.checking(new Expectations()
+            {
+                {
+                    one(vocabularyDAO).tryFindVocabularyByCode("voc-code");
+                    will(returnValue(vocabulary));
+                }
+            });
+
+        VocabularyBO vocabularyBO = createVocabularyBO();
+        vocabularyBO.load("voc-code");
+        try
+        {
+            vocabularyBO.delete(Collections.<VocabularyTerm> emptyList(), Arrays
+                    .asList(createTermWithReplacement(term1, term3)));
+            fail("IllegalArgumentException expected.");
+        } catch (IllegalArgumentException e)
+        {
+            assertEquals("Invalid vocabulary replacement because of unknown replacement: 1 -> 3", e
+                    .getMessage());
+        }
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testDeleteTerms()
+    {
+        final VocabularyPE vocabulary = new VocabularyPE();
+        VocabularyTerm term1 = createTerm("1");
+        VocabularyTerm term2 = createTerm("2");
+        vocabulary.addTerm(translate(term1));
+        vocabulary.addTerm(translate(term2));
+        context.checking(new Expectations()
+        {
+            {
+                one(vocabularyDAO).tryFindVocabularyByCode("voc-code");
+                will(returnValue(vocabulary));
+            }
+        });
+        
+        VocabularyBO vocabularyBO = createVocabularyBO();
+        vocabularyBO.load("voc-code");
+        vocabularyBO.delete(Arrays.asList(term1), Collections.<VocabularyTermReplacement>emptyList());
+        
+        assertEquals(1, vocabulary.getTerms().size());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testDeleteAndReplaceTerms()
+    {
+        final VocabularyPE vocabulary = new VocabularyPE();
+        VocabularyTerm term1 = createTerm("1");
+        final VocabularyTerm term2 = createTerm("2");
+        VocabularyTerm term3 = createTerm("3");
+        vocabulary.addTerm(translate(term1));
+        vocabulary.addTerm(translate(term2));
+        vocabulary.addTerm(translate(term3));
+        final MaterialPropertyPE entityPropertyPE = new MaterialPropertyPE();
+        context.checking(new Expectations()
+        {
+            {
+                one(vocabularyDAO).tryFindVocabularyByCode("voc-code");
+                will(returnValue(vocabulary));
+                
+                for (EntityKind entityKind : EntityKind.values())
+                {
+                    one(daoFactory).getEntityPropertyTypeDAO(entityKind);
+                    will(returnValue(entityPropertyTypeDAO));
+                    
+                    one(entityPropertyTypeDAO).listPropertiesByVocabularyTerm(term2.getCode());
+                    List<EntityPropertyPE> properties = Arrays.<EntityPropertyPE>asList(entityPropertyPE);
+                    will(returnValue(properties));
+                    
+                    one(entityPropertyTypeDAO).updateProperties(properties);
+                }
+            }
+        });
+        
+        VocabularyBO vocabularyBO = createVocabularyBO();
+        vocabularyBO.load("voc-code");
+        vocabularyBO.delete(Arrays.asList(term1), Arrays.asList(createTermWithReplacement(term2,
+                term3)));
+        
+        assertEquals(term3.getCode(), entityPropertyPE.getVocabularyTerm().getCode());
+        assertEquals(1, vocabulary.getTerms().size());
+        assertEquals(term3.getCode(), vocabulary.getTerms().iterator().next().getCode());
+        context.assertIsSatisfied();
+    }
+    
+    private VocabularyTerm createTerm(String code)
+    {
+        VocabularyTerm vocabularyTerm = new VocabularyTerm();
+        vocabularyTerm.setCode(code);
+        return vocabularyTerm;
+    }
+    
+    private VocabularyTermReplacement createTermWithReplacement(VocabularyTerm term, VocabularyTerm replacement)
+    {
+        VocabularyTermReplacement vocabularyTermReplacement = new VocabularyTermReplacement();
+        vocabularyTermReplacement.setTerm(term);
+        vocabularyTermReplacement.setReplacement(replacement.getCode());
+        return vocabularyTermReplacement;
+    }
+    
+    private VocabularyTermPE translate(VocabularyTerm term)
+    {
+        VocabularyTermPE vocabularyTermPE = new VocabularyTermPE();
+        vocabularyTermPE.setCode(term.getCode());
+        return vocabularyTermPE;
     }
 }

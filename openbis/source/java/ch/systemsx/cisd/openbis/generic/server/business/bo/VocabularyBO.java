@@ -107,6 +107,10 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         {
             remainingTerms.remove(termToBeReplaced.getTerm().getCode());
         }
+        if (remainingTerms.isEmpty())
+        {
+            throw new IllegalArgumentException("Deletion of all " + terms.size() + " terms are not allowed.");
+        }
         for (VocabularyTermReplacement termToBeReplaced : termsToBeReplaced)
         {
             String code = termToBeReplaced.getTerm().getCode();

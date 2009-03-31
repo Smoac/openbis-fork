@@ -39,6 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -668,6 +670,31 @@ public final class CommonServerTest extends AbstractServerTestCase
         
         createServer().addVocabularyTerms(SESSION_TOKEN, "v-code", terms);
         
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testDeleteVocabularyTerms()
+    {
+        final List<VocabularyTerm> termToBeDeleted = Arrays.asList(new VocabularyTerm());
+        final List<VocabularyTermReplacement> termsToBeReplaced =
+                Arrays.asList(new VocabularyTermReplacement());
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createVocabularyBO(SESSION);
+                    will(returnValue(vocabularyBO));
+
+                    one(vocabularyBO).load("v-code");
+                    one(vocabularyBO).delete(termToBeDeleted, termsToBeReplaced);
+                    one(vocabularyBO).save();
+                }
+            });
+
+        createServer().deleteVocabularyTerms(SESSION_TOKEN, "v-code", termToBeDeleted,
+                termsToBeReplaced);
+
         context.assertIsSatisfied();
     }
 
