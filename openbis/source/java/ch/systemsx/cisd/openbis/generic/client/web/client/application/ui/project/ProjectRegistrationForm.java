@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
@@ -48,7 +49,14 @@ public final class ProjectRegistrationForm extends AbstractRegistrationForm
 
     private GroupSelectionWidget groupField;
 
-    public ProjectRegistrationForm(final IViewContext<ICommonClientServiceAsync> viewContext)
+    public static DatabaseModificationAwareComponent create(
+            final IViewContext<ICommonClientServiceAsync> viewContext)
+    {
+        ProjectRegistrationForm form = new ProjectRegistrationForm(viewContext);
+        return new DatabaseModificationAwareComponent(form, form.groupField);
+    }
+
+    private ProjectRegistrationForm(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, ID, DEFAULT_LABEL_WIDTH + 20, DEFAULT_FIELD_WIDTH);
         this.viewContext = viewContext;
@@ -136,5 +144,4 @@ public final class ProjectRegistrationForm extends AbstractRegistrationForm
             formPanel.reset();
         }
     }
-
 }

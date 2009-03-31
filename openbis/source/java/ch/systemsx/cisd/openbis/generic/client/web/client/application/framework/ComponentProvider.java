@@ -234,9 +234,9 @@ public final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    Component component = new MaterialBatchRegistrationPanel(viewContext);
-                    // TODO 2009-03-31, Tomasz Pylak: make aware of db modifications
-                    return createSimpleTab(Dict.MATERIAL_IMPORT, component, true);
+                    DatabaseModificationAwareComponent component =
+                            MaterialBatchRegistrationPanel.create(viewContext);
+                    return createRegistrationTab(Dict.MATERIAL_IMPORT, component);
                 }
 
                 public String getId()
@@ -269,9 +269,9 @@ public final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    Component component = new ProjectRegistrationForm(viewContext);
-                    // TODO 2009-03-31, Tomasz Pylak: make aware of db modifications
-                    return createSimpleTab(Dict.PROJECT_REGISTRATION, component, true);
+                    DatabaseModificationAwareComponent component =
+                            ProjectRegistrationForm.create(viewContext);
+                    return createRegistrationTab(Dict.PROJECT_REGISTRATION, component);
                 }
 
                 public String getId()
@@ -355,9 +355,9 @@ public final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    Component component = new PropertyTypeRegistrationForm(viewContext);
-                    // TODO 2009-03-31, Tomasz Pylak: make aware of db modifications
-                    return createSimpleTab(Dict.PROPERTY_TYPE_REGISTRATION, component, true);
+                    DatabaseModificationAwareComponent component =
+                            PropertyTypeRegistrationForm.create(viewContext);
+                    return createRegistrationTab(Dict.PROPERTY_TYPE_REGISTRATION, component);
                 }
 
                 public String getId()

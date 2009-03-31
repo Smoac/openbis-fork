@@ -5,8 +5,10 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.widget.Component;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationFieldSet;
@@ -21,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
  */
 final class VocabularySelectionWidgetForPropertyTypeRegistration extends VocabularySelectionWidget
 {
-    private final VocabularyRegistrationFieldSet vocabularyRegistrationFieldSet;
+    private final Component vocabularyRegistrationFieldSet;
 
     VocabularySelectionWidgetForPropertyTypeRegistration(
             final IViewContext<ICommonClientServiceAsync> viewContext,
@@ -72,9 +74,16 @@ final class VocabularySelectionWidgetForPropertyTypeRegistration extends Vocabul
     }
 
     @Override
-    protected final void refreshStore(final List<Vocabulary> result)
+    protected void loadData(final AbstractAsyncCallback<List<Vocabulary>> callback)
     {
-        super.refreshStore(result);
-        getStore().insert(createNewVocabularyVocabularyModel(), 0);
+        super.loadData(new AbstractAsyncCallback<List<Vocabulary>>(null)
+            {
+                @Override
+                protected void process(List<Vocabulary> result)
+                {
+                    result.add(0, createNewVocabulary());
+                    callback.onSuccess(result);
+                }
+            });
     }
 }

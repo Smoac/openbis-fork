@@ -20,106 +20,56 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * A {@link ComboBox} extension for selecting a {@link Vocabulary}.
  * 
  * @author Christian Ribeaud
  */
-public class VocabularySelectionWidget extends ComboBox<BaseModelData>
+public class VocabularySelectionWidget extends DropDownList<BaseModelData, Vocabulary>
 {
     public static final String NEW_VOCABULARY_CODE = "(New Vocabulary)";
 
     private static final String PREFIX = "vocabulary-select";
 
-    public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
-
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     public VocabularySelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
+        super(viewContext, PREFIX, Dict.VOCABULARY, ModelDataPropertyNames.CODE, viewContext
+                .getMessage(Dict.VOCABULARY), viewContext.getMessage(Dict.VOCABULARY));
         this.viewContext = viewContext;
-        setId(ID);
-        setDisplayField(ModelDataPropertyNames.CODE);
-        setEnabled(false);
-        setEditable(false);
         setWidth(100);
-        setFieldLabel(viewContext.getMessage(Dict.VOCABULARY));
-        setStore(new ListStore<BaseModelData>());
-    }
-
-    /**
-     * Returns the {@link Vocabulary} currently selected.
-     * 
-     * @return <code>null</code> if nothing is selected yet.
-     */
-    public final Vocabulary tryGetSelectedVocabulary()
-    {
-        return GWTUtils.tryGetSingleSelected(this);
-    }
-
-    private final void loadVocabularies()
-    {
-        DefaultResultSetConfig<String, Vocabulary> criteria =
-                DefaultResultSetConfig.createFetchAll();
-        viewContext.getService().listVocabularies(false, true, criteria,
-                new ListVocabulariesCallback(viewContext));
-    }
-
-    /**
-     * Refreshes the store with given list of {@link Vocabulary}.
-     */
-    protected void refreshStore(final List<Vocabulary> result)
-    {
-        final ListStore<BaseModelData> vocabularyStore = getStore();
-        vocabularyStore.removeAll();
-        vocabularyStore.add(convert(result));
-        setEnabled(true);
-        if (vocabularyStore.getCount() > 0)
-        {
-            setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, "vocabulary"));
-        } else
-        {
-            setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, "vocabularies"));
-        }
-        applyEmptyText();
     }
 
     //
-    // ComboBox
+    // Model creation
     //
-
-    private static List<BaseModelData> convert(List<Vocabulary> list)
-    {
-        final List<BaseModelData> result = new ArrayList<BaseModelData>();
-        for (final Vocabulary vocabulary : list)
-        {
-            result.add(createModel(vocabulary));
-        }
-        return result;
-    }
 
     private static BaseModelData createModel(Vocabulary vocabulary)
     {
         return createModel(vocabulary, vocabulary.getCode());
     }
 
-    protected final static BaseModelData createNewVocabularyVocabularyModel()
+    protected final static Vocabulary createNewVocabulary()
     {
-        return createModel(null, NEW_VOCABULARY_CODE);
+        Vocabulary result = new Vocabulary();
+        result.setCode(NEW_VOCABULARY_CODE);
+        return result;
     }
 
     private static BaseModelData createModel(Object object, String code)
@@ -130,34 +80,45 @@ public class VocabularySelectionWidget extends ComboBox<BaseModelData>
         return model;
     }
 
-    @Override
-    protected final void afterRender()
-    {
-        super.afterRender();
-        loadVocabularies();
-    }
-
     //
     // Helper classes
     //
 
-    public final class ListVocabulariesCallback extends
-            AbstractAsyncCallback<ResultSet<Vocabulary>>
+    @Override
+    protected List<BaseModelData> convertItems(List<Vocabulary> list)
     {
-        ListVocabulariesCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
+        final List<BaseModelData> result = new ArrayList<BaseModelData>();
+        for (final Vocabulary vocabulary : list)
         {
-            super(viewContext);
+            result.add(createModel(vocabulary));
         }
+        return result;
+    }
 
-        //
-        // AbstractAsyncCallback
-        //
+    @Override
+    protected void loadData(final AbstractAsyncCallback<List<Vocabulary>> callback)
+    {
+        DefaultResultSetConfig<String, Vocabulary> criteria =
+                DefaultResultSetConfig.createFetchAll();
+        // TODO 2009-03-31, Tomasz Pylak: clean the server-side cache at some point
+        viewContext.getService().listVocabularies(false, true, criteria,
+                new AsyncCallback<ResultSet<Vocabulary>>()
+                    {
+                        public void onFailure(Throwable caught)
+                        {
+                            callback.onFailure(caught);
+                        }
 
-        @Override
-        protected final void process(final ResultSet<Vocabulary> result)
-        {
-            refreshStore(result.getList());
-        }
+                        public void onSuccess(ResultSet<Vocabulary> result)
+                        {
+                            callback.onSuccess(result.getList());
+                        }
+                    });
+    }
 
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return new DatabaseModificationKind[]
+            { DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY) };
     }
 }

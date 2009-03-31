@@ -27,6 +27,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
@@ -68,7 +71,15 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
 
     private final MaterialTypeSelectionWidget materialTypeSelectionWidget;
 
-    public PropertyTypeRegistrationForm(final IViewContext<ICommonClientServiceAsync> viewContext)
+    public static DatabaseModificationAwareComponent create(
+            final IViewContext<ICommonClientServiceAsync> viewContext)
+    {
+        PropertyTypeRegistrationForm form = new PropertyTypeRegistrationForm(viewContext);
+        IDatabaseModificationObserver observer = form.createDatabaseModificationObserver();
+        return new DatabaseModificationAwareComponent(form, observer);
+    }
+
+    private PropertyTypeRegistrationForm(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, ID, DEFAULT_LABEL_WIDTH + 20, DEFAULT_FIELD_WIDTH);
         this.viewContext = viewContext;
@@ -283,6 +294,15 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
             infoBox.displayInfo(createMessage());
             formPanel.reset();
         }
+    }
+
+    public IDatabaseModificationObserver createDatabaseModificationObserver()
+    {
+        CompositeDatabaseModificationObserver observer =
+                new CompositeDatabaseModificationObserver();
+        observer.addObserver(vocabularySelectionWidget);
+        observer.addObserver(materialTypeSelectionWidget);
+        return observer;
     }
 
 }
