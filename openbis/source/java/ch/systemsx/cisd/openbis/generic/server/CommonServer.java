@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
@@ -87,6 +88,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -733,13 +735,21 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     }
 
-    public List<VocabularyTermWithStats> listVocabularyTerms(String sessionToken,
+    public List<VocabularyTermWithStats> listVocabularyTermsWithStatistics(String sessionToken,
             Vocabulary vocabulary)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
         vocabularyBO.load(vocabulary.getCode());
         return vocabularyBO.countTermsUsageStatistics();
+    }
+
+    public Set<VocabularyTermPE> listVocabularyTerms(String sessionToken, Vocabulary vocabulary)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
+        vocabularyBO.load(vocabulary.getCode());
+        return vocabularyBO.enrichWithTerms();
     }
 
     public List<DataSetTypePE> listDataSetTypes(String sessionToken)

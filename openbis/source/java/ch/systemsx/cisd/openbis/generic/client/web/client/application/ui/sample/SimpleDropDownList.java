@@ -16,20 +16,44 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 
 /**
  * @author Izabela Adamczyk
  */
-public class SimpleDropDownList<M extends ModelData, E> extends ComboBox<M>
+abstract public class SimpleDropDownList<M extends ModelData, E> extends ComboBox<M> implements
+        IDatabaseModificationObserver
 {
+
+    /**
+     * Refreshes the whole store of the combobox. If the previously chosen value is no longer
+     * present in the store, it will be changed to empty. Otherwise the previous selection will be
+     * preserved.
+     */
+    abstract public void refreshStore();
+
+    abstract protected void loadData(AbstractAsyncCallback<List<E>> callback);
+
+    abstract protected List<M> convertItems(final List<E> result);
+
+    // ----------
+
     private static final int DEFAULT_WIDTH = 150;
 
     private static final String PREFIX = "select_";
@@ -61,7 +85,38 @@ public class SimpleDropDownList<M extends ModelData, E> extends ComboBox<M>
         setStore(new ListStore<M>());
     }
 
-    public void updateStore(final List<M> models)
+    public DatabaseModificationAwareField<M> asDatabaseModificationAware()
+    {
+        return new DatabaseModificationAwareField<M>(this, this);
+    }
+
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        refreshStore();
+    }
+
+    protected void refreshStore(final IViewContext<?> viewContext)
+    {
+        loadData(new ListItemsCallback(viewContext));
+    }
+
+    public class ListItemsCallback extends AbstractAsyncCallback<List<E>>
+    {
+
+        protected ListItemsCallback(final IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        public void process(final List<E> result)
+        {
+            List<M> convertedItems = convertItems(result);
+            updateStore(convertedItems);
+        }
+    }
+
+    protected void updateStore(final List<M> models)
     {
         final ListStore<M> termsStore = getStore();
         termsStore.removeAll();
@@ -70,12 +125,85 @@ public class SimpleDropDownList<M extends ModelData, E> extends ComboBox<M>
         {
             setEmptyText(chooseMsg);
             setReadOnly(false);
+            if (getValue() != null && getSelection().size() == 0)
+            {
+                validate(); // maybe the value became a valid selection
+            }
+            restoreSelection(getSelection());
         } else
         {
             setEmptyText(emptyMsg);
             setReadOnly(true);
         }
         applyEmptyText();
+    }
+
+    private void restoreSelection(List<M> previousSelection)
+    {
+        List<M> newSelection = cleanSelection(previousSelection, getStore());
+        if (previousSelection.size() != newSelection.size())
+        {
+            setSelection(newSelection);
+        }
+    }
+
+    // removes the no longer existing items from the selection
+    private static <M extends ModelData> List<M> cleanSelection(List<M> previousSelection,
+            Store<M> newStore)
+    {
+        List<M> newSelection = new ArrayList<M>();
+        for (M prevItem : previousSelection)
+        {
+            if (containsModel(newStore, prevItem))
+            {
+                newSelection.add(prevItem);
+            }
+        }
+        return newSelection;
+    }
+
+    private static <M extends ModelData> boolean containsModel(Store<M> store, M item)
+    {
+        for (M elem : store.getModels())
+        {
+            if (equalsModel(elem, item))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static <M extends ModelData> boolean equalsModel(M model1, M model2)
+    {
+        Collection<String> props1 = model1.getPropertyNames();
+        Collection<String> props2 = model1.getPropertyNames();
+        if (props1.equals(props2) == false)
+        {
+            return false;
+        }
+        for (String propName : props1)
+        {
+            Object val1 = model1.get(propName);
+            Object val2 = model2.get(propName);
+            if (val1 == null)
+            {
+                if (val2 != null)
+                {
+                    return false;
+                } else
+                {
+                    continue;
+                }
+            } else
+            {
+                if (val1.equals(val2) == false)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     @Override
@@ -149,8 +277,7 @@ public class SimpleDropDownList<M extends ModelData, E> extends ComboBox<M>
     {
         clearInvalid();
         markInvalidIfNotFromList();
-        return super.isValid() && valueNotInTheList() == false
-                ;
+        return super.isValid() && valueNotInTheList() == false;
     }
 
     @Override
@@ -158,8 +285,7 @@ public class SimpleDropDownList<M extends ModelData, E> extends ComboBox<M>
     {
         clearInvalid();
         markInvalidIfNotFromList();
-        return super.validate() && valueNotInTheList() == false
-                ;
+        return super.validate() && valueNotInTheList() == false;
     }
 
 }

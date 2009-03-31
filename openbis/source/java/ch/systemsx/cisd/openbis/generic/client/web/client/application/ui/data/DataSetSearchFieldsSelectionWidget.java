@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -32,11 +35,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * {@link ComboBox} containing list of search fields loaded from the server (property types) and
@@ -305,5 +307,10 @@ public final class DataSetSearchFieldsSelectionWidget extends
             viewContext.getService().listPropertyTypes(config,
                     new ListPropertyTypesCallback(viewContext));
         }
+    }
+
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return DatabaseModificationKind.any(ObjectKind.PROPERTY_TYPE);
     }
 }

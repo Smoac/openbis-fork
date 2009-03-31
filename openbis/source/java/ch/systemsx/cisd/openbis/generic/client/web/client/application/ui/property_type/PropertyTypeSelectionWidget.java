@@ -31,7 +31,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Mode
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * {@link ComboBox} containing list of property type codes loaded from the server.
@@ -129,5 +131,10 @@ public final class PropertyTypeSelectionWidget extends
                 DefaultResultSetConfig.createFetchAll();
         viewContext.getService().listPropertyTypes(config,
                 new ListPropertyTypesCallback(viewContext));
+    }
+
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return DatabaseModificationKind.any(ObjectKind.PROPERTY_TYPE);
     }
 }

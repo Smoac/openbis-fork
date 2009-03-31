@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
@@ -197,14 +200,15 @@ public final class GenericExperimentRegistrationForm
     }
 
     @Override
-    protected List<Field<?>> getEntitySpecificFields()
+    protected List<DatabaseModificationAwareField<?>> getEntitySpecificFields()
     {
-        final ArrayList<Field<?>> fields = new ArrayList<Field<?>>();
-        fields.add(projectSelectionWidget);
-        fields.add(samplesArea);
+        final ArrayList<DatabaseModificationAwareField<?>> fields =
+                new ArrayList<DatabaseModificationAwareField<?>>();
+        fields.add(projectSelectionWidget.asDatabaseModificationAware());
+        fields.add(wrapUnaware(samplesArea));
         for (FileUploadField attachmentField : attachmentManager.getFields())
         {
-            fields.add(attachmentField);
+            fields.add(wrapUnaware((Field<?>) attachmentField));
         }
         return fields;
     }

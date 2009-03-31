@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -28,8 +29,12 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -43,7 +48,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.exp
  * @author Izabela Adamczyk
  */
 abstract public class AbstractGenericEntityEditForm<T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>, V extends IEditableEntity<T, S, P>>
-        extends AbstractRegistrationForm
+        extends AbstractRegistrationForm implements IDatabaseModificationObserver
 {
 
     private final PropertiesEditor<T, S, P> editor;
@@ -58,7 +63,7 @@ abstract public class AbstractGenericEntityEditForm<T extends EntityType, S exte
 
     abstract protected List<Widget> getEntitySpecificCheckPageWidgets();
 
-    abstract protected List<Field<?>> getEntitySpecificFormFields();
+    abstract protected List<DatabaseModificationAwareField<?>> getEntitySpecificFormFields();
 
     abstract protected void updateCheckPageWidgets();
 
@@ -87,34 +92,11 @@ abstract public class AbstractGenericEntityEditForm<T extends EntityType, S exte
         {
             checkComponents.add(w);
         }
-        // TODO 2009-03-18, Tomasz Pylak: Uncomment when LMS-794 is closed 
-        //checkComponents.add(createEditorButton(viewContext));
         for (Widget w : checkComponents)
         {
             add(w, new RowData(1, -1, new Margins(5)));
         }
     }
-
-    // TODO 2009-03-18, Tomasz Pylak: Uncomment when LMS-794 is closed 
-//    private Button createEditorButton(final IViewContext<?> viewContext)
-//    {
-//        return new Button(viewContext.getMessage(Dict.BUTTON_EDIT),
-//                new SelectionListener<ComponentEvent>()
-//                    {
-//                        @Override
-//                        public void componentSelected(ComponentEvent ce)
-//                        {
-//                            showEditor();
-//                        }
-//                    });
-//    }
-//
-//    protected void showEditor()
-//    {
-//        setEditMode(true);
-//        infoBox.reset();
-//        formPanel.reset();
-//    }
 
     protected static String createId(EntityKind entityKind, String identifier)
     {
@@ -126,15 +108,26 @@ abstract public class AbstractGenericEntityEditForm<T extends EntityType, S exte
         return "generic-" + entityKind.name().toLowerCase() + "-edit_form_" + identifier;
     }
 
+    private final List<DatabaseModificationAwareField<?>> getAllFields()
+    {
+        List<DatabaseModificationAwareField<?>> fields =
+                new ArrayList<DatabaseModificationAwareField<?>>();
+        for (DatabaseModificationAwareField<?> specificField : editor.getPropertyFields())
+        {
+            fields.add(specificField);
+        }
+        for (DatabaseModificationAwareField<?> propertyField : getEntitySpecificFormFields())
+        {
+            fields.add(propertyField);
+        }
+        return fields;
+    }
+
     private final void addFormFields()
     {
-        for (final Field<?> propertyField : editor.getPropertyFields())
+        for (DatabaseModificationAwareField<?> field : getAllFields())
         {
-            formPanel.add(propertyField);
-        }
-        for (final Field<?> specificField : getEntitySpecificFormFields())
-        {
-            formPanel.add(specificField);
+            formPanel.add(field.get());
         }
     }
 
@@ -167,16 +160,40 @@ abstract public class AbstractGenericEntityEditForm<T extends EntityType, S exte
         setEditMode(false);
     }
 
-    @SuppressWarnings("unchecked")
     protected void updateState()
     {
-        for (Field f : editor.getPropertyFields())
+        for (DatabaseModificationAwareField<?> f : editor.getPropertyFields())
         {
-            f.updateOriginalValue(f.getValue());
+            updateOriginalValue(f.get());
         }
         entity.setProperties(editor.extractProperties());
         grid.setProperties(entity.getProperties());
         updateCheckPageWidgets();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void updateOriginalValue(Field field)
+    {
+        field.updateOriginalValue(field.getValue());
+    }
+
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        createDatabaseModificationObserver().update(observedModifications);
+    }
+
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return createDatabaseModificationObserver().getRelevantModifications();
+    }
+
+    // the db modification observer is composed from all the fields' observers
+    private IDatabaseModificationObserver createDatabaseModificationObserver()
+    {
+        CompositeDatabaseModificationObserver compositeObserver =
+                new CompositeDatabaseModificationObserver();
+        compositeObserver.addObservers(getAllFields());
+        return compositeObserver;
     }
 
 }

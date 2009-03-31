@@ -31,6 +31,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * {@link ComboBox} containing list of groups loaded from the server.
@@ -145,6 +147,10 @@ public final class GroupSelectionWidget extends DropDownList<GroupModel, Group>
     protected void loadData(AbstractAsyncCallback<List<Group>> callback)
     {
         viewContext.getCommonService().listGroups(null, new ListGroupsCallback(viewContext));
-
+    }
+    
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return DatabaseModificationKind.any(ObjectKind.GROUP);
     }
 }

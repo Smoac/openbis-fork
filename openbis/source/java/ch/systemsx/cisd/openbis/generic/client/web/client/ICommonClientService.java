@@ -318,17 +318,20 @@ public interface ICommonClientService extends IClientService
      * Registers given {@link Vocabulary}.
      */
     public void registerVocabulary(final Vocabulary vocabulary) throws UserFailureException;
-	
-	/** Adds specified terms to the specified vocabulary. */
+
+    /** Adds specified terms to the specified vocabulary. */
     public void addVocabularyTerms(String vocabularyCode, List<String> vocabularyTerms)
             throws UserFailureException;
-    
+
     /**
-     * Deletes the specified terms of the specified vocabulary. Terms in use will be replaced. 
+     * Deletes the specified terms of the specified vocabulary. Terms in use will be replaced.
      */
     public void deleteVocabularyTerms(String vocabularyCode, List<VocabularyTerm> termsToBeDeleted,
             List<VocabularyTermReplacement> termsToBeReplaced) throws UserFailureException;
-    
+
+    /** Lists terms of a specified vocabulary */
+    public List<VocabularyTerm> listVocabularyTerms(Vocabulary vocabulary);
+
     /**
      * Registers given {@link Project}.
      */

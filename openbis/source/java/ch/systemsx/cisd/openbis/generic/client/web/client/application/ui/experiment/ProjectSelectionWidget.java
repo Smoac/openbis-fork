@@ -34,6 +34,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * {@link ComboBox} containing list of projects loaded from the server.
@@ -187,4 +189,10 @@ public final class ProjectSelectionWidget extends
         GWTUtils
                 .setSelectedItem(this, ModelDataPropertyNames.PROJECT_IDENTIFIER, projectIdentifier);
     }
+
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return DatabaseModificationKind.any(ObjectKind.PROJECT);
+    }
+
 }

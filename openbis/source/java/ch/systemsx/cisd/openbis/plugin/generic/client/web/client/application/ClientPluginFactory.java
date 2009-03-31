@@ -18,13 +18,14 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.widget.Component;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
@@ -161,9 +162,12 @@ public final class ClientPluginFactory extends
                 };
         }
 
-        public final Widget createRegistrationForEntityType(final SampleType sampleType)
+        public final DatabaseModificationAwareWidget createRegistrationForEntityType(
+                final SampleType sampleType)
         {
-            return new GenericSampleRegistrationForm(getViewContext(), sampleType);
+            GenericSampleRegistrationForm form =
+                    new GenericSampleRegistrationForm(getViewContext(), sampleType);
+            return new DatabaseModificationAwareWidget(form, form);
         }
 
         public final Widget createBatchRegistrationForEntityType(final SampleType sampleType)
@@ -177,10 +181,10 @@ public final class ClientPluginFactory extends
                 {
                     public ITabItem create()
                     {
-                        Component component =
-                                new GenericSampleEditForm(getViewContext(), entity, true);
-                        return new DefaultTabItem(
-                                getEditTitle(Dict.SAMPLE, entity.getIdentifier()), component, true);
+                        DatabaseModificationAwareComponent component =
+                                GenericSampleEditForm.create(getViewContext(), entity, true);
+                        String title = getEditTitle(Dict.SAMPLE, entity.getIdentifier());
+                        return DefaultTabItem.create(title, component, getViewContext(), true);
                     }
 
                     public String getId()
@@ -231,10 +235,10 @@ public final class ClientPluginFactory extends
                 {
                     public ITabItem create()
                     {
-                        Component component =
-                                new GenericMaterialEditForm(getViewContext(), entity, true);
-                        return new DefaultTabItem(getEditTitle(Dict.MATERIAL, entity
-                                .getIdentifier()), component, true);
+                        DatabaseModificationAwareComponent component =
+                                GenericMaterialEditForm.create(getViewContext(), entity, true);
+                        String title = getEditTitle(Dict.MATERIAL, entity.getIdentifier());
+                        return DefaultTabItem.create(title, component, getViewContext(), true);
                     }
 
                     public String getId()
@@ -276,9 +280,12 @@ public final class ClientPluginFactory extends
         }
 
         @Override
-        public Widget createRegistrationForEntityType(ExperimentType entityType)
+        public DatabaseModificationAwareWidget createRegistrationForEntityType(
+                ExperimentType entityType)
         {
-            return new GenericExperimentRegistrationForm(getViewContext(), entityType);
+            GenericExperimentRegistrationForm form =
+                    new GenericExperimentRegistrationForm(getViewContext(), entityType);
+            return new DatabaseModificationAwareWidget(form, form);
         }
 
         @Override
@@ -288,10 +295,10 @@ public final class ClientPluginFactory extends
                 {
                     public ITabItem create()
                     {
-                        Component component =
-                                new GenericExperimentEditForm(getViewContext(), entity, true);
-                        return new DefaultTabItem(getEditTitle(Dict.EXPERIMENT, entity
-                                .getIdentifier()), component, true);
+                        DatabaseModificationAwareComponent component =
+                                GenericExperimentEditForm.create(getViewContext(), entity, true);
+                        String title = getEditTitle(Dict.EXPERIMENT, entity.getIdentifier());
+                        return DefaultTabItem.create(title, component, getViewContext(), true);
                     }
 
                     public String getId()

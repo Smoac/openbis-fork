@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,6 +68,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -315,6 +317,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
     public void deleteVocabularyTerms(String sessionToken, String vocabularyCode,
             List<VocabularyTerm> termsToBeDeleted, List<VocabularyTermReplacement> termsToBeReplaced);
 
@@ -437,10 +440,17 @@ public interface ICommonServer extends IServer
     /**
      * Lists vocabulary terms of a given vocabulary. Includes terms usage statistics.
      */
-    @Transactional
-    @RolesAllowed(RoleSet.USER)
-    public List<VocabularyTermWithStats> listVocabularyTerms(String sessionToken,
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<VocabularyTermWithStats> listVocabularyTermsWithStatistics(String sessionToken,
             Vocabulary vocabulary);
+
+    /**
+     * Lists vocabulary terms of a given vocabulary.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public Set<VocabularyTermPE> listVocabularyTerms(String sessionToken, Vocabulary vocabulary);
 
     /**
      * List data set types.

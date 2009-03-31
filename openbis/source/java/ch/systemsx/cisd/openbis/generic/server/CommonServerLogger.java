@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -59,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -366,8 +368,15 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     }
 
-    public List<VocabularyTermWithStats> listVocabularyTerms(String sessionToken,
+    public List<VocabularyTermWithStats> listVocabularyTermsWithStatistics(String sessionToken,
             Vocabulary vocabulary)
+    {
+        logAccess(sessionToken, "list_vocabulary_terms_with_statistics", "VOCABULARY(%s)",
+                vocabulary.getCode());
+        return null;
+    }
+
+    public Set<VocabularyTermPE> listVocabularyTerms(String sessionToken, Vocabulary vocabulary)
     {
         logAccess(sessionToken, "list_vocabulary_terms", "VOCABULARY(%s)", vocabulary.getCode());
         return null;
@@ -384,4 +393,5 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logAccess(sessionToken, "getLastModificationState");
         return null;
     }
+
 }

@@ -27,7 +27,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MaterialTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.DropDownList;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * {@link ComboBox} containing list of material types loaded from the server.
@@ -121,5 +123,10 @@ public final class MaterialTypeSelectionWidget extends
     protected void loadData(AbstractAsyncCallback<List<MaterialType>> callback)
     {
         viewContext.getService().listMaterialTypes(callback);
+    }
+    
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return DatabaseModificationKind.any(ObjectKind.MATERIAL_TYPE);
     }
 }

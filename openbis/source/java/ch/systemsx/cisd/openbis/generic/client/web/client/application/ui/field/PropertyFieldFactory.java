@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -32,45 +33,51 @@ public class PropertyFieldFactory
     /**
      * Creates a field for given data type.
      */
-    public static Field<?> createField(final PropertyType pt, boolean isMandatory, String label,
-            String fieldId, String originalRawValue,
+    public static DatabaseModificationAwareField<?> createField(final PropertyType pt,
+            boolean isMandatory, String label, String fieldId, String originalRawValue,
             IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        final Field<?> field =
+        final DatabaseModificationAwareField<?> fieldHolder =
                 doCreateField(pt, isMandatory, label, fieldId, originalRawValue, viewContext);
+        Field<?> field = fieldHolder.get();
         field.setId(fieldId);
         if (originalRawValue != null)
         {
             setValue(field, originalRawValue);
         }
-        return field;
+        return fieldHolder;
     }
 
-    private static Field<?> doCreateField(final PropertyType pt, boolean isMandatory, String label,
-            String fieldId, String originalRawValue,
+    private static DatabaseModificationAwareField<?> doCreateField(final PropertyType pt,
+            boolean isMandatory, String label, String fieldId, String originalRawValue,
             IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final DataTypeCode dataType = pt.getDataType().getCode();
         switch (dataType)
         {
             case BOOLEAN:
-                return new CheckBoxField(label, isMandatory);
+                return wrapUnaware(new CheckBoxField(label, isMandatory));
             case VARCHAR:
-                return new VarcharField(label, isMandatory);
+                return wrapUnaware(new VarcharField(label, isMandatory));
             case TIMESTAMP:
-                return new DateFormField(label, isMandatory);
+                return wrapUnaware(new DateFormField(label, isMandatory));
             case CONTROLLEDVOCABULARY:
-                return new VocabularyTermSelectionWidget(fieldId, label, pt.getVocabulary()
-                        .getTerms(), isMandatory);
+                return VocabularyTermSelectionWidget.create(fieldId, label, pt.getVocabulary(),
+                        isMandatory, viewContext);
             case INTEGER:
-                return new IntegerField(label, isMandatory);
+                return wrapUnaware(new IntegerField(label, isMandatory));
             case REAL:
-                return new RealField(label, isMandatory);
+                return wrapUnaware(new RealField(label, isMandatory));
             case MATERIAL:
-                return MaterialChooserField.create(label, isMandatory, pt.getMaterialType(),
-                        originalRawValue, viewContext);
+                return wrapUnaware(MaterialChooserField.create(label, isMandatory, pt
+                        .getMaterialType(), originalRawValue, viewContext));
         }
         throw new IllegalStateException("unknown enum " + dataType);
+    }
+
+    private static DatabaseModificationAwareField<?> wrapUnaware(Field<?> field)
+    {
+        return DatabaseModificationAwareField.wrapUnaware(field);
     }
 
     private static <T> void setValue(final Field<T> field, String originalRawValue)

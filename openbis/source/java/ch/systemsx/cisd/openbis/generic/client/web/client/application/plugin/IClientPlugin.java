@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
@@ -47,7 +48,7 @@ public interface IClientPlugin<T extends EntityType, S extends EntityTypePropert
     /**
      * Shows a registration form for entities of given <var>entityType</var>.
      */
-    public Widget createRegistrationForEntityType(final T entityType);
+    public DatabaseModificationAwareWidget createRegistrationForEntityType(final T entityType);
 
     /**
      * Shows a batch registration form for entities of given <var>entityType</var>.

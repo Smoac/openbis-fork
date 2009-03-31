@@ -17,12 +17,14 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 
 /**
@@ -41,27 +43,30 @@ public interface IVocabularyBO extends IBusinessObject
      * 
      * @throws UserFailureException if given <var>vocabulary</var> does already exist.
      */
-    public void define(final Vocabulary vocabulary) throws UserFailureException;
+    void define(final Vocabulary vocabulary) throws UserFailureException;
 
     /**
      * Returns the loaded {@link VocabularyPE}.
      */
-    public VocabularyPE getVocabulary();
+    VocabularyPE getVocabulary();
 
     /**
      * Loads specified vocabulary from the database.
      * 
      * @throws UserFailureException if no vocabulary found for <code>vocabularyCode</code>.
      */
-    public void load(String vocabularyCode) throws UserFailureException;
+    void load(String vocabularyCode) throws UserFailureException;
 
     /** @return terms with their usage statistics for the loaded vocabulary */
-    public List<VocabularyTermWithStats> countTermsUsageStatistics();
-    
+    List<VocabularyTermWithStats> countTermsUsageStatistics();
+
+    /** enriches currently loaded vocabulary with its terms and returns them */
+    Set<VocabularyTermPE> enrichWithTerms();
+
     /**
      * Add the specified terms to a loaded vocabulary.
      */
-    public void addNewTerms(List<String> newTerms);
+    void addNewTerms(List<String> newTerms);
 
     /**
      * Deletes the specified terms from a loaded vocabulary and replaces terms which are used.

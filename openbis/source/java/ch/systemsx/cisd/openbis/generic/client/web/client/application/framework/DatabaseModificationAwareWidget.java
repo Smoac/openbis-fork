@@ -16,27 +16,28 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
-import java.util.Set;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
+ * Widget which is aware of database modifications.
+ * 
  * @author Tomasz Pylak
  */
-public interface IDatabaseModificationObserver
+public class DatabaseModificationAwareWidget extends DatabaseModificationAwareObject<Widget>
 {
     /**
-     * Informs about new modifications in the database. This method is called only if at least one
-     * observed modification is the relevant one.
-     * 
-     * @param observedModifications The new database modifications which have occurred.
+     * Creates a mock with a dummy database modification observer. Use this method if your field
+     * does not need to be refreshed when the database changes.
      */
-    void update(Set<DatabaseModificationKind> observedModifications);
+    public static DatabaseModificationAwareWidget wrapUnaware(Widget widget)
+    {
+        return new DatabaseModificationAwareWidget(widget, createDummyModificationObserver());
+    }
 
-    /**
-     * @return the list of database object modifications in which this observer is interested. Used
-     *         to call the refresh method only when it is really necessary.
-     */
-    DatabaseModificationKind[] getRelevantModifications();
+    public DatabaseModificationAwareWidget(Widget holder,
+            IDatabaseModificationObserver modificationObserver)
+    {
+        super(holder, modificationObserver);
+    }
 
 }

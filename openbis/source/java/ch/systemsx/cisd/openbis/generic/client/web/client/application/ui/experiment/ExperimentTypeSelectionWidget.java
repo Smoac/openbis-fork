@@ -27,7 +27,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.DropDownList;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * {@link ComboBox} containing list of experiment types loaded from the server.
@@ -69,5 +71,10 @@ public final class ExperimentTypeSelectionWidget extends
     protected void loadData(AbstractAsyncCallback<List<ExperimentType>> callback)
     {
         viewContext.getService().listExperimentTypes(callback);
+    }
+    
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return DatabaseModificationKind.any(ObjectKind.EXPERIMENT_TYPE);
     }
 }

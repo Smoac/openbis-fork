@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
+
+import java.util.Set;
+
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
@@ -27,10 +31,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * The toolbar of experiment browser.
@@ -38,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
  * @author Izabela Adamczyk
  * @author Christian Ribeaud
  */
-class ExperimentBrowserToolbar extends ToolBar
+class ExperimentBrowserToolbar extends ToolBar implements IDatabaseModificationObserver
 {
     public static final String ID = "experiment-browser-toolbar";
 
@@ -102,4 +109,21 @@ class ExperimentBrowserToolbar extends ToolBar
         super.onRender(parent, pos);
     }
 
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return new DatabaseModificationKind[]
+            { createOrDelete(ObjectKind.EXPERIMENT_TYPE), createOrDelete(ObjectKind.PROJECT) };
+    }
+
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        if (observedModifications.contains(createOrDelete(ObjectKind.EXPERIMENT_TYPE)))
+        {
+            selectExperimentTypeCombo.refreshStore();
+        }
+        if (observedModifications.contains(createOrDelete(ObjectKind.PROJECT)))
+        {
+            selectProjectCombo.refreshStore();
+        }
+    }
 }

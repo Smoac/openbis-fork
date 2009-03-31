@@ -25,7 +25,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * {@link ComboBox} containing list of sample types loaded from the server.
@@ -69,6 +71,10 @@ public final class SampleTypeSelectionWidget extends DropDownList<SampleTypeMode
     protected void loadData(AbstractAsyncCallback<List<SampleType>> callback)
     {
         viewContext.getCommonService().listSampleTypes(callback);
+    }
 
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return DatabaseModificationKind.any(ObjectKind.SAMPLE_TYPE);
     }
 }

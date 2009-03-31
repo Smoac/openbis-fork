@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DummyComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
@@ -138,9 +139,10 @@ public final class ClientPluginFactory extends
                 };
         }
 
-        public final Widget createRegistrationForEntityType(final SampleType sampleTypeCode)
+        public final DatabaseModificationAwareWidget createRegistrationForEntityType(
+                final SampleType sampleTypeCode)
         {
-            return new DummyComponent();
+            return DatabaseModificationAwareWidget.wrapUnaware(new DummyComponent());
         }
 
         public final Widget createBatchRegistrationForEntityType(final SampleType sampleType)

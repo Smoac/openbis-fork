@@ -16,13 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
-import java.util.List;
-
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 
@@ -46,31 +43,17 @@ public abstract class DropDownList<M extends ModelData, E> extends SimpleDropDow
         this.viewContext = viewContext;
     }
 
-    abstract protected void loadData(AbstractAsyncCallback<List<E>> callback);
-
-    abstract protected List<M> convertItems(final List<E> result);
-
     @Override
     protected void onRender(final Element parent, final int pos)
     {
         super.onRender(parent, pos);
-        loadData(new ListItemsCallback(viewContext));
+        refreshStore();
     }
 
-    public class ListItemsCallback extends AbstractAsyncCallback<List<E>>
+    @Override
+    public void refreshStore()
     {
-
-        protected ListItemsCallback(final IViewContext<?> viewContext)
-        {
-            super(viewContext);
-        }
-
-        @Override
-        public void process(final List<E> result)
-        {
-            List<M> convertedItems = convertItems(result);
-            updateStore(convertedItems);
-        }
+        refreshStore(viewContext);
     }
 
 }

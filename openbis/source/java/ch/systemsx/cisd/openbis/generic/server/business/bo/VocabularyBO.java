@@ -206,8 +206,9 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         }
     }
 
-    private void enrichWithTerms()
+    public Set<VocabularyTermPE> enrichWithTerms()
     {
         HibernateUtils.initialize(vocabularyPE.getTerms());
+        return vocabularyPE.getTerms();
     }
 }

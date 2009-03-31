@@ -211,7 +211,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     // !!!!!!!!!!!!!!!!!!!!!!!!!
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
-        System.out.println("grid refresh requested: " + observedModifications);
+        System.out.println("generic grid refresh requested: " + observedModifications);
+        refreshGridSilently();
+    }
+
+    /** Refreshes the grid without showing the loading progress bar */
+    protected void refreshGridSilently()
+    {
         grid.setLoadMask(false);
         refresh();
         grid.setLoadMask(true);

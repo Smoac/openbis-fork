@@ -19,7 +19,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experi
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -44,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.SetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
@@ -261,11 +265,30 @@ public class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment, Exper
 
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        return new DatabaseModificationKind[]
-            { createOrDelete(ObjectKind.EXPERIMENT_TYPE), createOrDelete(ObjectKind.PROJECT),
-                    createOrDelete(ObjectKind.SAMPLE), createOrDelete(ObjectKind.EXPERIMENT),
-                    createOrDelete(ObjectKind.DATA_SET), edit(ObjectKind.SAMPLE),
-                    edit(ObjectKind.EXPERIMENT), edit(ObjectKind.DATA_SET),
-                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
+        List<DatabaseModificationKind> relevantModifications =
+                new ArrayList<DatabaseModificationKind>();
+        SetUtils.addAll(relevantModifications, topToolbar.getRelevantModifications());
+        relevantModifications.addAll(getGridRelevantModifications());
+        return relevantModifications.toArray(DatabaseModificationKind.EMPTY_ARRAY);
     }
+
+    private static Set<DatabaseModificationKind> getGridRelevantModifications()
+    {
+        Set<DatabaseModificationKind> result = new HashSet<DatabaseModificationKind>();
+        result.add(createOrDelete(ObjectKind.EXPERIMENT));
+        result.add(edit(ObjectKind.EXPERIMENT));
+        result.add(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT));
+        return result;
+    }
+
+    @Override
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        topToolbar.update(observedModifications);
+        if (SetUtils.containsAny(observedModifications, getGridRelevantModifications()))
+        {
+            refreshGridSilently();
+        }
+    }
+
 }

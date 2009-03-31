@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Mode
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SearchableEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 
 /**
  * A {@link ComboBox} extension for searching entities.
@@ -88,4 +89,8 @@ final class SearchableEntitySelectionWidget extends
                 .listSearchableEntities(new ListSearchableEntities(commonContext));
     }
 
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return DatabaseModificationKind.EMPTY_ARRAY;
+    }
 }

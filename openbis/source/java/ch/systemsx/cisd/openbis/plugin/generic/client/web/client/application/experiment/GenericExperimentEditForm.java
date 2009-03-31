@@ -24,7 +24,6 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.Html;
-import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -32,6 +31,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableExperiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
@@ -69,7 +70,16 @@ public final class GenericExperimentEditForm
 
     private String originalProjectIdentifier;
 
-    public GenericExperimentEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
+    public static DatabaseModificationAwareComponent create(
+            IViewContext<IGenericClientServiceAsync> viewContext, EditableExperiment entity,
+            boolean editMode)
+    {
+        GenericExperimentEditForm form =
+                new GenericExperimentEditForm(viewContext, entity, editMode);
+        return new DatabaseModificationAwareComponent(form, form);
+    }
+
+    private GenericExperimentEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
             EditableExperiment entity, boolean editMode)
     {
         super(viewContext, entity, editMode);
@@ -174,14 +184,16 @@ public final class GenericExperimentEditForm
         return new ExperimentPropertyEditor(entityTypesPropertyTypes, properties, id, context);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    protected List<Field<?>> getEntitySpecificFormFields()
+    protected List<DatabaseModificationAwareField<?>> getEntitySpecificFormFields()
     {
-        List<Field<?>> fields = new ArrayList<Field<?>>();
-        fields.add(projectChooser);
+        List<DatabaseModificationAwareField<?>> fields =
+                new ArrayList<DatabaseModificationAwareField<?>>();
+        fields.add(projectChooser.asDatabaseModificationAware());
         for (FileUploadField f : attachmentManager.getFields())
         {
-            fields.add(f);
+            fields.add(DatabaseModificationAwareField.wrapUnaware(f));
         }
         return fields;
     }

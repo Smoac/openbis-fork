@@ -16,12 +16,13 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -29,6 +30,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
@@ -62,7 +65,15 @@ public final class GenericSampleEditForm
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
 
-    public GenericSampleEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
+    public static DatabaseModificationAwareComponent create(
+            IViewContext<IGenericClientServiceAsync> viewContext, EditableSample entity,
+            boolean editMode)
+    {
+        GenericSampleEditForm form = new GenericSampleEditForm(viewContext, entity, editMode);
+        return new DatabaseModificationAwareComponent(form, form);
+    }
+    
+    private GenericSampleEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
             EditableSample entity, boolean editMode)
     {
         super(viewContext, entity, editMode);
@@ -125,12 +136,13 @@ public final class GenericSampleEditForm
     }
 
     @Override
-    protected List<Field<?>> getEntitySpecificFormFields()
+    protected List<DatabaseModificationAwareField<?>> getEntitySpecificFormFields()
     {
-        ArrayList<Field<?>> fields = new ArrayList<Field<?>>();
+        ArrayList<DatabaseModificationAwareField<?>> fields =
+                new ArrayList<DatabaseModificationAwareField<?>>();
         if (experimentFieldOrNull != null)
         {
-            fields.add(experimentFieldOrNull.getField());
+            fields.add(wrapUnaware(experimentFieldOrNull.getField()));
         }
         return fields;
     }

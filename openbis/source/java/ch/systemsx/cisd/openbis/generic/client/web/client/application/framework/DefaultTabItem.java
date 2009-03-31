@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
-
 import com.extjs.gxt.ui.client.widget.Component;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -47,15 +46,32 @@ public class DefaultTabItem implements ITabItem
         this(title, component, null, null, isCloseConfirmationNeeded);
     }
 
+    public static ITabItem create(final String title,
+            final DatabaseModificationAwareComponent component, IViewContext<?> viewContext,
+            boolean isCloseConfirmationNeeded)
+    {
+        return create(title, component.get(), viewContext, component, null,
+                isCloseConfirmationNeeded);
+    }
+
     public static ITabItem create(final String title, final DisposableComponent component,
             IViewContext<?> viewContext)
     {
         boolean isCloseConfirmationNeeded = false;
-        LastModificationStateUpdater updater =
-                new LastModificationStateUpdater(viewContext, component);
         IDelegatedAction disposer = createDisposer(component);
-        return new DefaultTabItem(title, component.getComponent(), updater, disposer,
+        return create(title, component.getComponent(), viewContext, component, disposer,
                 isCloseConfirmationNeeded);
+    }
+
+    private static DefaultTabItem create(final String title, final Component component,
+            IViewContext<?> viewContext, IDatabaseModificationObserver modificationObserver,
+            IDelegatedAction disposerActionOrNull, boolean isCloseConfirmationNeeded)
+    {
+        LastModificationStateUpdater updater =
+                new LastModificationStateUpdater(viewContext, modificationObserver);
+        return new DefaultTabItem(title, component, updater, disposerActionOrNull,
+                isCloseConfirmationNeeded);
+
     }
 
     private static IDelegatedAction createDisposer(final DisposableComponent disposableComponent)

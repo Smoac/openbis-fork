@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -26,44 +28,52 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Data
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.DropDownList;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * {@link ComboBox} containing list of data set types loaded from the server.
  * 
  * @author Izabela Adamczyk
  */
-public final class DataSetTypeSelectionWidget extends
-		DropDownList<DataSetTypeModel, DataSetType> {
-	public static final String SUFFIX = "data-set-type";
+public final class DataSetTypeSelectionWidget extends DropDownList<DataSetTypeModel, DataSetType>
+{
+    public static final String SUFFIX = "data-set-type";
 
-	private final IViewContext<ICommonClientServiceAsync> viewContext;
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-	public DataSetTypeSelectionWidget(
-			final IViewContext<ICommonClientServiceAsync> viewContext,
-			final String idSuffix) {
-		super(viewContext, SUFFIX + idSuffix, Dict.DATA_SET_TYPE,
-				ModelDataPropertyNames.CODE, "data set type", "data set types");
-		this.viewContext = viewContext;
-	}
+    public DataSetTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
+            final String idSuffix)
+    {
+        super(viewContext, SUFFIX + idSuffix, Dict.DATA_SET_TYPE, ModelDataPropertyNames.CODE,
+                "data set type", "data set types");
+        this.viewContext = viewContext;
+    }
 
-	/**
-	 * Returns the {@link DataSetType} currently selected.
-	 * 
-	 * @return <code>null</code> if nothing is selected yet.
-	 */
-	public final DataSetType tryGetSelectedDataSetType() {
-		return super.tryGetSelected();
-	}
+    /**
+     * Returns the {@link DataSetType} currently selected.
+     * 
+     * @return <code>null</code> if nothing is selected yet.
+     */
+    public final DataSetType tryGetSelectedDataSetType()
+    {
+        return super.tryGetSelected();
+    }
 
-	@Override
-	protected List<DataSetTypeModel> convertItems(List<DataSetType> result) {
-		return DataSetTypeModel.convert(result);
-	}
+    @Override
+    protected List<DataSetTypeModel> convertItems(List<DataSetType> result)
+    {
+        return DataSetTypeModel.convert(result);
+    }
 
-	@Override
-	protected void loadData(AbstractAsyncCallback<List<DataSetType>> callback) {
-		viewContext.getService().listDataSetTypes(callback);
-	}
+    @Override
+    protected void loadData(AbstractAsyncCallback<List<DataSetType>> callback)
+    {
+        viewContext.getService().listDataSetTypes(callback);
+    }
+
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return DatabaseModificationKind.any(ObjectKind.DATASET_TYPE);
+    }
 }

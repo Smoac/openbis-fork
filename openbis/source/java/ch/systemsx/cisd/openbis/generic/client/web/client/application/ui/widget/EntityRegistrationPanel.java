@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -25,18 +26,21 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SimpleDropDownList;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -47,10 +51,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
  * 
  * @author Izabela Adamczyk
  */
-abstract public class EntityRegistrationPanel<T extends ModelData, S extends ComboBox<T>> extends
-        ContentPanel
+abstract public class EntityRegistrationPanel<T extends ModelData, S extends SimpleDropDownList<T, ?>>
+        extends ContentPanel implements IDatabaseModificationObserver
 {
     private final S entityTypeSelection;
+
+    private final CommonViewContext viewContext;
+
+    private final EntityKind entityKind;
+
+    private DatabaseModificationAwareWidget registrationWidget;
+
+    private PreviousSelection previousSelection = new PreviousSelection();
 
     protected static String createId(EntityKind entityKind)
     {
@@ -61,6 +73,9 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Com
             S entityTypeSelection)
     {
         this.entityTypeSelection = entityTypeSelection;
+        this.viewContext = viewContext;
+        this.entityKind = entityKind;
+
         setHeaderVisible(false);
         setId(createId(entityKind));
         setScrollMode(Scroll.AUTO);
@@ -69,90 +84,103 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Com
                 + GenericConstants.LABEL_SEPARATOR));
         toolBar.add(new AdapterToolItem(entityTypeSelection));
         setTopComponent(toolBar);
-        entityTypeSelection.addSelectionChangedListener(new EntityTypeSelectionChangeListener(
-                viewContext, entityKind));
+        entityTypeSelection.addSelectionChangedListener(createSelectionChangedListener());
     }
 
-    private class EntityTypeSelectionChangeListener extends SelectionChangedListener<T>
+    private SelectionChangedListener<T> createSelectionChangedListener()
     {
-
-        private Widget registrationWidget;
-
-        private final CommonViewContext viewContext;
-
-        private PreviousSelection previousSelection = new PreviousSelection();
-
-        private final EntityKind entityKind;
-
-        public EntityTypeSelectionChangeListener(CommonViewContext viewContext,
-                EntityKind entityKind)
-        {
-            this.viewContext = viewContext;
-            this.entityKind = entityKind;
-        }
-
-        @Override
-        public void selectionChanged(final SelectionChangedEvent<T> se)
-        {
-            final T entityTypeModel = se.getSelectedItem();
-            if (entityTypeModel != null)
+        return new SelectionChangedListener<T>()
             {
-                final EntityType entityType = entityTypeModel.get(ModelDataPropertyNames.OBJECT);
-                if (registrationWidget == null)
-
+                @Override
+                public void selectionChanged(final SelectionChangedEvent<T> se)
                 {
-                    showRegistrationForm(entityType);
-                    previousSelection.update(entityTypeModel);
-                } else
-                {
-                    new ConfirmationDialog(viewContext.getMessage(Dict.CONFIRM_TITLE), viewContext
-                            .getMessage(Dict.CONFIRM_CLOSE_MSG))
-                        {
-                            @Override
-                            protected void onYes()
-                            {
-                                showRegistrationForm(entityType);
-                                previousSelection.update(entityTypeModel);
-                            }
-
-                            @Override
-                            protected void onNo()
-                            {
-                                List<T> selection = new ArrayList<T>();
-                                selection.add(previousSelection.getValue());
-                                entityTypeSelection.disableEvents(true);
-                                entityTypeSelection.setSelection(selection);
-                                entityTypeSelection.disableEvents(false);
-                            }
-                        }.show();
+                    final T entityTypeModel = se.getSelectedItem();
+                    if (entityTypeModel != null)
+                    {
+                        onSelectionChanged(entityTypeModel);
+                    }
                 }
-            }
-        }
+            };
+    }
 
-        private void showRegistrationForm(final EntityType entityType)
+    private void onSelectionChanged(final T entityTypeModel)
+    {
+        final EntityType entityType = entityTypeModel.get(ModelDataPropertyNames.OBJECT);
+        if (registrationWidget == null)
+
         {
-            removeAll();
-            final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder, ?> clientPlugin =
-                    viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
-                            entityType).createClientPlugin(entityKind);
-            registrationWidget = clientPlugin.createRegistrationForEntityType(entityType);
-            add(registrationWidget);
-            layout();
-        }
-
-        private class PreviousSelection
+            showRegistrationForm(entityType);
+            previousSelection.update(entityTypeModel);
+        } else
         {
-            T value;
+            new ConfirmationDialog(viewContext.getMessage(Dict.CONFIRM_TITLE), viewContext
+                    .getMessage(Dict.CONFIRM_CLOSE_MSG))
+                {
+                    @Override
+                    protected void onYes()
+                    {
+                        showRegistrationForm(entityType);
+                        previousSelection.update(entityTypeModel);
+                    }
 
-            void update(T newValue)
-            {
-                this.value = newValue;
-            }
-
-            T getValue()
-            {
-                return value;
-            }
+                    @Override
+                    protected void onNo()
+                    {
+                        List<T> selection = new ArrayList<T>();
+                        selection.add(previousSelection.getValue());
+                        entityTypeSelection.disableEvents(true);
+                        entityTypeSelection.setSelection(selection);
+                        entityTypeSelection.disableEvents(false);
+                    }
+                }.show();
         }
+    }
+
+    private void showRegistrationForm(final EntityType entityType)
+    {
+        removeAll();
+        final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder, ?> clientPlugin =
+                viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
+                        entityType).createClientPlugin(entityKind);
+        registrationWidget = clientPlugin.createRegistrationForEntityType(entityType);
+        add(registrationWidget.get());
+        layout();
+    }
+
+    private class PreviousSelection
+    {
+        T value;
+
+        void update(T newValue)
+        {
+            this.value = newValue;
+        }
+
+        T getValue()
+        {
+            return value;
+        }
+    }
+
+    private IDatabaseModificationObserver createCompositeDatabaseModificationObserver()
+    {
+        CompositeDatabaseModificationObserver observer =
+                new CompositeDatabaseModificationObserver();
+        if (registrationWidget != null)
+        {
+            observer.addObserver(registrationWidget);
+        }
+        observer.addObserver(entityTypeSelection);
+        return observer;
+    }
+
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return createCompositeDatabaseModificationObserver().getRelevantModifications();
+    }
+
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        createCompositeDatabaseModificationObserver().update(observedModifications);
     }
 }

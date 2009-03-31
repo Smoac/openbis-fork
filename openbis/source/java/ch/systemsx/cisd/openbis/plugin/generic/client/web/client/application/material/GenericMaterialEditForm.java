@@ -19,13 +19,14 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ma
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
@@ -47,7 +48,15 @@ public final class GenericMaterialEditForm
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
 
-    public GenericMaterialEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
+    public static DatabaseModificationAwareComponent create(
+            IViewContext<IGenericClientServiceAsync> viewContext, EditableMaterial entity,
+            boolean editMode)
+    {
+        GenericMaterialEditForm form = new GenericMaterialEditForm(viewContext, entity, editMode);
+        return new DatabaseModificationAwareComponent(form, form);
+    }
+
+    private GenericMaterialEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
             EditableMaterial entity, boolean editMode)
     {
         super(viewContext, entity, editMode);
@@ -96,9 +105,9 @@ public final class GenericMaterialEditForm
     }
 
     @Override
-    protected List<Field<?>> getEntitySpecificFormFields()
+    protected List<DatabaseModificationAwareField<?>> getEntitySpecificFormFields()
     {
-        return new ArrayList<Field<?>>();
+        return new ArrayList<DatabaseModificationAwareField<?>>();
     }
 
     @Override

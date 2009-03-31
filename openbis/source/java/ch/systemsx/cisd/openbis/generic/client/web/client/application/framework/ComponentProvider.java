@@ -73,6 +73,13 @@ public final class ComponentProvider
         return DefaultTabItem.create(title, component, viewContext);
     }
 
+    // creates a tab which requires confirmation before it can be closed
+    private ITabItem createRegistrationTab(final String titleMessageKey,
+            DatabaseModificationAwareComponent component)
+    {
+        return DefaultTabItem.create(getMessage(titleMessageKey), component, viewContext, true);
+    }
+
     // TODO 2009-03-26, Tomasz Pylak: add db modification observer support
     private ITabItem createTab(String dictionaryMsgKey, Component component,
             boolean isCloseConfirmationNeeded)
@@ -186,8 +193,9 @@ public final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    Component component = new SampleRegistrationPanel(viewContext);
-                    return createTab(Dict.SAMPLE_REGISTRATION, component, true);
+                    DatabaseModificationAwareComponent component =
+                            SampleRegistrationPanel.create(viewContext);
+                    return createRegistrationTab(Dict.SAMPLE_REGISTRATION, component);
                 }
 
                 public String getId()
@@ -203,8 +211,9 @@ public final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    Component component = new ExperimentRegistrationPanel(viewContext);
-                    return createTab(Dict.EXPERIMENT_REGISTRATION, component, true);
+                    DatabaseModificationAwareComponent component =
+                            ExperimentRegistrationPanel.create(viewContext);
+                    return createRegistrationTab(Dict.EXPERIMENT_REGISTRATION, component);
                 }
 
                 public String getId()
@@ -414,8 +423,9 @@ public final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    Component component = new PropertyTypeAssignmentForm(viewContext, entityKind);
-                    return new DefaultTabItem(getMessage(messageKey), component, true);
+                    DatabaseModificationAwareComponent component =
+                            PropertyTypeAssignmentForm.create(viewContext, entityKind);
+                    return createRegistrationTab(messageKey, component);
                 }
 
                 public String getId()

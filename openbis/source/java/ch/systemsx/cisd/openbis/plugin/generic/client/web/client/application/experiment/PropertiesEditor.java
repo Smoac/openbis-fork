@@ -21,10 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.extjs.gxt.ui.client.widget.form.Field;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -40,7 +39,7 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
 
     private final List<S> entityTypesPropertyTypes;
 
-    private final List<Field<?>> propertyFields;
+    private final List<DatabaseModificationAwareField<?>> propertyFields;
 
     private final String id;
 
@@ -61,9 +60,11 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         this.propertyFields = createPropertyFields(viewContext);
     }
 
-    private List<Field<?>> createPropertyFields(IViewContext<ICommonClientServiceAsync> viewContext)
+    private List<DatabaseModificationAwareField<?>> createPropertyFields(
+            IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        List<Field<?>> result = new ArrayList<Field<?>>();
+        List<DatabaseModificationAwareField<?>> result =
+                new ArrayList<DatabaseModificationAwareField<?>>();
         for (final S stpt : entityTypesPropertyTypes)
         {
             result.add(createPropertyField(stpt, initialProperties.get(stpt.getPropertyType()
@@ -91,18 +92,18 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         this(id, entityTypesPropertyTypes, new ArrayList<P>(), viewContext);
     }
 
-    private final Field<?> createPropertyField(final S etpt, String value,
+    private final DatabaseModificationAwareField<?> createPropertyField(final S etpt, String value,
             IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        final Field<?> field;
+        final DatabaseModificationAwareField<?> field;
         final boolean isMandatory = etpt.isMandatory();
         final String label = etpt.getPropertyType().getLabel();
         final String propertyTypeCode = etpt.getPropertyType().getCode();
         field =
                 PropertyFieldFactory.createField(etpt.getPropertyType(), isMandatory, label,
                         createFormFieldId(getId(), propertyTypeCode), value, viewContext);
-        field.setData(ETPT, etpt);
-        field.setTitle(propertyTypeCode);
+        field.get().setData(ETPT, etpt);
+        field.get().setTitle(propertyTypeCode);
         return field;
     }
 
@@ -122,14 +123,14 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
     public final List<P> extractProperties()
     {
         final List<P> properties = new ArrayList<P>();
-        for (final Field<?> field : propertyFields)
+        for (final DatabaseModificationAwareField<?> field : propertyFields)
         {
-            if (field.getValue() != null
-                    && PropertyFieldFactory.valueToString(field.getValue()) != null)
+            Object value = field.get().getValue();
+            if (value != null && PropertyFieldFactory.valueToString(value) != null)
             {
-                final S stpt = field.getData(ETPT);
+                final S stpt = field.get().getData(ETPT);
                 final P sampleProperty = createEntityProperty();
-                sampleProperty.setValue(PropertyFieldFactory.valueToString(field.getValue()));
+                sampleProperty.setValue(PropertyFieldFactory.valueToString(value));
                 sampleProperty.setEntityTypePropertyType(stpt);
                 properties.add(sampleProperty);
             }
@@ -141,7 +142,7 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
      * Returns a list of fields appropriate for entity type - property type assignments specific to
      * given {@link PropertiesEditor}.
      */
-    public final List<Field<?>> getPropertyFields()
+    public final List<DatabaseModificationAwareField<?>> getPropertyFields()
     {
         return propertyFields;
     }

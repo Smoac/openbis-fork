@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpSession;
 
@@ -109,6 +110,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -686,7 +688,8 @@ public final class CommonClientService extends AbstractClientService implements
                 public List<VocabularyTermWithStats> getOriginalData() throws UserFailureException
                 {
                     List<ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats> terms =
-                            commonServer.listVocabularyTerms(getSessionToken(), vocabulary);
+                            commonServer.listVocabularyTermsWithStatistics(getSessionToken(),
+                                    vocabulary);
                     return VocabularyTermTranslator.translate(terms);
                 }
             });
@@ -909,12 +912,26 @@ public final class CommonClientService extends AbstractClientService implements
         assert vocabularyCode != null : "Unspecified vocabulary code.";
         assert termsToBeDeleted != null : "Unspecified term to be deleted.";
         assert termsToBeReplaced != null : "Unspecified term to be replaced.";
-        
+
         try
         {
             final String sessionToken = getSessionToken();
             commonServer.deleteVocabularyTerms(sessionToken, vocabularyCode, termsToBeDeleted,
                     termsToBeReplaced);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public List<VocabularyTerm> listVocabularyTerms(Vocabulary vocabulary)
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            Set<VocabularyTermPE> terms =
+                    commonServer.listVocabularyTerms(sessionToken, vocabulary);
+            return VocabularyTermTranslator.translateTerms(terms);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

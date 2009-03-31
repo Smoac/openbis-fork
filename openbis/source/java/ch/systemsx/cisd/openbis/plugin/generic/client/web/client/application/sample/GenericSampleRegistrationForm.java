@@ -16,10 +16,11 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -27,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
@@ -145,12 +147,13 @@ public final class GenericSampleRegistrationForm extends
     }
 
     @Override
-    protected List<Field<?>> getEntitySpecificFields()
+    protected List<DatabaseModificationAwareField<?>> getEntitySpecificFields()
     {
-        List<Field<?>> fields = new ArrayList<Field<?>>();
-        fields.add(groupSelectionWidget);
-        fields.add(parent);
-        fields.add(container);
+        List<DatabaseModificationAwareField<?>> fields =
+                new ArrayList<DatabaseModificationAwareField<?>>();
+        fields.add(groupSelectionWidget.asDatabaseModificationAware());
+        fields.add(wrapUnaware(parent));
+        fields.add(wrapUnaware(container));
         return fields;
     }
 

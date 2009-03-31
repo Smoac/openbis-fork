@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
@@ -25,11 +28,13 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class DatabaseModificationKind implements IsSerializable
 {
+    public static final DatabaseModificationKind[] EMPTY_ARRAY = new DatabaseModificationKind[0];
+
     public enum ObjectKind implements IsSerializable
     {
-        SAMPLE, EXPERIMENT, MATERIAL, SAMPLE_TYPE, EXPERIMENT_TYPE, MATERIAL_TYPE, PROJECT, GROUP,
-        DATA_SET, PROPERTY_TYPE, PROPERTY_TYPE_ASSIGNMENT, VOCABULARY, VOCABULARY_TERM, ROLE,
-        PERSON
+        SAMPLE, EXPERIMENT, MATERIAL, DATA_SET, SAMPLE_TYPE, EXPERIMENT_TYPE, MATERIAL_TYPE,
+        DATASET_TYPE, PROJECT, GROUP, PROPERTY_TYPE, PROPERTY_TYPE_ASSIGNMENT, VOCABULARY,
+        VOCABULARY_TERM, ROLE, PERSON
     }
 
     public enum OperationKind implements IsSerializable
@@ -47,6 +52,14 @@ public class DatabaseModificationKind implements IsSerializable
     @SuppressWarnings("unused")
     private DatabaseModificationKind()
     {
+    }
+
+    public static final DatabaseModificationKind[] any(ObjectKind objectType)
+    {
+        List<DatabaseModificationKind> result = new ArrayList<DatabaseModificationKind>();
+        result.add(createOrDelete(objectType));
+        result.add(edit(objectType));
+        return result.toArray(EMPTY_ARRAY);
     }
 
     public static final DatabaseModificationKind createOrDelete(ObjectKind objectType)

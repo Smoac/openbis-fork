@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
@@ -49,7 +50,7 @@ public class ClientPluginAdapter<E extends EntityType, S extends EntityTypePrope
         throw new UnsupportedOperationException("Not yet implemented.");
     }
 
-    public Widget createRegistrationForEntityType(final E entityType)
+    public DatabaseModificationAwareWidget createRegistrationForEntityType(final E entityType)
     {
         throw new UnsupportedOperationException("Not yet implemented.");
     }
