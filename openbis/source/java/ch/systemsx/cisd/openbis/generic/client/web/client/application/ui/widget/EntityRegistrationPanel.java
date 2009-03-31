@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SimpleDropDownList;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.DropDownList;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
  * 
  * @author Izabela Adamczyk
  */
-abstract public class EntityRegistrationPanel<T extends ModelData, S extends SimpleDropDownList<T, ?>>
+abstract public class EntityRegistrationPanel<T extends ModelData, S extends DropDownList<T, ?>>
         extends ContentPanel implements IDatabaseModificationObserver
 {
     private final S entityTypeSelection;

@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SimpleDropDownList;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * @author Izabela Adamczyk
  */
 public class VocabularyTermSelectionWidget extends
-        SimpleDropDownList<VocabularyTermModel, VocabularyTerm>
+        DropDownList<VocabularyTermModel, VocabularyTerm>
 {
 
     private static final String CHOOSE_MSG = "Choose...";
@@ -75,7 +75,7 @@ public class VocabularyTermSelectionWidget extends
             IViewContext<?> viewContextOrNull)
     {
         super(idSuffix, ModelDataPropertyNames.CODE, label, CHOOSE_MSG, EMPTY_MSG,
-                VALUE_NOT_IN_LIST_MSG, mandatory);
+                VALUE_NOT_IN_LIST_MSG, mandatory, viewContextOrNull, false);
         this.viewContextOrNull = viewContextOrNull;
         this.vocabularyOrNull = vocabularyOrNull;
 
@@ -91,15 +91,6 @@ public class VocabularyTermSelectionWidget extends
         models.addAll(convertItems(terms));
         updateStore(models);
         getPropertyEditor().setList(store.getModels());
-    }
-
-    @Override
-    public void refreshStore()
-    {
-        if (viewContextOrNull != null)
-        {
-            refreshStore(viewContextOrNull);
-        }
     }
 
     @Override

@@ -87,8 +87,8 @@ public final class MaterialTypeSelectionWidget extends
     /**
      * Returns the {@link MaterialType} currently selected.
      * 
-     * @return <code>null</code> if nothing is selected yet or "none" option has been chosen (if
-     *         it has been enabled before).
+     * @return <code>null</code> if nothing is selected yet or "none" option has been chosen (if it
+     *         has been enabled before).
      */
     public final MaterialType tryGetSelectedMaterialType()
     {
@@ -124,7 +124,7 @@ public final class MaterialTypeSelectionWidget extends
     {
         viewContext.getService().listMaterialTypes(callback);
     }
-    
+
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.any(ObjectKind.MATERIAL_TYPE);
