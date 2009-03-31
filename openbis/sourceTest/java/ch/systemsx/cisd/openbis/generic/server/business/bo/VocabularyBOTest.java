@@ -232,6 +232,58 @@ public final class VocabularyBOTest extends AbstractBOTest
     }
     
     @Test
+    public void testAddNewTermsToAnInternallyManaggedVocabulary()
+    {
+        final VocabularyPE vocabulary = new VocabularyPE();
+        vocabulary.setManagedInternally(true);
+        context.checking(new Expectations()
+            {
+                {
+                    one(vocabularyDAO).tryFindVocabularyByCode("voc-code");
+                    will(returnValue(vocabulary));
+                }
+            });
+        
+        VocabularyBO vocabularyBO = createVocabularyBO();
+        vocabularyBO.load("voc-code");
+        List<String> newTerms = Arrays.asList("a");
+        try
+        {
+            vocabularyBO.addNewTerms(newTerms);
+        } catch (UserFailureException e)
+        {
+            assertEquals("Not allowed to add terms to an internally managed vocabulary.", e.getMessage());
+        }
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testDeleteTermsFromAnInternallyManaggedVocabulary()
+    {
+        final VocabularyPE vocabulary = new VocabularyPE();
+        vocabulary.setManagedInternally(true);
+        context.checking(new Expectations()
+        {
+            {
+                one(vocabularyDAO).tryFindVocabularyByCode("voc-code");
+                will(returnValue(vocabulary));
+            }
+        });
+        
+        VocabularyBO vocabularyBO = createVocabularyBO();
+        vocabularyBO.load("voc-code");
+        try
+        {
+            vocabularyBO.delete(Collections.<VocabularyTerm> emptyList(), Collections
+                    .<VocabularyTermReplacement> emptyList());
+        } catch (UserFailureException e)
+        {
+            assertEquals("Not allowed to delete terms from an internally managed vocabulary.", e.getMessage());
+        }
+        context.assertIsSatisfied();
+    }
+    
+    @Test
     public void testDeleteAllTerms()
     {
         final VocabularyPE vocabulary = new VocabularyPE();

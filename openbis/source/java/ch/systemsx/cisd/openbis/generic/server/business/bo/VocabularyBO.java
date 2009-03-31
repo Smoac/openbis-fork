@@ -74,6 +74,12 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
 
     public void addNewTerms(List<String> newTerms)
     {
+        assert vocabularyPE != null : "Unspecified vocabulary";
+        if (vocabularyPE.isManagedInternally())
+        {
+            throw new UserFailureException("Not allowed to add terms to an internally managed vocabulary.");
+        }
+        
         for (String term : newTerms)
         {
             addTerm(term);
@@ -92,6 +98,10 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
             List<VocabularyTermReplacement> termsToBeReplaced)
     {
         assert vocabularyPE != null : "Unspecified vocabulary";
+        if (vocabularyPE.isManagedInternally())
+        {
+            throw new UserFailureException("Not allowed to delete terms from an internally managed vocabulary.");
+        }
 
         Set<VocabularyTermPE> terms = vocabularyPE.getTerms();
         IKeyExtractor<String, VocabularyTermPE> keyExtractor =

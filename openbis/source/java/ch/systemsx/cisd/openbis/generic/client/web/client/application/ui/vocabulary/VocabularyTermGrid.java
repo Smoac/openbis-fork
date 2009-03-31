@@ -99,28 +99,31 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
     {
         super(viewContext, createBrowserId(vocabulary), createGridId(vocabulary.getCode()));
         this.vocabulary = vocabulary;
-        Button addButton = new Button(viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_BUTTON));
-        addButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-            {
+        if (vocabulary.isManagedInternally() == false)
+        {
+            Button addButton = new Button(viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_BUTTON));
+            addButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+                    {
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
                     askForNewTerms();
                 }
-            });
-        pagingToolbar.add(new AdapterToolItem(addButton));
-        Button deleteButton =
+                    });
+            pagingToolbar.add(new AdapterToolItem(addButton));
+            Button deleteButton =
                 new Button(viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_BUTTON));
-        deleteButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-            {
+            deleteButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+                    {
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
                     deleteTerms();
                 }
-            });
-        pagingToolbar.add(new AdapterToolItem(deleteButton));
-        allowMultipleSelection();
+                    });
+            pagingToolbar.add(new AdapterToolItem(deleteButton));
+            allowMultipleSelection();
+        }
     }
 
     public static String createGridId(String vocabularyCode)
