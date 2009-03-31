@@ -173,7 +173,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         textArea.setWidth(250);
         textArea.setHeight(200);
         textArea.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERMS_EMPTY));
-        textArea.setValidator(new VocabularyTermValidator(viewContext, vocabulary.getTerms()));
+        textArea.setValidator(new VocabularyTermValidator(viewContext));
         String heading = viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_TITLE);
         String okButtonLabel = viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_OK_BUTTON);
         HorizontalPanel panel = new HorizontalPanel();

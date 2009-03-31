@@ -40,6 +40,7 @@ import javax.persistence.Version;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
@@ -144,6 +145,7 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
     }
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "vocabularyInternal")
+    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private Set<VocabularyTermPE> getVocabularyTerms()
     {
         return terms;

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -91,27 +92,27 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
             List<VocabularyTermReplacement> termsToBeReplaced)
     {
         assert vocabularyPE != null : "Unspecified vocabulary";
-        
+
         Set<VocabularyTermPE> terms = vocabularyPE.getTerms();
-        System.out.println(terms.size());
-        IKeyExtractor<String, VocabularyTermPE> keyExtractor = KeyExtractorFactory.<VocabularyTermPE>createCodeKeyExtractor();
-        TableMap<String, VocabularyTermPE> termsMap = new TableMap<String, VocabularyTermPE>(terms, keyExtractor);
-        
+        IKeyExtractor<String, VocabularyTermPE> keyExtractor =
+                KeyExtractorFactory.<VocabularyTermPE> createCodeKeyExtractor();
+        TableMap<String, VocabularyTermPE> termsMap =
+                new TableMap<String, VocabularyTermPE>(terms, keyExtractor);
+        Set<String> remainingTerms = new HashSet<String>(termsMap.keySet());
         for (VocabularyTerm termToBeDeleted : termsToBeDeleted)
         {
-            termsMap.remove(termToBeDeleted.getCode()).setVocabulary(null);
+            remainingTerms.remove(termToBeDeleted.getCode());
         }
         for (VocabularyTermReplacement termToBeReplaced : termsToBeReplaced)
         {
-            termsMap.remove(termToBeReplaced.getTerm().getCode()).setVocabulary(null);
+            remainingTerms.remove(termToBeReplaced.getTerm().getCode());
         }
-        System.out.println(terms.size());
         for (VocabularyTermReplacement termToBeReplaced : termsToBeReplaced)
         {
             String code = termToBeReplaced.getTerm().getCode();
             String replacement = termToBeReplaced.getReplacement();
             VocabularyTermPE term = termsMap.tryGet(replacement);
-            if (term == null)
+            if (term == null || remainingTerms.contains(replacement) == false)
             {
                 throw new IllegalArgumentException(
                         "Invalid vocabulary replacement because of unknown replacement: "
@@ -127,6 +128,14 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
                 }
                 dao.updateProperties(properties);
             }
+        }
+        for (VocabularyTerm termToBeDeleted : termsToBeDeleted)
+        {
+            termsMap.remove(termToBeDeleted.getCode()).setVocabulary(null);
+        }
+        for (VocabularyTermReplacement termToBeReplaced : termsToBeReplaced)
+        {
+            termsMap.remove(termToBeReplaced.getTerm().getCode()).setVocabulary(null);
         }
     }
 
