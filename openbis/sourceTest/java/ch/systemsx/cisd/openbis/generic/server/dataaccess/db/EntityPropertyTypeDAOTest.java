@@ -29,6 +29,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -161,6 +162,16 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
             }
         }
         return null;
+    }
+    
+    @Test
+    public void testListPropertiesByVocabularyTerm()
+    {
+        IEntityPropertyTypeDAO entityPropertyTypeDAO = daoFactory.getEntityPropertyTypeDAO(EntityKind.MATERIAL);
+        List<EntityPropertyPE> properties = entityPropertyTypeDAO.listPropertiesByVocabularyTerm("FLY");
+        
+        assertEquals(1, properties.size());
+        assertEquals("FLY", properties.get(0).getVocabularyTerm().getCode());
     }
 
     @SuppressWarnings("unused")

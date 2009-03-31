@@ -70,8 +70,14 @@ public interface IEntityPropertyTypeDAO
     public long countTermUsageStatistics(final VocabularyTermPE vocabularyTerm)
             throws DataAccessException;
     
+    /**
+     * Returns a list of all properties referring to the specified vocabulary term.
+     */
     public List<EntityPropertyPE> listPropertiesByVocabularyTerm(String vocabularyTermCode);
     
+    /**
+     * Updates specified properties.
+     */
     public void updateProperties(List<EntityPropertyPE> properties);
 
 }
