@@ -39,10 +39,6 @@ public class AppEvents
      */
     private final static int STARTING_VALUE = 1000000;
 
-    // TODO 2009-01-30, Tomasz Pylak: is this needed at all? It's fired i n some places, but never
-    // handled
-    public final static int CALLBACK_FINISHED = STARTING_VALUE + 10;
-
     // opens the main application window
     public final static int INIT = STARTING_VALUE + 20;
 
