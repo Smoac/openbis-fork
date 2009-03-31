@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -51,7 +52,13 @@ public final class SampleBatchRegistrationPanel extends LayoutContainer
 
     private final CommonViewContext viewContext;
 
-    public SampleBatchRegistrationPanel(final CommonViewContext viewContext)
+    public static DatabaseModificationAwareComponent create(final CommonViewContext viewContext)
+    {
+        SampleBatchRegistrationPanel panel = new SampleBatchRegistrationPanel(viewContext);
+        return new DatabaseModificationAwareComponent(panel, panel.sampleTypeSelection);
+    }
+
+    private SampleBatchRegistrationPanel(final CommonViewContext viewContext)
     {
         this.viewContext = viewContext;
         setId(ID);

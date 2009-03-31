@@ -216,9 +216,9 @@ public final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    Component component = new SampleBatchRegistrationPanel(viewContext);
-                    // TODO 2009-03-31, Tomasz Pylak: make aware of db modifications
-                    return createSimpleTab(Dict.SAMPLE_BATCH_REGISTRATION, component, true);
+                    DatabaseModificationAwareComponent component =
+                            SampleBatchRegistrationPanel.create(viewContext);
+                    return createRegistrationTab(Dict.SAMPLE_BATCH_REGISTRATION, component);
                 }
 
                 public String getId()
