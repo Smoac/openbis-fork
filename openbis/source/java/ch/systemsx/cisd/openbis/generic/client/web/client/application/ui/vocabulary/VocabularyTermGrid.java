@@ -69,6 +69,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplaceme
  */
 public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTermWithStats>
 {
+    private static final int FIELD_WITH_IN_REPLACEMENT_DIALOG = 200;
+    private static final int LABEL_WIDTH_IN_REPLACEMENT_DIALOG = 200;
+    
     // browser consists of the grid and the paging toolbar
     private static final String BROWSER_ID = GenericConstants.ID_PREFIX + "vocabulary-term-browser";
     
@@ -185,6 +188,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         panel.setBorders(false);
         final SimpleDialog dialog = new SimpleDialog(panel, heading, okButtonLabel, viewContext);
         dialog.setScrollMode(Scroll.NONE);
+        dialog.setResizable(false);
         textArea.addKeyListener(new KeyListener()
             {
                 @Override
@@ -300,6 +304,8 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         panel.add(new Text(viewContext.getMessage(
                 Dict.DELETE_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_FOR_REPLACEMENTS, totalNumber)));
         final FormPanel formPanel = new FormPanel();
+        formPanel.setLabelWidth(LABEL_WIDTH_IN_REPLACEMENT_DIALOG);
+        formPanel.setFieldWidth(FIELD_WITH_IN_REPLACEMENT_DIALOG);
         formPanel.setBorders(false);
         formPanel.setHeaderVisible(false);
         formPanel.setBodyBorder(false);
@@ -308,7 +314,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         String okButtonLable = viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_OK_BUTTON);
         final SimpleDialog dialog = new SimpleDialog(panel, title, okButtonLable, viewContext);
         dialog.setScrollMode(Scroll.AUTOY);
-        dialog.setWidth(420);
+        dialog.setWidth(LABEL_WIDTH_IN_REPLACEMENT_DIALOG + FIELD_WITH_IN_REPLACEMENT_DIALOG + 50);
         dialog.setEnableOfAcceptButton(false);
         for (final VocabularyTermReplacement termToBeReplaced : termsToBeReplaced)
         {
