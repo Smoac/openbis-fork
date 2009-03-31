@@ -1181,6 +1181,12 @@ public final class CommonClientService extends AbstractClientService implements
 
     public LastModificationState getLastModificationState()
     {
-        return commonServer.getLastModificationState(getSessionToken());
+        try
+        {
+            return commonServer.getLastModificationState(getSessionToken());
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
     }
 }

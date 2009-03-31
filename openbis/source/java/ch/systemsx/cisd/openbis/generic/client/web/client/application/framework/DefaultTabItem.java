@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Di
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
 /**
- * A default {@link ITabItem} implementation.
+ * A default {@link ITabItem} implementation with various factory methods.
  * 
  * @author Christian Ribeaud
  */
