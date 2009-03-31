@@ -22,6 +22,7 @@ import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,6 +68,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedureType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
@@ -271,7 +273,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 new ETLServerPlugin(new MockDataSetInfoExtractor(dataSetInfoExtractor),
                         typeExtractor, storageProcessor);
         final IEncapsulatedOpenBISService authorizedLimsService =
-            new EncapsulatedOpenBISService(new SessionTokenManager(), limsService, 0, "u", "p");
+                new EncapsulatedOpenBISService(new SessionTokenManager(), limsService, 0, "u", "p");
         handler =
                 new TransferredDataSetHandler(null, storageProcessor, plugin,
                         authorizedLimsService, mailClient, true);
@@ -388,12 +390,12 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
                     one(storageProcessor).getStoreRootDirectory();
                     will(returnValue(workingDirectory));
-                    
+
                     one(limsService).authenticate("u", "p");
                     will(returnValue(SESSION_TOKEN));
-                    
-                    one(limsService).registerDataStoreServer(
-                            with(equal(SESSION_TOKEN)), with(equal(0)), with(any(String.class)));
+
+                    one(limsService).registerDataStoreServer(with(equal(SESSION_TOKEN)),
+                            with(equal(0)), with(any(String.class)));
 
                     atLeast(1).of(limsService).tryToGetBaseExperiment(SESSION_TOKEN,
                             dataSetInformation.getSampleIdentifier());
@@ -432,6 +434,9 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
                     one(typeExtractor).getProcedureType(dataSet);
                     will(returnValue(PROCEDURE_TYPE));
+
+                    one(typeExtractor).getDataSetProperties();
+                    will(returnValue(new ArrayList<NewProperty>()));
                 }
             });
     }

@@ -61,28 +61,34 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ETLService extends AbstractServer<IETLService> implements IETLService
 {
-    @Private static final String PROCESSING_PATH = "$processing-path-for-";
-    @Private static final String PROCESSING_PATH_TEMPLATE = PROCESSING_PATH + "%s";
-    @Private static final String PROCESSING_PARAMETERS_TEMPLATE = "$processing-parameters-for-%s";
-    @Private static final String PROCESSING_DESCRIPTION_TEMPLATE = "$processing-description-for-%s";
+    @Private
+    static final String PROCESSING_PATH = "$processing-path-for-";
+
+    @Private
+    static final String PROCESSING_PATH_TEMPLATE = PROCESSING_PATH + "%s";
+
+    @Private
+    static final String PROCESSING_PARAMETERS_TEMPLATE = "$processing-parameters-for-%s";
+
+    @Private
+    static final String PROCESSING_DESCRIPTION_TEMPLATE = "$processing-description-for-%s";
+
     private static final String ENCODING = "utf-8";
-    
+
     private final ISessionManager<Session> sessionManager;
-    
+
     private final DataStoreServerSessionManager dssSessionManager;
-    
+
     private final IDAOFactory daoFactory;
-    
+
     private final ICommonBusinessObjectFactory boFactory;
-    
+
     private final IDataStoreServiceFactory dssFactory;
-    
+
     public ETLService(ISessionManager<Session> sessionManager,
             DataStoreServerSessionManager dssSessionManager, IDAOFactory daoFactory,
             ICommonBusinessObjectFactory boFactory)
@@ -109,7 +115,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         this.boFactory = boFactory;
         this.dssFactory = dssFactory;
     }
-    
+
     @Override
     protected Class<IETLService> getProxyInterface()
     {
@@ -126,12 +132,12 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     {
         return IWebService.VERSION;
     }
-    
+
     public DatabaseInstancePE getHomeDatabaseInstance(String sessionToken)
     {
         return daoFactory.getHomeDatabaseInstance();
     }
-    
+
     public void registerDataStoreServer(String sessionToken, int port, final String dssSessionToken)
     {
         Session session = sessionManager.getSession(sessionToken);
@@ -148,15 +154,16 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
             int dssVersion = service.getVersion(dssSessionToken);
             if (IDataStoreService.VERSION != dssVersion)
             {
-                String msg = "Data Store Server version is " + dssVersion
-                        + " instead of " + IDataStoreService.VERSION;
+                String msg =
+                        "Data Store Server version is " + dssVersion + " instead of "
+                                + IDataStoreService.VERSION;
                 notificationLog.error(msg);
                 throw new ConfigurationFailureException(msg);
             }
             if (operationLog.isInfoEnabled())
             {
-                operationLog.info("Data Store Server (version " + dssVersion
-                        + ") registered for " + dssURL);
+                operationLog.info("Data Store Server (version " + dssVersion + ") registered for "
+                        + dssURL);
             }
             dssSession = new DataStoreServerSession(dssURL, service);
             dssSessionManager.registerDataStoreServer(dssSession);
@@ -169,20 +176,20 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         Session session = tryToAuthenticate(user, password);
         return session == null ? null : session.getSessionToken();
     }
-    
+
     public void closeSession(String sessionToken) throws UserFailureException
     {
         logout(sessionToken);
     }
-    
+
     public String createDataSetCode(String sessionToken) throws UserFailureException
     {
         sessionManager.getSession(sessionToken); // throws exception if invalid sessionToken
         return daoFactory.getExternalDataDAO().createDataSetCode();
     }
 
-    public ExperimentPE tryToGetBaseExperiment(String sessionToken, SampleIdentifier sampleIdentifier)
-            throws UserFailureException
+    public ExperimentPE tryToGetBaseExperiment(String sessionToken,
+            SampleIdentifier sampleIdentifier) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         assert sampleIdentifier != null : "Unspecified sample identifier.";
@@ -191,7 +198,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         ExperimentPE experiment = tryToLoadExperimentBySampleIdentifier(session, sampleIdentifier);
         enrichWithPropertiesAndProcessingInstructions(experiment);
         return experiment;
-        
+
     }
 
     private ExperimentPE tryToLoadExperimentBySampleIdentifier(final Session session,
@@ -208,7 +215,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         ProcedurePE procedure = sample.getValidProcedure();
         return procedure == null ? null : procedure.getExperiment();
     }
-    
+
     private void enrichWithPropertiesAndProcessingInstructions(ExperimentPE experiment)
     {
         if (experiment == null)
@@ -247,7 +254,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         }
         experiment.setProcessingInstructions(instructions.toArray(new ProcessingInstructionDTO[0]));
     }
-    
+
     private final String createKey(final String template, final String procedureTypeCode)
     {
         return String.format(template, procedureTypeCode);
@@ -275,7 +282,8 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
             final String procedureTypeCode)
     {
         final String key = createKey(template, procedureTypeCode);
-        final IExperimentAttachmentDAO experimentAttachmentDAO = daoFactory.getExperimentAttachmentDAO();
+        final IExperimentAttachmentDAO experimentAttachmentDAO =
+                daoFactory.getExperimentAttachmentDAO();
         final AttachmentPE attachment =
                 experimentAttachmentDAO.tryFindExpAttachmentByExpAndFileName(experiment, key);
         if (attachment != null)
@@ -313,7 +321,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     {
         assert sessionToken != null : "Unspecified session token.";
         assert experimentIdentifier != null : "Unspecified experiment identifier.";
-        
+
         final Session session = sessionManager.getSession(sessionToken);
         makeSureGroupCodeIsFilled(session, experimentIdentifier);
         final IExperimentBO experimentBO = boFactory.createExperimentBO(session);
@@ -368,7 +376,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     {
         assert sessionToken != null : "Unspecified session token.";
         assert sampleIdentifier != null : "Unspecified sample identifier.";
-        
+
         final Session session = sessionManager.getSession(sessionToken);
         ExperimentPE experiment = tryToLoadExperimentBySampleIdentifier(session, sampleIdentifier);
         if (experiment == null)
@@ -402,8 +410,9 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         final String dataSetCode = externalDataBO.getExternalData().getCode();
         assert dataSetCode != null : "Data set code not specified.";
     }
-    
-    private ProcedurePE tryToFindProcedureByType(List<ProcedurePE> procedures, String procedureTypeCode)
+
+    private ProcedurePE tryToFindProcedureByType(List<ProcedurePE> procedures,
+            String procedureTypeCode)
     {
         for (ProcedurePE procedure : procedures)
         {
@@ -420,14 +429,13 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     {
         assert sessionToken != null : "Unspecified session token.";
         assert dataSetCode != null : "Unspecified data set code.";
-        
+
         Session session = sessionManager.getSession(sessionToken); // assert authenticated
-        
+
         IExternalDataBO externalDataBO = boFactory.createExternalDataBO(session);
         externalDataBO.loadByCode(dataSetCode);
         externalDataBO.enrichWithParentsAndProcedure();
         return externalDataBO.getExternalData();
     }
-    
-    
+
 }

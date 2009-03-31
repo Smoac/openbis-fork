@@ -26,7 +26,12 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProcedureTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -35,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedureTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -43,34 +49,43 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ExternalDataBO extends AbstractExternalDataBusinessObject implements IExternalDataBO
 {
     private ExternalDataPE externalData;
+
     private SourceType sourceType;
-    
+
+    protected final IEntityPropertiesConverter entityPropertiesConverter;
+
     public ExternalDataBO(IDAOFactory daoFactory, Session session)
     {
+        this(daoFactory, session, new EntityPropertiesConverter(EntityKind.DATA_SET, daoFactory));
+    }
+
+    public ExternalDataBO(IDAOFactory daoFactory, Session session,
+            EntityPropertiesConverter entityPropertiesConverter)
+    {
         super(daoFactory, session);
+        this.entityPropertiesConverter = entityPropertiesConverter;
     }
 
     public ExternalDataPE getExternalData()
     {
         return externalData;
     }
-    
+
     public void loadByCode(String dataSetCode)
     {
         externalData = getExternalDataDAO().tryToFindFullDataSetByCode(dataSetCode);
     }
-    
+
     public void enrichWithParentsAndProcedure()
     {
         if (externalData != null)
@@ -79,8 +94,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         }
     }
 
-    public void define(ExternalData data, ProcedurePE procedure, SamplePE sample,
-            SourceType type)
+    public void define(ExternalData data, ProcedurePE procedure, SamplePE sample, SourceType type)
     {
         assert data != null : "Undefined data.";
         final DataSetType dataSetType = data.getDataSetType();
@@ -104,9 +118,12 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         externalData.setFileFormatType(getFileFomatType(fileFormatType));
         externalData.setComplete(data.getComplete());
         externalData.setLocation(location);
-        externalData.setStorageFormatVocabularyTerm(tryToFindStorageFormatTerm(data.getStorageFormat()));
+        externalData.setStorageFormatVocabularyTerm(tryToFindStorageFormatTerm(data
+                .getStorageFormat()));
         externalData.setLocatorType(getLocatorTypeDAO().tryToFindLocatorTypeByCode(
                 locatorType.getCode()));
+        defineDataSetProperties(externalData, data.getDataSetProperties());
+
         final String parentDataSetCode = data.getParentDataSetCode();
         if (parentDataSetCode != null)
         {
@@ -117,11 +134,12 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         }
         sourceType.setSample(externalData, sample);
     }
-    
+
     private VocabularyTermPE tryToFindStorageFormatTerm(StorageFormat storageFormat)
     {
         IVocabularyDAO vocabularyDAO = getVocabularyDAO();
-        VocabularyPE vocabulary = vocabularyDAO.tryFindVocabularyByCode(StorageFormat.VOCABULARY_CODE);
+        VocabularyPE vocabulary =
+                vocabularyDAO.tryFindVocabularyByCode(StorageFormat.VOCABULARY_CODE);
         Set<VocabularyTermPE> terms = vocabulary.getTerms();
         for (VocabularyTermPE term : terms)
         {
@@ -158,7 +176,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         }
         return fileFormatTypeOrNull;
     }
-    
+
     private final DataPE getOrCreateParentData(final String parentDataSetCode,
             ExperimentPE experiment, SamplePE sample)
     {
@@ -214,8 +232,8 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         {
             if (data.isPlaceholder() == false)
             {
-                throw new UserFailureException("Already existing data set for code '"
-                        + dataCode + "' can not be updated by data set " + externalData);
+                throw new UserFailureException("Already existing data set for code '" + dataCode
+                        + "' can not be updated by data set " + externalData);
             }
             externalData.setPlaceholder(false);
             sourceType.nullifyProducerSample(externalData);
@@ -223,6 +241,45 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
             externalData.setRegistrationDate(new Date());
             externalDataDAO.updateDataSet(externalData);
         }
+    }
+
+    private final void defineDataSetProperties(final ExternalDataPE data,
+            final List<NewProperty> list)
+    {
+        if (list.size() == 0)
+        {
+            return;
+        }
+        final String dataSetTypeCode = data.getDataSetType().getCode();
+        final List<DataSetPropertyPE> properties =
+                entityPropertiesConverter.convertProperties(convertToDataSetProperties(list),
+                        dataSetTypeCode, findRegistrator());
+        for (final DataSetPropertyPE property : properties)
+        {
+            data.addProperty(property);
+        }
+    }
+
+    private EntityProperty<?, ?>[] convertToDataSetProperties(List<NewProperty> list)
+    {
+        DataSetProperty[] result = new DataSetProperty[list.size()];
+        for (int i = 0; i < list.size(); i++)
+        {
+            result[i] = convertProperty(list.get(i));
+        }
+        return result;
+    }
+
+    private DataSetProperty convertProperty(NewProperty newProperty)
+    {
+        DataSetProperty result = new DataSetProperty();
+        result.setValue(newProperty.getValue());
+        DataSetTypePropertyType etpt = new DataSetTypePropertyType();
+        PropertyType propertyType = new PropertyType();
+        propertyType.setCode(newProperty.getName());
+        etpt.setPropertyType(propertyType);
+        result.setEntityTypePropertyType(etpt);
+        return result;
     }
 
 }

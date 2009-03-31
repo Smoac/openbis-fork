@@ -23,7 +23,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
@@ -78,7 +77,8 @@ public class ExternalDataTranslator
         externalData.setComplete(BooleanOrUnknown.tryToResolve(externalDataPE.getComplete()));
         externalData.setDataProducerCode(StringEscapeUtils.escapeHtml(externalDataPE
                 .getDataProducerCode()));
-        externalData.setDataSetType(fill(new DataSetType(), externalDataPE.getDataSetType()));
+        externalData.setDataSetType(DataSetTypeTranslator
+                .translate(externalDataPE.getDataSetType()));
         externalData.setDerived(externalDataPE.getSampleDerivedFrom() != null);
         externalData.setFileFormatType(fill(new FileFormatType(), externalDataPE
                 .getFileFormatType()));

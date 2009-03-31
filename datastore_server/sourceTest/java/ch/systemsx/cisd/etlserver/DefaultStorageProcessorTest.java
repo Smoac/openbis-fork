@@ -20,6 +20,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.testng.annotations.Test;
@@ -28,6 +30,7 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedureType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
 
@@ -128,6 +131,8 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
 
         static final String FILE_FORMAT_TYPE = "fileFormatType";
 
+        public static final String DATA_SET_PROPERTIES_FILE_KEY = "dataSetProperties";
+
         //
         // IProcedureAndDataTypeExtractor
         //
@@ -152,6 +157,11 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
             final ProcedureType procedureType = new ProcedureType(PROCEDURE_TYPE);
             procedureType.setDataAcquisition(true);
             return procedureType;
+        }
+
+        public List<NewProperty> getDataSetProperties()
+        {
+            return new ArrayList<NewProperty>();
         }
     }
 }

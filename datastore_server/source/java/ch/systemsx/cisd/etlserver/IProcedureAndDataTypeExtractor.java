@@ -17,10 +17,12 @@
 package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
+import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedureType;
 
 /**
@@ -52,4 +54,9 @@ public interface IProcedureAndDataTypeExtractor
      * Gets the locator type from the specified path of the incoming data set.
      */
     public LocatorType getLocatorType(File incomingDataSetPath);
+
+    /**
+     * Gets the properties.
+     */
+    public List<NewProperty> getDataSetProperties();
 }

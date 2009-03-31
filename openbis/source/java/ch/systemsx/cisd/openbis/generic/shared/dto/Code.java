@@ -22,6 +22,8 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 import ch.systemsx.cisd.common.annotation.BeanProperty;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
@@ -35,7 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  * 
  * @author Christian Ribeaud
  */
-public abstract class Code<T extends Code<T>> implements Serializable, Comparable<T>
+public abstract class Code<T extends Code<T>> implements Serializable, Comparable<T>,
+        IsSerializable
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
