@@ -22,7 +22,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
  * 
  * @author Tomasz Pylak
  */
-public interface DisposableEntityChooser<T> extends DisposableComponent
+public interface DisposableEntityChooser<T> extends IDisposableComponent
 {
     /** @return selected entity or null if nothing was selected */
     T tryGetSingleSelected();

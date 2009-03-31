@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.Da
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBatchRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeGrid;
@@ -67,7 +67,7 @@ public final class ComponentProvider
         return viewContext.getMessage(key);
     }
 
-    private ITabItem createTab(String dictionaryMsgKey, DisposableComponent component)
+    private ITabItem createTab(String dictionaryMsgKey, IDisposableComponent component)
     {
         String title = getMessage(dictionaryMsgKey);
         return DefaultTabItem.create(title, component, viewContext);
@@ -97,7 +97,7 @@ public final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    DisposableComponent browser = SampleBrowserGrid.create(viewContext);
+                    IDisposableComponent browser = SampleBrowserGrid.create(viewContext);
                     return createTab(Dict.SAMPLE_BROWSER, browser);
                 }
 
@@ -114,7 +114,7 @@ public final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    DisposableComponent browser =
+                    IDisposableComponent browser =
                             MaterialBrowserGrid.createWithTypeChooser(viewContext);
                     return createTab(Dict.MATERIAL_BROWSER, browser);
                 }
@@ -287,7 +287,7 @@ public final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    DisposableComponent component = VocabularyGrid.create(viewContext);
+                    IDisposableComponent component = VocabularyGrid.create(viewContext);
                     return createTab(Dict.VOCABULARY_BROWSER, component);
                 }
 
@@ -304,7 +304,7 @@ public final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    DisposableComponent component = ProjectGrid.create(viewContext);
+                    IDisposableComponent component = ProjectGrid.create(viewContext);
                     return createTab(Dict.PROJECT_BROWSER, component);
                 }
 
@@ -321,7 +321,7 @@ public final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    DisposableComponent browser = ExperimentBrowserGrid.create(viewContext);
+                    IDisposableComponent browser = ExperimentBrowserGrid.create(viewContext);
                     return createTab(Dict.EXPERIMENT_BROWSER, browser);
                 }
 
@@ -338,7 +338,7 @@ public final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    DisposableComponent component = PropertyTypeGrid.create(viewContext);
+                    IDisposableComponent component = PropertyTypeGrid.create(viewContext);
                     return createTab(Dict.PROPERTY_TYPES, component);
                 }
 
@@ -373,7 +373,7 @@ public final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    DisposableComponent component = PropertyTypeAssignmentGrid.create(viewContext);
+                    IDisposableComponent component = PropertyTypeAssignmentGrid.create(viewContext);
                     return createTab(Dict.PROPERTY_TYPE_ASSIGNMENTS, component);
                 }
 
@@ -432,7 +432,7 @@ public final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    DisposableComponent browser = DataSetSearchHitGrid.create(viewContext);
+                    IDisposableComponent browser = DataSetSearchHitGrid.create(viewContext);
                     return createTab(Dict.DATA_SET_SEARCH, browser);
                 }
 
@@ -449,7 +449,7 @@ public final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    DisposableComponent component = SampleTypeGrid.create(viewContext);
+                    IDisposableComponent component = SampleTypeGrid.create(viewContext);
                     return createTab(Dict.SAMPLE_TYPES, component);
                 }
 
@@ -466,7 +466,7 @@ public final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    DisposableComponent component = MaterialTypeGrid.create(viewContext);
+                    IDisposableComponent component = MaterialTypeGrid.create(viewContext);
                     return createTab(Dict.MATERIAL_TYPES, component);
                 }
 
@@ -483,7 +483,7 @@ public final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    DisposableComponent component = ExperimentTypeGrid.create(viewContext);
+                    IDisposableComponent component = ExperimentTypeGrid.create(viewContext);
                     return createTab(Dict.EXPERIMENT_TYPES, component);
                 }
 

@@ -21,7 +21,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Header;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
 /**
@@ -80,7 +80,7 @@ public class DefaultTabItem implements ITabItem
                 isCloseConfirmationNeeded);
     }
 
-    public static ITabItem create(final String title, final DisposableComponent component,
+    public static ITabItem create(final String title, final IDisposableComponent component,
             IViewContext<?> viewContext)
     {
         boolean isCloseConfirmationNeeded = false;
@@ -100,7 +100,7 @@ public class DefaultTabItem implements ITabItem
 
     }
 
-    private static IDelegatedAction createDisposer(final DisposableComponent disposableComponent)
+    private static IDelegatedAction createDisposer(final IDisposableComponent disposableComponent)
     {
         return new IDelegatedAction()
             {

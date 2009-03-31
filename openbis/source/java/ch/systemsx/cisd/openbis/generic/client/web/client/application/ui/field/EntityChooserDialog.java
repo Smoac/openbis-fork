@@ -20,7 +20,7 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.google.gwt.user.client.Event;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -103,7 +103,7 @@ class EntityChooserDialog<T> extends SimpleDialog
 
     private static <T> IDelegatedAction createCancelAction(
             final ChosenEntitySetter<T> chosenEntitySetter,
-            final DisposableComponent componentDisposer)
+            final IDisposableComponent componentDisposer)
     {
         return new IDelegatedAction()
             {

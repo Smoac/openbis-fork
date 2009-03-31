@@ -25,8 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
  * 
  * @author Tomasz Pylak
  */
-// TODO 2009-03-26, Tomasz Pylak: add 'I' prefix
-public interface DisposableComponent extends IDatabaseModificationObserver
+public interface IDisposableComponent extends IDatabaseModificationObserver
 {
     Component getComponent();
 

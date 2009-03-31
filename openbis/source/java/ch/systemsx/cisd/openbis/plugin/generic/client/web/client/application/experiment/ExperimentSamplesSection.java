@@ -20,7 +20,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 
@@ -33,7 +33,7 @@ public class ExperimentSamplesSection extends SectionPanel
 {
     private static final String PREFIX = "experiment-samples-section_";
 
-    private DisposableComponent sampleDisposableGrid;
+    private IDisposableComponent sampleDisposableGrid;
 
     public ExperimentSamplesSection(final Experiment experiment, final IViewContext<?> viewContext)
     {

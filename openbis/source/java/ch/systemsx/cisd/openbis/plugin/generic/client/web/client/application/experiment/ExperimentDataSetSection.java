@@ -20,7 +20,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 
 /**
@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
  */
 class ExperimentDataSetSection extends SectionPanel
 {
-    private final DisposableComponent disposableBrowser;
+    private final IDisposableComponent disposableBrowser;
 
     ExperimentDataSetSection(Experiment experiment, IViewContext<?> viewContext)
     {

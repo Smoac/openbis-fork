@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -60,7 +60,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
 
     public static final String SHOW_DETAILS_BUTTON_ID = BROWSER_ID + "-show-details";
 
-    public static DisposableComponent create(
+    public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final VocabularyGrid grid = new VocabularyGrid(viewContext);
@@ -125,7 +125,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
             {
                 public ITabItem create()
                 {
-                    DisposableComponent component =
+                    IDisposableComponent component =
                             VocabularyTermGrid.create(viewContext, vocabulary);
                     String tabTitle =
                             viewContext.getMessage(Dict.VOCABULARY_TERMS_BROWSER, vocabulary

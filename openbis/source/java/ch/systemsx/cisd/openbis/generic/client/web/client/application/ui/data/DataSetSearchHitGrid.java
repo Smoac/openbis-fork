@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetSearchHitColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
@@ -52,7 +52,7 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
     public static final String BROWSER_ID =
             GenericConstants.ID_PREFIX + "data-set-search-hit-browser";
 
-    public static DisposableComponent create(
+    public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         DataSetSearchHitGrid grid = new DataSetSearchHitGrid(viewContext);

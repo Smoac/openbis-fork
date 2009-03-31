@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -91,7 +91,7 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
         ListSampleCriteria tryGetCriteria();
     }
 
-    public static DisposableComponent create(
+    public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final SampleBrowserToolbar toolbar = new SampleBrowserToolbar(viewContext);
@@ -113,7 +113,7 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
             };
     }
 
-    public static DisposableComponent create(
+    public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext,
             final String experimentIdentifier, String gridId)
     {
