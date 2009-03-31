@@ -29,7 +29,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ViewerTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ClientPluginAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
@@ -151,8 +150,9 @@ public final class ClientPluginFactory extends
                     {
                         final GenericSampleViewer sampleViewer =
                                 new GenericSampleViewer(getViewContext(), identifier);
-                        return new ViewerTabItem(getDetailsTitle(Dict.SAMPLE, identifier),
-                                sampleViewer, false);
+                        // TODO 2009-03-31, Tomasz Pylak: make aware of db modifications
+                        return DefaultTabItem.createUnaware(
+                                getDetailsTitle(Dict.SAMPLE, identifier), sampleViewer, false);
                     }
 
                     public String getId()
@@ -217,8 +217,9 @@ public final class ClientPluginFactory extends
                     {
                         final GenericMaterialViewer materialViewer =
                                 new GenericMaterialViewer(getViewContext(), identifier);
-                        return new ViewerTabItem(getDetailsTitle(Dict.MATERIAL, identifier),
-                                materialViewer, false);
+                        // TODO 2009-03-31, Tomasz Pylak: make aware of db modifications
+                        return DefaultTabItem.createUnaware(getDetailsTitle(Dict.MATERIAL,
+                                identifier), materialViewer, false);
                     }
 
                     public String getId()
@@ -268,8 +269,9 @@ public final class ClientPluginFactory extends
                     {
                         final GenericExperimentViewer experimentViewer =
                                 new GenericExperimentViewer(getViewContext(), identifier);
-                        return new ViewerTabItem(getDetailsTitle(Dict.EXPERIMENT, identifier),
-                                experimentViewer, false);
+                        // TODO 2009-03-31, Tomasz Pylak: make aware of db modifications
+                        return DefaultTabItem.createUnaware(getDetailsTitle(Dict.EXPERIMENT,
+                                identifier), experimentViewer, false);
                     }
 
                     public String getId()

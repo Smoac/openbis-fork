@@ -22,8 +22,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractViewer<T extends IClientServiceAsync> extends LayoutContainer
@@ -34,6 +32,4 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Layo
     {
         this.viewContext = viewContext;
     }
-    
-    public abstract void loadData();
 }

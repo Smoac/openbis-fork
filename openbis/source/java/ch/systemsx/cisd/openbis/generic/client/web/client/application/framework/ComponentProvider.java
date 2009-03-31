@@ -80,11 +80,14 @@ public final class ComponentProvider
         return DefaultTabItem.create(getMessage(titleMessageKey), component, viewContext, true);
     }
 
-    // TODO 2009-03-26, Tomasz Pylak: add db modification observer support
-    private ITabItem createTab(String dictionaryMsgKey, Component component,
+    /**
+     * Creates a tab with the specified component. The tab is unaware of database modifications and
+     * will not be automatically refreshed if changes occur.
+     */
+    private ITabItem createSimpleTab(String dictionaryMsgKey, Component component,
             boolean isCloseConfirmationNeeded)
     {
-        return new DefaultTabItem(getMessage(dictionaryMsgKey), component,
+        return DefaultTabItem.createUnaware(getMessage(dictionaryMsgKey), component,
                 isCloseConfirmationNeeded);
     }
 
@@ -123,29 +126,13 @@ public final class ComponentProvider
             };
     }
 
-    public final ITabItemFactory getDummyComponent()
-    {
-        return new ITabItemFactory()
-            {
-                public ITabItem create()
-                {
-                    return createTab(Dict.NOT_IMPLEMENTED, new DummyComponent(), false);
-                }
-
-                public String getId()
-                {
-                    return DummyComponent.ID;
-                }
-            };
-    }
-
     public final ITabItemFactory getGroupsView()
     {
         return new ITabItemFactory()
             {
                 public ITabItem create()
                 {
-                    return new ContentPanelAdapter(new GroupsView(viewContext), false);
+                    return DefaultTabItem.createUnaware(new GroupsView(viewContext), false);
                 }
 
                 public String getId()
@@ -161,7 +148,7 @@ public final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    return new ContentPanelAdapter(new RolesView(viewContext), false);
+                    return DefaultTabItem.createUnaware(new RolesView(viewContext), false);
                 }
 
                 public String getId()
@@ -177,7 +164,7 @@ public final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    return new ContentPanelAdapter(new PersonsView(viewContext), false);
+                    return DefaultTabItem.createUnaware(new PersonsView(viewContext), false);
                 }
 
                 public String getId()
@@ -230,7 +217,8 @@ public final class ComponentProvider
                 public ITabItem create()
                 {
                     Component component = new SampleBatchRegistrationPanel(viewContext);
-                    return createTab(Dict.SAMPLE_BATCH_REGISTRATION, component, true);
+                    // TODO 2009-03-31, Tomasz Pylak: make aware of db modifications
+                    return createSimpleTab(Dict.SAMPLE_BATCH_REGISTRATION, component, true);
                 }
 
                 public String getId()
@@ -247,7 +235,8 @@ public final class ComponentProvider
                 public ITabItem create()
                 {
                     Component component = new MaterialBatchRegistrationPanel(viewContext);
-                    return createTab(Dict.MATERIAL_IMPORT, component, true);
+                    // TODO 2009-03-31, Tomasz Pylak: make aware of db modifications
+                    return createSimpleTab(Dict.MATERIAL_IMPORT, component, true);
                 }
 
                 public String getId()
@@ -264,7 +253,7 @@ public final class ComponentProvider
                 public ITabItem create()
                 {
                     Component component = new VocabularyRegistrationForm(viewContext);
-                    return createTab(Dict.VOCABULARY_REGISTRATION, component, true);
+                    return createSimpleTab(Dict.VOCABULARY_REGISTRATION, component, true);
                 }
 
                 public String getId()
@@ -281,7 +270,8 @@ public final class ComponentProvider
                 public ITabItem create()
                 {
                     Component component = new ProjectRegistrationForm(viewContext);
-                    return createTab(Dict.PROJECT_REGISTRATION, component, true);
+                    // TODO 2009-03-31, Tomasz Pylak: make aware of db modifications
+                    return createSimpleTab(Dict.PROJECT_REGISTRATION, component, true);
                 }
 
                 public String getId()
@@ -366,7 +356,8 @@ public final class ComponentProvider
                 public ITabItem create()
                 {
                     Component component = new PropertyTypeRegistrationForm(viewContext);
-                    return createTab(Dict.PROPERTY_TYPE_REGISTRATION, component, true);
+                    // TODO 2009-03-31, Tomasz Pylak: make aware of db modifications
+                    return createSimpleTab(Dict.PROPERTY_TYPE_REGISTRATION, component, true);
                 }
 
                 public String getId()

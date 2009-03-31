@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DummyComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ViewerTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ClientPluginAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
@@ -129,7 +128,8 @@ public final class ClientPluginFactory extends
                     {
                         final ScreeningSampleViewer sampleViewer =
                                 new ScreeningSampleViewer(getViewContext(), sampleIdentifier);
-                        return new ViewerTabItem(sampleIdentifier, sampleViewer, false);
+                        // TODO 2009-03-31, Tomasz Pylak: make aware of db modifications
+                        return DefaultTabItem.createUnaware(sampleIdentifier, sampleViewer, false);
                     }
 
                     public String getId()
@@ -156,8 +156,7 @@ public final class ClientPluginFactory extends
                 {
                     public ITabItem create()
                     {
-                        Component component = new DummyComponent();
-                        return new DefaultTabItem(entity.getIdentifier(), component, false);
+                        return createDummyTab(entity.getIdentifier());
                     }
 
                     public String getId()
@@ -185,8 +184,7 @@ public final class ClientPluginFactory extends
                 {
                     public ITabItem create()
                     {
-                        Component component = new DummyComponent();
-                        return new DefaultTabItem(identifier.getIdentifier(), component, false);
+                        return createDummyTab(identifier.getIdentifier());
                     }
 
                     public String getId()
@@ -195,5 +193,11 @@ public final class ClientPluginFactory extends
                     }
                 };
         }
+    }
+
+    private static ITabItem createDummyTab(final String identifier)
+    {
+        Component component = new DummyComponent();
+        return DefaultTabItem.createUnaware(identifier, component, false);
     }
 }

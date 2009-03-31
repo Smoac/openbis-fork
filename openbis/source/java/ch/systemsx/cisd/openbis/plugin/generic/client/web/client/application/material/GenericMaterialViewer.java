@@ -48,6 +48,7 @@ public final class GenericMaterialViewer extends AbstractViewer<IGenericClientSe
         super(viewContext);
         setId(createId(materialIdentifier));
         this.materialIdentifier = materialIdentifier;
+        loadData();
     }
 
     public static String createId(String materialIdentifier)
@@ -63,8 +64,7 @@ public final class GenericMaterialViewer extends AbstractViewer<IGenericClientSe
     /**
      * Load the material information.
      */
-    @Override
-    public final void loadData()
+    private void loadData()
     {
         viewContext.getService().getMaterialInfo(materialIdentifier,
                 new MaterialInfoCallback(viewContext, this));

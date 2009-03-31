@@ -45,6 +45,7 @@ public final class ScreeningSampleViewer extends AbstractViewer<IScreeningClient
         super(viewContext);
         setId(createId(sampleIdentifier));
         this.sampleIdentifier = sampleIdentifier;
+        loadData();
     }
 
     public static final String createId(String sampleIdentifier)
@@ -61,8 +62,7 @@ public final class ScreeningSampleViewer extends AbstractViewer<IScreeningClient
     /**
      * Load the sample information.
      */
-    @Override
-    public final void loadData()
+    private void loadData()
     {
         SampleInfoCallback callback = new SampleInfoCallback(viewContext, this);
         viewContext.getService().getSampleInfo(sampleIdentifier, callback);

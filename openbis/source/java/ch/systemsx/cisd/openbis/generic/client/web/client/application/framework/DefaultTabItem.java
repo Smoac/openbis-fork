@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
 import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Header;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
@@ -39,13 +41,37 @@ public class DefaultTabItem implements ITabItem
 
     private final LastModificationStateUpdater lastModificationStateUpdaterOrNull;
 
-    // TODO 2009-03-26, Tomasz Pylak: add Database Modification Observer
-    public DefaultTabItem(final String title, final Component component,
+    /**
+     * Creates a tab with the specified {@link Component}. The tab is unaware of database
+     * modifications and will not be automatically refreshed if changes occur.
+     */
+    public static ITabItem createUnaware(final String title, final Component component,
             boolean isCloseConfirmationNeeded)
     {
-        this(title, component, null, null, isCloseConfirmationNeeded);
+        return new DefaultTabItem(title, component, null, null, isCloseConfirmationNeeded);
     }
 
+    /**
+     * Creates a tab with the specified {@link ContentPanel}. The tab is unaware of database
+     * modifications and will not be automatically refreshed if changes occur.
+     */
+    public static ITabItem createUnaware(final ContentPanel component,
+            boolean isCloseConfirmationNeeded)
+    {
+        String title = getTabTitle(component);
+        return new DefaultTabItem(title, component, null, null, isCloseConfirmationNeeded);
+    }
+
+    private static String getTabTitle(ContentPanel contentPanel)
+    {
+        final Header header = contentPanel.getHeader();
+        return header != null ? header.getText() : contentPanel.getId();
+    }
+
+    /**
+     * Creates a tab with the specified component. The tab is aware of database modifications and
+     * will be automatically refreshed if relevant changes take place.
+     */
     public static ITabItem create(final String title,
             final DatabaseModificationAwareComponent component, IViewContext<?> viewContext,
             boolean isCloseConfirmationNeeded)

@@ -48,6 +48,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
         super(viewContext);
         setId(createId(experimentIdentifier));
         this.experimentIdentifier = experimentIdentifier;
+        loadData();
     }
 
     public static String createId(String experimentIdentifier)
@@ -63,8 +64,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
     /**
      * Load the experiment information.
      */
-    @Override
-    public final void loadData()
+    private void loadData()
     {
         viewContext.getService().getExperimentInfo(experimentIdentifier,
                 new ExperimentInfoCallback(viewContext, this));

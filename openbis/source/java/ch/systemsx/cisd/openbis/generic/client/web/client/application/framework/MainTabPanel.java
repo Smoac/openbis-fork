@@ -69,7 +69,7 @@ public class MainTabPanel extends TabPanel
         layoutContainer.setId(layoutContainerId);
         layoutContainer.addText(createWelcomeText());
         final MainTabItem intro =
-                new MainTabItem(new DefaultTabItem("&nbsp;", layoutContainer, false),
+                new MainTabItem(DefaultTabItem.createUnaware("&nbsp;", layoutContainer, false),
                         layoutContainerId);
         intro.setClosable(false);
         return intro;

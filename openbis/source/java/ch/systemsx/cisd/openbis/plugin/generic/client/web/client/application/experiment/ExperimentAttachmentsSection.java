@@ -137,7 +137,7 @@ public class ExperimentAttachmentsSection extends SectionPanel
                             public ITabItem create()
                             {
                                 Component component = createVersionsPanel(allFiles, fileName);
-                                return new DefaultTabItem(tabTitle, component, false);
+                                return DefaultTabItem.createUnaware(tabTitle, component, false);
                             }
 
                             public String getId()
