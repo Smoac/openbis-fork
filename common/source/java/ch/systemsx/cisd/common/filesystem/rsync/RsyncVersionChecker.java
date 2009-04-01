@@ -173,12 +173,12 @@ final class RsyncVersionChecker
     {
         assert rsyncExecutable != null;
 
-        String rsyncVersion = tryGetRsyncVersion(rsyncExecutable);
-        if (rsyncVersion == null)
+        String rsyncVersionOrNull = tryGetRsyncVersion(rsyncExecutable);
+        if (rsyncVersionOrNull == null)
         {
             return null;
         }
-        return parseVersion(rsyncVersion);
+        return parseVersion(rsyncVersionOrNull);
     }
 
     /**
@@ -222,7 +222,7 @@ final class RsyncVersionChecker
     static RsyncVersion tryParseVersionLine(String rsyncVersionLine)
     {
         final String rsyncVersionOrNull = tryExtractRsyncVersion(rsyncVersionLine);
-        if (rsyncVersionLine == null)
+        if (rsyncVersionOrNull == null)
         {
             return null;
         } else
