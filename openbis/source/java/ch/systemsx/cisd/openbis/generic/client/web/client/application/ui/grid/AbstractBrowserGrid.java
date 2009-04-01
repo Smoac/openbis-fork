@@ -207,14 +207,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         add(contentPanel);
     }
 
-    // TODO 2009-03-26, Tomasz Pylak: delete this and implement in subclasses
-    // !!!!!!!!!!!!!!!!!!!!!!!!!
-    public void update(Set<DatabaseModificationKind> observedModifications)
-    {
-        System.out.println("generic grid refresh requested: " + observedModifications);
-        refreshGridSilently();
-    }
-
     /** Refreshes the grid without showing the loading progress bar */
     protected void refreshGridSilently()
     {

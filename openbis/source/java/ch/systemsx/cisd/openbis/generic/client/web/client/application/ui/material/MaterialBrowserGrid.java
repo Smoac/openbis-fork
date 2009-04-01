@@ -19,7 +19,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.materi
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -33,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MaterialModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
@@ -43,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.SetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
@@ -85,6 +90,8 @@ public class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialM
          *         set.
          */
         ListMaterialCriteria tryGetCriteria();
+
+        IDatabaseModificationObserver tryGetModificationObserver();
     }
 
     /**
@@ -107,10 +114,15 @@ public class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialM
                 {
                     return toolbar.tryGetCriteria();
                 }
+
+                public IDatabaseModificationObserver tryGetModificationObserver()
+                {
+                    return toolbar;
+                }
             };
         final MaterialBrowserGrid browserGrid =
                 createBrowserGrid(viewContext, criteriaProvider, detailsAvailable);
-        browserGrid.extendTopToolbar(toolbar);
+        browserGrid.extendTopToolbar(toolbar, detailsAvailable);
         return browserGrid.asDisposableWithToolbar(toolbar);
 
     }
@@ -141,6 +153,11 @@ public class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialM
                 public ListMaterialCriteria tryGetCriteria()
                 {
                     return new ListMaterialCriteria(initValue);
+                }
+
+                public IDatabaseModificationObserver tryGetModificationObserver()
+                {
+                    return null;
                 }
             };
         boolean detailsAvailable = false;
@@ -178,16 +195,18 @@ public class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialM
         setId(BROWSER_ID);
     }
 
-    private void extendTopToolbar(MaterialBrowserToolbar toolbar)
+    private void extendTopToolbar(MaterialBrowserToolbar toolbar, boolean detailsAvailable)
     {
         SelectionChangedListener<?> refreshButtonListener = addRefreshButton(toolbar);
         toolbar.setCriteriaChangedListener(refreshButtonListener);
         toolbar.add(new FillToolItem());
 
-        String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
-        Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
-        toolbar.add(new AdapterToolItem(editButton));
-
+        if (detailsAvailable)
+        {
+            String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
+            Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
+            toolbar.add(new AdapterToolItem(editButton));
+        }
     }
 
     @Override
@@ -304,8 +323,38 @@ public class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialM
 
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        return new DatabaseModificationKind[]
-            { createOrDelete(ObjectKind.MATERIAL_TYPE), createOrDelete(ObjectKind.MATERIAL),
-                    edit(ObjectKind.MATERIAL) };
+        List<DatabaseModificationKind> relevantModifications =
+                new ArrayList<DatabaseModificationKind>();
+        IDatabaseModificationObserver criteriaModificationObserver =
+                criteriaProvider.tryGetModificationObserver();
+        if (criteriaModificationObserver != null)
+        {
+            SetUtils.addAll(relevantModifications, criteriaModificationObserver
+                    .getRelevantModifications());
+        }
+        relevantModifications.addAll(getGridRelevantModifications());
+        return relevantModifications.toArray(DatabaseModificationKind.EMPTY_ARRAY);
+    }
+
+    private static Set<DatabaseModificationKind> getGridRelevantModifications()
+    {
+        Set<DatabaseModificationKind> result = new HashSet<DatabaseModificationKind>();
+        result.add(createOrDelete(ObjectKind.MATERIAL));
+        result.add(edit(ObjectKind.MATERIAL));
+        return result;
+    }
+
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        IDatabaseModificationObserver criteriaModificationObserver =
+                criteriaProvider.tryGetModificationObserver();
+        if (criteriaModificationObserver != null)
+        {
+            criteriaModificationObserver.update(observedModifications);
+        }
+        if (SetUtils.containsAny(observedModifications, getGridRelevantModifications()))
+        {
+            refreshGridSilently();
+        }
     }
 }

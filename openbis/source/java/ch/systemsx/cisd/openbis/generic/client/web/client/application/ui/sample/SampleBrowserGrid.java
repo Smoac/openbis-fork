@@ -19,7 +19,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -34,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
@@ -43,9 +47,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.SetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
@@ -89,6 +94,8 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
     private interface ICriteriaProvider
     {
         ListSampleCriteria tryGetCriteria();
+
+        IDatabaseModificationObserver tryGetModificationObserver();
     }
 
     public static IDisposableComponent create(
@@ -110,6 +117,11 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
                 {
                     return toolbar.tryGetCriteria();
                 }
+
+                public IDatabaseModificationObserver tryGetModificationObserver()
+                {
+                    return toolbar;
+                }
             };
     }
 
@@ -124,6 +136,11 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
                     ListSampleCriteria criteria = new ListSampleCriteria();
                     criteria.setExperimentIdentifier(experimentIdentifier);
                     return criteria;
+                }
+
+                public IDatabaseModificationObserver tryGetModificationObserver()
+                {
+                    return null;
                 }
             };
 
@@ -313,8 +330,38 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
 
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        return new DatabaseModificationKind[]
-            { edit(ObjectKind.SAMPLE), createOrDelete(ObjectKind.SAMPLE),
-                    createOrDelete(ObjectKind.SAMPLE_TYPE), createOrDelete(ObjectKind.GROUP) };
+        List<DatabaseModificationKind> relevantModifications =
+                new ArrayList<DatabaseModificationKind>();
+        IDatabaseModificationObserver criteriaModificationObserver =
+                criteriaProvider.tryGetModificationObserver();
+        if (criteriaModificationObserver != null)
+        {
+            SetUtils.addAll(relevantModifications, criteriaModificationObserver
+                    .getRelevantModifications());
+        }
+        relevantModifications.addAll(getGridRelevantModifications());
+        return relevantModifications.toArray(DatabaseModificationKind.EMPTY_ARRAY);
+    }
+
+    private static Set<DatabaseModificationKind> getGridRelevantModifications()
+    {
+        Set<DatabaseModificationKind> result = new HashSet<DatabaseModificationKind>();
+        result.add(createOrDelete(ObjectKind.SAMPLE));
+        result.add(edit(ObjectKind.SAMPLE));
+        return result;
+    }
+
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        IDatabaseModificationObserver criteriaModificationObserver =
+                criteriaProvider.tryGetModificationObserver();
+        if (criteriaModificationObserver != null)
+        {
+            criteriaModificationObserver.update(observedModifications);
+        }
+        if (SetUtils.containsAny(observedModifications, getGridRelevantModifications()))
+        {
+            refreshGridSilently();
+        }
     }
 }

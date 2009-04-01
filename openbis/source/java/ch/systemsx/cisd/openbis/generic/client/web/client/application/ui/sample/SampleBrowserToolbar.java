@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
+
+import java.util.Set;
+
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
@@ -26,10 +30,13 @@ import com.google.gwt.user.client.Element;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * The toolbar of sample browser.
@@ -37,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * @author Izabela Adamczyk
  * @author Christian Ribeaud
  */
-final class SampleBrowserToolbar extends ToolBar
+final class SampleBrowserToolbar extends ToolBar implements IDatabaseModificationObserver
 {
     public static final String ID = "sample-browser-toolbar";
 
@@ -108,6 +115,25 @@ final class SampleBrowserToolbar extends ToolBar
     protected final void onRender(final Element parent, final int pos)
     {
         super.onRender(parent, pos);
+    }
+
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return new DatabaseModificationKind[]
+            { createOrDelete(ObjectKind.SAMPLE_TYPE), createOrDelete(ObjectKind.GROUP) };
+    }
+
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        if (observedModifications.contains(createOrDelete(ObjectKind.SAMPLE_TYPE)))
+        {
+            selectSampleTypeCombo.refreshStore();
+        }
+        if (observedModifications.contains(createOrDelete(ObjectKind.GROUP)))
+        {
+            selectGroupCombo.refreshStore();
+        }
+
     }
 
 }

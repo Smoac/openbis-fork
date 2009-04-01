@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 
 import java.util.List;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.XDOM;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -163,5 +164,10 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
                     createOrDelete(ObjectKind.EXPERIMENT), edit(ObjectKind.EXPERIMENT),
                     createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                     createOrDelete(ObjectKind.VOCABULARY_TERM) };
+    }
+
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        refreshGridSilently();
     }
 }

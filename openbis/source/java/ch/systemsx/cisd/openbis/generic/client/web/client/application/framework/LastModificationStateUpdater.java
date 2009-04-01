@@ -52,12 +52,6 @@ class LastModificationStateUpdater extends AbstractAsyncCallback<LastModificatio
         this.lastSeenModificationStateOrNull = null;
     }
 
-    private void debug(String msg)
-    {
-        // TODO 2009-03-26, Tomasz Pylak: add proper logging
-        System.out.println("LMS Updater: " + msg);
-    }
-
     public void update()
     {
         commonService.getLastModificationState(this);
@@ -84,7 +78,6 @@ class LastModificationStateUpdater extends AbstractAsyncCallback<LastModificatio
                         lastSeenModificationStateOrNull);
         if (unseenModifications.size() > 0)
         {
-            debug("new modifications detected: " + unseenModifications);
             modificationObserver.update(unseenModifications);
         }
     }

@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
+
+import java.util.Set;
+
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
@@ -26,15 +30,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * The toolbar of material browser.
  * 
  * @author Izabela Adamczyk
  */
-class MaterialBrowserToolbar extends ToolBar
+class MaterialBrowserToolbar extends ToolBar implements IDatabaseModificationObserver
 {
     public static final String ID = "material-browser-toolbar";
 
@@ -79,6 +86,20 @@ class MaterialBrowserToolbar extends ToolBar
     protected final void onRender(final Element parent, final int pos)
     {
         super.onRender(parent, pos);
+    }
+
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return new DatabaseModificationKind[]
+            { createOrDelete(ObjectKind.MATERIAL_TYPE) };
+    }
+
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        if (observedModifications.contains(createOrDelete(ObjectKind.MATERIAL_TYPE)))
+        {
+            selectMaterialTypeCombo.update(observedModifications);
+        }
     }
 
 }

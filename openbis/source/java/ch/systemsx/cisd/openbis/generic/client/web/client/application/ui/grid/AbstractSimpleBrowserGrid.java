@@ -16,10 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
+import java.util.Set;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 
 /**
  * Grid displaying all the entities without any criteria (useful when there is no specific toolbar).
@@ -67,5 +70,10 @@ abstract public class AbstractSimpleBrowserGrid<T/* Entity */> extends
     protected BaseEntityModel<T> createModel(T entity)
     {
         return new BaseEntityModel<T>(entity, getStaticColumnsDefinition());
+    }
+
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        refreshGridSilently();
     }
 }

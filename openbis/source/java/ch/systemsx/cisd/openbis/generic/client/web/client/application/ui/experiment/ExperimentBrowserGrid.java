@@ -281,7 +281,6 @@ public class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment, Exper
         return result;
     }
 
-    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         topToolbar.update(observedModifications);
