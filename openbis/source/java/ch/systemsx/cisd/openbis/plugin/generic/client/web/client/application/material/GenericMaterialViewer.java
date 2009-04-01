@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material;
 
+import java.util.Set;
+
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -25,8 +27,12 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -35,6 +41,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * @author Piotr Buczek
  */
 public final class GenericMaterialViewer extends AbstractViewer<IGenericClientServiceAsync>
+        implements IDatabaseModificationObserver
 {
     private static final String PREFIX = "generic-material-viewer_";
 
@@ -42,7 +49,15 @@ public final class GenericMaterialViewer extends AbstractViewer<IGenericClientSe
 
     private final String materialIdentifier;
 
-    public GenericMaterialViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
+    public static DatabaseModificationAwareComponent create(
+            final IViewContext<IGenericClientServiceAsync> viewContext,
+            final String materialIdentifier)
+    {
+        GenericMaterialViewer viewer = new GenericMaterialViewer(viewContext, materialIdentifier);
+        return new DatabaseModificationAwareComponent(viewer, viewer);
+    }
+
+    private GenericMaterialViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
             final String materialIdentifier)
     {
         super(viewContext);
@@ -99,6 +114,19 @@ public final class GenericMaterialViewer extends AbstractViewer<IGenericClientSe
             addSection(genericMaterialViewer, new MaterialPropertiesSection(result, viewContext));
             genericMaterialViewer.layout();
         }
+    }
+
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return new DatabaseModificationKind[]
+            { DatabaseModificationKind.edit(ObjectKind.MATERIAL),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM) };
+    }
+
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        loadData(); // reloads everything
     }
 
 }

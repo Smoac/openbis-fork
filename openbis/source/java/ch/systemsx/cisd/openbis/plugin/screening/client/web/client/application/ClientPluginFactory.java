@@ -128,7 +128,6 @@ public final class ClientPluginFactory extends
                     {
                         final ScreeningSampleViewer sampleViewer =
                                 new ScreeningSampleViewer(getViewContext(), sampleIdentifier);
-                        // TODO 2009-03-31, Tomasz Pylak: make aware of db modifications
                         return DefaultTabItem.createUnaware(sampleIdentifier, sampleViewer, false);
                     }
 

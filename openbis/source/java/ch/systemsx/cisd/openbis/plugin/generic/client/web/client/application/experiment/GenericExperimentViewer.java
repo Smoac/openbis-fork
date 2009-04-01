@@ -25,6 +25,8 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -42,12 +44,24 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
 
     private final String experimentIdentifier;
 
-    public GenericExperimentViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
+    private final CompositeDatabaseModificationObserver modificationObserver;
+
+    public static DatabaseModificationAwareComponent create(
+            final IViewContext<IGenericClientServiceAsync> viewContext,
+            final String experimentIdentifier)
+    {
+        GenericExperimentViewer viewer =
+                new GenericExperimentViewer(viewContext, experimentIdentifier);
+        return new DatabaseModificationAwareComponent(viewer, viewer.modificationObserver);
+    }
+
+    private GenericExperimentViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
             final String experimentIdentifier)
     {
         super(viewContext);
         setId(createId(experimentIdentifier));
         this.experimentIdentifier = experimentIdentifier;
+        this.modificationObserver = new CompositeDatabaseModificationObserver();
         loadData();
     }
 
@@ -67,18 +81,22 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
     private void loadData()
     {
         viewContext.getService().getExperimentInfo(experimentIdentifier,
-                new ExperimentInfoCallback(viewContext, this));
+                new ExperimentInfoCallback(viewContext, this, modificationObserver));
     }
 
     public static final class ExperimentInfoCallback extends AbstractAsyncCallback<Experiment>
     {
         private final GenericExperimentViewer genericExperimentViewer;
 
+        private final CompositeDatabaseModificationObserver modificationObserver;
+
         private ExperimentInfoCallback(final IViewContext<IGenericClientServiceAsync> viewContext,
-                final GenericExperimentViewer genericSampleViewer)
+                final GenericExperimentViewer genericSampleViewer,
+                final CompositeDatabaseModificationObserver modificationObserver)
         {
             super(viewContext);
             this.genericExperimentViewer = genericSampleViewer;
+            this.modificationObserver = modificationObserver;
         }
 
         //
@@ -92,6 +110,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
          * </p>
          */
         @Override
+        // TODO 2009-04-01, Tomasz Pylak: add attachments and properies auto-refresh
         protected final void process(final Experiment result)
         {
             genericExperimentViewer.removeAll();
@@ -100,10 +119,18 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
                     new ExperimentPropertiesSection(result, viewContext));
             addSection(genericExperimentViewer, new ExperimentAttachmentsSection(result,
                     viewContext));
-            addSection(genericExperimentViewer, new ExperimentSamplesSection(result, viewContext));
-            addSection(genericExperimentViewer, new ExperimentDataSetSection(result, viewContext));
+
+            ExperimentSamplesSection sampleSection =
+                    new ExperimentSamplesSection(result, viewContext);
+            addSection(genericExperimentViewer, sampleSection);
+            modificationObserver.addObserver(sampleSection.getDatabaseModificationObserver());
+
+            ExperimentDataSetSection dataSection =
+                    new ExperimentDataSetSection(result, viewContext);
+            addSection(genericExperimentViewer, dataSection);
+            modificationObserver.addObserver(dataSection.getDatabaseModificationObserver());
+
             genericExperimentViewer.layout();
         }
     }
-
 }

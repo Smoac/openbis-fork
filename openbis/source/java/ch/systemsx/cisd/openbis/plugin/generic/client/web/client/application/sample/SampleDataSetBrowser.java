@@ -59,9 +59,7 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
 
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.SAMPLE),
-                    DatabaseModificationKind.edit(ObjectKind.SAMPLE) };
+        return DatabaseModificationKind.any(ObjectKind.DATA_SET);
     }
 
 }

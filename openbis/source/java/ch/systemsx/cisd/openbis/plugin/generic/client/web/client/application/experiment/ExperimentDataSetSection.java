@@ -20,12 +20,11 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class ExperimentDataSetSection extends SectionPanel
@@ -40,11 +39,16 @@ class ExperimentDataSetSection extends SectionPanel
         add(disposableBrowser.getComponent(), new RowData(-1, 200));
     }
 
+    public IDatabaseModificationObserver getDatabaseModificationObserver()
+    {
+        return disposableBrowser;
+    }
+
     @Override
     protected void onDetach()
     {
         disposableBrowser.dispose();
         super.onDetach();
     }
-    
+
 }

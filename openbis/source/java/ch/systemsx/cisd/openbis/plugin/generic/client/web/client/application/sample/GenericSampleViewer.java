@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -51,6 +52,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
@@ -66,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -76,7 +81,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Christian Ribeaud
  */
-public final class GenericSampleViewer extends AbstractViewer<IGenericClientServiceAsync>
+public final class GenericSampleViewer extends AbstractViewer<IGenericClientServiceAsync> implements
+        IDatabaseModificationObserver
 {
     private static final String PREFIX = "generic-sample-viewer_";
 
@@ -95,7 +101,14 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
     private IDisposableComponent disposableBrowser;
 
-    public GenericSampleViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
+    public static DatabaseModificationAwareComponent create(
+            IViewContext<IGenericClientServiceAsync> viewContext, String sampleIdentifier)
+    {
+        GenericSampleViewer viewer = new GenericSampleViewer(viewContext, sampleIdentifier);
+        return new DatabaseModificationAwareComponent(viewer, viewer);
+    }
+
+    private GenericSampleViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
             final String sampleIdentifier)
     {
         super(viewContext);
@@ -383,5 +396,27 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
             genericSampleViewer.layout();
             genericSampleViewer.loadStores();
         }
+    }
+
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return createDatabaseModificationObserver().getRelevantModifications();
+    }
+
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        createDatabaseModificationObserver().update(observedModifications);
+    }
+
+    // TODO 2009-04-01, Tomasz Pylak: add auto-refresh for properties and contained samples
+    private CompositeDatabaseModificationObserver createDatabaseModificationObserver()
+    {
+        CompositeDatabaseModificationObserver observer =
+                new CompositeDatabaseModificationObserver();
+        if (disposableBrowser != null)
+        {
+            observer.addObserver(disposableBrowser);
+        }
+        return observer;
     }
 }

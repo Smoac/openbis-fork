@@ -148,11 +148,10 @@ public final class ClientPluginFactory extends
                 {
                     public ITabItem create()
                     {
-                        final GenericSampleViewer sampleViewer =
-                                new GenericSampleViewer(getViewContext(), identifier);
-                        // TODO 2009-03-31, Tomasz Pylak: make aware of db modifications
-                        return DefaultTabItem.createUnaware(
-                                getDetailsTitle(Dict.SAMPLE, identifier), sampleViewer, false);
+                        final DatabaseModificationAwareComponent sampleViewer =
+                                GenericSampleViewer.create(getViewContext(), identifier);
+                        return DefaultTabItem.create(getDetailsTitle(Dict.SAMPLE, identifier),
+                                sampleViewer, getViewContext(), false);
                     }
 
                     public String getId()
@@ -215,11 +214,10 @@ public final class ClientPluginFactory extends
                 {
                     public ITabItem create()
                     {
-                        final GenericMaterialViewer materialViewer =
-                                new GenericMaterialViewer(getViewContext(), identifier);
-                        // TODO 2009-03-31, Tomasz Pylak: make aware of db modifications
-                        return DefaultTabItem.createUnaware(getDetailsTitle(Dict.MATERIAL,
-                                identifier), materialViewer, false);
+                        final DatabaseModificationAwareComponent materialViewer =
+                                GenericMaterialViewer.create(getViewContext(), identifier);
+                        return DefaultTabItem.create(getDetailsTitle(Dict.MATERIAL, identifier),
+                                materialViewer, getViewContext(), false);
                     }
 
                     public String getId()
@@ -267,11 +265,10 @@ public final class ClientPluginFactory extends
                 {
                     public ITabItem create()
                     {
-                        final GenericExperimentViewer experimentViewer =
-                                new GenericExperimentViewer(getViewContext(), identifier);
-                        // TODO 2009-03-31, Tomasz Pylak: make aware of db modifications
-                        return DefaultTabItem.createUnaware(getDetailsTitle(Dict.EXPERIMENT,
-                                identifier), experimentViewer, false);
+                        final DatabaseModificationAwareComponent experimentViewer =
+                                GenericExperimentViewer.create(getViewContext(), identifier);
+                        return DefaultTabItem.create(getDetailsTitle(Dict.EXPERIMENT, identifier),
+                                experimentViewer, getViewContext(), false);
                     }
 
                     public String getId()

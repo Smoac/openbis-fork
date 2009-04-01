@@ -302,9 +302,12 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         formPanel.add(getMandatoryCheckbox());
         updateDefaultField();
 
-        // TODO 2009-03-30, Tomasz Pylak: add auto-refreshing of the initial value field
         modificationManager.addObserver(propertyTypeWidget);
         modificationManager.addObserver(typeSelectionWidget);
+        if (defaultValueField != null)
+        {
+            modificationManager.addObserver(defaultValueField);
+        }
     }
 
     @Override

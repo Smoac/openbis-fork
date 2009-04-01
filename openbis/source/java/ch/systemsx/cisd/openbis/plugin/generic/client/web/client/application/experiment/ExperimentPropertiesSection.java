@@ -57,15 +57,16 @@ public class ExperimentPropertiesSection extends SectionPanel
 
     private final PropertyGrid createPropertyGrid()
     {
-        final Map<String, Object> properties = createProperties(viewContext);
-        final PropertyGrid propertyGrid = new PropertyGrid(viewContext, properties.size());
+        IMessageProvider messageProvider = viewContext;
+        final Map<String, Object> properties = createProperties(messageProvider);
+        final PropertyGrid propertyGrid = new PropertyGrid(messageProvider, properties.size());
         propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + experiment.getIdentifier());
         propertyGrid.registerPropertyValueRenderer(Person.class, PropertyValueRenderers
-                .createPersonPropertyValueRenderer(viewContext));
+                .createPersonPropertyValueRenderer(messageProvider));
         propertyGrid.registerPropertyValueRenderer(ExperimentType.class, PropertyValueRenderers
-                .createExperimentTypePropertyValueRenderer(viewContext));
+                .createExperimentTypePropertyValueRenderer(messageProvider));
         propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
-                .createInvalidationPropertyValueRenderer(viewContext));
+                .createInvalidationPropertyValueRenderer(messageProvider));
         propertyGrid.registerPropertyValueRenderer(ExperimentProperty.class, PropertyValueRenderers
                 .createExperimentPropertyPropertyValueRenderer(viewContext));
         propertyGrid.setProperties(properties);
