@@ -215,6 +215,9 @@
 				<include name="etc/log.xml" />
 				<include name="etc/passwd" />
 			</classes>
+                        <classes dir="${classes}">
+                                <include name="${build.info.filename}" />
+                        </classes>
 			<lib dir="${dist}">
 				<include name="${jar.file.name}" />
 			</lib>
