@@ -37,6 +37,7 @@ public class ShowExperiment extends AbstractDefaultTestCommand
     public ShowExperiment(final String code)
     {
         this.code = code;
+        addCallbackClass(ExperimentBrowserGrid.ListEntitiesCallback.class);
     }
 
     @SuppressWarnings("unchecked")
