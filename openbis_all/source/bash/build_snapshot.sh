@@ -15,6 +15,7 @@ echo Building openBIS...
 echo Copying new openBIS components to \'$SPRINT_SERVER\'...
 scp openBIS-server-*.zip $SPRINT_SERVER:.
 scp datastore_server-*.zip $SPRINT_SERVER:.
+rm -f *.zip
 
 # If sprint install script is present and executable, run it!
 if [ -x $SPRINT_INSTALL_SCRIPT ]; then
