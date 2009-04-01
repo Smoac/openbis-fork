@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2008 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin;
+package ch.systemsx.cisd.openbis.generic.server.plugin;
 
 /**
- * Plug-in interface for data sets.
- *
- * @author Franz-Josef Elmer
+ * The sample plug-in.
+ * 
+ * @author Christian Ribeaud
  */
-public interface IDataSetServerPlugin extends IServerPlugin
+public interface ISampleServerPlugin extends IServerPlugin
 {
     /**
-     * Returns the slave server of this data set server plug-in.
+     * Returns the slave server of this sample server plug-in.
      */
-    public IDataSetTypeSlaveServerPlugin getSlaveServer();
+    public ISampleTypeSlaveServerPlugin getSlaveServer();
 }

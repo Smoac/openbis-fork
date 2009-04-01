@@ -20,20 +20,19 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
-import ch.systemsx.cisd.openbis.plugin.IDataSetServerPlugin;
-import ch.systemsx.cisd.openbis.plugin.IDataSetTypeSlaveServerPlugin;
-import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetServerPlugin;
+import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 
 /**
  * The default {@link IDataSetServerPlugin} implementation for the <i>generic</i> technology.
  *
  * @author Franz-Josef Elmer
  */
-@Component(ResourceNames.GENERIC_DATA_SET_SERVER_PLUGIN)
+@Component(ch.systemsx.cisd.openbis.generic.shared.ResourceNames.GENERIC_DATA_SET_SERVER_PLUGIN)
 public class GenericDataSetServerPlugin extends AbstractGenericServerPlugin implements
         IDataSetServerPlugin
 {
-    @Resource(name = ResourceNames.GENERIC_DATA_SET_TYPE_SLAVE_SERVER_PLUGIN)
+    @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.GENERIC_DATA_SET_TYPE_SLAVE_SERVER_PLUGIN)
     private GenericDataSetTypeSlaveServerPlugin genericDataSetTypeSlaveServerPlugin;
 
     public IDataSetTypeSlaveServerPlugin getSlaveServer()

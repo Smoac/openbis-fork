@@ -87,6 +87,14 @@ check layeringOf generic.server.1 generic.server.2 generic.server.3 generic.serv
 # Plugins
 ##########################################
 
+[generic] = ${generic}.* excluding *.DefaultClientPluginFactoryProvider
+[plugins] = ${plugin}.* 
+[plugins-clientpluginfactories] = ${plugin}.* excluding *.ClientPluginFactory 
+
+check sets [generic] [plugins] [plugins-clientpluginfactories]
+check [generic] directlyIndependentOf [plugins]
+check ${generic}.*.DefaultClientPluginFactoryProvider directlyIndependentOf [plugins-clientpluginfactories]
+
 [plugin.generic] = ${plugin}.generic.*
 [plugin.screening] = ${plugin}.screening.*
 check sets [plugin.generic] [plugin.screening]

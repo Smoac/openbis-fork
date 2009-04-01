@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin;
-
-import java.util.Set;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+package ch.systemsx.cisd.openbis.generic.server.plugin;
 
 /**
- * 
+ * Plug-in interface for data sets.
  *
  * @author Franz-Josef Elmer
  */
-public interface IServerPlugin
+public interface IDataSetServerPlugin extends IServerPlugin
 {
     /**
-     * Returns all the entity type codes for specified entity kind which are supported by this
-     * server plugin.
+     * Returns the slave server of this data set server plug-in.
      */
-    public Set<String> getEntityTypeCodes(final EntityKind entityKind);
-
+    public IDataSetTypeSlaveServerPlugin getSlaveServer();
 }

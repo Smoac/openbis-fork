@@ -21,11 +21,11 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
+import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleServerPlugin;
+import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
+import ch.systemsx.cisd.openbis.generic.server.plugin.SampleServerPluginRegistry;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.AbstractSampleServerPlugin;
-import ch.systemsx.cisd.openbis.plugin.ISampleServerPlugin;
-import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
-import ch.systemsx.cisd.openbis.plugin.SampleServerPluginRegistry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 
 /**

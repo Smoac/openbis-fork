@@ -20,7 +20,9 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
-import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleServerPlugin;
+import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
+import ch.systemsx.cisd.openbis.generic.server.plugin.SampleServerPluginRegistry;
 
 /**
  * An abstract {@link ISampleServerPlugin} which registers itself to
@@ -35,7 +37,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
  */
 public abstract class AbstractSampleServerPlugin implements ISampleServerPlugin
 {
-    @Resource(name = ResourceNames.GENERIC_SAMPLE_TYPE_SLAVE_SERVER_PLUGIN)
+    @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.GENERIC_SAMPLE_TYPE_SLAVE_SERVER_PLUGIN)
     private ISampleTypeSlaveServerPlugin genericSampleTypeSlaveServerPlugin;
 
     protected AbstractSampleServerPlugin()

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin;
+package ch.systemsx.cisd.openbis.generic.client.web.server;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;

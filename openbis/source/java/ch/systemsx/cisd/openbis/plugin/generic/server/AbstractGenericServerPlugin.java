@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.server.plugin.IServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.plugin.IServerPlugin;
 
 /**
  * 

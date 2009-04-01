@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin;
+package ch.systemsx.cisd.openbis.generic.server.plugin;
 
-import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
  * A registry for data set server plug-ins.
@@ -52,7 +51,7 @@ public class DataSetServerPluginRegistry extends AbstractPluginRegistry<IDataSet
     @Override
     protected String getBeanNameOfGenericPlugin()
     {
-        return ResourceNames.GENERIC_DATA_SET_SERVER_PLUGIN;
+        return ch.systemsx.cisd.openbis.generic.shared.ResourceNames.GENERIC_DATA_SET_SERVER_PLUGIN;
     }
 
 }

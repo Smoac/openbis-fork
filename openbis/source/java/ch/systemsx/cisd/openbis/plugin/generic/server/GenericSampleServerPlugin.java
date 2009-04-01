@@ -20,19 +20,18 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
-import ch.systemsx.cisd.openbis.plugin.ISampleServerPlugin;
-import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
-import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleServerPlugin;
+import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 
 /**
  * The default {@link ISampleServerPlugin} implementation for the <i>generic</i> technology.
  * 
  * @author Christian Ribeaud
  */
-@Component(ResourceNames.GENERIC_SAMPLE_SERVER_PLUGIN)
+@Component(ch.systemsx.cisd.openbis.generic.shared.ResourceNames.GENERIC_SAMPLE_SERVER_PLUGIN)
 public final class GenericSampleServerPlugin extends AbstractGenericServerPlugin implements ISampleServerPlugin
 {
-    @Resource(name = ResourceNames.GENERIC_SAMPLE_TYPE_SLAVE_SERVER_PLUGIN)
+    @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.GENERIC_SAMPLE_TYPE_SLAVE_SERVER_PLUGIN)
     private GenericSampleTypeSlaveServerPlugin genericSampleTypeSlaveServerPlugin;
 
     public GenericSampleServerPlugin()

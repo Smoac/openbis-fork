@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin;
+package ch.systemsx.cisd.openbis.generic.server.plugin;
 
-import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
  * A registry for sample server plug-ins.
@@ -52,6 +51,6 @@ public final class SampleServerPluginRegistry extends AbstractPluginRegistry<ISa
     @Override
     protected String getBeanNameOfGenericPlugin()
     {
-        return ResourceNames.GENERIC_SAMPLE_SERVER_PLUGIN;
+        return ch.systemsx.cisd.openbis.generic.shared.ResourceNames.GENERIC_SAMPLE_SERVER_PLUGIN;
     }
 }

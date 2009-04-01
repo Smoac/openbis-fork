@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2008 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,32 +14,38 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin;
+package ch.systemsx.cisd.openbis.generic.server.plugin;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.server.business.DataStoreServerSessionManager;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
- * The slave server plug-in for a Data set type
+ * The slave server plug-in for a <i>Sample Type</i>.
  * <p>
  * The implementation will give access to {@link DAOFactory} and appropriate business object
  * factory. Each method specified here must start with {@link Session} parameter.
  * </p>
- *
+ * 
  * @author Christian Ribeaud
- * @author Franz-Josef Elmer
  */
-public interface IDataSetTypeSlaveServerPlugin
+public interface ISampleTypeSlaveServerPlugin
 {
     /**
-     * Deletes the specified data sets for the specified reason on all Data Store Servers 
-     * managed by the specifed DSS manager.
+     * For given {@link SamplePE} returns the {@link SampleGenerationDTO}.
      */
-    public void deleteDataSets(Session session, DataStoreServerSessionManager dssSessionManager,
-            List<ExternalDataPE> dataSets, String reason);
+    SampleGenerationDTO getSampleInfo(final Session session, final SamplePE sample)
+            throws UserFailureException;
+
+    /**
+     * Registers given list of {@link NewSample NewSamples}.
+     */
+    void registerSamples(final Session session, final List<NewSample> newSamples)
+            throws UserFailureException;
 
 }

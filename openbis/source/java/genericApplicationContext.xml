@@ -185,7 +185,7 @@
             expression="org.springframework.stereotype.Controller" />
     </plugins:component-scan>
 
-    <bean class="ch.systemsx.cisd.openbis.plugin.SampleServerPluginRegistry" factory-method="getInstance" /> 
+    <bean class="ch.systemsx.cisd.openbis.generic.server.plugin.SampleServerPluginRegistry" factory-method="getInstance" /> 
     
-    <bean class="ch.systemsx.cisd.openbis.plugin.DataSetServerPluginRegistry" factory-method="getInstance" /> 
+    <bean class="ch.systemsx.cisd.openbis.generic.server.plugin.DataSetServerPluginRegistry" factory-method="getInstance" /> 
 </beans>
