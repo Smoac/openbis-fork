@@ -76,9 +76,9 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
 
     static final String EXCEED_40_CHARACTERS = StringUtils.repeat("A", 41);
 
-    IDAOFactory daoFactory;
+    protected IDAOFactory daoFactory;
 
-    SessionFactory sessionFactory;
+    protected SessionFactory sessionFactory;
 
     HibernateSearchContext hibernateSearchContext;
 

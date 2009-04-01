@@ -4,6 +4,7 @@
             <run>
                 <exclude name="db" />
                 <exclude name="broken" />
+                <exclude name="scalability" />
             </run>
         </groups>
         <packages>
