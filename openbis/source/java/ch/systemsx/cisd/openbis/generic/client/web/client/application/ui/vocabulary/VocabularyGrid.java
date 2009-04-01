@@ -144,7 +144,8 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY) };
+            { DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM) };
     }
 
 }
