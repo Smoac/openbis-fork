@@ -390,7 +390,6 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public LastModificationState getLastModificationState(String sessionToken)
     {
-        logAccess(sessionToken, "getLastModificationState");
         return null;
     }
 
