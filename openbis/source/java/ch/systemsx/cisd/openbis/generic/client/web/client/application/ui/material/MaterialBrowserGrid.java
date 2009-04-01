@@ -87,8 +87,18 @@ public class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialM
         ListMaterialCriteria tryGetCriteria();
     }
 
+    /**
+     * Creates a browser with a toolbar which allows to choose the material type. Allows to show or
+     * edit material details.
+     */
     public static DisposableEntityChooser<Material> createWithTypeChooser(
             final IViewContext<ICommonClientServiceAsync> viewContext)
+    {
+        return createWithTypeChooser(viewContext, true);
+    }
+
+    private static DisposableEntityChooser<Material> createWithTypeChooser(
+            final IViewContext<ICommonClientServiceAsync> viewContext, boolean detailsAvailable)
     {
         final MaterialBrowserToolbar toolbar = new MaterialBrowserToolbar(viewContext, null);
         final ICriteriaProvider criteriaProvider = new ICriteriaProvider()
@@ -99,7 +109,7 @@ public class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialM
                 }
             };
         final MaterialBrowserGrid browserGrid =
-                createBrowserGridForChooser(viewContext, criteriaProvider);
+                createBrowserGrid(viewContext, criteriaProvider, detailsAvailable);
         browserGrid.extendTopToolbar(toolbar);
         return browserGrid.asDisposableWithToolbar(toolbar);
 
@@ -107,7 +117,8 @@ public class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialM
 
     /**
      * If the material type is given, does not show the toolbar with material type selection and
-     * refreshes the grid automatically.
+     * refreshes the grid automatically.<br>
+     * Does not allow to show or edit the material details.
      */
     public static DisposableEntityChooser<Material> create(
             final IViewContext<ICommonClientServiceAsync> viewContext,
@@ -115,7 +126,7 @@ public class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialM
     {
         if (initValueOrNull == null)
         {
-            return createWithTypeChooser(viewContext);
+            return createWithTypeChooser(viewContext, false);
         } else
         {
             return createWithoutTypeChooser(viewContext, initValueOrNull);
@@ -132,26 +143,31 @@ public class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialM
                     return new ListMaterialCriteria(initValue);
                 }
             };
+        boolean detailsAvailable = false;
         final MaterialBrowserGrid browserGrid =
-                createBrowserGridForChooser(viewContext, criteriaProvider);
+                createBrowserGrid(viewContext, criteriaProvider, detailsAvailable);
         return browserGrid.asDisposableWithoutToolbar();
     }
 
-    private static MaterialBrowserGrid createBrowserGridForChooser(
+    private static MaterialBrowserGrid createBrowserGrid(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            final ICriteriaProvider criteriaProvider)
+            final ICriteriaProvider criteriaProvider, boolean detailsAvailable)
     {
-        final MaterialBrowserGrid browserGrid =
-                new MaterialBrowserGrid(viewContext, true, criteriaProvider)
+        if (detailsAvailable)
+        {
+            return new MaterialBrowserGrid(viewContext, true, criteriaProvider);
+        } else
+        {
+            return new MaterialBrowserGrid(viewContext, true, criteriaProvider)
+                {
+                    @Override
+                    protected void showEntityViewer(MaterialModel materialModel, boolean editMode)
                     {
-                        @Override
-                        protected void showEntityViewer(MaterialModel materialModel,
-                                boolean editMode)
-                        {
-                            // do nothing - avoid showing the details after double click
-                        }
-                    };
-        return browserGrid;
+                        // do nothing - avoid showing the details after double click
+                    }
+                };
+        }
+
     }
 
     private MaterialBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
