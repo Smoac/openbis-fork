@@ -44,7 +44,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     public final SampleGenerationDTO getSampleInfo(final String sessionToken,
             final SampleIdentifier identifier)
     {
-        logTracking(sessionToken, "get_plate_info", "CODE(%s)", identifier);
+        logAccess(sessionToken, "get_plate_info", "CODE(%s)", identifier);
         return null;
     }
 
