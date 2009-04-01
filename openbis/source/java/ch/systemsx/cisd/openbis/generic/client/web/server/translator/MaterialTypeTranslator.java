@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
+import java.util.Set;
+
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Translates {@link MaterialTypePE} to {@link MaterialType}.
@@ -35,6 +39,11 @@ public class MaterialTypeTranslator
 
     public static MaterialType translate(MaterialTypePE entityTypeOrNull)
     {
+        return translate(entityTypeOrNull, true);
+    }
+
+    public static MaterialType translate(MaterialTypePE entityTypeOrNull, boolean withProperties)
+    {
         if (entityTypeOrNull == null)
         {
             return null;
@@ -44,9 +53,22 @@ public class MaterialTypeTranslator
         result.setDescription(StringEscapeUtils.escapeHtml(entityTypeOrNull.getDescription()));
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(entityTypeOrNull
                 .getDatabaseInstance()));
+        if (withProperties == false)
+        {
+            unsetMaterialTypes(entityTypeOrNull.getMaterialTypePropertyTypes());
+        }
         result.setMaterialTypePropertyTypes(MaterialTypePropertyTypeTranslator.translate(
                 entityTypeOrNull.getMaterialTypePropertyTypes(), result));
         return result;
+    }
+
+    private static void unsetMaterialTypes(Set<MaterialTypePropertyTypePE> materialTypePropertyTypes)
+    {
+        if ((HibernateUtils.isInitialized(materialTypePropertyTypes)))
+            for (MaterialTypePropertyTypePE mtpt : materialTypePropertyTypes)
+            {
+                mtpt.getPropertyType().setMaterialType(null);
+            }
     }
 
     public static MaterialTypePE translate(MaterialType type)

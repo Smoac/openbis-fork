@@ -59,15 +59,8 @@ public final class PropertyTypeTranslator
         result.setLabel(StringEscapeUtils.escapeHtml(propertyType.getLabel()));
         result.setDataType(DataTypeTranslator.translate(propertyType.getType()));
         result.setVocabulary(VocabularyTranslator.translate(propertyType.getVocabulary()));
-        if (materialType == null)
-        {
-            result
-                    .setMaterialType(MaterialTypeTranslator.translate(propertyType
-                            .getMaterialType()));
-        } else
-        {
-            result.setMaterialType(materialType);
-        }
+        result.setMaterialType(MaterialTypeTranslator.translate(propertyType.getMaterialType(),
+                false));
         result.setDescription(StringEscapeUtils.escapeHtml(propertyType.getDescription()));
         result.setSampleTypePropertyTypes(SampleTypePropertyTypeTranslator.translate(propertyType
                 .getSampleTypePropertyTypes(), result));
