@@ -186,4 +186,6 @@
     </plugins:component-scan>
 
     <bean class="ch.systemsx.cisd.openbis.plugin.SampleServerPluginRegistry" factory-method="getInstance" /> 
+    
+    <bean class="ch.systemsx.cisd.openbis.plugin.DataSetServerPluginRegistry" factory-method="getInstance" /> 
 </beans>

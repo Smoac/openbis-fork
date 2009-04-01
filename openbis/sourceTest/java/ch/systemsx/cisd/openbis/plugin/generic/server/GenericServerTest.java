@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
@@ -58,10 +59,12 @@ public final class GenericServerTest extends AbstractServerTestCase
 
     private ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin;
 
+    private IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin;
+
     private final IGenericServer createServer()
     {
         return new GenericServer(sessionManager, daoFactory, genericBusinessObjectFactory,
-                sampleTypeSlaveServerPlugin);
+                sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
     }
 
     private final NewSample createNewSample(final String identifier)
@@ -89,6 +92,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         super.setUp();
         genericBusinessObjectFactory = context.mock(IGenericBusinessObjectFactory.class);
         sampleTypeSlaveServerPlugin = context.mock(ISampleTypeSlaveServerPlugin.class);
+        dataSetTypeSlaveServerPlugin = context.mock(IDataSetTypeSlaveServerPlugin.class);
     }
 
     @Test

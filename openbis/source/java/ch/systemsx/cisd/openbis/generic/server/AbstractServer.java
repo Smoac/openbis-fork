@@ -30,13 +30,20 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleSession;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
+import ch.systemsx.cisd.openbis.plugin.DataSetServerPluginRegistry;
+import ch.systemsx.cisd.openbis.plugin.IDataSetTypeSlaveServerPlugin;
+import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
+import ch.systemsx.cisd.openbis.plugin.SampleServerPluginRegistry;
 
 /**
  * An <i>abstract</i> {@link IServer} implementation.
@@ -45,6 +52,10 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 public abstract class AbstractServer<T extends IServer> extends AbstractServiceWithLogger<T> implements IServer
 {
+    // For testing purpose.
+    private ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin;
+    private IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin;
+    
     @Resource(name = ComponentNames.SESSION_MANAGER)
     private ISessionManager<Session> sessionManager;
 
@@ -65,6 +76,51 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         this.daoFactory = daoFactory;
     }
 
+    // For testing purpose.
+    protected AbstractServer(final ISessionManager<Session> sessionManager,
+            final IDAOFactory daoFactory,
+            final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin,
+            final IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin)
+    {
+        this(sessionManager, daoFactory);
+        this.sampleTypeSlaveServerPlugin = sampleTypeSlaveServerPlugin;
+        this.dataSetTypeSlaveServerPlugin = dataSetTypeSlaveServerPlugin;
+    }
+    
+    public final void setSampleTypeSlaveServerPlugin(
+            ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin)
+    {
+        this.sampleTypeSlaveServerPlugin = sampleTypeSlaveServerPlugin;
+    }
+
+    public final void setDataSetTypeSlaveServerPlugin(
+            IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin)
+    {
+        this.dataSetTypeSlaveServerPlugin = dataSetTypeSlaveServerPlugin;
+    }
+
+    protected final ISampleTypeSlaveServerPlugin getSampleTypeSlaveServerPlugin(
+            final SampleTypePE sampleType)
+    {
+        if (sampleTypeSlaveServerPlugin != null)
+        {
+            return sampleTypeSlaveServerPlugin;
+        }
+        return SampleServerPluginRegistry.getInstance().getPlugin(EntityKind.SAMPLE, sampleType)
+                .getSlaveServer();
+    }
+    
+    protected final IDataSetTypeSlaveServerPlugin getDataSetTypeSlaveServerPlugin(
+            final DataSetTypePE dataSetType)
+    {
+        if (dataSetTypeSlaveServerPlugin != null)
+        {
+            return dataSetTypeSlaveServerPlugin;
+        }
+        return DataSetServerPluginRegistry.getInstance().getPlugin(EntityKind.DATA_SET, dataSetType)
+                .getSlaveServer();
+    }
+    
     private final RoleAssignmentPE createRoleAssigment(final PersonPE registrator,
             final PersonPE person)
     {

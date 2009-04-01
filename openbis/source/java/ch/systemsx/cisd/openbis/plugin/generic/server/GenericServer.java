@@ -27,6 +27,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
@@ -52,7 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
-import ch.systemsx.cisd.openbis.plugin.AbstractPluginServer;
+import ch.systemsx.cisd.openbis.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
@@ -63,7 +64,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
  * @author Franz-Josef Elmer
  */
 @Component(ResourceNames.GENERIC_PLUGIN_SERVER)
-public final class GenericServer extends AbstractPluginServer<IGenericServer> implements
+public final class GenericServer extends AbstractServer<IGenericServer> implements
         ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer
 {
     @Resource(name = ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
@@ -76,9 +77,10 @@ public final class GenericServer extends AbstractPluginServer<IGenericServer> im
     @Private
     GenericServer(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
             final IGenericBusinessObjectFactory businessObjectFactory,
-            final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin)
+            final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin,
+            final IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin)
     {
-        super(sessionManager, daoFactory, sampleTypeSlaveServerPlugin);
+        super(sessionManager, daoFactory, sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
         this.businessObjectFactory = businessObjectFactory;
     }
 
@@ -272,5 +274,5 @@ public final class GenericServer extends AbstractPluginServer<IGenericServer> im
         materialTable.add(newMaterials, materialTypePE);
         materialTable.save();
     }
-
+    
 }

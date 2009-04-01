@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -63,6 +64,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.plugin.IDataSetTypeSlaveServerPlugin;
+import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
 
 /**
  * Test cases for corresponding {@link CommonServer} class.
@@ -89,10 +92,17 @@ public final class CommonServerTest extends AbstractServerTestCase
 
     private DataStoreServerSessionManager dssSessionManager;
 
+    private ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin;
+
+    private IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin;
+
     private final ICommonServer createServer()
     {
-        return new CommonServer(authenticationService, sessionManager, dssSessionManager,
+        CommonServer server = new CommonServer(authenticationService, sessionManager, dssSessionManager,
                 daoFactory, commonBusinessObjectFactory, new LastModificationState());
+        server.setSampleTypeSlaveServerPlugin(sampleTypeSlaveServerPlugin);
+        server.setDataSetTypeSlaveServerPlugin(dataSetTypeSlaveServerPlugin);
+        return server;
     }
 
     private final static PersonPE createSystemUser()
@@ -113,6 +123,8 @@ public final class CommonServerTest extends AbstractServerTestCase
         super.setUp();
         dssSessionManager = new DataStoreServerSessionManager();
         commonBusinessObjectFactory = context.mock(ICommonBusinessObjectFactory.class);
+        sampleTypeSlaveServerPlugin = context.mock(ISampleTypeSlaveServerPlugin.class);
+        dataSetTypeSlaveServerPlugin = context.mock(IDataSetTypeSlaveServerPlugin.class);
     }
 
     @Test
@@ -844,7 +856,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     public void testDeleteDataSets()
     {
         prepareGetSession();
-        final List<String> dataSetCodes = Arrays.asList("a", "b");
+        final List<String> dataSetCodes = Arrays.asList("ds1", "ds2", "ds3");
         context.checking(new Expectations()
             {
                 {
@@ -852,13 +864,33 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(externalDataTable));
 
                     one(externalDataTable).loadByDataSetCodes(dataSetCodes);
-                    one(externalDataTable).deleteLoadedDataSets(dssSessionManager, "reason");
+                    one(externalDataTable).getExternalData();
+                    ExternalDataPE ds1 = createDataSet("ds1", "type1");
+                    ExternalDataPE ds2 = createDataSet("ds2", "type1");
+                    ExternalDataPE ds3 = createDataSet("ds3", "type2");
+                    will(returnValue(Arrays.asList(ds1, ds2, ds3)));
+                    
+                    one(dataSetTypeSlaveServerPlugin).deleteDataSets(SESSION, dssSessionManager,
+                            Arrays.asList(ds1, ds2), "reason");
+                    one(dataSetTypeSlaveServerPlugin).deleteDataSets(SESSION, dssSessionManager,
+                            Arrays.asList(ds3), "reason");
                 }
             });
 
         createServer().deleteDataSets(SESSION_TOKEN, dataSetCodes, "reason");
 
         context.assertIsSatisfied();
+    }
+    
+    private ExternalDataPE createDataSet(String code, String type)
+    {
+        ExternalDataPE externalData = new ExternalDataPE();
+        externalData.setCode(code);
+        DataSetTypePE dataSetType = new DataSetTypePE();
+        dataSetType.setCode(type);
+        dataSetType.setDatabaseInstance(homeDatabaseInstance);
+        externalData.setDataSetType(dataSetType);
+        return externalData;
     }
 
     @Test

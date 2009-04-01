@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2009 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,32 +19,32 @@ package ch.systemsx.cisd.openbis.plugin;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
- * A registry for sample server plug-ins.
+ * A registry for data set server plug-ins.
  * <p>
  * Note that this class is instantiated via following <i>Spring</i> configuration entry:
  * 
  * <pre>
- * &lt;bean class=&quot;ch.systemsx.cisd.openbis.plugin.SampleServerPluginRegistry&quot;
+ * &lt;bean class=&quot;ch.systemsx.cisd.openbis.plugin.DataSetServerPluginRegistry&quot;
  *   factory-method=&quot;getInstance&quot; /&gt;
  * </pre>
  * 
  * making sure that we have one and only one instance of this class.
  * </p>
- * 
- * @author Christian Ribeaud
+ *
+ * @author Franz-Josef Elmer
  */
-public final class SampleServerPluginRegistry extends AbstractPluginRegistry<ISampleServerPlugin>
+public class DataSetServerPluginRegistry extends AbstractPluginRegistry<IDataSetServerPlugin>
 {
-    private static final SampleServerPluginRegistry instance = new SampleServerPluginRegistry();
+    private static final DataSetServerPluginRegistry instance = new DataSetServerPluginRegistry();
 
-    private SampleServerPluginRegistry()
+    private DataSetServerPluginRegistry()
     {
     }
 
     /**
      * Returns the unique instance of this class.
      */
-    public final static synchronized SampleServerPluginRegistry getInstance()
+    public final static synchronized DataSetServerPluginRegistry getInstance()
     {
         return instance;
     }
@@ -52,6 +52,7 @@ public final class SampleServerPluginRegistry extends AbstractPluginRegistry<ISa
     @Override
     protected String getBeanNameOfGenericPlugin()
     {
-        return ResourceNames.GENERIC_SAMPLE_SERVER_PLUGIN;
+        return ResourceNames.GENERIC_DATA_SET_SERVER_PLUGIN;
     }
+
 }

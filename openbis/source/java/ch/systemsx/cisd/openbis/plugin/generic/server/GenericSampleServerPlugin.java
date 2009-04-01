@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
  * @author Christian Ribeaud
  */
 @Component(ResourceNames.GENERIC_SAMPLE_SERVER_PLUGIN)
-public final class GenericSampleServerPlugin implements ISampleServerPlugin
+public final class GenericSampleServerPlugin extends AbstractGenericServerPlugin implements ISampleServerPlugin
 {
     @Resource(name = ResourceNames.GENERIC_SAMPLE_TYPE_SLAVE_SERVER_PLUGIN)
     private GenericSampleTypeSlaveServerPlugin genericSampleTypeSlaveServerPlugin;
@@ -42,12 +42,6 @@ public final class GenericSampleServerPlugin implements ISampleServerPlugin
     //
     // ISampleServerPlugin
     //
-
-    public final String getSampleTypeCode()
-    {
-        throw new UnsupportedOperationException("No sample type code is associated to "
-                + "the generic implementation.");
-    }
 
     public final ISampleTypeSlaveServerPlugin getSlaveServer()
     {

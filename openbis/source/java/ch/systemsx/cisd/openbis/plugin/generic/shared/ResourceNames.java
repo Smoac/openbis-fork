@@ -38,6 +38,11 @@ public final class ResourceNames
             "generic-sample-type-slave-server-plugin";
 
     public final static String GENERIC_SAMPLE_SERVER_PLUGIN = "generic-sample-server-plugin";
+    
+    public final static String GENERIC_DATA_SET_TYPE_SLAVE_SERVER_PLUGIN =
+            "generic-data-set-type-slave-server-plugin";
+
+    public final static String GENERIC_DATA_SET_SERVER_PLUGIN = "generic-data-set-server-plugin";
 
     private ResourceNames()
     {

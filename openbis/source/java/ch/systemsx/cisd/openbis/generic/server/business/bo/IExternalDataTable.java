@@ -53,6 +53,11 @@ public interface IExternalDataTable
     List<ExternalDataPE> getExternalData();
     
     /**
+     * Sets the specified external data as they were loaded.
+     */
+    void setExternalData(List<ExternalDataPE> externalData);
+    
+    /**
      * Deletes loaded data sets for specified reason on all Data Store Servers registered
      * at specified manager.
      */

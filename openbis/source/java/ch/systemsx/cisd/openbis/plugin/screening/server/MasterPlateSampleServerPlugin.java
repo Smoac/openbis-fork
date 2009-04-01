@@ -16,8 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server;
 
+import java.util.Collections;
+import java.util.Set;
+
 import org.springframework.stereotype.Component;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.AbstractSampleServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.ISampleServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
@@ -46,9 +50,13 @@ public final class MasterPlateSampleServerPlugin extends AbstractSampleServerPlu
     // ISampleServerPlugin
     //
 
-    public final String getSampleTypeCode()
+    public final Set<String> getEntityTypeCodes(final EntityKind entityKind)
     {
-        return MASTER_PLATE_TYPE_CODE;
+        if (entityKind == EntityKind.SAMPLE)
+        {
+            return Collections.singleton(MASTER_PLATE_TYPE_CODE);
+        }
+        return Collections.emptySet();
     }
 
     public final ISampleTypeSlaveServerPlugin getSlaveServer()

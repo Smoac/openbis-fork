@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2009 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,21 @@
 
 package ch.systemsx.cisd.openbis.plugin;
 
+import java.util.Set;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+
 /**
- * The sample plug-in.
  * 
- * @author Christian Ribeaud
+ *
+ * @author Franz-Josef Elmer
  */
-public interface ISampleServerPlugin extends IServerPlugin
+public interface IServerPlugin
 {
     /**
-     * Returns the slave server of this sample server plug-in.
+     * Returns all the entity type codes for specified entity kind which are supported by this
+     * server plugin.
      */
-    public ISampleTypeSlaveServerPlugin getSlaveServer();
+    public Set<String> getEntityTypeCodes(final EntityKind entityKind);
+
 }

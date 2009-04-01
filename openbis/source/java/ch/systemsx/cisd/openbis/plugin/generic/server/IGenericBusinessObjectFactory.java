@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProcedureBO;
@@ -60,4 +61,9 @@ public interface IGenericBusinessObjectFactory
      * Creates a {@link IMaterialTable} <i>Business Object</i>.
      */
     public IMaterialTable createMaterialTable(Session session);
+    
+    /**
+     * Creates a {@link IExternalDataTable} <i>Business Object</i>.
+     */
+    public IExternalDataTable createExternalDataTable(final Session session);
 }

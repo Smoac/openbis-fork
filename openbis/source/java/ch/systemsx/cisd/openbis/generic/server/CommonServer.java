@@ -19,7 +19,9 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
@@ -97,6 +99,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
+import ch.systemsx.cisd.openbis.plugin.IDataSetTypeSlaveServerPlugin;
 
 /**
  * Implementation of client-server interface.
@@ -626,7 +629,25 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             IExternalDataTable externalDataTable =
                     businessObjectFactory.createExternalDataTable(session);
             externalDataTable.loadByDataSetCodes(dataSetCodes);
-            externalDataTable.deleteLoadedDataSets(dssSessionManager, reason);
+            List<ExternalDataPE> dataSets = externalDataTable.getExternalData();
+            Map<DataSetTypePE, List<ExternalDataPE>> groupedDataSets = new LinkedHashMap<DataSetTypePE, List<ExternalDataPE>>();
+            for (ExternalDataPE dataSet : dataSets)
+            {
+                DataSetTypePE dataSetType = dataSet.getDataSetType();
+                List<ExternalDataPE> list = groupedDataSets.get(dataSetType);
+                if (list == null)
+                {
+                    list = new ArrayList<ExternalDataPE>();
+                    groupedDataSets.put(dataSetType, list);
+                }
+                list.add(dataSet);
+            }
+            for (Map.Entry<DataSetTypePE, List<ExternalDataPE>> entry : groupedDataSets.entrySet())
+            {
+                DataSetTypePE dataSetType = entry.getKey();
+                IDataSetTypeSlaveServerPlugin plugin = getDataSetTypeSlaveServerPlugin(dataSetType);
+                plugin.deleteDataSets(session, dssSessionManager, entry.getValue(), reason);
+            }
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);

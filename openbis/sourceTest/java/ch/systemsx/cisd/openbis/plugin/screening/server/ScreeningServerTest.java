@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 
@@ -41,10 +42,12 @@ public final class ScreeningServerTest extends AbstractServerTestCase
 
     private ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin;
 
+    private IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin;
+    
     private final IScreeningServer createServer()
     {
         return new ScreeningServer(sessionManager, daoFactory, screeningBusinessObjectFactory,
-                sampleTypeSlaveServerPlugin);
+                sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
     }
 
     //
@@ -58,6 +61,7 @@ public final class ScreeningServerTest extends AbstractServerTestCase
         super.setUp();
         sampleTypeSlaveServerPlugin = context.mock(ISampleTypeSlaveServerPlugin.class);
         screeningBusinessObjectFactory = context.mock(IScreeningBusinessObjectFactory.class);
+        dataSetTypeSlaveServerPlugin = context.mock(IDataSetTypeSlaveServerPlugin.class);
     }
 
     @Test

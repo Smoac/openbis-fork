@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
+import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -30,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.plugin.AbstractPluginServer;
+import ch.systemsx.cisd.openbis.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
@@ -41,7 +42,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
  * @author Christian Ribeaud
  */
 @Component(ResourceNames.SCREENING_PLUGIN_SERVER)
-public final class ScreeningServer extends AbstractPluginServer<IScreeningServer> implements
+public final class ScreeningServer extends AbstractServer<IScreeningServer> implements
         IScreeningServer
 {
     @Resource(name = ResourceNames.SCREENING_BUSINESS_OBJECT_FACTORY)
@@ -54,9 +55,10 @@ public final class ScreeningServer extends AbstractPluginServer<IScreeningServer
     @Private
     ScreeningServer(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
             final IScreeningBusinessObjectFactory businessObjectFactory,
-            final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin)
+            final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin,
+            final IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin)
     {
-        super(sessionManager, daoFactory, sampleTypeSlaveServerPlugin);
+        super(sessionManager, daoFactory, sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
         this.businessObjectFactory = businessObjectFactory;
     }
 
@@ -101,4 +103,5 @@ public final class ScreeningServer extends AbstractPluginServer<IScreeningServer
     {
         throw new NotImplementedException();
     }
+
 }

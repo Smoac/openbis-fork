@@ -101,6 +101,11 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         return externalData;
     }
 
+    public void setExternalData(List<ExternalDataPE> externalData)
+    {
+        this.externalData = externalData;
+    }
+
     public void loadByDataSetCodes(List<String> dataSetCodes)
     {
         IExternalDataDAO externalDataDAO = getExternalDataDAO();

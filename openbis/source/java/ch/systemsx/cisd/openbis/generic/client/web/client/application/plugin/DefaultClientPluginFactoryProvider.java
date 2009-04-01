@@ -22,6 +22,7 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKindAndTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ClientPluginFactory;
 
@@ -91,63 +92,5 @@ public final class DefaultClientPluginFactoryProvider implements IClientPluginFa
             return pluginFactory;
         }
         return genericPluginFactory;
-    }
-
-    //
-    // Helper classes
-    //
-
-    private final static class EntityKindAndTypeCode
-    {
-        private final EntityKind entityKind;
-
-        private final String entityTypeCode;
-
-        EntityKindAndTypeCode(final EntityKind entityKind, final EntityType entityType)
-        {
-            this(entityKind, entityType.getCode());
-        }
-
-        EntityKindAndTypeCode(final EntityKind entityKind, final String entityTypeCode)
-        {
-            assert entityKind != null : "Unspecified entity kind.";
-            assert entityTypeCode != null : "Unspecified entity type code.";
-            this.entityKind = entityKind;
-            this.entityTypeCode = entityTypeCode;
-        }
-
-        //
-        // Object
-        //
-
-        @Override
-        public final boolean equals(final Object obj)
-        {
-            if (obj == this)
-            {
-                return true;
-            }
-            if (obj instanceof EntityKindAndTypeCode == false)
-            {
-                return false;
-            }
-            final EntityKindAndTypeCode that = (EntityKindAndTypeCode) obj;
-            return entityKind.equals(that.entityKind) && entityTypeCode.equals(that.entityTypeCode);
-        }
-
-        @Override
-        public final int hashCode()
-        {
-            int result = 17;
-            result = 37 * result + entityKind.hashCode();
-            result = 37 * result + entityTypeCode.hashCode();
-            return result;
-        }
-
-        @Override
-        public final String toString()
-        {
-            return "[entityKind=" + entityKind + ",entityTypeCode=" + entityTypeCode + "]";
-        }
     }
 }
