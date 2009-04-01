@@ -3,11 +3,6 @@
 # This script assumes that you already are on the sprint server and must be run from that place
 # in the home directory.
 
-if [ $# -lt 1 ]; then
-    echo "Usage: $0 [<sprint number>]"
-    exit 1
-fi
-
 VER=SNAPSHOT
 if [ $1 ]; then
     VER=$1
@@ -44,7 +39,8 @@ cd openBIS-server
 cp -p $KEYSTORE apache-tomcat/openBIS.keystore
 sed 's/-Djavax.net.ssl.trustStore=openBIS.keystore //g' apache-tomcat/bin/startup.sh > new-startup.sh
 mv -f new-startup.sh apache-tomcat/bin/startup.sh
-bin/startup.sh
+chmod 744 apache-tomcat/bin/startup.sh
+apache-tomcat/bin/startup.sh
 
 echo Installing datastore server...
 cd ..
@@ -52,6 +48,7 @@ unzip ../datastore_server*$VER*
 cd datastore_server
 cp -p ~/datastore_server-service.properties etc/service.properties
 cp -p $KEYSTORE etc/openBIS.keystore
+mv -f old/sprint-$PREV_VER/datastore_server/data/store/* data/store
 chmod 700 datastore_server.sh
 export JAVA_HOME=/usr
 ./datastore_server.sh start
