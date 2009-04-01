@@ -49,7 +49,9 @@ cd datastore_server
 cp -p ~/datastore_server-service.properties etc/service.properties
 cp -p $KEYSTORE etc/openBIS.keystore
 mv -f old/sprint-$PREV_VER/datastore_server/data/store/* data/store
-chmod 700 datastore_server.sh
+sed 's/-Djavax.net.ssl.trustStore=openBIS.keystore //g' datastore_server.sh > xxx
+mv -f xxx datastore_server.sh
+chmod 744 datastore_server.sh
 export JAVA_HOME=/usr
 ./datastore_server.sh start
 
