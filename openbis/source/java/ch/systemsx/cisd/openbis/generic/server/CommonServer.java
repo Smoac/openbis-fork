@@ -69,6 +69,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -654,8 +655,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
     }
 
-    public void uploadDataSets(String sessionToken, List<String> dataSetCodes, String cifexURL,
-            String password)
+    public void uploadDataSets(String sessionToken, List<String> dataSetCodes,
+            DataSetUploadContext uploadContext)
     {
         Session session = getSessionManager().getSession(sessionToken);
         try
@@ -663,7 +664,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             IExternalDataTable externalDataTable =
                     businessObjectFactory.createExternalDataTable(session);
             externalDataTable.loadByDataSetCodes(dataSetCodes);
-            externalDataTable.uploadLoadedDataSetsToCIFEX(dssSessionManager, cifexURL, password);
+            externalDataTable.uploadLoadedDataSetsToCIFEX(dssSessionManager, uploadContext);
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);

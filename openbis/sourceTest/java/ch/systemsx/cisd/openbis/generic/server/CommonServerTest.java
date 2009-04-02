@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -898,6 +899,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         prepareGetSession();
         final List<String> dataSetCodes = Arrays.asList("a", "b");
+        final DataSetUploadContext uploadContext = new DataSetUploadContext();
         context.checking(new Expectations()
             {
                 {
@@ -906,11 +908,11 @@ public final class CommonServerTest extends AbstractServerTestCase
 
                     one(externalDataTable).loadByDataSetCodes(dataSetCodes);
                     one(externalDataTable).uploadLoadedDataSetsToCIFEX(dssSessionManager,
-                            "cifexURL", "pwd");
+                            uploadContext);
                 }
             });
 
-        createServer().uploadDataSets(SESSION_TOKEN, dataSetCodes, "cifexURL", "pwd");
+        createServer().uploadDataSets(SESSION_TOKEN, dataSetCodes, uploadContext);
 
         context.assertIsSatisfied();
     }

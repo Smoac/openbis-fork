@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupVali
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.MatchingEntityValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
@@ -398,8 +399,8 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
-    public void uploadDataSets(String sessionToken, List<String> dataSetCodes, String cifexURL,
-            String password);
+    public void uploadDataSets(String sessionToken, List<String> dataSetCodes,
+            DataSetUploadContext uploadContext);
 
     /**
      * Saves changed experiment.

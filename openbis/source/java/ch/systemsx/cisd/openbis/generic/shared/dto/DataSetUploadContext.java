@@ -35,6 +35,8 @@ public class DataSetUploadContext implements Serializable
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
     
     private String cifexURL;
+    
+    private String fileName;
 
     private String userID;
     
@@ -43,6 +45,16 @@ public class DataSetUploadContext implements Serializable
     private String comment;
 
     private String email;
+
+    public final String getFileName()
+    {
+        return fileName;
+    }
+
+    public final void setFileName(String fileName)
+    {
+        this.fileName = fileName;
+    }
 
     public final String getCifexURL()
     {

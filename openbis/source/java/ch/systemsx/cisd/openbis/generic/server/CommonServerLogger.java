@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -346,11 +347,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logTracking(sessionToken, "delete_data_sets", "CODES(%s) REASON(%s)", dataSetCodes, reason);
     }
 
-    public void uploadDataSets(String sessionToken, List<String> dataSetCodes, String cifexURL,
-            String password)
+    public void uploadDataSets(String sessionToken, List<String> dataSetCodes,
+            DataSetUploadContext uploadContext)
     {
-        logTracking(sessionToken, "upload_data_sets", "CODES(%s) CIFEX-URL(%s)", dataSetCodes,
-                cifexURL);
+        logTracking(sessionToken, "upload_data_sets", "CODES(%s) CIFEX-URL(%s) FILE(%s)", dataSetCodes,
+                uploadContext.getCifexURL(), uploadContext.getFileName());
     }
 
     public void editMaterial(String sessionToken, MaterialIdentifier identifier,

@@ -356,6 +356,12 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 dataStoreService));
         final ExternalDataPE d1 = createDataSet("d1");
         final ExternalDataPE d2 = createDataSet("d2");
+        final DataSetUploadContext uploadContext = new DataSetUploadContext();
+        uploadContext.setCifexURL("cifexURL");
+        uploadContext.setUserID(EXAMPLE_SESSION.getUserName());
+        uploadContext.setPassword("pwd");
+        uploadContext.setUserEMail(EXAMPLE_SESSION.getPrincipal().getEmail());
+        uploadContext.setComment(ExternalDataTable.createUploadComment(Arrays.asList(d1, d2)));
         context.checking(new Expectations()
             {
                 {
@@ -370,12 +376,6 @@ public final class ExternalDataTableTest extends AbstractBOTest
                             with(equal(locations)));
                     will(returnValue(locations));
 
-                    DataSetUploadContext uploadContext = new DataSetUploadContext();
-                    uploadContext.setCifexURL("cifexURL");
-                    uploadContext.setUserID(EXAMPLE_SESSION.getUserName());
-                    uploadContext.setPassword("pwd");
-                    uploadContext.setUserEMail(EXAMPLE_SESSION.getPrincipal().getEmail());
-                    uploadContext.setComment(ExternalDataTable.createUploadComment(Arrays.asList(d1, d2)));
                     one(dataStoreService).uploadDataSetsToCIFEX(with(any(String.class)),
                             with(equal(locations)), with(equal(uploadContext)));
                 }
@@ -383,7 +383,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
 
         ExternalDataTable externalDataTable = createExternalDataTable();
         externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()));
-        externalDataTable.uploadLoadedDataSetsToCIFEX(dssSessionManager, "cifexURL", "pwd");
+        externalDataTable.uploadLoadedDataSetsToCIFEX(dssSessionManager, uploadContext);
 
         context.assertIsSatisfied();
     }

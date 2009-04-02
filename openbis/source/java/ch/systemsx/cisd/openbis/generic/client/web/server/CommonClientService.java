@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
@@ -99,6 +100,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplaceme
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -1108,13 +1110,19 @@ public final class CommonClientService extends AbstractClientService implements
 
     }
 
-    public void uploadDataSets(List<String> dataSetCodes, String cifexURL, String password)
+    public void uploadDataSets(List<String> dataSetCodes, DataSetUploadParameters uploadParameters)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
-            commonServer.uploadDataSets(sessionToken, dataSetCodes, cifexURL, password);
+            DataSetUploadContext uploadContext = new DataSetUploadContext();
+            uploadContext.setCifexURL(uploadParameters.getCifexURL());
+            uploadContext.setComment(uploadParameters.getComment());
+            uploadContext.setFileName(uploadParameters.getFileName());
+            uploadContext.setUserID(uploadParameters.getUserID());
+            uploadContext.setPassword(uploadParameters.getPassword());
+            commonServer.uploadDataSets(sessionToken, dataSetCodes, uploadContext);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 
@@ -40,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -149,6 +151,8 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
     {
         private final String cifexURL;
         private final TextField<String> password;
+        private TextField<String> fileNameField;
+        private TextArea commentField;
 
         public UploadConfirmationDialog(IViewContext<?> viewContext, List<ExternalData> dataSets,
                 IBrowserGridActionInvoker invoker)
@@ -156,9 +160,13 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
             super(viewContext, dataSets, invoker, Dict.CONFIRM_DATASET_UPLOAD_TITLE);
             cifexURL = viewContext.getModel().getApplicationInfo().getCIFEXURL();
             addText(viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_MSG, dataSets.size(), cifexURL));
+            fileNameField = new TextField<String>();
+            fileNameField.setSelectOnFocus(true);
+            add(fileNameField);
+            commentField = new TextArea();
+            add(commentField);
             password = new TextField<String>();
             password.setPassword(true);
-            password.setSelectOnFocus(true);
             password.setHideLabel(true);
             password.setWidth("100%");
             password.setMaxLength(50);
@@ -171,7 +179,13 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
             super.onButtonPressed(button);
             if (button.getItemId().equals(Dialog.OK))
             {
-                viewContext.getCommonService().uploadDataSets(dataSetCodes, cifexURL, password.getValue(),
+                DataSetUploadParameters parameters = new DataSetUploadParameters();
+                parameters.setCifexURL(cifexURL);
+                parameters.setFileName(fileNameField.getValue());
+                parameters.setComment(commentField.getValue());
+                parameters.setUserID(viewContext.getModel().getSessionContext().getUser().getUserName());
+                parameters.setPassword(password.getValue());
+                viewContext.getCommonService().uploadDataSets(dataSetCodes, parameters,
                         new UploadCallback(viewContext));
             }
         }

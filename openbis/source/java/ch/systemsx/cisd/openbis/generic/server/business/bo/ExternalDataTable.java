@@ -22,6 +22,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.DataStoreServerSessionManager;
@@ -178,17 +180,16 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     }
 
     public void uploadLoadedDataSetsToCIFEX(DataStoreServerSessionManager dssSessionManager,
-            String cifexURL, String password)
+            DataSetUploadContext uploadContext)
     {
         assertDataSetsAreKnown(dssSessionManager);
         Collection<DataStoreServerSession> sessions = dssSessionManager.getSessions();
         List<String> locations = getLocations();
-        DataSetUploadContext uploadContext = new DataSetUploadContext();
-        uploadContext.setCifexURL(cifexURL);
-        uploadContext.setUserID(session.getUserName());
-        uploadContext.setPassword(password);
         uploadContext.setUserEMail(session.getPrincipal().getEmail());
-        uploadContext.setComment(createUploadComment(externalData));
+        if (StringUtils.isBlank(uploadContext.getComment()))
+        {
+            uploadContext.setComment(createUploadComment(externalData));
+        }
         for (DataStoreServerSession dssSession : sessions)
         {
             dssSession.getService().uploadDataSetsToCIFEX(dssSession.getSessionToken(), locations,

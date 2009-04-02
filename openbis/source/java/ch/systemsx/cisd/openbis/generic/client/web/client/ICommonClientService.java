@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client;
 import java.util.Date;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
@@ -393,8 +394,8 @@ public interface ICommonClientService extends IClientService
      */
     public List<DataSetType> listDataSetTypes() throws UserFailureException;
 
-    /** Uploads the specified data sets to the specified CIFEX server using the specified password. */
-    public void uploadDataSets(List<String> dataSetCodes, String cifexURL, String password)
+    /** Uploads the specified data sets to the specified CIFEX server using the specified parameters. */ 
+    public void uploadDataSets(List<String> dataSetCodes, DataSetUploadParameters uploadParameters)
             throws UserFailureException;
 
     /**

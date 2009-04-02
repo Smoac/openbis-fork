@@ -21,6 +21,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
@@ -352,8 +353,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#listDataSetTypes() */
     public void listDataSetTypes(AsyncCallback<List<DataSetType>> callback);
 
-    /** @see ICommonClientService#uploadDataSets(List, String, String) */
-    public void uploadDataSets(List<String> dataSetCodes, String cifexURL, String password,
+    /** @see ICommonClientService#uploadDataSets(List, DataSetUploadParameters) */
+    public void uploadDataSets(List<String> dataSetCodes, DataSetUploadParameters uploadParameters,
             AsyncCallback<Void> callback);
 
     /** @see ICommonClientService#getLastModificationState() */
