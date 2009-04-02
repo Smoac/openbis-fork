@@ -27,6 +27,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
@@ -107,12 +108,14 @@ class UploadingCommand implements IDataSetCommand
 
     private final ICIFEXRPCServiceFactory cifexServiceFactory;
     private final List<String> dataSetLocations;
+    private final String fileName;
     private final String comment;
     private final String userID;
     private final String password;
     private final String userEMail;
     private final MailClientParameters mailClientParameters;
     private final TokenGenerator tokenGenerator;
+
 
     UploadingCommand(ICIFEXRPCServiceFactory cifexServiceFactory,
             MailClientParameters mailClientParameters, List<String> dataSetLocations,
@@ -123,6 +126,7 @@ class UploadingCommand implements IDataSetCommand
         this.dataSetLocations = dataSetLocations;
         this.userID = context.getUserID();
         this.password = context.getPassword();
+        fileName = context.getFileName();
         userEMail = context.getUserEMail();
         this.comment = context.getComment();
         tokenGenerator = new TokenGenerator();
@@ -132,8 +136,7 @@ class UploadingCommand implements IDataSetCommand
     {
         File tempFolder = new File(store, "tmp");
         tempFolder.mkdirs();
-        String token = tokenGenerator.getNewToken(System.currentTimeMillis());
-        final File zipFile = new File(tempFolder, token + ".zip");
+        final File zipFile = new File(tempFolder, createFileName());
         boolean successful = fillZipFile(store, zipFile);
         if (successful)
         {
@@ -152,6 +155,15 @@ class UploadingCommand implements IDataSetCommand
             sendEMail("Couldn't create zip file " + zipFile.getName() + " with requested data sets");
         }
         zipFile.delete();
+    }
+
+    private String createFileName()
+    {
+        if (StringUtils.isBlank(fileName))
+        {
+            return tokenGenerator.getNewToken(System.currentTimeMillis()) + ".zip";
+        }
+        return fileName.toLowerCase().endsWith(".zip") ? fileName : fileName + ".zip"; 
     }
 
     private boolean fillZipFile(File store, File zipFile)
