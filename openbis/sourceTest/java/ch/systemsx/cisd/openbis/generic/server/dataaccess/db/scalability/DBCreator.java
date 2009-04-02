@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.scalability;
 
 import static org.testng.AssertJUnit.assertNotNull;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.Date;
-import java.util.List;
 
 import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -42,8 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedureTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -59,11 +57,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * excluded from all suites). It has one test method though called main witch should be run as a
  * TestNG test and creates a DB for scalability testing. No rollback is done after this method. <br>
  * <br>
- * It creates a DB from scratch and:
+ * At the beginning it creates a TSV file with materials in a given TSV directory that will be used
+ * in the next step. Then the DB is created from scratch (with new materials added from the TSV
+ * file). Afterwards it:
  * <ul>
- * <li>doesn't create any properties nor attaches properties to anything because it can be easily
- * done by GUI to a certain EntityType
- * <li>creates Materials of one new MaterialType
+ * <li>doesn't create any new properties nor attaches properties to any created entity because it
+ * can be easily done by GUI to a certain EntityType
  * <li>creates Experiments of one new ExperimentType
  * <li>creates Samples of one new SampleType - these samples are connected to an experiment created
  * in the previous step through a new Procedure of one ProcedureType that should already be in the
@@ -87,31 +86,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
     { "scalability" })
 public final class DBCreator extends AbstractDAOTest
 {
+    /** a sufix that will be used in the created DB name */
     private static final String DB_KIND = "test_scalability";
 
-    static
-    {
-        System.setProperty("database.kind", DB_KIND);
-        System.setProperty("database.create-from-scratch", "true");
-        System.setProperty("authorization-component-factory", "no-authorization");
-    }
-
-    private static final boolean LOG = true;
-
-    private static void log(String format, Object... objects)
-    {
-        if (LOG)
-        {
-            System.err.println(String.format(format, objects));
-        }
-    }
+    /** directory with TSV files used to create the DB from scratch */
+    private static final String TSV_DIRECTORY = "sourceTest/sql/postgresql/030";
 
     // number properties
 
     /** a factor for scaling number of all created entities */
     private static final int FACTOR = 100;
 
-    /** the overall number of Materials created (including big ones) */
+    /** the overall number of Materials created */
     private static final int MATERIALS_NO = FACTOR * 20000;
 
     /** the overall number of Experiments created (including big ones) */
@@ -135,6 +121,25 @@ public final class DBCreator extends AbstractDAOTest
     /** the number of DataSets connected to a created big Sample */
     private static final int BIG_SAMPLE_DATASETS_SIZE = DEFAULT_SAMPLE_DATASETS_SIZE * FACTOR * 10;
 
+    static
+    {
+        System.setProperty("database.kind", DB_KIND);
+        System.setProperty("database.create-from-scratch", "true");
+        System.setProperty("authorization-component-factory", "no-authorization");
+        MaterialHelper.createMaterialsTSVFile(TSV_DIRECTORY, MATERIALS_NO);
+        log("created materials TSV file");
+    }
+
+    private static final boolean LOG = true;
+
+    private static void log(String format, Object... objects)
+    {
+        if (LOG)
+        {
+            System.err.println(String.format(format, objects));
+        }
+    }
+
     @Test
     @Rollback(value = false)
     public final void main()
@@ -143,7 +148,6 @@ public final class DBCreator extends AbstractDAOTest
         try
         {
             createAndSetDefaultEntities();
-            createMaterials();
             createExperimentsWithSamplesAndDataSets();
         } catch (Exception e)
         {
@@ -166,8 +170,6 @@ public final class DBCreator extends AbstractDAOTest
 
     // default entities
 
-    private MaterialTypePE defaultMaterialType;
-
     private SampleTypePE defaultSampleType;
 
     private ExperimentTypePE defaultExperimentType;
@@ -188,7 +190,6 @@ public final class DBCreator extends AbstractDAOTest
         defaultProject = createDefaultProject();
 
         defaultDataSetType = createDefaultDataSetType();
-        defaultMaterialType = createDefaultMaterialType();
         defaultExperimentType = createDefaultExperimentType();
         defaultSampleType = createDefaultSampleType();
 
@@ -202,12 +203,6 @@ public final class DBCreator extends AbstractDAOTest
                 daoFactory.getProcedureTypeDAO().listProcedureTypes().iterator().next();
         AssertJUnit.assertNotNull(result);
         return result;
-    }
-
-    private final MaterialTypePE createDefaultMaterialType()
-    {
-        return createEntityType(new MaterialTypePE(), EntityKind.MATERIAL,
-                CreatedEntityKind.MATERIAL_TYPE);
     }
 
     private final ExperimentTypePE createDefaultExperimentType()
@@ -263,41 +258,6 @@ public final class DBCreator extends AbstractDAOTest
         return project;
     }
 
-    // Materials
-
-    private void createMaterials()
-    {
-        List<MaterialPE> materials = new ArrayList<MaterialPE>();
-        for (int i = 1; i <= MATERIALS_NO; i++)
-        {
-            log("generating material: %d/%d", i, MATERIALS_NO);
-            materials.add(generateMaterial());
-            // need to create materials in groups not to run out of java heap space
-            // and clearing session makes the creation of new objects faster
-            if (i % 1000 == 0)
-            {
-                daoFactory.getMaterialDAO().createMaterials(materials);
-                materials.clear();
-                flushAndClearSession();
-            }
-        }
-        log("generated materials");
-    }
-
-    private MaterialPE generateMaterial()
-    {
-        MaterialTypePE type = defaultMaterialType;
-        String code = CodeGenerator.generateCode(CreatedEntityKind.MATERIAL);
-
-        final MaterialPE material = new MaterialPE();
-        material.setCode(code);
-        material.setMaterialType(type);
-        material.setRegistrationDate(new Date());
-        material.setRegistrator(getSystemPerson());
-        material.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
-        return material;
-    }
-
     // Experiments
 
     private void createExperimentsWithSamplesAndDataSets()
@@ -316,7 +276,7 @@ public final class DBCreator extends AbstractDAOTest
     private ExperimentPE generateExperiment()
     {
         ExperimentTypePE type = defaultExperimentType;
-        String code = CodeGenerator.generateCode(CreatedEntityKind.MATERIAL);
+        String code = CodeGenerator.generateCode(CreatedEntityKind.EXPERIMENT);
 
         final ExperimentPE experiment = new ExperimentPE();
         experiment.setCode(code);
@@ -448,9 +408,8 @@ public final class DBCreator extends AbstractDAOTest
 
     private enum CreatedEntityKind
     {
-        DATA_SET, EXPERIMENT, MATERIAL, SAMPLE, GROUP, PROJECT, DATA_SET_TYPE, EXPERIMENT_TYPE,
-        MATERIAL_TYPE, SAMPLE_TYPE;
-
+        DATA_SET, EXPERIMENT, SAMPLE, MATERIAL, DATA_SET_TYPE, EXPERIMENT_TYPE, SAMPLE_TYPE, GROUP,
+        PROJECT;
     }
 
     /**
@@ -516,5 +475,80 @@ public final class DBCreator extends AbstractDAOTest
             return size;
         }
 
+    }
+
+    /**
+     * A helper class which creates a temporary TSV file for Materials.
+     * 
+     * @author Piotr Buczek
+     */
+    public static class MaterialHelper
+    {
+
+        private static final String TSV_FILENAME = "new=materials.tsv";
+
+        //
+
+        private static final Integer MATERIAL_TYPE_ID = 1;
+
+        private static final Integer REGISTRATOR_ID = 1;
+
+        private static final Integer INHIBITOR_ID = null;
+
+        private static final String REGISTRATION_TIMESTAMP = "2007-12-04 15:50:54.111";
+
+        private static final Integer DB_INSTANCE = 1;
+
+        private static final String MODIFICATION_TIMESTAMP = "2008-12-04 15:50:54.111";
+
+        /**
+         * Creates a temporary TSV file with given number of materials in given directory. The file
+         * is deleted automatically on JVM exit.
+         */
+        public static void createMaterialsTSVFile(String directory, int size)
+        {
+            PrintWriter pw = null;
+            try
+            {
+                File file = new File(directory, TSV_FILENAME);
+                file.deleteOnExit();
+                pw = new PrintWriter(file);
+
+                int id = 10000000;
+                for (int i = 0; i < size; i++)
+                {
+                    pw.println(createMaterialString(id++));
+                }
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+            } finally
+            {
+                if (pw != null)
+                {
+                    pw.close();
+                }
+            }
+        }
+
+        private static String createMaterialString(int id)
+        {
+            StringBuilder sb = new StringBuilder();
+            appendColumn(sb, id);
+            appendColumn(sb, CodeGenerator.generateCode(CreatedEntityKind.MATERIAL));
+            appendColumn(sb, MATERIAL_TYPE_ID);
+            appendColumn(sb, REGISTRATOR_ID);
+            appendColumn(sb, INHIBITOR_ID);
+            appendColumn(sb, REGISTRATION_TIMESTAMP);
+            appendColumn(sb, DB_INSTANCE);
+            sb.append(MODIFICATION_TIMESTAMP);
+            return sb.toString();
+        }
+
+        private static void appendColumn(StringBuilder sb, Object value)
+        {
+            sb.append((value == null) ? "\\N" : value);
+            sb.append("\t");
+        }
     }
 }
