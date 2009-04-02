@@ -76,6 +76,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -621,6 +622,10 @@ public final class CommonClientService extends AbstractClientService implements
             result.add(etpt);
         }
         for (MaterialTypePropertyType etpt : propertyType.getMaterialTypePropertyTypes())
+        {
+            result.add(etpt);
+        }
+        for (DataSetTypePropertyType etpt : propertyType.getDataSetTypePropertyTypes())
         {
             result.add(etpt);
         }

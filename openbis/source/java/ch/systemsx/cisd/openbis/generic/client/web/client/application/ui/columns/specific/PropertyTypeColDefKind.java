@@ -122,6 +122,15 @@ public enum PropertyTypeColDefKind implements IColumnDefinitionKind<PropertyType
             {
                 return render(entity.getMaterialTypePropertyTypes());
             }
+        }),
+
+    DATA_SET_TYPES(new AbstractColumnDefinitionKind<PropertyType>(Dict.DATA_SET_TYPES)
+        {
+            @Override
+            public String tryGetValue(PropertyType entity)
+            {
+                return render(entity.getDataSetTypePropertyTypes());
+            }
         });
 
     private final AbstractColumnDefinitionKind<PropertyType> columnDefinitionKind;

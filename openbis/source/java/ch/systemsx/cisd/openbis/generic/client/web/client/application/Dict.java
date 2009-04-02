@@ -222,6 +222,8 @@ public abstract class Dict
 
     public static final String MATERIAL_TYPES = "material_types";
 
+    public static final String DATA_SET_TYPES = "data_set_types";
+
     public static final String EXPERIMENT_TYPES = "experiment_types";
 
     public static final String IS_MANDATORY = "is_mandatory";
@@ -446,13 +448,13 @@ public abstract class Dict
 
     public static final String DELETE_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_NO_REPLACEMENTS_SINGULAR =
             "delete_vocabulary_terms_confirmation_message_no_replacements_singular";
-    
+
     public static final String DELETE_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_NO_REPLACEMENTS =
-        "delete_vocabulary_terms_confirmation_message_no_replacements";
-    
+            "delete_vocabulary_terms_confirmation_message_no_replacements";
+
     public static final String DELETE_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_FOR_REPLACEMENTS =
-        "delete_vocabulary_terms_confirmation_message_for_replacements";
-    
+            "delete_vocabulary_terms_confirmation_message_for_replacements";
+
     //
     // Project Browser
     //
@@ -514,7 +516,8 @@ public abstract class Dict
 
     public static final String ENTITY_TYPE_ASSIGNMENTS = "entity_type_assignments";
 
-    public static final String COMBO_BOX_EXPECTED_VALUE_FROM_THE_LIST = "combo_box_expected_value_from_the_list";
+    public static final String COMBO_BOX_EXPECTED_VALUE_FROM_THE_LIST =
+            "combo_box_expected_value_from_the_list";
 
     public static final String DETAILS_TITLE = "details_title";
 

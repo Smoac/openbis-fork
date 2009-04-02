@@ -138,6 +138,7 @@ var common = {
   description: "Description",
   sample_types: "Sample Types",
   material_types: "Material Types",
+  data_set_types: "Data Set Types",
   experiment_types: "Experiment Types",
   is_mandatory: "Mandatory?",
   property_type: "Property Type",
