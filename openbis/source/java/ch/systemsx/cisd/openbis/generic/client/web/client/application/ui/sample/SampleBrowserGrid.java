@@ -348,6 +348,7 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
         Set<DatabaseModificationKind> result = new HashSet<DatabaseModificationKind>();
         result.add(createOrDelete(ObjectKind.SAMPLE));
         result.add(edit(ObjectKind.SAMPLE));
+        result.add(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT));
         return result;
     }
 

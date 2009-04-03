@@ -21,6 +21,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
@@ -29,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
  * 
  * @author Christian Ribeaud
  */
-public final class MatchingEntity implements IsSerializable, IIdentifierHolder
+public final class MatchingEntity implements IsSerializable
 {
     private String identifier;
 
@@ -98,13 +99,27 @@ public final class MatchingEntity implements IsSerializable, IIdentifierHolder
         this.textFragment = textFragment;
     }
 
-    //
-    // IIdentifierHolder
-    //
-
     public final String getIdentifier()
     {
         return identifier;
+    }
+
+    public IIdentifierHolder asIdentifierHolder()
+    {
+        final String ident = getIdentifier();
+        return new IIdentifierHolder()
+            {
+                public String getIdentifier()
+                {
+                    if (getEntityKind() == EntityKind.MATERIAL)
+                    {
+                        return new MaterialIdentifier(ident, getEntityType().getCode()).print();
+                    } else
+                    {
+                        return ident;
+                    }
+                }
+            };
     }
 
     //
@@ -116,4 +131,5 @@ public final class MatchingEntity implements IsSerializable, IIdentifierHolder
     {
         return getIdentifier();
     }
+
 }

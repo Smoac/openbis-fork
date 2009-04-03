@@ -29,6 +29,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -203,6 +204,12 @@ public class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialM
 
         if (detailsAvailable)
         {
+            String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
+            Button showDetailsButton =
+                    createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
+            toolbar.add(new AdapterToolItem(showDetailsButton));
+            toolbar.add(new SeparatorToolItem());
+
             String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
             Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
             toolbar.add(new AdapterToolItem(editButton));
@@ -341,6 +348,7 @@ public class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialM
         Set<DatabaseModificationKind> result = new HashSet<DatabaseModificationKind>();
         result.add(createOrDelete(ObjectKind.MATERIAL));
         result.add(edit(ObjectKind.MATERIAL));
+        result.add(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT));
         return result;
     }
 

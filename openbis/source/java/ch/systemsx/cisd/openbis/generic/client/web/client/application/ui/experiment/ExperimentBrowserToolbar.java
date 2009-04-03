@@ -112,12 +112,15 @@ class ExperimentBrowserToolbar extends ToolBar implements IDatabaseModificationO
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { createOrDelete(ObjectKind.EXPERIMENT_TYPE), createOrDelete(ObjectKind.PROJECT) };
+            { createOrDelete(ObjectKind.EXPERIMENT_TYPE), createOrDelete(ObjectKind.PROJECT),
+                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
-        if (observedModifications.contains(createOrDelete(ObjectKind.EXPERIMENT_TYPE)))
+        if (observedModifications.contains(createOrDelete(ObjectKind.EXPERIMENT_TYPE))
+                || observedModifications
+                        .contains(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)))
         {
             selectExperimentTypeCombo.refreshStore();
         }

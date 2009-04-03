@@ -116,7 +116,8 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
                         matchingEntity.getEntityType());
         final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder, IEditableEntity<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>>> createClientPlugin =
                 clientPluginFactory.createClientPlugin(entityKind);
-        final ITabItemFactory tabView = createClientPlugin.createEntityViewer(matchingEntity);
+        final ITabItemFactory tabView =
+                createClientPlugin.createEntityViewer(matchingEntity.asIdentifierHolder());
         DispatcherHelper.dispatchNaviEvent(tabView);
     }
 

@@ -120,12 +120,15 @@ final class SampleBrowserToolbar extends ToolBar implements IDatabaseModificatio
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { createOrDelete(ObjectKind.SAMPLE_TYPE), createOrDelete(ObjectKind.GROUP) };
+            { createOrDelete(ObjectKind.SAMPLE_TYPE), createOrDelete(ObjectKind.GROUP),
+                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
-        if (observedModifications.contains(createOrDelete(ObjectKind.SAMPLE_TYPE)))
+        if (observedModifications.contains(createOrDelete(ObjectKind.SAMPLE_TYPE))
+                || observedModifications
+                        .contains(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)))
         {
             selectSampleTypeCombo.refreshStore();
         }

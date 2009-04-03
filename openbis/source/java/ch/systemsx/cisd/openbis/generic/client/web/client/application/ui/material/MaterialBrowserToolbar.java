@@ -91,12 +91,15 @@ class MaterialBrowserToolbar extends ToolBar implements IDatabaseModificationObs
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { createOrDelete(ObjectKind.MATERIAL_TYPE) };
+            { createOrDelete(ObjectKind.MATERIAL_TYPE),
+                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
-        if (observedModifications.contains(createOrDelete(ObjectKind.MATERIAL_TYPE)))
+        if (observedModifications.contains(createOrDelete(ObjectKind.MATERIAL_TYPE))
+                || observedModifications
+                        .contains(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)))
         {
             selectMaterialTypeCombo.update(observedModifications);
         }
