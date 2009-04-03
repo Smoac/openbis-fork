@@ -678,7 +678,8 @@ CREATE TABLE projects (
     description description_1000,
     pers_id_registerer tech_id NOT NULL,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
-    dast_id tech_id
+    dast_id tech_id,
+    modification_timestamp time_stamp DEFAULT now()
 );
 CREATE SEQUENCE property_type_id_seq
     INCREMENT BY 1

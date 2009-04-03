@@ -69,6 +69,13 @@ CREATE INDEX ATTA_SAMP_FK_I ON ATTACHMENTS (SAMP_ID);
 CREATE INDEX ATTA_PROJ_FK_I ON ATTACHMENTS (PROJ_ID);
 
 -- -------
+-- Add modification timestamp to project table to allow edition
+-- -------
+
+ALTER TABLE projects
+	ADD COLUMN modification_timestamp TIME_STAMP DEFAULT CURRENT_TIMESTAMP;
+	
+-- -------
 -- Add new datatypes
 -- -------
 
