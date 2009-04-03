@@ -25,31 +25,7 @@ import java.io.Serializable;
  */
 public enum EntityDataType implements Serializable
 {
-    INTEGER("INT"), VARCHAR("STRING"), REAL("DOUBLE"), TIMESTAMP("DATE"), BOOLEAN("BOOLEAN"),
-    CONTROLLEDVOCABULARY("VOCABULARY"), MATERIAL("MATERIAL");
+    INTEGER, VARCHAR, MULTILINE_VARCHAR, REAL, TIMESTAMP, BOOLEAN, CONTROLLEDVOCABULARY, MATERIAL,
+    HYPERLINK;
 
-    private final String niceRepresentation;
-
-    private EntityDataType(final String niceRepresentation)
-    {
-        this.niceRepresentation = niceRepresentation;
-    }
-
-    /**
-     * Returns a nice representation of this enumeration item.
-     */
-    public final String getNiceRepresentation()
-    {
-        return niceRepresentation;
-    }
-
-    //
-    // Object
-    //
-
-    @Override
-    public final String toString()
-    {
-        return getNiceRepresentation();
-    }
 }

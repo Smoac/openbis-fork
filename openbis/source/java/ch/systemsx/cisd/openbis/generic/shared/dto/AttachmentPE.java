@@ -58,7 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
  * @author Bernd Rinn
  */
 @Entity
-@Table(name = TableNames.EXPERIMENT_ATTACHMENTS_TABLE, uniqueConstraints =
+@Table(name = TableNames.ATTACHMENTS_TABLE, uniqueConstraints =
     { @UniqueConstraint(columnNames =
         { ColumnNames.EXPERIMENT_COLUMN, ColumnNames.FILE_NAME_COLUMN, ColumnNames.VERSION_COLUMN }) })
 @ClassBridge(impl = AttachmentPE.AttachmentSearchBridge.class, index = Index.TOKENIZED, store = Store.NO)
@@ -152,9 +152,9 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
         this.version = version;
     }
 
-    @SequenceGenerator(name = SequenceNames.EXPERIMENT_ATTACHMENT_SEQUENCE, sequenceName = SequenceNames.EXPERIMENT_ATTACHMENT_SEQUENCE, allocationSize = 1)
+    @SequenceGenerator(name = SequenceNames.ATTACHMENT_SEQUENCE, sequenceName = SequenceNames.ATTACHMENT_SEQUENCE, allocationSize = 1)
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.EXPERIMENT_ATTACHMENT_SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.ATTACHMENT_SEQUENCE)
     public final Long getId()
     {
         return id;

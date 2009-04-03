@@ -1,0 +1,93 @@
+-- -------
+-- Change attachment table names, they should no longer mention the experiment
+-- -------
+
+ALTER TABLE experiment_attachment_contents RENAME TO attachment_contents;
+ALTER TABLE experiment_attachments RENAME TO attachments;
+
+ALTER TABLE EXPERIMENT_ATTACHMENT_ID_SEQ RENAME TO ATTACHMENT_ID_SEQ;
+ALTER TABLE EXPERIMENT_ATTACHMENT_CONTENT_ID_SEQ RENAME TO ATTACHMENT_CONTENT_ID_SEQ;
+
+ALTER INDEX EXAT_EXPE_FK_I RENAME TO ATTA_EXPE_FK_I;
+ALTER INDEX EXAT_PERS_FK_I RENAME TO ATTA_PERS_FK_I;
+ALTER INDEX EXAT_EXAC_FK_I RENAME TO ATTA_EXAC_FK_I;
+
+-- it's not possible to rename constraints, we drop and create them with different names
+
+ALTER TABLE attachments
+	DROP CONSTRAINT exat_cont_fk;
+ALTER TABLE attachments
+	DROP CONSTRAINT exat_expe_fk;
+ALTER TABLE attachments
+	DROP CONSTRAINT exat_pers_fk;
+ALTER TABLE attachments
+	DROP CONSTRAINT exat_pk;
+
+ALTER TABLE attachments
+	ADD CONSTRAINT atta_pk PRIMARY KEY (id);
+
+ALTER TABLE attachments
+	ADD CONSTRAINT atta_cont_fk FOREIGN KEY (exac_id) REFERENCES attachment_contents(id);
+
+ALTER TABLE attachments
+	ADD CONSTRAINT atta_expe_fk FOREIGN KEY (expe_id) REFERENCES experiments(id);
+
+ALTER TABLE attachments
+	ADD CONSTRAINT atta_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+
+-- -------
+-- Add an arc connection from attachment to project and sample tables
+-- -------
+
+ALTER TABLE attachments
+	ADD COLUMN samp_id tech_id,
+	ADD COLUMN proj_id tech_id,
+	ALTER COLUMN expe_id DROP NOT NULL;
+	
+ALTER TABLE attachments
+	DROP CONSTRAINT exat_bk_uk;
+	
+ALTER TABLE attachments
+	ADD CONSTRAINT atta_arc_ck CHECK ((((((expe_id IS NOT NULL) AND (proj_id IS NULL)) AND (samp_id IS NULL)) OR (((expe_id IS NULL) AND (proj_id IS NOT NULL)) AND (samp_id IS NULL))) OR (((expe_id IS NULL) AND (proj_id IS NULL)) AND (samp_id IS NOT NULL))));
+
+ALTER TABLE attachments
+	ADD CONSTRAINT atta_expe_bk_uk UNIQUE (expe_id, file_name, version);
+
+ALTER TABLE attachments
+	ADD CONSTRAINT atta_proj_bk_uk UNIQUE (proj_id, file_name, version);
+
+ALTER TABLE attachments
+	ADD CONSTRAINT atta_samp_bk_uk UNIQUE (samp_id, file_name, version);
+
+ALTER TABLE attachments
+	ADD CONSTRAINT atta_proj_fk FOREIGN KEY (proj_id) REFERENCES projects(id);
+
+ALTER TABLE attachments
+	ADD CONSTRAINT atta_samp_fk FOREIGN KEY (samp_id) REFERENCES samples(id);
+
+CREATE INDEX ATTA_SAMP_FK_I ON ATTACHMENTS (SAMP_ID);
+CREATE INDEX ATTA_PROJ_FK_I ON ATTACHMENTS (PROJ_ID);
+
+-- -------
+-- Add new datatypes
+-- -------
+
+insert into data_types
+(id
+ ,code
+ ,description)
+ values 
+ (nextval('DATA_TYPE_ID_SEQ')
+ ,'HYPERLINK'
+ ,'Address of a web page'
+);
+
+insert into data_types
+(id
+ ,code
+ ,description)
+ values 
+ (nextval('DATA_TYPE_ID_SEQ')
+ ,'MULTILINE_VARCHAR'
+ ,'Long text'
+);

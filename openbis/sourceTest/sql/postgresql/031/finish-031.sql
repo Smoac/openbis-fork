@@ -1,3 +1,11 @@
+ALTER TABLE ONLY attachments
+    ADD CONSTRAINT atta_expe_bk_uk UNIQUE (expe_id, file_name, version);
+ALTER TABLE ONLY attachments
+    ADD CONSTRAINT atta_pk PRIMARY KEY (id);
+ALTER TABLE ONLY attachments
+    ADD CONSTRAINT atta_proj_bk_uk UNIQUE (proj_id, file_name, version);
+ALTER TABLE ONLY attachments
+    ADD CONSTRAINT atta_samp_bk_uk UNIQUE (samp_id, file_name, version);
 ALTER TABLE ONLY controlled_vocabularies
     ADD CONSTRAINT covo_bk_uk UNIQUE (code, is_internal_namespace, dbin_id);
 ALTER TABLE ONLY controlled_vocabularies
@@ -24,8 +32,20 @@ ALTER TABLE ONLY database_instances
     ADD CONSTRAINT dbin_pk PRIMARY KEY (id);
 ALTER TABLE ONLY database_instances
     ADD CONSTRAINT dbin_uuid_uk UNIQUE (uuid);
+ALTER TABLE ONLY data_set_properties
+    ADD CONSTRAINT dspr_bk_uk UNIQUE (ds_id, dstpt_id);
+ALTER TABLE ONLY data_set_properties
+    ADD CONSTRAINT dspr_pk PRIMARY KEY (id);
 ALTER TABLE ONLY data_set_relationships
     ADD CONSTRAINT dsre_bk_uk UNIQUE (data_id_child, data_id_parent);
+ALTER TABLE ONLY data_set_type_property_types
+    ADD CONSTRAINT dstpt_bk_uk UNIQUE (dsty_id, prty_id);
+ALTER TABLE ONLY data_set_type_property_types
+    ADD CONSTRAINT dstpt_pk PRIMARY KEY (id);
+ALTER TABLE ONLY data_set_types
+    ADD CONSTRAINT dsty_bk_uk UNIQUE (code, dbin_id);
+ALTER TABLE ONLY data_set_types
+    ADD CONSTRAINT dsty_pk PRIMARY KEY (id);
 ALTER TABLE ONLY experiment_type_property_types
     ADD CONSTRAINT etpt_bk_uk UNIQUE (exty_id, prty_id);
 ALTER TABLE ONLY experiment_type_property_types
@@ -34,12 +54,8 @@ ALTER TABLE ONLY events
     ADD CONSTRAINT evnt_bk_uk UNIQUE (event_type, data_id);
 ALTER TABLE ONLY events
     ADD CONSTRAINT evnt_pk PRIMARY KEY (id);
-ALTER TABLE ONLY experiment_attachment_contents
+ALTER TABLE ONLY attachment_contents
     ADD CONSTRAINT exac_pk PRIMARY KEY (id);
-ALTER TABLE ONLY experiment_attachments
-    ADD CONSTRAINT exat_bk_uk UNIQUE (expe_id, file_name, version);
-ALTER TABLE ONLY experiment_attachments
-    ADD CONSTRAINT exat_pk PRIMARY KEY (id);
 ALTER TABLE ONLY external_data
     ADD CONSTRAINT exda_bk_uk UNIQUE (location, loty_id);
 ALTER TABLE ONLY external_data
@@ -90,10 +106,6 @@ ALTER TABLE ONLY material_type_property_types
     ADD CONSTRAINT mtpt_bk_uk UNIQUE (maty_id, prty_id);
 ALTER TABLE ONLY material_type_property_types
     ADD CONSTRAINT mtpt_pk PRIMARY KEY (id);
-ALTER TABLE ONLY data_set_types
-    ADD CONSTRAINT obty_bk_uk UNIQUE (code, dbin_id);
-ALTER TABLE ONLY data_set_types
-    ADD CONSTRAINT obty_pk PRIMARY KEY (id);
 ALTER TABLE ONLY procedure_types
     ADD CONSTRAINT pcty_bk_uk UNIQUE (code, dbin_id);
 ALTER TABLE ONLY procedure_types
@@ -140,23 +152,33 @@ ALTER TABLE ONLY sample_type_property_types
     ADD CONSTRAINT stpt_bk_uk UNIQUE (saty_id, prty_id);
 ALTER TABLE ONLY sample_type_property_types
     ADD CONSTRAINT stpt_pk PRIMARY KEY (id);
+CREATE INDEX atta_exac_fk_i ON attachments USING btree (exac_id);
+CREATE INDEX atta_expe_fk_i ON attachments USING btree (expe_id);
+CREATE INDEX atta_pers_fk_i ON attachments USING btree (pers_id_registerer);
+CREATE INDEX atta_proj_fk_i ON attachments USING btree (proj_id);
+CREATE INDEX atta_samp_fk_i ON attachments USING btree (samp_id);
 CREATE INDEX covo_pers_fk_i ON controlled_vocabularies USING btree (pers_id_registerer);
 CREATE INDEX cvte_covo_fk_i ON controlled_vocabulary_terms USING btree (covo_id);
 CREATE INDEX cvte_pers_fk_i ON controlled_vocabulary_terms USING btree (pers_id_registerer);
 CREATE INDEX dast_dbin_fk_i ON data_stores USING btree (dbin_id);
-CREATE INDEX data_obty_fk_i ON data USING btree (dsty_id);
+CREATE INDEX data_dsty_fk_i ON data USING btree (dsty_id);
 CREATE INDEX data_proc_fk_i ON data USING btree (proc_id_produced_by);
 CREATE INDEX data_samp_fk_i_acquired_from ON data USING btree (samp_id_acquired_from);
 CREATE INDEX data_samp_fk_i_derived_from ON data USING btree (samp_id_derived_from);
+CREATE INDEX dspr_cvte_fk_i ON data_set_properties USING btree (cvte_id);
+CREATE INDEX dspr_ds_fk_i ON data_set_properties USING btree (ds_id);
+CREATE INDEX dspr_dstpt_fk_i ON data_set_properties USING btree (dstpt_id);
+CREATE INDEX dspr_pers_fk_i ON data_set_properties USING btree (pers_id_registerer);
 CREATE INDEX dsre_data_fk_i_child ON data_set_relationships USING btree (data_id_child);
 CREATE INDEX dsre_data_fk_i_parent ON data_set_relationships USING btree (data_id_parent);
+CREATE INDEX dstpt_dsty_fk_i ON data_set_type_property_types USING btree (dsty_id);
+CREATE INDEX dstpt_pers_fk_i ON data_set_type_property_types USING btree (pers_id_registerer);
+CREATE INDEX dstpt_prty_fk_i ON data_set_type_property_types USING btree (prty_id);
 CREATE INDEX etpt_exty_fk_i ON experiment_type_property_types USING btree (exty_id);
 CREATE INDEX etpt_pers_fk_i ON experiment_type_property_types USING btree (pers_id_registerer);
 CREATE INDEX etpt_prty_fk_i ON experiment_type_property_types USING btree (prty_id);
 CREATE INDEX evnt_data_fk_i ON events USING btree (data_id);
 CREATE INDEX evnt_pers_fk_i ON events USING btree (pers_id_registerer);
-CREATE INDEX exat_expe_fk_i ON experiment_attachments USING btree (expe_id);
-CREATE INDEX exat_pers_fk_i ON experiment_attachments USING btree (pers_id_registerer);
 CREATE INDEX exda_cvte_fk_i ON external_data USING btree (cvte_id_stor_fmt);
 CREATE INDEX exda_cvte_stored_on_fk_i ON external_data USING btree (cvte_id_store);
 CREATE INDEX exda_ffty_fk_i ON external_data USING btree (ffty_id);
@@ -220,19 +242,44 @@ CREATE INDEX sapr_stpt_fk_i ON sample_properties USING btree (stpt_id);
 CREATE INDEX stpt_pers_fk_i ON sample_type_property_types USING btree (pers_id_registerer);
 CREATE INDEX stpt_prty_fk_i ON sample_type_property_types USING btree (prty_id);
 CREATE INDEX stpt_saty_fk_i ON sample_type_property_types USING btree (saty_id);
-CREATE INDEX EXAT_EXAC_FK_I ON EXPERIMENT_ATTACHMENTS (EXAC_ID);
 CREATE TRIGGER controlled_vocabulary_check
     BEFORE INSERT OR UPDATE ON property_types
     FOR EACH ROW
     EXECUTE PROCEDURE controlled_vocabulary_check();
+CREATE TRIGGER data_set_property_with_material_data_type_check
+    BEFORE INSERT OR UPDATE ON data_set_properties
+    FOR EACH ROW
+    EXECUTE PROCEDURE data_set_property_with_material_data_type_check();
+CREATE TRIGGER experiment_property_with_material_data_type_check
+    BEFORE INSERT OR UPDATE ON experiment_properties
+    FOR EACH ROW
+    EXECUTE PROCEDURE experiment_property_with_material_data_type_check();
 CREATE TRIGGER external_data_storage_format_check
     BEFORE INSERT OR UPDATE ON external_data
     FOR EACH ROW
     EXECUTE PROCEDURE external_data_storage_format_check();
+CREATE TRIGGER material_property_with_material_data_type_check
+    BEFORE INSERT OR UPDATE ON material_properties
+    FOR EACH ROW
+    EXECUTE PROCEDURE material_property_with_material_data_type_check();
 CREATE TRIGGER sample_code_uniqueness_check
     BEFORE INSERT OR UPDATE ON samples
     FOR EACH ROW
     EXECUTE PROCEDURE sample_code_uniqueness_check();
+CREATE TRIGGER sample_property_with_material_data_type_check
+    BEFORE INSERT OR UPDATE ON sample_properties
+    FOR EACH ROW
+    EXECUTE PROCEDURE sample_property_with_material_data_type_check();
+ALTER TABLE ONLY attachments
+    ADD CONSTRAINT atta_cont_fk FOREIGN KEY (exac_id) REFERENCES attachment_contents(id);
+ALTER TABLE ONLY attachments
+    ADD CONSTRAINT atta_expe_fk FOREIGN KEY (expe_id) REFERENCES experiments(id);
+ALTER TABLE ONLY attachments
+    ADD CONSTRAINT atta_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+ALTER TABLE ONLY attachments
+    ADD CONSTRAINT atta_proj_fk FOREIGN KEY (proj_id) REFERENCES projects(id);
+ALTER TABLE ONLY attachments
+    ADD CONSTRAINT atta_samp_fk FOREIGN KEY (samp_id) REFERENCES samples(id);
 ALTER TABLE ONLY controlled_vocabularies
     ADD CONSTRAINT covo_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY controlled_vocabularies
@@ -244,7 +291,7 @@ ALTER TABLE ONLY controlled_vocabulary_terms
 ALTER TABLE ONLY data_stores
     ADD CONSTRAINT dast_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY data
-    ADD CONSTRAINT data_obty_fk FOREIGN KEY (dsty_id) REFERENCES data_set_types(id);
+    ADD CONSTRAINT data_dsty_fk FOREIGN KEY (dsty_id) REFERENCES data_set_types(id);
 ALTER TABLE ONLY data
     ADD CONSTRAINT data_proc_produced_by_fk FOREIGN KEY (proc_id_produced_by) REFERENCES procedures(id);
 ALTER TABLE ONLY data
@@ -253,10 +300,28 @@ ALTER TABLE ONLY data
     ADD CONSTRAINT data_samp_fk_derived_from FOREIGN KEY (samp_id_derived_from) REFERENCES samples(id);
 ALTER TABLE ONLY database_instances
     ADD CONSTRAINT dbin_dast_fk FOREIGN KEY (dast_id) REFERENCES data_stores(id);
+ALTER TABLE ONLY data_set_properties
+    ADD CONSTRAINT dspr_cvte_fk FOREIGN KEY (cvte_id) REFERENCES controlled_vocabulary_terms(id);
+ALTER TABLE ONLY data_set_properties
+    ADD CONSTRAINT dspr_ds_fk FOREIGN KEY (ds_id) REFERENCES data(id);
+ALTER TABLE ONLY data_set_properties
+    ADD CONSTRAINT dspr_dstpt_fk FOREIGN KEY (dstpt_id) REFERENCES data_set_type_property_types(id) ON DELETE CASCADE;
+ALTER TABLE ONLY data_set_properties
+    ADD CONSTRAINT dspr_mapr_fk FOREIGN KEY (mate_prop_id) REFERENCES materials(id);
+ALTER TABLE ONLY data_set_properties
+    ADD CONSTRAINT dspr_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY data_set_relationships
     ADD CONSTRAINT dsre_data_fk_child FOREIGN KEY (data_id_child) REFERENCES data(id);
 ALTER TABLE ONLY data_set_relationships
     ADD CONSTRAINT dsre_data_fk_parent FOREIGN KEY (data_id_parent) REFERENCES data(id);
+ALTER TABLE ONLY data_set_type_property_types
+    ADD CONSTRAINT dstpt_dsty_fk FOREIGN KEY (dsty_id) REFERENCES data_set_types(id);
+ALTER TABLE ONLY data_set_type_property_types
+    ADD CONSTRAINT dstpt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+ALTER TABLE ONLY data_set_type_property_types
+    ADD CONSTRAINT dstpt_prty_fk FOREIGN KEY (prty_id) REFERENCES property_types(id);
+ALTER TABLE ONLY data_set_types
+    ADD CONSTRAINT dsty_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY experiment_type_property_types
     ADD CONSTRAINT etpt_exty_fk FOREIGN KEY (exty_id) REFERENCES experiment_types(id);
 ALTER TABLE ONLY experiment_type_property_types
@@ -267,12 +332,6 @@ ALTER TABLE ONLY events
     ADD CONSTRAINT evnt_data_fk FOREIGN KEY (data_id) REFERENCES data(id);
 ALTER TABLE ONLY events
     ADD CONSTRAINT evnt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
-ALTER TABLE ONLY experiment_attachments
-    ADD CONSTRAINT exat_cont_fk FOREIGN KEY (exac_id) REFERENCES experiment_attachment_contents(id);
-ALTER TABLE ONLY experiment_attachments
-    ADD CONSTRAINT exat_expe_fk FOREIGN KEY (expe_id) REFERENCES experiments(id);
-ALTER TABLE ONLY experiment_attachments
-    ADD CONSTRAINT exat_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY external_data
     ADD CONSTRAINT exda_cvte_fk FOREIGN KEY (cvte_id_stor_fmt) REFERENCES controlled_vocabulary_terms(id);
 ALTER TABLE ONLY external_data
@@ -302,6 +361,8 @@ ALTER TABLE ONLY experiment_properties
 ALTER TABLE ONLY experiment_properties
     ADD CONSTRAINT expr_expe_fk FOREIGN KEY (expe_id) REFERENCES experiments(id);
 ALTER TABLE ONLY experiment_properties
+    ADD CONSTRAINT expr_mapr_fk FOREIGN KEY (mate_prop_id) REFERENCES materials(id);
+ALTER TABLE ONLY experiment_properties
     ADD CONSTRAINT expr_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY experiment_types
     ADD CONSTRAINT exty_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
@@ -328,6 +389,8 @@ ALTER TABLE ONLY material_batches
 ALTER TABLE ONLY material_properties
     ADD CONSTRAINT mapr_cvte_fk FOREIGN KEY (cvte_id) REFERENCES controlled_vocabulary_terms(id);
 ALTER TABLE ONLY material_properties
+    ADD CONSTRAINT mapr_mapr_fk FOREIGN KEY (mate_prop_id) REFERENCES materials(id);
+ALTER TABLE ONLY material_properties
     ADD CONSTRAINT mapr_mate_fk FOREIGN KEY (mate_id) REFERENCES materials(id);
 ALTER TABLE ONLY material_properties
     ADD CONSTRAINT mapr_mtpt_fk FOREIGN KEY (mtpt_id) REFERENCES material_type_property_types(id) ON DELETE CASCADE;
@@ -349,8 +412,6 @@ ALTER TABLE ONLY material_type_property_types
     ADD CONSTRAINT mtpt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY material_type_property_types
     ADD CONSTRAINT mtpt_prty_fk FOREIGN KEY (prty_id) REFERENCES property_types(id);
-ALTER TABLE ONLY data_set_types
-    ADD CONSTRAINT obty_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY procedure_types
     ADD CONSTRAINT pcty_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY persons
@@ -377,6 +438,8 @@ ALTER TABLE ONLY property_types
     ADD CONSTRAINT prty_daty_fk FOREIGN KEY (daty_id) REFERENCES data_types(id);
 ALTER TABLE ONLY property_types
     ADD CONSTRAINT prty_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
+ALTER TABLE ONLY property_types
+    ADD CONSTRAINT prty_maty_fk FOREIGN KEY (maty_prop_id) REFERENCES material_types(id);
 ALTER TABLE ONLY property_types
     ADD CONSTRAINT prty_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY role_assignments
@@ -415,6 +478,8 @@ ALTER TABLE ONLY samples
     ADD CONSTRAINT samp_saty_fk FOREIGN KEY (saty_id) REFERENCES sample_types(id);
 ALTER TABLE ONLY sample_properties
     ADD CONSTRAINT sapr_cvte_fk FOREIGN KEY (cvte_id) REFERENCES controlled_vocabulary_terms(id);
+ALTER TABLE ONLY sample_properties
+    ADD CONSTRAINT sapr_mapr_fk FOREIGN KEY (mate_prop_id) REFERENCES materials(id);
 ALTER TABLE ONLY sample_properties
     ADD CONSTRAINT sapr_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY sample_properties

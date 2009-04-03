@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  * @author Christian Ribeaud
  */
 @Entity
-@Table(name = TableNames.EXPERIMENT_ATTACHMENT_CONTENT_TABLE)
+@Table(name = TableNames.ATTACHMENT_CONTENT_TABLE)
 public class AttachmentContentPE implements Serializable
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
@@ -46,9 +46,9 @@ public class AttachmentContentPE implements Serializable
 
     transient private Long id;
 
-    @SequenceGenerator(name = SequenceNames.EXPERIMENT_ATTACHMENT_CONTENT_SEQUENCE, sequenceName = SequenceNames.EXPERIMENT_ATTACHMENT_CONTENT_SEQUENCE, allocationSize = 1)
+    @SequenceGenerator(name = SequenceNames.ATTACHMENT_CONTENT_SEQUENCE, sequenceName = SequenceNames.ATTACHMENT_CONTENT_SEQUENCE, allocationSize = 1)
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.EXPERIMENT_ATTACHMENT_CONTENT_SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.ATTACHMENT_CONTENT_SEQUENCE)
     public final Long getId()
     {
         return id;

@@ -220,6 +220,7 @@ CREATE INDEX sapr_stpt_fk_i ON sample_properties USING btree (stpt_id);
 CREATE INDEX stpt_pers_fk_i ON sample_type_property_types USING btree (pers_id_registerer);
 CREATE INDEX stpt_prty_fk_i ON sample_type_property_types USING btree (prty_id);
 CREATE INDEX stpt_saty_fk_i ON sample_type_property_types USING btree (saty_id);
+CREATE INDEX EXAT_EXAC_FK_I ON EXPERIMENT_ATTACHMENTS (EXAC_ID);
 CREATE TRIGGER controlled_vocabulary_check
     BEFORE INSERT OR UPDATE ON property_types
     FOR EACH ROW
