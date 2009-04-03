@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DatabaseVersionHolder;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -55,7 +56,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 /**
  * A class that uses features of {@link AbstractDAOTest} but is not a real test of openbis (it is
  * excluded from all suites). It has one test method though called main witch should be run as a
- * TestNG test and creates a DB for scalability testing. No rollback is done after this method. <br>
+ * TestNG test using "create scalability DB" run configuration in eclipse (it sets an environment
+ * property that is needed for initialization) and creates a DB for scalability testing. No rollback
+ * is done after this method. <br>
  * <br>
  * At the beginning it creates a TSV file with materials in a given TSV directory that will be used
  * in the next step. Then the DB is created from scratch (with new materials added from the TSV
@@ -90,7 +93,8 @@ public final class DBCreator extends AbstractDAOTest
     private static final String DB_KIND = "test_scalability";
 
     /** directory with TSV files used to create the DB from scratch */
-    private static final String TSV_DIRECTORY = "sourceTest/sql/postgresql/030";
+    private static final String TSV_DIRECTORY =
+            "sourceTest/sql/postgresql/" + DatabaseVersionHolder.getDatabaseVersion();
 
     // number properties
 
@@ -121,13 +125,23 @@ public final class DBCreator extends AbstractDAOTest
     /** the number of DataSets connected to a created big Sample */
     private static final int BIG_SAMPLE_DATASETS_SIZE = DEFAULT_SAMPLE_DATASETS_SIZE * FACTOR * 10;
 
+    //
+
+    private static boolean initialized = false;
+
     static
     {
-        System.setProperty("database.kind", DB_KIND);
-        System.setProperty("database.create-from-scratch", "true");
-        System.setProperty("authorization-component-factory", "no-authorization");
-        MaterialHelper.createMaterialsTSVFile(TSV_DIRECTORY, MATERIALS_NO);
-        log("created materials TSV file");
+        // we don't want this code to be executed when DBCreator.class is loaded by TestNG
+        // which happens for all test configurations
+        if (System.getenv("initializeDBCreator") != null)
+        {
+            System.setProperty("database.kind", DB_KIND);
+            System.setProperty("database.create-from-scratch", "true");
+            System.setProperty("authorization-component-factory", "no-authorization");
+            MaterialHelper.createMaterialsTSVFile(TSV_DIRECTORY, MATERIALS_NO);
+            log("created materials TSV file");
+            initialized = true;
+        }
     }
 
     private static final boolean LOG = true;
@@ -142,8 +156,14 @@ public final class DBCreator extends AbstractDAOTest
 
     @Test
     @Rollback(value = false)
-    public final void main()
+    public final void main() throws Exception
     {
+        if (initialized == false)
+        {
+            throw new Exception(
+                    "use 'create scalability DB' run configuration to setup environment and initialize properly");
+        }
+
         hibernateTemplate = new HibernateTemplate(sessionFactory);
         try
         {
