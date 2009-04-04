@@ -51,7 +51,7 @@ class HDF5__Name__Writer implements IHDF5__Name__Writer
     // Attributes
     // /////////////////////
 
-    public void add__Name__Attribute(final String objectPath, final String name, final __name__ value)
+    public void set__Name__Attribute(final String objectPath, final String name, final __name__ value)
     {
         assert objectPath != null;
         assert name != null;
@@ -61,7 +61,7 @@ class HDF5__Name__Writer implements IHDF5__Name__Writer
                 .__name__ToByte(value));
     }
 
-    public void add__Name__ArrayAttribute(final String objectPath, final String name,
+    public void set__Name__ArrayAttribute(final String objectPath, final String name,
             final __name__[] value)
     {
         assert objectPath != null;
