@@ -1415,17 +1415,20 @@ public class HDF5RoundtripTest
         final int memOfsY = 3;
         final int diskOfsX = 1;
         final int diskOfsY = 0;
-        final int blockSizeX = 2;
+        final int blockSizeX = 3;
         final int blockSizeY = 2;
-        reader.readToFloatMDArrayBlockWithOffset(dsName, arrayRead, new int[]
-            { blockSizeX, blockSizeY }, new long[]
-            { diskOfsX, diskOfsY }, new int[]
-            { memOfsX, memOfsY });
+        final long[] effectiveDimensions =
+                reader.readToFloatMDArrayBlockWithOffset(dsName, arrayRead, new int[]
+                    { blockSizeX, blockSizeY }, new long[]
+                    { diskOfsX, diskOfsY }, new int[]
+                    { memOfsX, memOfsY });
         reader.close();
+        assertEquals(blockSizeX - 1, effectiveDimensions[0]);
+        assertEquals(blockSizeY, effectiveDimensions[1]);
         final boolean[][] isSet = new boolean[10][10];
-        for (int i = 0; i < blockSizeX; ++i)
+        for (int i = 0; i < effectiveDimensions[0]; ++i)
         {
-            for (int j = 0; j < blockSizeY; ++j)
+            for (int j = 0; j < effectiveDimensions[1]; ++j)
             {
                 isSet[memOfsX + i][memOfsY + j] = true;
                 assertEquals("(" + i + "," + j + ")", arrayWritten.get(diskOfsX + i, diskOfsY + j),
@@ -2417,8 +2420,7 @@ public class HDF5RoundtripTest
         final int integerAttributeValueRead =
                 reader.getIntAttribute(datasetName, integerAttributeName);
         assertEquals(integerAttributeValueWritten, integerAttributeValueRead);
-        final byte byteAttributeValueRead =
-                reader.getByteAttribute(datasetName, byteAttributeName);
+        final byte byteAttributeValueRead = reader.getByteAttribute(datasetName, byteAttributeName);
         assertEquals(byteAttributeValueWritten, byteAttributeValueRead);
         HDF5DataTypeInformation info =
                 reader.getAttributeInformation(datasetName, integerAttributeName);
