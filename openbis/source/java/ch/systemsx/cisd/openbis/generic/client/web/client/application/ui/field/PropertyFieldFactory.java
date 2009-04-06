@@ -71,6 +71,8 @@ public class PropertyFieldFactory
             case MATERIAL:
                 return wrapUnaware(MaterialChooserField.create(label, isMandatory, pt
                         .getMaterialType(), originalRawValue, viewContext));
+            case HYPERLINK:
+                return wrapUnaware(new HyperlinkField(label, isMandatory));                
         }
         throw new IllegalStateException("unknown enum " + dataType);
     }

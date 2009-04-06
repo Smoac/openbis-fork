@@ -21,6 +21,8 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.AbstractPropertyColRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.PropertyExperimentColDef;
@@ -42,18 +44,21 @@ public final class ExperimentModel extends BaseEntityModel<Experiment>
 
     public ExperimentModel(final Experiment entity)
     {
-        super(entity, createColumnsSchema(entity));
+        super(entity, createColumnsSchemaForRendering(entity));
     }
 
     // here we create the columns definition having just one table row. We need them only to render
     // column values (headers have been already created), so no message provider is needed.
-    private static List<IColumnDefinitionUI<Experiment>> createColumnsSchema(Experiment entity)
+    private static List<IColumnDefinitionUI<Experiment>> createColumnsSchemaForRendering(
+            Experiment entity)
     {
         List<IColumnDefinitionUI<Experiment>> list = createCommonColumnsSchema(null);
         for (ExperimentProperty prop : entity.getProperties())
         {
             ExperimentTypePropertyType etpt = prop.getEntityTypePropertyType();
-            list.add(new PropertyExperimentColDef(etpt.getPropertyType()));
+            AbstractPropertyColDef<Experiment> colDef =
+                    new PropertyExperimentColDef(etpt.getPropertyType());
+            list.add(AbstractPropertyColRenderer.getPropertyColRenderer(colDef));
         }
         return list;
     }

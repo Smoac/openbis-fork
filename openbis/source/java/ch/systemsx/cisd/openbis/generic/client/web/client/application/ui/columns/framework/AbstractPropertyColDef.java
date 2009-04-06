@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
@@ -41,6 +42,8 @@ public abstract class AbstractPropertyColDef<T> extends AbstractColumnDefinition
 
     private String simpleCode;
 
+    private PropertyType propertyType;
+
     // GWT only
     public AbstractPropertyColDef()
     {
@@ -55,17 +58,19 @@ public abstract class AbstractPropertyColDef<T> extends AbstractColumnDefinition
             int width, String propertyTypeLabel, String identifierPrefix)
     {
         this(propertyType.getSimpleCode(), isDisplayedByDefault, width, propertyType
-                .isInternalNamespace(), propertyTypeLabel, identifierPrefix + PROPERTY_PREFIX);
+                .isInternalNamespace(), propertyTypeLabel, identifierPrefix + PROPERTY_PREFIX,
+                propertyType);
     }
 
     protected AbstractPropertyColDef(String propertyTypeCode, boolean isDisplayedByDefault,
             int width, boolean isInternalNamespace, String propertyTypeLabel,
-            String identifierPrefix)
+            String identifierPrefix, PropertyType propertyType)
     {
         super(propertyTypeLabel, width, isDisplayedByDefault);
         this.isInternalNamespace = isInternalNamespace;
         this.simpleCode = propertyTypeCode;
         this.identifierPrefix = identifierPrefix;
+        this.propertyType = propertyType;
     }
 
     @Override
@@ -88,13 +93,19 @@ public abstract class AbstractPropertyColDef<T> extends AbstractColumnDefinition
 
     private boolean isMatching(EntityProperty<?, ?> prop)
     {
-        PropertyType propertyType = prop.getEntityTypePropertyType().getPropertyType();
-        return propertyType.isInternalNamespace() == isInternalNamespace
-                && propertyType.getSimpleCode().equals(simpleCode);
+        PropertyType propType = prop.getEntityTypePropertyType().getPropertyType();
+        return propType.isInternalNamespace() == isInternalNamespace
+                && propType.getSimpleCode().equals(simpleCode);
     }
 
     public String getIdentifier()
     {
         return identifierPrefix + isInternalNamespace + simpleCode;
     }
+
+    public final DataTypeCode getDataTypeCode()
+    {
+        return propertyType.getDataType().getCode();
+    }
+
 }

@@ -22,7 +22,9 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.AbstractPropertyColRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.ParentContainerSampleColDef;
@@ -47,7 +49,7 @@ public final class SampleModel extends BaseEntityModel<Sample>
 
     public SampleModel(final Sample entity)
     {
-        super(entity, createColumnsSchema(entity));
+        super(entity, createColumnsSchemaForRendering(entity));
         set(ModelDataPropertyNames.SAMPLE_TYPE, entity.getSampleType() != null ? entity
                 .getSampleType().getCode() : null);
         // add a link for experiment
@@ -81,7 +83,7 @@ public final class SampleModel extends BaseEntityModel<Sample>
 
     // here we create the columns definition having just one table row. We need them only to render
     // column values (headers have been already created), so no message provider is needed.
-    private static List<IColumnDefinitionUI<Sample>> createColumnsSchema(Sample sample)
+    private static List<IColumnDefinitionUI<Sample>> createColumnsSchemaForRendering(Sample sample)
     {
         List<IColumnDefinitionUI<Sample>> list = createCommonColumnsSchema(null);
         List<IColumnDefinitionUI<Sample>> parentColumns =
@@ -90,7 +92,9 @@ public final class SampleModel extends BaseEntityModel<Sample>
         for (SampleProperty prop : sample.getProperties())
         {
             SampleTypePropertyType etpt = prop.getEntityTypePropertyType();
-            list.add(new PropertySampleColDef(etpt.getPropertyType(), etpt.isDisplayed()));
+            AbstractPropertyColDef<Sample> colDef =
+                    new PropertySampleColDef(etpt.getPropertyType(), etpt.isDisplayed());
+            list.add(AbstractPropertyColRenderer.getPropertyColRenderer(colDef));
         }
         return list;
     }

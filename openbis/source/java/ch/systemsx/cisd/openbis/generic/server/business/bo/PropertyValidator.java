@@ -33,6 +33,7 @@ import ch.systemsx.cisd.common.collections.IToStringConverter;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils.Boolean;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CommonValidationConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
@@ -70,6 +71,7 @@ public final class PropertyValidator implements IPropertyValueValidator
         map.put(EntityDataType.REAL, new RealValidator());
         map.put(EntityDataType.CONTROLLEDVOCABULARY, new ControlledVocabularyValidator());
         map.put(EntityDataType.MATERIAL, new MaterialValidator());
+        map.put(EntityDataType.HYPERLINK, new HyperlinkValidator());
         return map;
     }
 
@@ -286,6 +288,27 @@ public final class PropertyValidator implements IPropertyValueValidator
                         "Material specification '%s' has improper format.", value);
             }
             return value;
+        }
+    }
+
+    private final static class HyperlinkValidator implements IDataTypeValidator
+    {
+
+        //
+        // IDataTypeValidator
+        //
+
+        public final String validate(final String value) throws UserFailureException
+        {
+            assert value != null : "Unspecified value.";
+            if (value.matches(CommonValidationConstants.HYPERLINK_REGEXP))
+            {
+                return value;
+            } else
+            {
+                throw UserFailureException.fromTemplate(
+                        "Hyperlink value '%s' has improper format.", value);
+            }
         }
     }
 }

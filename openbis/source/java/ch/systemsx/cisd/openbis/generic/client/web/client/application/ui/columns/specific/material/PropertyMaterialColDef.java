@@ -34,7 +34,7 @@ public class PropertyMaterialColDef extends AbstractPropertyColDef<Material> imp
     // GWT only
     public PropertyMaterialColDef()
     {
-        super(null, false, 0, false, null, null);
+        super(null, false, 0, false, null, null, null);
     }
 
     public PropertyMaterialColDef(PropertyType propertyType)

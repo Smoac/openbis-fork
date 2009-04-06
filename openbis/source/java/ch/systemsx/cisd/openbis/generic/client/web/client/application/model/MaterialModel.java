@@ -21,6 +21,8 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.AbstractPropertyColRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.material.CommonMaterialColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.material.PropertyMaterialColDef;
@@ -42,18 +44,21 @@ public final class MaterialModel extends BaseEntityModel<Material>
 
     public MaterialModel(final Material entity)
     {
-        super(entity, createColumnsSchema(entity));
+        super(entity, createColumnsSchemaForRendering(entity));
     }
 
     // here we create the columns definition having just one table row. We need them only to render
     // column values (headers have been already created), so no message provider is needed.
-    private static List<IColumnDefinitionUI<Material>> createColumnsSchema(Material entity)
+    private static List<IColumnDefinitionUI<Material>> createColumnsSchemaForRendering(
+            Material entity)
     {
         List<IColumnDefinitionUI<Material>> list = createCommonColumnsSchema(null);
         for (MaterialProperty prop : entity.getProperties())
         {
             MaterialTypePropertyType etpt = prop.getEntityTypePropertyType();
-            list.add(new PropertyMaterialColDef(etpt.getPropertyType()));
+            AbstractPropertyColDef<Material> colDef =
+                    new PropertyMaterialColDef(etpt.getPropertyType());
+            list.add(AbstractPropertyColRenderer.getPropertyColRenderer(colDef));
         }
         return list;
     }

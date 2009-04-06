@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listene
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.AbstractPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.AbstractSimplePropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IEntityInformationHolder;
@@ -282,13 +283,20 @@ public final class PropertyValueRenderers
 
         public Widget getAsWidget(T object)
         {
-            if (isMaterialProperty(object))
+            switch (getDataTypeCode(object))
             {
-                return createLinkToMaterial(object);
-            } else
-            {
-                return new InlineHTML(object.getValue());
+                case MATERIAL:
+                    return createLinkToMaterial(object);
+                case HYPERLINK:
+                    return createHyperlink(object);
+                default:
+                    return createHtmlWidget(object);
             }
+        }
+
+        private DataTypeCode getDataTypeCode(T property)
+        {
+            return getPropertyType(property).getDataType().getCode();
         }
 
         private Widget createLinkToMaterial(T object)
@@ -319,9 +327,15 @@ public final class PropertyValueRenderers
             return panel;
         }
 
-        private boolean isMaterialProperty(T property)
+        private Widget createHtmlWidget(T object)
         {
-            return getPropertyType(property).getDataType().getCode().equals(DataTypeCode.MATERIAL);
+            return new InlineHTML(object.getValue());
+        }
+
+        private Widget createHyperlink(T object)
+        {
+            String value = object.getValue();
+            return new ExternalHyperlink(value, value);
         }
 
         private boolean isAllowedMaterialTypeUnspecified(T property)
