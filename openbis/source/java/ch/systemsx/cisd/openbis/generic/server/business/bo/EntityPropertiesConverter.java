@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -55,6 +54,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public final class EntityPropertiesConverter implements IEntityPropertiesConverter
 {
+    private static final String NO_ENTITY_PROPERTY_VALUE_FOR_S =
+            "No entity property value for '%s'.";
+
     private final IDAOFactory daoFactory;
 
     private final EntityKind entityKind;
@@ -194,8 +196,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                 getEntityTypePropertyType(entityTypePE, propertyType);
         if (entityTypePropertyTypePE.isMandatory() && valueOrNull == null)
         {
-            throw UserFailureException.fromTemplate("No entity property value for '%s'.",
-                    propertyCode);
+            throw UserFailureException.fromTemplate(NO_ENTITY_PROPERTY_VALUE_FOR_S, propertyCode);
         }
         if (valueOrNull != null)
         {
@@ -239,10 +240,6 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         assert entityTypeCode != null : "Unspecified entity type code.";
         assert registrator != null : "Unspecified registrator";
         assert properties != null : "Unspecified entity properties";
-        if (properties.length == 0)
-        {
-            return Collections.emptyList();
-        }
         final EntityTypePE entityTypePE = getEntityType(entityTypeCode);
         final List<T> list = new ArrayList<T>();
         for (final EntityProperty<?, ?> property : properties)
@@ -254,7 +251,37 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                 list.add(convertedPropertyOrNull);
             }
         }
+        checkMandatoryProperties(list, entityTypePE);
         return list;
+    }
+
+    /**
+     * Checks if mandatory fields are filled.
+     */
+    private <T extends EntityPropertyPE> void checkMandatoryProperties(List<T> properties,
+            EntityTypePE entityTypePE)
+    {
+        assert properties != null;
+        List<EntityTypePropertyTypePE> assignedProperties =
+                daoFactory.getEntityPropertyTypeDAO(entityKind).listEntityPropertyTypes(
+                        entityTypePE);
+        if (assignedProperties == null || assignedProperties.size() == 0)
+        {
+            return;
+        }
+        Set<EntityTypePropertyTypePE> definedProperties = new HashSet<EntityTypePropertyTypePE>();
+        for (T p : properties)
+        {
+            definedProperties.add(p.getEntityTypePropertyType());
+        }
+        for (EntityTypePropertyTypePE etpt : assignedProperties)
+        {
+            if (etpt.isMandatory() && (definedProperties.contains(etpt) == false))
+            {
+                throw UserFailureException.fromTemplate(NO_ENTITY_PROPERTY_VALUE_FOR_S, etpt
+                        .getPropertyType().getCode());
+            }
+        }
     }
 
     public final <T extends EntityPropertyPE> T createProperty(PropertyTypePE propertyType,
@@ -262,8 +289,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     {
         if (entityTypPropertyType.isMandatory() && value == null)
         {
-            throw UserFailureException.fromTemplate("No entity property value for '%s'.",
-                    propertyType.getCode());
+            throw UserFailureException.fromTemplate(NO_ENTITY_PROPERTY_VALUE_FOR_S, propertyType
+                    .getCode());
         }
         if (value != null)
         {

@@ -69,26 +69,32 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
 
     private void prepareForConvertion(final Expectations exp)
     {
+        prepareForConvertion(exp, false);
+    }
+
+    private void prepareForConvertion(final Expectations exp, boolean mandatory)
+    {
         final SampleTypePE sampleType = createSampleType(SAMPLE_TYPE_CODE);
         final SampleTypePropertyTypePE sampleTypePropertyTypePE = new SampleTypePropertyTypePE();
         sampleTypePropertyTypePE.setEntityType(sampleType);
         final PropertyTypePE propertyType = new PropertyTypePE();
         propertyType.setCode(VARCHAR_PROPERTY_TYPE_CODE);
         sampleTypePropertyTypePE.setPropertyType(propertyType);
+        sampleTypePropertyTypePE.setMandatory(mandatory);
 
-        exp.allowing(daoFactory).getEntityPropertyTypeDAO(EntityKind.SAMPLE);
+        exp.atLeast(1).of(daoFactory).getEntityPropertyTypeDAO(EntityKind.SAMPLE);
         exp.will(Expectations.returnValue(entityPropertyTypeDAO));
 
-        exp.allowing(daoFactory).getEntityTypeDAO(EntityKind.SAMPLE);
+        exp.atLeast(1).of(daoFactory).getEntityTypeDAO(EntityKind.SAMPLE);
         exp.will(Expectations.returnValue(entityTypeDAO));
 
         exp.allowing(daoFactory).getPropertyTypeDAO();
         exp.will(Expectations.returnValue(propertyTypeDAO));
 
-        exp.one(entityTypeDAO).listEntityTypes();
+        exp.atLeast(1).of(entityTypeDAO).listEntityTypes();
         exp.will(Expectations.returnValue(Collections.singletonList(sampleType)));
 
-        exp.one(entityPropertyTypeDAO).listEntityPropertyTypes(sampleType);
+        exp.atLeast(1).of(entityPropertyTypeDAO).listEntityPropertyTypes(sampleType);
         exp.will(Expectations.returnValue(Collections.singletonList(sampleTypePropertyTypePE)));
     }
 
@@ -100,19 +106,20 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
         return sampleType;
     }
 
-    private final static SampleProperty createVarcharSampleProperty(final boolean lowerCase)
+    private final static SampleProperty createVarcharSampleProperty(final boolean lowerCase,
+            String code)
     {
         final SampleProperty sampleProperty = new SampleProperty();
         sampleProperty.setValue("blue");
         final SampleTypePropertyType sampleTypePropertyType = new SampleTypePropertyType();
         final PropertyType propertyType = new PropertyType();
-        String code = VARCHAR_PROPERTY_TYPE_CODE;
+        String newCode = code;
         if (lowerCase)
         {
-            code = code.toLowerCase();
+            newCode = newCode.toLowerCase();
         }
-        propertyType.setLabel(code);
-        propertyType.setCode(code);
+        propertyType.setLabel(newCode);
+        propertyType.setCode(newCode);
         final DataType dataType = new DataType();
         dataType.setCode(DataTypeCode.VARCHAR);
         propertyType.setDataType(dataType);
@@ -124,7 +131,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
     private final SampleProperty[] createSampleProperties(final boolean lowerCase)
     {
         return new SampleProperty[]
-            { createVarcharSampleProperty(lowerCase) };
+            { createVarcharSampleProperty(lowerCase, VARCHAR_PROPERTY_TYPE_CODE) };
     }
 
     @Test
@@ -149,6 +156,12 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
     {
         final IEntityPropertiesConverter entityPropertiesConverter =
                 createEntityPropertiesConverter(EntityKind.SAMPLE);
+        context.checking(new Expectations()
+            {
+                {
+                    prepareForConvertion(this);
+                }
+            });
         final List<EntityPropertyPE> properties =
                 entityPropertiesConverter.convertProperties(SampleProperty.EMPTY_ARRAY,
                         SAMPLE_TYPE_CODE, ManagerTestTool.EXAMPLE_PERSON);
@@ -179,6 +192,36 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                 entityPropertiesConverter.convertProperties(properties, SAMPLE_TYPE_CODE,
                         ManagerTestTool.EXAMPLE_PERSON);
         assertEquals(1, convertedProperties.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testConvertPropertiesWithMissingMandatory()
+    {
+        final IEntityPropertiesConverter entityPropertiesConverter =
+                createEntityPropertiesConverter(EntityKind.SAMPLE);
+        final PropertyTypePE propertyTypePE = new PropertyTypePE();
+        propertyTypePE.setCode(VARCHAR_PROPERTY_TYPE_CODE);
+        context.checking(new Expectations()
+            {
+                {
+
+                    prepareForConvertion(this, true);
+                }
+            });
+        final SampleProperty[] properties = new SampleProperty[] {};
+        boolean exceptionThrown = false;
+        try
+        {
+            entityPropertiesConverter.convertProperties(properties, SAMPLE_TYPE_CODE,
+                    ManagerTestTool.EXAMPLE_PERSON);
+        } catch (UserFailureException ex)
+        {
+            exceptionThrown = true;
+            assertTrue(ex.getMessage().contains("No entity property value for 'COLOR'."));
+        }
+        assertTrue(exceptionThrown);
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -204,6 +247,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                 entityPropertiesConverter.convertProperties(properties, SAMPLE_TYPE_CODE
                         .toLowerCase(), ManagerTestTool.EXAMPLE_PERSON);
         assertEquals(1, convertedProperties.size());
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -225,6 +269,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
             });
         assertEquals(registrator, entityPropertiesConverter.createProperty(propertyType,
                 assignment, registrator, defaultValue).getRegistrator());
+        context.assertIsSatisfied();
     }
 
     @Test(expectedExceptions = UserFailureException.class)
@@ -241,6 +286,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
         final String defaultValue = null;
         entityPropertiesConverter.createProperty(propertyType, assignment, registrator,
                 defaultValue);
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -257,5 +303,6 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
         final String defaultValue = null;
         assertNull(entityPropertiesConverter.createProperty(propertyType, assignment, registrator,
                 defaultValue));
+        context.assertIsSatisfied();
     }
 }

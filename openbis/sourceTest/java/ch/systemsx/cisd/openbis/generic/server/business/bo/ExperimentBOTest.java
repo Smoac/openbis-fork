@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 
 import org.jmock.Expectations;
@@ -32,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -164,16 +167,31 @@ public final class ExperimentBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
-                    will(returnValue(entityTypeDAO));
+                    atLeast(1).of(daoFactory).getEntityPropertyTypeDAO(EntityKind.EXPERIMENT);
+                    will(Expectations.returnValue(entityPropertyTypeDAO));
+
+                    atLeast(1).of(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
+                    will(Expectations.returnValue(entityTypeDAO));
+
+                    atLeast(1).of(entityTypeDAO).listEntityTypes();
+                    will(Expectations.returnValue(Collections.singletonList(type)));
+
+                    atLeast(1).of(entityPropertyTypeDAO).listEntityPropertyTypes(type);
+                    will(Expectations.returnValue(new ArrayList<ExperimentTypePropertyTypePE>(type
+                            .getExperimentTypePropertyTypes())));
+
                     one(entityTypeDAO).tryToFindEntityTypeByCode(expTypeCode);
                     will(returnValue(type));
+
                     one(daoFactory).getProjectDAO();
                     will(returnValue(projectDAO));
+
                     one(projectDAO).tryFindProject(dbCode, groupCode, projectCode);
                     will(returnValue(project));
+
                     one(daoFactory).getExperimentDAO();
                     will(returnValue(experimentDAO));
+
                     one(experimentDAO).createExperiment(experiment);
                 }
             });
@@ -200,8 +218,10 @@ public final class ExperimentBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
+
                     one(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
                     will(returnValue(entityTypeDAO));
+
                     one(entityTypeDAO).tryToFindEntityTypeByCode(expTypeCode);
                     will(returnValue(null));
                 }
@@ -239,12 +259,25 @@ public final class ExperimentBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
-                    will(returnValue(entityTypeDAO));
+                    atLeast(1).of(daoFactory).getEntityPropertyTypeDAO(EntityKind.EXPERIMENT);
+                    will(Expectations.returnValue(entityPropertyTypeDAO));
+
+                    atLeast(1).of(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
+                    will(Expectations.returnValue(entityTypeDAO));
+
+                    atLeast(1).of(entityTypeDAO).listEntityTypes();
+                    will(Expectations.returnValue(Collections.singletonList(type)));
+
+                    atLeast(1).of(entityPropertyTypeDAO).listEntityPropertyTypes(type);
+                    will(Expectations.returnValue(new ArrayList<ExperimentTypePropertyTypePE>(type
+                            .getExperimentTypePropertyTypes())));
+
                     one(entityTypeDAO).tryToFindEntityTypeByCode(expTypeCode);
                     will(returnValue(type));
+
                     one(daoFactory).getProjectDAO();
                     will(returnValue(projectDAO));
+
                     one(projectDAO).tryFindProject(dbCode, groupCode, projectCode);
                     will(returnValue(null));
                 }
@@ -267,7 +300,7 @@ public final class ExperimentBOTest extends AbstractBOTest
     }
 
     @Test
-    public void testDefineAndSaveAlreadyExistingExperiment()
+    public final void testDefineAndSaveAlreadyExistingExperiment()
     {
         final String expCode = EXP_CODE;
         final String expTypeCode = EXP_TYPE_CODE;
@@ -286,16 +319,31 @@ public final class ExperimentBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
-                    will(returnValue(entityTypeDAO));
+                    atLeast(1).of(daoFactory).getEntityPropertyTypeDAO(EntityKind.EXPERIMENT);
+                    will(Expectations.returnValue(entityPropertyTypeDAO));
+
+                    atLeast(1).of(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
+                    will(Expectations.returnValue(entityTypeDAO));
+
+                    atLeast(1).of(entityTypeDAO).listEntityTypes();
+                    will(Expectations.returnValue(Collections.singletonList(type)));
+
+                    atLeast(1).of(entityPropertyTypeDAO).listEntityPropertyTypes(type);
+                    will(Expectations.returnValue(new ArrayList<ExperimentTypePropertyTypePE>(type
+                            .getExperimentTypePropertyTypes())));
+
                     one(entityTypeDAO).tryToFindEntityTypeByCode(expTypeCode);
                     will(returnValue(type));
+
                     one(daoFactory).getProjectDAO();
                     will(returnValue(projectDAO));
+
                     one(projectDAO).tryFindProject(dbCode, groupCode, projectCode);
                     will(returnValue(project));
+
                     one(daoFactory).getExperimentDAO();
                     will(returnValue(experimentDAO));
+
                     one(experimentDAO).createExperiment(experiment);
                     will(throwException(new DataIntegrityViolationException(
                             "exception description...")));
@@ -348,6 +396,7 @@ public final class ExperimentBOTest extends AbstractBOTest
     private ExperimentTypePE createExperimentType(final String expTypeCode)
     {
         ExperimentTypePE experimentType = new ExperimentTypePE();
+        experimentType.setDatabaseInstance(new DatabaseInstancePE());
         experimentType.setCode(expTypeCode);
         return experimentType;
     }

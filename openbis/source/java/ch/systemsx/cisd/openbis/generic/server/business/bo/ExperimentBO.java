@@ -189,9 +189,9 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         final PersonPE registrator = findRegistrator();
         experiment.setCode(experimentIdentifier.getExperimentCode());
         experiment.setRegistrator(registrator);
+        defineExperimentType(newExperiment);
         defineExperimentProperties(newExperiment.getExperimentTypeCode(), newExperiment
                 .getProperties(), registrator);
-        defineExperimentType(newExperiment);
         defineExperimentProject(newExperiment, experimentIdentifier);
         dataChanged = true;
     }
