@@ -25,9 +25,11 @@ import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -40,11 +42,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 
 /**
  * 
@@ -78,6 +82,7 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
             setHideOnButtonClick(true);
             setModal(true);
         }
+
     }
     
     static final class DeletionCallback extends AbstractAsyncCallback<Void>
@@ -149,10 +154,14 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
     
     private static final class UploadConfirmationDialog extends AbstractConfirmationDialog
     {
+        private static final int FIELD_WIDTH_IN_UPLOAD_DIALOG = 200;
+        private static final int LABEL_WIDTH_IN_UPLOAD_DIALOG = 120;
         private final String cifexURL;
-        private final TextField<String> password;
+        private final TextField<String> passwordField;
         private TextField<String> fileNameField;
         private TextArea commentField;
+        private TextField<String> userField;
+        private FormPanel form;
 
         public UploadConfirmationDialog(IViewContext<?> viewContext, List<ExternalData> dataSets,
                 IBrowserGridActionInvoker invoker)
@@ -160,31 +169,69 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
             super(viewContext, dataSets, invoker, Dict.CONFIRM_DATASET_UPLOAD_TITLE);
             cifexURL = viewContext.getModel().getApplicationInfo().getCIFEXURL();
             addText(viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_MSG, dataSets.size(), cifexURL));
+            form = new FormPanel();
+            form.setLabelWidth(LABEL_WIDTH_IN_UPLOAD_DIALOG);
+            form.setFieldWidth(FIELD_WIDTH_IN_UPLOAD_DIALOG);
+            form.setBodyBorder(false);
+            form.setHeaderVisible(false);
             fileNameField = new TextField<String>();
+            fileNameField.setFieldLabel(viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_FILE_NAME_FIELD));
             fileNameField.setSelectOnFocus(true);
-            add(fileNameField);
+            fileNameField.setMaxLength(BasicConstant.MAX_LENGTH_OF_FILE_NAME + ".zip".length());
+            fileNameField.setAutoValidate(true);
+            KeyListener keyListener = new KeyListener()
+                {
+                    @Override
+                    public void handleEvent(ComponentEvent ce)
+                    {
+                        okBtn.setEnabled(form.isValid());
+                    }
+                };
+            fileNameField.addKeyListener(keyListener);
+            form.add(fileNameField);
             commentField = new TextArea();
-            add(commentField);
-            password = new TextField<String>();
-            password.setPassword(true);
-            password.setHideLabel(true);
-            password.setWidth("100%");
-            password.setMaxLength(50);
-            add(password);
+            commentField.setMaxLength(BasicConstant.MAX_LENGTH_OF_CIFEX_COMMENT);
+            commentField.setFieldLabel(viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_COMMENT_FIELD));
+            commentField.addKeyListener(keyListener);
+            commentField.setAutoValidate(true);
+            form.add(commentField);
+            userField = new TextField<String>();
+            userField.setFieldLabel(viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_USER_FIELD));
+            userField.setValue(viewContext.getModel().getSessionContext().getUser().getUserName());
+            FieldUtil.setMandatoryFlag(userField, true);
+            userField.addKeyListener(keyListener);
+            userField.setAutoValidate(true);
+            form.add(userField);
+            passwordField = new TextField<String>();
+            passwordField.setPassword(true);
+            passwordField.setFieldLabel(viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_PASSWORD_FIELD));
+            FieldUtil.setMandatoryFlag(passwordField, true);
+            passwordField.addKeyListener(keyListener);
+            passwordField.setAutoValidate(true);
+            form.add(passwordField);
+            add(form);
+            setWidth(LABEL_WIDTH_IN_UPLOAD_DIALOG + FIELD_WIDTH_IN_UPLOAD_DIALOG + 50);
+        }
+        
+        @Override
+        protected void onRender(Element parent, int pos)
+        {
+            super.onRender(parent, pos);
+            okBtn.setEnabled(false);
         }
         
         @Override
         protected void onButtonPressed(Button button)
         {
             super.onButtonPressed(button);
-            if (button.getItemId().equals(Dialog.OK))
+            if (button.getItemId().equals(Dialog.OK) && form.isValid())
             {
                 DataSetUploadParameters parameters = new DataSetUploadParameters();
                 parameters.setCifexURL(cifexURL);
                 parameters.setFileName(fileNameField.getValue());
                 parameters.setComment(commentField.getValue());
-                parameters.setUserID(viewContext.getModel().getSessionContext().getUser().getUserName());
-                parameters.setPassword(password.getValue());
+                parameters.setUserID(userField.getValue());
+                parameters.setPassword(passwordField.getValue());
                 viewContext.getCommonService().uploadDataSets(dataSetCodes, parameters,
                         new UploadCallback(viewContext));
             }

@@ -26,7 +26,7 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
  */
 public class FieldUtil
 {
-    private static final String MANDATORY_LABEL_SEPARATOR = ": *";
+    private static final String MANDATORY_LABEL_SEPARATOR = ":&nbsp;*";
 
     public static void setMandatoryFlag(Field<?> field, boolean isMandatory)
     {

@@ -321,6 +321,14 @@ public abstract class Dict
     public static final String CONFIRM_DATASET_UPLOAD_TITLE = "confirm_dataset_upload_title";
 
     public static final String CONFIRM_DATASET_UPLOAD_MSG = "confirm_dataset_upload_msg";
+    
+    public static final String CONFIRM_DATASET_UPLOAD_FILE_NAME_FIELD = "confirm_dataset_upload_file_name_field";
+    
+    public static final String CONFIRM_DATASET_UPLOAD_COMMENT_FIELD = "confirm_dataset_upload_comment_field";
+    
+    public static final String CONFIRM_DATASET_UPLOAD_USER_FIELD = "confirm_dataset_upload_user_field";
+    
+    public static final String CONFIRM_DATASET_UPLOAD_PASSWORD_FIELD = "confirm_dataset_upload_password_field";
 
     //
     // Sample Registration

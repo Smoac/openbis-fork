@@ -124,6 +124,7 @@ public class DataSetUploadContext implements Serializable
         builder.append(that.password, password);
         builder.append(that.email, email);
         builder.append(that.comment, comment);
+        builder.append(that.fileName, fileName);
         return builder.isEquals();
     }
 
@@ -136,6 +137,7 @@ public class DataSetUploadContext implements Serializable
         builder.append(password);
         builder.append(email);
         builder.append(comment);
+        builder.append(fileName);
         return builder.toHashCode();
     }
 

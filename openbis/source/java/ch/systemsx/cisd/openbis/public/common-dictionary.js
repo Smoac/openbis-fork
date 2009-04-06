@@ -299,7 +299,11 @@ var common = {
  confirm_dataset_deletion_msg: "You are deleting {0} data set(s). Please enter a reason:",
  button_upload_datasets: "Upload to CIFEX",
  confirm_dataset_upload_title: "Uploading Confirmation and Authentication",
- confirm_dataset_upload_msg: "You are uploading {0} data set(s) to CIFEX ({1}). Please, enter your CIFEX password:", 
+ confirm_dataset_upload_msg: "You are uploading {0} data set(s) to CIFEX ({1}) in a single ZIP file.<br/><br/>Please, enter additional information:", 
+ confirm_dataset_upload_file_name_field: "File name",
+ confirm_dataset_upload_comment_field: "Comment",
+ confirm_dataset_upload_user_field: "CIFEX user",
+ confirm_dataset_upload_password_field: "CIFEX password",
  
  
  

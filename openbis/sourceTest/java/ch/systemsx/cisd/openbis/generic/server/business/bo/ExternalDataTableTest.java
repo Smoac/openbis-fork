@@ -34,6 +34,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.DataStoreServerSessionManager;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerSession;
@@ -426,7 +427,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
         String comment = ExternalDataTable.createUploadComment(dataSets);
         System.out.println(comment.length() + ":" + comment);
         assertEquals(builder.toString(), comment);
-        assertTrue(comment.length() <= ExternalDataTable.MAX_LENGTH_OF_CIFEX_COMMENT);
+        assertTrue(comment.length() <= BasicConstant.MAX_LENGTH_OF_CIFEX_COMMENT);
     }
     
     private String generateDataSetCode(int codeLength, int codeIndex)

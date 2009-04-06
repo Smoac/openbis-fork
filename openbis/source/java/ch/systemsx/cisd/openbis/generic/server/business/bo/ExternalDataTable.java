@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.DataStoreServerSessionMa
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerSession;
@@ -55,7 +56,6 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public final class ExternalDataTable extends AbstractExternalDataBusinessObject implements
         IExternalDataTable
 {
-    @Private static final int MAX_LENGTH_OF_CIFEX_COMMENT = 1000;
     @Private static final String UPLOAD_COMMENT_TEXT = "Uploaded zip file contains the following data sets:";
     @Private static final String NEW_LINE = "\n";
     @Private static final String AND_MORE_TEMPLATE = "and %d more.";
@@ -73,7 +73,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             {
                 length += NEW_LINE.length() + String.format(AND_MORE_TEMPLATE, n - i - 1).length();
             }
-            if (length < MAX_LENGTH_OF_CIFEX_COMMENT)
+            if (length < BasicConstant.MAX_LENGTH_OF_CIFEX_COMMENT)
             {
                 builder.append(code);
             } else
