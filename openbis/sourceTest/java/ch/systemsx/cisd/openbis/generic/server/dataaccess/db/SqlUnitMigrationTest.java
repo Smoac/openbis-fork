@@ -239,6 +239,13 @@ public final class SqlUnitMigrationTest
 
     @Test(groups =
         { "slow" })
+    /*
+     * This test checks if the schema of a current database version is equal to the one which was
+     * migrated from the version 18 to the current version with existing migration scripts. If it is
+     * not a case, then the test will fail and will show what is missing in the last migration
+     * script. Note that this test can be used to generate new migration scripts! When you introduce
+     * a new database version, just create an empty migration script and run this test.
+     */
     public final void testMigrationFrom018() throws Exception
     {
         final String databaseKind = "test_migration";
