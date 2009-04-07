@@ -104,9 +104,9 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     {
         return new Object[][]
             {
-                { "Doe" },
-                { "d?e" },
-                { "*oe" } };
+                { "john" },
+                { "Jo?n" },
+                { "*ohn" } };
     }
 
     @Test
@@ -137,14 +137,14 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     public final void testSearchEntitiesByRegistrator(final String term)
     {
         final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
-        final String lastName = "Doe";
+        final String lastName = "John";
         final List<SearchHit> hits = hibernateSearchDAO.searchEntitiesByTerm(SamplePE.class, term);
         assertTrue(hits.size() > 0);
         for (SearchHit searchHit : hits)
         {
             SamplePE samplePE = ((SamplePE) searchHit.getEntity());
-            assertEquals(lastName, samplePE.getRegistrator().getLastName());
-            AssertionUtil.assertContains("registrator: Last Name", searchHit.getFieldDescription());
+            assertEquals(lastName, samplePE.getRegistrator().getFirstName());
+            AssertionUtil.assertContains("registrator: First Name", searchHit.getFieldDescription());
         }
     }
 
