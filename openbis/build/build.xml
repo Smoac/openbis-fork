@@ -1,4 +1,4 @@
-<project name="openbis" basedir="..">
+<project name="openbis" default="dist" basedir="..">
 	<import file="../../server-common/build/build-common.xml" />
 	<project-classpath name="ecp" classes="${classes}" />
 
