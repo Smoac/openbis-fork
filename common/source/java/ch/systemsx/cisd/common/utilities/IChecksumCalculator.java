@@ -14,33 +14,26 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds.handler;
+package ch.systemsx.cisd.common.utilities;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.twmacinta.util.MD5;
-import com.twmacinta.util.MD5InputStream;
-
 /**
- * A {@link IChecksumCalculator} implementation based on <i>MD5</i>.
+ * Implementations know how to compute a <a
+ * href="http://en.wikipedia.org/wiki/Checksum">checksum</a> from a file.
  * 
  * @author Christian Ribeaud
  */
-final class MD5ChecksumCalculator implements IChecksumCalculator
+public interface IChecksumCalculator
 {
 
-    //
-    // IChecksum
-    //
-
-    public String calculateChecksum(InputStream inputStream) throws IOException
-    {
-        byte[] buf = new byte[4096];
-        MD5InputStream in = new MD5InputStream(inputStream);
-        while (in.read(buf) != -1)
-        {
-        }
-        return MD5.asHex(in.hash());
-    }
+    /**
+     * Returns the checksum of the bytes read from the specified input stream.
+     * 
+     * @param inputStream Input stream from whom the bytes are read to calculate checksum.
+     * @throws IOException if reading from <code>inputStream</code> causes an
+     *             <code>IOException</code>.
+     */
+    String calculateChecksum(InputStream inputStream) throws IOException;
 }

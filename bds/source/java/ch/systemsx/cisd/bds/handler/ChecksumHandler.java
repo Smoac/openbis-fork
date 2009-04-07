@@ -41,6 +41,8 @@ import ch.systemsx.cisd.common.collections.IToStringConverter;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.IChecksumCalculator;
+import ch.systemsx.cisd.common.utilities.MD5ChecksumCalculator;
 
 /**
  * A <code>IDataStructureHandler</code> implementation for the <code>md5sum</code> directory.
