@@ -734,12 +734,12 @@ function assert_correct_dataset_content_in_database {
     echo ==== assert correct dataset $dataset_id content in database with pattern $pattern ====
     local psql=`run_psql`
     local dataset=`$psql -U postgres -d $DATABASE \
-       -c "select d.id, pt.code as procedure_type, d.code, d.is_placeholder, r.data_id_parent, \
+       -c "select d.id, e.code, d.code, d.is_placeholder, r.data_id_parent, \
                   ed.is_complete, d.data_producer_code, d.production_timestamp \
            from data as d left join data_set_relationships as r on r.data_id_child = d.id \
-                          left join external_data as ed on ed.data_id = d.id, \
-                procedures as p join procedure_types as pt on pt.id = p.pcty_id \
-           where p.id = d.proc_id_produced_by and d.id = $dataset_id"  \
+                          left join external_data as ed on ed.data_id = d.id,
+                experiment as e
+           where d.id = $dataset_id and d.expe_id = e.id"  \
        | awk '/ +[0-9]+/' \
        | awk '{gsub(/ /,"");print}' \
        | awk '{gsub(/\|/,";");print}'`
@@ -763,14 +763,14 @@ function assert_correct_content {
     assert_correct_content_of_image_analysis_data 3VCP4
     assert_correct_content_of_unidentified_plate_in_store UnknownPlate
     # id;procedure_type;code;is_placeholder;data_id_parent;is_complete;data_producer_code;production_timestamp
-    assert_correct_dataset_content_in_database 1 "1;DATA_ACQUISITION;MICROX-3VCP1;f;;F;microX;2008-01-01.*"
-    assert_correct_dataset_content_in_database 3 "3;IMAGE_ANALYSIS;20[0-9]*-2;f;1;U;;"
-    assert_correct_dataset_content_in_database 5 "5;IMAGE_ANALYSIS;20[0-9]*-4;f;1;U;;"
-    assert_correct_dataset_content_in_database 7 "7;DATA_ACQUISITION;MICROX-3VCP3;f;;F;microX;2008-01-01.*"
-    assert_correct_dataset_content_in_database 8 "8;IMAGE_ANALYSIS;20[0-9]*-6;f;7;U;;"   
-    assert_correct_dataset_content_in_database 10 "10;UNKNOWN;MICROX-3VCP4;t;;;;"
-    assert_correct_dataset_content_in_database 11 "11;IMAGE_ANALYSIS;20[0-9]*-9;f;10;U;;"
-    assert_correct_dataset_content_in_database 14 "14;IMAGE_ANALYSIS;20[0-9]*-13;f;7;U;;"
+    assert_correct_dataset_content_in_database 1 "1;EXP1;MICROX-3VCP1;f;;F;microX;2008-01-01.*"
+    assert_correct_dataset_content_in_database 3 "3;EXP1;20[0-9]*-2;f;1;U;;"
+    assert_correct_dataset_content_in_database 5 "5;EXP1;20[0-9]*-4;f;1;U;;"
+    assert_correct_dataset_content_in_database 7 "7;EXP1;MICROX-3VCP3;f;;F;microX;2008-01-01.*"
+    assert_correct_dataset_content_in_database 8 "8;EXP1;20[0-9]*-6;f;7;U;;"   
+    assert_correct_dataset_content_in_database 10 "10;EXP1;MICROX-3VCP4;t;;;;"
+    assert_correct_dataset_content_in_database 11 "11;EXP1;20[0-9]*-9;f;10;U;;"
+    assert_correct_dataset_content_in_database 14 "14;EXP1;20[0-9]*-13;f;7;U;;"
 }
 
 function integration_tests {
