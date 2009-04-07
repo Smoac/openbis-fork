@@ -12,7 +12,6 @@ var generic = {
   versions_template: "Show all versions ({0})",
   no_attachments_found: "There are no attachments in this experiment",
   no_samples_found: "There are no samples in this experiment",
-  procedure: "Procedure",
 
   //
   // Sample Viewer

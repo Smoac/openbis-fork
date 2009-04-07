@@ -117,8 +117,10 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     private Set<AttachmentPE> attachments = new HashSet<AttachmentPE>();
 
     private boolean attachmentsUnescaped = false;
+    
+    private List<SamplePE> samples = new ArrayList<SamplePE>();
 
-    private List<ProcedurePE> procedures = new ArrayList<ProcedurePE>();
+    private List<DataPE> dataSets = new ArrayList<DataPE>();
 
     private ProcessingInstructionDTO[] processingInstructions =
             ProcessingInstructionDTO.EMPTY_ARRAY;
@@ -352,46 +354,87 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
         child.setParentInternal(this);
         getInternalAttachments().add(child);
     }
-
+    
     @Transient
-    public List<ProcedurePE> getProcedures()
+    public List<SamplePE> getSamples()
     {
-        return new UnmodifiableListDecorator<ProcedurePE>(getExperimentProcedures());
+        return new UnmodifiableListDecorator<SamplePE>(getExperimentSamples());
     }
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentInternal")
     @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = true)
     @ContainedIn
-    private List<ProcedurePE> getExperimentProcedures()
+    private List<SamplePE> getExperimentSamples()
     {
-        return procedures;
+        return samples;
     }
 
     // Required by Hibernate.
     @SuppressWarnings("unused")
-    private void setExperimentProcedures(final List<ProcedurePE> procedures)
+    private void setExperimentSamples(final List<SamplePE> samples)
     {
-        this.procedures = procedures;
+        this.samples = samples;
+    }
+    
+    public void setSamples(List<SamplePE> samples)
+    {
+        getExperimentSamples().clear();
+        for (SamplePE sample : samples)
+        {
+            addSample(sample);
+        }
+    }
+    
+    public void addSample(SamplePE sample)
+    {
+        ExperimentPE experiment = sample.getExperiment();
+        if (experiment != null)
+        {
+            experiment.getExperimentSamples().remove(sample);
+        }
+        sample.setExperimentInternal(this);
+        getExperimentSamples().add(sample);
     }
 
-    public final void setProcedures(final List<ProcedurePE> procedures)
+    @Transient
+    public List<DataPE> getDataSets()
     {
-        getExperimentProcedures().clear();
-        for (final ProcedurePE child : procedures)
+        return new UnmodifiableListDecorator<DataPE>(getExperimentDataSets());
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentInternal")
+    @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = true)
+    @ContainedIn
+    private List<DataPE> getExperimentDataSets()
+    {
+        return dataSets;
+    }
+
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private void setExperimentDataSets(final List<DataPE> dataSets)
+    {
+        this.dataSets = dataSets;
+    }
+
+    public final void setDataSets(final List<DataPE> dataSets)
+    {
+        getExperimentDataSets().clear();
+        for (final DataPE child : dataSets)
         {
-            addProcedure(child);
+            addDataSet(child);
         }
     }
 
-    public void addProcedure(final ProcedurePE child)
+    public void addDataSet(final DataPE child)
     {
         final ExperimentPE parent = child.getExperiment();
         if (parent != null)
         {
-            parent.getExperimentProcedures().remove(child);
+            parent.getExperimentDataSets().remove(child);
         }
         child.setExperimentInternal(this);
-        getExperimentProcedures().add(child);
+        getExperimentDataSets().add(child);
     }
 
     @Transient

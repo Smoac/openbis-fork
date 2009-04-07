@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import static ch.systemsx.cisd.openbis.generic.shared.IDataStoreService.VERSION;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode.DATA_ACQUISITION;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,8 +44,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedureTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -191,7 +188,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         final SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
         final ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
-        SamplePE sample = createSampleWithExperiment("PTYPE", experiment);
+        SamplePE sample = createSampleWithExperiment(experiment);
         prepareTryToLoadSample(sampleIdentifier, sample);
         context.checking(new Expectations()
             {
@@ -215,7 +212,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         final SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
         final ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
-        SamplePE sample = createSampleWithExperiment("PTYPE", experiment);
+        SamplePE sample = createSampleWithExperiment(experiment);
         prepareTryToLoadSample(sampleIdentifier, sample);
         context.checking(new Expectations()
             {
@@ -433,7 +430,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         
         try
         {
-            createService().registerDataSet(SESSION_TOKEN, sampleIdentifier, "pcode", null);
+            createService().registerDataSet(SESSION_TOKEN, sampleIdentifier, null);
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
@@ -450,11 +447,11 @@ public class ETLServiceTest extends AbstractServerTestCase
                 new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
         ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
         experiment.setInvalidation(new InvalidationPE());
-        prepareTryToLoadSample(sampleIdentifier, createSampleWithExperiment("PTYPE", experiment));
+        prepareTryToLoadSample(sampleIdentifier, createSampleWithExperiment(experiment));
         
         try
         {
-            createService().registerDataSet(SESSION_TOKEN, sampleIdentifier, "pcode", null);
+            createService().registerDataSet(SESSION_TOKEN, sampleIdentifier, null);
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
@@ -467,57 +464,25 @@ public class ETLServiceTest extends AbstractServerTestCase
     }
     
     @Test
-    public void testRegisterDataSetForExistingProcedure()
+    public void testRegisterDataSet()
     {
         final SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
         final ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
-        String procedureTypeCode = DATA_ACQUISITION.getCode();
-        SamplePE sample = createSampleWithExperiment(procedureTypeCode, experiment);
+        SamplePE sample = createSampleWithExperiment(experiment);
         prepareTryToLoadSample(sampleIdentifier, sample);
         final ExternalData externalData = new ExternalData();
         externalData.setCode("dc");
-        prepareRegisterDataSet(sampleIdentifier, sample.getValidProcedure(),
+        prepareRegisterDataSet(sampleIdentifier, sample.getExperiment(),
                 SourceType.MEASUREMENT, externalData);
 
-        createService().registerDataSet(SESSION_TOKEN, sampleIdentifier, procedureTypeCode,
-                externalData);
+        createService().registerDataSet(SESSION_TOKEN, sampleIdentifier, externalData);
 
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testRegisterDataSetAndCreatingProcedureOnTheFly()
-    {
-        final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
-        final ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
-        prepareTryToLoadSample(sampleIdentifier, createSampleWithExperiment("PTYPE", experiment));
-        final String newProcedureType = "unknown";
-        final ExternalData externalData = new ExternalData();
-        final ProcedurePE procedure = new ProcedurePE();
-        externalData.setCode("dc");
-        context.checking(new Expectations()
-            {
-                {
-                    one(boFactory).createProcedureBO(SESSION);
-                    will(returnValue(procedureBO));
-                    
-                    one(procedureBO).define(experiment, newProcedureType);
-                    one(procedureBO).save();
-                    one(procedureBO).getProcedure();
-                    will(returnValue(procedure));
-                }
-            });
-        prepareRegisterDataSet(sampleIdentifier, procedure, SourceType.DERIVED, externalData);
-        
-        createService().registerDataSet(SESSION_TOKEN, sampleIdentifier, newProcedureType, externalData);
-        
         context.assertIsSatisfied();
     }
 
     private void prepareRegisterDataSet(final SampleIdentifier sampleIdentifier,
-            final ProcedurePE procedure, final SourceType sourceType,
+            final ExperimentPE experiment, final SourceType sourceType,
             final ExternalData externalData)
     {
         context.checking(new Expectations()
@@ -527,18 +492,17 @@ public class ETLServiceTest extends AbstractServerTestCase
                     will(returnValue(sampleBO));
 
                     one(sampleBO).loadBySampleIdentifier(sampleIdentifier);
-                    one(sampleBO).enrichWithValidProcedure();
                     one(sampleBO).getSample();
                     SamplePE sample = new SamplePE();
                     sample.setCode("s2");
                     sample.setGroup(createGroup("G1"));
-                    sample.setValidProcedure(new ProcedurePE());
+                    sample.setExperiment(experiment);
                     will(returnValue(sample));
 
                     one(boFactory).createExternalDataBO(SESSION);
                     will(returnValue(externalDataBO));
 
-                    one(externalDataBO).define(externalData, procedure, sample, sourceType);
+                    one(externalDataBO).define(externalData, sample, sourceType);
                     one(externalDataBO).save();
                     one(externalDataBO).getExternalData();
                     ExternalDataPE externalDataPE = new ExternalDataPE();
@@ -548,22 +512,11 @@ public class ETLServiceTest extends AbstractServerTestCase
             });
     }
 
-    private SamplePE createSampleWithExperiment(String procedureTypeCode, ExperimentPE experiment)
+    private SamplePE createSampleWithExperiment(ExperimentPE experiment)
     {
         SamplePE sample = new SamplePE();
-        ProcedurePE procedure = createProcedure(procedureTypeCode);
-        procedure.setExperiment(experiment);
-        sample.setValidProcedure(procedure);
+        sample.setExperiment(experiment);
         return sample;
-    }
-    
-    private ProcedurePE createProcedure(String code)
-    {
-        ProcedurePE procedure = new ProcedurePE();
-        ProcedureTypePE procedureType = new ProcedureTypePE();
-        procedureType.setCode(code);
-        procedure.setProcedureType(procedureType);
-        return procedure;
     }
     
     private void prepareLoadExperiment(final ExperimentIdentifier experimentIdentifier,
@@ -593,7 +546,6 @@ public class ETLServiceTest extends AbstractServerTestCase
                     will(returnValue(sampleBO));
 
                     one(sampleBO).tryToLoadBySampleIdentifier(identifier);
-                    one(sampleBO).enrichWithValidProcedure();
                     one(sampleBO).tryToGetSample();
                     will(returnValue(sample));
                 }

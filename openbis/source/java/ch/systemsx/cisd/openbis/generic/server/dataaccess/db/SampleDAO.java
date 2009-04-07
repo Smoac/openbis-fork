@@ -32,7 +32,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -72,9 +71,7 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         fetchRelations(criteria, "container", sampleType.getContainerHierarchyDepth());
         fetchRelations(criteria, "generatedFrom", sampleType.getGeneratedFromHierarchyDepth());
 
-        // fetch procedures from valid experiments
-        criteria.setFetchMode("procedures", FetchMode.JOIN);
-        criteria.setFetchMode("procedures.experiment", FetchMode.JOIN);
+        criteria.setFetchMode("experiment", FetchMode.JOIN);
 
         return criteria;
     }
@@ -264,25 +261,6 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
             internalCreateSample(samplePE, hibernateTemplate);
         }
         hibernateTemplate.flush();
-    }
-
-    public List<SamplePE> listSamplesByExperiment(final ExperimentPE experiment)
-            throws DataAccessException
-    {
-        assert experiment != null : "Unspecified experiment.";
-
-        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
-        final String hql =
-                String.format(
-                        "select s from %s s join s.procedures p where p.experimentInternal = ?",
-                        TABLE_NAME);
-        final List<SamplePE> list = cast(hibernateTemplate.find(hql, toArray(experiment)));
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug(String.format("%d sample(s) have been found for experiment '%s'.",
-                    list.size(), experiment));
-        }
-        return list;
     }
 
     public final void updateSample(final SamplePE sample) throws DataAccessException

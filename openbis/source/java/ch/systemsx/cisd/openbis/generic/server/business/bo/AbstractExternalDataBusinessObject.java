@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -42,15 +41,10 @@ public abstract class AbstractExternalDataBusinessObject extends
         super(daoFactory, session);
     }
 
-    protected void enrichWithParentsAndProcedure(ExternalDataPE externalDataPE)
+    protected void enrichWithParentsAndExperiment(ExternalDataPE externalDataPE)
     {
         HibernateUtils.initialize(externalDataPE.getParents());
-        HibernateUtils.initialize(externalDataPE.getProcedure());
-        if (externalDataPE.getProcedure() != null)
-        {
-            final ExperimentPE exp = externalDataPE.getProcedure().getExperiment();
-            HibernateUtils.initialize(exp);
-        }
+        HibernateUtils.initialize(externalDataPE.getExperiment());
     }
 
 }

@@ -22,7 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -69,14 +69,9 @@ public interface ISampleBO
     public void save() throws UserFailureException;
 
     /**
-     * Connects sample with given procedure.
+     * Connects sample with specified experiment.
      */
-    void addProcedure(ProcedurePE procedure);
-
-    /**
-     * Enriches the loaded sample with a valid {@link ProcedurePE}.
-     */
-    void enrichWithValidProcedure();
+    void setExperiment(ExperimentPE experiment);
 
     /**
      * Changes given sample. Currently allowed changes: properties and experiment to which the

@@ -56,7 +56,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -162,8 +161,7 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
                         {
                             // don't need to check whether the value is null
                             // because there will not be a link for null value
-                            final Procedure procedure = rowItem.getValidProcedure();
-                            final Experiment experiment = procedure.getExperiment();
+                            final Experiment experiment = rowItem.getExperiment();
 
                             final IEntityInformationHolder entity = experiment;
                             new OpenEntityDetailsTabAction(entity, viewContext).execute();

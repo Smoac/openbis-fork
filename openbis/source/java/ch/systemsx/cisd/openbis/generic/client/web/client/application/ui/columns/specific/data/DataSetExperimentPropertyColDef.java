@@ -48,7 +48,7 @@ public final class DataSetExperimentPropertyColDef extends
     
     public static List<ExperimentProperty> getExperimentProperties(ExternalData entity)
     {
-        return entity.getProcedure().getExperiment().getProperties();
+        return entity.getExperiment().getProperties();
     }
 
 }

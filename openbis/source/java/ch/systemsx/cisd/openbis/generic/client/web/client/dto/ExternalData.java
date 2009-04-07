@@ -36,13 +36,13 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 {
     private String dataStoreBaseURL;
 
-    private ProcedureType procedureType;
-
     private boolean derived;
 
     private Boolean complete;
 
     private Invalidation invalidation;
+    
+    private Experiment experiment;
 
     private DataSetType dataSetType;
 
@@ -58,8 +58,6 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 
     private LocatorType locatorType;
 
-    private Procedure procedure;
-
     private String sampleIdentifier;
 
     private String sampleCode;
@@ -69,16 +67,6 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     private List<SampleProperty> sampleProperties;
 
     private List<DataSetProperty> dataSetProperties;
-
-    public final ProcedureType getProcedureType()
-    {
-        return procedureType;
-    }
-
-    public final void setProcedureType(ProcedureType procedureType)
-    {
-        this.procedureType = procedureType;
-    }
 
     public final String getSampleIdentifier()
     {
@@ -205,14 +193,14 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         this.invalidation = invalidation;
     }
 
-    public Procedure getProcedure()
+    public final Experiment getExperiment()
     {
-        return procedure;
+        return experiment;
     }
 
-    public void setProcedure(Procedure procedure)
+    public final void setExperiment(Experiment experiment)
     {
-        this.procedure = procedure;
+        this.experiment = experiment;
     }
 
     public void setSampleCode(String sampleCode)

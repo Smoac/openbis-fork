@@ -21,7 +21,6 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -40,19 +39,14 @@ public interface ISampleTable
     void loadSamplesByCriteria(final ListSampleCriteriaDTO criteria);
 
     /**
-     * Enriches the loaded samples with a valid {@link ProcedurePE}.
-     */
-    void enrichWithValidProcedure();
-
-    /**
      * Returns the loaded {@link SamplePE}s.
      */
     List<SamplePE> getSamples();
 
     /**
-     * Enriches the samples loaded with their properties.
+     * Enriches the samples loaded with experiment and their properties.
      */
-    void enrichWithProperties();
+    void enrichWithExperimentAndProperties();
 
     /**
      * Adds given <var>newSample</var> sample to this table.

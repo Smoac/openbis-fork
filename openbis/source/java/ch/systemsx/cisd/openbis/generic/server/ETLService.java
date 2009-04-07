@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_SERVICE_NAME;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode.DATA_ACQUISITION;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -36,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.DataStoreServerSessionMa
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IProcedureBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentAttachmentDAO;
@@ -49,7 +47,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -206,14 +203,8 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     {
         final ISampleBO sampleBO = boFactory.createSampleBO(session);
         sampleBO.tryToLoadBySampleIdentifier(sampleIdentifier);
-        sampleBO.enrichWithValidProcedure();
         final SamplePE sample = sampleBO.tryToGetSample();
-        if (sample == null)
-        {
-            return null;
-        }
-        ProcedurePE procedure = sample.getValidProcedure();
-        return procedure == null ? null : procedure.getExperiment();
+        return sample == null ? null : sample.getExperiment();
     }
 
     private void enrichWithPropertiesAndProcessingInstructions(ExperimentPE experiment)
@@ -372,7 +363,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     }
 
     public void registerDataSet(String sessionToken, SampleIdentifier sampleIdentifier,
-            String procedureTypeCode, ExternalData externalData) throws UserFailureException
+            ExternalData externalData) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         assert sampleIdentifier != null : "Unspecified sample identifier.";
@@ -388,40 +379,14 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
             throw new UserFailureException("Data set can not be registered because experiment '"
                     + experiment.getIdentifier() + "' is invalid.");
         }
-        List<ProcedurePE> procedures = experiment.getProcedures();
-        ProcedurePE procedure = tryToFindProcedureByType(procedures, procedureTypeCode);
-        if (procedure == null)
-        {
-            final IProcedureBO procedureBO = boFactory.createProcedureBO(session);
-            procedureBO.define(experiment, procedureTypeCode);
-            procedureBO.save();
-            procedure = procedureBO.getProcedure();
-        }
         final ISampleBO sampleBO = boFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(sampleIdentifier);
-        sampleBO.enrichWithValidProcedure();
         final SamplePE cellPlate = sampleBO.getSample();
-        assert cellPlate.getValidProcedure() != null : "Any cell plate should have been connected to one procedure.";
         final IExternalDataBO externalDataBO = boFactory.createExternalDataBO(session);
-        final boolean dataAcquisition = procedureTypeCode.equals(DATA_ACQUISITION.getCode());
-        final SourceType type = dataAcquisition ? SourceType.MEASUREMENT : SourceType.DERIVED;
-        externalDataBO.define(externalData, procedure, cellPlate, type);
+        externalDataBO.define(externalData, cellPlate, SourceType.MEASUREMENT);
         externalDataBO.save();
         final String dataSetCode = externalDataBO.getExternalData().getCode();
         assert dataSetCode != null : "Data set code not specified.";
-    }
-
-    private ProcedurePE tryToFindProcedureByType(List<ProcedurePE> procedures,
-            String procedureTypeCode)
-    {
-        for (ProcedurePE procedure : procedures)
-        {
-            if (procedure.getProcedureType().getCode().equals(procedureTypeCode))
-            {
-                return procedure;
-            }
-        }
-        return null;
     }
 
     public ExternalDataPE tryGetDataSet(String sessionToken, String dataSetCode)
@@ -434,7 +399,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
 
         IExternalDataBO externalDataBO = boFactory.createExternalDataBO(session);
         externalDataBO.loadByCode(dataSetCode);
-        externalDataBO.enrichWithParentsAndProcedure();
+        externalDataBO.enrichWithParentsAndExperiment();
         return externalDataBO.getExternalData();
     }
 

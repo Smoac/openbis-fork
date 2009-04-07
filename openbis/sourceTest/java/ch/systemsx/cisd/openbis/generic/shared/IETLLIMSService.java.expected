@@ -60,8 +60,8 @@ public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider, IS
     @RolesAllowed(RoleSet.ETL_SERVER)
     public void registerDataSet(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            final SampleIdentifier sampleIdentifier, final String procedureTypeCode,
-            final ExternalData externalData) throws UserFailureException;
+            final SampleIdentifier sampleIdentifier, final ExternalData externalData)
+            throws UserFailureException;
             
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)

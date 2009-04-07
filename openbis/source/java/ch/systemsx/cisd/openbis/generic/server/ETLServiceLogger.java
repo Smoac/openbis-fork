@@ -59,10 +59,10 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     }
 
     public void registerDataSet(String sessionToken, SampleIdentifier sampleIdentifier,
-            String procedureTypeCode, ExternalData externalData) throws UserFailureException
+            ExternalData externalData) throws UserFailureException
     {
-        logTracking(sessionToken, "register_data_set", "SAMPLE(%s) PROCEDURE(%s) DATA_SET(%s)",
-                sampleIdentifier, procedureTypeCode, externalData);
+        logTracking(sessionToken, "register_data_set", "SAMPLE(%s) DATA_SET(%s)",
+                sampleIdentifier, externalData);
     }
 
     public ExperimentPE tryToGetBaseExperiment(String sessionToken,

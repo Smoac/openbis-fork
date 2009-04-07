@@ -189,7 +189,7 @@ public final class PredicateExecutor
         public ProjectPE tryToGetProject(String dataSetCode)
         {
             DataPE dataSet = daoFactory.getExternalDataDAO().tryToFindDataSetByCode(dataSetCode);
-            return dataSet.getProcedure().getExperiment().getProject();
+            return dataSet.getExperiment().getProject();
         }
     }
 }

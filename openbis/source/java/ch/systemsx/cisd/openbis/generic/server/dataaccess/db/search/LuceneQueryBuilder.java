@@ -20,7 +20,6 @@ import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldC
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PREFIX_EXPERIMENT;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PREFIX_EXPERIMENT_TYPE;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PREFIX_GROUP;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PREFIX_PROCEDURE;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PREFIX_PROJECT;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PREFIX_SAMPLE;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PREFIX_SAMPLE_TYPE;
@@ -183,7 +182,7 @@ public class LuceneQueryBuilder
     private static String tryGetIndexFieldName(DataSetSearchField searchField)
     {
         DataSetSearchFieldKind fieldKind = searchField.getKind();
-        String experimentField = PREFIX_PROCEDURE + PREFIX_EXPERIMENT;
+        String experimentField = PREFIX_EXPERIMENT;
         switch (fieldKind)
         {
             case DATA_SET_CODE:

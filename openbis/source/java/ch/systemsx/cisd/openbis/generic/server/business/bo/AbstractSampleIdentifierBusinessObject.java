@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * An <i>abstract</i> {@link AbstractBusinessObject} extension for <i>Business Object</i> which
@@ -85,6 +86,10 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
             sample =
                     sampleDAO.tryFindByCodeAndGroup(sampleCode, sampleOwner.tryGetGroup(),
                             HierarchyType.CHILD);
+        }
+        if (sample != null)
+        {
+            HibernateUtils.initialize(sample.getExperiment());
         }
         return sample;
     }

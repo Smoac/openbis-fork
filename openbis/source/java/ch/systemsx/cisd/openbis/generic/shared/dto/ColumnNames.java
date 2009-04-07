@@ -131,12 +131,6 @@ public final class ColumnNames {
 
 	public static final String PERSON_REGISTERER_COLUMN = "pers_id_registerer";
 
-	public static final String PROCEDURE_COLUMN = "proc_id";
-
-	public static final String PROCEDURE_PRODUCED_BY_COLUMN = "proc_id_produced_by";
-
-	public static final String PROCEDURE_TYPE_COLUMN = "pcty_id";
-
 	public static final String PRODUCTION_TIMESTAMP_COLUMN = "production_timestamp";
 
 	public static final String PROJECT_COLUMN = "proj_id";

@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -32,8 +31,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
@@ -110,9 +107,7 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
 
     private SamplePE generatedFrom;
 
-    private List<ProcedurePE> procedures = new ArrayList<ProcedurePE>();
-
-    private ProcedurePE validProcedure;
+    private ExperimentPE experiment;
 
     private ExternalDataPE[] measurementData = ExternalDataPE.EMPTY_ARRAY;
 
@@ -319,27 +314,35 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
         this.generatedFrom = generatedFrom;
     }
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = TableNames.SAMPLE_INPUTS_TABLE, joinColumns = @JoinColumn(name = ColumnNames.SAMPLE_COLUMN), inverseJoinColumns = @JoinColumn(name = ColumnNames.PROCEDURE_COLUMN))
-    public List<ProcedurePE> getProcedures()
+    public void setExperiment(final ExperimentPE experiment)
     {
-        return procedures;
-    }
-
-    public void setProcedures(final List<ProcedurePE> procedures)
-    {
-        this.procedures = procedures;
+        if (experiment != null)
+        {
+            experiment.addSample(this);
+        } else
+        {
+            setExperimentInternal(experiment);
+        }
     }
 
     @Transient
-    public ProcedurePE getValidProcedure()
+    public ExperimentPE getExperiment()
     {
-        return validProcedure;
+        return getExperimentInternal();
     }
 
-    public void setValidProcedure(final ProcedurePE validProcedure)
+    void setExperimentInternal(final ExperimentPE experiment)
     {
-        this.validProcedure = validProcedure;
+        this.experiment = experiment;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull(message = ValidationMessages.EXPERIMENT_NOT_NULL_MESSAGE)
+    @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = true)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_EXPERIMENT)
+    private ExperimentPE getExperimentInternal()
+    {
+        return experiment;
     }
 
     @Transient

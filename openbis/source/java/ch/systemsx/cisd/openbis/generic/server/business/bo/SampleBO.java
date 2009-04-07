@@ -31,7 +31,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -99,11 +98,6 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         }
     }
 
-    public final void enrichWithValidProcedure()
-    {
-        enrichWithProcedure(sample);
-    }
-
     public final void define(final NewSample newSample)
     {
         assert newSample != null : "Unspecified new sample.";
@@ -142,15 +136,15 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         return count > 0;
     }
 
-    public void addProcedure(ProcedurePE procedure)
+    public void setExperiment(ExperimentPE experiment)
     {
         assert sample != null : "Sample not loaded.";
 
         checkValid(sample);
         checkSampleInGroup(sample);
-        checkSampleUnused(sample, procedure);
+        checkSampleUnused(sample);
         checkSampleWithoutDatasets();
-        sample.getProcedures().add(procedure);
+        sample.setExperiment(experiment);
         getSampleDAO().updateSample(sample);
         dataChanged = false;
     }
@@ -176,16 +170,15 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         }
     }
 
-    private final static void checkSampleUnused(final SamplePE sample,
-            final ProcedurePE procedureCreated)
+    private final static void checkSampleUnused(final SamplePE sample)
     {
-        final ProcedurePE procedure = sample.getValidProcedure();
-        if (procedure != null)
+        ExperimentPE experiment = sample.getExperiment();
+        if (experiment != null && experiment.getInvalidation() == null)
         {
             throw UserFailureException.fromTemplate(
                     "Given sample code '%s' already registered for experiment '%s'.", sample
                             .getSampleIdentifier(), IdentifierHelper
-                            .createExperimentIdentifier(procedure.getExperiment()));
+                            .createExperimentIdentifier(experiment));
         }
     }
 
@@ -212,27 +205,20 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         dataChanged = true;
     }
 
-    private void updateExperiment(ExperimentIdentifier identOrNull)
+    private void updateExperiment(ExperimentIdentifier identifierOrNull)
     {
         ExperimentPE experimentOrNull = null;
-        if (identOrNull != null)
+        if (identifierOrNull != null)
         {
-            experimentOrNull = findExperiment(identOrNull);
+            experimentOrNull = findExperiment(identifierOrNull);
         }
-        enrichWithValidProcedure();
-        if (isExperimentChangeUnnecessary(experimentOrNull, sample.getValidProcedure()))
+        if (isExperimentChangeUnnecessary(experimentOrNull, sample.getExperiment()))
         {
             return;
         }
-        ensureExperimentIsValid(identOrNull, experimentOrNull);
-        ensureNoDatasetsBeforeExperimentChange(identOrNull);
-
-        sample.getProcedures().remove(sample.getValidProcedure());
-        if (experimentOrNull != null)
-        {
-            ProcedurePE dataAcquisitionProcedure = findDataAcquisitionProcedure(experimentOrNull);
-            sample.getProcedures().add(dataAcquisitionProcedure);
-        }
+        ensureExperimentIsValid(identifierOrNull, experimentOrNull);
+        ensureNoDatasetsBeforeExperimentChange(identifierOrNull);
+        sample.setExperiment(experimentOrNull);
     }
 
     private void ensureExperimentIsValid(ExperimentIdentifier identOrNull,
@@ -242,7 +228,8 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         {
             throw UserFailureException
                     .fromTemplate(
-                            "The sample '%s' cannot be assigned to the experiment '%s' because the experiment has been invalidated.",
+                            "The sample '%s' cannot be assigned to the experiment '%s' " +
+                            "because the experiment has been invalidated.",
                             sample.getSampleIdentifier(), identOrNull);
         }
     }
@@ -267,57 +254,32 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     }
 
     private boolean isExperimentChangeUnnecessary(ExperimentPE newExperimentOrNull,
-            ProcedurePE validProcedureOrNull)
+            ExperimentPE experimentOrNull)
     {
-        if (validProcedureOrNull == null)
-        {
-            return newExperimentOrNull == null;
-        } else
-        {
-            if (newExperimentOrNull == null)
-            {
-                return false;
-            } else
-            {
-                return validProcedureOrNull.getExperiment().equals(newExperimentOrNull);
-            }
-        }
+        return experimentOrNull == null ? newExperimentOrNull == null 
+                                        : experimentOrNull.equals(newExperimentOrNull);
     }
 
-    private ProcedurePE findDataAcquisitionProcedure(ExperimentPE experiment)
+    private ExperimentPE findExperiment(ExperimentIdentifier identifierOrNull)
     {
-        List<ProcedurePE> procedures = experiment.getProcedures();
-        for (ProcedurePE procedure : procedures)
-        {
-            if (procedure.getProcedureType().isDataAcquisition())
-            {
-                return procedure;
-            }
-        }
-        throw new IllegalStateException("Experiment has no data acquisition procedure: "
-                + experiment);
-    }
-
-    private ExperimentPE findExperiment(ExperimentIdentifier identOrNull)
-    {
+        String groupCode = identifierOrNull.getGroupCode();
+        String projectCode = identifierOrNull.getProjectCode();
+        String databaseInstanceCode = identifierOrNull.getDatabaseInstanceCode();
         ProjectPE project =
-                getProjectDAO().tryFindProject(identOrNull.getDatabaseInstanceCode(),
-                        identOrNull.getGroupCode(), identOrNull.getProjectCode());
+                getProjectDAO().tryFindProject(databaseInstanceCode, groupCode, projectCode);
         if (project == null)
         {
             throw UserFailureException.fromTemplate(
-                    "No project '%s' could be found in the '%s' group!", identOrNull
-                            .getProjectCode(), identOrNull.getGroupCode());
+                    "No project '%s' could be found in the '%s' group!", projectCode, groupCode);
         }
+        String experimentCode = identifierOrNull.getExperimentCode();
         ExperimentPE experiment =
-                getExperimentDAO()
-                        .tryFindByCodeAndProject(project, identOrNull.getExperimentCode());
+                getExperimentDAO().tryFindByCodeAndProject(project, experimentCode);
         if (experiment == null)
         {
             throw UserFailureException.fromTemplate(
-                    "No experiment '%s' could be found in the '%s/%s' project!", identOrNull
-                            .getExperimentCode(), identOrNull.getGroupCode(), identOrNull
-                            .getProjectCode());
+                    "No experiment '%s' could be found in the '%s/%s' project!", experimentCode,
+                    groupCode, projectCode);
         }
         return experiment;
     }

@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
@@ -94,7 +93,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         String dataSetCode = daoFactory.getExternalDataDAO().createDataSetCode();
         externalData.setCode(dataSetCode);
         externalData.setDataSetType(getDataSetType(DataSetTypeCode.UNKNOWN));
-        externalData.setProcedure(pickAProcedure());
+        externalData.setExperiment(pickAnExperiment());
         externalData.setSampleAcquiredFrom(pickASample());
         externalData.setFileFormatType(pickAFileFormatType());
         externalData.setLocatorType(pickALocatorType());
@@ -107,7 +106,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         ExternalDataPE dataSet = (ExternalDataPE) externalDataDAO.tryToFindDataSetByCode(dataSetCode);
         assertEquals(externalData.getCode(), dataSet.getCode());
         assertEquals(externalData.getDataSetType(), dataSet.getDataSetType());
-        assertEquals(externalData.getProcedure(), dataSet.getProcedure());
+        assertEquals(externalData.getExperiment(), dataSet.getExperiment());
         assertEquals(externalData.getFileFormatType(), dataSet.getFileFormatType());
         assertEquals(externalData.getLocatorType(), dataSet.getLocatorType());
         assertEquals(externalData.getLocation(), dataSet.getLocation());
@@ -124,7 +123,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         String dataSetCode = externalDataDAO.createDataSetCode();
         data.setCode(dataSetCode);
         data.setDataSetType(getDataSetType(DataSetTypeCode.UNKNOWN));
-        data.setProcedure(pickAProcedure());
+        data.setExperiment(pickAnExperiment());
         data.setSampleDerivedFrom(pickASample());
         data.setPlaceholder(true);
         externalDataDAO.createDataSet(data);
@@ -133,7 +132,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         externalData.setId(externalDataDAO.tryToFindDataSetByCode(dataSetCode).getId());
         externalData.setCode(dataSetCode);
         externalData.setDataSetType(getDataSetType(DataSetTypeCode.HCS_IMAGE));
-        externalData.setProcedure(pickAProcedure());
+        externalData.setExperiment(pickAnExperiment());
         externalData.setSampleAcquiredFrom(pickASample());
         externalData.setFileFormatType(pickAFileFormatType());
         externalData.setLocatorType(pickALocatorType());
@@ -146,7 +145,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         ExternalDataPE dataSet = (ExternalDataPE) externalDataDAO.tryToFindDataSetByCode(dataSetCode);
         assertEquals(externalData.getCode(), dataSet.getCode());
         assertEquals(externalData.getDataSetType(), dataSet.getDataSetType());
-        assertEquals(externalData.getProcedure(), dataSet.getProcedure());
+        assertEquals(externalData.getExperiment(), dataSet.getExperiment());
         assertEquals(externalData.getFileFormatType(), dataSet.getFileFormatType());
         assertEquals(externalData.getLocatorType(), dataSet.getLocatorType());
         assertEquals(externalData.getLocation(), dataSet.getLocation());
@@ -219,18 +218,17 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         return dataSetType;
     }
 
-    protected ProcedurePE pickAProcedure()
+    protected ExperimentPE pickAnExperiment()
     {
         List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listExperiments();
         for (ExperimentPE experimentPE : experiments)
         {
-            List<ProcedurePE> procedures = experimentPE.getProcedures();
-            if (procedures.isEmpty() == false)
+            if (experimentPE.getInvalidation() == null)
             {
-                return procedures.get(0);
+                return experimentPE;
             }
         }
-        fail("No experiment with a procedure found.");
+        fail("No valid experiment found.");
         return null; // to make the compiler happy
     }
 }

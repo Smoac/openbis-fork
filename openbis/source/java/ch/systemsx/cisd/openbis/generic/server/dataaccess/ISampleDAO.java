@@ -21,7 +21,6 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -36,7 +35,7 @@ public interface ISampleDAO
 {
     /**
      * Lists {@link SamplePE}s of given type from the given group. Returned {@link SamplePE}s are
-     * enriched with procedures and their experiments.
+     * enriched with their experiments.
      */
     List<SamplePE> listSamplesByTypeAndGroup(final SampleTypePE sampleType, final GroupPE group)
             throws DataAccessException;
@@ -75,12 +74,6 @@ public interface ISampleDAO
      * Lists all {@link SamplePE}s which are part of the specified <var>container</var>.
      */
     List<SamplePE> listSamplesByContainer(final SamplePE container) throws DataAccessException;
-
-    /**
-     * Lists all {@link SamplePE}s which are associated with <var>experiment</var>.
-     */
-    List<SamplePE> listSamplesByExperiment(final ExperimentPE experiment)
-            throws DataAccessException;
 
     /**
      * Inserts given list of {@link SamplePE} into the database in one go.

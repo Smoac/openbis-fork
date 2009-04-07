@@ -95,7 +95,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     private DataSetTypePE dataSetType;
 
-    private ProcedurePE procedure;
+    private ExperimentPE experiment;
 
     private Date productionDate;
 
@@ -290,20 +290,32 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         return code;
     }
 
-    /** Returns <code>procedure</code>. */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @NotNull(message = ValidationMessages.PROCEDURE_NOT_NULL_MESSAGE)
-    @JoinColumn(name = ColumnNames.PROCEDURE_PRODUCED_BY_COLUMN)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROCEDURE)
-    public ProcedurePE getProcedure()
+    public void setExperiment(final ExperimentPE experiment)
     {
-        return procedure;
+        if (experiment != null)
+        {
+            experiment.addDataSet(this);
+        }
     }
 
-    /** Sets <code>procedure</code>. */
-    public void setProcedure(final ProcedurePE procedure)
+    @Transient
+    public ExperimentPE getExperiment()
     {
-        this.procedure = procedure;
+        return getExperimentInternal();
+    }
+
+    void setExperimentInternal(final ExperimentPE experiment)
+    {
+        this.experiment = experiment;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull(message = ValidationMessages.EXPERIMENT_NOT_NULL_MESSAGE)
+    @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = false)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_EXPERIMENT)
+    private ExperimentPE getExperimentInternal()
+    {
+        return experiment;
     }
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "dataInternal", cascade = CascadeType.ALL)

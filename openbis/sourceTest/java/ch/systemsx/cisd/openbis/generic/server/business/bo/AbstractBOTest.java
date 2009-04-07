@@ -34,8 +34,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProcedureDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProcedureTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
@@ -81,10 +79,6 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     IEntityPropertiesConverter propertiesConverter;
 
-    IProcedureDAO procedureDAO;
-
-    IProcedureTypeDAO procedureTypeDAO;
-
     IDataSetTypeDAO dataSetTypeDAO;
 
     IFileFormatTypeDAO fileFormatTypeDAO;
@@ -109,8 +103,6 @@ public abstract class AbstractBOTest extends AssertJUnit
         propertyTypeDAO = context.mock(IPropertyTypeDAO.class);
         entityPropertyTypeDAO = context.mock(IEntityPropertyTypeDAO.class);
         vocabularyDAO = context.mock(IVocabularyDAO.class);
-        procedureDAO = context.mock(IProcedureDAO.class);
-        procedureTypeDAO = context.mock(IProcedureTypeDAO.class);
         materialDAO = context.mock(IMaterialDAO.class);
         dataSetTypeDAO = context.mock(IDataSetTypeDAO.class);
         fileFormatTypeDAO = context.mock(IFileFormatTypeDAO.class);
@@ -136,10 +128,6 @@ public abstract class AbstractBOTest extends AssertJUnit
                     will(returnValue(locatorTypeDAO));
                     allowing(daoFactory).getExternalDataDAO();
                     will(returnValue(externalDataDAO));
-                    allowing(daoFactory).getProcedureTypeDAO();
-                    will(returnValue(procedureTypeDAO));
-                    allowing(daoFactory).getProcedureDAO();
-                    will(returnValue(procedureDAO));
                 }
             });
     }

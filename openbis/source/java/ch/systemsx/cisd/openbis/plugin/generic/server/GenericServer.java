@@ -31,7 +31,6 @@ import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IProcedureBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
@@ -45,7 +44,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -54,7 +52,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
@@ -119,7 +116,6 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         final Session session = getSessionManager().getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(identifier);
-        sampleBO.enrichWithValidProcedure();
         final SamplePE sample = sampleBO.getSample();
         return getSampleTypeSlaveServerPlugin(sample.getSampleType())
                 .getSampleInfo(session, sample);
@@ -216,14 +212,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         }
         experimentBO.save();
 
-        ExperimentPE experiment = experimentBO.getExperiment();
-        final IProcedureBO procedureBO = businessObjectFactory.createProcedureBO(session);
-        procedureBO.define(experiment, ProcedureTypeCode.DATA_ACQUISITION.getCode());
-        procedureBO.save();
-
         if (newExperiment.getSamples().length > 0)
         {
-            final ProcedurePE procedure = procedureBO.getProcedure();
+            ExperimentPE experiment = experimentBO.getExperiment();
             List<SampleIdentifier> sampleIdentifiers =
                     IdentifierHelper.extractSampleIdentifiers(newExperiment.getSamples());
             for (SampleIdentifier si : sampleIdentifiers)
@@ -235,8 +226,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             {
                 ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
                 sampleBO.loadBySampleIdentifier(si);
-                sampleBO.enrichWithValidProcedure();
-                sampleBO.addProcedure(procedure);
+                sampleBO.setExperiment(experiment);
             }
         }
     }

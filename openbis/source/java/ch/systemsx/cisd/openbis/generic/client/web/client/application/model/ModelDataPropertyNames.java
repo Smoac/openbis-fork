@@ -84,10 +84,6 @@ public final class ModelDataPropertyNames
 
     public static final String VERSION_FILE_NAME = "versionsFileName";
 
-    public static final String PROCEDURE = "procedure";
-
-    public static final String PROCEDURE_TYPE = "procedureType";
-
     public static final String DATA_TYPE = "dataType";
 
     public static final String CONTROLLED_VOCABULARY = "controlledVocabulary";

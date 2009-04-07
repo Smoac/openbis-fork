@@ -21,7 +21,6 @@ import static ch.systemsx.cisd.openbis.generic.server.business.bo.ExternalDataTa
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -44,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
@@ -202,9 +200,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
 
                     one(experimentDAO).tryFindByCodeAndProject(projectPE, "EXP");
                     ExperimentPE experimentPE = new ExperimentPE();
-                    ProcedurePE procedurePE = new ProcedurePE();
-                    procedurePE.setData(new HashSet<DataPE>(Arrays.asList(data1, data2)));
-                    experimentPE.addProcedure(procedurePE);
+                    experimentPE.setDataSets(Arrays.<DataPE>asList(data1, data2));
                     will(returnValue(experimentPE));
                 }
             });

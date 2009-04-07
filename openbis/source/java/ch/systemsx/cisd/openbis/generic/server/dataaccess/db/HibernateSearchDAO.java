@@ -362,9 +362,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         Criteria criteria = getSession().createCriteria(ExternalDataPE.class);
         criteria.setFetchMode("dataSetProperties", FetchMode.JOIN);
         criteria.setFetchMode("parents", FetchMode.JOIN);
-        criteria.setFetchMode("procedure", FetchMode.JOIN);
-        criteria.setFetchMode("procedure.experimentInternal", FetchMode.JOIN);
-        criteria.setFetchMode("procedure.experimentInternal.experimentProperties", FetchMode.JOIN);
+        criteria.setFetchMode("experimentInternal", FetchMode.JOIN);
+        criteria.setFetchMode("experimentInternal.experimentProperties", FetchMode.JOIN);
         hibernateQuery.setCriteriaQuery(criteria);
 
         List<ExternalDataPE> datasets = AbstractDAO.cast(hibernateQuery.list());

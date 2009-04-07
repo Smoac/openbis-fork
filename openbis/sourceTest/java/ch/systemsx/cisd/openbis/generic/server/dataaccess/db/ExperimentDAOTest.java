@@ -31,10 +31,10 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.ExperimentTypeCode;
@@ -95,10 +95,8 @@ public class ExperimentDAOTest extends AbstractDAOTest
         Collections.sort(experiments);
         assertEquals(4, experiments.size());
         ExperimentPE exp1 = assertExperimentIdentifierPresent(CISD_CISD_NEMO_EXP1, experiments);
-        List<ProcedurePE> procedures = exp1.getProcedures();
-        assertEquals(2, procedures.size());
-        assertEquals(1, procedures.get(0).getData().size());
-        assertEquals(1, procedures.get(1).getData().size());
+        List<DataPE> dataSets = exp1.getDataSets();
+        assertEquals(2, dataSets.size());
         assertExperimentIdentifierPresent(CISD_CISD_NEMO_EXP10, experiments);
         assertExperimentIdentifierPresent(CISD_CISD_NEMO_EXP11, experiments);
     }
@@ -163,10 +161,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
                         templateExp.getCode());
 
         assertEquals(CISD_CISD_NEMO_EXP1, experiment.getIdentifier());
-        List<ProcedurePE> procedures = experiment.getProcedures();
-        assertEquals(2, procedures.size());
-        assertEquals(1, procedures.get(0).getData().size());
-        assertEquals(1, procedures.get(1).getData().size());
+        assertEquals(2, experiment.getDataSets().size());
     }
 
     @Test

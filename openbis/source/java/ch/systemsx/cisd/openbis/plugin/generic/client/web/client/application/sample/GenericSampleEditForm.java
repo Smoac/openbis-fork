@@ -36,8 +36,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Editabl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
@@ -88,7 +88,9 @@ public final class GenericSampleEditForm
     private ExperimentChooserFieldAdaptor createExperimentField()
     {
         String label = viewContext.getMessage(Dict.EXPERIMENT);
-        ExperimentIdentifier originalExperiment = tryGetOriginalExperiment();
+        Experiment experiment = originalSample.getExperiment();
+        ExperimentIdentifier originalExperiment =
+                experiment == null ? null : ExperimentIdentifier.createIdentifier(experiment);
         return ExperimentChooserField.create(label, false, originalSample.getGroup(),
                 originalExperiment, viewContext.getCommonViewContext());
     }
@@ -155,16 +157,6 @@ public final class GenericSampleEditForm
             experimentFieldOrNull.updateOriginalValue();
             updateSpecificPropertiesGrid();
         }
-    }
-
-    private ExperimentIdentifier tryGetOriginalExperiment()
-    {
-        Procedure proc = originalSample.getValidProcedure();
-        if (proc == null)
-        {
-            return null;
-        }
-        return ExperimentIdentifier.createIdentifier(proc.getExperiment());
     }
 
     @Override

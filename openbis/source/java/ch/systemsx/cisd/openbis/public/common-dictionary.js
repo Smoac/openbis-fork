@@ -159,7 +159,7 @@ var common = {
   //
   
   menu_administration: "Administration",
-  ADMINISTRATION_MENU_MANAGE_GROUPS: "Groups",
+  ADMINISTRATION_MENU_MANAGE_GROUPS: "Manage Groups",
   
   menu_authorization: "Authorization",
   AUTHORIZATION_MENU_USERS: "Users",
@@ -285,7 +285,6 @@ var common = {
  // Data Set Browser
  //
  location: "Location",
- procedure_type: "Procedure Type",
  external_data_sample: "Sample",
  is_derived: "Derived?",
  is_complete: "Complete?",
@@ -303,7 +302,8 @@ var common = {
  confirm_dataset_upload_file_name_field: "File name",
  confirm_dataset_upload_comment_field: "Comment",
  confirm_dataset_upload_user_field: "CIFEX user",
- confirm_dataset_upload_password_field: "CIFEX password", 
+ confirm_dataset_upload_password_field: "CIFEX password",
+ 
  
  
  //

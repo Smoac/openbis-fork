@@ -188,8 +188,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         final CheckExperiment checkExperiment = new CheckExperiment(CISD_CISD_NEMO, EXP1);
         checkExperiment.property("Experiment").asString(EXP1);
         final CheckTableCommand sampleTable = checkExperiment.dataSetTable().expectedSize(2);
-        sampleTable.expectedRow(new DataSetRow("20080912142304152-1").invalid().withProcedureType(
-                "DATA_AQUISITION").notDerived());
+        sampleTable.expectedRow(new DataSetRow("20080912142304152-1").invalid().notDerived());
         sampleTable.expectedRow(new DataSetRow("20080912142304476-3").invalid().withSample(
                 "CISD:/CISD/3VCP1").withSampleType("CELL_PLATE").derived().withIsComplete(null));
         remoteConsole.prepare(checkExperiment);

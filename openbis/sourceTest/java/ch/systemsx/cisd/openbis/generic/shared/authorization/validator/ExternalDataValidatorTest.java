@@ -22,7 +22,6 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCa
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 
 /**
  * 
@@ -34,9 +33,7 @@ public class ExternalDataValidatorTest extends AuthorizationTestCase
     private ExternalDataPE createData(GroupPE group)
     {
         ExternalDataPE data = new ExternalDataPE();
-        ProcedurePE procedure = new ProcedurePE();
-        procedure.setExperiment(createExperiment(group));
-        data.setProcedure(procedure);
+        data.setExperiment(createExperiment(group));
         return data;
     }
     

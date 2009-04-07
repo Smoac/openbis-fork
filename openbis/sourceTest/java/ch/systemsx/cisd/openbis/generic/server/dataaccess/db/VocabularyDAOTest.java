@@ -38,6 +38,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * 
  * @author Christian Ribeaud
  */
+@Test(groups =
+    { "db"})
 public final class VocabularyDAOTest extends AbstractDAOTest
 {
     private final VocabularyTermPE createVocabularyTerm(final String code)

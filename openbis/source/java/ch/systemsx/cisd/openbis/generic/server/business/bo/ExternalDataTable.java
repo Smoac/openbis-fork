@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -131,7 +130,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         externalData.addAll(getExternalDataDAO().listExternalData(sample, SourceType.DERIVED));
         for (ExternalDataPE externalDataPE : externalData)
         {
-            enrichWithParentsAndProcedure(externalDataPE);
+            enrichWithParentsAndExperiment(externalDataPE);
         }
     }
 
@@ -145,20 +144,15 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         ExperimentPE experiment =
                 getExperimentDAO().tryFindByCodeAndProject(project, identifier.getExperimentCode());
         externalData = new ArrayList<ExternalDataPE>();
-        List<ProcedurePE> procedures = experiment.getProcedures();
-        for (ProcedurePE procedure : procedures)
+        List<DataPE> dataSets = experiment.getDataSets();
+        for (DataPE dataSet : dataSets)
         {
-
-            Set<DataPE> data = procedure.getData();
-            for (DataPE dataSet : data)
+            if (dataSet.isDeleted() == false && dataSet instanceof ExternalDataPE)
             {
-                if (dataSet.isDeleted() == false && dataSet instanceof ExternalDataPE)
-                {
-                    ExternalDataPE externalDataPE = (ExternalDataPE) dataSet;
-                    HibernateUtils.initialize(dataSet.getParents());
-                    enrichWithParentsAndProcedure(externalDataPE);
-                    externalData.add(externalDataPE);
-                }
+                ExternalDataPE externalDataPE = (ExternalDataPE) dataSet;
+                HibernateUtils.initialize(dataSet.getParents());
+                enrichWithParentsAndExperiment(externalDataPE);
+                externalData.add(externalDataPE);
             }
         }
     }

@@ -81,10 +81,6 @@ public final class TableNames
 
     public static final String PERSONS_TABLE = "persons";
 
-    public static final String PROCEDURE_TYPES_TABLE = "procedure_types";
-
-    public static final String PROCEDURES_TABLE = "procedures";
-
     public static final String PROJECTS_TABLE = "projects";
 
     public static final String PROPERTY_TYPES_TABLE = "property_types";

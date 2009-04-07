@@ -71,16 +71,6 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
      */
     public IVocabularyDAO getVocabularyDAO();
 
-    /**
-     * @return The implementation of the {@link IProcedureTypeDAO}.
-     */
-    public IProcedureTypeDAO getProcedureTypeDAO();
-
-    /**
-     * @return The implementation of the {@link IProcedureDAO}.
-     */
-    public IProcedureDAO getProcedureDAO();
-
     /** Returns an implementation of {@link IExperimentAttachmentDAO}. */
     public IExperimentAttachmentDAO getExperimentAttachmentDAO();
 

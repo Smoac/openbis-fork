@@ -90,7 +90,6 @@ public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider, IS
      * 
      * @param sessionToken The user authentication token. Must not be <code>null</code>.
      * @param sampleIdentifier an identifier which uniquely identifies the sample.
-     * @param procedureTypeCode Type of the procedure for which this data set will be registered.
      * @param externalData Data set to be registered. It is assumed that the attributes
      *            <code>location</code>, <code>fileFormatType</code>, <code>dataSetType</code>,
      *            and <code>locatorType</code> are not-<code>null</code>.
@@ -101,8 +100,8 @@ public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider, IS
     @RolesAllowed(RoleSet.ETL_SERVER)
     public void registerDataSet(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            final SampleIdentifier sampleIdentifier, final String procedureTypeCode,
-            final ExternalData externalData) throws UserFailureException;
+            final SampleIdentifier sampleIdentifier, final ExternalData externalData)
+            throws UserFailureException;
     
     /**
      * Tries to return the data set specified by its code.

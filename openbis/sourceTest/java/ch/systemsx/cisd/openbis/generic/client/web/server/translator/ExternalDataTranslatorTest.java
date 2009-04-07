@@ -27,13 +27,16 @@ import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedureTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
@@ -53,7 +56,7 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         
         assertEquals(null, externalData.getCode());
         assertEquals(null, externalData.getParentCode());
-        assertEquals(null, externalData.getProcedureType());
+        assertEquals(null, externalData.getExperiment());
         assertEquals(null, externalData.getProductionDate());
         assertEquals(null, externalData.getComplete());
     }
@@ -83,12 +86,19 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         ExternalDataPE parent2 = new ExternalDataPE();
         parent2.setCode("parent2");
         externalDataPE.setParents(new LinkedHashSet<DataPE>(Arrays.asList(parent1, parent2)));
-        ProcedurePE procedurePE = new ProcedurePE();
-        ProcedureTypePE procedureTypePE = new ProcedureTypePE();
-        procedureTypePE.setCode("procedureTypeCode");
-        procedureTypePE.setDescription("procedureTypeDescription");
-        procedurePE.setProcedureType(procedureTypePE);
-        externalDataPE.setProcedure(procedurePE);
+        ExperimentPE experimentPE = new ExperimentPE();
+        experimentPE.setCode("my-experiment");
+        experimentPE.setExperimentType(new ExperimentTypePE());
+        ProjectPE projectPE = new ProjectPE();
+        projectPE.setCode("my-project");
+        GroupPE groupPE = new GroupPE();
+        groupPE.setCode("my-group");
+        DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
+        databaseInstancePE.setCode("my-instance");
+        groupPE.setDatabaseInstance(databaseInstancePE);
+        projectPE.setGroup(groupPE);
+        experimentPE.setProject(projectPE);
+        externalDataPE.setExperiment(experimentPE);
         externalDataPE.setProductionDate(new Date(1));
         externalDataPE.setRegistrationDate(new Date(2));
         SamplePE samplePE = new SamplePE();
@@ -120,8 +130,7 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         assertEquals("locatorTypeCode", externalData.getLocatorType().getCode());
         assertEquals("locatorTypeDescription", externalData.getLocatorType().getDescription());
         assertEquals("parent1", externalData.getParentCode());
-        assertEquals("procedureTypeCode", externalData.getProcedureType().getCode());
-        assertEquals("procedureTypeDescription", externalData.getProcedureType().getDescription());
+        assertEquals("my-experiment", externalData.getExperiment().getCode());
         assertEquals(1, externalData.getProductionDate().getTime());
         assertEquals(2, externalData.getRegistrationDate().getTime());
         assertEquals("sample", externalData.getSampleIdentifier());

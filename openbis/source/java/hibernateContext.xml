@@ -31,7 +31,6 @@
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ProcedureTypePE</value>
 
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE</value>
@@ -62,7 +61,6 @@
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.EventPE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE</value>
 
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE</value>

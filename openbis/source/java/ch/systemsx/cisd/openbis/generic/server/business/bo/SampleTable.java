@@ -84,7 +84,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             ExperimentPE experiment =
                     getExperimentDAO().tryFindByCodeAndProject(project,
                             experimentIdentifier.getExperimentCode());
-            samples = getSampleDAO().listSamplesByExperiment(experiment);
+            samples = new ArrayList<SamplePE>(experiment.getSamples());
             enrichWithHierarchy();
         } else if (containerIdentifier != null)
         {
@@ -109,18 +109,11 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         }
     }
 
-    public final void enrichWithValidProcedure()
+    public final void enrichWithExperimentAndProperties()
     {
         for (final SamplePE sample : samples)
         {
-            enrichWithProcedure(sample);
-        }
-    }
-
-    public final void enrichWithProperties()
-    {
-        for (final SamplePE sample : samples)
-        {
+            HibernateUtils.initialize(sample.getExperiment());
             HibernateUtils.initialize(sample.getProperties());
         }
     }

@@ -349,8 +349,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         final Session session = getSessionManager().getSession(sessionToken);
         final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
         sampleTable.loadSamplesByCriteria(criteria);
-        sampleTable.enrichWithValidProcedure();
-        sampleTable.enrichWithProperties();
+        sampleTable.enrichWithExperimentAndProperties();
         final List<SamplePE> samples = sampleTable.getSamples();
         Collections.sort(samples);
         return samples;

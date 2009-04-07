@@ -43,8 +43,7 @@ public interface IExternalDataTable
     void loadBySampleIdentifier(final SampleIdentifier sampleIdentifier);
 
     /**
-     * Loads data sets which are directly link to all procedure instances of the specified
-     * experiment.
+     * Loads data sets which are linked to the specified experiment.
      */
     void loadByExperimentIdentifier(ExperimentIdentifier identifier);
     

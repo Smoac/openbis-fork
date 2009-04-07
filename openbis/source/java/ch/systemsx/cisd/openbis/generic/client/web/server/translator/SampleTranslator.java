@@ -73,7 +73,7 @@ public final class SampleTranslator
             result.setRegistrator(PersonTranslator.translate(samplePE.getRegistrator()));
             result.setRegistrationDate(samplePE.getRegistrationDate());
             result.setProperties(SamplePropertyTranslator.translate(samplePE.getProperties()));
-            result.setValidProcedure(ProcedureTranslator.translate(samplePE.getValidProcedure()));
+            result.setExperiment(ExperimentTranslator.translate(samplePE.getExperiment()));
         }
         if (containerDep > 0 && samplePE.getContainer() != null)
         {

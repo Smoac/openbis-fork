@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 
@@ -31,7 +30,7 @@ public interface IExternalDataBO extends IBusinessObject
 {
     /**
      * Returns the external data item which has been created by
-     * {@link #define(ExternalData, ProcedurePE, SamplePE, SourceType)}.
+     * {@link #define(ExternalData, SamplePE, SourceType)}.
      */
     public ExternalDataPE getExternalData();
     
@@ -39,8 +38,7 @@ public interface IExternalDataBO extends IBusinessObject
      * Defines a new external data item. After invocation of this method {@link IExperimentBO#save()} should
      * be invoked to store the new external data item in the Data Access Layer.
      */
-    public void define(ExternalData externalData, ProcedurePE procedure, SamplePE sample,
-            SourceType sourceType);
+    public void define(ExternalData externalData, SamplePE sample, SourceType sourceType);
     
     /**
      * Loads the external data item with specified code.
@@ -48,8 +46,8 @@ public interface IExternalDataBO extends IBusinessObject
     public void loadByCode(String dataSetCode);
 
     /**
-     * Enrich external data with parents, procedure, and experiment.
+     * Enrich external data with parents and experiment.
      */
-    public void enrichWithParentsAndProcedure();
+    public void enrichWithParentsAndExperiment();
 
 }

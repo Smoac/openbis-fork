@@ -32,8 +32,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProcedureDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProcedureTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
@@ -70,10 +68,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IVocabularyDAO vocabularyDAO;
 
-    private final IProcedureTypeDAO procedureTypeDAO;
-
-    private final IProcedureDAO procedureDAO;
-
     private final IExperimentAttachmentDAO experimentAttachmentDAO;
 
     private final DataSetTypeDAO dataSetTypeDAO;
@@ -96,8 +90,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         experimentDAO = new ExperimentDAO(sessionFactory, databaseInstance);
         projectDAO = new ProjectDAO(sessionFactory, databaseInstance);
         vocabularyDAO = new VocabularyDAO(sessionFactory, databaseInstance);
-        procedureTypeDAO = new ProcedureTypeDAO(sessionFactory, databaseInstance);
-        procedureDAO = new ProcedureDAO(sessionFactory, databaseInstance);
         experimentAttachmentDAO = new ExperimentAttachmentDAO(sessionFactory, databaseInstance);
         dataSetTypeDAO = new DataSetTypeDAO(sessionFactory, databaseInstance);
         fileFormatTypeDAO = new FileFormatTypeDAO(sessionFactory, databaseInstance);
@@ -161,16 +153,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public final IVocabularyDAO getVocabularyDAO()
     {
         return vocabularyDAO;
-    }
-
-    public final IProcedureTypeDAO getProcedureTypeDAO()
-    {
-        return procedureTypeDAO;
-    }
-
-    public final IProcedureDAO getProcedureDAO()
-    {
-        return procedureDAO;
     }
 
     public final IExperimentAttachmentDAO getExperimentAttachmentDAO()

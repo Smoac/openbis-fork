@@ -75,10 +75,6 @@ public final class SequenceNames {
 
 	public final static String PERSON_SEQUENCE = "PERSON_ID_SEQ";
 
-	public static final String PROCEDURE_SEQUENCE = "PROCEDURE_ID_SEQ";
-
-	public static final String PROCEDURE_TYPE_SEQUENCE = "PROCEDURE_TYPE_ID_SEQ";
-
 	public static final String PROJECT_SEQUENCE = "PROJECT_ID_SEQ";
 
 	public static final String PROPERTY_TYPES_SEQUENCE = "PROPERTY_TYPE_ID_SEQ";

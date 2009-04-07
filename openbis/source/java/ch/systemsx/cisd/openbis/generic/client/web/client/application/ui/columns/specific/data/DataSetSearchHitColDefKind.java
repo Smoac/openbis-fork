@@ -21,7 +21,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
 
 /**
  * Definition of data set search results table columns.
@@ -109,7 +108,7 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<External
             @Override
             public String tryGetValue(ExternalData entity)
             {
-                final Experiment exp = tryGetExperiment(entity);
+                final Experiment exp = entity.getExperiment();
                 if (exp == null)
                 {
                     return null;
@@ -123,7 +122,7 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<External
             @Override
             public String tryGetValue(ExternalData entity)
             {
-                final Experiment exp = tryGetExperiment(entity);
+                final Experiment exp = entity.getExperiment();
                 if (exp == null)
                 {
                     return null;
@@ -137,7 +136,7 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<External
             @Override
             public String tryGetValue(ExternalData entity)
             {
-                final Experiment exp = tryGetExperiment(entity);
+                final Experiment exp = entity.getExperiment();
                 if (exp == null)
                 {
                     return null;
@@ -151,7 +150,7 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<External
             @Override
             public String tryGetValue(ExternalData entity)
             {
-                final Experiment experimentOrNull = tryGetExperiment(entity);
+                final Experiment experimentOrNull = entity.getExperiment();
                 if (experimentOrNull == null)
                 {
                     return null;
@@ -198,21 +197,6 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<External
     public AbstractColumnDefinitionKind<ExternalData> getDescriptor()
     {
         return columnDefinitionKind;
-    }
-
-    private static Experiment tryGetExperiment(ExternalData entity)
-    {
-        final Procedure procetureOrNull = tryGetProceture(entity);
-        if (procetureOrNull == null)
-        {
-            return null;
-        }
-        return procetureOrNull.getExperiment();
-    }
-
-    private static Procedure tryGetProceture(ExternalData entity)
-    {
-        return entity.getProcedure();
     }
 
 }

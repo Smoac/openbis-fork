@@ -66,7 +66,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
@@ -241,10 +240,10 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE), sample
                 .getRegistrationDate());
 
-        final Procedure procedure = sample.getValidProcedure();
-        if (procedure != null)
+        Experiment experiment = sample.getExperiment();
+        if (experiment != null)
         {
-            properties.put(messageProvider.getMessage(Dict.EXPERIMENT), procedure.getExperiment());
+            properties.put(messageProvider.getMessage(Dict.EXPERIMENT), experiment);
         }
 
         if (generated.length > 0)

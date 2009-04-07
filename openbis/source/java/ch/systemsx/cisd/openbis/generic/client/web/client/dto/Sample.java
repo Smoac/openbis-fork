@@ -53,8 +53,8 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
     private List<SampleProperty> properties;
 
     private Invalidation invalidation;
-
-    private Procedure validProcedure;
+    
+    private Experiment experiment;
 
     private Long id;
 
@@ -132,16 +132,16 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
         this.invalidation = invalidation;
     }
 
-    public Procedure getValidProcedure()
+    public final Experiment getExperiment()
     {
-        return validProcedure;
+        return experiment;
     }
 
-    public void setValidProcedure(final Procedure validProcedure)
+    public final void setExperiment(Experiment experiment)
     {
-        this.validProcedure = validProcedure;
+        this.experiment = experiment;
     }
-
+    
     //
     // IIdentifierHolder
     //

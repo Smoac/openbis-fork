@@ -25,7 +25,6 @@ import java.util.Date;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.annotation.Rollback;
-import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
@@ -43,8 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedureTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -68,8 +65,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * can be easily done by GUI to a certain EntityType
  * <li>creates Experiments of one new ExperimentType
  * <li>creates Samples of one new SampleType - these samples are connected to an experiment created
- * in the previous step through a new Procedure of one ProcedureType that should already be in the
- * DB. Each experiment will have one or more samples connected to it.
+ * in the previous step. Each experiment will have one or more samples connected to it.
  * <li>creates DataSets of one new DataSetType - these data sets are connected to a sample and an
  * experiment created in previous steps. Each sample will have one or more data sets connected to
  * it.
@@ -196,8 +192,6 @@ public final class DBCreator extends AbstractDAOTest
 
     private DataSetTypePE defaultDataSetType;
 
-    private ProcedureTypePE defaultProcedureType;
-
     private GroupPE defaultGroup;
 
     private ProjectPE defaultProject;
@@ -212,17 +206,6 @@ public final class DBCreator extends AbstractDAOTest
         defaultDataSetType = createDefaultDataSetType();
         defaultExperimentType = createDefaultExperimentType();
         defaultSampleType = createDefaultSampleType();
-
-        //
-        defaultProcedureType = pickAProcedureType();
-    }
-
-    private final ProcedureTypePE pickAProcedureType()
-    {
-        ProcedureTypePE result =
-                daoFactory.getProcedureTypeDAO().listProcedureTypes().iterator().next();
-        AssertJUnit.assertNotNull(result);
-        return result;
     }
 
     private final ExperimentTypePE createDefaultExperimentType()
@@ -287,7 +270,7 @@ public final class DBCreator extends AbstractDAOTest
             log("creating experiment: %d/%d", i, EXPERIMENTS_NO);
             ExperimentPE experiment = generateExperiment();
             daoFactory.getExperimentDAO().createExperiment(experiment);
-            createConnectionsForExperiment(experiment);
+            createSamplesWithDataSetsForExperiment(experiment);
             flushAndClearSession();
         }
         log("created experiments");
@@ -306,32 +289,6 @@ public final class DBCreator extends AbstractDAOTest
         experiment.setRegistrator(getSystemPerson());
         return experiment;
     }
-
-    private void createConnectionsForExperiment(ExperimentPE experiment)
-    {
-        createProcedureForExperiment(experiment);
-        createSamplesWithDataSetsForExperiment(experiment);
-    }
-
-    // Procedures
-
-    private void createProcedureForExperiment(ExperimentPE experiment)
-    {
-        ProcedurePE procedure = generateProcedureForExperiment(experiment);
-        daoFactory.getProcedureDAO().createProcedure(procedure);
-    }
-
-    private ProcedurePE generateProcedureForExperiment(ExperimentPE experiment)
-    {
-        final ProcedurePE procedure = new ProcedurePE();
-        procedure.setProcedureType(defaultProcedureType);
-        procedure.setRegistrationDate(new Date());
-        procedure.setExperiment(experiment);
-
-        return procedure;
-    }
-
-    // Samples
 
     private void createSamplesWithDataSetsForExperiment(ExperimentPE experiment)
     {
@@ -357,7 +314,7 @@ public final class DBCreator extends AbstractDAOTest
         sample.setRegistrationDate(new Date());
         sample.setRegistrator(getSystemPerson());
         sample.setGroup(defaultGroup); // not shared
-        sample.setProcedures(experiment.getProcedures());
+        sample.setExperiment(experiment);
         return sample;
     }
 
@@ -382,7 +339,7 @@ public final class DBCreator extends AbstractDAOTest
         String dataSetCode = daoFactory.getExternalDataDAO().createDataSetCode();
         externalData.setCode(dataSetCode);
         externalData.setDataSetType(defaultDataSetType);
-        externalData.setProcedure(getProcedureFromSample(sample));
+        externalData.setExperiment(sample.getExperiment());
         externalData.setSampleAcquiredFrom(sample);
         externalData.setFileFormatType(pickAFileFormatType());
         externalData.setLocatorType(pickALocatorType());
@@ -391,11 +348,6 @@ public final class DBCreator extends AbstractDAOTest
         externalData.setStorageFormatVocabularyTerm(pickAStorageFormatVocabularyTerm());
 
         return externalData;
-    }
-
-    private ProcedurePE getProcedureFromSample(SamplePE sample)
-    {
-        return sample.getProcedures().iterator().next();
     }
 
     // code from ExternalDataDAOTest

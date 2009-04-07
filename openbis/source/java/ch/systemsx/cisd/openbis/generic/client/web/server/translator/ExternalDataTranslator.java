@@ -27,17 +27,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.LocatorType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ProcedureType;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -87,7 +85,6 @@ public class ExternalDataTranslator
         externalData.setLocatorType(fill(new LocatorType(), externalDataPE.getLocatorType()));
         externalData.setParentCode(StringEscapeUtils
                 .escapeHtml(tryToGetCodeOfFirstParent(externalDataPE)));
-        externalData.setProcedureType(getProcedureType(externalDataPE));
         externalData.setProductionDate(externalDataPE.getProductionDate());
         externalData.setRegistrationDate(externalDataPE.getRegistrationDate());
         externalData.setSampleIdentifier(sample == null ? null : StringEscapeUtils
@@ -102,7 +99,8 @@ public class ExternalDataTranslator
                     .getProperties()));
         }
         setProperties(externalDataPE, externalData);
-        externalData.setProcedure(getProcedure(externalDataPE, withExperimentFields));
+        ExperimentPE experiment = externalDataPE.getExperiment();
+        externalData.setExperiment(ExperimentTranslator.translate(experiment, withExperimentFields));
         return externalData;
     }
 
@@ -116,27 +114,6 @@ public class ExternalDataTranslator
         {
             externalData.setDataSetProperties(new ArrayList<DataSetProperty>());
         }
-    }
-
-    private static ProcedureType getProcedureType(ExternalDataPE externalDataPE)
-    {
-        ProcedurePE procedure = externalDataPE.getProcedure();
-        if (procedure == null)
-        {
-            return null;
-        }
-        return fill(new ProcedureType(), procedure.getProcedureType());
-    }
-
-    private static Procedure getProcedure(ExternalDataPE externalDataPE,
-            final LoadableFields... withExperimentFields)
-    {
-        final ProcedurePE procedure = externalDataPE.getProcedure();
-        if (procedure == null)
-        {
-            return null;
-        }
-        return ProcedureTranslator.translate(procedure, withExperimentFields);
     }
 
     private static Invalidation tryToGetInvalidation(SamplePE sample)

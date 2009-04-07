@@ -21,7 +21,6 @@ import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.E
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -46,9 +45,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedureTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -165,15 +161,6 @@ public final class SampleBOTest extends AbstractBOTest
             });
     }
 
-    private ProcedurePE createProcedure(boolean invalidExperiment)
-    {
-        ProcedurePE procedure = new ProcedurePE();
-        ExperimentPE experiment = new ExperimentPE();
-        experiment.setInvalidation(invalidExperiment ? new InvalidationPE() : null);
-        procedure.setExperiment(experiment);
-        return procedure;
-    }
-
     private final SampleBO createSampleBO()
     {
         return new SampleBO(daoFactory, EXAMPLE_SESSION, propertiesConverter);
@@ -187,7 +174,6 @@ public final class SampleBOTest extends AbstractBOTest
 
         SampleBO sampleBO = createSampleBO();
         sampleBO.tryToLoadBySampleIdentifier(sampleIdentifier);
-        sampleBO.enrichWithValidProcedure();
         try
         {
             sampleBO.getSample();
@@ -240,47 +226,6 @@ public final class SampleBOTest extends AbstractBOTest
         {
             assertEquals("Unloaded sample.", e.getMessage());
         }
-    }
-
-    @Test
-    public void testEnrichWithValidProcedure()
-    {
-        SampleIdentifier sampleIdentifier = getSharedSampleIdentifier("s1");
-        SamplePE sample = new SamplePE();
-        sample.setProcedures(Arrays.asList(createProcedure(false), createProcedure(true)));
-        prepareTryToLoadOfInstanceSample(sampleIdentifier, sample);
-
-        SampleBO sampleBO = createSampleBO();
-        sampleBO.tryToLoadBySampleIdentifier(sampleIdentifier);
-        sampleBO.enrichWithValidProcedure();
-
-        assertSame(sample, sampleBO.tryToGetSample());
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testEnrichWithTwoValidProcedures()
-    {
-        SampleIdentifier sampleIdentifier = getSharedSampleIdentifier("s1");
-        SamplePE sample = new SamplePE();
-        sample.setProcedures(Arrays.asList(createProcedure(false), createProcedure(false)));
-        prepareTryToLoadOfInstanceSample(sampleIdentifier, sample);
-
-        SampleBO sampleBO = createSampleBO();
-        sampleBO.tryToLoadBySampleIdentifier(sampleIdentifier);
-        try
-        {
-            sampleBO.enrichWithValidProcedure();
-            fail("UserFailureException expected");
-        } catch (UserFailureException e)
-        {
-            String message = e.getMessage();
-            assertTrue("Unexpected message: " + message, message
-                    .startsWith("Expected exactly one valid procedure, but found 2"));
-        }
-
-        assertSame(sample, sampleBO.tryToGetSample());
-        context.assertIsSatisfied();
     }
 
     @Test(expectedExceptions = UserFailureException.class)
@@ -612,25 +557,23 @@ public final class SampleBOTest extends AbstractBOTest
     {
         SampleIdentifier identifier = getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE);
         final ProjectPE project = createProject();
-        // create experiment with data acquisition procedure to which we will attach the sample
+        // create experiment which we will attach the sample
         final ExperimentPE experimentToAttach = new ExperimentPE();
         experimentToAttach.setCode("exp1");
         experimentToAttach.setProject(project);
-        final ProcedurePE dataAcqProcedure = new ProcedurePE();
-        ProcedureTypePE dataAcqProcType = new ProcedureTypePE();
-        dataAcqProcType.setDataAcquisition(true);
-        dataAcqProcedure.setProcedureType(dataAcqProcType);
-        experimentToAttach.setProcedures(asModifiableList(dataAcqProcedure));
+        final ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier();
+        experimentIdentifier.setExperimentCode("exp1");
+        experimentIdentifier.setProjectCode(project.getCode());
+        experimentIdentifier.setGroupCode(project.getGroup().getCode());
+        experimentIdentifier.setDatabaseInstanceCode(project.getGroup().getDatabaseInstance().getCode());
 
         // create a sample already attached to an experiment
         final ExperimentPE sampleExperiment = new ExperimentPE();
         sampleExperiment.setCode("exp2");
         sampleExperiment.setProject(project);
-        final ProcedurePE procedure = new ProcedurePE();
-        procedure.setExperiment(sampleExperiment);
         final SamplePE sample = new SamplePE();
         sample.setCode("sampleCode");
-        sample.setProcedures(asModifiableList(procedure));
+        sample.setExperiment(sampleExperiment);
 
         Date now = new Date();
         sample.setModificationDate(now);
@@ -642,12 +585,15 @@ public final class SampleBOTest extends AbstractBOTest
                 {
                     one(daoFactory).getProjectDAO();
                     will(returnValue(projectDAO));
-                    one(projectDAO).tryFindProject(null, null, null);
+                    one(projectDAO).tryFindProject(experimentIdentifier.getDatabaseInstanceCode(),
+                            experimentIdentifier.getGroupCode(),
+                            experimentIdentifier.getProjectCode());
                     will(returnValue(project));
 
                     one(daoFactory).getExperimentDAO();
                     will(returnValue(experimentDAO));
-                    one(experimentDAO).tryFindByCodeAndProject(project, null);
+                    one(experimentDAO).tryFindByCodeAndProject(project,
+                            experimentIdentifier.getExperimentCode());
                     will(returnValue(experimentToAttach));
 
                     // no datasets attached
@@ -656,21 +602,9 @@ public final class SampleBOTest extends AbstractBOTest
                     will(returnValue(new ArrayList<ExternalDataPE>()));
                 }
             });
-        ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier();
         createSampleBO().edit(identifier, null, experimentIdentifier, now);
 
-        assertEquals(1, sample.getProcedures().size());
-        assertEquals(dataAcqProcedure, sample.getProcedures().get(0));
-    }
-
-    private static <T> List<T> asModifiableList(T... elements)
-    {
-        ArrayList<T> result = new ArrayList<T>();
-        for (T elem : elements)
-        {
-            result.add(elem);
-        }
-        return result;
+        assertEquals(experimentToAttach, sample.getExperiment());
     }
 
     private ProjectPE createProject()

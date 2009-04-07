@@ -22,7 +22,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
@@ -93,7 +92,7 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
             @Override
             public String tryGetValue(Sample entity)
             {
-                final Experiment exp = tryToGetExperiment(entity);
+                final Experiment exp = entity.getExperiment();
                 return exp == null ? null : exp.getCode();
             }
         }),
@@ -104,7 +103,7 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
             @Override
             public String tryGetValue(Sample entity)
             {
-                final Experiment exp = tryToGetExperiment(entity);
+                final Experiment exp = entity.getExperiment();
                 return exp == null ? null : exp.getIdentifier();
             }
         }),
@@ -114,7 +113,7 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
             @Override
             public String tryGetValue(Sample entity)
             {
-                final Experiment exp = tryToGetExperiment(entity);
+                final Experiment exp = entity.getExperiment();
                 return exp == null ? null : exp.getProject().getCode();
             }
         }),
@@ -153,16 +152,6 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
     public AbstractColumnDefinitionKind<Sample> getDescriptor()
     {
         return columnDefinitionKind;
-    }
-
-    private final static Experiment tryToGetExperiment(final Sample sample)
-    {
-        final Procedure procedure = sample.getValidProcedure();
-        if (procedure != null)
-        {
-            return procedure.getExperiment();
-        }
-        return null;
     }
 
 }

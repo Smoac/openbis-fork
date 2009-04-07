@@ -23,7 +23,6 @@ import net.sf.beanlib.hibernate3.Hibernate3SequenceGenerator;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
@@ -122,8 +121,6 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
         final Criterion codeEq = Restrictions.eq("code", mangledCode);
 
         final DetachedCriteria criteria = DetachedCriteria.forClass(ENTITY_CLASS);
-        criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
-        criteria.setFetchMode("procedure", FetchMode.JOIN);
         criteria.add(codeEq);
         final List<ExternalDataPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         final ExternalDataPE entity = tryFindEntity(list, "data set");

@@ -270,8 +270,6 @@ public abstract class Dict
 
     public static final String NO_SAMPLES_FOUND = "no_samples_found";
 
-    public static final String PROCEDURE = "procedure";
-
     //
     // Sample Viewer
     //
@@ -297,8 +295,6 @@ public abstract class Dict
     public static final String FILE_FORMAT_TYPE = "file_format_type";
 
     public static final String DATA_SET_TYPE = "data_set_type";
-
-    public static final String PROCEDURE_TYPE = "procedure_type";
 
     public static final String EXTERNAL_DATA_SAMPLE = "external_data_sample";
 

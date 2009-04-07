@@ -128,9 +128,6 @@ public final class ValidationMessages {
 	public static final String PERSON_NOT_NULL_MESSAGE = "Person"
 			+ CAN_NOT_BE_NULL;
 
-	public static final String PROCEDURE_NOT_NULL_MESSAGE = "Procedure"
-			+ CAN_NOT_BE_NULL;
-
 	public static final String PROJECT_NOT_NULL_MESSAGE = "Project"
 			+ CAN_NOT_BE_NULL;
 

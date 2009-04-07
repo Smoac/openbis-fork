@@ -46,15 +46,6 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             }
         }),
 
-    PRODECUDRE_TYPE(new AbstractColumnDefinitionKind<ExternalData>(Dict.PROCEDURE_TYPE)
-        {
-            @Override
-            public String tryGetValue(ExternalData entity)
-            {
-                return entity.getProcedureType().getCode();
-            }
-        }),
-
     SAMPLE_IDENTIFIER(new AbstractColumnDefinitionKind<ExternalData>(Dict.EXTERNAL_DATA_SAMPLE,
             200, false)
         {

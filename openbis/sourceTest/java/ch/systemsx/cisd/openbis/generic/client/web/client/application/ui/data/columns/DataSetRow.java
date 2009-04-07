@@ -82,12 +82,6 @@ public class DataSetRow extends Row
         return this;
     }
 
-    public DataSetRow withProcedureType(String procedureType)
-    {
-        withCell(CommonExternalDataColDefKind.PRODECUDRE_TYPE, procedureType);
-        return this;
-    }
-
     public DataSetRow withSample(String sampleIdentifier)
     {
         withCell(CommonExternalDataColDefKind.SAMPLE_IDENTIFIER, sampleIdentifier);

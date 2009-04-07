@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -110,8 +109,6 @@ public final class GenericServerTest extends AbstractServerTestCase
                     will(returnValue(sampleBO));
 
                     one(sampleBO).loadBySampleIdentifier(sampleIdentifier);
-
-                    one(sampleBO).enrichWithValidProcedure();
 
                     one(sampleBO).getSample();
                     will(returnValue(samplePE));
@@ -269,7 +266,6 @@ public final class GenericServerTest extends AbstractServerTestCase
     {
         prepareGetSession();
         final NewExperiment newExperiment = new NewExperiment();
-        final ExperimentPE experimentPE = createExperiment("type", "code", "groupCode");
         context.checking(new Expectations()
             {
                 {
@@ -278,8 +274,6 @@ public final class GenericServerTest extends AbstractServerTestCase
 
                     one(experimentBO).define(newExperiment);
                     exactly(2).of(experimentBO).save();
-
-                    prepareDefineDataAcquisitionProcedure(this, experimentPE);
                 }
             });
         createServer().registerExperiment(SESSION_TOKEN, newExperiment,
@@ -305,7 +299,6 @@ public final class GenericServerTest extends AbstractServerTestCase
             { sample1, sampleIdentifier2 };
         final ExperimentPE experimentPE =
                 createExperiment(experimentTypeCode, experimentCode, groupCode);
-        final ProcedurePE procedurePE = new ProcedurePE();
         final NewExperiment newExperiment =
                 createNewExperiment(experimentTypeCode, experimentCode, groupCode, samples);
         context.checking(new Expectations()
@@ -316,39 +309,24 @@ public final class GenericServerTest extends AbstractServerTestCase
 
                     one(experimentBO).define(newExperiment);
                     exactly(2).of(experimentBO).save();
-
-                    prepareDefineDataAcquisitionProcedure(this, experimentPE);
-                    one(procedureBO).getProcedure();
-                    will(returnValue(procedurePE));
+                    
+                    one(experimentBO).getExperiment();
+                    will(returnValue(experimentPE));
 
                     one(genericBusinessObjectFactory).createSampleBO(SESSION);
                     will(returnValue(sampleBO));
                     one(sampleBO).loadBySampleIdentifier(sampleIdentifier1);
-                    one(sampleBO).enrichWithValidProcedure();
-                    one(sampleBO).addProcedure(procedurePE);
+                    one(sampleBO).setExperiment(experimentPE);
 
                     one(genericBusinessObjectFactory).createSampleBO(SESSION);
                     will(returnValue(sampleBO));
                     one(sampleBO).loadBySampleIdentifier(sampleIdentifier2WithGroup);
-                    one(sampleBO).enrichWithValidProcedure();
-                    one(sampleBO).addProcedure(procedurePE);
+                    one(sampleBO).setExperiment(experimentPE);
                 }
             });
         createServer().registerExperiment(SESSION_TOKEN, newExperiment,
                 new ArrayList<AttachmentPE>());
         context.assertIsSatisfied();
-    }
-
-    private void prepareDefineDataAcquisitionProcedure(Expectations exp, ExperimentPE experimentPE)
-    {
-        exp.one(experimentBO).getExperiment();
-        exp.will(Expectations.returnValue(experimentPE));
-
-        exp.one(genericBusinessObjectFactory).createProcedureBO(SESSION);
-        exp.will(Expectations.returnValue(procedureBO));
-        final String procedureTypeCode = "DATA_ACQUISITION";
-        exp.one(procedureBO).define(experimentPE, procedureTypeCode);
-        exp.one(procedureBO).save();
     }
 
     @Test
@@ -358,14 +336,12 @@ public final class GenericServerTest extends AbstractServerTestCase
         final String experimentTypeCode = "EXP-TYPE1";
         final String experimentCode = "EXP1";
         final String groupCode = "CISD";
-        final String procedureTypeCode = "DATA_ACQUISITION";
         String sample1Code = "SAMPLE1";
         final String sample1 = createSampleIdentifier("NOT_" + groupCode, sample1Code);
         final String[] samples =
             { sample1 };
         final ExperimentPE experimentPE =
                 createExperiment(experimentTypeCode, experimentCode, groupCode);
-        final ProcedurePE procedurePE = new ProcedurePE();
         final NewExperiment newExperiment =
                 createNewExperiment(experimentTypeCode, experimentCode, groupCode, samples);
         context.checking(new Expectations()
@@ -379,12 +355,6 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(experimentBO).getExperiment();
                     will(returnValue(experimentPE));
 
-                    one(genericBusinessObjectFactory).createProcedureBO(SESSION);
-                    will(returnValue(procedureBO));
-                    one(procedureBO).define(experimentPE, procedureTypeCode);
-                    one(procedureBO).save();
-                    one(procedureBO).getProcedure();
-                    will(returnValue(procedurePE));
                 }
             });
         boolean exceptionThrown = false;
