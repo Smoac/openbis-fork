@@ -272,7 +272,13 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
             }
             attachments.clear();
         }
+        checkBusinessRules();
+    }
 
+    private void checkBusinessRules()
+    {
+        propertiesConverter.checkMandatoryProperties(experiment.getProperties(), experiment
+                .getExperimentType());
     }
 
     private ExperimentIdentifier createExperimentIdentifier()

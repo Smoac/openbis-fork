@@ -55,7 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public final class EntityPropertiesConverter implements IEntityPropertiesConverter
 {
     private static final String NO_ENTITY_PROPERTY_VALUE_FOR_S =
-            "No entity property value for '%s'.";
+            "Value of mandatory property '%s' not specified.";
 
     private final IDAOFactory daoFactory;
 
@@ -251,14 +251,10 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                 list.add(convertedPropertyOrNull);
             }
         }
-        checkMandatoryProperties(list, entityTypePE);
         return list;
     }
 
-    /**
-     * Checks if mandatory fields are filled.
-     */
-    private <T extends EntityPropertyPE> void checkMandatoryProperties(List<T> properties,
+    public <T extends EntityPropertyPE> void checkMandatoryProperties(Collection<T> properties,
             EntityTypePE entityTypePE)
     {
         assert properties != null;

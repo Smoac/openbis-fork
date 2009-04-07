@@ -142,11 +142,21 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         try
         {
             getSampleDAO().createSamples(samples);
+            checkBusinessRules();
         } catch (final DataAccessException ex)
         {
             throwException(ex, String.format("One of samples"));
         }
         dataChanged = false;
+    }
+
+    private void checkBusinessRules()
+    {
+        for (SamplePE s : samples)
+        {
+            entityPropertiesConverter.checkMandatoryProperties(s.getProperties(), s
+                    .getSampleType());
+        }
     }
 
     private void enrichWithHierarchy()

@@ -118,11 +118,21 @@ public final class MaterialTable extends AbstractBusinessObject implements IMate
         try
         {
             getMaterialDAO().createMaterials(materials);
+            checkBusinessRules();
         } catch (final DataAccessException ex)
         {
             throwException(ex, String.format("One of materials"));
         }
         dataChanged = false;
+    }
+
+    private void checkBusinessRules()
+    {
+        for (MaterialPE m : materials)
+        {
+            entityPropertiesConverter.checkMandatoryProperties(m.getProperties(), m
+                    .getMaterialType());
+        }
     }
 
     private MaterialPE createMaterial(NewMaterial newMaterial, MaterialTypePE materialTypePE)

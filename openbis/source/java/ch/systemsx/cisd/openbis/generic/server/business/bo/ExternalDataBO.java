@@ -212,6 +212,8 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
             externalData.setRegistrationDate(new Date());
             externalDataDAO.updateDataSet(externalData);
         }
+        entityPropertiesConverter.checkMandatoryProperties(externalData.getProperties(),
+                externalData.getDataSetType());
     }
 
     private final void defineDataSetProperties(final ExternalDataPE data,
@@ -247,7 +249,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         result.setValue(newProperty.getValue());
         DataSetTypePropertyType etpt = new DataSetTypePropertyType();
         PropertyType propertyType = new PropertyType();
-        propertyType.setCode(newProperty.getName());
+        propertyType.setCode(newProperty.getPropertyCode());
         etpt.setPropertyType(propertyType);
         result.setEntityTypePropertyType(etpt);
         return result;

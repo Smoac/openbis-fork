@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import ch.systemsx.cisd.common.annotation.CollectionMapping;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 
 /**
@@ -37,6 +40,8 @@ public class ExtractableData extends Code<ExtractableData>
     private String dataProducerCode;
 
     private String parentDataSetCode;
+
+    private List<NewProperty> dataSetProperties = new ArrayList<NewProperty>();
 
     /**
      * Returns the date when the measurement / calculation that produced this external data set has
@@ -86,5 +91,16 @@ public class ExtractableData extends Code<ExtractableData>
     public final void setParentDataSetCode(String parentDataSetCode)
     {
         this.parentDataSetCode = parentDataSetCode;
+    }
+
+    @CollectionMapping(collectionClass = ArrayList.class, elementClass = NewProperty.class)
+    public void setDataSetProperties(List<NewProperty> dataSetProperties)
+    {
+        this.dataSetProperties = dataSetProperties;
+    }
+
+    public List<NewProperty> getDataSetProperties()
+    {
+        return dataSetProperties;
     }
 }

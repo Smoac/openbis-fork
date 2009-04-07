@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 
+import ch.systemsx.cisd.common.annotation.BeanProperty;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 
 /**
@@ -27,7 +28,7 @@ public class NewProperty implements Serializable
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
-    String name;
+    String property;
 
     String value;
 
@@ -37,18 +38,19 @@ public class NewProperty implements Serializable
 
     public NewProperty(String name, String value)
     {
-        this.name = name;
+        this.property = name;
         this.value = value;
     }
 
-    public String getName()
+    public String getPropertyCode()
     {
-        return name;
+        return property;
     }
 
-    public void setName(String name)
+    @BeanProperty(label = "property", optional = false)
+    public void setPropertyCode(String name)
     {
-        this.name = name;
+        this.property = name;
     }
 
     public String getValue()
@@ -56,6 +58,7 @@ public class NewProperty implements Serializable
         return value;
     }
 
+    @BeanProperty(label = "value", optional = false)
     public void setValue(String value)
     {
         this.value = value;

@@ -16,9 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -51,8 +49,6 @@ public final class ExternalData extends ExtractableData
     private BooleanOrUnknown complete = BooleanOrUnknown.U;
 
     private String associatedSampleCode;
-
-    private List<NewProperty> dataSetProperties = new ArrayList<NewProperty>();
 
     /** Returns <code>dataSetType</code>. */
     public final DataSetType getDataSetType()
@@ -212,13 +208,4 @@ public final class ExternalData extends ExtractableData
         return location.compareTo(thatLocation);
     }
 
-    public void setDataSetProperties(List<NewProperty> dataSetProperties)
-    {
-        this.dataSetProperties = dataSetProperties;
-    }
-
-    public List<NewProperty> getDataSetProperties()
-    {
-        return dataSetProperties;
-    }
 }

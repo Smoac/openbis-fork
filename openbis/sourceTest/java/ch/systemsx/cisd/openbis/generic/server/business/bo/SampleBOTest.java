@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.E
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -369,6 +370,7 @@ public final class SampleBOTest extends AbstractBOTest
         final SampleTypePE sampleType = new SampleTypePE();
         sampleType.setCode(MASTER_PLATE);
         sampleType.setId(new Long(21L));
+        sampleType.setDatabaseInstance(new DatabaseInstancePE());
         final SampleProperty sampleProperty = createSampleProperty();
         newSample.setProperties(new SampleProperty[]
             { sampleProperty });
@@ -415,6 +417,15 @@ public final class SampleBOTest extends AbstractBOTest
                             }
                         }));
 
+                    extracted(sampleType);
+
+                }
+
+                @SuppressWarnings("unchecked")
+                private void extracted(final SampleTypePE type)
+                {
+                    one(propertiesConverter).checkMandatoryProperties(
+                            with(aNonNull(Collection.class)), with(type));
                 }
             });
 
@@ -565,7 +576,8 @@ public final class SampleBOTest extends AbstractBOTest
         experimentIdentifier.setExperimentCode("exp1");
         experimentIdentifier.setProjectCode(project.getCode());
         experimentIdentifier.setGroupCode(project.getGroup().getCode());
-        experimentIdentifier.setDatabaseInstanceCode(project.getGroup().getDatabaseInstance().getCode());
+        experimentIdentifier.setDatabaseInstanceCode(project.getGroup().getDatabaseInstance()
+                .getCode());
 
         // create a sample already attached to an experiment
         final ExperimentPE sampleExperiment = new ExperimentPE();

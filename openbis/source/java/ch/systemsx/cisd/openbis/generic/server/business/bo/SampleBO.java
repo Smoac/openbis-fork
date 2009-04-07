@@ -118,7 +118,14 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         {
             throwException(ex, String.format("Sample '%s'", sample.getSampleIdentifier()));
         }
+        checkBusinessRules();
         dataChanged = false;
+    }
+
+    private void checkBusinessRules()
+    {
+        entityPropertiesConverter.checkMandatoryProperties(sample.getProperties(), sample
+                .getSampleType());
     }
 
     public boolean hasDatasets()
@@ -226,11 +233,10 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     {
         if (experimentOrNull != null && experimentOrNull.getInvalidation() != null)
         {
-            throw UserFailureException
-                    .fromTemplate(
-                            "The sample '%s' cannot be assigned to the experiment '%s' " +
-                            "because the experiment has been invalidated.",
-                            sample.getSampleIdentifier(), identOrNull);
+            throw UserFailureException.fromTemplate(
+                    "The sample '%s' cannot be assigned to the experiment '%s' "
+                            + "because the experiment has been invalidated.", sample
+                            .getSampleIdentifier(), identOrNull);
         }
     }
 
@@ -256,8 +262,8 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     private boolean isExperimentChangeUnnecessary(ExperimentPE newExperimentOrNull,
             ExperimentPE experimentOrNull)
     {
-        return experimentOrNull == null ? newExperimentOrNull == null 
-                                        : experimentOrNull.equals(newExperimentOrNull);
+        return experimentOrNull == null ? newExperimentOrNull == null : experimentOrNull
+                .equals(newExperimentOrNull);
     }
 
     private ExperimentPE findExperiment(ExperimentIdentifier identifierOrNull)

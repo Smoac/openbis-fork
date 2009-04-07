@@ -97,18 +97,23 @@ public final class MaterialBO extends AbstractBusinessObject implements IMateria
     public void save() throws UserFailureException
     {
         assert dataChanged : "Data not changed";
+        try
         {
-            try
-            {
-                final ArrayList<MaterialPE> materials = new ArrayList<MaterialPE>();
-                materials.add(material);
-                getMaterialDAO().createMaterials(materials);
-            } catch (final DataAccessException ex)
-            {
-                throwException(ex, String.format("Material '%s'", material.getCode()));
-            }
-            dataChanged = false;
+            final ArrayList<MaterialPE> materials = new ArrayList<MaterialPE>();
+            materials.add(material);
+            getMaterialDAO().createMaterials(materials);
+        } catch (final DataAccessException ex)
+        {
+            throwException(ex, String.format("Material '%s'", material.getCode()));
         }
+        checkBusinessRules();
+        dataChanged = false;
+    }
+
+    private void checkBusinessRules()
+    {
+        propertiesConverter.checkMandatoryProperties(material.getProperties(), material
+                .getMaterialType());
     }
 
     public void edit(MaterialIdentifier identifier, List<MaterialProperty> properties, Date version)

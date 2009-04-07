@@ -259,18 +259,12 @@ public final class ExperimentBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    atLeast(1).of(daoFactory).getEntityPropertyTypeDAO(EntityKind.EXPERIMENT);
-                    will(Expectations.returnValue(entityPropertyTypeDAO));
 
                     atLeast(1).of(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
                     will(Expectations.returnValue(entityTypeDAO));
 
                     atLeast(1).of(entityTypeDAO).listEntityTypes();
                     will(Expectations.returnValue(Collections.singletonList(type)));
-
-                    atLeast(1).of(entityPropertyTypeDAO).listEntityPropertyTypes(type);
-                    will(Expectations.returnValue(new ArrayList<ExperimentTypePropertyTypePE>(type
-                            .getExperimentTypePropertyTypes())));
 
                     one(entityTypeDAO).tryToFindEntityTypeByCode(expTypeCode);
                     will(returnValue(type));
@@ -319,16 +313,16 @@ public final class ExperimentBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    atLeast(1).of(daoFactory).getEntityPropertyTypeDAO(EntityKind.EXPERIMENT);
+                    allowing(daoFactory).getEntityPropertyTypeDAO(EntityKind.EXPERIMENT);
                     will(Expectations.returnValue(entityPropertyTypeDAO));
 
-                    atLeast(1).of(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
+                    allowing(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
                     will(Expectations.returnValue(entityTypeDAO));
 
-                    atLeast(1).of(entityTypeDAO).listEntityTypes();
+                    allowing(entityTypeDAO).listEntityTypes();
                     will(Expectations.returnValue(Collections.singletonList(type)));
 
-                    atLeast(1).of(entityPropertyTypeDAO).listEntityPropertyTypes(type);
+                    allowing(entityPropertyTypeDAO).listEntityPropertyTypes(type);
                     will(Expectations.returnValue(new ArrayList<ExperimentTypePropertyTypePE>(type
                             .getExperimentTypePropertyTypes())));
 

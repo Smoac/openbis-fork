@@ -38,10 +38,6 @@ public interface IEntityPropertiesConverter
     /**
      * Converts the set of {@link EntityProperty} objects obtained from the specified entity to an
      * array of {@link EntityPropertyPE} objects.
-     * <p>
-     * Checks whether all properties values have right type and if all mandatory properties are
-     * provided.
-     * </p>
      * 
      * @param registrator Will appear in the objects of the output.
      */
@@ -60,4 +56,10 @@ public interface IEntityPropertiesConverter
     public <T extends EntityPropertyPE, P extends EntityProperty<?, ?>> Set<T> updateProperties(
             Collection<T> oldProperties, EntityTypePE entityType, List<P> newProperties,
             PersonPE registrator);
+
+    /**
+     * Checks whether all mandatory properties are provided.
+     */
+    public <T extends EntityPropertyPE> void checkMandatoryProperties(Collection<T> properties,
+            EntityTypePE entityTypePE);
 }
