@@ -68,7 +68,7 @@ public final class PackageBasedIndexedEntityFinderTest
         final PackageBasedIndexedEntityFinder entityFinder =
                 new PackageBasedIndexedEntityFinder("ch.systemsx.cisd.openbis.generic.shared.dto");
         final Set<Class<?>> entities = entityFinder.getIndexedEntities();
-        assertEquals(5, entities.size());
+        assertEquals(4, entities.size());
         assertTrue(entities.contains(SamplePE.class));
         assertTrue(entities.contains(ExperimentPE.class));
         assertTrue(entities.contains(MaterialPE.class));
