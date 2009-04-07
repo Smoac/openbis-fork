@@ -36,6 +36,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 @Friend(toClasses = ETLDaemon.class)
 public final class MainTest extends AbstractFileSystemTestCase
 {
+    private static final String DATA_SET_TYPE_PREFIX = "DataSetType_";
+
+    private static final String SAMPLE_PREFIX = "Sample_";
+
+    private static final String EXPERIMENT_PREFIX = "Experiment_";
+
+    private static final String PROJECT_PREFIX = "Project_";
+
+    private static final String GROUP_PREFIX = "Group_";
+
+    private static final String INSTANCE_PREFIX = "Instance_";
+
+    private static final String DATASET_PREFIX = "Dataset_";
 
     private final static DatabaseInstancePE createDatabaseInstance()
     {
@@ -49,9 +62,8 @@ public final class MainTest extends AbstractFileSystemTestCase
     public final void testMigrateStoreRootDir()
     {
         final File instanceDir =
-                new File(
-                        new File(workingDirectory, IdentifiedDataStrategy.INSTANCE_PREFIX + "CISD"),
-                        IdentifiedDataStrategy.GROUP_PREFIX + "CISD");
+                new File(new File(workingDirectory, INSTANCE_PREFIX + "CISD"), GROUP_PREFIX
+                        + "CISD");
         instanceDir.mkdirs();
         assertTrue(instanceDir.exists());
         final DatabaseInstancePE databaseInstancePE = createDatabaseInstance();
@@ -62,13 +74,13 @@ public final class MainTest extends AbstractFileSystemTestCase
         // Same code
         ETLDaemon.migrateStoreRootDir(workingDirectory, databaseInstancePE);
         assertFalse(instanceDir.exists());
-        assertTrue(new File(workingDirectory, IdentifiedDataStrategy.INSTANCE_PREFIX
-                + databaseInstancePE.getUuid()).exists());
+        assertTrue(new File(workingDirectory, INSTANCE_PREFIX + databaseInstancePE.getUuid())
+                .exists());
         // Trying again does not change anything
         ETLDaemon.migrateStoreRootDir(workingDirectory, databaseInstancePE);
         assertFalse(instanceDir.exists());
-        assertTrue(new File(workingDirectory, IdentifiedDataStrategy.INSTANCE_PREFIX
-                + databaseInstancePE.getUuid()).exists());
+        assertTrue(new File(workingDirectory, INSTANCE_PREFIX + databaseInstancePE.getUuid())
+                .exists());
     }
 
     @Test
@@ -76,15 +88,14 @@ public final class MainTest extends AbstractFileSystemTestCase
     {
         String observableTypeValue = "DST1";
         String observableTypeDirPrefix = "ObservableType_";
-        File instanceDir =
-                new File(workingDirectory, IdentifiedDataStrategy.INSTANCE_PREFIX + "I1");
-        File groupDir = new File(instanceDir, IdentifiedDataStrategy.GROUP_PREFIX + "G1");
-        File projectDir = new File(groupDir, IdentifiedDataStrategy.PROJECT_PREFIX + "P1");
-        File experimentDir = new File(projectDir, IdentifiedDataStrategy.EXPERIMENT_PREFIX + "E1");
+        File instanceDir = new File(workingDirectory, INSTANCE_PREFIX + "I1");
+        File groupDir = new File(instanceDir, GROUP_PREFIX + "G1");
+        File projectDir = new File(groupDir, PROJECT_PREFIX + "P1");
+        File experimentDir = new File(projectDir, EXPERIMENT_PREFIX + "E1");
         File observableTypeDir =
                 new File(experimentDir, observableTypeDirPrefix + observableTypeValue);
-        File sampleDir = new File(observableTypeDir, IdentifiedDataStrategy.SAMPLE_PREFIX + "S1");
-        File dataSetDir = new File(sampleDir, IdentifiedDataStrategy.DATASET_PREFIX + "D1");
+        File sampleDir = new File(observableTypeDir, SAMPLE_PREFIX + "S1");
+        File dataSetDir = new File(sampleDir, DATASET_PREFIX + "D1");
         File metadataDir = new File(dataSetDir, "metadata");
         File metadataDataSetDir = new File(metadataDir, "data_set");
 
@@ -117,15 +128,13 @@ public final class MainTest extends AbstractFileSystemTestCase
         ETLDaemon.migrateDataStoreByRenamingObservableTypeToDataSetType(workingDirectory);
 
         // check directory renamed
-        AssertJUnit.assertEquals(IdentifiedDataStrategy.DATA_SET_TYPE_PREFIX + observableTypeValue,
-                experimentDir.listFiles()[0].getName());
+        AssertJUnit.assertEquals(DATA_SET_TYPE_PREFIX + observableTypeValue, experimentDir
+                .listFiles()[0].getName());
 
         // update variables
-        observableTypeDir =
-                new File(experimentDir, IdentifiedDataStrategy.DATA_SET_TYPE_PREFIX
-                        + observableTypeValue);
-        sampleDir = new File(observableTypeDir, IdentifiedDataStrategy.SAMPLE_PREFIX + "S1");
-        dataSetDir = new File(sampleDir, IdentifiedDataStrategy.DATASET_PREFIX + "D1");
+        observableTypeDir = new File(experimentDir, DATA_SET_TYPE_PREFIX + observableTypeValue);
+        sampleDir = new File(observableTypeDir, SAMPLE_PREFIX + "S1");
+        dataSetDir = new File(sampleDir, DATASET_PREFIX + "D1");
         metadataDir = new File(dataSetDir, "metadata");
         metadataDataSetDir = new File(metadataDir, "data_set");
 

@@ -18,34 +18,24 @@ package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.utilities.MD5ChecksumCalculator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * This <code>IDataStoreStrategy</code> implementation if for data set that has been <i>identified</i>,
- * meaning that kind of connection to this data set could be found in the database (through the
- * derived <i>Master Plate</i> or through the experiment specified).
+ * This <code>IDataStoreStrategy</code> implementation if for data set that has been
+ * <i>identified</i>, meaning that kind of connection to this data set could be found in the
+ * database (through the derived <i>Master Plate</i> or through the experiment specified).
  * 
  * @author Christian Ribeaud
  */
 public final class IdentifiedDataStrategy implements IDataStoreStrategy
 {
+    private static final String IDENTIFIED_DIRECTORY_NAME = "identified";
+
     static final String DATA_SET_TYPE_PREFIX = "DataSetType_";
-
-    static final String SAMPLE_PREFIX = "Sample_";
-
-    static final String EXPERIMENT_PREFIX = "Experiment_";
-
-    static final String PROJECT_PREFIX = "Project_";
-
-    static final String GROUP_PREFIX = "Group_";
-
-    static final String INSTANCE_PREFIX = "Instance_";
-
-    public static final String DATASET_PREFIX = "Dataset_";
 
     static final String UNEXPECTED_PATHS_MSG_FORMAT =
             "There are unexpected paths '%s' in data store '%s'. I'll proceed anyway.";
@@ -55,54 +45,6 @@ public final class IdentifiedDataStrategy implements IDataStoreStrategy
     IdentifiedDataStrategy()
     {
 
-    }
-
-    private static String createInstanceDirectory(final DataSetInformation dataSetInfo)
-    {
-        final String instanceUUID = dataSetInfo.getInstanceUUID();
-        assert instanceUUID != null : "Instance UUID can not be null.";
-        return INSTANCE_PREFIX + instanceUUID;
-    }
-
-    private static String createGroupDirectory(final DataSetInformation dataSetInfo)
-    {
-        final ExperimentIdentifier identifier = dataSetInfo.getExperimentIdentifier();
-        assert identifier != null : "Identifier can not be null.";
-        final String groupCode = identifier.getGroupCode();
-        assert groupCode != null : "Group code can not be null.";
-        return GROUP_PREFIX + groupCode;
-    }
-
-    private static String createProjectDirectory(final DataSetInformation dataSetInfo)
-    {
-        final ExperimentIdentifier identifier = dataSetInfo.getExperimentIdentifier();
-        assert identifier != null : "Identifier can not be null.";
-        final String projectCode = identifier.getProjectCode();
-        assert projectCode != null : "Project code can not be null.";
-        return PROJECT_PREFIX + projectCode;
-    }
-
-    private static String createExperimentDirectory(final DataSetInformation dataSetInfo)
-    {
-        final ExperimentIdentifier identifier = dataSetInfo.getExperimentIdentifier();
-        assert identifier != null : "Identifier can not be null.";
-        final String experimentCode = identifier.getExperimentCode();
-        assert experimentCode != null : "Experiment code can not be null.";
-        return EXPERIMENT_PREFIX + experimentCode;
-    }
-
-    private final static String createSampleDirectory(final DataSetInformation dataSetInfo)
-    {
-        final SampleIdentifier sampleIdentifier = dataSetInfo.getSampleIdentifier();
-        assert sampleIdentifier != null : "Sample identifier can not be null.";
-        return SAMPLE_PREFIX + sampleIdentifier.getSampleCode();
-    }
-
-    private static String createDatasetDirectory(final DataSetInformation dataSetInfo)
-    {
-        final String dataSetCode = dataSetInfo.getDataSetCode();
-        assert dataSetCode != null : "Dataset code con not be null.";
-        return DATASET_PREFIX + dataSetCode;
     }
 
     final static String createDataSetTypeDirectory(final DataSetType dataSetType)
@@ -122,16 +64,30 @@ public final class IdentifiedDataStrategy implements IDataStoreStrategy
     private final static File createBaseDirectory(final File baseDir,
             final DataSetInformation dataSetInfo, final DataSetType dataSetType)
     {
-        final File instanceDir = new File(baseDir, createInstanceDirectory(dataSetInfo));
-        final File groupDir = new File(instanceDir, createGroupDirectory(dataSetInfo));
-        final File projectDir = new File(groupDir, createProjectDirectory(dataSetInfo));
-        final File experimentDir = new File(projectDir, createExperimentDirectory(dataSetInfo));
-        final File dataSetTypeDir =
-                new File(experimentDir, createDataSetTypeDirectory(dataSetType));
-        final File sampleDir = new File(dataSetTypeDir, createSampleDirectory(dataSetInfo));
-        final File datasetDir = new File(sampleDir, createDatasetDirectory(dataSetInfo));
-        return datasetDir;
+        String dataSetCode = dataSetInfo.getDataSetCode();
+        return createBaseDirectory(baseDir, dataSetCode);
 
+    }
+
+    @Private
+    static File createBaseDirectory(final File baseDir, String dataSetCode)
+    {
+        final File mainDir = new File(baseDir, IDENTIFIED_DIRECTORY_NAME);
+        final File shardingDir = createShardingDir(mainDir, dataSetCode);
+        final File datasetDir = new File(shardingDir, dataSetCode);
+        return datasetDir;
+    }
+
+    // In order not to overwhelm the file system implementation, we won't use a completely flat
+    // hierarchy, but instead a structure called 'data sharding'. 'Data sharding' ensures that there
+    // are no directories with an extremely large number of data sets.
+    private static File createShardingDir(File parentDir, String dataSetCode)
+    {
+        String checksum = MD5ChecksumCalculator.calculate(dataSetCode);
+        final File dirLevel1 = new File(parentDir, checksum.substring(0, 2));
+        final File dirLevel2 = new File(dirLevel1, checksum.substring(2, 4));
+        final File dirLevel3 = new File(dirLevel2, checksum.substring(4, 6));
+        return dirLevel3;
     }
 
     //

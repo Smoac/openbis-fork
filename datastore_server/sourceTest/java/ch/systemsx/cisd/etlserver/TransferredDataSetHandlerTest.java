@@ -83,7 +83,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
  * 
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses = TransferredDataSetHandler.class)
+@Friend(toClasses =
+    { TransferredDataSetHandler.class, IdentifiedDataStrategy.class })
 public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestCase
 {
 
@@ -202,7 +203,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
     private DataSetInformation dataSetInformation;
 
-    private String relativeTargetFolder;
+    private File targetFolder;
 
     private ExternalData targetData1;
 
@@ -294,14 +295,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         dataSetInformation.setProductionDate(DATA_PRODUCTION_DATE);
         dataSetInformation.setDataSetCode(DATA_SET_CODE);
         dataSetInformation.setParentDataSetCode(PARENT_DATA_SET_CODE);
-        relativeTargetFolder =
-                "Instance_1111-2222" + File.separator + "Group_"
-                        + experimentIdentifier.getGroupCode() + File.separator + "Project_"
-                        + experimentIdentifier.getProjectCode() + File.separator + "Experiment_"
-                        + experimentIdentifier.getExperimentCode() + File.separator
-                        + "DataSetType_" + DATA_SET_TYPE.getCode() + File.separator + "Sample_"
-                        + dataSetInformation.getSampleIdentifier().getSampleCode() + File.separator
-                        + "Dataset_" + DATA_SET_CODE;
+        targetFolder = IdentifiedDataStrategy.createBaseDirectory(workingDirectory, DATA_SET_CODE);
         targetData1 = createTargetData(data1);
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO);
     }
@@ -327,7 +321,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
     private final ExternalData createTargetData(final File dataSet)
     {
         final ExternalData data = new ExternalData();
-        data.setLocation(relativeTargetFolder + File.separator + dataSet.getName());
+        data.setLocation(getRelativeTargetFolder() + File.separator + dataSet.getName());
         data.setLocatorType(LOCATOR_TYPE);
         data.setDataSetType(DATA_SET_TYPE);
         data.setFileFormatType(FILE_FORMAT_TYPE);
@@ -337,6 +331,12 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         data.setCode(DATA_SET_CODE);
         data.setParentDataSetCode(PARENT_DATA_SET_CODE);
         return data;
+    }
+
+    private String getRelativeTargetFolder()
+    {
+        String absoluteTarget = targetFolder.getAbsolutePath();
+        return absoluteTarget.substring(workingDirectory.getAbsolutePath().length() + 1);
     }
 
     private final static ExperimentPE createBaseExperiment(
@@ -532,9 +532,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
     @Test
     public final void testBaseDirectoryCouldNotBeCreated() throws IOException
     {
-        FileUtils.touch(new File(workingDirectory,
-                "Instance_1111-2222/Group_GROUP1/Project_PROJECT1/Experiment_EXPERIMENT1/"
-                        + "DataSetType_O1/Sample_" + SAMPLE_CODE + "/Dataset_" + DATA_SET_CODE));
+        FileUtils
+                .touch(IdentifiedDataStrategy.createBaseDirectory(workingDirectory, DATA_SET_CODE));
         prepareForStrategyIDENTIFIED(data1, null, createBaseExperiment(dataSetInformation));
         try
         {
@@ -558,7 +557,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         final ExperimentPE baseExperiment = createBaseExperiment(dataSetInformation);
         baseExperiment.setProcessingInstructions(new ProcessingInstructionDTO[]
             { create() });
-        final File baseDir = new File(workingDirectory, relativeTargetFolder);
+        final File baseDir = targetFolder;
         prepareForStrategyIDENTIFIED(data1, targetData1, baseExperiment);
         prepareForRegistration(data1);
         context.checking(new Expectations()
@@ -592,12 +591,15 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                         .format(createLogMsgOfSuccess(dataSetInformation.getExperimentIdentifier(),
                                 dataSetInformation.getSampleIdentifier())));
         handler.handle(isFinishedData1);
-        final File dataSetPath =
-                new File(baseDir.getParentFile(), IdentifiedDataStrategy.DATASET_PREFIX
-                        + DATA_SET_CODE);
+        final File dataSetPath = createDatasetDir(baseDir);
         assertEquals(true, dataSetPath.isDirectory());
         appender.verifyLogHasHappened();
         context.assertIsSatisfied();
+    }
+
+    private File createDatasetDir(final File baseDir)
+    {
+        return new File(baseDir.getParentFile(), DATA_SET_CODE);
     }
 
     @Test
@@ -606,7 +608,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         final ExperimentPE baseExperiment = createBaseExperiment(dataSetInformation);
         baseExperiment.setProcessingInstructions(new ProcessingInstructionDTO[]
             { create() });
-        final File baseDir = new File(workingDirectory, relativeTargetFolder);
+        final File baseDir = targetFolder;
         prepareForStrategyIDENTIFIED(data1, targetData1, baseExperiment);
         prepareForRegistration(data1);
         context.checking(new Expectations()
@@ -643,9 +645,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                         dataSetInformation.getExperimentIdentifier(), dataSetInformation
                                 .getSampleIdentifier()));
         handler.handle(isFinishedData1);
-        final File dataSetPath =
-                new File(baseDir.getParentFile(), IdentifiedDataStrategy.DATASET_PREFIX
-                        + DATA_SET_CODE);
+        final File dataSetPath = createDatasetDir(baseDir);
         assertEquals(true, dataSetPath.isDirectory());
         appender.verifyLogHasHappened();
         context.assertIsSatisfied();
@@ -657,7 +657,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         final ExperimentPE baseExperiment = createBaseExperiment(dataSetInformation);
         baseExperiment.setProcessingInstructions(new ProcessingInstructionDTO[]
             { create() });
-        final File baseDir = new File(workingDirectory, relativeTargetFolder);
+        final File baseDir = targetFolder;
         targetData1.setStorageFormat(StorageFormat.PROPRIETARY);
         prepareForStrategyIDENTIFIED(data1, targetData1, baseExperiment);
         prepareForRegistration(data1);
@@ -689,9 +689,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY,
                         LOG_MSG_OF_DATA_FORMAT_MISMATCH);
         handler.handle(isFinishedData1);
-        final File dataSetPath =
-                new File(baseDir.getParentFile(), IdentifiedDataStrategy.DATASET_PREFIX
-                        + DATA_SET_CODE);
+        final File dataSetPath = createDatasetDir(baseDir);
         assertEquals(true, dataSetPath.isDirectory());
         appender.verifyLogHasHappened();
         context.assertIsSatisfied();
@@ -703,7 +701,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         final ExperimentPE baseExperiment = createBaseExperiment(dataSetInformation);
         baseExperiment.setProcessingInstructions(new ProcessingInstructionDTO[]
             { create() });
-        final File baseDir = new File(workingDirectory, relativeTargetFolder);
+        final File baseDir = targetFolder;
         prepareForStrategyIDENTIFIED(data1, targetData1, baseExperiment);
         prepareForRegistration(data1);
         context.checking(new Expectations()
@@ -738,9 +736,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY,
                         LOG_MSG_OF_DATA_FORMAT_MISMATCH);
         handler.handle(isFinishedData1);
-        final File dataSetPath =
-                new File(baseDir.getParentFile(), IdentifiedDataStrategy.DATASET_PREFIX
-                        + DATA_SET_CODE);
+        final File dataSetPath = createDatasetDir(baseDir);
         assertEquals(true, dataSetPath.isDirectory());
         appender.verifyLogHasHappened();
         context.assertIsSatisfied();
@@ -814,7 +810,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
     public final void testMoveIdentifiedDataSetFolderButStoreDataFailed()
     {
         final ExperimentPE baseExperiment = createBaseExperiment(dataSetInformation);
-        final File baseDir = new File(workingDirectory, relativeTargetFolder);
+        final File baseDir = targetFolder;
         prepareForStrategyIDENTIFIED(folder, targetData1, baseExperiment);
         context.checking(new Expectations()
             {
@@ -869,7 +865,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
     public void testMoveIdentifiedDataSetFolderButWebServiceRegistrationFailed()
     {
         final ExperimentPE baseExperiment = createBaseExperiment(dataSetInformation);
-        final File baseDir = new File(workingDirectory, relativeTargetFolder);
+        final File baseDir = targetFolder;
         targetData1.setStorageFormat(null);
         prepareForStrategyIDENTIFIED(folder, targetData1, baseExperiment);
         prepareForRegistration(folder);

@@ -207,9 +207,10 @@ function wait_for_server {
 
 function install_openbis_server {
     local install_openbis=$1
-    psql -U postgres -c "drop database $DATABASE"
-    psql -U postgres -c "create database $DATABASE with owner $USER encoding = 'UNICODE'"
-    psql -U $USER -d $DATABASE -f $TEMPLATE/$OPENBIS_SERVER_NAME/test_database.sql
+    psql_cmd=`run_psql`
+    $psql_cmd -U postgres -c "drop database $DATABASE"
+    $psql_cmd -U postgres -c "create database $DATABASE with owner $USER encoding = 'UNICODE'"
+    $psql_cmd -U $USER -d $DATABASE -f $TEMPLATE/$OPENBIS_SERVER_NAME/test_database.sql
 
     if [ $install_openbis == "true" ]; then
         rm -fr $OPENBIS_SERVER
@@ -282,11 +283,11 @@ function install {
     if [ $reinstall_all == "true" ];then
 	    install_dsss "true"
 	    install_datamovers "true"
-	    install_openbis_server	"true"
+	    install_openbis_server "true"
     else
 	    install_dsss $install_dss
 	    install_datamovers $install_dmv
-	    install_openbis_server	$install_openbis
+	    install_openbis_server $install_openbis
     fi
 }
 
@@ -554,6 +555,44 @@ function launch_tests {
     switch_processing_pipeline "off"
 }
 
+# assumes that parent has exactly one subdirectory, echos its full path
+function get_single_subdirectory_path {
+	local parent_dir=$1
+	echo $parent_dir/`ls -1 $parent_dir | head -1`
+}
+
+# Finds a dataset directory which has a given sufix in dataset code and returns its name. 
+# If search_in_content is true, searches not in the name of dataset dir, but in the name of its subdirectory.
+# Works with sharded directories.
+function find_dataset_dir {
+	local code_suffix=$1
+	local identified_dir=$2
+	# values: true/false
+	local search_in_content=$3
+	
+	local sharding1
+	for sharding1 in `ls $identified_dir`; do
+		sharding2=`get_single_subdirectory_path $identified_dir/$sharding1`
+		sharding3=`get_single_subdirectory_path $sharding2`
+		dataset_dir=`get_single_subdirectory_path $sharding3`
+		if [ "$search_in_content" == "true" ]; then
+				dir_to_search=`get_single_subdirectory_path $dataset_dir`
+		else
+				dir_to_search=$dataset_dir
+		fi
+		without_suffix=${dir_to_search%$code_suffix}
+		if [ $dir_to_search != $without_suffix ]; then
+			echo $dir_to_search
+			return
+		fi
+	done
+}
+
+function find_dataset_dir_in_store {
+	local sample_name=$1
+	find_dataset_dir $sample_name $DATA/main-store/identified false
+}
+
 function assert_correct_experiment_info {
     echo ==== assert correct experiment info ====
 }
@@ -573,9 +612,7 @@ function assert_correct_content_of_processing_dir {
     assert_same_content $TEST_DATA/3VCP1 $data_set
     assert_same_content $TEMPLATE/openBIS-client/testdata/register-experiments/processing-parameters.txt \
                         $DATA/processing-dir/processing-parameters-from-openbis
-    local instance_dir=$DATA/main-store/`ls -1 $DATA/main-store/ | grep -i 'Instance_[0-9a-f]\{8\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{12\}'`
-    local bds_container=$instance_dir/Group_CISD/Project_NEMO/Experiment_EXP1/DataSetType_HCS_IMAGE/Sample_3VCP1/
-    bds_container=$bds_container`ls -1 $bds_container | head -1`
+    local bds_container=`find_dataset_dir_in_store 3VCP1`
     assert_dir_exists $bds_container
     local data_set2=$bds_container/data/original/microX_200801011213_3VCP1
     assert_same_inode $data_set/TIFF/blabla_3VCP1_K13_8_w460.tif $data_set2/TIFF/blabla_3VCP1_K13_8_w460.tif
@@ -586,15 +623,9 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     local cell_plate=3VCP1
     echo ==== assert correct content of plate 3VCP1 in store ====
     
-    local instance_dir=$DATA/main-store/`ls -1 $DATA/main-store/ | grep -i 'Instance_[0-9a-f]\{8\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{12\}'`
-    local main_dir=$instance_dir/Group_CISD/Project_NEMO/Experiment_EXP1
-    local raw_data_dir=$main_dir/DataSetType_HCS_IMAGE/Sample_3VCP1/
-    assert_dir_exists $raw_data_dir
-    # Picks up the first directory found
-    raw_data_dir=$raw_data_dir`ls -1 $raw_data_dir | head -1`
+    local raw_data_dir=`find_dataset_dir_in_store 3VCP1`
     assert_dir_exists $raw_data_dir
     local raw_data_set=$raw_data_dir
-    assert_dir_exists $raw_data_set
     
     echo == check data structure version
     assert_equals_as_in_file 1 $raw_data_set/version/major
@@ -676,21 +707,15 @@ function assert_correct_content_of_invalid_plate_in_store {
     local data_set=$error_dir/microX_200801011213_$cell_plate
     assert_same_content $TEST_DATA/$cell_plate $data_set
     assert_file_exists $data_set.exception
-    local instance_dir=$DATA/main-store/`ls -1 $DATA/main-store/ | grep -i 'Instance_[0-9a-f]\{8\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{12\}'`
-    assert_dir_empty $instance_dir/Group_CISD/Project_NEMO/Experiment_EXP1/DataSetType_HCS_IMAGE/Sample_$cell_plate
 }
     
 function assert_correct_content_of_image_analysis_data {
     local cell_plate=$1
     
     echo ====  check image analysis data for cell plate $cell_plate ====
-    local instance_dir=$DATA/main-store/`ls -1 $DATA/main-store/ | grep -i 'Instance_[0-9a-f]\{8\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{12\}'`
-    local img_analysis=$instance_dir/Group_CISD/Project_NEMO/Experiment_EXP1/DataSetType_HCS_IMAGE_ANALYSIS_DATA/Sample_$cell_plate/
-    assert_dir_exists $img_analysis
-    # Picks up the first directory found
-    img_analysis=$img_analysis`ls -1 $img_analysis | head -1`
-    assert_dir_exists $img_analysis
-    assert_same_content $TEST_DATA/$cell_plate $img_analysis/microX_200801011213_$cell_plate
+    local plate_with_img_analysis=`find_dataset_dir $cell_plate $DATA/main-store/identified true`
+    assert_dir_exists $plate_with_img_analysis
+    assert_same_content $TEST_DATA/$cell_plate $plate_with_img_analysis
 }
 
 function assert_correct_content_of_unidentified_plate_in_store {

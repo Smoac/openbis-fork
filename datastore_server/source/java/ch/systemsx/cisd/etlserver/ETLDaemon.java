@@ -245,8 +245,8 @@ public final class ETLDaemon
             final DatabaseInstancePE databaseInstancePE)
     {
         final File[] instanceDirs =
-                storeRootDir.listFiles((FilenameFilter) new NameFileFilter(
-                        IdentifiedDataStrategy.INSTANCE_PREFIX + databaseInstancePE.getCode()));
+                storeRootDir.listFiles((FilenameFilter) new NameFileFilter("Instance_"
+                        + databaseInstancePE.getCode()));
         final int size = instanceDirs.length;
         assert size == 0 || size == 1 : "Wrong size of instance directories.";
         final String absolutePath = storeRootDir.getAbsolutePath();
@@ -257,9 +257,7 @@ public final class ETLDaemon
         } else
         {
             final File instanceDir = instanceDirs[0];
-            final File newName =
-                    new File(storeRootDir, IdentifiedDataStrategy.INSTANCE_PREFIX
-                            + databaseInstancePE.getUuid());
+            final File newName = new File(storeRootDir, "Instance_" + databaseInstancePE.getUuid());
             instanceDir.renameTo(newName);
             operationLog.info(String.format("Following instance directory '%s' has been "
                     + "renamed to '%s' in store root directory '%s'.", instanceDir.getName(),
