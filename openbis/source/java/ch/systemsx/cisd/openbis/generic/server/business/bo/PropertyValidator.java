@@ -33,7 +33,7 @@ import ch.systemsx.cisd.common.collections.IToStringConverter;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils.Boolean;
-import ch.systemsx.cisd.openbis.generic.shared.basic.CommonValidationConstants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ValidationUtilities.HyperlinkValidationHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
@@ -301,14 +301,22 @@ public final class PropertyValidator implements IPropertyValueValidator
         public final String validate(final String value) throws UserFailureException
         {
             assert value != null : "Unspecified value.";
-            if (value.matches(CommonValidationConstants.HYPERLINK_REGEXP))
+
+            // validate protocols and format
+            if (HyperlinkValidationHelper.isProtocolValid(value) == false)
             {
-                return value;
-            } else
+                throw UserFailureException.fromTemplate(
+                        "Hyperlink '%s' should start with one of the following protocols: '%s'",
+                        value, HyperlinkValidationHelper.getValidProtocolsAsString());
+            }
+            if (HyperlinkValidationHelper.isFormatValid(value) == false)
             {
                 throw UserFailureException.fromTemplate(
                         "Hyperlink value '%s' has improper format.", value);
             }
+
+            // validated value is valid
+            return value;
         }
     }
 }

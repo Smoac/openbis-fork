@@ -16,25 +16,72 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.Validator;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.CommonValidationConstants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ValidationUtilities.HyperlinkValidationHelper;
 
 /**
  * A {@link TextField} extension for registering text (<code>String</code>) that will be rendered as
- * a link. The text characters are validated. 
+ * a link. Default protocol ("http://") is added on blur if user doesn't provide one.<br>
+ * The text characters are validated.
  * 
  * @author Piotr Buczek
  */
 public class HyperlinkField extends VarcharField
 {
+
     public HyperlinkField(final String label, final boolean mandatory)
     {
         super(label, mandatory);
-        setRegex(CommonValidationConstants.HYPERLINK_REGEXP);
+        // default auto validation is bad if we want to add a prefix automatically
+        // we use validation on blur here but the other option would be to increase validation delay
+        setAutoValidate(false);
+        setValidator(new HyperlinkValidator());
+        setValidateOnBlur(true);
         setEmptyText("Hyperlink");
         getMessages().setBlankText("Hyperlink required");
-        getMessages().setRegexText("Hyperlink has improper format");
     }
 
+    @Override
+    protected void onFocus(ComponentEvent be)
+    {
+        // clearing invalid messages on focus is needed because automatic validation is turned off
+        super.onFocus(be);
+        clearInvalid();
+    }
+
+    /** {@link Validator} for external hyperlink value. */
+    private class HyperlinkValidator implements Validator<String, HyperlinkField>
+    {
+        private final static String PROTOCOL_PART = "://";
+
+        private final static String DEFAULT_PROTOCOL = "http://";
+
+        public String validate(HyperlinkField field, final String fieldValue)
+        {
+            // add default protocol if none is provided
+            String validatedValue = fieldValue;
+            if (validatedValue.contains(PROTOCOL_PART) == false)
+            {
+                validatedValue = DEFAULT_PROTOCOL + fieldValue;
+                field.setRawValue(validatedValue);
+            }
+
+            // validate protocols and format
+            if (HyperlinkValidationHelper.isProtocolValid(validatedValue) == false)
+            {
+                return "Hyperlink should start with one of the following protocols: "
+                        + HyperlinkValidationHelper.getValidProtocolsAsString();
+            }
+            if (HyperlinkValidationHelper.isFormatValid(validatedValue) == false)
+            {
+                return "Hyperlink has improper format";
+            }
+            // validated value is valid
+            return null;
+        }
+
+    }
 }
