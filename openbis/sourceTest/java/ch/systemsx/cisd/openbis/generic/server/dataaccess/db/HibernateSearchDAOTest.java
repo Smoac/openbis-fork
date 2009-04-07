@@ -144,7 +144,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         {
             SamplePE samplePE = ((SamplePE) searchHit.getEntity());
             assertEquals(lastName, samplePE.getRegistrator().getLastName());
-            assertEquals("registrator: Last Name", searchHit.getFieldDescription());
+            AssertionUtil.assertContains("registrator: Last Name", searchHit.getFieldDescription());
         }
     }
 
