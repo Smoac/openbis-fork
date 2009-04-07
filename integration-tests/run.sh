@@ -738,7 +738,7 @@ function assert_correct_dataset_content_in_database {
                   ed.is_complete, d.data_producer_code, d.production_timestamp \
            from data as d left join data_set_relationships as r on r.data_id_child = d.id \
                           left join external_data as ed on ed.data_id = d.id,
-                experiment as e
+                experiments as e
            where d.id = $dataset_id and d.expe_id = e.id"  \
        | awk '/ +[0-9]+/' \
        | awk '{gsub(/ /,"");print}' \
