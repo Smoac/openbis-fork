@@ -28,7 +28,6 @@ import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
@@ -100,8 +99,7 @@ final class HTMLDirectoryRenderer implements IDirectoryRenderer
     {
         final String datasetCode = dataSet.getCode();
         final String sampleCode = dataSet.getAssociatedSampleCode();
-        final ProcedurePE procedure = dataSet.getProcedure();
-        final ExperimentPE experiment = procedure.getExperiment();
+        final ExperimentPE experiment = dataSet.getExperiment();
         final String experimentCode = experiment.getCode();
         final ProjectPE project = experiment.getProject();
         final String projectCode = project.getCode();

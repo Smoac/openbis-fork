@@ -54,7 +54,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
@@ -538,13 +537,11 @@ public class DatasetDownloadServletTest
         ProjectPE project = new ProjectPE();
         project.setCode(PROJECT_CODE);
         project.setGroup(group);
-        ProcedurePE procedure = new ProcedurePE();
         ExperimentPE experiment = new ExperimentPE();
         experiment.setCode(EXPERIMENT_CODE);
         experiment.setProject(project);
-        procedure.setExperiment(experiment);
         final ExternalDataPE externalData = new ExternalDataPE();
-        externalData.setProcedure(procedure);
+        externalData.setExperiment(experiment);
         externalData.setCode(EXAMPLE_DATA_SET_CODE);
         SamplePE samplePE = new SamplePE();
         samplePE.setCode(SAMPLE_CODE);

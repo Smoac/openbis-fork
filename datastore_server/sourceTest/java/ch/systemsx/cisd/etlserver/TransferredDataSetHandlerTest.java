@@ -70,7 +70,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedureType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -567,7 +566,6 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 {
                     one(limsService).registerDataSet(with(equal(SESSION_TOKEN)),
                             with(equal(dataSetInformation.getSampleIdentifier())),
-                            with(equal(PROCEDURE_TYPE.getCode())),
                             with(new ExternalDataMatcher(targetData1)));
 
                     checkSuccessEmailNotification(this, dataSetInformation, DATA_SET_CODE,
@@ -616,7 +614,6 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 {
                     one(limsService).registerDataSet(with(equal(SESSION_TOKEN)),
                             with(equal(dataSetInformation.getSampleIdentifier())),
-                            with(equal(PROCEDURE_TYPE.getCode())),
                             with(new ExternalDataMatcher(targetData1)));
 
                     checkSuccessEmailNotification(this, dataSetInformation, DATA_SET_CODE,
@@ -669,7 +666,6 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 {
                     one(limsService).registerDataSet(with(equal(SESSION_TOKEN)),
                             with(equal(dataSetInformation.getSampleIdentifier())),
-                            with(equal(PROCEDURE_TYPE.getCode())),
                             with(new ExternalDataMatcher(targetData1)));
 
                     checkSuccessEmailNotification(this, dataSetInformation, DATA_SET_CODE,
@@ -715,7 +711,6 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 {
                     one(limsService).registerDataSet(with(equal(SESSION_TOKEN)),
                             with(equal(dataSetInformation.getSampleIdentifier())),
-                            with(equal(PROCEDURE_TYPE.getCode())),
                             with(new ExternalDataMatcher(targetData1)));
 
                     checkSuccessEmailNotification(this, dataSetInformation, DATA_SET_CODE,
@@ -889,7 +884,6 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
                     one(limsService).registerDataSet(with(equal(SESSION_TOKEN)),
                             with(equal(dataSetInformation.getSampleIdentifier())),
-                            with(equal(PROCEDURE_TYPE.getCode())),
                             with(new ExternalDataMatcher(targetData1)));
                     will(throwException(new EnvironmentFailureException(
                             "Could not register data set folder")));

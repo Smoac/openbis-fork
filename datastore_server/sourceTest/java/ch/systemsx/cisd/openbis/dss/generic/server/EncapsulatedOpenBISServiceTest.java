@@ -132,7 +132,7 @@ public class EncapsulatedOpenBISServiceTest
             {
                 {
                     one(limsService).registerDataSet("", dataSetInfo.getSampleIdentifier(),
-                            procedureTypeCode.getCode(), data);
+                            data);
                 }
             });
         encapsulatedLimsService.registerDataSet(dataSetInfo, procedureTypeCode.getCode(), data);

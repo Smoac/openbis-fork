@@ -138,7 +138,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             final String procedureTypeCode, final ExternalData data)
     {
         service.registerDataSet(sessionToken, dataSetInformation.getSampleIdentifier(),
-                procedureTypeCode, data);
+                data);
     }
 
     private final SamplePropertyPE[] primGetPropertiesOfSampleRegisteredFor(
