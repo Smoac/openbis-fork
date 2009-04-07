@@ -78,6 +78,7 @@ CREATE OR REPLACE FUNCTION SAMPLE_CODE_UNIQUENESS_CHECK() RETURNS trigger AS $$
 DECLARE
    counter  INTEGER;
 BEGIN
+	LOCK TABLE samples IN EXCLUSIVE MODE;
 	IF (NEW.samp_id_part_of is NULL) THEN
 		IF (NEW.dbin_id is not NULL) THEN
 			SELECT count(*) into counter FROM samples 

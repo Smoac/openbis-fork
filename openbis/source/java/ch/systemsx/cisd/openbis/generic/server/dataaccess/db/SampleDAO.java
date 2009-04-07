@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
 /**
  * Implementation of {@link ISampleDAO} for databases.
@@ -51,11 +52,13 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
 
     /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an
-     * appropriate debugging level for class {@link JdbcAccessor}.
-     * </p>
+     * appropriate debugging level for class {@link JdbcAccessor}. </p>
      */
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, SampleDAO.class);
+
+    private static final String LOCK_TABLE_SQL =
+            "LOCK TABLE " + TableNames.SAMPLES_TABLE + " IN EXCLUSIVE MODE";
 
     SampleDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
     {
@@ -87,11 +90,29 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         }
     }
 
+    /**
+     * Obtains an explicit exclusive lock on 'samples' table. This function should always be
+     * executed before saving a sample because we have a complex unique code check in a trigger and
+     * we don't want any race condition or deadlock (if lock is gathered in the trigger). See
+     * [LMS-814] for details.
+     */
+    private final void lockTable()
+    {
+        executeUpdate(LOCK_TABLE_SQL);
+    }
+
+    /**
+     * <b>IMPORTANT</b> - every method which executes this method should first obtain lock on table
+     * using {@link SampleDAO#lockTable()}. The obtained lock is reentrant so this method could as
+     * well obtain it itself with a small additional cost if there are many saves in one
+     * transaction.
+     */
     private final void internalCreateSample(final SamplePE sample,
             final HibernateTemplate hibernateTemplate)
     {
         validatePE(sample);
         sample.setCode(CodeConverter.tryToDatabase(sample.getCode()));
+
         hibernateTemplate.saveOrUpdate(sample);
         if (operationLog.isInfoEnabled())
         {
@@ -108,6 +129,7 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         assert sample != null : "Unspecified sample";
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        lockTable();
         internalCreateSample(sample, hibernateTemplate);
         hibernateTemplate.flush();
     }
@@ -236,6 +258,7 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         assert samples != null && samples.size() > 0 : "Unspecified or empty samples.";
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        lockTable();
         for (final SamplePE samplePE : samples)
         {
             internalCreateSample(samplePE, hibernateTemplate);

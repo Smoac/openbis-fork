@@ -100,3 +100,45 @@ insert into data_types
  ,'MULTILINE_VARCHAR'
  ,'Long text'
 );
+
+-- -------
+-- Added explicit lock Samples table in exclusive mode to prevent race condition
+-- -------
+
+CREATE OR REPLACE FUNCTION SAMPLE_CODE_UNIQUENESS_CHECK() RETURNS trigger AS $$
+DECLARE
+   counter  INTEGER;
+BEGIN
+	LOCK TABLE samples IN EXCLUSIVE MODE;
+	IF (NEW.samp_id_part_of is NULL) THEN
+		IF (NEW.dbin_id is not NULL) THEN
+			SELECT count(*) into counter FROM samples 
+				where id != NEW.id and code = NEW.code and samp_id_part_of is NULL and dbin_id = NEW.dbin_id;
+			IF (counter > 0) THEN
+				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample with the same code already exists.', NEW.code;
+			END IF;
+		ELSIF (NEW.grou_id is not NULL) THEN
+			SELECT count(*) into counter FROM samples 
+				where id != NEW.id and code = NEW.code and samp_id_part_of is NULL and grou_id = NEW.grou_id;
+			IF (counter > 0) THEN
+				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because group sample with the same code already exists.', NEW.code;
+			END IF;
+		END IF;
+        ELSE
+		IF (NEW.dbin_id is not NULL) THEN
+			SELECT count(*) into counter FROM samples 
+				where id != NEW.id and code = NEW.code and samp_id_part_of = NEW.samp_id_part_of and dbin_id = NEW.dbin_id;
+			IF (counter > 0) THEN
+				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample with the same code and being the part of the same parent already exists.', NEW.code;
+			END IF;
+		ELSIF (NEW.grou_id is not NULL) THEN
+			SELECT count(*) into counter FROM samples 
+				where id != NEW.id and code = NEW.code and samp_id_part_of = NEW.samp_id_part_of and grou_id = NEW.grou_id;
+			IF (counter > 0) THEN
+				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because group sample with the same code and being the part of the same parent already exists.', NEW.code;
+			END IF;
+		END IF;
+        END IF;   
+   RETURN NEW;
+END;
+$$ LANGUAGE 'plpgsql';
