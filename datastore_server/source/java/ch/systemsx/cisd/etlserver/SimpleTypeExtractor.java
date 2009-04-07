@@ -17,16 +17,11 @@
 package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
 
@@ -46,8 +41,6 @@ public class SimpleTypeExtractor implements IProcedureAndDataTypeExtractor
 
     public static final String PROCEDURE_TYPE_KEY = "procedure-type";
 
-    public static final String DATA_SET_PROPERTIES_FILE_KEY = "data-set-properties-file";
-
     private FileFormatType fileFormatType;
 
     private LocatorType locatorType;
@@ -55,8 +48,6 @@ public class SimpleTypeExtractor implements IProcedureAndDataTypeExtractor
     private DataSetType dataSetType;
 
     private ProcedureType procedureType;
-
-    private List<NewProperty> dataSetProperties;
 
     public SimpleTypeExtractor(final Properties properties)
     {
@@ -72,35 +63,12 @@ public class SimpleTypeExtractor implements IProcedureAndDataTypeExtractor
                 properties.getProperty(PROCEDURE_TYPE_KEY, ProcedureTypeCode.DATA_ACQUISITION
                         .getCode());
         procedureType = new ProcedureType(code);
-        dataSetProperties =
-                extractDataSetProperties(properties.getProperty(DATA_SET_PROPERTIES_FILE_KEY));
+
     }
 
     //
     // IProcedureAndDataTypeExtractor
     //
-
-    private List<NewProperty> extractDataSetProperties(String fileName)
-    {
-
-        if (fileName == null)
-        {
-            return new ArrayList<NewProperty>();
-        }
-        Properties props = PropertyUtils.loadProperties(fileName);
-        PropertyUtils.trimProperties(props);
-
-        final Enumeration<?> keys = props.keys();
-        List<NewProperty> result = new ArrayList<NewProperty>();
-        while (keys.hasMoreElements())
-        {
-            final String name = (String) keys.nextElement();
-            final String value = props.getProperty(name);
-            result.add(new NewProperty(name, value));
-        }
-        return result;
-
-    }
 
     public final FileFormatType getFileFormatType(final File incomingDataSetPath)
     {
@@ -120,11 +88,6 @@ public class SimpleTypeExtractor implements IProcedureAndDataTypeExtractor
     public final ProcedureType getProcedureType(final File incomingDataSetPath)
     {
         return procedureType;
-    }
-
-    public List<NewProperty> getDataSetProperties()
-    {
-        return dataSetProperties;
     }
 
 }

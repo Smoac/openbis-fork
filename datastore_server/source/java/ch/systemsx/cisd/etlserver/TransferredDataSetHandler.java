@@ -23,7 +23,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
@@ -61,7 +60,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExtractableData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
@@ -400,7 +398,6 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                         dataFile.getAbsolutePath(), storeRoot.getAbsolutePath());
                 final StorageFormat availableFormat = storageProcessor.getStorageFormat();
                 final BooleanOrUnknown isCompleteFlag = dataSetInformation.getIsCompleteFlag();
-                final List<NewProperty> dataSetProperties = typeExtractor.getDataSetProperties();
                 // Ensure that we either register the data set and initiate the processing copy or
                 // do none of both.
                 getRegistrationLock().lock();
@@ -408,7 +405,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                 {
                     errorMessageTemplate = DATA_SET_REGISTRATION_FAILURE_TEMPLATE;
                     plainRegisterDataSet(relativePath, procedureTypeCode, availableFormat,
-                            isCompleteFlag, dataSetProperties);
+                            isCompleteFlag);
                     deleteAndLogIsFinishedFile();
                     deleteAndLogIsFinishedFile();
                     if (processorOrNull == null)
@@ -512,11 +509,10 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
 
         private final void plainRegisterDataSet(final String relativePath,
                 final String procedureTypeCode, final StorageFormat storageFormat,
-                final BooleanOrUnknown isCompleteFlag, List<NewProperty> dataSetProperties)
+                final BooleanOrUnknown isCompleteFlag)
         {
             final ExternalData data =
-                    createExternalData(relativePath, storageFormat, isCompleteFlag,
-                            dataSetProperties);
+                    createExternalData(relativePath, storageFormat, isCompleteFlag);
             // Finally: register the data set in the database.
             limsService.registerDataSet(dataSetInformation, procedureTypeCode, data);
         }
@@ -689,8 +685,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         }
 
         private final ExternalData createExternalData(final String relativePath,
-                final StorageFormat storageFormat, final BooleanOrUnknown isCompleteFlag,
-                List<NewProperty> dataSetProperties)
+                final StorageFormat storageFormat, final BooleanOrUnknown isCompleteFlag)
         {
             final ExtractableData extractableData = dataSetInformation.getExtractableData();
             final ExternalData data = BeanUtils.createBean(ExternalData.class, extractableData);
@@ -700,7 +695,6 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             data.setFileFormatType(typeExtractor.getFileFormatType(incomingDataSetFile));
             data.setStorageFormat(storageFormat);
             data.setComplete(isCompleteFlag);
-            data.setDataSetProperties(dataSetProperties);
             return data;
         }
 

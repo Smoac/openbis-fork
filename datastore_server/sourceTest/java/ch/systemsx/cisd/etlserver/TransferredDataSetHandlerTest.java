@@ -22,7 +22,6 @@ import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,7 +67,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -434,8 +432,6 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     one(typeExtractor).getProcedureType(dataSet);
                     will(returnValue(PROCEDURE_TYPE));
 
-                    one(typeExtractor).getDataSetProperties();
-                    will(returnValue(new ArrayList<NewProperty>()));
                 }
             });
     }

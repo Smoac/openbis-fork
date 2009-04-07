@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.dto;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -27,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IWebService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExtractableData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -245,6 +247,16 @@ public final class DataSetInformation implements Serializable
     public final String getGroupCode()
     {
         return groupCode;
+    }
+
+    public void setDataSetProperties(List<NewProperty> dataSetProperties)
+    {
+        extractableData.setDataSetProperties(dataSetProperties);
+    }
+
+    public List<NewProperty> getDataSetProperties()
+    {
+        return extractableData.getDataSetProperties();
     }
 
     public final String describe()
