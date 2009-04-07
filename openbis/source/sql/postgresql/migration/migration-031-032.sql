@@ -61,8 +61,6 @@ DROP SEQUENCE procedure_type_id_seq;
 --  Purpose:  Replace trigger SAMPLE_CODE_UNIQUENESS_CHECK 
 ------------------------------------------------------------------------------------
 
-DROP FUNCTION SAMPLE_CODE_UNIQUENESS_CHECK();
-
 CREATE OR REPLACE FUNCTION SAMPLE_CODE_UNIQUENESS_CHECK() RETURNS trigger AS $$
 DECLARE
    counter  INTEGER;

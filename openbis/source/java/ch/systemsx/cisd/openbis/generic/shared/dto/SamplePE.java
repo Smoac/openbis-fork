@@ -337,7 +337,6 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotNull(message = ValidationMessages.EXPERIMENT_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = true)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_EXPERIMENT)
     private ExperimentPE getExperimentInternal()
