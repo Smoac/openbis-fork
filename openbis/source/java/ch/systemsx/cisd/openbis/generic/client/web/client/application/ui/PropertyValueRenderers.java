@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.AbstractSimplePropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IEntityInformationHolder;
@@ -289,6 +290,8 @@ public final class PropertyValueRenderers
                     return createLinkToMaterial(object);
                 case HYPERLINK:
                     return createHyperlink(object);
+                case MULTILINE_VARCHAR:
+                    return createMultilineHtmlWidget(object);
                 default:
                     return createHtmlWidget(object);
             }
@@ -325,6 +328,11 @@ public final class PropertyValueRenderers
                 panel.add(new InlineHTML(" [" + materialIdentifier.getTypeCode() + "]"));
             }
             return panel;
+        }
+
+        private Widget createMultilineHtmlWidget(T object)
+        {
+            return new MultilineHTML(object.getValue());
         }
 
         private Widget createHtmlWidget(T object)

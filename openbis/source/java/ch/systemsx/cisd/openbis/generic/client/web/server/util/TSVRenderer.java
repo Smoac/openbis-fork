@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 
 /**
@@ -71,9 +73,20 @@ public class TSVRenderer
             {
                 isFirst = false;
             }
-            sb.append(column.getValue(entity));
+            sb.append(cleanWhitespaces(column.getValue(entity)));
         }
         sb.append(lineSeparator);
+    }
+
+    /**
+     * @return <var>value</var> with white-spaces cleaned in the same way that HTML works (all
+     *         contiguous white-spaces are replaced with single space)
+     */
+    private String cleanWhitespaces(String value)
+    {
+        String[] tokens = StringUtils.split(value);
+        String result = StringUtils.join(tokens, " ");
+        return result;
     }
 
     private <T> void appendHeader(List<IColumnDefinition<T>> columnDefs, StringBuffer sb)

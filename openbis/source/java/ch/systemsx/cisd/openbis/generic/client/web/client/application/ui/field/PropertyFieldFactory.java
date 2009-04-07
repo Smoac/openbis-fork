@@ -72,7 +72,9 @@ public class PropertyFieldFactory
                 return wrapUnaware(MaterialChooserField.create(label, isMandatory, pt
                         .getMaterialType(), originalRawValue, viewContext));
             case HYPERLINK:
-                return wrapUnaware(new HyperlinkField(label, isMandatory));                
+                return wrapUnaware(new HyperlinkField(label, isMandatory));
+            case MULTILINE_VARCHAR:
+                return wrapUnaware(new MultilineVarcharField(label, isMandatory));
         }
         throw new IllegalStateException("unknown enum " + dataType);
     }

@@ -72,6 +72,7 @@ public final class PropertyValidator implements IPropertyValueValidator
         map.put(EntityDataType.CONTROLLEDVOCABULARY, new ControlledVocabularyValidator());
         map.put(EntityDataType.MATERIAL, new MaterialValidator());
         map.put(EntityDataType.HYPERLINK, new HyperlinkValidator());
+        map.put(EntityDataType.MULTILINE_VARCHAR, new VarcharValidator());
         return map;
     }
 

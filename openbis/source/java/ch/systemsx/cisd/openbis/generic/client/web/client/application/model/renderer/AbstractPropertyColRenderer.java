@@ -42,6 +42,8 @@ public abstract class AbstractPropertyColRenderer<T> implements IColumnDefinitio
         {
             case HYPERLINK:
                 return new HyperlinkPropertyColRenderer<S>(colDef);
+            case MULTILINE_VARCHAR:
+                return new MultilineVarcharPropertyColRenderer<S>(colDef);
             default:
                 return new DefaultPropertyColRenderer<S>(colDef);
         }
