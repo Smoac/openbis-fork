@@ -103,9 +103,6 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
     private static final String PARENT_DATA_SET_CODE = "4711-1";
 
-    private static final ProcedureType PROCEDURE_TYPE =
-            new ProcedureType(ProcedureTypeCode.DATA_ACQUISITION.getCode());
-
     private static final LocatorType LOCATOR_TYPE = new LocatorType("L1");
 
     private static final DataSetType DATA_SET_TYPE = new DataSetType("O1");
@@ -116,7 +113,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
     private static final Date DATA_PRODUCTION_DATE = new Date(2001);
 
-    private static final String EXAMPLE_PROCEDURE_TYPE_CODE =
+    private static final String EXAMPLE_PROCESSOR_ID =
             ProcedureTypeCode.DATA_ACQUISITION.getCode();
 
     private static final class ExternalDataMatcher extends BaseMatcher<ExternalData>
@@ -187,7 +184,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
     private IDataSetInfoExtractor dataSetInfoExtractor;
 
-    private IProcedureAndDataTypeExtractor typeExtractor;
+    private IProcessorIDAndDataTypeExtractor typeExtractor;
 
     private IStorageProcessor storageProcessor;
 
@@ -255,7 +252,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
         context = new Mockery();
         dataSetInfoExtractor = context.mock(IDataSetInfoExtractor.class);
-        typeExtractor = context.mock(IProcedureAndDataTypeExtractor.class);
+        typeExtractor = context.mock(IProcessorIDAndDataTypeExtractor.class);
         final Properties properties = new Properties();
         properties.setProperty(JavaMailProperties.MAIL_SMTP_HOST, "host");
         properties.setProperty(JavaMailProperties.MAIL_FROM, "me");
@@ -266,7 +263,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         processorFactory = context.mock(IProcessorFactory.class);
         processor = context.mock(IProcessor.class);
         final Map<String, IProcessorFactory> map = new HashMap<String, IProcessorFactory>();
-        map.put(EXAMPLE_PROCEDURE_TYPE_CODE, processorFactory);
+        map.put(EXAMPLE_PROCESSOR_ID, processorFactory);
         final IETLServerPlugin plugin =
                 new ETLServerPlugin(new MockDataSetInfoExtractor(dataSetInfoExtractor),
                         typeExtractor, storageProcessor);
@@ -361,7 +358,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
     private final static ProcessingInstructionDTO create()
     {
         final ProcessingInstructionDTO processingInstruction = new ProcessingInstructionDTO();
-        processingInstruction.setProcedureTypeCode(EXAMPLE_PROCEDURE_TYPE_CODE);
+        processingInstruction.setProcedureTypeCode(EXAMPLE_PROCESSOR_ID);
         return processingInstruction;
     }
 
@@ -428,9 +425,9 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
                     one(typeExtractor).getFileFormatType(dataSet);
                     will(returnValue(FILE_FORMAT_TYPE));
-
-                    one(typeExtractor).getProcedureType(dataSet);
-                    will(returnValue(PROCEDURE_TYPE));
+                    
+                    one(typeExtractor).getProcessorID(dataSet);
+                    will(returnValue(EXAMPLE_PROCESSOR_ID));
 
                 }
             });
@@ -814,8 +811,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     one(processorFactory).createProcessor();
                     will(returnValue(processor));
 
-                    one(typeExtractor).getProcedureType(folder);
-                    will(returnValue(PROCEDURE_TYPE));
+                    one(typeExtractor).getProcessorID(folder);
+                    will(returnValue(EXAMPLE_PROCESSOR_ID));
 
                     one(storageProcessor).storeData(baseExperiment, dataSetInformation,
                             typeExtractor, mailClient, folder, baseDir);

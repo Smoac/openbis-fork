@@ -110,7 +110,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
 
     private final Lock registrationLock;
 
-    private final IProcedureAndDataTypeExtractor typeExtractor;
+    private final IProcessorIDAndDataTypeExtractor typeExtractor;
 
     private final IStorageProcessor storageProcessor;
 
@@ -307,12 +307,11 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         final void registerDataSet()
         {
             final ExperimentPE experiment = dataSetInformation.getExperiment();
-            final String procedureTypeCode =
-                    typeExtractor.getProcedureType(incomingDataSetFile).getCode();
-            final IProcessor processorOrNull = tryCreateProcessor(procedureTypeCode);
+            String processorID = typeExtractor.getProcessorID(incomingDataSetFile);
+            final IProcessor processorOrNull = tryCreateProcessor(processorID);
             try
             {
-                registerDataSetAndInitiateProcessing(experiment, procedureTypeCode, processorOrNull);
+                registerDataSetAndInitiateProcessing(experiment, processorID, processorOrNull);
                 logAndNotifySuccessfulRegistration(experiment.getRegistrator().getEmail());
                 if (fileOperations.exists(incomingDataSetFile)
                         && fileOperations.removeRecursivelyQueueing(incomingDataSetFile) == false)
@@ -657,9 +656,9 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             return baseDirectory;
         }
 
-        private IProcessor tryCreateProcessor(final String procedureTypeCode)
+        private IProcessor tryCreateProcessor(final String processorID)
         {
-            final IProcessorFactory processorFactory = processorFactories.get(procedureTypeCode);
+            final IProcessorFactory processorFactory = processorFactories.get(processorID);
             if (processorFactory == null)
             {
                 return null;
@@ -693,6 +692,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             data.setLocatorType(typeExtractor.getLocatorType(incomingDataSetFile));
             data.setDataSetType(typeExtractor.getDataSetType(incomingDataSetFile));
             data.setFileFormatType(typeExtractor.getFileFormatType(incomingDataSetFile));
+            data.setMeasured(typeExtractor.isMeasuredData(incomingDataSetFile));
             data.setStorageFormat(storageFormat);
             data.setComplete(isCompleteFlag);
             return data;

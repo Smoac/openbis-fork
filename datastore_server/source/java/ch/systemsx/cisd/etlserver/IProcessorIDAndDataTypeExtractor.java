@@ -23,19 +23,24 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;
 
 /**
- * Extractor for procedure, data set, file format, and locator type.
+ * Extractor for processor ID, data set, file format, and locator type.
  * 
  * @author Franz-Josef Elmer
  */
-public interface IProcedureAndDataTypeExtractor
+public interface IProcessorIDAndDataTypeExtractor
 {
     /** Properties key prefix for the type extractor. */
     public static final String TYPE_EXTRACTOR_KEY = "type-extractor";
 
     /**
-     * Gets the procedure type from the specified path of the incoming data set.
+     * Returns <code>true</code> if the specified data set contains measured data.
      */
-    public ProcedureType getProcedureType(File incomingDataSetPath);
+    public boolean isMeasuredData(File incomingDataSetPath);
+    
+    /**
+     * Returns the ID of the {@link IProcessor} to be used.
+     */
+    public String getProcessorID(File incomingDataSetPath);
 
     /**
      * Gets the data set type from the specified path of the incoming data set.

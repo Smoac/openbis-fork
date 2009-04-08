@@ -23,15 +23,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
 
 /**
- * Implementation of {@link IProcedureAndDataTypeExtractor} which gets the types from the properties
+ * Implementation of {@link IProcessorIDAndDataTypeExtractor} which gets the types from the properties
  * argument of the constructor.
  * 
  * @author Franz-Josef Elmer
  */
-public class SimpleTypeExtractor implements IProcedureAndDataTypeExtractor
+public class SimpleTypeExtractor implements IProcessorIDAndDataTypeExtractor
 {
     public static final String FILE_FORMAT_TYPE_KEY = "file-format-type";
 
@@ -39,7 +38,9 @@ public class SimpleTypeExtractor implements IProcedureAndDataTypeExtractor
 
     public static final String DATA_SET_TYPE_KEY = "data-set-type";
 
-    public static final String PROCEDURE_TYPE_KEY = "procedure-type";
+    public static final String PROCESSOR_ID_KEY = "processor-id";
+    
+    public static final String IS_MEASURED_KEY = "is-measured";
 
     private FileFormatType fileFormatType;
 
@@ -47,7 +48,9 @@ public class SimpleTypeExtractor implements IProcedureAndDataTypeExtractor
 
     private DataSetType dataSetType;
 
-    private ProcedureType procedureType;
+    private String processorID;
+    
+    private boolean measured;
 
     public SimpleTypeExtractor(final Properties properties)
     {
@@ -59,10 +62,9 @@ public class SimpleTypeExtractor implements IProcedureAndDataTypeExtractor
         locatorType = new LocatorType(code);
         code = properties.getProperty(DATA_SET_TYPE_KEY, DataSetTypeCode.HCS_IMAGE.getCode());
         dataSetType = new DataSetType(code);
-        code =
-                properties.getProperty(PROCEDURE_TYPE_KEY, ProcedureTypeCode.DATA_ACQUISITION
-                        .getCode());
-        procedureType = new ProcedureType(code);
+        processorID =
+                properties.getProperty(PROCESSOR_ID_KEY, "DATA_ACQUISITION");
+        measured = "true".equals(properties.getProperty(IS_MEASURED_KEY, "true"));
 
     }
 
@@ -85,9 +87,15 @@ public class SimpleTypeExtractor implements IProcedureAndDataTypeExtractor
         return dataSetType;
     }
 
-    public final ProcedureType getProcedureType(final File incomingDataSetPath)
+    public String getProcessorID(File incomingDataSetPath)
     {
-        return procedureType;
+        return processorID;
     }
+
+    public boolean isMeasuredData(File incomingDataSetPath)
+    {
+        return measured;
+    }
+
 
 }

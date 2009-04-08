@@ -243,7 +243,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
 
     private final IDataStructureV1_1 createDataStructure(final ExperimentPE experiment,
             final DataSetInformation dataSetInformation,
-            final IProcedureAndDataTypeExtractor typeExtractor, final File incomingDataSetPath,
+            final IProcessorIDAndDataTypeExtractor typeExtractor, final File incomingDataSetPath,
             final File rootDir)
     {
         final FileStorage storage = new FileStorage(rootDir);
@@ -293,13 +293,12 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
     }
 
     private final static DataSet createDataSet(final DataSetInformation dataSetInformation,
-            final IProcedureAndDataTypeExtractor typeExtractor, final File incomingDataSetPath)
+            final IProcessorIDAndDataTypeExtractor typeExtractor, final File incomingDataSetPath)
     {
         final String dataSetCode = dataSetInformation.getDataSetCode();
         final String parentDataSetCode = dataSetInformation.getParentDataSetCode();
         final List<String> parentCodes = getParentCodeList(parentDataSetCode);
-        final boolean isMeasured =
-                typeExtractor.getProcedureType(incomingDataSetPath).isDataAcquisition();
+        final boolean isMeasured = typeExtractor.isMeasuredData(incomingDataSetPath);
         final DataSetType dataSetType = typeExtractor.getDataSetType(incomingDataSetPath);
         final DataSet dataSet =
                 new DataSet(dataSetCode, dataSetType.getCode(),
@@ -417,7 +416,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
 
     public final File storeData(final ExperimentPE experiment,
             final DataSetInformation dataSetInformation,
-            final IProcedureAndDataTypeExtractor typeExtractor, final IMailClient mailClient,
+            final IProcessorIDAndDataTypeExtractor typeExtractor, final IMailClient mailClient,
             final File incomingDataSetDirectory, final File rootDirectory)
     {
         checkDataSetInformation(dataSetInformation);

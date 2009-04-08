@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
 public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCase
 {
 
-    private final static IProcedureAndDataTypeExtractor TYPE_EXTRACTOR =
+    private final static IProcessorIDAndDataTypeExtractor TYPE_EXTRACTOR =
             new TestProcedureAndDataTypeExtractor();
 
     private final DefaultStorageProcessor createStorageProcessor()
@@ -83,7 +83,8 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
         assertEquals(true, storeData.isDirectory());
         assertEquals(rootDir.getAbsolutePath(), storeData.getAbsolutePath());
         assertEquals("hello world", FileUtilities.loadToString(
-                new File(storeData, DefaultStorageProcessor.ORIGINAL_DIR + "/incoming/read.me")).trim());
+                new File(storeData, DefaultStorageProcessor.ORIGINAL_DIR + "/incoming/read.me"))
+                .trim());
     }
 
     @Test
@@ -124,7 +125,7 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
     // Helper classes
     //
 
-    final static class TestProcedureAndDataTypeExtractor implements IProcedureAndDataTypeExtractor
+    final static class TestProcedureAndDataTypeExtractor implements IProcessorIDAndDataTypeExtractor
     {
 
         static final String PROCEDURE_TYPE = ProcedureTypeCode.DATA_ACQUISITION.getCode();
@@ -156,11 +157,14 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
             return new DataSetType(DATA_SET_TYPE);
         }
 
-        public final ProcedureType getProcedureType(final File incomingDataSetPath)
+        public String getProcessorID(File incomingDataSetPath)
         {
-            final ProcedureType procedureType = new ProcedureType(PROCEDURE_TYPE);
-            procedureType.setDataAcquisition(true);
-            return procedureType;
+            return "da";
+        }
+
+        public boolean isMeasuredData(File incomingDataSetPath)
+        {
+            return true;
         }
 
         public List<NewProperty> getDataSetProperties()

@@ -125,7 +125,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
 
     private static final String FILE_EXTRACTOR_KEY = IHCSImageFileExtractor.FILE_EXTRACTOR;
 
-    private final static IProcedureAndDataTypeExtractor TYPE_EXTRACTOR =
+    private final static IProcessorIDAndDataTypeExtractor TYPE_EXTRACTOR =
             new DefaultStorageProcessorTest.TestProcedureAndDataTypeExtractor();
 
     private final static String STORE_ROOT_DIR = "store";

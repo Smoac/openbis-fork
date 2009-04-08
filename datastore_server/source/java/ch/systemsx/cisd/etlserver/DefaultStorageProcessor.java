@@ -47,7 +47,7 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
 
     public final File storeData(final ExperimentPE experiment,
             final DataSetInformation dataSetInformation,
-            final IProcedureAndDataTypeExtractor typeExtractor, final IMailClient mailClient,
+            final IProcessorIDAndDataTypeExtractor typeExtractor, final IMailClient mailClient,
             final File incomingDataSetDirectory, final File rootDir)
     {
         checkParameters(incomingDataSetDirectory, rootDir);

@@ -25,7 +25,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
 
 /**
  * Test cases for corresponding {@link SimpleTypeExtractor} class.
@@ -41,8 +40,8 @@ public class SimpleTypeExtractorTest
         props.put(SimpleTypeExtractor.FILE_FORMAT_TYPE_KEY, "F");
         props.put(SimpleTypeExtractor.LOCATOR_TYPE_KEY, "L");
         props.put(SimpleTypeExtractor.DATA_SET_TYPE_KEY, "O");
-        props.put(SimpleTypeExtractor.PROCEDURE_TYPE_KEY, ProcedureTypeCode.DATA_ACQUISITION
-                .getCode());
+        props.put(SimpleTypeExtractor.PROCESSOR_ID_KEY, "P");
+        props.put(SimpleTypeExtractor.IS_MEASURED_KEY, "false");
         return props;
     }
 
@@ -50,19 +49,18 @@ public class SimpleTypeExtractorTest
     public final void testConstructor()
     {
         SimpleTypeExtractor extractor = new SimpleTypeExtractor(new Properties());
-        assertEquals(extractor.getFileFormatType(null).getCode(),
-                FileFormatType.DEFAULT_FILE_FORMAT_TYPE_CODE);
-        assertEquals(extractor.getLocatorType(null).getCode(),
-                LocatorType.DEFAULT_LOCATOR_TYPE_CODE);
-        assertEquals(extractor.getDataSetType(null).getCode(), DataSetTypeCode.HCS_IMAGE
-                .getCode());
-        assertEquals(extractor.getProcedureType(null).getCode(), ProcedureTypeCode.DATA_ACQUISITION
-                .getCode());
+        assertEquals(FileFormatType.DEFAULT_FILE_FORMAT_TYPE_CODE, extractor.getFileFormatType(null).getCode());
+        assertEquals(LocatorType.DEFAULT_LOCATOR_TYPE_CODE, extractor.getLocatorType(null).getCode());
+        assertEquals(DataSetTypeCode.HCS_IMAGE
+                .getCode(), extractor.getDataSetType(null).getCode());
+        assertEquals("DATA_ACQUISITION", extractor.getProcessorID(null));
+        assertEquals(true, extractor.isMeasuredData(null));
+        
         extractor = new SimpleTypeExtractor(createProperties());
         assertEquals("F", extractor.getFileFormatType(null).getCode());
         assertEquals("L", extractor.getLocatorType(null).getCode());
         assertEquals("O", extractor.getDataSetType(null).getCode());
-        assertEquals(ProcedureTypeCode.DATA_ACQUISITION.getCode(), extractor.getProcedureType(null)
-                .getCode());
+        assertEquals("P", extractor.getProcessorID(null));
+        assertEquals(false, extractor.isMeasuredData(null));
     }
 }
