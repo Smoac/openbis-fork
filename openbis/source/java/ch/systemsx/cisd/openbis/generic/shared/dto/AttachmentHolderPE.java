@@ -63,6 +63,7 @@ public abstract class AttachmentHolderPE implements Serializable
     // Abstract methods
     //
     @Transient
+    @Private
     abstract public Set<AttachmentPE> getInternalAttachments();
 
     @Transient
