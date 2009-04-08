@@ -428,7 +428,9 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     
                     one(typeExtractor).getProcessorID(dataSet);
                     will(returnValue(EXAMPLE_PROCESSOR_ID));
-
+                    
+                    one(typeExtractor).isMeasuredData(dataSet);
+                    will(returnValue(true));
                 }
             });
     }
@@ -719,7 +721,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
                     one(processorFactory).createProcessor();
                     will(returnValue(processor));
-
+                    
                     allowing(processor).getRequiredInputDataFormat();
                     will(returnValue(StorageFormat.PROPRIETARY));
 
