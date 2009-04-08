@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
  * Implementation of {@link IDataStoreService} which will be accessed remotely by the opneBIS
@@ -145,7 +146,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         commandExecuter.scheduleDeletionOfDataSets(dataSetLocations);
     }
 
-    public void uploadDataSetsToCIFEX(String sessionToken, List<String> dataSetLocations,
+    public void uploadDataSetsToCIFEX(String sessionToken, List<ExternalDataPE> dataSets,
             DataSetUploadContext context) throws InvalidAuthenticationException
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
@@ -160,7 +161,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             throw new InvalidSessionException("User couldn't be authenticated at CIFEX.");
         }
         commandExecuter.scheduleUploadingDataSetsToCIFEX(serviceFactory, mailClientParameters,
-                dataSetLocations, context);
+                dataSets, context);
     }
     
     protected ICIFEXRPCServiceFactory createCIFEXRPCServiceFactory(String cifexURL)

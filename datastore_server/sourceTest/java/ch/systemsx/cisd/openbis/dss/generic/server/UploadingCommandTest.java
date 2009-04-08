@@ -16,16 +16,20 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Enumeration;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Level;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -36,55 +40,39 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.UploadState;
 import ch.systemsx.cisd.cifex.rpc.UploadStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses=UploadingCommand.class)
 public class UploadingCommandTest extends AssertJUnit
 {
+    private static final String ZIP_FILENAME = "myData";
     private static final String INFO_UPLOAD_PREFIX = "INFO  OPERATION.UploadingCommand - ";
     private static final String WARN_UPLOAD_PREFIX = "WARN  OPERATION.UploadingCommand - ";
     private static final String INFO_MAIL_PREFIX = "INFO  OPERATION.MailClient - ";
 
     private static final class ZipFileMatcher extends BaseMatcher<String[]>
     {
-        private final List<String> expectedPaths;
-        
         private String msg;
-
-        ZipFileMatcher(File... dataSets)
-        {
-            expectedPaths = new ArrayList<String>();
-            for (File file : dataSets)
-            {
-                addPaths(expectedPaths, file);
-            }
-            Collections.sort(expectedPaths);
-        }
-        
-        private void addPaths(List<String> paths, File file)
-        {
-            if (file.isFile())
-            {
-                paths.add(file.getPath().substring(STORE.getPath().length() + 1));
-            } else
-            {
-                File[] files = file.listFiles();
-                for (File child : files)
-                {
-                    addPaths(paths, child);
-                }
-            }
-        }
         
         public void describeTo(Description description)
         {
@@ -100,51 +88,12 @@ public class UploadingCommandTest extends AssertJUnit
                 return false;
             }
             String zipFile = paths[0];
-            if (zipFile.endsWith(".zip") == false)
+            if (zipFile.endsWith(ZIP_FILENAME + ".zip") == false)
             {
-                msg = "not a zip file: " + zipFile;
+                msg = "not expected zip file '" + ZIP_FILENAME + ".zip' but '" + zipFile + "'";
                 return false;
             }
-            return checkContent(zipFile);
-        }
-        
-        private boolean checkContent(String file)
-        {
-            ZipFile zipFile = null;
-            try
-            {
-                List<String> paths = new ArrayList<String>();
-                zipFile = new ZipFile(file);
-                for (Enumeration<? extends ZipEntry> entries = zipFile.entries(); entries.hasMoreElements(); )
-                {
-                    ZipEntry entry = entries.nextElement();
-                    String name = entry.getName();
-                    paths.add(name);
-                }
-                Collections.sort(paths);
-                if (expectedPaths.equals(paths))
-                {
-                    return true;
-                }
-                msg = "Expected:\n" + expectedPaths + "\nActual:\n" + paths;
-            } catch (Exception ex)
-            {
-                ex.printStackTrace();
-                msg = ex.toString();
-            } finally
-            {
-                if (zipFile != null)
-                {
-                    try
-                    {
-                        zipFile.close();
-                    } catch (IOException ex)
-                    {
-                        // ignored
-                    }
-                }
-            }
-            return false;
+            return true;
         }
     }
 
@@ -163,7 +112,6 @@ public class UploadingCommandTest extends AssertJUnit
     private MailClientParameters mailClientParameters;
     private DataSetUploadContext uploadContext;
     private UploadingCommand command;
-    private File ds1;
     private File ds2;
 
     @BeforeMethod
@@ -183,12 +131,59 @@ public class UploadingCommandTest extends AssertJUnit
         uploadContext.setUserID("user");
         uploadContext.setPassword("pwd");
         uploadContext.setUserEMail("user@bc.de");
-        List<String> locations = Arrays.asList(LOCATION1, LOCATION2);
-        ds1 = createTestData(LOCATION1);
+        uploadContext.setFileName(ZIP_FILENAME);
+        createTestData(LOCATION1);
         ds2 = createTestData(LOCATION2);
-        command = new UploadingCommand(factory, mailClientParameters, locations, uploadContext);
+        ExternalDataPE dataSet1 = createDataSet("1", LOCATION1);
+        ExternalDataPE dataSet2 = createDataSet("2", LOCATION2);
+        List<ExternalDataPE> dataSets = Arrays.<ExternalDataPE> asList(dataSet1, dataSet2);
+        command = new UploadingCommand(factory, mailClientParameters, dataSets, uploadContext);
+        command.deleteAfterUploading = false;
     }
     
+    private ExternalDataPE createDataSet(String code, String location)
+    {
+        ExternalDataPE externalData = new ExternalDataPE();
+        externalData.setCode(code);
+        externalData.setLocation(location);
+        DataSetTypePE dataSetTypePE = new DataSetTypePE();
+        dataSetTypePE.setCode("D");
+        externalData.setDataSetType(dataSetTypePE);
+        externalData.setExperiment(createExperiment());
+        List<DataPE> parents = Arrays.asList(createParent("p1"), createParent("p2"));
+        externalData.setParents(new LinkedHashSet<DataPE>(parents));
+        return externalData;
+    }
+    
+    private DataPE createParent(String code)
+    {
+        DataPE data = new DataPE();
+        data.setCode(code);
+        return data;
+    }
+
+    private ExperimentPE createExperiment()
+    {
+        ExperimentPE experiment = new ExperimentPE();
+        experiment.setCode("exp1");
+        ExperimentTypePE experimentTypePE = new ExperimentTypePE();
+        experimentTypePE.setCode("E");
+        experiment.setExperimentType(experimentTypePE);
+        experiment.setRegistrationDate(new Date(0));
+        PersonPE person = new PersonPE();
+        person.setFirstName("Charles");
+        person.setLastName("Darwin");
+        person.setEmail("cd@cd.org");
+        experiment.setRegistrator(person);
+        ProjectPE project = new ProjectPE();
+        project.setCode("p1");
+        GroupPE group = new GroupPE();
+        group.setCode("g1");
+        project.setGroup(group);
+        experiment.setProject(project);
+        return experiment;
+    }
+
     private File createTestData(String location)
     {
         File dataSet = new File(STORE, location);
@@ -226,7 +221,7 @@ public class UploadingCommandTest extends AssertJUnit
     }
 
     @Test
-    public void testExecute()
+    public void testExecute() throws Exception
     {
         context.checking(new Expectations()
             {
@@ -248,7 +243,7 @@ public class UploadingCommandTest extends AssertJUnit
                     will(returnValue(uploadStatus));
                     
                     one(cifexService).defineUploadParameters(with(equal(SESSION_TOKEN)),
-                            with(new ZipFileMatcher(ds1, ds2)), with(equal("id:user")),
+                            with(new ZipFileMatcher()), with(equal("id:user")),
                             with(aNull(String.class)));
                     
                     one(cifexService).getUploadStatus(SESSION_TOKEN);
@@ -264,7 +259,8 @@ public class UploadingCommandTest extends AssertJUnit
         command.execute(STORE);
         
         assertEquals("no emails expected", false, EMAILS.exists());
-        assertEquals("Empty tmp folder expected", 0, TMP.listFiles().length);
+        assertEquals(1, TMP.listFiles().length);
+        checkZipFileContent(TMP.listFiles()[0]);
         assertEquals(INFO_UPLOAD_PREFIX
                 + "Zip file <zipfile> with 2 data sets has been successfully created."
                 + OSUtilities.LINE_SEPARATOR + INFO_UPLOAD_PREFIX
@@ -279,7 +275,6 @@ public class UploadingCommandTest extends AssertJUnit
         command.execute(STORE);
     
         checkEmail("Couldn't create zip file");
-        assertEquals("Empty tmp folder expected", 0, TMP.listFiles().length);
         assertEquals("ERROR NOTIFY.UploadingCommand - Data set 'ds2' does not exist."
                 + OSUtilities.LINE_SEPARATOR + INFO_MAIL_PREFIX
                 + "Sending message from 'a@bc.de' to recipients '[user@bc.de]'",
@@ -316,7 +311,6 @@ public class UploadingCommandTest extends AssertJUnit
         command.execute(STORE);
         
         checkEmail("Uploading of zip file");
-        assertEquals("Empty tmp folder expected", 0, TMP.listFiles().length);
         assertEquals(INFO_UPLOAD_PREFIX
                 + "Zip file <zipfile> with 2 data sets has been successfully created."
                 + OSUtilities.LINE_SEPARATOR + WARN_UPLOAD_PREFIX
@@ -325,5 +319,56 @@ public class UploadingCommandTest extends AssertJUnit
                 + "Sending message from 'a@bc.de' to recipients '[user@bc.de]'",
                 getNormalizedLogContent());        
         context.assertIsSatisfied();
+    }
+    
+    private void checkZipFileContent(File file) throws Exception
+    {
+        assertEquals(ZIP_FILENAME + ".zip", file.getName());
+        ZipFile zipFile = null;
+        try
+        {
+            String prefix = "g1/p1/exp1/";
+            List<String> paths = new ArrayList<String>();
+            zipFile = new ZipFile(file);
+            for (Enumeration<? extends ZipEntry> entries = zipFile.entries(); entries
+                    .hasMoreElements();)
+            {
+                ZipEntry entry = entries.nextElement();
+                String name = entry.getName();
+                assertTrue("actual path: " + name, name.startsWith(prefix));
+                paths.add(name.substring(prefix.length()));
+            }
+            Collections.sort(paths);
+            assertEquals("[1/README.TXT, 1/data/data.txt, 1/meta-data.tsv, "
+                    + "2/README.TXT, 2/data/data.txt, 2/meta-data.tsv]", paths.toString());
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            IOUtils.copy(zipFile.getInputStream(zipFile.getEntry(prefix + "1/meta-data.tsv")), outputStream);
+            assertEquals("data_set\tcode\t1\n" + 
+            		"data_set\tproduction_timestamp\t\n" + 
+            		"data_set\tproducer_code\t\n" + 
+            		"data_set\tdata_set_type\tD\n" + 
+            		"data_set\tis_measured\tFALSE\n" + 
+            		"data_set\tis_complete\tFALSE\n" + 
+            		"data_set\tparent_codes\tp1,p2\n" + 
+            		"experiment\tgroup_code\tg1\n" + 
+            		"experiment\tproject_code\tp1\n" + 
+            		"experiment\texperiment_code\texp1\n" + 
+            		"experiment\texperiment_type_code\tE\n" + 
+            		"experiment\tregistration_timestamp\t1970-01-01 01:00:00 +0100\n" + 
+            		"experiment\tregistrator\tCharles Darwin <cd@cd.org>\n", outputStream.toString());
+        } finally
+        {
+            if (zipFile != null)
+            {
+                try
+                {
+                    zipFile.close();
+                } catch (IOException ex)
+                {
+                    // ignored
+                }
+            }
+        }
+
     }
 }

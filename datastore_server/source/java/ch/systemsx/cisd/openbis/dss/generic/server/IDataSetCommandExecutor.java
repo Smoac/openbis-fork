@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
  * Executor of commands operating on data sets in a data store. Commands are expected to be executed
@@ -39,7 +40,7 @@ interface IDataSetCommandExecutor
     void scheduleDeletionOfDataSets(List<String> locations);
 
     /**
-     * Schedules uploading of all data sets at specified locations to CIFEX using the specified
+     * Schedules uploading of all data sets to CIFEX using the specified
      * upload context.
      * 
      * @param cifexServiceFactory Factory for creating CIFEX upload service.
@@ -47,6 +48,6 @@ interface IDataSetCommandExecutor
      *      uploading failed.
      */
     void scheduleUploadingDataSetsToCIFEX(ICIFEXRPCServiceFactory cifexServiceFactory,
-            MailClientParameters mailClientParameters, List<String> locations,
+            MailClientParameters mailClientParameters, List<ExternalDataPE> dataSets,
             DataSetUploadContext uploadContext);
 }

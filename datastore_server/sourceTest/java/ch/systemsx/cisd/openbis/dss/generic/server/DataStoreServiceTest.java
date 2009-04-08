@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,6 +35,7 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
  * 
@@ -204,7 +206,7 @@ public class DataStoreServiceTest extends AssertJUnit
     @Test
     public void testUploadDataSetsForInvalidPassword()
     {
-        final List<String> locations = Arrays.asList("d1", "d2");
+        final List<ExternalDataPE> dataSets = new ArrayList<ExternalDataPE>();
         final DataSetUploadContext uploadContext = new DataSetUploadContext();
         uploadContext.setCifexURL(CIFEX_URL);
         uploadContext.setUserID("user");
@@ -222,7 +224,7 @@ public class DataStoreServiceTest extends AssertJUnit
 
         try
         {
-            createService().uploadDataSetsToCIFEX(sessionToken, locations, uploadContext);
+            createService().uploadDataSetsToCIFEX(sessionToken, dataSets, uploadContext);
             fail("InvalidSessionException expected");
         } catch (InvalidSessionException e)
         {
@@ -235,7 +237,7 @@ public class DataStoreServiceTest extends AssertJUnit
     @Test
     public void testUploadDataSets()
     {
-        final List<String> locations = Arrays.asList("d1", "d2");
+        final List<ExternalDataPE> dataSets = new ArrayList<ExternalDataPE>();
         final DataSetUploadContext uploadContext = new DataSetUploadContext();
         uploadContext.setCifexURL(CIFEX_URL);
         uploadContext.setUserID("user");
@@ -250,11 +252,11 @@ public class DataStoreServiceTest extends AssertJUnit
                     will(returnValue("token"));
                     
                     one(commandExecutor).scheduleUploadingDataSetsToCIFEX(cifexServiceFactory,
-                            mailClientParameters, locations, uploadContext);
+                            mailClientParameters, dataSets, uploadContext);
                 }
             });
         
-        createService().uploadDataSetsToCIFEX(sessionToken, locations, uploadContext);
+        createService().uploadDataSetsToCIFEX(sessionToken, dataSets, uploadContext);
         
         context.assertIsSatisfied();
     }
