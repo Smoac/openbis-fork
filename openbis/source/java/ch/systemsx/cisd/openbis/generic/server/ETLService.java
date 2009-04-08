@@ -383,7 +383,8 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         sampleBO.loadBySampleIdentifier(sampleIdentifier);
         final SamplePE cellPlate = sampleBO.getSample();
         final IExternalDataBO externalDataBO = boFactory.createExternalDataBO(session);
-        externalDataBO.define(externalData, cellPlate, SourceType.MEASUREMENT);
+        SourceType sourceType = externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
+        externalDataBO.define(externalData, cellPlate, sourceType);
         externalDataBO.save();
         final String dataSetCode = externalDataBO.getExternalData().getCode();
         assert dataSetCode != null : "Data set code not specified.";

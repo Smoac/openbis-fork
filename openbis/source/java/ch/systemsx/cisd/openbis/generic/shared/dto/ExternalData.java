@@ -49,6 +49,8 @@ public final class ExternalData extends ExtractableData
     private BooleanOrUnknown complete = BooleanOrUnknown.U;
 
     private String associatedSampleCode;
+    
+    private boolean measured;
 
     /** Returns <code>dataSetType</code>. */
     public final DataSetType getDataSetType()
@@ -157,6 +159,16 @@ public final class ExternalData extends ExtractableData
         this.associatedSampleCode = sampleCode;
     }
 
+    public final boolean isMeasured()
+    {
+        return measured;
+    }
+    
+    public final void setMeasured(boolean measured)
+    {
+        this.measured = measured;
+    }
+    
     //
     // Object
     //
