@@ -62,7 +62,7 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
             throw new EnvironmentFailureException(String.format(NO_RENAME,
                     incomingDataSetDirectory, targetFile));
         }
-        return targetFile;
+        return rootDir;
     }
 
     public final void unstoreData(final File incomingDataSetDirectory,

@@ -81,9 +81,9 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
                         incomingDataSetDirectory, rootDir);
         assertEquals(false, incomingDataSetDirectory.exists());
         assertEquals(true, storeData.isDirectory());
-        assertEquals(new File(workingDirectory, "root/" + DefaultStorageProcessor.ORIGINAL_DIR
-                + "/incoming").getAbsolutePath(), storeData.getAbsolutePath());
-        assertEquals("hello world", FileUtilities.loadToString(new File(storeData, "read.me")).trim());
+        assertEquals(rootDir.getAbsolutePath(), storeData.getAbsolutePath());
+        assertEquals("hello world", FileUtilities.loadToString(
+                new File(storeData, DefaultStorageProcessor.ORIGINAL_DIR + "/incoming/read.me")).trim());
     }
 
     @Test
@@ -116,7 +116,6 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
         assertEquals(true, storeData.exists());
         assertEquals(false, incomingDataSetDirectory.exists());
         storageProcessor.unstoreData(incomingDataSetDirectory, root);
-        assertEquals(false, storeData.exists());
         assertEquals(true, incomingDataSetDirectory.exists());
         assertEquals("hi", FileUtilities.loadToString(readMeFile).trim());
     }
