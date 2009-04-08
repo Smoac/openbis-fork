@@ -33,9 +33,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
-import ch.systemsx.cisd.datamover.DatamoverConstants;
-import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
-import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
  * A {@link FileFilter} that picks all entries that haven't been changed for longer than some given
@@ -69,21 +66,37 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
     private final static Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, QuietPeriodFileFilter.class);
 
-    private final ConditionalNotificationLogger conditionalNotificationLog =
-            new ConditionalNotificationLogger(machineLog, notificationLog,
-                    DatamoverConstants.IGNORED_ERROR_COUNT_BEFORE_NOTIFICATION);
+    private final ConditionalNotificationLogger conditionalNotificationLog;
 
     private final long quietPeriodMillis;
 
     private final long cleanUpPeriodMillis;
 
-    private final IFileStore fileStore;
+    private final ILastModificationChecker fileStore;
 
     private final Map<StoreItem, PathCheckRecord> pathMap;
 
     private final ITimeProvider timeProvider;
 
     private int callCounter;
+
+    public interface ILastModificationChecker
+    {
+        /**
+         * Returns the last time when there was a write access to <var>item</var>.
+         * 
+         * @param item The {@link StoreItem} to check.
+         * @param stopWhenFindYounger The time measured from the beginning of the epoch. If &gt; 0,
+         *            the recursive search for younger file will be stopped when a file or directory
+         *            is found that is younger than the time specified in this parameter. Supposed
+         *            to be used when one does not care about the absolutely youngest entry, but
+         *            only, if there are entries that are "young enough".
+         * @return The time (in milliseconds since the start of the epoch) when <var>resource</var>
+         *         was last changed or error status if checking failed.
+         */
+        public StatusWithResult<Long> lastChanged(StoreItem item, long stopWhenFindYounger);
+
+    }
 
     /**
      * A value object that holds the information about the last check performed for a path.
@@ -121,35 +134,43 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
      * Creates a <var>QuietPeriodFileFilter</var>.
      * 
      * @param fileStore Used to check when a pathname was changed.
-     * @param timingParameters The timing parameter object to get the quiet period from.
+     * @param quietPeriodMillis The time interval in milliseconds that a store item needs to be
+     *            "quiet" before being accepted by a filter.
      */
-    public QuietPeriodFileFilter(final IFileStore fileStore,
-            final ITimingParameters timingParameters)
+    public QuietPeriodFileFilter(final ILastModificationChecker fileStore,
+            final long quietPeriodMillis, final int ignoredErrorCountBeforeNotification)
     {
-        this(fileStore, timingParameters, SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+        this(fileStore, quietPeriodMillis, SystemTimeProvider.SYSTEM_TIME_PROVIDER,
+                ignoredErrorCountBeforeNotification);
     }
 
     /**
      * Creates a <var>QuietPeriodFileFilter</var>.
      * 
      * @param fileStore Used to check when a pathname was changed.
-     * @param timingParameters The timing parameter object to get the quiet period from.
+     * @param quietPeriodMillis The time interval in milliseconds that a store item needs to be
+     *            "quiet" before being accepted by a filter.
      * @param timeProvider A role that provides access to the current time.
+     * @param ignoredErrorCountBeforeNotification the number of errors that are ignored before
+     *            sending a notification email.
      */
-    public QuietPeriodFileFilter(final IFileStore fileStore,
-            final ITimingParameters timingParameters, final ITimeProvider timeProvider)
+    public QuietPeriodFileFilter(final ILastModificationChecker fileStore,
+            final long quietPeriodMillis, final ITimeProvider timeProvider,
+            final int ignoredErrorCountBeforeNotification)
     {
-        assert timingParameters != null;
-        assert timingParameters.getQuietPeriodMillis() > 0;
+        assert quietPeriodMillis > 0;
         assert fileStore != null;
         assert timeProvider != null;
 
-        this.quietPeriodMillis = timingParameters.getQuietPeriodMillis();
+        this.quietPeriodMillis = quietPeriodMillis;
         this.cleanUpPeriodMillis = CLEANUP_TO_QUIET_PERIOD_RATIO * quietPeriodMillis;
         this.fileStore = fileStore;
         this.timeProvider = timeProvider;
         this.pathMap = new HashMap<StoreItem, PathCheckRecord>();
         this.callCounter = 0;
+        this.conditionalNotificationLog =
+                new ConditionalNotificationLogger(machineLog, notificationLog,
+                        ignoredErrorCountBeforeNotification);
     }
 
     public boolean accept(final StoreItem item)
@@ -222,8 +243,8 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
         } else
         {
             conditionalNotificationLog.log(LogLevel.ERROR, String.format(
-                    "Cannot obtain \"last changed\" status of item '%s' in store '%s': %s",
-                    item, fileStore, status.tryGetErrorMessage()));
+                    "Cannot obtain \"last changed\" status of item '%s' in store '%s': %s", item,
+                    fileStore, status.tryGetErrorMessage()));
         }
     }
 

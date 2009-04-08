@@ -35,8 +35,7 @@ import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
-import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
-import ch.systemsx.cisd.datamover.intf.ITimingParameters;
+import ch.systemsx.cisd.datamover.utils.QuietPeriodFileFilter.ILastModificationChecker;
 
 /**
  * Test cases for the quiet period file filter.
@@ -56,9 +55,7 @@ public class QuietPeriodFileFilterTest
 
     private ITimeProvider timeProvider;
 
-    private ITimingParameters timingParameters;
-
-    private IFileStore fileStore;
+    private ILastModificationChecker fileStore;
 
     private QuietPeriodFileFilter filterUnderTest;
 
@@ -67,16 +64,9 @@ public class QuietPeriodFileFilterTest
     {
         context = new Mockery();
         timeProvider = context.mock(ITimeProvider.class);
-        timingParameters = context.mock(ITimingParameters.class);
-        fileStore = context.mock(IFileStore.class);
-        context.checking(new Expectations()
-            {
-                {
-                    atLeast(1).of(timingParameters).getQuietPeriodMillis();
-                    will(returnValue(QUIET_PERIOD_MILLIS));
-                }
-            });
-        filterUnderTest = new QuietPeriodFileFilter(fileStore, timingParameters, timeProvider);
+        fileStore = context.mock(ILastModificationChecker.class);
+        filterUnderTest =
+                new QuietPeriodFileFilter(fileStore, QUIET_PERIOD_MILLIS, timeProvider, 3);
     }
 
     @AfterMethod
@@ -154,7 +144,7 @@ public class QuietPeriodFileFilterTest
                     one(timeProvider).getTimeInMilliseconds();
                     will(returnValue(nowMillis));
                     one(fileStore).lastChanged(ITEM, 0L);
-                    will(returnValue(StatusWithResult.<Long>create(pathLastChangedMillis)));
+                    will(returnValue(StatusWithResult.<Long> create(pathLastChangedMillis)));
                     for (int i = 1; i <= 100; ++i)
                     {
                         one(timeProvider).getTimeInMilliseconds();
@@ -163,7 +153,7 @@ public class QuietPeriodFileFilterTest
                     // last call - will check only when last check is longer ago than the quiet
                     // period
                     one(fileStore).lastChanged(ITEM, pathLastChangedMillis);
-                    will(returnValue(StatusWithResult.<Long>create(pathLastChangedMillis)));
+                    will(returnValue(StatusWithResult.<Long> create(pathLastChangedMillis)));
                 }
             });
         for (int i = 0; i < 100; ++i)
@@ -237,7 +227,7 @@ public class QuietPeriodFileFilterTest
         long now = 0;
         for (int i = 0; i < errorRepetitions; i++)
         {
-            prepareLastChanged(now, 0L, StatusWithResult.<Long>createError());
+            prepareLastChanged(now, 0L, StatusWithResult.<Long> createError());
             now += QUIET_PERIOD_MILLIS;
         }
         for (int i = 0; i < errorRepetitions; i++)
@@ -245,12 +235,12 @@ public class QuietPeriodFileFilterTest
             assertNoAccept();
         }
         // first time we acquire modification time
-        final StatusWithResult<Long> lastChange = StatusWithResult.<Long>create(0L);
+        final StatusWithResult<Long> lastChange = StatusWithResult.<Long> create(0L);
         prepareLastChanged(now, 0L, lastChange);
         now += QUIET_PERIOD_MILLIS;
         assertNoAccept();
         // error again
-        prepareLastChanged(now, 0L, StatusWithResult.<Long>createError());
+        prepareLastChanged(now, 0L, StatusWithResult.<Long> createError());
         now += QUIET_PERIOD_MILLIS;
         assertNoAccept();
         // second time we acquire modification time - and nothing change during the quite period, so
@@ -308,13 +298,13 @@ public class QuietPeriodFileFilterTest
                     one(timeProvider).getTimeInMilliseconds();
                     will(returnValue(nowMillis1));
                     allowing(fileStore).lastChanged(vanishingItem, 0L);
-                    will(returnValue(StatusWithResult.<Long>create(pathLastChangedMillis1)));
+                    will(returnValue(StatusWithResult.<Long> create(pathLastChangedMillis1)));
                     // calls to get the required number of calls for clean up
                     allowing(timeProvider).getTimeInMilliseconds();
                     will(returnValue(nowMillis2));
                     allowing(fileStore).lastChanged(with(same(ITEM)),
                             with(greaterThanOrEqualTo(0L)));
-                    will(returnValue(StatusWithResult.<Long>create(pathLastChangedMillis2)));
+                    will(returnValue(StatusWithResult.<Long> create(pathLastChangedMillis2)));
                 }
             });
         final LogMonitoringAppender appender =

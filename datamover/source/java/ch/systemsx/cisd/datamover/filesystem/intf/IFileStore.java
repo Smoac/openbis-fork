@@ -22,13 +22,14 @@ import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
+import ch.systemsx.cisd.datamover.utils.QuietPeriodFileFilter.ILastModificationChecker;
 
 /**
  * An abstraction for a file store.
  * 
  * @author Bernd Rinn
  */
-public interface IFileStore extends ISelfTestable
+public interface IFileStore extends ISelfTestable, ILastModificationChecker
 {
     public static final IFileStore[] EMPTY_ARRAY = new IFileStore[0];
 
@@ -65,10 +66,11 @@ public interface IFileStore extends ISelfTestable
      * Returns the last time when there was a write access to <var>item</var>.
      * 
      * @param item The {@link StoreItem} to check.
-     * @param stopWhenFindYounger If &gt; 0, the recursive search for younger file will be stopped
-     *            when a file or directory is found that is younger than the time specified in this
-     *            parameter. Supposed to be used when one does not care about the absolutely
-     *            youngest entry, but only, if there are entries that are "young enough".
+     * @param stopWhenFindYounger The time measured from the beginning of the epoch. If &gt; 0, the
+     *            recursive search for younger file will be stopped when a file or directory is
+     *            found that is younger than the time specified in this parameter. Supposed to be
+     *            used when one does not care about the absolutely youngest entry, but only, if
+     *            there are entries that are "young enough".
      * @return The time (in milliseconds since the start of the epoch) when <var>resource</var> was
      *         last changed or error status if checking failed.
      */
@@ -78,13 +80,15 @@ public interface IFileStore extends ISelfTestable
      * Returns the last time when there was a write access to <var>item</var>.
      * 
      * @param item The {@link StoreItem} to check.
-     * @param stopWhenFindYoungerRelative If &gt; 0, the recursive search for younger file will be
-     *            stopped when a file or directory is found that is younger than
-     *            <code>System.currentTimeMillis() - stopWhenYoungerRelative</code>.
+     * @param stopWhenFindYoungerRelative The age of the item. If &gt; 0, the recursive search for
+     *            younger file will be stopped when a file or directory is found that is younger
+     *            than the specified age (in other words is smaller than
+     *            <code>System.currentTimeMillis() - stopWhenYoungerRelative</code>).
      * @return The time (in milliseconds since the start of the epoch) when <var>resource</var> was
      *         last changed or error status if checking failed.
      */
-    public StatusWithResult<Long> lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative);
+    public StatusWithResult<Long> lastChangedRelative(StoreItem item,
+            long stopWhenFindYoungerRelative);
 
     /**
      * List files in the scanned store. Sort in order of "oldest first".

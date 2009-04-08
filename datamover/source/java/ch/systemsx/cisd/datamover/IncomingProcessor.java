@@ -132,7 +132,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
     private final IStoreItemFilter createFilter(final ITimeProvider timeProvider)
     {
         final StoreItemFilterBank filterBank = new StoreItemFilterBank();
-        filterBank.add(new QuietPeriodFileFilter(incomingStore, parameters, timeProvider));
+        filterBank.add(createQuitePeriodFilter(timeProvider));
         final File dataCompletedScript = parameters.getDataCompletedScript();
         if (dataCompletedScript != null)
         {
@@ -140,6 +140,12 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
             filterBank.add(new DataCompletedFilter(incomingStore, dataCompletedScript, timeout));
         }
         return filterBank;
+    }
+
+    private QuietPeriodFileFilter createQuitePeriodFilter(final ITimeProvider timeProvider)
+    {
+        return new QuietPeriodFileFilter(incomingStore, parameters.getQuietPeriodMillis(),
+                timeProvider, DatamoverConstants.IGNORED_ERROR_COUNT_BEFORE_NOTIFICATION);
     }
 
     private IStoreHandler createRemotePathMover(final IFileStore sourceDirectory,
