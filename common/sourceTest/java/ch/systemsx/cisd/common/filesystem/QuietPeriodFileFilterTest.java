@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.datamover.utils;
+package ch.systemsx.cisd.common.filesystem;
 
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.testng.AssertJUnit.assertEquals;
@@ -31,11 +31,12 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.StatusWithResult;
+import ch.systemsx.cisd.common.filesystem.QuietPeriodFileFilter;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
+import ch.systemsx.cisd.common.filesystem.QuietPeriodFileFilter.ILastModificationChecker;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
-import ch.systemsx.cisd.datamover.utils.QuietPeriodFileFilter.ILastModificationChecker;
 
 /**
  * Test cases for the quiet period file filter.

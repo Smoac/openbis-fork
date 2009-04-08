@@ -20,13 +20,13 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.Constants;
+import ch.systemsx.cisd.common.filesystem.IStoreItemFilter;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask.IScannedStore;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.datamover.filesystem.intf.BooleanStatus;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
-import ch.systemsx.cisd.datamover.utils.IStoreItemFilter;
 
 /**
  * An <code>IScannedStore</code> implementation which is based on {@link IFileStore}.

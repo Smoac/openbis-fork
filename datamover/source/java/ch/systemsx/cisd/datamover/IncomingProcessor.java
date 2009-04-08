@@ -27,6 +27,8 @@ import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.filesystem.FaultyPathDirectoryScanningHandler;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IStoreHandler;
+import ch.systemsx.cisd.common.filesystem.IStoreItemFilter;
+import ch.systemsx.cisd.common.filesystem.QuietPeriodFileFilter;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkDirectoryScanningHandler;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
@@ -45,9 +47,7 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
 import ch.systemsx.cisd.datamover.utils.DataCompletedFilter;
-import ch.systemsx.cisd.datamover.utils.IStoreItemFilter;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
-import ch.systemsx.cisd.datamover.utils.QuietPeriodFileFilter;
 import ch.systemsx.cisd.datamover.utils.StoreItemFilterBank;
 
 /**

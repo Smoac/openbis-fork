@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.IStoreItemFilter;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.logging.ConditionalNotificationLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;

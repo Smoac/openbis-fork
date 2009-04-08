@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.datamover.utils;
+package ch.systemsx.cisd.common.filesystem;
 
 import java.io.FileFilter;
 import java.util.HashMap;
@@ -26,7 +26,6 @@ import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.StatusWithResult;
-import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.logging.ConditionalNotificationLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;

@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.datamover.utils;
+package ch.systemsx.cisd.common.filesystem;
 
-import ch.systemsx.cisd.common.filesystem.StoreItem;
 
 /**
  * Filter of {@link StoreItem} objects. Note, that a filter can be stateful. That is, invocations

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.datamover.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.common.filesystem.IStoreItemFilter;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
 
 /**
