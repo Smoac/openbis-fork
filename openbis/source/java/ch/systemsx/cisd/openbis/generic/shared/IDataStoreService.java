@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
  * Service interface of Data Store Server.
@@ -70,6 +71,6 @@ public interface IDataStoreService
      * @param context Context data needed for uploading.
      * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
      */
-    public void uploadDataSetsToCIFEX(String sessionToken, List<String> dataSetLocations,
+    public void uploadDataSetsToCIFEX(String sessionToken, List<ExternalDataPE> dataSets,
             DataSetUploadContext context) throws InvalidAuthenticationException;
 }

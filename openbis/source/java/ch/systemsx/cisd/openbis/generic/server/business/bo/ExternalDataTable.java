@@ -178,15 +178,28 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     {
         assertDataSetsAreKnown(dssSessionManager);
         Collection<DataStoreServerSession> sessions = dssSessionManager.getSessions();
-        List<String> locations = getLocations();
         uploadContext.setUserEMail(session.getPrincipal().getEmail());
         if (StringUtils.isBlank(uploadContext.getComment()))
         {
             uploadContext.setComment(createUploadComment(externalData));
         }
+        for (ExternalDataPE dataSet : externalData)
+        {
+            HibernateUtils.initialize(dataSet.getParents());
+            SamplePE sample = dataSet.getAssociatedSample();
+            ExperimentPE experiment;
+            if (sample != null)
+            {
+                experiment = sample.getExperiment();
+            } else
+            {
+                experiment = dataSet.getExperiment();
+            }
+            HibernateUtils.initialize(experiment.getProject().getGroup());
+        }
         for (DataStoreServerSession dssSession : sessions)
         {
-            dssSession.getService().uploadDataSetsToCIFEX(dssSession.getSessionToken(), locations,
+            dssSession.getService().uploadDataSetsToCIFEX(dssSession.getSessionToken(), externalData,
                     uploadContext);
         }
     }

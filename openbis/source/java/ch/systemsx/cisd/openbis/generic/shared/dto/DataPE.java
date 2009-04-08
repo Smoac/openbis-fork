@@ -190,6 +190,12 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     {
         this.sampleDerivedFrom = sampleDerivedFrom;
     }
+    
+    @Transient
+    public SamplePE getAssociatedSample()
+    {
+        return sampleAcquiredFrom == null ? sampleDerivedFrom : sampleAcquiredFrom;
+    }
 
     @Transient
     public String getAssociatedSampleCode()

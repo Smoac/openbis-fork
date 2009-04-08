@@ -374,7 +374,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     will(returnValue(locations));
 
                     one(dataStoreService).uploadDataSetsToCIFEX(with(any(String.class)),
-                            with(equal(locations)), with(equal(uploadContext)));
+                            with(equal(Arrays.asList(d1, d2))), with(equal(uploadContext)));
                 }
             });
 
@@ -438,6 +438,15 @@ public final class ExternalDataTableTest extends AbstractBOTest
         ExternalDataPE data = new ExternalDataPE();
         data.setCode(code);
         data.setLocation("here/" + code);
+        ExperimentPE experiment = new ExperimentPE();
+        experiment.setCode("exp1");
+        ProjectPE project = new ProjectPE();
+        project.setCode("p1");
+        GroupPE group = new GroupPE();
+        group.setCode("g1");
+        project.setGroup(group);
+        experiment.setProject(project);
+        data.setExperiment(experiment);
         return data;
     }
 }
