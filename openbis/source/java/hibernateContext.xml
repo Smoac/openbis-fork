@@ -71,6 +71,8 @@
                 
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE</value>
+                
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE</value>
             </list>
         </property>
         <!-- 

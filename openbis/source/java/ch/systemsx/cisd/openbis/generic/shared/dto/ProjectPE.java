@@ -17,7 +17,10 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
+import java.util.Date;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -26,6 +29,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -34,6 +38,8 @@ import javax.persistence.UniqueConstraint;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -42,6 +48,7 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
@@ -56,8 +63,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 @Table(name = TableNames.PROJECTS_TABLE, uniqueConstraints =
     { @UniqueConstraint(columnNames =
         { ColumnNames.CODE_COLUMN, ColumnNames.GROUP_COLUMN }) })
-public final class ProjectPE extends HibernateAbstractRegistrationHolder implements
-        Comparable<ProjectPE>, IIdAndCodeHolder, Serializable
+public final class ProjectPE extends AttachmentHolderPE implements Comparable<ProjectPE>,
+        IIdAndCodeHolder, Serializable
 {
     public static final ProjectPE[] EMPTY_ARRAY = new ProjectPE[0];
 
@@ -77,6 +84,34 @@ public final class ProjectPE extends HibernateAbstractRegistrationHolder impleme
     private int size;
 
     private DataStorePE dataStore;
+
+    private PersonPE registrator;
+
+    private Date registrationDate;
+
+    @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
+    @Generated(GenerationTime.INSERT)
+    public Date getRegistrationDate()
+    {
+        return HibernateAbstractRegistrationHolder.getDate(registrationDate);
+    }
+
+    public void setRegistrationDate(final Date registrationDate)
+    {
+        this.registrationDate = registrationDate;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.PERSON_REGISTERER_COLUMN, updatable = false)
+    public PersonPE getRegistrator()
+    {
+        return registrator;
+    }
+
+    public void setRegistrator(final PersonPE registrator)
+    {
+        this.registrator = registrator;
+    }
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.DATA_STORE_COLUMN, updatable = false)
@@ -232,4 +267,22 @@ public final class ProjectPE extends HibernateAbstractRegistrationHolder impleme
     {
         return code;
     }
+
+    @Override
+    @Transient
+    public String getHolderName()
+    {
+        return "project";
+    }
+
+    @Override
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "projectParentInternal")
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROJECT_ATTACHMENTS)
+    @Private
+    // for Hibernate and bean conversion only
+    public Set<AttachmentPE> getInternalAttachments()
+    {
+        return attachments;
+    }
+
 }

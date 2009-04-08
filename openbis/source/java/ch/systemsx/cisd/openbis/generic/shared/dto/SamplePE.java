@@ -58,6 +58,7 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
@@ -78,7 +79,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
         + ColumnNames.GROUP_COLUMN + " IS NULL) OR (" + ColumnNames.DATABASE_INSTANCE_COLUMN
         + " IS NULL AND " + ColumnNames.GROUP_COLUMN + " IS NOT NULL)")
 @Indexed
-public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
+public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Comparable<SamplePE>,
         IEntityPropertiesHolder<SamplePropertyPE>, IMatchingEntity, Serializable
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
@@ -534,4 +535,22 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
     {
         return EntityKind.SAMPLE;
     }
+
+    @Override
+    @Transient
+    public String getHolderName()
+    {
+        return "sample";
+    }
+
+    @Override
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "sampleParentInternal")
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SAMPLE_ATTACHMENTS)
+    @Private
+    // for Hibernate and bean conversion only
+    public Set<AttachmentPE> getInternalAttachments()
+    {
+        return attachments;
+    }
+
 }

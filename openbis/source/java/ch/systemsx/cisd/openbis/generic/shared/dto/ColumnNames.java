@@ -51,7 +51,7 @@ public final class ColumnNames {
 
 	public static final String DOWNLOAD_URL_COLUMN = "download_url";
 
-	public static final String EXPERIMENT_ATTACHMENT_CONTENT_COLUMN = "exac_id";
+	public static final String ATTACHMENT_CONTENT_COLUMN = "exac_id";
 
 	public static final String EXPERIMENT_COLUMN = "expe_id";
 

@@ -69,4 +69,8 @@ public final class SearchFieldConstants
      */
 
     public static final String PREFIX_EXPERIMENT_ATTACHMENTS = "";
+
+    public static final String PREFIX_SAMPLE_ATTACHMENTS = "";
+
+    public static final String PREFIX_PROJECT_ATTACHMENTS = "";
 }

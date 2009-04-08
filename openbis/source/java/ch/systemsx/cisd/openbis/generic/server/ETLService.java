@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentAttachmentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IWebService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -216,10 +216,10 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         HibernateUtils.initialize(experiment.getProperties());
         final List<ProcessingInstructionDTO> instructions =
                 new ArrayList<ProcessingInstructionDTO>();
-        final IExperimentAttachmentDAO experimentAttachmentDAO =
-                daoFactory.getExperimentAttachmentDAO();
+        final IAttachmentDAO experimentAttachmentDAO =
+                daoFactory.getAttachmentDAO();
         final List<AttachmentPE> attachments =
-                experimentAttachmentDAO.listExperimentAttachments(experiment);
+                experimentAttachmentDAO.listAttachments(experiment);
         for (final AttachmentPE attachment : attachments)
         {
             final String fileName = attachment.getFileName();
@@ -273,10 +273,10 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
             final String procedureTypeCode)
     {
         final String key = createKey(template, procedureTypeCode);
-        final IExperimentAttachmentDAO experimentAttachmentDAO =
-                daoFactory.getExperimentAttachmentDAO();
+        final IAttachmentDAO experimentAttachmentDAO =
+                daoFactory.getAttachmentDAO();
         final AttachmentPE attachment =
-                experimentAttachmentDAO.tryFindExpAttachmentByExpAndFileName(experiment, key);
+                experimentAttachmentDAO.tryFindAttachmentByOwnerAndFileName(experiment, key);
         if (attachment != null)
         {
             return attachment.getAttachmentContent().getValue();

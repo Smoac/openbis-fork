@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentAttachmentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
@@ -132,7 +132,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IEntityTypePropertyTypeBO entityTypePropertyTypeBO;
 
-    protected IExperimentAttachmentDAO experimentAttachmentDAO;
+    protected IAttachmentDAO experimentAttachmentDAO;
 
     protected IExternalDataBO externalDataBO;
 
@@ -154,7 +154,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         roleAssignmentDAO = context.mock(IRoleAssignmentDAO.class);
         externalDataDAO = context.mock(IExternalDataDAO.class);
         entityTypeDAO = context.mock(IEntityTypeDAO.class);
-        experimentAttachmentDAO = context.mock(IExperimentAttachmentDAO.class);
+        experimentAttachmentDAO = context.mock(IAttachmentDAO.class);
         projectDAO = context.mock(IProjectDAO.class);
         sampleTypeDAO = context.mock(ISampleTypeDAO.class);
         propertyTypeDAO = context.mock(IPropertyTypeDAO.class);
@@ -193,7 +193,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                     will(returnValue(sampleTypeDAO));
                     allowing(daoFactory).getExternalDataDAO();
                     will(returnValue(externalDataDAO));
-                    allowing(daoFactory).getExperimentAttachmentDAO();
+                    allowing(daoFactory).getAttachmentDAO();
                     will(returnValue(experimentAttachmentDAO));
                 }
             });

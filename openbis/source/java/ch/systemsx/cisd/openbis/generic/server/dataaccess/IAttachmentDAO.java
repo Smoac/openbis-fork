@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 
 /**
@@ -28,16 +28,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
  * 
  * @author Franz-Josef Elmer
  */
-public interface IExperimentAttachmentDAO
+public interface IAttachmentDAO
 {
     /**
      * Returns a list of the descriptions of all {@link AttachmentPE} object associated with the
-     * specified experiment. The result is detached from the hibernate session.
+     * specified {@link AttachmentHolderPE}. The result is detached from the hibernate session.
      * 
-     * @param experiment Technical ID of the experiment whose properties are requested.
+     * @param owner Technical ID of the {@link AttachmentHolderPE} whose properties are requested.
      */
-    public List<AttachmentPE> listExperimentAttachments(ExperimentPE experiment)
-            throws DataAccessException;
+    public List<AttachmentPE> listAttachments(AttachmentHolderPE owner) throws DataAccessException;
 
     /**
      * Creates a persistent version of the specified attachment. Registrator and version are not
@@ -46,27 +45,29 @@ public interface IExperimentAttachmentDAO
      * @param attachment The property to register.
      * @param owner Owner of the attachment. Should be a persistent object.
      */
-    public void createExperimentAttachment(AttachmentPE attachment, ExperimentPE owner)
+    public void createAttachment(AttachmentPE attachment, AttachmentHolderPE owner)
             throws DataAccessException;
 
     /**
-     * Finds the attachment requested by the specified experiment code and file name. If multiple
-     * versions of this attachment exist, this will always return the latest version.
+     * Finds the attachment requested by the specified {@link AttachmentHolderPE} code and file
+     * name. If multiple versions of this attachment exist, this will always return the latest
+     * version.
      * 
-     * @param experiment technical ID of the associated experiment.
+     * @param owner technical ID of the associated {@link AttachmentHolderPE}.
      * @return <code>null</code> if no attachment is found. The result is detached from the
      *         hibernate session.
      */
-    public AttachmentPE tryFindExpAttachmentByExpAndFileName(ExperimentPE experiment,
+    public AttachmentPE tryFindAttachmentByOwnerAndFileName(AttachmentHolderPE owner,
             String fileName) throws DataAccessException;
 
     /**
-     * Finds the attachment requested by the specified experiment code, file name and version.
+     * Finds the attachment requested by the specified {@link AttachmentHolderPE} code, file name
+     * and version.
      * 
-     * @param experiment technical ID of the associated experiment.
+     * @param owner technical ID of the associated {@link AttachmentHolderPE}.
      * @return <code>null</code> if no attachment is found. The result is detached from the
      *         hibernate session.
      */
-    public AttachmentPE tryFindExpAttachmentByExpAndFileNameAndVersion(ExperimentPE experiment,
+    public AttachmentPE tryFindAttachmentByOwnerAndFileNameAndVersion(AttachmentHolderPE owner,
             String fileName, int version) throws DataAccessException;
 }

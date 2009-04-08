@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentAttachmentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
@@ -168,9 +168,9 @@ abstract class AbstractBusinessObject implements IDAOFactory
         return daoFactory.getVocabularyDAO();
     }
 
-    public final IExperimentAttachmentDAO getExperimentAttachmentDAO()
+    public final IAttachmentDAO getAttachmentDAO()
     {
-        return daoFactory.getExperimentAttachmentDAO();
+        return daoFactory.getAttachmentDAO();
     }
 
     public IDataSetTypeDAO getDataSetTypeDAO()

@@ -20,7 +20,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -70,7 +69,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
-import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Persistence Entity representing experiment.
@@ -83,20 +81,14 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
         { ColumnNames.CODE_COLUMN, ColumnNames.PROJECT_COLUMN }) })
 @Indexed
 @Friend(toClasses = AttachmentPE.class)
-public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyPE>,
-        IIdAndCodeHolder, Comparable<ExperimentPE>, IMatchingEntity, Serializable
+public class ExperimentPE extends AttachmentHolderPE implements
+        IEntityPropertiesHolder<ExperimentPropertyPE>, IIdAndCodeHolder, Comparable<ExperimentPE>,
+        IMatchingEntity, Serializable
+
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
     public static final ExperimentPE[] EMPTY_ARRAY = new ExperimentPE[0];
-
-    public static final char HIDDEN_EXPERIMENT_PROPERTY_PREFIX_CHARACTER = '$';
-
-    public static final String HIDDEN_EXPERIMENT_PROPERTY_PREFIX =
-            Character.toString(HIDDEN_EXPERIMENT_PROPERTY_PREFIX_CHARACTER);
-
-    public static final String HIDDEN_EXPERIMENT_PROPERTY_PREFIX2 =
-            HIDDEN_EXPERIMENT_PROPERTY_PREFIX + HIDDEN_EXPERIMENT_PROPERTY_PREFIX;
 
     private transient Long id;
 
@@ -114,10 +106,6 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
 
     private DataStorePE dataStore;
 
-    private Set<AttachmentPE> attachments = new HashSet<AttachmentPE>();
-
-    private boolean attachmentsUnescaped = false;
-    
     private List<SamplePE> samples = new ArrayList<SamplePE>();
 
     private List<DataPE> dataSets = new ArrayList<DataPE>();
@@ -297,7 +285,8 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
         getExperimentProperties().add(property);
     }
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "parentInternal")
+    @Override
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "experimentParentInternal")
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_EXPERIMENT_ATTACHMENTS)
     @Private
     // for Hibernate and bean conversion only
@@ -306,55 +295,6 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
         return attachments;
     }
 
-    @Private
-    // for Hibernate and bean conversion only
-    public void setInternalAttachments(final Set<AttachmentPE> attachments)
-    {
-        this.attachments = attachments;
-    }
-
-    @Transient
-    public final Set<AttachmentPE> getAttachments()
-    {
-        final Set<AttachmentPE> set = new HashSet<AttachmentPE>(getInternalAttachments());
-        if (attachmentsUnescaped == false)
-        {
-            for (final Iterator<AttachmentPE> iter = set.iterator(); iter.hasNext(); /**/)
-            {
-                final AttachmentPE property = iter.next();
-                final boolean isHiddenFile = isHiddenFile(property.getFileName());
-                if (isHiddenFile)
-                {
-                    iter.remove();
-                }
-                unescapeFileName(property);
-            }
-            attachmentsUnescaped = true;
-        }
-        return set;
-    }
-
-    // Package visibility to avoid bean conversion which will call an uninitialized field.
-    final void setAttachments(final Set<AttachmentPE> attachments)
-    {
-        getInternalAttachments().clear();
-        for (final AttachmentPE attachment : attachments)
-        {
-            addAttachment(attachment);
-        }
-    }
-
-    public void addAttachment(final AttachmentPE child)
-    {
-        final ExperimentPE parent = child.getParentInternal();
-        if (parent != null)
-        {
-            parent.getInternalAttachments().remove(child);
-        }
-        child.setParentInternal(this);
-        getInternalAttachments().add(child);
-    }
-    
     @Transient
     public List<SamplePE> getSamples()
     {
@@ -375,7 +315,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     {
         this.samples = samples;
     }
-    
+
     public void setSamples(List<SamplePE> samples)
     {
         getExperimentSamples().clear();
@@ -384,7 +324,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
             addSample(sample);
         }
     }
-    
+
     public void addSample(SamplePE sample)
     {
         ExperimentPE experiment = sample.getExperiment();
@@ -526,33 +466,6 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
         return builder.toString();
     }
 
-    public final static void unescapeFileName(final AttachmentPE attachment)
-    {
-        if (attachment != null)
-        {
-            final String fileName = attachment.getFileName();
-            if (fileName != null && fileName.startsWith(HIDDEN_EXPERIMENT_PROPERTY_PREFIX2))
-            {
-                attachment.setFileName(fileName.substring(1));
-            }
-        }
-    }
-
-    public final static boolean isHiddenFile(final String fileName)
-    {
-        return fileName.startsWith(HIDDEN_EXPERIMENT_PROPERTY_PREFIX)
-                && (fileName.length() == 1 || fileName.charAt(1) != HIDDEN_EXPERIMENT_PROPERTY_PREFIX_CHARACTER);
-    }
-
-    public final static String escapeFileName(final String fileName)
-    {
-        if (fileName != null && fileName.startsWith(HIDDEN_EXPERIMENT_PROPERTY_PREFIX))
-        {
-            return HIDDEN_EXPERIMENT_PROPERTY_PREFIX + fileName;
-        }
-        return fileName;
-    }
-
     //
     // IMatchingEntity
     //
@@ -579,11 +492,6 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
         return EntityKind.EXPERIMENT;
     }
 
-    public void ensureAttachmentsLoaded()
-    {
-        HibernateUtils.initialize(getInternalAttachments());
-    }
-
     @Version
     @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
     public Date getModificationDate()
@@ -595,4 +503,12 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     {
         this.modificationDate = versionDate;
     }
+
+    @Override
+    @Transient
+    public String getHolderName()
+    {
+        return "experiment";
+    }
+
 }

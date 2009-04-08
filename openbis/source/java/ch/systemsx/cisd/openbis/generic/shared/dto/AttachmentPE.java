@@ -30,6 +30,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -59,8 +60,16 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
  */
 @Entity
 @Table(name = TableNames.ATTACHMENTS_TABLE, uniqueConstraints =
-    { @UniqueConstraint(columnNames =
-        { ColumnNames.EXPERIMENT_COLUMN, ColumnNames.FILE_NAME_COLUMN, ColumnNames.VERSION_COLUMN }) })
+    {
+            @UniqueConstraint(columnNames =
+                { ColumnNames.EXPERIMENT_COLUMN, ColumnNames.FILE_NAME_COLUMN,
+                        ColumnNames.VERSION_COLUMN }),
+            @UniqueConstraint(columnNames =
+                { ColumnNames.SAMPLE_COLUMN, ColumnNames.FILE_NAME_COLUMN,
+                        ColumnNames.VERSION_COLUMN }),
+            @UniqueConstraint(columnNames =
+                { ColumnNames.PROJECT_COLUMN, ColumnNames.FILE_NAME_COLUMN,
+                        ColumnNames.VERSION_COLUMN }) })
 @ClassBridge(impl = AttachmentPE.AttachmentSearchBridge.class, index = Index.TOKENIZED, store = Store.NO)
 public class AttachmentPE extends HibernateAbstractRegistrationHolder implements Serializable,
         Comparable<AttachmentPE>
@@ -80,7 +89,11 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
     /**
      * Parent (e.g. an experiment) to which this attachment belongs.
      */
-    private ExperimentPE parent;
+    private ExperimentPE experimentParent;
+
+    private SamplePE sampleParent;
+
+    private ProjectPE projectParent;
 
     /**
      * This bridge allows to save in the search index not only the content of the attachment, but
@@ -166,26 +179,25 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotNull(message = ValidationMessages.EXPERIMENT_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = false)
     @Private
     // for Hibernate and bean conversion only
     @ContainedIn
-    public ExperimentPE getParentInternal()
+    public ExperimentPE getExperimentParentInternal()
     {
-        return parent;
+        return experimentParent;
     }
 
     @Private
     // for Hibernate and bean conversion only
-    public void setParentInternal(final ExperimentPE parent)
+    public void setExperimentParentInternal(final ExperimentPE parent)
     {
-        this.parent = parent;
+        this.experimentParent = parent;
     }
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @NotNull(message = ValidationMessages.ATTACHMENT_CONTENT_NOT_NULL_MESSAGE)
-    @JoinColumn(name = ColumnNames.EXPERIMENT_ATTACHMENT_CONTENT_COLUMN, updatable = false)
+    @JoinColumn(name = ColumnNames.ATTACHMENT_CONTENT_COLUMN, updatable = false)
     public AttachmentContentPE getAttachmentContent()
     {
         return attachmentContent;
@@ -213,7 +225,7 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getFileName(), that.getFileName());
         builder.append(getVersion(), that.getVersion());
-        builder.append(getParentInternal(), that.getParentInternal());
+        builder.append(getParent(), that.getParent());
         return builder.isEquals();
     }
 
@@ -223,7 +235,7 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getFileName());
         builder.append(getVersion());
-        builder.append(getParentInternal());
+        builder.append(getParent());
         return builder.toHashCode();
     }
 
@@ -235,7 +247,7 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
                         ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
         builder.append("fileName", getFileName());
         builder.append("version", getVersion());
-        builder.append("parent", getParentInternal());
+        builder.append("parent", getParent());
         return builder.toString();
     }
 
@@ -247,6 +259,71 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
     {
         final int byFile = getFileName().compareTo(o.getFileName());
         return byFile == 0 ? Integer.valueOf(getVersion()).compareTo(o.getVersion()) : byFile;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = ColumnNames.SAMPLE_COLUMN, updatable = false)
+    @Private
+    // for Hibernate and bean conversion only
+    @ContainedIn
+    public SamplePE getSampleParentInternal()
+    {
+        return sampleParent;
+    }
+
+    @Private
+    // for Hibernate and bean conversion only
+    public void setSampleParentInternal(final SamplePE parent)
+    {
+        this.sampleParent = parent;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = ColumnNames.PROJECT_COLUMN, updatable = false)
+    @Private
+    // for Hibernate and bean conversion only
+    @ContainedIn
+    public ProjectPE getProjectParentInternal()
+    {
+        return projectParent;
+    }
+
+    @Private
+    // for Hibernate and bean conversion only
+    public void setProjectParentInternal(final ProjectPE parent)
+    {
+        this.projectParent = parent;
+    }
+
+    @Transient
+    public AttachmentHolderPE getParent()
+    {
+        if (getExperimentParentInternal() != null)
+        {
+            return getExperimentParentInternal();
+        } else if (getSampleParentInternal() != null)
+        {
+            return getSampleParentInternal();
+        } else if (getProjectParentInternal() != null)
+        {
+            return getProjectParentInternal();
+        }
+        return null;
+    }
+
+    public void setParent(AttachmentHolderPE owner)
+    {
+        if (owner instanceof ExperimentPE)
+        {
+            setExperimentParentInternal((ExperimentPE) owner);
+        } else if (owner instanceof SamplePE)
+        {
+            setSampleParentInternal((SamplePE) owner);
+        } else if (owner instanceof ProjectPE)
+        {
+            setProjectParentInternal((ProjectPE) owner);
+        }
+        throw new IllegalStateException("Unexpected attachment holder.");
     }
 
 }

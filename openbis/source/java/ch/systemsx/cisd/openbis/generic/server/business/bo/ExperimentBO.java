@@ -26,7 +26,7 @@ import org.springframework.dao.DataAccessException;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentAttachmentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
@@ -257,12 +257,12 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         }
         if (attachments.isEmpty() == false)
         {
-            final IExperimentAttachmentDAO experimentPropertyDAO = getExperimentAttachmentDAO();
+            final IAttachmentDAO experimentPropertyDAO = getAttachmentDAO();
             for (final AttachmentPE property : attachments)
             {
                 try
                 {
-                    experimentPropertyDAO.createExperimentAttachment(property, experiment);
+                    experimentPropertyDAO.createAttachment(property, experiment);
                 } catch (final DataAccessException e)
                 {
                     final String fileName = property.getFileName();

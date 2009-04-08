@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentAttachmentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
@@ -68,7 +68,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IVocabularyDAO vocabularyDAO;
 
-    private final IExperimentAttachmentDAO experimentAttachmentDAO;
+    private final IAttachmentDAO attachmentDAO;
 
     private final DataSetTypeDAO dataSetTypeDAO;
 
@@ -92,7 +92,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         experimentDAO = new ExperimentDAO(sessionFactory, databaseInstance);
         projectDAO = new ProjectDAO(sessionFactory, databaseInstance);
         vocabularyDAO = new VocabularyDAO(sessionFactory, databaseInstance);
-        experimentAttachmentDAO = new ExperimentAttachmentDAO(sessionFactory, databaseInstance);
+        attachmentDAO = new AttachmentDAO(sessionFactory, databaseInstance);
         dataSetTypeDAO = new DataSetTypeDAO(sessionFactory, databaseInstance);
         fileFormatTypeDAO = new FileFormatTypeDAO(sessionFactory, databaseInstance);
         locatorTypeDAO = new LocatorTypeDAO(sessionFactory, databaseInstance);
@@ -158,9 +158,9 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         return vocabularyDAO;
     }
 
-    public final IExperimentAttachmentDAO getExperimentAttachmentDAO()
+    public final IAttachmentDAO getAttachmentDAO()
     {
-        return experimentAttachmentDAO;
+        return attachmentDAO;
     }
 
     public IDataSetTypeDAO getDataSetTypeDAO()

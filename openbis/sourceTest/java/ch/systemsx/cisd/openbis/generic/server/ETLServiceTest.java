@@ -193,7 +193,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(experimentAttachmentDAO).listExperimentAttachments(experiment);
+                    one(experimentAttachmentDAO).listAttachments(experiment);
                     will(returnValue(Collections.emptyList()));
                 }
             });
@@ -217,7 +217,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(experimentAttachmentDAO).listExperimentAttachments(experiment);
+                    one(experimentAttachmentDAO).listAttachments(experiment);
                     AttachmentPE attachment1 = new AttachmentPE();
                     attachment1.setFileName("blabla");
                     String code = "pCode";
@@ -226,21 +226,21 @@ public class ETLServiceTest extends AbstractServerTestCase
                                     "myPath");
                     will(returnValue(Arrays.asList(attachment1, processingPath)));
                     
-                    one(experimentAttachmentDAO).tryFindExpAttachmentByExpAndFileName(experiment,
+                    one(experimentAttachmentDAO).tryFindAttachmentByOwnerAndFileName(experiment,
                             processingPath.getFileName());
                     will(returnValue(processingPath));
                     
                     AttachmentPE processingDescription =
                         createProcessingInstruction(ETLService.PROCESSING_DESCRIPTION_TEMPLATE,
                                 code, "myDescription");
-                    one(experimentAttachmentDAO).tryFindExpAttachmentByExpAndFileName(experiment,
+                    one(experimentAttachmentDAO).tryFindAttachmentByOwnerAndFileName(experiment,
                             processingDescription.getFileName());
                     will(returnValue(processingDescription));
                     
                     AttachmentPE processingParameters =
                         createProcessingInstruction(ETLService.PROCESSING_PARAMETERS_TEMPLATE,
                                 code, "myParameters");
-                    one(experimentAttachmentDAO).tryFindExpAttachmentByExpAndFileName(experiment,
+                    one(experimentAttachmentDAO).tryFindAttachmentByOwnerAndFileName(experiment,
                             processingParameters.getFileName());
                     will(returnValue(processingParameters));
                 }
