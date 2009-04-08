@@ -581,12 +581,21 @@ function find_dataset_dir {
 	for sharding1 in `ls $identified_dir`; do
 		sharding2=`get_single_subdirectory_path $identified_dir/$sharding1`
 		sharding3=`get_single_subdirectory_path $sharding2`
+		if [ `ls $sharding3 | wc -l` -eq 0 ]; then
+			# empty trash directory
+			continue
+		fi
 		dataset_dir=`get_single_subdirectory_path $sharding3`
 		if [ "$search_in_content" == "true" ]; then
+			if [ -d $dataset_dir/original ]; then
 				dir_to_search=`get_single_subdirectory_path $dataset_dir/original`
+			else
+				continue
+			fi
 		else
-				dir_to_search=$dataset_dir
+			dir_to_search=$dataset_dir
 		fi
+
 		without_suffix=${dir_to_search%$code_suffix}
 		if [ $dir_to_search != $without_suffix ]; then
 			echo $dir_to_search
