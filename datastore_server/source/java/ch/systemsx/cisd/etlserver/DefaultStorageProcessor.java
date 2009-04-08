@@ -26,23 +26,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
- * A default {@link IStorageProcessor} implementation.
+ * A default {@link IStorageProcessor} implementation. The data set is stored in subfolder
+ * {@link #ORIGINAL_DIR}.
  * 
  * @author Christian Ribeaud
  */
 public class DefaultStorageProcessor extends AbstractStorageProcessor
 {
+    static final String ORIGINAL_DIR = "original";
     static final String NO_RENAME = "Couldn't rename '%s' to '%s'.";
 
     public DefaultStorageProcessor(final Properties properties)
     {
         super(properties);
-    }
-
-    private final static File createTargetFile(final File incomingDataSetFile,
-            final File baseDirectory)
-    {
-        return new File(baseDirectory, incomingDataSetFile.getName());
     }
 
     //
@@ -55,7 +51,12 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
             final File incomingDataSetDirectory, final File rootDir)
     {
         checkParameters(incomingDataSetDirectory, rootDir);
-        final File targetFile = createTargetFile(incomingDataSetDirectory, rootDir);
+        File originalDir = new File(rootDir, ORIGINAL_DIR);
+        if (originalDir.mkdir() == false)
+        {
+            throw new EnvironmentFailureException("Couldn't create " + originalDir.getAbsolutePath());
+        }
+        final File targetFile = new File(originalDir, incomingDataSetDirectory.getName());
         if (FileRenamer.renameAndLog(incomingDataSetDirectory, targetFile) == false)
         {
             throw new EnvironmentFailureException(String.format(NO_RENAME,
@@ -68,11 +69,12 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
             final File storedDataDirectory)
     {
         checkParameters(incomingDataSetDirectory, storedDataDirectory);
-        // Note that this will move back <code>targetPath</code> to its original place but the
+        File targetFile = new File(new File(storedDataDirectory, ORIGINAL_DIR),
+                incomingDataSetDirectory.getName());
+        // Note that this will move back <code>targetFilePath</code> to its original place but the
         // directory structure will persist. Right now, we consider this is fine as these empty
         // directories will not disturb the running application.
-        FileRenamer.renameAndLog(createTargetFile(incomingDataSetDirectory, storedDataDirectory),
-                incomingDataSetDirectory);
+        FileRenamer.renameAndLog(targetFile, incomingDataSetDirectory);
     }
 
     public final StorageFormat getStorageFormat()
