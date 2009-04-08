@@ -20,6 +20,8 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
+import net.sf.beanlib.hibernate3.Hibernate3SequenceGenerator;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
@@ -104,8 +106,8 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     /**
      * Casts given <var>list</var> to specified type.
      * <p>
-     * The purpose of this method is to avoid <code>SuppressWarnings("unchecked")</code> in
-     * calling methods.
+     * The purpose of this method is to avoid <code>SuppressWarnings("unchecked")</code> in calling
+     * methods.
      * </p>
      */
     @SuppressWarnings("unchecked")
@@ -117,8 +119,8 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     /**
      * Ensures that given {@link List} contains one and only one entity.
      * 
-     * @throws EmptyResultDataAccessException if given <var>entities</var> are <code>null</code>
-     *             or empty.
+     * @throws EmptyResultDataAccessException if given <var>entities</var> are <code>null</code> or
+     *             empty.
      * @throws IncorrectResultSizeDataAccessException if more than one entity is found in given
      *             {@link List}.
      */
@@ -218,4 +220,10 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     {
         return objects;
     }
+
+    protected final long getNextSequenceId(String sequenceName)
+    {
+        return Hibernate3SequenceGenerator.nextval(sequenceName, getSession(true));
+    }
+
 }

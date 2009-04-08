@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.util.Date;
 import java.util.List;
 
-import net.sf.beanlib.hibernate3.Hibernate3SequenceGenerator;
-
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
@@ -54,13 +52,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
 {
     private static final String EXTERNAL_DATA_UPDATE_TEMPLATE =
-        "insert into %s (data_id, location, loty_id, ffty_id, is_complete, cvte_id_stor_fmt) "
-        + "values (%d, '%s', %d, %d, '%c', %d)";
-    
+            "insert into %s (data_id, location, loty_id, ffty_id, is_complete, cvte_id_stor_fmt) "
+                    + "values (%d, '%s', %d, %d, '%c', %d)";
+
     private final static String DATA_CODE_DATE_FORMAT_PATTERN = "yyyyMMddHHmmssSSS";
-    
+
     private final static Class<ExternalDataPE> ENTITY_CLASS = ExternalDataPE.class;
-    
+
     private final static Class<DataPE> ENTITY_SUPER_CLASS = DataPE.class;
 
     private static final Logger operationLog =
@@ -85,8 +83,8 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
 
         final List<ExternalDataPE> list =
                 cast(getHibernateTemplate().find(
-                        String.format("from %s e where e.%s = ? and e.deleted = false", TABLE_NAME, sourceType
-                                .getFieldName()), toArray(sample)));
+                        String.format("from %s e where e.%s = ? and e.deleted = false", TABLE_NAME,
+                                sourceType.getFieldName()), toArray(sample)));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
@@ -134,8 +132,7 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
 
     public String createDataSetCode()
     {
-        long id =
-                Hibernate3SequenceGenerator.nextval(SequenceNames.DATA_SEQUENCE, getSession(true));
+        long id = getNextSequenceId(SequenceNames.DATA_SEQUENCE);
         return DateFormatUtils.format(new Date(), DATA_CODE_DATE_FORMAT_PATTERN) + "-"
                 + Long.toString(id);
     }
@@ -143,7 +140,7 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
     public void createDataSet(DataPE dataset)
     {
         assert dataset != null : "Unspecified data set.";
-        
+
         dataset.setCode(CodeConverter.tryToDatabase(dataset.getCode()));
         final HibernateTemplate template = getHibernateTemplate();
         template.save(dataset);
@@ -168,10 +165,8 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
         if (loaded instanceof ExternalDataPE == false)
         {
             String location = externalData.getLocation();
-            Long locatorTypeID = externalData
-                    .getLocatorType().getId();
-            Long fileFormatTypeID = externalData.getFileFormatType()
-                    .getId();
+            Long locatorTypeID = externalData.getLocatorType().getId();
+            Long fileFormatTypeID = externalData.getFileFormatType().getId();
             char complete = externalData.getComplete().name().charAt(0);
             Long storageFormatTermID = externalData.getStorageFormatVocabularyTerm().getId();
             final String sql =
@@ -189,10 +184,11 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
         }
     }
 
-    public void markAsDeleted(ExternalDataPE dataSet, PersonPE registrator, String description, String reason)
+    public void markAsDeleted(ExternalDataPE dataSet, PersonPE registrator, String description,
+            String reason)
     {
         assert dataSet != null : "Unspecified data set.";
-        
+
         dataSet.setDeleted(true);
         EventPE event = new EventPE();
         event.setEventType(EventType.DELETION);

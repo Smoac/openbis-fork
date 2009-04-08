@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ICodeSequenceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -87,5 +88,8 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
      * Returns the {@link IMaterialDAO} implementation.
      */
     public IMaterialDAO getMaterialDAO();
+
+    /** Returns an implementation of {@link ICodeSequenceDAO} */
+    public ICodeSequenceDAO getCodeSequenceDAO();
 
 }

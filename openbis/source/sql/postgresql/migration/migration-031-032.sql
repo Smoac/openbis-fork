@@ -57,6 +57,12 @@ DROP TABLE procedure_types;
 DROP SEQUENCE procedure_id_seq;
 DROP SEQUENCE procedure_type_id_seq;
 
+-- -------
+-- Add CODE_SEQ
+-- -------
+
+CREATE SEQUENCE CODE_SEQ;
+
 ------------------------------------------------------------------------------------
 --  Purpose:  Replace trigger SAMPLE_CODE_UNIQUENESS_CHECK 
 ------------------------------------------------------------------------------------

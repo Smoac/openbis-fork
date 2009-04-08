@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ICodeSequenceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -75,6 +76,17 @@ abstract class AbstractBusinessObject implements IDAOFactory
             final String subject) throws UserFailureException
     {
         DataAccessExceptionTranslator.throwException(exception, subject);
+    }
+
+    /**
+     * @return Generated code for given <var>entityKind</var>. The code has a prefix that depends on
+     *         <var>entityKind</var> and a sufix witch is a unique number.
+     */
+    protected String createCode(EntityKind entityKind)
+    {
+        final long id = getCodeSequenceDAO().getNextCodeSequenceId();
+        final String code = String.valueOf(entityKind.name().charAt(0)) + id;
+        return code;
     }
 
     //
@@ -179,5 +191,10 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public IMaterialDAO getMaterialDAO()
     {
         return daoFactory.getMaterialDAO();
+    }
+
+    public ICodeSequenceDAO getCodeSequenceDAO()
+    {
+        return daoFactory.getCodeSequenceDAO();
     }
 }

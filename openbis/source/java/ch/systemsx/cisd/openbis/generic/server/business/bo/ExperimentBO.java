@@ -336,4 +336,9 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                 properties, registrator));
     }
 
+    public void setGeneratedCode()
+    {
+        final String code = createCode(EntityKind.EXPERIMENT);
+        experiment.setCode(code);
+    }
 }

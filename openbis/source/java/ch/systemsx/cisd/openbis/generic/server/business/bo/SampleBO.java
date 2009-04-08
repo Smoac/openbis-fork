@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * The unique {@link ISampleBO} implementation.
@@ -297,5 +298,11 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         final PersonPE registrator = findRegistrator();
         sample.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
                 properties, registrator));
+    }
+
+    public void setGeneratedCode()
+    {
+        final String code = createCode(EntityKind.SAMPLE);
+        sample.setCode(code);
     }
 }

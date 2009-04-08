@@ -78,6 +78,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IMaterialDAO materialDAO;
 
+    private final ICodeSequenceDAO codeSequenceDAO;
+
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory)
     {
@@ -95,6 +97,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         fileFormatTypeDAO = new FileFormatTypeDAO(sessionFactory, databaseInstance);
         locatorTypeDAO = new LocatorTypeDAO(sessionFactory, databaseInstance);
         materialDAO = new MaterialDAO(sessionFactory, databaseInstance);
+        codeSequenceDAO = new CodeSequenceDAO(sessionFactory, databaseInstance);
         final EntityKind[] entityKinds = EntityKind.values();
         for (final EntityKind entityKind : entityKinds)
         {
@@ -178,5 +181,10 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public IMaterialDAO getMaterialDAO()
     {
         return materialDAO;
+    }
+
+    public ICodeSequenceDAO getCodeSequenceDAO()
+    {
+        return codeSequenceDAO;
     }
 }
