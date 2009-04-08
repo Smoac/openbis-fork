@@ -28,6 +28,7 @@ import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -347,8 +348,7 @@ public final class ETLDaemon
                 createDirectoryScanningHandler(pathHandler, highwaterMarkWatcher,
                         incomingDataDirectory, storeRootDir, processorFactories.values());
         final DirectoryScanningTimerTask dataMonitorTask =
-                new DirectoryScanningTimerTask(incomingDataDirectory, FileFilterUtils
-                        .prefixFileFilter(Constants.IS_FINISHED_PREFIX), pathHandler,
+                createDirectoryScanningTimerTask(incomingDataDirectory, pathHandler,
                         directoryScanningHandler);
         selfTest(incomingDataDirectory, authorizedLimsService, pathHandler);
         final String timerThreadName =
@@ -357,6 +357,15 @@ public final class ETLDaemon
         workerTimer.schedule(dataMonitorTask, 0L, parameters.getCheckIntervalMillis());
         addShutdownHookForCleanup(workerTimer, pathHandler, parameters.getShutdownTimeOutMillis(),
                 threadParameters.getThreadName());
+    }
+
+    private static DirectoryScanningTimerTask createDirectoryScanningTimerTask(
+            final File incomingDataDirectory, final TransferredDataSetHandler pathHandler,
+            final HighwaterMarkDirectoryScanningHandler directoryScanningHandler)
+    {
+        IOFileFilter filter = FileFilterUtils.prefixFileFilter(Constants.IS_FINISHED_PREFIX);
+        return new DirectoryScanningTimerTask(incomingDataDirectory, filter, pathHandler,
+                directoryScanningHandler);
     }
 
     private static void addShutdownHookForCleanup(final Timer workerTimer,

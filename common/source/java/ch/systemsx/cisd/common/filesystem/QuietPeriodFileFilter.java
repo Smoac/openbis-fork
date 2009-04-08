@@ -79,24 +79,6 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
 
     private int callCounter;
 
-    public interface ILastModificationChecker
-    {
-        /**
-         * Returns the last time when there was a write access to <var>item</var>.
-         * 
-         * @param item The {@link StoreItem} to check.
-         * @param stopWhenFindYounger The time measured from the beginning of the epoch. If &gt; 0,
-         *            the recursive search for younger file will be stopped when a file or directory
-         *            is found that is younger than the time specified in this parameter. Supposed
-         *            to be used when one does not care about the absolutely youngest entry, but
-         *            only, if there are entries that are "young enough".
-         * @return The time (in milliseconds since the start of the epoch) when <var>resource</var>
-         *         was last changed or error status if checking failed.
-         */
-        public StatusWithResult<Long> lastChanged(StoreItem item, long stopWhenFindYounger);
-
-    }
-
     /**
      * A value object that holds the information about the last check performed for a path.
      */
