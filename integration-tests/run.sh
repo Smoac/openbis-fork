@@ -359,9 +359,9 @@ function assert_same_inode {
 function assert_dir_exists {
     local DIR=$1
     if [ ! -d "$DIR" ]; then
-	report_error Directory $DIR does not exist!  
+	report_error Directory \"$DIR\" does not exist!  
     else
-	echo [OK] Directory $DIR exists
+	echo [OK] Directory \"$DIR\" exists
     fi
 }
 
@@ -558,7 +558,14 @@ function launch_tests {
 # assumes that parent has exactly one subdirectory, echos its full path
 function get_single_subdirectory_path {
 	local parent_dir=$1
-	echo $parent_dir/`ls -1 $parent_dir | head -1`
+	
+	local count=`ls -1 $parent_dir | wc -l`
+	if [ ! $count -eq 1 ]; then
+		report_error "Directory $parent_dir should contain exactly one subdirectory, but it has $count subdirectories."
+		echo "ERROR_INCORRECT_NUMBER_OF_CHILDREN"
+	else
+		echo $parent_dir/`ls -1 $parent_dir | head -1`
+	fi
 }
 
 # Finds a dataset directory which has a given sufix in dataset code and returns its name. 
@@ -586,6 +593,7 @@ function find_dataset_dir {
 			return
 		fi
 	done
+	report_error "Could not find any dataset inside $identified_dir which would contain $code_suffix as a suffix"
 }
 
 function find_dataset_dir_in_store {
