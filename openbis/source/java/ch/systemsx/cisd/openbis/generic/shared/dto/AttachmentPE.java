@@ -322,8 +322,10 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
         } else if (owner instanceof ProjectPE)
         {
             setProjectParentInternal((ProjectPE) owner);
+        } else
+        {
+            throw new IllegalStateException("Unexpected attachment holder.");
         }
-        throw new IllegalStateException("Unexpected attachment holder.");
     }
 
 }
