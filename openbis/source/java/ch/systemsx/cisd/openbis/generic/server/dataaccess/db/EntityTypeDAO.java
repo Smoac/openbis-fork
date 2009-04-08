@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 final class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEntityTypeDAO
 {
     private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, MaterialDAO.class);
+            LogFactory.getLogger(LogCategory.OPERATION, EntityTypeDAO.class);
 
     private final EntityKind entityKind;
 
@@ -102,4 +102,5 @@ final class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEnti
             operationLog.info(String.format("ADD: entity type '%s'.", entityType));
         }
     }
+
 }
