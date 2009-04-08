@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 
 import org.hamcrest.BaseMatcher;
@@ -27,10 +28,11 @@ import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
@@ -46,7 +48,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
 
@@ -105,7 +106,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         sample.setExperiment(experimentPE);
         prepareDefine(dataSetType, fileFormatType, vocabulary, locatorType);
 
-        IExternalDataBO sampleBO = createSampleBO();
+        IExternalDataBO sampleBO = createExternalDataBO();
         sampleBO.define(createData(null), sample, SourceType.DERIVED);
         ExternalDataPE externalData = sampleBO.getExternalData();
 
@@ -150,7 +151,7 @@ public class ExternalDataBOTest extends AbstractBOTest
                 }
             });
 
-        IExternalDataBO sampleBO = createSampleBO();
+        IExternalDataBO sampleBO = createExternalDataBO();
         sampleBO.define(createData(PARENT_CODE), sample, SourceType.MEASUREMENT);
         ExternalDataPE externalData = sampleBO.getExternalData();
 
@@ -195,7 +196,7 @@ public class ExternalDataBOTest extends AbstractBOTest
                 }
             });
 
-        IExternalDataBO sampleBO = createSampleBO();
+        IExternalDataBO sampleBO = createExternalDataBO();
         sampleBO.define(createData(PARENT_CODE), sample, SourceType.MEASUREMENT);
         ExternalDataPE externalData = sampleBO.getExternalData();
 
@@ -209,7 +210,7 @@ public class ExternalDataBOTest extends AbstractBOTest
     @Test
     public void testDefineWithNonExistingParentDataSetAndNonExsitingExperiment()
     {
-        final DataSetTypePE dataSetType = new DataSetTypePE();
+        final DataSetTypePE dataSetType = createDataSetType();
         final FileFormatTypePE fileFormatType = new FileFormatTypePE();
         final VocabularyPE vocabulary = new VocabularyPE();
         vocabulary.addTerm(new VocabularyTermPE());
@@ -217,14 +218,14 @@ public class ExternalDataBOTest extends AbstractBOTest
         vocabularyTerm.setCode(StorageFormat.PROPRIETARY.toString());
         vocabulary.addTerm(vocabularyTerm);
         final LocatorTypePE locatorType = new LocatorTypePE();
-        final SamplePE sample = new SamplePE();
+        final SamplePE data = new SamplePE();
         prepareDefine(dataSetType, fileFormatType, vocabulary, locatorType);
         final DataSetTypePE dataSetTypeUnknown = new DataSetTypePE();
         final DataPE parentData = new DataPE();
         parentData.setCode(PARENT_CODE);
         parentData.setDataSetType(dataSetTypeUnknown);
         parentData.setExperiment(createExperiment());
-        parentData.setSampleDerivedFrom(sample);
+        parentData.setSampleDerivedFrom(data);
         parentData.setPlaceholder(true);
         context.checking(new Expectations()
             {
@@ -240,11 +241,11 @@ public class ExternalDataBOTest extends AbstractBOTest
                 }
             });
 
-        IExternalDataBO sampleBO = createSampleBO();
-        sampleBO.define(createData(PARENT_CODE), sample, SourceType.MEASUREMENT);
-        ExternalDataPE externalData = sampleBO.getExternalData();
+        IExternalDataBO bo = createExternalDataBO();
+        bo.define(createData(PARENT_CODE), data, SourceType.MEASUREMENT);
+        ExternalDataPE externalData = bo.getExternalData();
 
-        assertSame(sample, externalData.getSampleAcquiredFrom());
+        assertSame(data, externalData.getSampleAcquiredFrom());
         assertSame(null, externalData.getSampleDerivedFrom());
         assertEquals(1, externalData.getParents().size());
         assertEquals(parentData, externalData.getParents().iterator().next());
@@ -273,15 +274,11 @@ public class ExternalDataBOTest extends AbstractBOTest
 
                     one(externalDataDAO).createDataSet(with(new DataMatcher()));
 
-                    one(daoFactory).getEntityPropertyTypeDAO(EntityKind.DATA_SET);
-                    will(returnValue(entityPropertyTypeDAO));
-
-                    one(entityPropertyTypeDAO).listEntityPropertyTypes(dataSetType);
-                    will(returnValue(new ArrayList<DataSetTypePropertyTypePE>()));
+                    expectMandatoryPropertiesCheck(this, dataSetType);
                 }
             });
 
-        IExternalDataBO sampleBO = createSampleBO();
+        IExternalDataBO sampleBO = createExternalDataBO();
         sampleBO.define(createData(null), sample, SourceType.DERIVED);
         sampleBO.save();
 
@@ -313,15 +310,12 @@ public class ExternalDataBOTest extends AbstractBOTest
 
                     one(externalDataDAO).updateDataSet(with(new DataMatcher()));
 
-                    one(daoFactory).getEntityPropertyTypeDAO(EntityKind.DATA_SET);
-                    will(returnValue(entityPropertyTypeDAO));
-
-                    one(entityPropertyTypeDAO).listEntityPropertyTypes(dataSetType);
-                    will(returnValue(new ArrayList<DataSetTypePropertyTypePE>()));
+                    expectMandatoryPropertiesCheck(this, dataSetType);
                 }
+
             });
 
-        IExternalDataBO sampleBO = createSampleBO();
+        IExternalDataBO sampleBO = createExternalDataBO();
         sampleBO.define(createData(null), sample, SourceType.DERIVED);
         sampleBO.save();
 
@@ -330,6 +324,13 @@ public class ExternalDataBOTest extends AbstractBOTest
         assertEquals(4711, externalData.getId().longValue());
         assertEquals(null, externalData.getSampleDerivedFrom());
         context.assertIsSatisfied();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void expectMandatoryPropertiesCheck(Expectations exp, final DataSetTypePE type)
+    {
+        exp.one(propertiesConverter).checkMandatoryProperties(
+                exp.with(Expectations.any(Collection.class)), exp.with(type));
     }
 
     private DataSetTypePE createDataSetType()
@@ -372,6 +373,11 @@ public class ExternalDataBOTest extends AbstractBOTest
                     will(returnValue(vocabulary));
                     one(locatorTypeDAO).tryToFindLocatorTypeByCode(LOCATOR_TYPE.getCode());
                     will(returnValue(locatorType));
+
+                    one(propertiesConverter).convertProperties(new DataSetProperty[0],
+                            dataSetType.getCode(), EXAMPLE_SESSION.tryGetPerson());
+                    ArrayList<DataSetPropertyPE> properties = new ArrayList<DataSetPropertyPE>();
+                    will(returnValue(properties));
                 }
             });
     }
@@ -392,9 +398,9 @@ public class ExternalDataBOTest extends AbstractBOTest
         return data;
     }
 
-    private final IExternalDataBO createSampleBO()
+    private final IExternalDataBO createExternalDataBO()
     {
-        return new ExternalDataBO(daoFactory, EXAMPLE_SESSION);
+        return new ExternalDataBO(daoFactory, EXAMPLE_SESSION, propertiesConverter);
     }
 
 }

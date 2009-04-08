@@ -27,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
@@ -65,7 +64,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
     }
 
     public ExternalDataBO(IDAOFactory daoFactory, Session session,
-            EntityPropertiesConverter entityPropertiesConverter)
+            IEntityPropertiesConverter entityPropertiesConverter)
     {
         super(daoFactory, session);
         this.entityPropertiesConverter = entityPropertiesConverter;
@@ -116,7 +115,8 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
                 .getStorageFormat()));
         externalData.setLocatorType(getLocatorTypeDAO().tryToFindLocatorTypeByCode(
                 locatorType.getCode()));
-        defineDataSetProperties(externalData, data.getDataSetProperties());
+        defineDataSetProperties(externalData, convertToDataSetProperties(data
+                .getDataSetProperties()));
 
         final String parentDataSetCode = data.getParentDataSetCode();
         if (parentDataSetCode != null)
@@ -217,23 +217,19 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
     }
 
     private final void defineDataSetProperties(final ExternalDataPE data,
-            final List<NewProperty> list)
+            final DataSetProperty[] newProperties)
     {
-        if (list.size() == 0)
-        {
-            return;
-        }
         final String dataSetTypeCode = data.getDataSetType().getCode();
         final List<DataSetPropertyPE> properties =
-                entityPropertiesConverter.convertProperties(convertToDataSetProperties(list),
-                        dataSetTypeCode, findRegistrator());
+                entityPropertiesConverter.convertProperties(newProperties, dataSetTypeCode,
+                        findRegistrator());
         for (final DataSetPropertyPE property : properties)
         {
             data.addProperty(property);
         }
     }
 
-    private EntityProperty<?, ?>[] convertToDataSetProperties(List<NewProperty> list)
+    private static DataSetProperty[] convertToDataSetProperties(List<NewProperty> list)
     {
         DataSetProperty[] result = new DataSetProperty[list.size()];
         for (int i = 0; i < list.size(); i++)
@@ -243,7 +239,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         return result;
     }
 
-    private DataSetProperty convertProperty(NewProperty newProperty)
+    private static DataSetProperty convertProperty(NewProperty newProperty)
     {
         DataSetProperty result = new DataSetProperty();
         result.setValue(newProperty.getValue());
