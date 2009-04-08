@@ -583,7 +583,7 @@ function find_dataset_dir {
 		sharding3=`get_single_subdirectory_path $sharding2`
 		dataset_dir=`get_single_subdirectory_path $sharding3`
 		if [ "$search_in_content" == "true" ]; then
-				dir_to_search=`get_single_subdirectory_path $dataset_dir`
+				dir_to_search=`get_single_subdirectory_path $dataset_dir/original`
 		else
 				dir_to_search=$dataset_dir
 		fi
