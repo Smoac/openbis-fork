@@ -56,6 +56,10 @@ public final class DataStorePE extends AbstractIdAndCodeHolder<DataStorePE>
     private Date registrationDate;
 
     private String downloadUrl;
+    
+    private String remoteUrl;
+    
+    private String sessionToken;
 
     public final void setId(final Long id)
     {
@@ -77,6 +81,30 @@ public final class DataStorePE extends AbstractIdAndCodeHolder<DataStorePE>
     public final void setDownloadUrl(final String downloadUrl)
     {
         this.downloadUrl = downloadUrl;
+    }
+
+    @Column(name = ColumnNames.REMOTE_URL_COLUMN, updatable = true)
+    @NotNull(message = ValidationMessages.REMOTE_URL_NOT_NULL_MESSAGE)
+    public final String getRemoteUrl()
+    {
+        return remoteUrl;
+    }
+
+    public final void setRemoteUrl(String remoteUrl)
+    {
+        this.remoteUrl = remoteUrl;
+    }
+
+    @Column(name = ColumnNames.SESSION_TOKEN_COLUMN, updatable = true)
+    @NotNull(message = ValidationMessages.SESSION_TOKEN_NOT_NULL_MESSAGE)
+    public final String getSessionToken()
+    {
+        return sessionToken;
+    }
+
+    public final void setSessionToken(String sessionToken)
+    {
+        this.sessionToken = sessionToken;
     }
 
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)

@@ -50,6 +50,10 @@ public final class ColumnNames {
 	public static final String DESCRIPTION_COLUMN = "description";
 
 	public static final String DOWNLOAD_URL_COLUMN = "download_url";
+	
+	public static final String REMOTE_URL_COLUMN = "remote_url";
+	
+	public static final String SESSION_TOKEN_COLUMN = "session_token";
 
 	public static final String ATTACHMENT_CONTENT_COLUMN = "exac_id";
 

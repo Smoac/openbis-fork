@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
@@ -101,6 +102,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         externalData.setComplete(BooleanOrUnknown.U);
         externalData.setStorageFormatVocabularyTerm(pickAStorageFormatVocabularyTerm());
         externalData.setPlaceholder(true);
+        externalData.setDataStore(pickADataStore());
         daoFactory.getExternalDataDAO().createDataSet(externalData);
 
         ExternalDataPE dataSet = (ExternalDataPE) externalDataDAO.tryToFindDataSetByCode(dataSetCode);
@@ -126,6 +128,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         data.setExperiment(pickAnExperiment());
         data.setSampleDerivedFrom(pickASample());
         data.setPlaceholder(true);
+        data.setDataStore(pickADataStore());
         externalDataDAO.createDataSet(data);
 
         ExternalDataPE externalData = new ExternalDataPE();
@@ -207,6 +210,11 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         SamplePE sample = sampleDAO.tryFindByCodeAndDatabaseInstance("MP", dbInstance, HierarchyType.CHILD);
         assertNotNull(sample);
         return sample;
+    }
+    
+    protected DataStorePE pickADataStore()
+    {
+        return daoFactory.getExternalDataDAO().tryToFindDataSetByCode("20081105092158673-1").getDataStore();
     }
 
     protected DataSetTypePE getDataSetType(DataSetTypeCode type)

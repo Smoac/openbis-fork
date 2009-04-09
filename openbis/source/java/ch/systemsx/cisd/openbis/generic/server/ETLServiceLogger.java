@@ -18,14 +18,12 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -86,14 +84,6 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
 
     public void closeSession(String sessionToken) throws UserFailureException
     {
-    }
-
-    public DataStorePE getDataStore(String sessionToken, ExperimentIdentifier experimentIdentifier,
-            String dataSetTypeCode) throws UserFailureException
-    {
-        logAccess(sessionToken, "get_data_store", "EXPERIMENT(%s) DATA_SET(%s)",
-                experimentIdentifier, dataSetTypeCode);
-        return null;
     }
 
     public ExternalDataPE tryGetDataSet(String sessionToken, String dataSetCode)

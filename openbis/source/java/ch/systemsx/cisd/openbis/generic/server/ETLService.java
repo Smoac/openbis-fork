@@ -22,8 +22,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -33,15 +31,13 @@ import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.DataStoreServerSessionManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IWebService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -52,8 +48,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedGroupException;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -305,61 +299,6 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         }
         HibernateUtils.initialize(top.getProperties());
         return top.getProperties().toArray(new SamplePropertyPE[0]);
-    }
-
-    public DataStorePE getDataStore(String sessionToken, ExperimentIdentifier experimentIdentifier,
-            String dataSetTypeCode) throws UserFailureException
-    {
-        assert sessionToken != null : "Unspecified session token.";
-        assert experimentIdentifier != null : "Unspecified experiment identifier.";
-
-        final Session session = sessionManager.getSession(sessionToken);
-        makeSureGroupCodeIsFilled(session, experimentIdentifier);
-        final IExperimentBO experimentBO = boFactory.createExperimentBO(session);
-        experimentBO.loadByExperimentIdentifier(experimentIdentifier);
-        ExperimentPE experiment = experimentBO.getExperiment();
-        DataStorePE result;
-        DataStorePE experimentDataStore = experiment.getDataStore();
-        if (experimentDataStore != null)
-        {
-            result = experimentDataStore;
-        } else
-        {
-            DataStorePE projectDataStore = experiment.getProject().getDataStore();
-            if (projectDataStore != null)
-            {
-                result = projectDataStore;
-            } else
-            {
-                DataStorePE groupDataStore = experiment.getProject().getGroup().getDataStore();
-                if (groupDataStore != null)
-                {
-                    result = groupDataStore;
-                } else
-                {
-                    DataStorePE databaseDataStore =
-                            experiment.getProject().getGroup().getDatabaseInstance().getDataStore();
-                    result = databaseDataStore;
-                }
-            }
-        }
-        return result;
-    }
-
-    private void makeSureGroupCodeIsFilled(final Session session,
-            ExperimentIdentifier experimentIdentifier)
-    {
-        if (experimentIdentifier.getGroupCode() == null)
-        {
-            final String homeGroupCode = session.tryGetHomeGroupCode();
-            if (StringUtils.isBlank(homeGroupCode))
-            {
-                throw new UndefinedGroupException();
-            } else
-            {
-                experimentIdentifier.setGroupCode(homeGroupCode);
-            }
-        }
     }
 
     public void registerDataSet(String sessionToken, SampleIdentifier sampleIdentifier,

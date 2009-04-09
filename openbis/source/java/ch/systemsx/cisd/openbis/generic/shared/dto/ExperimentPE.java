@@ -104,8 +104,6 @@ public class ExperimentPE extends AttachmentHolderPE implements
 
     private Set<ExperimentPropertyPE> properties = new HashSet<ExperimentPropertyPE>();
 
-    private DataStorePE dataStore;
-
     private List<SamplePE> samples = new ArrayList<SamplePE>();
 
     private List<DataPE> dataSets = new ArrayList<DataPE>();
@@ -397,18 +395,6 @@ public class ExperimentPE extends AttachmentHolderPE implements
     public void setLastDataSetDate(final Date lastDataSetDate)
     {
         this.lastDataSetDate = lastDataSetDate;
-    }
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.DATA_STORE_COLUMN)
-    public DataStorePE getDataStore()
-    {
-        return dataStore;
-    }
-
-    public void setDataStore(final DataStorePE dataStore)
-    {
-        this.dataStore = dataStore;
     }
 
     //

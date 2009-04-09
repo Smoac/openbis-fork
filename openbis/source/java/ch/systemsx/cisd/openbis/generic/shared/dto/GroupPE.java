@@ -76,20 +76,6 @@ public final class GroupPE extends HibernateAbstractRegistrationHolder implement
     // null if unknown
     private Boolean home;
 
-    private DataStorePE dataStore;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.DATA_STORE_COLUMN, updatable = false)
-    public final DataStorePE getDataStore()
-    {
-        return dataStore;
-    }
-
-    public final void setDataStore(final DataStorePE dataStorePE)
-    {
-        this.dataStore = dataStorePE;
-    }
-
     public final void setCode(final String code)
     {
         this.code = code;

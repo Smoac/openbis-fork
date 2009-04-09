@@ -83,8 +83,6 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     /** The number of experiments this project contains. */
     private int size;
 
-    private DataStorePE dataStore;
-
     private PersonPE registrator;
 
     private Date registrationDate;
@@ -111,18 +109,6 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     public void setRegistrator(final PersonPE registrator)
     {
         this.registrator = registrator;
-    }
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.DATA_STORE_COLUMN, updatable = false)
-    public final DataStorePE getDataStore()
-    {
-        return dataStore;
-    }
-
-    public final void setDataStore(final DataStorePE dataStorePE)
-    {
-        this.dataStore = dataStorePE;
     }
 
     public final void setCode(final String code)

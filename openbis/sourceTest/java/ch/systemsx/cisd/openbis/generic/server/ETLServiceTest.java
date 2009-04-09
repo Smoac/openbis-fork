@@ -36,23 +36,16 @@ import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerSession;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedGroupException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -327,101 +320,6 @@ public class ETLServiceTest extends AbstractServerTestCase
     }
     
     @Test
-    public void testGetDataStoreFromExperiment()
-    {
-        ExperimentIdentifier experimentIdentifier =
-                new ExperimentIdentifier(new ProjectIdentifier("g1", "p1"), "exp1");
-        ExperimentPE experiment = new ExperimentPE();
-        DataStorePE expectedDataStore = new DataStorePE();
-        experiment.setDataStore(expectedDataStore);
-        prepareLoadExperiment(experimentIdentifier, experiment);
-        
-        DataStorePE dataStore = createService().getDataStore(SESSION_TOKEN, experimentIdentifier, null);
-        
-        assertSame(expectedDataStore, dataStore);
-        context.assertIsSatisfied();
-    }
-    
-    @Test
-    public void testGetDataStoreFromExperimentForUnknownGroup()
-    {
-        ExperimentIdentifier experimentIdentifier =
-            new ExperimentIdentifier("p1", "exp1");
-        prepareGetSession();
-        
-        try
-        {
-            createService().getDataStore(SESSION_TOKEN, experimentIdentifier, null);
-            fail("UndefinedGroupException expected");
-        } catch (UndefinedGroupException e)
-        {
-            // ignored
-        }
-        
-        context.assertIsSatisfied();
-    }
-    
-    @Test
-    public void testGetDataStoreFromProject()
-    {
-        ExperimentIdentifier experimentIdentifier =
-            new ExperimentIdentifier(new ProjectIdentifier("g1", "p1"), "exp1");
-        ExperimentPE experiment = new ExperimentPE();
-        DataStorePE expectedDataStore = new DataStorePE();
-        ProjectPE project = new ProjectPE();
-        project.setDataStore(expectedDataStore);
-        experiment.setProject(project);
-        prepareLoadExperiment(experimentIdentifier, experiment);
-        
-        DataStorePE dataStore = createService().getDataStore(SESSION_TOKEN, experimentIdentifier, null);
-        
-        assertSame(expectedDataStore, dataStore);
-        context.assertIsSatisfied();
-    }
-    
-    @Test
-    public void testGetDataStoreFromGroup()
-    {
-        ExperimentIdentifier experimentIdentifier =
-            new ExperimentIdentifier(new ProjectIdentifier("g1", "p1"), "exp1");
-        ExperimentPE experiment = new ExperimentPE();
-        DataStorePE expectedDataStore = new DataStorePE();
-        ProjectPE project = new ProjectPE();
-        GroupPE group = new GroupPE();
-        group.setDataStore(expectedDataStore);
-        project.setGroup(group);
-        experiment.setProject(project);
-        prepareLoadExperiment(experimentIdentifier, experiment);
-        
-        DataStorePE dataStore = createService().getDataStore(SESSION_TOKEN, experimentIdentifier, null);
-        
-        assertSame(expectedDataStore, dataStore);
-        context.assertIsSatisfied();
-    }
-    
-    @Test
-    public void testGetDataStoreFromDatabaseInstance()
-    {
-        ExperimentIdentifier experimentIdentifier =
-            new ExperimentIdentifier(new ProjectIdentifier("g1", "p1"), "exp1");
-        ExperimentPE experiment = new ExperimentPE();
-        DataStorePE expectedDataStore = new DataStorePE();
-        ProjectPE project = new ProjectPE();
-        GroupPE group = new GroupPE();
-        DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
-        databaseInstance.setDataStore(expectedDataStore);
-        group.setDatabaseInstance(databaseInstance);
-        project.setGroup(group);
-        experiment.setProject(project);
-        prepareLoadExperiment(experimentIdentifier, experiment);
-        
-        DataStorePE dataStore = createService().getDataStore(SESSION_TOKEN, experimentIdentifier, null);
-        
-        assertSame(expectedDataStore, dataStore);
-        context.assertIsSatisfied();
-    }
-    
-    @Test
     public void testRegisterDataSetForUnknownExperiment()
     {
         final SampleIdentifier sampleIdentifier =
@@ -517,23 +415,6 @@ public class ETLServiceTest extends AbstractServerTestCase
         SamplePE sample = new SamplePE();
         sample.setExperiment(experiment);
         return sample;
-    }
-    
-    private void prepareLoadExperiment(final ExperimentIdentifier experimentIdentifier,
-            final ExperimentPE experiment)
-    {
-        prepareGetSession();
-        context.checking(new Expectations()
-            {
-                {
-                    one(boFactory).createExperimentBO(SESSION);
-                    will(returnValue(experimentBO));
-                    
-                    one(experimentBO).loadByExperimentIdentifier(experimentIdentifier);
-                    one(experimentBO).getExperiment();
-                    will(returnValue(experiment));
-                }
-            });
     }
     
     private void prepareTryToLoadSample(final SampleIdentifier identifier, final SamplePE sample)

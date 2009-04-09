@@ -156,34 +156,35 @@ CREATE FUNCTION sample_code_uniqueness_check() RETURNS "trigger"
 DECLARE
    counter  INTEGER;
 BEGIN
-	IF (NEW.samp_id_part_of is NULL) THEN
-		IF (NEW.dbin_id is not NULL) THEN
-			SELECT count(*) into counter FROM samples 
-				where id != NEW.id and code = NEW.code and samp_id_part_of is NULL and dbin_id = NEW.dbin_id;
-			IF (counter > 0) THEN
-				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample with the same code already exists.', NEW.code;
-			END IF;
-		ELSIF (NEW.grou_id is not NULL) THEN
-			SELECT count(*) into counter FROM samples 
-				where id != NEW.id and code = NEW.code and samp_id_part_of is NULL and grou_id = NEW.grou_id;
-			IF (counter > 0) THEN
-				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because group sample with the same code already exists.', NEW.code;
-			END IF;
-		END IF;
+    LOCK TABLE samples IN EXCLUSIVE MODE;
+    IF (NEW.samp_id_part_of is NULL) THEN
+        IF (NEW.dbin_id is not NULL) THEN
+            SELECT count(*) into counter FROM samples 
+                where id != NEW.id and code = NEW.code and samp_id_part_of is NULL and dbin_id = NEW.dbin_id;
+            IF (counter > 0) THEN
+                RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample with the same code already exists.', NEW.code;
+            END IF;
+        ELSIF (NEW.grou_id is not NULL) THEN
+            SELECT count(*) into counter FROM samples 
+                where id != NEW.id and code = NEW.code and samp_id_part_of is NULL and grou_id = NEW.grou_id;
+            IF (counter > 0) THEN
+                RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because group sample with the same code already exists.', NEW.code;
+            END IF;
+        END IF;
         ELSE
-		IF (NEW.dbin_id is not NULL) THEN
-			SELECT count(*) into counter FROM samples 
-				where id != NEW.id and code = NEW.code and samp_id_part_of = NEW.samp_id_part_of and dbin_id = NEW.dbin_id;
-			IF (counter > 0) THEN
-				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample with the same code and being the part of the same parent already exists.', NEW.code;
-			END IF;
-		ELSIF (NEW.grou_id is not NULL) THEN
-			SELECT count(*) into counter FROM samples 
-				where id != NEW.id and code = NEW.code and samp_id_part_of = NEW.samp_id_part_of and grou_id = NEW.grou_id;
-			IF (counter > 0) THEN
-				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because group sample with the same code and being the part of the same parent already exists.', NEW.code;
-			END IF;
-		END IF;
+        IF (NEW.dbin_id is not NULL) THEN
+            SELECT count(*) into counter FROM samples 
+                where id != NEW.id and code = NEW.code and samp_id_part_of = NEW.samp_id_part_of and dbin_id = NEW.dbin_id;
+            IF (counter > 0) THEN
+                RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample with the same code and being the part of the same parent already exists.', NEW.code;
+            END IF;
+        ELSIF (NEW.grou_id is not NULL) THEN
+            SELECT count(*) into counter FROM samples 
+                where id != NEW.id and code = NEW.code and samp_id_part_of = NEW.samp_id_part_of and grou_id = NEW.grou_id;
+            IF (counter > 0) THEN
+                RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because group sample with the same code and being the part of the same parent already exists.', NEW.code;
+            END IF;
+        END IF;
         END IF;   
    RETURN NEW;
 END;
@@ -246,6 +247,13 @@ CREATE TABLE attachments (
     proj_id tech_id,
     CONSTRAINT atta_arc_ck CHECK ((((((expe_id IS NOT NULL) AND (proj_id IS NULL)) AND (samp_id IS NULL)) OR (((expe_id IS NULL) AND (proj_id IS NOT NULL)) AND (samp_id IS NULL))) OR (((expe_id IS NULL) AND (proj_id IS NULL)) AND (samp_id IS NOT NULL))))
 );
+CREATE SEQUENCE code_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+SELECT pg_catalog.setval('code_seq', 1, false);
 CREATE TABLE controlled_vocabularies (
     id tech_id NOT NULL,
     code code NOT NULL,
@@ -290,6 +298,7 @@ CREATE TABLE data (
     is_valid boolean_char DEFAULT true,
     modification_timestamp time_stamp DEFAULT now(),
     expe_id tech_id NOT NULL,
+    dast_id tech_id NOT NULL,
     CONSTRAINT data_samp_arc_ck CHECK ((((samp_id_acquired_from IS NOT NULL) AND (samp_id_derived_from IS NULL)) OR ((samp_id_acquired_from IS NULL) AND (samp_id_derived_from IS NOT NULL))))
 );
 CREATE SEQUENCE data_id_seq
@@ -361,7 +370,10 @@ CREATE TABLE data_stores (
     dbin_id tech_id NOT NULL,
     code code NOT NULL,
     download_url character varying(1024) NOT NULL,
-    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
+    remote_url character varying(250) NOT NULL,
+    session_token character varying(50) NOT NULL,
+    modification_timestamp time_stamp DEFAULT now()
 );
 CREATE SEQUENCE data_type_id_seq
     INCREMENT BY 1
@@ -385,8 +397,7 @@ CREATE TABLE database_instances (
     code code NOT NULL,
     uuid code NOT NULL,
     is_original_source boolean_char DEFAULT false NOT NULL,
-    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
-    dast_id tech_id
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL
 );
 CREATE TABLE database_version_logs (
     db_version character varying(4) NOT NULL,
@@ -481,7 +492,6 @@ CREATE TABLE experiments (
     proj_id tech_id NOT NULL,
     inva_id tech_id,
     is_public boolean_char DEFAULT false NOT NULL,
-    dast_id tech_id,
     modification_timestamp time_stamp DEFAULT now()
 );
 CREATE TABLE external_data (
@@ -519,8 +529,7 @@ CREATE TABLE groups (
     pers_id_leader tech_id,
     description description_250,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
-    pers_id_registerer tech_id NOT NULL,
-    dast_id tech_id
+    pers_id_registerer tech_id NOT NULL
 );
 CREATE SEQUENCE invalidation_id_seq
     INCREMENT BY 1
@@ -652,7 +661,6 @@ CREATE TABLE projects (
     description description_1000,
     pers_id_registerer tech_id NOT NULL,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
-    dast_id tech_id,
     modification_timestamp time_stamp DEFAULT now()
 );
 CREATE SEQUENCE property_type_id_seq

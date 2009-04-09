@@ -63,6 +63,55 @@ DROP SEQUENCE procedure_type_id_seq;
 
 CREATE SEQUENCE CODE_SEQ;
 
+-- -------
+-- Add new columns to DATA_STORES
+-- -------
+
+ALTER TABLE data_stores
+    ADD COLUMN remote_url character varying(250),
+    ADD COLUMN session_token character varying(50),
+    ADD COLUMN modification_timestamp time_stamp DEFAULT now();
+
+UPDATE data_stores
+SET remote_url = '', session_token='';
+
+ALTER TABLE data_stores
+    ALTER COLUMN remote_url SET NOT NULL,
+    ALTER COLUMN session_token SET NOT NULL;
+
+-- -------
+-- Drop foreign keys onto DATA_STORES
+-- -------
+
+ALTER TABLE database_instances
+    DROP COLUMN dast_id;
+
+ALTER TABLE groups
+    DROP COLUMN dast_id;
+
+ALTER TABLE projects
+    DROP COLUMN dast_id;
+
+ALTER TABLE experiments
+    DROP COLUMN dast_id;
+
+-- -------
+-- Add foreign key from DATA onto DATA_STORES
+-- -------
+
+ALTER TABLE data
+    ADD COLUMN dast_id tech_id;
+
+ALTER TABLE data
+    ADD CONSTRAINT data_dast_fk FOREIGN KEY (dast_id) REFERENCES data_stores(id);
+
+UPDATE data
+SET dast_id = (select id from data_stores where code = 'STANDARD');
+
+ALTER TABLE data
+    ALTER COLUMN dast_id SET NOT NULL;
+
+
 ------------------------------------------------------------------------------------
 --  Purpose:  Replace trigger SAMPLE_CODE_UNIQUENESS_CHECK 
 ------------------------------------------------------------------------------------

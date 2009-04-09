@@ -34,6 +34,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -108,6 +109,20 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     private Set<DataPE> parents = new HashSet<DataPE>();
 
     private Set<EventPE> events = new HashSet<EventPE>();
+
+    private DataStorePE dataStore;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.DATA_STORE_COLUMN, updatable = false)
+    public final DataStorePE getDataStore()
+    {
+        return dataStore;
+    }
+
+    public final void setDataStore(final DataStorePE dataStorePE)
+    {
+        this.dataStore = dataStorePE;
+    }
 
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false)
     @Generated(GenerationTime.ALWAYS)

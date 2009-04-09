@@ -277,6 +277,8 @@ ALTER TABLE ONLY controlled_vocabulary_terms
 ALTER TABLE ONLY data_stores
     ADD CONSTRAINT dast_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY data
+    ADD CONSTRAINT data_dast_fk FOREIGN KEY (dast_id) REFERENCES data_stores(id);
+ALTER TABLE ONLY data
     ADD CONSTRAINT data_dsty_fk FOREIGN KEY (dsty_id) REFERENCES data_set_types(id);
 ALTER TABLE ONLY data
     ADD CONSTRAINT data_expe_fk FOREIGN KEY (expe_id) REFERENCES experiments(id);
@@ -284,8 +286,6 @@ ALTER TABLE ONLY data
     ADD CONSTRAINT data_samp_fk_acquired_from FOREIGN KEY (samp_id_acquired_from) REFERENCES samples(id);
 ALTER TABLE ONLY data
     ADD CONSTRAINT data_samp_fk_derived_from FOREIGN KEY (samp_id_derived_from) REFERENCES samples(id);
-ALTER TABLE ONLY database_instances
-    ADD CONSTRAINT dbin_dast_fk FOREIGN KEY (dast_id) REFERENCES data_stores(id);
 ALTER TABLE ONLY data_set_properties
     ADD CONSTRAINT dspr_cvte_fk FOREIGN KEY (cvte_id) REFERENCES controlled_vocabulary_terms(id);
 ALTER TABLE ONLY data_set_properties
@@ -329,8 +329,6 @@ ALTER TABLE ONLY external_data
 ALTER TABLE ONLY external_data
     ADD CONSTRAINT exda_loty_fk FOREIGN KEY (loty_id) REFERENCES locator_types(id);
 ALTER TABLE ONLY experiments
-    ADD CONSTRAINT expe_dast_fk FOREIGN KEY (dast_id) REFERENCES data_stores(id);
-ALTER TABLE ONLY experiments
     ADD CONSTRAINT expe_exty_fk FOREIGN KEY (exty_id) REFERENCES experiment_types(id);
 ALTER TABLE ONLY experiments
     ADD CONSTRAINT expe_inva_fk FOREIGN KEY (inva_id) REFERENCES invalidations(id);
@@ -354,8 +352,6 @@ ALTER TABLE ONLY experiment_types
     ADD CONSTRAINT exty_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY file_format_types
     ADD CONSTRAINT ffty_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
-ALTER TABLE ONLY groups
-    ADD CONSTRAINT grou_dast_fk FOREIGN KEY (dast_id) REFERENCES data_stores(id);
 ALTER TABLE ONLY groups
     ADD CONSTRAINT grou_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY groups
@@ -402,8 +398,6 @@ ALTER TABLE ONLY persons
     ADD CONSTRAINT pers_grou_fk FOREIGN KEY (grou_id) REFERENCES groups(id);
 ALTER TABLE ONLY persons
     ADD CONSTRAINT pers_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
-ALTER TABLE ONLY projects
-    ADD CONSTRAINT proj_dast_fk FOREIGN KEY (dast_id) REFERENCES data_stores(id);
 ALTER TABLE ONLY projects
     ADD CONSTRAINT proj_grou_fk FOREIGN KEY (grou_id) REFERENCES groups(id);
 ALTER TABLE ONLY projects

@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Christian Ribeaud
  */
-public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider, ISessionProvider
+public interface IETLLIMSService extends IWebService, ISessionProvider
 {
     /**
      * Returns the home database instance.

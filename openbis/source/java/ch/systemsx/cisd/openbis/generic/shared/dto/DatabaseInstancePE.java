@@ -20,12 +20,9 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -76,20 +73,6 @@ public final class DatabaseInstancePE extends AbstractIdAndCodeHolder<DatabaseIn
 
     /** Whether this database instance should get a <i>brand</i>. */
     private boolean systemDefault;
-
-    private DataStorePE dataStore;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.DATA_STORE_COLUMN, updatable = false)
-    public final DataStorePE getDataStore()
-    {
-        return dataStore;
-    }
-
-    public final void setDataStore(final DataStorePE dataStorePE)
-    {
-        this.dataStore = dataStorePE;
-    }
 
     private final void setSystemDefault(final boolean systemDefault)
     {

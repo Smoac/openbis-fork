@@ -20,15 +20,17 @@ insert into data_stores
 (id
 ,code
 ,download_url
+,remote_url
+,session_token
 ,dbin_id)
 values
 (nextval('DATA_STORE_ID_SEQ')
 ,'STANDARD'
 ,''
+,''
+,''
 ,(select id from database_instances where code = 'SYSTEM_DEFAULT')
 );
-
-update database_instances set dast_id = (select id from data_stores where code = 'STANDARD');
 
 ----------------------------------------------------------------------
 --  Purpose:  Insert an initial data set into the table PERSONS
