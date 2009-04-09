@@ -16,7 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
+
+import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -31,6 +38,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.C
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.FormPanelListener;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.AttachmentManager;
 
 /**
  * A {@link LayoutContainer} extension for registering a new project.
@@ -41,6 +50,10 @@ public final class ProjectRegistrationForm extends AbstractRegistrationForm
 {
     public static final String ID = GenericConstants.ID_PREFIX + "project-registration_form";
 
+    public static final String SESSION_KEY = ID;
+
+    private static final int DEFAULT_NUMBER_OF_ATTACHMENTS = 3;
+
     final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private CodeField projectCodeField;
@@ -48,6 +61,9 @@ public final class ProjectRegistrationForm extends AbstractRegistrationForm
     private VarcharField projectDescriptionField;
 
     private GroupSelectionWidget groupField;
+
+    private AttachmentManager attachmentManager =
+            new AttachmentManager(SESSION_KEY, DEFAULT_NUMBER_OF_ATTACHMENTS, "Attachment");
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
@@ -61,6 +77,7 @@ public final class ProjectRegistrationForm extends AbstractRegistrationForm
         super(viewContext, ID, DEFAULT_LABEL_WIDTH + 20, DEFAULT_FIELD_WIDTH);
         this.viewContext = viewContext;
         addFields();
+        addUploadFeatures(formPanel, SESSION_KEY);
     }
 
     private final CodeField createProjectCodeField()
@@ -94,6 +111,25 @@ public final class ProjectRegistrationForm extends AbstractRegistrationForm
         formPanel.add(projectCodeField = createProjectCodeField());
         formPanel.add(groupField = createGroupField());
         formPanel.add(projectDescriptionField = createProjectDescriptionField());
+        for (FileUploadField attachmentField : attachmentManager.getFields())
+        {
+            formPanel.add(wrapUnaware((Field<?>) attachmentField).get());
+        }
+        formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
+            {
+                @Override
+                protected void onSuccessfullUpload()
+                {
+                    registerProject();
+                }
+
+                @Override
+                protected void setUploadEnabled()
+                {
+                    ProjectRegistrationForm.this.setUploadEnabled(true);
+                }
+            });
+        redefineSaveListeners();
     }
 
     private final Project createProject()
@@ -108,9 +144,35 @@ public final class ProjectRegistrationForm extends AbstractRegistrationForm
     //
     // AbstractRegistrationForm
     //
+    void redefineSaveListeners()
+    {
+        saveButton.removeAllListeners();
+        saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public final void componentSelected(final ButtonEvent ce)
+                {
+                    if (formPanel.isValid())
+                    {
+                        if (attachmentManager.attachmentsDefined() > 0)
+                        {
+                            setUploadEnabled(false);
+                            formPanel.submit();
+                        } else
+                        {
+                            registerProject();
+                        }
+                    }
+                }
+            });
+    }
 
     @Override
     protected final void submitValidForm()
+    {
+    }
+
+    private void registerProject()
     {
         final Project project = createProject();
         viewContext.getService().registerProject(project,
@@ -141,7 +203,25 @@ public final class ProjectRegistrationForm extends AbstractRegistrationForm
         protected final void process(final Void result)
         {
             infoBox.displayInfo(createMessage());
+            resetPanel();
+            setUploadEnabled(true);
+        }
+
+        @Override
+        protected final void finishOnFailure(final Throwable caught)
+        {
+            setUploadEnabled(true);
+        }
+
+        private void resetPanel()
+        {
             formPanel.reset();
         }
+
+    }
+
+    protected void setUploadEnabled(boolean enabled)
+    {
+        saveButton.setEnabled(enabled);
     }
 }
