@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -23,14 +25,11 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
-import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
 
 /**
  * Test cases for corresponding {@link EncapsulatedOpenBISService} class.
@@ -39,11 +38,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
  */
 public class EncapsulatedOpenBISServiceTest
 {
+    private static final int PORT = 4711;
+
+    private static final String DOWNLOAD_URL = "download-url";
+
+    private static final String DATA_STORE_CODE = "data-store1";
+
     private Mockery context;
 
     private IETLLIMSService limsService;
 
-    private IEncapsulatedOpenBISService encapsulatedLimsService;
+    private EncapsulatedOpenBISService encapsulatedLimsService;
 
     private static final String LIMS_USER = "testuser";
 
@@ -61,7 +66,7 @@ public class EncapsulatedOpenBISServiceTest
     {
         exp.one(limsService).authenticate(LIMS_USER, LIMS_PASSWORD);
         exp.one(limsService).registerDataStoreServer(exp.with(Expectations.equal("")),
-                exp.with(Expectations.equal(0)), exp.with(Expectations.any(String.class)));
+                exp.with(Expectations.any(DataStoreServerInfo.class)));
         exp.one(limsService).tryToGetBaseExperiment("", dataSetInformation.getSampleIdentifier());
     }
 
@@ -76,12 +81,35 @@ public class EncapsulatedOpenBISServiceTest
                     one(limsService).authenticate(LIMS_USER, LIMS_PASSWORD);
                     
                     one(limsService).registerDataStoreServer(
-                            with(equal("")), with(equal(0)), with(any(String.class)));
+                            with(equal("")), with(new BaseMatcher<DataStoreServerInfo>()
+                                {
+                            
+                                    public boolean matches(Object item)
+                                    {
+                                        if (item instanceof DataStoreServerInfo)
+                                        {
+                                            DataStoreServerInfo info = (DataStoreServerInfo) item;
+                                            return DATA_STORE_CODE.equals(info.getDataStoreCode())
+                                                    && DOWNLOAD_URL.equals(info.getDownloadUrl())
+                                                    && PORT == info.getPort();
+                                        }
+                                        return false;
+                                    }
+                            
+                                    public void describeTo(Description description)
+                                    {
+                                    }
+                            
+                                }));
                 }
             });
         encapsulatedLimsService =
-                new EncapsulatedOpenBISService(new SessionTokenManager(), limsService, 0,
-                        LIMS_USER, LIMS_PASSWORD);
+                new EncapsulatedOpenBISService(new SessionTokenManager(), limsService);
+        encapsulatedLimsService.setUsername(LIMS_USER);
+        encapsulatedLimsService.setPassword(LIMS_PASSWORD);
+        encapsulatedLimsService.setDataStoreCode(DATA_STORE_CODE);
+        encapsulatedLimsService.setDownloadUrl(DOWNLOAD_URL);
+        encapsulatedLimsService.setPort(PORT);
     }
 
     @AfterMethod
@@ -126,7 +154,6 @@ public class EncapsulatedOpenBISServiceTest
     public final void testRegisterDataSet()
     {
         final DataSetInformation dataSetInfo = createDataSetInformation();
-        final ProcedureTypeCode procedureTypeCode = ProcedureTypeCode.DATA_ACQUISITION;
         final ExternalData data = new ExternalData();
         context.checking(new Expectations()
             {

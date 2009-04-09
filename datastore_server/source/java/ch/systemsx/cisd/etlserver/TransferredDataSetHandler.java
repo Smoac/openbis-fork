@@ -119,6 +119,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
 
     private final String groupCode;
 
+    private final String dssCode;
+    
     private final boolean notifySuccessfulRegistration;
 
     private final boolean useIsFinishedMarkerFile;
@@ -135,28 +137,30 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
      *            appears. Otherwise processing starts if the file/directory is not modified for a
      *            certain amount of time (so called "quiet period").
      */
-    public TransferredDataSetHandler(final String groupCode, final IETLServerPlugin plugin,
+    public TransferredDataSetHandler(final String groupCode, String dssCode, final IETLServerPlugin plugin,
             final IEncapsulatedOpenBISService limsService, final Properties mailProperties,
             final HighwaterMarkWatcher highwaterMarkWatcher,
             final boolean notifySuccessfulRegistration, boolean useIsFinishedMarkerFile)
 
     {
-        this(groupCode, plugin.getStorageProcessor(), plugin, limsService, new MailClient(
+        this(groupCode, dssCode, plugin.getStorageProcessor(), plugin, limsService, new MailClient(
                 mailProperties), notifySuccessfulRegistration, useIsFinishedMarkerFile);
     }
 
-    TransferredDataSetHandler(final String groupCode,
+    TransferredDataSetHandler(final String groupCode, String dssCode, 
             final IStoreRootDirectoryHolder storeRootDirectoryHolder,
             final IETLServerPlugin plugin, final IEncapsulatedOpenBISService limsService,
             final IMailClient mailClient, final boolean notifySuccessfulRegistration,
             boolean useIsFinishedMarkerFile)
 
     {
+        assert dssCode != null : "Unspecified data store code";
         assert storeRootDirectoryHolder != null : "Given store root directory holder can not be null.";
         assert plugin != null : "IETLServerPlugin implementation can not be null.";
         assert limsService != null : "IEncapsulatedLimsService implementation can not be null.";
         assert mailClient != null : "IMailClient implementation can not be null.";
 
+        this.dssCode = dssCode;
         this.groupCode = groupCode;
         this.storeRootDirectoryHolder = storeRootDirectoryHolder;
         this.dataSetInfoExtractor = plugin.getDataSetInfoExtractor();
@@ -765,6 +769,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             data.setMeasured(typeExtractor.isMeasuredData(incomingDataSetFile));
             data.setStorageFormat(storageFormat);
             data.setComplete(isCompleteFlag);
+            data.setDataStoreCode(dssCode);
             return data;
         }
 

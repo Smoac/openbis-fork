@@ -92,7 +92,7 @@ class DataStoreServiceLogger implements IDataStoreService
         {
             builder.append(' ').append(externalDataPE.getCode());
         }
-        log("upload_data_sets", "USER(%s) LOCATIONS(%s)", context.getUserID(), builder.toString().trim());
+        log("upload_data_sets", "USER(%s) DATASETS(%s)", context.getUserID(), builder.toString().trim());
     }
 
 }

@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
@@ -51,15 +52,19 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, EncapsulatedOpenBISService.class);
 
-    private final int port;
-    
-    private final String username;
-
-    private final String password;
-
     private final IETLLIMSService service;
 
     private final SessionTokenManager sessionTokenManager;
+    
+    private int port;
+    
+    private String username;
+    
+    private String password;
+    
+    private String downloadUrl;
+    
+    private String dataStoreCode;
     
     private String sessionToken; // NOTE: can be changed in parallel by different threads
 
@@ -67,28 +72,47 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
 
     private DatabaseInstancePE homeDatabaseInstance;
 
-    public EncapsulatedOpenBISService(SessionTokenManager sessionTokenManager, String serverURL,
-            int port, String username, String password)
+    public EncapsulatedOpenBISService(SessionTokenManager sessionTokenManager, String serverURL)
     {
         this(sessionTokenManager, HttpInvokerUtils.createServiceStub(IETLLIMSService.class,
-                serverURL + "/rmi-etl", 5), port, username, password);
+                serverURL + "/rmi-etl", 5));
     }
 
     public EncapsulatedOpenBISService(SessionTokenManager sessionTokenManager,
-            IETLLIMSService service, int port, String username, String password)
+            IETLLIMSService service)
     {
         assert sessionTokenManager != null : "Unspecified session token manager.";
         assert service != null : "Given IETLLIMSService implementation can not be null.";
-        assert username != null : "Given username can not be null.";
-        assert password != null : "Given password can not be null.";
 
         this.sessionTokenManager = sessionTokenManager;
         this.service = service;
-        this.port = port;
-        this.username = username;
-        this.password = password;
     }
     
+    public final void setPort(int port)
+    {
+        this.port = port;
+    }
+
+    public final void setUsername(String username)
+    {
+        this.username = username;
+    }
+
+    public final void setPassword(String password)
+    {
+        this.password = password;
+    }
+
+    public final void setDownloadUrl(String downloadUrl)
+    {
+        this.downloadUrl = downloadUrl;
+    }
+
+    public final void setDataStoreCode(String dataStoreCode)
+    {
+        this.dataStoreCode = dataStoreCode;
+    }
+
     public Object getObject() throws Exception
     {
         return this;
@@ -118,7 +142,12 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
                     "Authentication failure to openBIS server. Most probable cause: user or password are invalid.";
             throw new ConfigurationFailureException(msg);
         }
-        service.registerDataStoreServer(sessionToken, port, sessionTokenManager.drawSessionToken());
+        DataStoreServerInfo dataStoreServerInfo = new DataStoreServerInfo();
+        dataStoreServerInfo.setPort(port);
+        dataStoreServerInfo.setDataStoreCode(dataStoreCode);
+        dataStoreServerInfo.setDownloadUrl(downloadUrl);
+        dataStoreServerInfo.setSessionToken(sessionTokenManager.drawSessionToken());
+        service.registerDataStoreServer(sessionToken, dataStoreServerInfo);
     }
 
     private final void checkSessionToken()

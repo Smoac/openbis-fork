@@ -57,10 +57,10 @@ import ch.systemsx.cisd.common.mail.JavaMailProperties;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
@@ -267,10 +267,12 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         final IETLServerPlugin plugin =
                 new ETLServerPlugin(new MockDataSetInfoExtractor(dataSetInfoExtractor),
                         typeExtractor, storageProcessor);
-        final IEncapsulatedOpenBISService authorizedLimsService =
-                new EncapsulatedOpenBISService(new SessionTokenManager(), limsService, 0, "u", "p");
+        final EncapsulatedOpenBISService authorizedLimsService =
+                new EncapsulatedOpenBISService(new SessionTokenManager(), limsService);
+        authorizedLimsService.setUsername("u");
+        authorizedLimsService.setPassword("p");
         handler =
-                new TransferredDataSetHandler(null, storageProcessor, plugin,
+                new TransferredDataSetHandler(null, "dss", storageProcessor, plugin,
                         authorizedLimsService, mailClient, true, true);
 
         handler.setProcessorFactories(map);
@@ -389,7 +391,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     will(returnValue(SESSION_TOKEN));
 
                     one(limsService).registerDataStoreServer(with(equal(SESSION_TOKEN)),
-                            with(equal(0)), with(any(String.class)));
+                            with(any(DataStoreServerInfo.class)));
 
                     atLeast(1).of(limsService).tryToGetBaseExperiment(SESSION_TOKEN,
                             dataSetInformation.getSampleIdentifier());
