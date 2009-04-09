@@ -1,0 +1,92 @@
+/*
+ * Copyright 2009 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.generic.shared.dto;
+
+import java.io.Serializable;
+
+import javax.servlet.http.HttpServletRequest;
+
+import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+
+/**
+ * Information about a data store server (DSS) needed by openBIS server.
+ * <p>
+ * It contains
+ * <ul>
+ * <li>the port on which the DSS is reachable. Note, that the host can be inferred by the asking
+ * {@link HttpServletRequest}.
+ * <li>the DSS session token which has to used when invoking methods on the DSS.
+ * <li>the download URL which is the URL at which the DSS Web server can be accessed from a Web
+ * browser.
+ * <li>the unique code of the DSS.
+ * </ul>
+ * 
+ * @author Franz-Josef Elmer
+ */
+public class DataStoreServerInfo implements Serializable
+{
+    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+
+    private int port;
+    
+    private String dataStoreCode;
+    
+    private String downloadUrl;
+    
+    private String sessionToken;
+
+    public final int getPort()
+    {
+        return port;
+    }
+
+    public final void setPort(int port)
+    {
+        this.port = port;
+    }
+
+    public final String getDataStoreCode()
+    {
+        return dataStoreCode;
+    }
+
+    public final void setDataStoreCode(String dataStoreCode)
+    {
+        this.dataStoreCode = dataStoreCode;
+    }
+
+    public final String getDownloadUrl()
+    {
+        return downloadUrl;
+    }
+
+    public final void setDownloadUrl(String downloadUrl)
+    {
+        this.downloadUrl = downloadUrl;
+    }
+
+    public final String getSessionToken()
+    {
+        return sessionToken;
+    }
+
+    public final void setSessionToken(String sessionToken)
+    {
+        this.sessionToken = sessionToken;
+    }
+    
+}

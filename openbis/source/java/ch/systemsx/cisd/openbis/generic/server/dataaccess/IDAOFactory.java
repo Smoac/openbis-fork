@@ -91,5 +91,8 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
 
     /** Returns an implementation of {@link ICodeSequenceDAO} */
     public ICodeSequenceDAO getCodeSequenceDAO();
+    
+    /** Returns an implementation of {@link IDataStoreDAO}. */
+    public IDataStoreDAO getDataStoreDAO();
 
 }

@@ -24,6 +24,7 @@ import org.testng.annotations.BeforeMethod;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
@@ -85,6 +86,8 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     ILocatorTypeDAO locatorTypeDAO;
 
+    IDataStoreDAO dataStoreDAO;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -107,6 +110,7 @@ public abstract class AbstractBOTest extends AssertJUnit
         dataSetTypeDAO = context.mock(IDataSetTypeDAO.class);
         fileFormatTypeDAO = context.mock(IFileFormatTypeDAO.class);
         locatorTypeDAO = context.mock(ILocatorTypeDAO.class);
+        dataStoreDAO = context.mock(IDataStoreDAO.class);
         context.checking(new Expectations()
             {
                 {
@@ -128,6 +132,8 @@ public abstract class AbstractBOTest extends AssertJUnit
                     will(returnValue(locatorTypeDAO));
                     allowing(daoFactory).getExternalDataDAO();
                     will(returnValue(externalDataDAO));
+                    allowing(daoFactory).getDataStoreDAO();
+                    will(returnValue(dataStoreDAO));
                 }
             });
     }

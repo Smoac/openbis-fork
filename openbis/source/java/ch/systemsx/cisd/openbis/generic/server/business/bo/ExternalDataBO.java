@@ -115,6 +115,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
                 .getStorageFormat()));
         externalData.setLocatorType(getLocatorTypeDAO().tryToFindLocatorTypeByCode(
                 locatorType.getCode()));
+        externalData.setDataStore(getDataStoreDAO().tryToFindDataStoreByCode(data.getDataStoreCode()));
         defineDataSetProperties(externalData, convertToDataSetProperties(data
                 .getDataSetProperties()));
 

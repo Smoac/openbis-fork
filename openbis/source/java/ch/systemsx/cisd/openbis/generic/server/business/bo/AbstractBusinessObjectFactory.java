@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import javax.annotation.Resource;
 
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 
 /**
@@ -30,18 +31,27 @@ public abstract class AbstractBusinessObjectFactory
 {
     @Resource(name = ComponentNames.DAO_FACTORY)
     private IDAOFactory daoFactory;
+    
+    @Resource(name = ComponentNames.DSS_FACTORY)
+    private IDataStoreServiceFactory dssFactory;
 
     protected AbstractBusinessObjectFactory()
     {
     }
 
-    protected AbstractBusinessObjectFactory(final IDAOFactory daoFactory)
+    protected AbstractBusinessObjectFactory(final IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory)
     {
         this.daoFactory = daoFactory;
+        this.dssFactory = dssFactory;
     }
 
     protected final IDAOFactory getDaoFactory()
     {
         return daoFactory;
+    }
+    
+    protected final IDataStoreServiceFactory getDSSFactory()
+    {
+        return dssFactory;
     }
 }

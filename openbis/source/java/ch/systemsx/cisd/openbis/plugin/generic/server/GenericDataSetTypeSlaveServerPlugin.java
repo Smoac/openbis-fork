@@ -23,7 +23,6 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.openbis.generic.server.business.DataStoreServerSessionManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -47,12 +46,11 @@ public class GenericDataSetTypeSlaveServerPlugin implements IDataSetTypeSlaveSer
     {
     }
     
-    public void deleteDataSets(Session session, DataStoreServerSessionManager dssSessionManager,
-            List<ExternalDataPE> dataSets, String reason)
+    public void deleteDataSets(Session session, List<ExternalDataPE> dataSets, String reason)
     {
         IExternalDataTable externalDataTable = businessObjectFactory.createExternalDataTable(session);
         externalDataTable.setExternalData(dataSets);
-        externalDataTable.deleteLoadedDataSets(dssSessionManager, reason);
+        externalDataTable.deleteLoadedDataSets(reason);
     }
     
 

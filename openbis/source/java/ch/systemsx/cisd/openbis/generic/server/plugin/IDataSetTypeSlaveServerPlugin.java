@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.plugin;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.server.business.DataStoreServerSessionManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -36,10 +35,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 public interface IDataSetTypeSlaveServerPlugin
 {
     /**
-     * Deletes the specified data sets for the specified reason on all Data Store Servers 
-     * managed by the specifed DSS manager.
+     * Deletes the specified data sets for the specified reason.
      */
-    public void deleteDataSets(Session session, DataStoreServerSessionManager dssSessionManager,
-            List<ExternalDataPE> dataSets, String reason);
+    public void deleteDataSets(Session session, List<ExternalDataPE> dataSets, String reason);
 
 }

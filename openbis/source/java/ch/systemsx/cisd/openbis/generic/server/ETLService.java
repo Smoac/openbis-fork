@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
-import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_SERVICE_NAME;
-
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,18 +25,18 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
-import ch.systemsx.cisd.openbis.generic.server.business.DataStoreServerSessionManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IWebService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerSession;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
@@ -72,36 +70,17 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
 
     private final ISessionManager<Session> sessionManager;
 
-    private final DataStoreServerSessionManager dssSessionManager;
-
     private final IDAOFactory daoFactory;
 
     private final ICommonBusinessObjectFactory boFactory;
 
     private final IDataStoreServiceFactory dssFactory;
 
-    public ETLService(ISessionManager<Session> sessionManager,
-            DataStoreServerSessionManager dssSessionManager, IDAOFactory daoFactory,
-            ICommonBusinessObjectFactory boFactory)
-    {
-        this(sessionManager, dssSessionManager, daoFactory, boFactory,
-                new IDataStoreServiceFactory()
-                    {
-                        public IDataStoreService create(String serverURL)
-                        {
-                            return HttpInvokerUtils.createServiceStub(IDataStoreService.class,
-                                    serverURL + "/" + DATA_STORE_SERVER_SERVICE_NAME, 5);
-                        }
-                    });
-    }
-
-    ETLService(ISessionManager<Session> sessionManager,
-            DataStoreServerSessionManager dssSessionManager, IDAOFactory daoFactory,
+    public ETLService(ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
             ICommonBusinessObjectFactory boFactory, IDataStoreServiceFactory dssFactory)
     {
         super(sessionManager, daoFactory);
         this.sessionManager = sessionManager;
-        this.dssSessionManager = dssSessionManager;
         this.daoFactory = daoFactory;
         this.boFactory = boFactory;
         this.dssFactory = dssFactory;
@@ -129,13 +108,17 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         return daoFactory.getHomeDatabaseInstance();
     }
 
-    public void registerDataStoreServer(String sessionToken, int port, final String dssSessionToken)
+    public void registerDataStoreServer(String sessionToken, DataStoreServerInfo info)
     {
         Session session = sessionManager.getSession(sessionToken);
+        
+        String dssSessionToken = info.getSessionToken();
         String remoteHost = session.getRemoteHost();
+        int port = info.getPort();
         final String dssURL = "https://" + remoteHost + ":" + port;
-        DataStoreServerSession dssSession = dssSessionManager.tryToGetSession(dssURL);
-        if (dssSession == null)
+        IDataStoreDAO dataStoreDAO = daoFactory.getDataStoreDAO();
+        DataStorePE dataStore = dataStoreDAO.tryToFindDataStoreByCode(info.getDataStoreCode());
+        if (dataStore == null)
         {
             final IDataStoreService service = dssFactory.create(dssURL);
             if (operationLog.isInfoEnabled())
@@ -146,8 +129,8 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
             if (IDataStoreService.VERSION != dssVersion)
             {
                 String msg =
-                        "Data Store Server version is " + dssVersion + " instead of "
-                                + IDataStoreService.VERSION;
+                    "Data Store Server version is " + dssVersion + " instead of "
+                    + IDataStoreService.VERSION;
                 notificationLog.error(msg);
                 throw new ConfigurationFailureException(msg);
             }
@@ -156,10 +139,14 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
                 operationLog.info("Data Store Server (version " + dssVersion + ") registered for "
                         + dssURL);
             }
-            dssSession = new DataStoreServerSession(dssURL, service);
-            dssSessionManager.registerDataStoreServer(dssSession);
+            dataStore = new DataStorePE();
+            dataStore.setDatabaseInstance(getHomeDatabaseInstance(sessionToken));
         }
-        dssSession.setSessionToken(dssSessionToken);
+        dataStore.setCode(info.getDataStoreCode());
+        dataStore.setDownloadUrl(info.getDownloadUrl());
+        dataStore.setRemoteUrl(dssURL);
+        dataStore.setSessionToken(dssSessionToken);
+        dataStoreDAO.createOrUpdateDataStore(dataStore);
     }
 
     public String authenticate(String user, String password) throws UserFailureException

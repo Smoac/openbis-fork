@@ -24,6 +24,7 @@ import org.hibernate.SessionFactory;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
@@ -79,6 +80,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     private final IMaterialDAO materialDAO;
 
     private final ICodeSequenceDAO codeSequenceDAO;
+    
+    private final IDataStoreDAO dataStoreDAO;
 
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory)
@@ -98,6 +101,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         locatorTypeDAO = new LocatorTypeDAO(sessionFactory, databaseInstance);
         materialDAO = new MaterialDAO(sessionFactory, databaseInstance);
         codeSequenceDAO = new CodeSequenceDAO(sessionFactory, databaseInstance);
+        dataStoreDAO = new DataStoreDAO(sessionFactory, databaseInstance);
         final EntityKind[] entityKinds = EntityKind.values();
         for (final EntityKind entityKind : entityKinds)
         {
@@ -186,5 +190,10 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public ICodeSequenceDAO getCodeSequenceDAO()
     {
         return codeSequenceDAO;
+    }
+
+    public IDataStoreDAO getDataStoreDAO()
+    {
+        return dataStoreDAO;
     }
 }

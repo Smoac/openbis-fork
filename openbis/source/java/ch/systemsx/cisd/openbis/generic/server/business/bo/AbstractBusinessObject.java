@@ -21,6 +21,7 @@ import org.springframework.dao.DataAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
@@ -196,5 +197,10 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public ICodeSequenceDAO getCodeSequenceDAO()
     {
         return daoFactory.getCodeSequenceDAO();
+    }
+
+    public IDataStoreDAO getDataStoreDAO()
+    {
+        return daoFactory.getDataStoreDAO();
     }
 }

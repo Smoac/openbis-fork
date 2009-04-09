@@ -62,14 +62,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFactory implements
         ICommonBusinessObjectFactory
 {
-    public CommonBusinessObjectFactory(final IDAOFactory daoFactory)
-    {
-        super(daoFactory);
-    }
 
-    //
-    // IGenericBusinessObjectFactory
-    //
+    public CommonBusinessObjectFactory(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory)
+    {
+        super(daoFactory, dssFactory);
+    }
 
     public final IGroupBO createGroupBO(final Session session)
     {
@@ -98,7 +95,7 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
 
     public final IExternalDataTable createExternalDataTable(final Session session)
     {
-        return new ExternalDataTable(getDaoFactory(), session);
+        return new ExternalDataTable(getDaoFactory(), getDSSFactory(), session);
     }
 
     public IExperimentTable createExperimentTable(final Session session)

@@ -50,6 +50,8 @@ public final class ExternalData extends ExtractableData
 
     private String associatedSampleCode;
     
+    private String dataStoreCode;
+    
     private boolean measured;
 
     /** Returns <code>dataSetType</code>. */
@@ -157,6 +159,16 @@ public final class ExternalData extends ExtractableData
     public void setAssociatedSampleCode(final String sampleCode)
     {
         this.associatedSampleCode = sampleCode;
+    }
+
+    public final String getDataStoreCode()
+    {
+        return dataStoreCode;
+    }
+
+    public final void setDataStoreCode(String dataStoreCode)
+    {
+        this.dataStoreCode = dataStoreCode;
     }
 
     public final boolean isMeasured()

@@ -17,23 +17,24 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.business.DataStoreServerSessionManager;
+import ch.systemsx.cisd.openbis.generic.server.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerSession;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -84,12 +85,15 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         return builder.toString();
     }
     
+    private final IDataStoreServiceFactory dssFactory;
 
     private List<ExternalDataPE> externalData;
 
-    public ExternalDataTable(final IDAOFactory daoFactory, final Session session)
+    public ExternalDataTable(final IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
+            final Session session)
     {
         super(daoFactory, session);
+        this.dssFactory = dssFactory;
     }
 
     //
@@ -157,63 +161,62 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         }
     }
 
-    public void deleteLoadedDataSets(DataStoreServerSessionManager dssSessionManager, String reason)
+    public void deleteLoadedDataSets(String reason)
     {
-        assertDataSetsAreKnown(dssSessionManager);
-        for (ExternalDataPE dataSet : externalData)
+        Map<DataStorePE, List<ExternalDataPE>> map = groupDataSetsByDataStores();
+        assertDataSetsAreKnown(map);
+        IExternalDataDAO externalDataDAO = getExternalDataDAO();
+        for (Map.Entry<DataStorePE, List<ExternalDataPE>> entry : map.entrySet())
         {
-            IExternalDataDAO externalDataDAO = getExternalDataDAO();
-            externalDataDAO.markAsDeleted(dataSet, session.tryGetPerson(), DELETION_DESCRIPTION, reason);
-        }
-        Collection<DataStoreServerSession> sessions = dssSessionManager.getSessions();
-        List<String> locations = getLocations();
-        for (DataStoreServerSession dssSession : sessions)
-        {
-            dssSession.getService().deleteDataSets(dssSession.getSessionToken(), locations);
+            DataStorePE dataStore = entry.getKey();
+            List<ExternalDataPE> dataSets = entry.getValue();
+            for (ExternalDataPE dataSet : dataSets)
+            {
+                externalDataDAO.markAsDeleted(dataSet, session.tryGetPerson(), DELETION_DESCRIPTION, reason);
+            }
+            deleteDataSets(dataStore, getLocations(dataSets));
         }
     }
 
-    public void uploadLoadedDataSetsToCIFEX(DataStoreServerSessionManager dssSessionManager,
-            DataSetUploadContext uploadContext)
+    public void uploadLoadedDataSetsToCIFEX(DataSetUploadContext uploadContext)
     {
-        assertDataSetsAreKnown(dssSessionManager);
-        Collection<DataStoreServerSession> sessions = dssSessionManager.getSessions();
+        Map<DataStorePE, List<ExternalDataPE>> map = groupDataSetsByDataStores();
+        assertDataSetsAreKnown(map);
         uploadContext.setUserEMail(session.getPrincipal().getEmail());
         if (StringUtils.isBlank(uploadContext.getComment()))
         {
             uploadContext.setComment(createUploadComment(externalData));
         }
-        for (ExternalDataPE dataSet : externalData)
+        for (Map.Entry<DataStorePE, List<ExternalDataPE>> entry : map.entrySet())
         {
-            HibernateUtils.initialize(dataSet.getParents());
-            SamplePE sample = dataSet.getAssociatedSample();
-            ExperimentPE experiment;
-            if (sample != null)
+            DataStorePE dataStore = entry.getKey();
+            List<ExternalDataPE> dataSets = entry.getValue();
+            for (ExternalDataPE dataSet : dataSets)
             {
-                experiment = sample.getExperiment();
-            } else
-            {
-                experiment = dataSet.getExperiment();
+                HibernateUtils.initialize(dataSet.getParents());
+                SamplePE sample = dataSet.getAssociatedSample();
+                ExperimentPE experiment;
+                if (sample != null)
+                {
+                    experiment = sample.getExperiment();
+                } else
+                {
+                    experiment = dataSet.getExperiment();
+                }
+                HibernateUtils.initialize(experiment.getProject().getGroup());
             }
-            HibernateUtils.initialize(experiment.getProject().getGroup());
-        }
-        for (DataStoreServerSession dssSession : sessions)
-        {
-            dssSession.getService().uploadDataSetsToCIFEX(dssSession.getSessionToken(), externalData,
-                    uploadContext);
+            uploadDataSetsToCIFEX(dataStore, dataSets, uploadContext);
         }
     }
 
-    private void assertDataSetsAreKnown(DataStoreServerSessionManager dssSessionManager)
+    private void assertDataSetsAreKnown(Map<DataStorePE, List<ExternalDataPE>> map)
     {
-        List<String> locations = getLocations();
         Set<String> knownLocations = new LinkedHashSet<String>();
-        Collection<DataStoreServerSession> sessions = dssSessionManager.getSessions();
-        for (DataStoreServerSession dssSession : sessions)
+        for (Map.Entry<DataStorePE, List<ExternalDataPE>> entry : map.entrySet())
         {
-            IDataStoreService service = dssSession.getService();
-            String dssSessionToken = dssSession.getSessionToken();
-            knownLocations.addAll(service.getKnownDataSets(dssSessionToken, locations));
+            DataStorePE dataStore = entry.getKey();
+            List<String> locations = getLocations(entry.getValue());
+            knownLocations.addAll(getKnownDataSets(dataStore, locations));
         }
         List<String> unknownDataSets = new ArrayList<String>();
         for (ExternalDataPE dataSet : externalData)
@@ -232,13 +235,52 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         }
     }
     
-    private List<String> getLocations()
+    private Map<DataStorePE, List<ExternalDataPE>> groupDataSetsByDataStores()
+    {
+        Map<DataStorePE, List<ExternalDataPE>> map = new LinkedHashMap<DataStorePE, List<ExternalDataPE>>();
+        for (ExternalDataPE dataSet : externalData)
+        {
+            DataStorePE dataStore = dataSet.getDataStore();
+            List<ExternalDataPE> list = map.get(dataStore);
+            if (list == null)
+            {
+                list = new ArrayList<ExternalDataPE>();
+                map.put(dataStore, list);
+            }
+            list.add(dataSet);
+        }
+        return map;
+    }
+
+    private List<String> getLocations(List<ExternalDataPE> dataSets)
     {
         List<String> locations = new ArrayList<String>();
-        for (ExternalDataPE dataSet : externalData)
+        for (ExternalDataPE dataSet : dataSets)
         {
             locations.add(dataSet.getLocation());
         }
         return locations;
+    }
+
+    private void uploadDataSetsToCIFEX(DataStorePE dataStore, List<ExternalDataPE> dataSets,
+            DataSetUploadContext context)
+    {
+        IDataStoreService service = dssFactory.create(dataStore.getRemoteUrl());
+        String sessionToken = dataStore.getSessionToken();
+        service.uploadDataSetsToCIFEX(sessionToken, dataSets, context);
+    }
+    
+    private void deleteDataSets(DataStorePE dataStore, List<String> locations)
+    {
+        IDataStoreService service = dssFactory.create(dataStore.getRemoteUrl());
+        String sessionToken = dataStore.getSessionToken();
+        service.deleteDataSets(sessionToken, locations);
+    }
+    
+    private List<String> getKnownDataSets(DataStorePE dataStore, List<String> locations)
+    {
+        IDataStoreService service = dssFactory.create(dataStore.getRemoteUrl());
+        String sessionToken = dataStore.getSessionToken();
+        return service.getKnownDataSets(sessionToken, locations);
     }
 }

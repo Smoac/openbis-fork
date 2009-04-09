@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -26,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Authoriz
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
@@ -49,13 +48,11 @@ public interface IETLLIMSService extends IWebService, ISessionProvider
     public DatabaseInstancePE getHomeDatabaseInstance(final String sessionToken);
     
     /**
-     * Registers a Data Store Server for the specified port and DSS session token. 
-     * It should be reachable via this port and the DSS session token should be used when invoking
-     * methods. Note, that the host can be inferred by the asking {@link HttpServletRequest}.
+     * Registers a Data Store Server for the specified info. 
      */
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
-    public void registerDataStoreServer(String sessionToken, int port, String dssSessionToken);
+    public void registerDataStoreServer(String sessionToken, DataStoreServerInfo dataStoreServerInfo);
 
     /**
      * Gets an {@link ExperimentPE} object specified by experiment ID and sample code.

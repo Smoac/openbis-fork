@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.server.business.DataStoreServerSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -58,16 +57,13 @@ public interface IExternalDataTable
     void setExternalData(List<ExternalDataPE> externalData);
     
     /**
-     * Deletes loaded data sets for specified reason on all Data Store Servers registered
-     * at specified manager.
+     * Deletes loaded data sets for specified reason.
      */
-    void deleteLoadedDataSets(DataStoreServerSessionManager dssSessionManager, String reason);
+    void deleteLoadedDataSets(String reason);
     
     /**
-     * Uploads loaded data sets to CIFEX server of specified URL using specified upload
-     * context.
+     * Uploads loaded data sets to CIFEX server as specified in the upload context.
      */
-    void uploadLoadedDataSetsToCIFEX(DataStoreServerSessionManager dssSessionManager,
-            DataSetUploadContext uploadContext);
+    void uploadLoadedDataSetsToCIFEX(DataSetUploadContext uploadContext);
 
 }

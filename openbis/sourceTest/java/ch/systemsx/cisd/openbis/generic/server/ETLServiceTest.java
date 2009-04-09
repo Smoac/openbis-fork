@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -29,14 +31,15 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.business.DataStoreServerSessionManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerSession;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -56,67 +59,139 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 @Friend(toClasses=ETLService.class)
 public class ETLServiceTest extends AbstractServerTestCase
 {
+    private static final String DOWNLOAD_URL = "download-url";
+    private static final String DSS_CODE = "my-dss";
+    private static final String DSS_SESSION_TOKEN = "dss42";
+    private static final int PORT = 443;
+    private static final String URL = "https://" + SESSION.getRemoteHost() + ":" + PORT;
     private ICommonBusinessObjectFactory boFactory;
-    private DataStoreServerSessionManager dssSessionManager;
     private IDataStoreServiceFactory dssfactory;
     private IDataStoreService dataStoreService;
+    private IDataStoreDAO dataStoreDAO;
     
     @Override
     @BeforeMethod
     public final void setUp()
     {
         super.setUp();
-        dssSessionManager = new DataStoreServerSessionManager();
         boFactory = context.mock(ICommonBusinessObjectFactory.class);
         dssfactory = context.mock(IDataStoreServiceFactory.class);
         dataStoreService = context.mock(IDataStoreService.class);
+        dataStoreDAO = context.mock(IDataStoreDAO.class);
     }
     
     @Test
     public void testRegisterDataStoreServer()
     {
-        final String url = "https://" + SESSION.getRemoteHost() + ":443";
-        final String dssToken = "dss42";
         prepareGetSession();
         context.checking(new Expectations()
             {
                 {
-                    one(dssfactory).create(url);
+                    one(daoFactory).getDataStoreDAO();
+                    will(returnValue(dataStoreDAO));
+                    
+                    one(dataStoreDAO).tryToFindDataStoreByCode(DSS_CODE);
+                    will(returnValue(null));
+                    
+                    one(dssfactory).create(URL);
                     will(returnValue(dataStoreService));
                     
-                    one(dataStoreService).getVersion(dssToken);
+                    one(dataStoreService).getVersion(DSS_SESSION_TOKEN);
                     will(returnValue(IDataStoreService.VERSION));
+                    
+                    one(dataStoreDAO).createOrUpdateDataStore(with(new BaseMatcher<DataStorePE>()
+                        {
+                            public void describeTo(Description description)
+                            {
+                            }
+                    
+                            public boolean matches(Object item)
+                            {
+                                if (item instanceof DataStorePE)
+                                {
+                                    DataStorePE store = (DataStorePE) item;
+                                    return DSS_CODE.equals(store.getCode())
+                                            && URL.equals(store.getRemoteUrl())
+                                            && DOWNLOAD_URL.equals(store.getDownloadUrl())
+                                            && DSS_SESSION_TOKEN.equals(store.getSessionToken());
+                                }
+                                return false;
+                            }
+                    
+                        }));
                 }
             });
         
-        createService().registerDataStoreServer(SESSION_TOKEN, 443, dssToken);
-        
-        DataStoreServerSession session = dssSessionManager.tryToGetSession(url);
-        assertEquals(dssToken, session.getSessionToken());
+        createService().registerDataStoreServer(SESSION_TOKEN, createDSSInfo());
         
         context.assertIsSatisfied();
     }
     
     @Test
-    public void testRegisterDataStoreServerWithWrongVersion()
+    public void testRegisterDataStoreServerAgain()
     {
-        final String url = "https://" + SESSION.getRemoteHost() + ":443";
-        final String dssToken = "dss42";
         prepareGetSession();
         context.checking(new Expectations()
             {
                 {
-                    one(dssfactory).create(url);
+                    one(daoFactory).getDataStoreDAO();
+                    will(returnValue(dataStoreDAO));
+
+                    one(dataStoreDAO).tryToFindDataStoreByCode(DSS_CODE);
+                    will(returnValue(new DataStorePE()));
+
+                    one(dataStoreDAO).createOrUpdateDataStore(with(new BaseMatcher<DataStorePE>()
+                        {
+                            public void describeTo(Description description)
+                            {
+                            }
+
+                            public boolean matches(Object item)
+                            {
+                                if (item instanceof DataStorePE)
+                                {
+                                    DataStorePE store = (DataStorePE) item;
+                                    return DSS_CODE.equals(store.getCode())
+                                            && URL.equals(store.getRemoteUrl())
+                                            && DOWNLOAD_URL.equals(store.getDownloadUrl())
+                                            && DSS_SESSION_TOKEN.equals(store.getSessionToken());
+                                }
+                                return false;
+                            }
+
+                        }));
+                }
+            });
+
+        createService().registerDataStoreServer(SESSION_TOKEN, createDSSInfo());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testRegisterDataStoreServerWithWrongVersion()
+    {
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getDataStoreDAO();
+                    will(returnValue(dataStoreDAO));
+                    
+                    one(dataStoreDAO).tryToFindDataStoreByCode(DSS_CODE);
+                    will(returnValue(null));
+                    
+                    one(dssfactory).create(URL);
                     will(returnValue(dataStoreService));
 
-                    one(dataStoreService).getVersion(dssToken);
+                    one(dataStoreService).getVersion(DSS_SESSION_TOKEN);
                     will(returnValue(VERSION + 1));
                 }
             });
 
         try
         {
-            createService().registerDataStoreServer(SESSION_TOKEN, 443, dssToken);
+            createService().registerDataStoreServer(SESSION_TOKEN, createDSSInfo());
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException e)
         {
@@ -462,6 +537,16 @@ public class ETLServiceTest extends AbstractServerTestCase
     
     private IETLLIMSService createService()
     {
-        return new ETLService(sessionManager, dssSessionManager, daoFactory, boFactory, dssfactory);
+        return new ETLService(sessionManager, daoFactory, boFactory, dssfactory);
+    }
+    
+    private DataStoreServerInfo createDSSInfo()
+    {
+        DataStoreServerInfo info = new DataStoreServerInfo();
+        info.setPort(PORT);
+        info.setSessionToken(DSS_SESSION_TOKEN);
+        info.setDataStoreCode(DSS_CODE);
+        info.setDownloadUrl(DOWNLOAD_URL);
+        return info;
     }
 }

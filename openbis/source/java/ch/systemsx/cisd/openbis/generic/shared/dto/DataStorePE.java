@@ -20,11 +20,15 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
@@ -60,6 +64,10 @@ public final class DataStorePE extends AbstractIdAndCodeHolder<DataStorePE>
     private String remoteUrl;
     
     private String sessionToken;
+
+    private DatabaseInstancePE databaseInstance;
+
+    private Date modificationDate;
 
     public final void setId(final Long id)
     {
@@ -117,6 +125,31 @@ public final class DataStorePE extends AbstractIdAndCodeHolder<DataStorePE>
     public final void setRegistrationDate(final Date registrationDate)
     {
         this.registrationDate = registrationDate;
+    }
+
+    @Version
+    @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date versionDate)
+    {
+        this.modificationDate = versionDate;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotNull(message = ValidationMessages.DATABASE_INSTANCE_NOT_NULL_MESSAGE)
+    @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = false)
+    public DatabaseInstancePE getDatabaseInstance()
+    {
+        return databaseInstance;
+    }
+
+    public void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
+    {
+        this.databaseInstance = databaseInstance;
     }
 
     //

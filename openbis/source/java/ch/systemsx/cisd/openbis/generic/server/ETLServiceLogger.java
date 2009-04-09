@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
@@ -50,10 +51,15 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
-    public void registerDataStoreServer(String sessionToken, int port, String dssSessionToken)
+    public void registerDataStoreServer(String sessionToken, DataStoreServerInfo info)
     {
-        logTracking(sessionToken, "register_data_store_server_session_token", "PORT(%s) DSS-TOKEN(%s)",
-                port, dssSessionToken);
+        String code = info.getDataStoreCode();
+        String downloadUrl = info.getDownloadUrl();
+        int port = info.getPort();
+        String dssSessionToken = info.getSessionToken();
+        logTracking(sessionToken, "register_data_store_server_session_token",
+                "CODE(%s) DOWNLOAD-URL(%s) PORT(%s) DSS-TOKEN(%s)", code, downloadUrl, port,
+                dssSessionToken);
     }
 
     public void registerDataSet(String sessionToken, SampleIdentifier sampleIdentifier,

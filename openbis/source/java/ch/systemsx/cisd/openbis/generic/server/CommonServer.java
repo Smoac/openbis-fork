@@ -31,7 +31,6 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.business.DataStoreServerSessionManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
@@ -113,19 +112,15 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     private final ICommonBusinessObjectFactory businessObjectFactory;
 
-    private final DataStoreServerSessionManager dssSessionManager;
-
     private final LastModificationState lastModificationState;
 
     public CommonServer(final IAuthenticationService authenticationService,
-            final ISessionManager<Session> sessionManager,
-            DataStoreServerSessionManager dssSessionManager, final IDAOFactory daoFactory,
+            final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
             final ICommonBusinessObjectFactory businessObjectFactory,
             LastModificationState lastModificationState)
     {
         super(sessionManager, daoFactory);
         this.authenticationService = authenticationService;
-        this.dssSessionManager = dssSessionManager;
         this.businessObjectFactory = businessObjectFactory;
         this.lastModificationState = lastModificationState;
     }
@@ -646,7 +641,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             {
                 DataSetTypePE dataSetType = entry.getKey();
                 IDataSetTypeSlaveServerPlugin plugin = getDataSetTypeSlaveServerPlugin(dataSetType);
-                plugin.deleteDataSets(session, dssSessionManager, entry.getValue(), reason);
+                plugin.deleteDataSets(session, entry.getValue(), reason);
             }
         } catch (final DataAccessException ex)
         {
@@ -663,7 +658,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             IExternalDataTable externalDataTable =
                     businessObjectFactory.createExternalDataTable(session);
             externalDataTable.loadByDataSetCodes(dataSetCodes);
-            externalDataTable.uploadLoadedDataSetsToCIFEX(dssSessionManager, uploadContext);
+            externalDataTable.uploadLoadedDataSetsToCIFEX(uploadContext);
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);

@@ -27,7 +27,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.business.DataStoreServerSessionManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
@@ -91,15 +90,13 @@ public final class CommonServerTest extends AbstractServerTestCase
 
     private ICommonBusinessObjectFactory commonBusinessObjectFactory;
 
-    private DataStoreServerSessionManager dssSessionManager;
-
     private ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin;
 
     private IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin;
 
     private final ICommonServer createServer()
     {
-        CommonServer server = new CommonServer(authenticationService, sessionManager, dssSessionManager,
+        CommonServer server = new CommonServer(authenticationService, sessionManager, 
                 daoFactory, commonBusinessObjectFactory, new LastModificationState());
         server.setSampleTypeSlaveServerPlugin(sampleTypeSlaveServerPlugin);
         server.setDataSetTypeSlaveServerPlugin(dataSetTypeSlaveServerPlugin);
@@ -122,7 +119,6 @@ public final class CommonServerTest extends AbstractServerTestCase
     public final void setUp()
     {
         super.setUp();
-        dssSessionManager = new DataStoreServerSessionManager();
         commonBusinessObjectFactory = context.mock(ICommonBusinessObjectFactory.class);
         sampleTypeSlaveServerPlugin = context.mock(ISampleTypeSlaveServerPlugin.class);
         dataSetTypeSlaveServerPlugin = context.mock(IDataSetTypeSlaveServerPlugin.class);
@@ -871,10 +867,10 @@ public final class CommonServerTest extends AbstractServerTestCase
                     ExternalDataPE ds3 = createDataSet("ds3", "type2");
                     will(returnValue(Arrays.asList(ds1, ds2, ds3)));
                     
-                    one(dataSetTypeSlaveServerPlugin).deleteDataSets(SESSION, dssSessionManager,
-                            Arrays.asList(ds1, ds2), "reason");
-                    one(dataSetTypeSlaveServerPlugin).deleteDataSets(SESSION, dssSessionManager,
-                            Arrays.asList(ds3), "reason");
+                    one(dataSetTypeSlaveServerPlugin).deleteDataSets(SESSION, Arrays.asList(ds1, ds2),
+                            "reason");
+                    one(dataSetTypeSlaveServerPlugin).deleteDataSets(SESSION, Arrays.asList(ds3),
+                            "reason");
                 }
             });
 
@@ -907,8 +903,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(externalDataTable));
 
                     one(externalDataTable).loadByDataSetCodes(dataSetCodes);
-                    one(externalDataTable).uploadLoadedDataSetsToCIFEX(dssSessionManager,
-                            uploadContext);
+                    one(externalDataTable).uploadLoadedDataSetsToCIFEX(uploadContext);
                 }
             });
 
