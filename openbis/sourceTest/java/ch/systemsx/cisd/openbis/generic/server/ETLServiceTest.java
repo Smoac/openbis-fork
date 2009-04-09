@@ -371,6 +371,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         prepareTryToLoadSample(sampleIdentifier, sample);
         final ExternalData externalData = new ExternalData();
         externalData.setCode("dc");
+        externalData.setMeasured(true);
         prepareRegisterDataSet(sampleIdentifier, sample.getExperiment(),
                 SourceType.MEASUREMENT, externalData);
 
