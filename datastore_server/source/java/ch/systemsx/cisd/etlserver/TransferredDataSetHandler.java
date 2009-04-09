@@ -110,7 +110,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
 
     private final Lock registrationLock;
 
-    private final IProcessorIDAndDataTypeExtractor typeExtractor;
+    private final ITypeExtractor typeExtractor;
 
     private final IStorageProcessor storageProcessor;
 
@@ -307,7 +307,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         final void registerDataSet()
         {
             final ExperimentPE experiment = dataSetInformation.getExperiment();
-            String processorID = typeExtractor.getProcessorID(incomingDataSetFile);
+            String processorID = typeExtractor.getProcessorType(incomingDataSetFile);
             final IProcessor processorOrNull = tryCreateProcessor(processorID);
             try
             {
@@ -403,8 +403,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                 try
                 {
                     errorMessageTemplate = DATA_SET_REGISTRATION_FAILURE_TEMPLATE;
-                    plainRegisterDataSet(relativePath, procedureTypeCode, availableFormat,
-                            isCompleteFlag);
+                    plainRegisterDataSet(relativePath, availableFormat, isCompleteFlag);
                     deleteAndLogIsFinishedFile();
                     deleteAndLogIsFinishedFile();
                     if (processorOrNull == null)
@@ -507,13 +506,12 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         }
 
         private final void plainRegisterDataSet(final String relativePath,
-                final String procedureTypeCode, final StorageFormat storageFormat,
-                final BooleanOrUnknown isCompleteFlag)
+                final StorageFormat storageFormat, final BooleanOrUnknown isCompleteFlag)
         {
             final ExternalData data =
                     createExternalData(relativePath, storageFormat, isCompleteFlag);
             // Finally: register the data set in the database.
-            limsService.registerDataSet(dataSetInformation, procedureTypeCode, data);
+            limsService.registerDataSet(dataSetInformation, data);
         }
 
         private void logAndNotifySuccessfulRegistration(final String email)

@@ -135,7 +135,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     private final void primRegisterDataSet(final DataSetInformation dataSetInformation,
-            final String procedureTypeCode, final ExternalData data)
+            final ExternalData data)
     {
         service.registerDataSet(sessionToken, dataSetInformation.getSampleIdentifier(),
                 data);
@@ -173,25 +173,24 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     synchronized public final void registerDataSet(final DataSetInformation dataSetInformation,
-            final String procedureTypeCode, final ExternalData data)
+            final ExternalData data)
     {
         assert dataSetInformation != null : "missing sample identifier";
-        assert procedureTypeCode != null : "missing procedure type";
         assert data != null : "missing data";
 
         checkSessionToken();
         try
         {
-            primRegisterDataSet(dataSetInformation, procedureTypeCode, data);
+            primRegisterDataSet(dataSetInformation, data);
         } catch (final InvalidSessionException ex)
         {
             authenticate();
-            primRegisterDataSet(dataSetInformation, procedureTypeCode, data);
+            primRegisterDataSet(dataSetInformation, data);
         }
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("Registered in openBIS: data set " + dataSetInformation.describe()
-                    + " PROCEDURE_TYPE('" + procedureTypeCode + "').");
+                    + ".");
         }
     }
 

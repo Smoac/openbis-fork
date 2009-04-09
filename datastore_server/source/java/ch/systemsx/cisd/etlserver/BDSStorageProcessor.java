@@ -243,7 +243,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
 
     private final IDataStructureV1_1 createDataStructure(final ExperimentPE experiment,
             final DataSetInformation dataSetInformation,
-            final IProcessorIDAndDataTypeExtractor typeExtractor, final File incomingDataSetPath,
+            final ITypeExtractor typeExtractor, final File incomingDataSetPath,
             final File rootDir)
     {
         final FileStorage storage = new FileStorage(rootDir);
@@ -293,7 +293,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
     }
 
     private final static DataSet createDataSet(final DataSetInformation dataSetInformation,
-            final IProcessorIDAndDataTypeExtractor typeExtractor, final File incomingDataSetPath)
+            final ITypeExtractor typeExtractor, final File incomingDataSetPath)
     {
         final String dataSetCode = dataSetInformation.getDataSetCode();
         final String parentDataSetCode = dataSetInformation.getParentDataSetCode();
@@ -416,7 +416,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
 
     public final File storeData(final ExperimentPE experiment,
             final DataSetInformation dataSetInformation,
-            final IProcessorIDAndDataTypeExtractor typeExtractor, final IMailClient mailClient,
+            final ITypeExtractor typeExtractor, final IMailClient mailClient,
             final File incomingDataSetDirectory, final File rootDirectory)
     {
         checkDataSetInformation(dataSetInformation);

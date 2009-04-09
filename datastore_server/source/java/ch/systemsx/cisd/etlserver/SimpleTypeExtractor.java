@@ -25,12 +25,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 
 /**
- * Implementation of {@link IProcessorIDAndDataTypeExtractor} which gets the types from the properties
+ * Implementation of {@link ITypeExtractor} which gets the types from the properties
  * argument of the constructor.
  * 
  * @author Franz-Josef Elmer
  */
-public class SimpleTypeExtractor implements IProcessorIDAndDataTypeExtractor
+public class SimpleTypeExtractor implements ITypeExtractor
 {
     public static final String FILE_FORMAT_TYPE_KEY = "file-format-type";
 
@@ -38,7 +38,7 @@ public class SimpleTypeExtractor implements IProcessorIDAndDataTypeExtractor
 
     public static final String DATA_SET_TYPE_KEY = "data-set-type";
 
-    public static final String PROCESSOR_ID_KEY = "processor-id";
+    public static final String PROCESSOR_TYPE_KEY = "processor-type";
     
     public static final String IS_MEASURED_KEY = "is-measured";
 
@@ -48,7 +48,7 @@ public class SimpleTypeExtractor implements IProcessorIDAndDataTypeExtractor
 
     private DataSetType dataSetType;
 
-    private String processorID;
+    private String processorType;
     
     private boolean measured;
 
@@ -62,8 +62,7 @@ public class SimpleTypeExtractor implements IProcessorIDAndDataTypeExtractor
         locatorType = new LocatorType(code);
         code = properties.getProperty(DATA_SET_TYPE_KEY, DataSetTypeCode.HCS_IMAGE.getCode());
         dataSetType = new DataSetType(code);
-        processorID =
-                properties.getProperty(PROCESSOR_ID_KEY, "DATA_ACQUISITION");
+        processorType = properties.getProperty(PROCESSOR_TYPE_KEY);
         measured = "true".equals(properties.getProperty(IS_MEASURED_KEY, "true"));
 
     }
@@ -87,9 +86,9 @@ public class SimpleTypeExtractor implements IProcessorIDAndDataTypeExtractor
         return dataSetType;
     }
 
-    public String getProcessorID(File incomingDataSetPath)
+    public String getProcessorType(File incomingDataSetPath)
     {
-        return processorID;
+        return processorType;
     }
 
     public boolean isMeasuredData(File incomingDataSetPath)

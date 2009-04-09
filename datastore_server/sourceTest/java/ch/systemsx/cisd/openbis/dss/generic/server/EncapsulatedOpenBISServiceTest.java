@@ -135,7 +135,7 @@ public class EncapsulatedOpenBISServiceTest
                             data);
                 }
             });
-        encapsulatedLimsService.registerDataSet(dataSetInfo, procedureTypeCode.getCode(), data);
+        encapsulatedLimsService.registerDataSet(dataSetInfo, data);
 
         context.assertIsSatisfied();
     }

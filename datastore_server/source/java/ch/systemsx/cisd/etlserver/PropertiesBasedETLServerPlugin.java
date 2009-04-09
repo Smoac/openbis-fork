@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.etlserver;
 
 import static ch.systemsx.cisd.etlserver.IDataSetInfoExtractor.EXTRACTOR_KEY;
-import static ch.systemsx.cisd.etlserver.IProcessorIDAndDataTypeExtractor.TYPE_EXTRACTOR_KEY;
+import static ch.systemsx.cisd.etlserver.ITypeExtractor.TYPE_EXTRACTOR_KEY;
 import static ch.systemsx.cisd.etlserver.IStorageProcessor.STORAGE_PROCESSOR_KEY;
 
 import java.util.Properties;
@@ -46,7 +46,7 @@ import ch.systemsx.cisd.common.utilities.ExtendedProperties;
  * </tr>
  * <tr>
  * <td><code>type-extractor</code></td>
- * <td>{@link IProcessorIDAndDataTypeExtractor}</td>
+ * <td>{@link ITypeExtractor}</td>
  * </tr>
  * </table> Example of a properties file:
  * 
@@ -108,10 +108,10 @@ public class PropertiesBasedETLServerPlugin extends ETLServerPlugin
         return create(IStorageProcessor.class, properties, STORAGE_PROCESSOR_KEY, true);
     }
 
-    private final static IProcessorIDAndDataTypeExtractor createProcedureAndDataTypeExtractor(
+    private final static ITypeExtractor createProcedureAndDataTypeExtractor(
             final Properties properties)
     {
-        return create(IProcessorIDAndDataTypeExtractor.class, properties, TYPE_EXTRACTOR_KEY, true);
+        return create(ITypeExtractor.class, properties, TYPE_EXTRACTOR_KEY, true);
     }
 
     private final static IDataSetInfoExtractor createDataSetInfoExtractor(

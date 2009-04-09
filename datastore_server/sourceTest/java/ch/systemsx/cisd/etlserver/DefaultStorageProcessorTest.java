@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
 public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCase
 {
 
-    private final static IProcessorIDAndDataTypeExtractor TYPE_EXTRACTOR =
+    private final static ITypeExtractor TYPE_EXTRACTOR =
             new TestProcedureAndDataTypeExtractor();
 
     private final DefaultStorageProcessor createStorageProcessor()
@@ -125,7 +125,7 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
     // Helper classes
     //
 
-    final static class TestProcedureAndDataTypeExtractor implements IProcessorIDAndDataTypeExtractor
+    final static class TestProcedureAndDataTypeExtractor implements ITypeExtractor
     {
 
         static final String PROCEDURE_TYPE = ProcedureTypeCode.DATA_ACQUISITION.getCode();
@@ -157,7 +157,7 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
             return new DataSetType(DATA_SET_TYPE);
         }
 
-        public String getProcessorID(File incomingDataSetPath)
+        public String getProcessorType(File incomingDataSetPath)
         {
             return "da";
         }

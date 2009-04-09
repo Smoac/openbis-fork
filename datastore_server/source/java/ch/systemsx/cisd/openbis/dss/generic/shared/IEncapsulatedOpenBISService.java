@@ -54,7 +54,7 @@ public interface IEncapsulatedOpenBISService
      * </p>
      */
     public void registerDataSet(final DataSetInformation dataSetInformation,
-            final String procedureTypeCode, final ExternalData data) throws UserFailureException;
+            final ExternalData data) throws UserFailureException;
 
     /**
      * Tries to return the properties of the top sample (e.g. master plate) registered for the

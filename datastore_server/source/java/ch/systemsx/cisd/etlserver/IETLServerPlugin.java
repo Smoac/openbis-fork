@@ -32,7 +32,7 @@ public interface IETLServerPlugin
     /**
      * Returns the procedure and data type extractor.
      */
-    public IProcessorIDAndDataTypeExtractor getTypeExtractor();
+    public ITypeExtractor getTypeExtractor();
 
     /**
      * Returns the {@link IStorageProcessor} implementation.

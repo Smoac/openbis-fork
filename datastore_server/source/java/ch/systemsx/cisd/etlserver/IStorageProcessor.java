@@ -48,7 +48,7 @@ public interface IStorageProcessor extends IStoreRootDirectoryHolder
      * 
      * @param experiment information about the related experiment.
      * @param dataSetInformation Information about the data set.
-     * @param typeExtractor the {@link IProcessorIDAndDataTypeExtractor} implementation.
+     * @param typeExtractor the {@link ITypeExtractor} implementation.
      * @param mailClient mail client.
      * @param incomingDataSetDirectory folder to store. Do not remove it after the implementation
      *            has finished processing. {@link TransferredDataSetHandler} takes care of this.
@@ -59,12 +59,12 @@ public interface IStorageProcessor extends IStoreRootDirectoryHolder
      */
     public File storeData(final ExperimentPE experiment,
             final DataSetInformation dataSetInformation,
-            final IProcessorIDAndDataTypeExtractor typeExtractor, final IMailClient mailClient,
+            final ITypeExtractor typeExtractor, final IMailClient mailClient,
             final File incomingDataSetDirectory, final File rootDir);
 
     /**
      * Performs a rollback of
-     * {@link #storeData(ExperimentPE, DataSetInformation, IProcessorIDAndDataTypeExtractor, IMailClient, File, File)}
+     * {@link #storeData(ExperimentPE, DataSetInformation, ITypeExtractor, IMailClient, File, File)}
      * The data created in <code>directory</code> will also be removed.
      * <p>
      * Call to this method is safe as implementations should try/catch exceptions that could occur

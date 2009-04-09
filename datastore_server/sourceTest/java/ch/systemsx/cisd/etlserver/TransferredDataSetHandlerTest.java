@@ -184,7 +184,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
     private IDataSetInfoExtractor dataSetInfoExtractor;
 
-    private IProcessorIDAndDataTypeExtractor typeExtractor;
+    private ITypeExtractor typeExtractor;
 
     private IStorageProcessor storageProcessor;
 
@@ -252,7 +252,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
         context = new Mockery();
         dataSetInfoExtractor = context.mock(IDataSetInfoExtractor.class);
-        typeExtractor = context.mock(IProcessorIDAndDataTypeExtractor.class);
+        typeExtractor = context.mock(ITypeExtractor.class);
         final Properties properties = new Properties();
         properties.setProperty(JavaMailProperties.MAIL_SMTP_HOST, "host");
         properties.setProperty(JavaMailProperties.MAIL_FROM, "me");
@@ -426,7 +426,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     one(typeExtractor).getFileFormatType(dataSet);
                     will(returnValue(FILE_FORMAT_TYPE));
                     
-                    one(typeExtractor).getProcessorID(dataSet);
+                    one(typeExtractor).getProcessorType(dataSet);
                     will(returnValue(EXAMPLE_PROCESSOR_ID));
                     
                     one(typeExtractor).isMeasuredData(dataSet);
@@ -813,7 +813,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     one(processorFactory).createProcessor();
                     will(returnValue(processor));
 
-                    one(typeExtractor).getProcessorID(folder);
+                    one(typeExtractor).getProcessorType(folder);
                     will(returnValue(EXAMPLE_PROCESSOR_ID));
 
                     one(storageProcessor).storeData(baseExperiment, dataSetInformation,
