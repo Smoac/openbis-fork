@@ -59,7 +59,6 @@ import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
 import ch.rinn.restrictions.Friend;
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
@@ -286,9 +285,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
     @Override
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "experimentParentInternal")
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_EXPERIMENT_ATTACHMENTS)
-    @Private
-    // for Hibernate and bean conversion only
-    public Set<AttachmentPE> getInternalAttachments()
+    protected Set<AttachmentPE> getInternalAttachments()
     {
         return attachments;
     }

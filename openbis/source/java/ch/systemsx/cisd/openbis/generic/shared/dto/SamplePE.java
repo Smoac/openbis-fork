@@ -58,7 +58,6 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
@@ -546,9 +545,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     @Override
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "sampleParentInternal")
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SAMPLE_ATTACHMENTS)
-    @Private
-    // for Hibernate and bean conversion only
-    public Set<AttachmentPE> getInternalAttachments()
+    protected Set<AttachmentPE> getInternalAttachments()
     {
         return attachments;
     }

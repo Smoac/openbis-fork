@@ -24,7 +24,6 @@ import java.util.Set;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -63,8 +62,7 @@ public abstract class AttachmentHolderPE implements Serializable
     // Abstract methods
     //
     @Transient
-    @Private
-    abstract public Set<AttachmentPE> getInternalAttachments();
+    abstract protected Set<AttachmentPE> getInternalAttachments();
 
     @Transient
     abstract public String getHolderName();
@@ -72,7 +70,6 @@ public abstract class AttachmentHolderPE implements Serializable
     //
     //
     //
-    @Private
     public void setInternalAttachments(final Set<AttachmentPE> attachments)
     // for Hibernate and bean conversion only
     {
@@ -151,6 +148,11 @@ public abstract class AttachmentHolderPE implements Serializable
     public void ensureAttachmentsLoaded()
     {
         HibernateUtils.initialize(getInternalAttachments());
+    }
+
+    public boolean attachmentsInitialized()
+    {
+        return HibernateUtils.isInitialized(getInternalAttachments());
     }
 
 }
