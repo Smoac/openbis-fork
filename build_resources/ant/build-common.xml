@@ -109,10 +109,10 @@
     </target>
 
     <target name="ci">
-        <antcall target="check-restrictions" />
         <antcall target="run-tests">
             <param name="test.suite" value="tests.xml" />
         </antcall>
+        <antcall target="check-restrictions" />
     </target>
 
     <target name="check-restrictions" depends="compile, compile-tests">
