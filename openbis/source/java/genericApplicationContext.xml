@@ -37,7 +37,7 @@
         <constructor-arg ref="hibernate-session-factory" />
     </bean>
     
-    <bean id="dss-factory" class="ch.systemsx.cisd.openbis.generic.server.DataStoreServiceFactory"/>
+    <bean id="dss-factory" class="ch.systemsx.cisd.openbis.generic.server.business.DataStoreServiceFactory"/>
 
     <bean id="authentication-service"
         class="ch.systemsx.cisd.openbis.generic.server.AuthenticationServiceHolder">
