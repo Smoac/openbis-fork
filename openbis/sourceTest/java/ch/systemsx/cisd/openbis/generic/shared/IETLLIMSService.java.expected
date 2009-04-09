@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
-public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider, ISessionProvider
+public interface IETLLIMSService extends IWebService, ISessionProvider
 {
     
     @Transactional(readOnly = true)
