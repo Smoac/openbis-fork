@@ -154,5 +154,13 @@ BEGIN
 END;
 $$ LANGUAGE 'plpgsql';
 
+------------------------------------------------------------------------------------
+--  Purpose:  allow longer user ids 
+------------------------------------------------------------------------------------
+
+alter table persons alter column user_id type varchar(50);
+drop domain user_id;
+create domain user_id as varchar(50);
+alter table persons alter column user_id type user_id;
 
 
