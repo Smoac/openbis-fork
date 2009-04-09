@@ -61,6 +61,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplaceme
 
 /**
  * Service interface for the generic GWT client.
+ * <p>
+ * Each method should throw {@link UserFailureException}. The authorization framework can throw it
+ * when the user has insufficient privileges. If it is not marked, the GWT client will report
+ * unexpected exception.
+ * </p>
  * 
  * @author Franz-Josef Elmer
  */
@@ -189,7 +194,8 @@ public interface ICommonClientService extends IClientService
      * Returns a chunk of the property types assignment list.
      */
     public ResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignments(
-            DefaultResultSetConfig<String, EntityTypePropertyType<?>> criteria);
+            DefaultResultSetConfig<String, EntityTypePropertyType<?>> criteria)
+            throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for property types assignments.
@@ -229,12 +235,14 @@ public interface ICommonClientService extends IClientService
      * Returns a list of all vocabulary terms for a specified vocabulary.
      */
     public ResultSet<VocabularyTermWithStats> listVocabularyTerms(Vocabulary vocabulary,
-            DefaultResultSetConfig<String, VocabularyTermWithStats> resultSetConfig);
+            DefaultResultSetConfig<String, VocabularyTermWithStats> resultSetConfig)
+            throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for Vocabulary Terms.
      */
-    public String prepareExportVocabularyTerms(TableExportCriteria<VocabularyTermWithStats> criteria);
+    public String prepareExportVocabularyTerms(TableExportCriteria<VocabularyTermWithStats> criteria)
+            throws UserFailureException;
 
     public ResultSet<? extends EntityType> listMaterialTypes(
             DefaultResultSetConfig<String, MaterialType> criteria)
@@ -331,7 +339,8 @@ public interface ICommonClientService extends IClientService
             List<VocabularyTermReplacement> termsToBeReplaced) throws UserFailureException;
 
     /** Lists terms of a specified vocabulary */
-    public List<VocabularyTerm> listVocabularyTerms(Vocabulary vocabulary);
+    public List<VocabularyTerm> listVocabularyTerms(Vocabulary vocabulary)
+            throws UserFailureException;
 
     /**
      * Registers given {@link Project}.
@@ -394,7 +403,9 @@ public interface ICommonClientService extends IClientService
      */
     public List<DataSetType> listDataSetTypes() throws UserFailureException;
 
-    /** Uploads the specified data sets to the specified CIFEX server using the specified parameters. */ 
+    /**
+     * Uploads the specified data sets to the specified CIFEX server using the specified parameters.
+     */
     public void uploadDataSets(List<String> dataSetCodes, DataSetUploadParameters uploadParameters)
             throws UserFailureException;
 
@@ -402,6 +413,6 @@ public interface ICommonClientService extends IClientService
      * Information about the time and kind of the last modification, separately for each kind of
      * database object.
      */
-    public LastModificationState getLastModificationState();
+    public LastModificationState getLastModificationState() throws UserFailureException;
 
 }
