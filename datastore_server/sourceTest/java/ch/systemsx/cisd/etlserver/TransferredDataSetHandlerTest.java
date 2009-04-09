@@ -271,7 +271,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 new EncapsulatedOpenBISService(new SessionTokenManager(), limsService, 0, "u", "p");
         handler =
                 new TransferredDataSetHandler(null, storageProcessor, plugin,
-                        authorizedLimsService, mailClient, true);
+                        authorizedLimsService, mailClient, true, true);
 
         handler.setProcessorFactories(map);
         dataSetInformation = new DataSetInformation();

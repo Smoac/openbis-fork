@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Properties;
+import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -39,6 +41,16 @@ public final class ThreadParameters
     @Private
     static final String GROUP_CODE_KEY = "group-code";
 
+    @Private
+    static final String INCOMING_DATA_COMPLETENESS_CONDITION =
+            "incoming-data-completeness-condition";
+
+    @Private
+    static final String INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE = "marker-file";
+
+    @Private
+    static final String INCOMING_DATA_COMPLETENESS_CONDITION_AUTODETECTION = "auto-detection";
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, ThreadParameters.class);
 
@@ -56,6 +68,8 @@ public final class ThreadParameters
 
     private final String groupCode;
 
+    private final boolean useIsFinishedMarkerFile;
+
     /**
      * @param threadProperties parameters for one processing thread together with general
      *            parameters.
@@ -64,8 +78,34 @@ public final class ThreadParameters
     {
         this.incomingDataDirectory = extractIncomingDataDir(threadProperties);
         this.plugin = new PropertiesBasedETLServerPlugin(threadProperties);
-        groupCode = tryGetGroupCode(threadProperties);
+        this.groupCode = tryGetGroupCode(threadProperties);
+        String completenessCondition =
+                PropertyUtils.getProperty(threadProperties, INCOMING_DATA_COMPLETENESS_CONDITION,
+                        INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE);
+        this.useIsFinishedMarkerFile = parseCompletenessCondition(completenessCondition);
         this.threadName = threadName;
+    }
+
+    // true if marker file should be used, false if autodetection should be used, exceprion when the
+    // value is invalid.
+    private static boolean parseCompletenessCondition(String completenessCondition)
+    {
+        if (completenessCondition
+                .equalsIgnoreCase(INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE))
+        {
+            return true;
+        } else if (completenessCondition
+                .equalsIgnoreCase(INCOMING_DATA_COMPLETENESS_CONDITION_AUTODETECTION))
+        {
+            return false;
+        } else
+        {
+            throw new ConfigurationFailureException(String.format(
+                    "Invalid value '%s' for the option '%s'. Allowed values are: '%s', '%s'.",
+                    completenessCondition, INCOMING_DATA_COMPLETENESS_CONDITION,
+                    INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE,
+                    INCOMING_DATA_COMPLETENESS_CONDITION_AUTODETECTION));
+        }
     }
 
     final void check()
@@ -93,8 +133,12 @@ public final class ThreadParameters
     @Private
     static final String tryGetGroupCode(final Properties properties)
     {
-        return StringUtils.defaultIfEmpty(PropertyUtils.getProperty(properties, GROUP_CODE_KEY),
-                null);
+        return nullIfEmpty(PropertyUtils.getProperty(properties, GROUP_CODE_KEY));
+    }
+
+    private static String nullIfEmpty(String value)
+    {
+        return StringUtils.defaultIfEmpty(value, null);
     }
 
     /**
@@ -103,6 +147,11 @@ public final class ThreadParameters
     final String tryGetGroupCode()
     {
         return groupCode;
+    }
+
+    public boolean useIsFinishedMarkerFile()
+    {
+        return useIsFinishedMarkerFile;
     }
 
     /**
@@ -125,22 +174,30 @@ public final class ThreadParameters
     {
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("[%s] Code extractor: '%s'", threadName, plugin
-                    .getDataSetInfoExtractor().getClass().getName()));
-            operationLog.info(String.format("[%s] Type extractor: '%s'", threadName, plugin
-                    .getTypeExtractor().getClass().getName()));
-            operationLog.info(String.format("[%s] Incoming data directory: '%s'.", threadName,
-                    getIncomingDataDirectory().getAbsolutePath()));
+            logLine("Code extractor: '%s'", plugin.getDataSetInfoExtractor().getClass().getName());
+            logLine("Type extractor: '%s'", plugin.getTypeExtractor().getClass().getName());
+            logLine("Incoming data directory: '%s'.", getIncomingDataDirectory().getAbsolutePath());
             if (groupCode != null)
             {
-                operationLog.info(String.format("[%s] Group code: '%s'.", threadName, groupCode));
+                logLine("Group code: '%s'.", groupCode);
             }
+            String completenessCond =
+                    useIsFinishedMarkerFile ? "marker file exists"
+                            : "no write access for some period";
+            logLine("Condition of incoming data completeness: %s.", completenessCond);
         }
+    }
+
+    private void logLine(String format, Object... params)
+    {
+        Vector<Object> allParams = new Vector<Object>();
+        allParams.add(threadName);
+        allParams.addAll(Arrays.asList(params));
+        operationLog.info(String.format("[%s] " + format, allParams.toArray(new Object[0])));
     }
 
     public String getThreadName()
     {
         return threadName;
     }
-
 }

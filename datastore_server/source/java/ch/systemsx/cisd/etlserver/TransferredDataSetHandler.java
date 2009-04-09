@@ -52,6 +52,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
+import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -120,6 +121,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
 
     private final boolean notifySuccessfulRegistration;
 
+    private final boolean useIsFinishedMarkerFile;
+
     private boolean stopped = false;
 
     private Map<String, IProcessorFactory> processorFactories =
@@ -127,20 +130,26 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
 
     private DatabaseInstancePE homeDatabaseInstance;
 
+    /**
+     * @param useIsFinishedMarkerFile if true, file/directory is processed when a marker file for it
+     *            appears. Otherwise processing starts if the file/directory is not modified for a
+     *            certain amount of time (so called "quiet period").
+     */
     public TransferredDataSetHandler(final String groupCode, final IETLServerPlugin plugin,
             final IEncapsulatedOpenBISService limsService, final Properties mailProperties,
             final HighwaterMarkWatcher highwaterMarkWatcher,
-            final boolean notifySuccessfulRegistration)
+            final boolean notifySuccessfulRegistration, boolean useIsFinishedMarkerFile)
 
     {
         this(groupCode, plugin.getStorageProcessor(), plugin, limsService, new MailClient(
-                mailProperties), notifySuccessfulRegistration);
+                mailProperties), notifySuccessfulRegistration, useIsFinishedMarkerFile);
     }
 
     TransferredDataSetHandler(final String groupCode,
             final IStoreRootDirectoryHolder storeRootDirectoryHolder,
             final IETLServerPlugin plugin, final IEncapsulatedOpenBISService limsService,
-            final IMailClient mailClient, final boolean notifySuccessfulRegistration)
+            final IMailClient mailClient, final boolean notifySuccessfulRegistration,
+            boolean useIsFinishedMarkerFile)
 
     {
         assert storeRootDirectoryHolder != null : "Given store root directory holder can not be null.";
@@ -159,6 +168,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         this.notifySuccessfulRegistration = notifySuccessfulRegistration;
         this.registrationLock = new ReentrantLock();
         this.fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
+        this.useIsFinishedMarkerFile = useIsFinishedMarkerFile;
     }
 
     public final void setProcessorFactories(final Map<String, IProcessorFactory> processorFactories)
@@ -179,13 +189,13 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
     // IPathHandler
     //
 
-    public final void handle(final File isFinishedFile)
+    public final void handle(final File file)
     {
         if (stopped)
         {
             return;
         }
-        final RegistrationHelper registrationHelper = new RegistrationHelper(isFinishedFile);
+        final RegistrationHelper registrationHelper = createRegistrationHelper(file);
         registrationHelper.prepare();
         if (registrationHelper.hasDataSetBeenIdentified())
         {
@@ -248,9 +258,103 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
     // Helper class
     //
 
+    private RegistrationHelper createRegistrationHelper(File file)
+    {
+        if (useIsFinishedMarkerFile)
+        {
+            return createRegistrationHelperWithIsFinishedFile(file);
+        } else
+        {
+            return createRegistrationHelperWithQuietPeriodFilter(file);
+        }
+    }
+
+    private RegistrationHelper createRegistrationHelperWithIsFinishedFile(final File isFinishedFile)
+    {
+        assert isFinishedFile != null : "Unspecified is-finished file.";
+        final String name = isFinishedFile.getName();
+        assert name.startsWith(IS_FINISHED_PREFIX) : "A finished file must starts with '"
+                + IS_FINISHED_PREFIX + "'.";
+
+        File incomingDataSetFile = getIncomingDataSetPathFromMarker(isFinishedFile);
+        IDelegatedActionWithResult<Boolean> cleanAftrewardsAction =
+                new IDelegatedActionWithResult<Boolean>()
+                    {
+                        public Boolean execute()
+                        {
+                            return deleteAndLogIsFinishedMarkerFile(isFinishedFile);
+                        }
+                    };
+        return new RegistrationHelper(incomingDataSetFile, cleanAftrewardsAction);
+    }
+
+    private RegistrationHelper createRegistrationHelperWithQuietPeriodFilter(
+            File incomingDataSetFile)
+    {
+        IDelegatedActionWithResult<Boolean> cleanAftrewardsAction =
+                new IDelegatedActionWithResult<Boolean>()
+                    {
+                        public Boolean execute()
+                        {
+                            return true; // do nothing
+                        }
+                    };
+        return new RegistrationHelper(incomingDataSetFile, cleanAftrewardsAction);
+    }
+
+    /**
+     * From given <var>isFinishedPath</var> gets the incoming data set path and checks it.
+     * 
+     * @return <code>null</code> if a problem has happened. Otherwise a useful and usable incoming
+     *         data set path is returned.
+     */
+    private final File getIncomingDataSetPathFromMarker(final File isFinishedPath)
+    {
+        final File incomingDataSetPath =
+                FileUtilities.removePrefixFromFileName(isFinishedPath, IS_FINISHED_PREFIX);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "Getting incoming data set path '%s' from is-finished path '%s'",
+                    incomingDataSetPath, isFinishedPath));
+        }
+        final String errorMsg =
+                fileOperations.checkPathFullyAccessible(incomingDataSetPath, "incoming data set");
+        if (errorMsg != null)
+        {
+            fileOperations.delete(isFinishedPath);
+            throw EnvironmentFailureException.fromTemplate(String.format(
+                    "Error moving path '%s' from '%s' to '%s': %s", incomingDataSetPath.getName(),
+                    incomingDataSetPath.getParent(), storeRootDirectoryHolder
+                            .getStoreRootDirectory(), errorMsg));
+        }
+        return incomingDataSetPath;
+    }
+
+    private boolean deleteAndLogIsFinishedMarkerFile(File isFinishedFile)
+    {
+        if (fileOperations.exists(isFinishedFile) == false)
+        {
+            return false;
+        }
+        final boolean ok = fileOperations.delete(isFinishedFile);
+        final String absolutePath = isFinishedFile.getAbsolutePath();
+        if (ok == false)
+        {
+            notificationLog.error(String.format("Removing file '%s' failed.", absolutePath));
+        } else
+        {
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug(String.format("File '%s' has been removed.", absolutePath));
+            }
+        }
+        return ok;
+    }
+
     private final class RegistrationHelper
     {
-        private final File isFinishedFile;
+        private final IDelegatedActionWithResult<Boolean> cleanAftrewardsAction;
 
         private final File incomingDataSetFile;
 
@@ -266,26 +370,24 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
 
         private String errorMessageTemplate;
 
-        RegistrationHelper(final File isFinishedFile)
+        private RegistrationHelper(File incomingDataSetFile,
+                IDelegatedActionWithResult<Boolean> cleanAftrewardsAction)
         {
-            assert isFinishedFile != null : "Unspecified is-finished file.";
-            final String name = isFinishedFile.getName();
-            assert name.startsWith(IS_FINISHED_PREFIX) : "A finished file must starts with '"
-                    + IS_FINISHED_PREFIX + "'.";
-            errorMessageTemplate = DATA_SET_STORAGE_FAILURE_TEMPLATE;
-            this.isFinishedFile = isFinishedFile;
-            incomingDataSetFile = getIncomingDataSetPath(isFinishedFile);
-            dataSetInformation = extractDataSetInformation(incomingDataSetFile);
+
+            this.errorMessageTemplate = DATA_SET_STORAGE_FAILURE_TEMPLATE;
+            this.incomingDataSetFile = incomingDataSetFile;
+            this.cleanAftrewardsAction = cleanAftrewardsAction;
+            this.dataSetInformation = extractDataSetInformation(incomingDataSetFile);
             if (dataSetInformation.getDataSetCode() == null)
             {
                 // Extractor didn't extract an externally generated data set code, so request one
                 // from the openBIS server.
                 dataSetInformation.setDataSetCode(limsService.createDataSetCode());
             }
-            dataStoreStrategy =
+            this.dataStoreStrategy =
                     dataStrategyStore.getDataStoreStrategy(dataSetInformation, incomingDataSetFile);
-            dataSetType = typeExtractor.getDataSetType(incomingDataSetFile);
-            storeRoot = storageProcessor.getStoreRootDirectory();
+            this.dataSetType = typeExtractor.getDataSetType(incomingDataSetFile);
+            this.storeRoot = storageProcessor.getStoreRootDirectory();
         }
 
         final void prepare()
@@ -319,7 +421,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                     operationLog.error("Cannot delete '" + incomingDataSetFile.getAbsolutePath()
                             + "'.");
                 }
-                deleteAndLogIsFinishedFile();
+                clean();
             } catch (final Throwable throwable)
             {
                 rollback(throwable);
@@ -361,7 +463,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                 writeThrowable(throwable);
                 if (moveInCaseOfErrorOk)
                 {
-                    deleteAndLogIsFinishedFile();
+                    clean();
                 }
             }
         }
@@ -404,8 +506,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                 {
                     errorMessageTemplate = DATA_SET_REGISTRATION_FAILURE_TEMPLATE;
                     plainRegisterDataSet(relativePath, availableFormat, isCompleteFlag);
-                    deleteAndLogIsFinishedFile();
-                    deleteAndLogIsFinishedFile();
+                    clean();
+                    clean();
                     if (processorOrNull == null)
                     {
                         return;
@@ -501,7 +603,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                             .getTargetFile());
             if (ok)
             {
-                deleteAndLogIsFinishedFile();
+                clean();
             }
         }
 
@@ -566,36 +668,6 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                 buffer.append(name).append(":\t").append(object);
                 buffer.append(OSUtilities.LINE_SEPARATOR);
             }
-        }
-
-        /**
-         * From given <var>isFinishedPath</var> gets the incoming data set path and checks it.
-         * 
-         * @return <code>null</code> if a problem has happened. Otherwise a useful and usable
-         *         incoming data set path is returned.
-         */
-        private final File getIncomingDataSetPath(final File isFinishedPath)
-        {
-            final File incomingDataSetPath =
-                    FileUtilities.removePrefixFromFileName(isFinishedPath, IS_FINISHED_PREFIX);
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug(String.format(
-                        "Getting incoming data set path '%s' from is-finished path '%s'",
-                        incomingDataSetPath, isFinishedPath));
-            }
-            final String errorMsg =
-                    fileOperations.checkPathFullyAccessible(incomingDataSetPath,
-                            "incoming data set");
-            if (errorMsg != null)
-            {
-                fileOperations.delete(isFinishedPath);
-                throw EnvironmentFailureException.fromTemplate(String.format(
-                        "Error moving path '%s' from '%s' to '%s': %s", incomingDataSetPath
-                                .getName(), incomingDataSetPath.getParent(),
-                        storeRootDirectoryHolder.getStoreRootDirectory(), errorMsg));
-            }
-            return incomingDataSetPath;
         }
 
         /**
@@ -717,25 +789,9 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             }
         }
 
-        private boolean deleteAndLogIsFinishedFile()
+        private boolean clean()
         {
-            if (fileOperations.exists(isFinishedFile) == false)
-            {
-                return false;
-            }
-            final boolean ok = fileOperations.delete(isFinishedFile);
-            final String absolutePath = isFinishedFile.getAbsolutePath();
-            if (ok == false)
-            {
-                notificationLog.error(String.format("Removing file '%s' failed.", absolutePath));
-            } else
-            {
-                if (operationLog.isDebugEnabled())
-                {
-                    operationLog.debug(String.format("File '%s' has been removed.", absolutePath));
-                }
-            }
-            return ok;
+            return cleanAftrewardsAction.execute();
         }
     }
 

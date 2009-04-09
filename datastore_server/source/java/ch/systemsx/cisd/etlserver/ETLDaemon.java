@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
@@ -28,7 +29,6 @@ import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -45,8 +45,12 @@ import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.filesystem.FaultyPathDirectoryScanningHandler;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IDirectoryScanningHandler;
+import ch.systemsx.cisd.common.filesystem.IStoreItemFilter;
+import ch.systemsx.cisd.common.filesystem.LastModificationChecker;
 import ch.systemsx.cisd.common.filesystem.PathPrefixPrepender;
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
+import ch.systemsx.cisd.common.filesystem.QuietPeriodFileFilter;
+import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkDirectoryScanningHandler;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
@@ -342,13 +346,16 @@ public final class ETLDaemon
         final TransferredDataSetHandler pathHandler =
                 new TransferredDataSetHandler(threadParameters.tryGetGroupCode(), plugin,
                         authorizedLimsService, mailProperties, highwaterMarkWatcher,
-                        notifySuccessfulRegistration);
+                        notifySuccessfulRegistration, threadParameters.useIsFinishedMarkerFile());
         pathHandler.setProcessorFactories(processorFactories);
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
                 createDirectoryScanningHandler(pathHandler, highwaterMarkWatcher,
                         incomingDataDirectory, storeRootDir, processorFactories.values());
+        FileFilter fileFilter =
+                createFileFilter(incomingDataDirectory, threadParameters.useIsFinishedMarkerFile(),
+                        parameters);
         final DirectoryScanningTimerTask dataMonitorTask =
-                createDirectoryScanningTimerTask(incomingDataDirectory, pathHandler,
+                new DirectoryScanningTimerTask(incomingDataDirectory, fileFilter, pathHandler,
                         directoryScanningHandler);
         selfTest(incomingDataDirectory, authorizedLimsService, pathHandler);
         final String timerThreadName =
@@ -359,13 +366,38 @@ public final class ETLDaemon
                 threadParameters.getThreadName());
     }
 
-    private static DirectoryScanningTimerTask createDirectoryScanningTimerTask(
-            final File incomingDataDirectory, final TransferredDataSetHandler pathHandler,
-            final HighwaterMarkDirectoryScanningHandler directoryScanningHandler)
+    private static FileFilter createFileFilter(File incomingDataDirectory,
+            boolean useIsFinishedMarkerFile, Parameters parameters)
     {
-        IOFileFilter filter = FileFilterUtils.prefixFileFilter(Constants.IS_FINISHED_PREFIX);
-        return new DirectoryScanningTimerTask(incomingDataDirectory, filter, pathHandler,
-                directoryScanningHandler);
+        if (useIsFinishedMarkerFile)
+        {
+            return FileFilterUtils.prefixFileFilter(Constants.IS_FINISHED_PREFIX);
+        } else
+        {
+            return createQuietPeriodFilter(incomingDataDirectory, parameters);
+        }
+    }
+
+    private static FileFilter createQuietPeriodFilter(final File incomingDataDirectory,
+            Parameters parameters)
+    {
+        int ignoredErrorCountBeforeNotification = 3;
+        LastModificationChecker lastModificationChecker =
+                new LastModificationChecker(incomingDataDirectory);
+        final IStoreItemFilter quietPeriodFilter =
+                new QuietPeriodFileFilter(lastModificationChecker, parameters
+                        .getQuietPeriodMillis(), ignoredErrorCountBeforeNotification);
+        return new FileFilter()
+            {
+                public boolean accept(File pathname)
+                {
+                    assert pathname.getParentFile().getAbsolutePath().equals(
+                            incomingDataDirectory.getAbsolutePath()) : "The file should come to the filter only from the incoming directory";
+
+                    StoreItem storeItem = new StoreItem(pathname.getName());
+                    return quietPeriodFilter.accept(storeItem);
+                }
+            };
     }
 
     private static void addShutdownHookForCleanup(final Timer workerTimer,

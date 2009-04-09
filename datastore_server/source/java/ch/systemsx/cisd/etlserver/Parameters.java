@@ -48,6 +48,10 @@ import ch.systemsx.cisd.common.utilities.SystemExit;
  */
 public class Parameters
 {
+    private static final String CHECK_INTERVAL_NAME = "check-interval";
+
+    private static final String QUIET_PERIOD_NAME = "quiet-period";
+
     private static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
 
     private static final Logger operationLog =
@@ -67,9 +71,19 @@ public class Parameters
     /**
      * The interval to wait between to checks for activity (in milliseconds).
      */
-    @Option(name = "c", longName = "check-interval", usage = "The interval to wait between two checks (in seconds) "
+    @Option(name = "c", longName = CHECK_INTERVAL_NAME, usage = "The interval to wait between two checks (in seconds) "
             + "[default: 120]")
     private long checkIntervalSeconds;
+
+    /**
+     * Valid only when {@link ThreadParameters#INCOMING_DATA_COMPLETENESS_CONDITION} is false.<br>
+     * The period to wait before a file or directory is considered "quiet" (in milliseconds). This
+     * setting is used when deciding whether a file or directory is ready to be processed.
+     */
+    @Option(name = "q", longName = QUIET_PERIOD_NAME, usage = "The period of no write access that needs to pass before an incoming data item is "
+            + "considered complete and ready to be processed (in seconds) [default: 300]. "
+            + "Valid only when auto-detection method is used to determine if an incoming data are ready to be processed.")
+    private long quietPeriodMillis;
 
     /**
      * The time-out for clean up work in the shutdown sequence (in seconds).
@@ -181,7 +195,8 @@ public class Parameters
         username = serviceProperties.getProperty("username");
         password = serviceProperties.getProperty("password");
         checkIntervalSeconds =
-                Long.parseLong(serviceProperties.getProperty("check-interval", "120"));
+                Long.parseLong(serviceProperties.getProperty(CHECK_INTERVAL_NAME, "120"));
+        quietPeriodMillis = Long.parseLong(serviceProperties.getProperty(QUIET_PERIOD_NAME, "300"));
         shutdownTimeOutSeconds =
                 Long.parseLong(serviceProperties.getProperty("shutdown-timeout", "30"));
         mailProperties = createMailProperties(serviceProperties);
@@ -314,6 +329,11 @@ public class Parameters
         return checkIntervalSeconds * DateUtils.MILLIS_PER_SECOND;
     }
 
+    public long getQuietPeriodMillis()
+    {
+        return quietPeriodMillis * DateUtils.MILLIS_PER_SECOND;
+    }
+
     /**
      * Returns the time-out for clean up work in the shutdown sequence (in seconds).
      * <p>
@@ -384,6 +404,11 @@ public class Parameters
             }
             operationLog.info(String.format("Check intervall: %d s.",
                     getCheckIntervalMillis() / 1000));
+            operationLog
+                    .info(String
+                            .format(
+                                    "Quiet period (valid if auto-detection method is used to determine incoming data completeness): %d s.",
+                                    getQuietPeriodMillis() / 1000));
         }
     }
 
