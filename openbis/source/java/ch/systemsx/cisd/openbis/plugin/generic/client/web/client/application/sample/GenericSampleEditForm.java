@@ -23,11 +23,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.util.Format;
+import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
@@ -56,6 +64,14 @@ public final class GenericSampleEditForm
         extends
         AbstractGenericEntityEditForm<SampleType, SampleTypePropertyType, SampleProperty, EditableSample>
 {
+    private static final int DEFAULT_NUMBER_OF_ATTACHMENTS = 3;
+
+    private final AttachmentManager attachmentManager;
+
+    private String sessionKey;
+
+    private Html attachmentsInfo;
+
     private final Sample originalSample;
 
     // null if sample cannot be attached to an experiment
@@ -72,7 +88,7 @@ public final class GenericSampleEditForm
         GenericSampleEditForm form = new GenericSampleEditForm(viewContext, entity, editMode);
         return new DatabaseModificationAwareComponent(form, form);
     }
-    
+
     private GenericSampleEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
             EditableSample entity, boolean editMode)
     {
@@ -83,6 +99,47 @@ public final class GenericSampleEditForm
                 canAttachToExperiment(originalSample) ? createExperimentField() : null;
         this.specificFieldsGrid = new PropertyGrid(viewContext, 1);
         super.initializeComponents(viewContext);
+        sessionKey = createSimpleId(EntityKind.SAMPLE, entity.getId() + "");
+        attachmentManager =
+                new AttachmentManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS, "New Attachment");
+        addUploadFeatures(formPanel, sessionKey);
+        formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
+            {
+                @Override
+                protected void onSuccessfullUpload()
+                {
+                    save();
+                }
+
+                @Override
+                protected void setUploadEnabled()
+                {
+                    // GenericExperimentRegistrationForm.this.setUploadEnabled(true);
+                }
+            });
+        redefineSaveListeners();
+    }
+
+    void redefineSaveListeners()
+    {
+        saveButton.removeAllListeners();
+        saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public final void componentSelected(final ButtonEvent ce)
+                {
+                    if (formPanel.isValid())
+                    {
+                        if (attachmentManager.attachmentsDefined() > 0)
+                        {
+                            formPanel.submit();
+                        } else
+                        {
+                            save();
+                        }
+                    }
+                }
+            });
     }
 
     private ExperimentChooserFieldAdaptor createExperimentField()
@@ -99,6 +156,10 @@ public final class GenericSampleEditForm
 
     @Override
     public final void submitValidForm()
+    {
+    }
+
+    private void save()
     {
         final List<SampleProperty> properties = extractProperties();
         ExperimentIdentifier experimentIdent =
@@ -137,6 +198,7 @@ public final class GenericSampleEditForm
         return new SamplePropertyEditor(entityTypesPropertyTypes, properties, id, context);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected List<DatabaseModificationAwareField<?>> getEntitySpecificFormFields()
     {
@@ -145,6 +207,10 @@ public final class GenericSampleEditForm
         if (experimentFieldOrNull != null)
         {
             fields.add(wrapUnaware(experimentFieldOrNull.getField()));
+        }
+        for (FileUploadField f : attachmentManager.getFields())
+        {
+            fields.add(DatabaseModificationAwareField.wrapUnaware(f));
         }
         return fields;
     }
@@ -156,6 +222,8 @@ public final class GenericSampleEditForm
         {
             experimentFieldOrNull.updateOriginalValue();
             updateSpecificPropertiesGrid();
+            attachmentsInfo.setHtml(getAttachmentInfoText(attachmentManager.attachmentsDefined()));
+            updateHeader();
         }
     }
 
@@ -167,6 +235,7 @@ public final class GenericSampleEditForm
         {
             updateSpecificPropertiesGrid();
             result.add(specificFieldsGrid);
+            result.add(attachmentsInfo = new Html());
         }
         return result;
     }
@@ -197,5 +266,23 @@ public final class GenericSampleEditForm
     private static boolean canAttachToExperiment(Sample sample)
     {
         return sample.getGroup() != null;
+    }
+
+    public String getAttachmentInfoText(int attachmentDefined)
+    {
+        if (attachmentDefined > 0)
+        {
+            return Format.substitute("Added {0} new attachment{1}.", attachmentDefined,
+                    attachmentDefined == 1 ? "" : "s");
+
+        } else
+        {
+            return "No new attachments added.";
+        }
+    }
+
+    private void updateHeader()
+    {
+        setHeading("Sample " + entity.getIdentifier());
     }
 }
