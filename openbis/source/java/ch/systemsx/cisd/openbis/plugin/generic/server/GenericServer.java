@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
@@ -50,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
@@ -121,7 +123,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 .getSampleInfo(session, sample);
     }
 
-    public final void registerSample(final String sessionToken, final NewSample newSample)
+    public final void registerSample(final String sessionToken, final NewSample newSample,
+            List<AttachmentPE> attachments)
     {
         assert sessionToken != null : "Unspecified session token.";
         assert newSample != null : "Unspecified new sample.";
@@ -129,6 +132,11 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         final Session session = getSessionManager().getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.define(newSample);
+        sampleBO.save();
+        for (AttachmentPE att : attachments)
+        {
+            sampleBO.addAttachment(att);
+        }
         sampleBO.save();
     }
 
@@ -264,5 +272,23 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         materialTable.add(newMaterials, materialTypePE);
         materialTable.save();
     }
-    
+
+    public AttachmentPE getProjectFileAttachment(String sessionToken, ProjectIdentifier project,
+            String fileName, int version)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IProjectBO bo = businessObjectFactory.createProjectBO(session);
+        bo.loadByProjectIdentifier(project);
+        return bo.getProjectFileAttachment(fileName, version);
+    }
+
+    public AttachmentPE getSampleFileAttachment(String sessionToken, SampleIdentifier sample,
+            String fileName, int version)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final ISampleBO bo = businessObjectFactory.createSampleBO(session);
+        bo.loadBySampleIdentifier(sample);
+        return bo.getSampleFileAttachment(fileName, version);
+    }
+
 }

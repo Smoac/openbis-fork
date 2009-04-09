@@ -53,8 +53,8 @@ public final class GenericConstants
     }
 
     /** Name of the servlet to download an experiment attachment. */
-    public static final String EXPERIMENT_ATTACHMENT_DOWNLOAD_SERVLET_NAME =
-            createServicePath("experiment-attachment-download");
+    public static final String ATTACHMENT_DOWNLOAD_SERVLET_NAME =
+            createServicePath("attachment-download");
 
     /** The HTTP URL parameter used to specify the version. */
     public static final String VERSION_PARAMETER = "version";
@@ -62,17 +62,8 @@ public final class GenericConstants
     /** The HTTP URL parameter used to specify the file name. */
     public static final String FILE_NAME_PARAMETER = "fileName";
 
-    /** The HTTP URL parameter used to specify the project. */
-    public static final String PROJECT_PARAMETER = "project";
-
-    /** The HTTP URL parameter used to specify the experiment. */
-    public static final String EXPERIMENT_PARAMETER = "experiment";
-
-    /** The HTTP URL parameter used to specify the group. */
-    public static final String GROUP_PARAMETER = "group";
-
-    /** The HTTP URL parameter used to specify the database. */
-    public static final String DATABASE_PARAMETER = "database";
+    /** The HTTP URL parameter used to specify the attachment holder. */
+    public static final String ATTACHMENT_HOLDER_PARAMETER = "attachmentHolder";
 
     /** Name of the servlet to export and download a file. */
     public static final String FILE_EXPORTER_DOWNLOAD_SERVLET_NAME =
@@ -83,4 +74,6 @@ public final class GenericConstants
 
     public static final String LABEL_SEPARATOR = ":";
 
+    /** The HTTP URL parameter used to specify the identifier. */
+    public static final String IDENTIFIER_PARAMETER = "identifier";
 }

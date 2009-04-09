@@ -117,7 +117,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
             genericExperimentViewer.setScrollMode(Scroll.AUTO);
             addSection(genericExperimentViewer,
                     new ExperimentPropertiesSection(result, viewContext));
-            addSection(genericExperimentViewer, new ExperimentAttachmentsSection(result,
+            addSection(genericExperimentViewer, new AttachmentsSection(result,
                     viewContext));
 
             ExperimentSamplesSection sampleSection =

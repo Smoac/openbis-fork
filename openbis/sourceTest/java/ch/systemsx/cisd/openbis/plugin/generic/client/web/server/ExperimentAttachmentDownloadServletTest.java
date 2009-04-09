@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractFileDownloadServlet.FileContent;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
@@ -37,11 +38,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
- * Test cases for corresponding {@link ExperimentAttachmentDownloadServlet} class.
+ * Test cases for corresponding {@link AttachmentDownloadServlet} class.
  * 
  * @author Izabela Adamczyk
  */
-@Friend(toClasses = ExperimentAttachmentDownloadServlet.class)
+@Friend(toClasses = AttachmentDownloadServlet.class)
 public final class ExperimentAttachmentDownloadServletTest
 {
     static final String SESSION_TOKEN = "session-token";
@@ -56,9 +57,9 @@ public final class ExperimentAttachmentDownloadServletTest
 
     protected Session session;
 
-    private ExperimentAttachmentDownloadServlet createServlet()
+    private AttachmentDownloadServlet createServlet()
     {
-        return new ExperimentAttachmentDownloadServlet(genericServer);
+        return new AttachmentDownloadServlet(genericServer);
     }
 
     @BeforeMethod
@@ -97,14 +98,10 @@ public final class ExperimentAttachmentDownloadServletTest
                     will(returnValue(CommonTestUtils.VERSION_22 + ""));
                     one(servletRequest).getParameter(GenericConstants.FILE_NAME_PARAMETER);
                     will(returnValue(CommonTestUtils.FILENAME));
-                    one(servletRequest).getParameter(GenericConstants.PROJECT_PARAMETER);
-                    will(returnValue(CommonTestUtils.PROJECT_CODE));
-                    one(servletRequest).getParameter(GenericConstants.EXPERIMENT_PARAMETER);
-                    will(returnValue(CommonTestUtils.EXPERIMENT_CODE));
-                    one(servletRequest).getParameter(GenericConstants.GROUP_PARAMETER);
-                    will(returnValue(CommonTestUtils.HOME_GROUP_CODE));
-                    one(servletRequest).getParameter(GenericConstants.DATABASE_PARAMETER);
-                    will(returnValue(CommonTestUtils.HOME_DATABASE_INSTANCE_CODE));
+                    one(servletRequest).getParameter(GenericConstants.ATTACHMENT_HOLDER_PARAMETER);
+                    will(returnValue(AttachmentHolderKind.EXPERIMENT.name()));
+                    one(servletRequest).getParameter(GenericConstants.IDENTIFIER_PARAMETER);
+                    will(returnValue(CommonTestUtils.createExperimentIdentifier().toString()));
 
                     one(servletRequest).getSession(false);
                     will(Expectations.returnValue(httpSession));

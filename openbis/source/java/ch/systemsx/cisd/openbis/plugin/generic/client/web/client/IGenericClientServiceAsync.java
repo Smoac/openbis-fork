@@ -45,10 +45,10 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             AsyncCallback<SampleGeneration> asyncCallback);
 
     /**
-     * @see IGenericClientService#registerSample(NewSample)
+     * @see IGenericClientService#registerSample(String, NewSample)
      */
-    public void registerSample(final NewSample sample, final AsyncCallback<Void> asyncCallback)
-            throws UserFailureException;
+    public void registerSample(final String sessionKey, final NewSample sample,
+            final AsyncCallback<Void> asyncCallback) throws UserFailureException;
 
     /**
      * @see IGenericClientService#registerSamples(SampleType, String)

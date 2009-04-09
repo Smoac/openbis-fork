@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAll
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperimentPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -39,6 +40,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * Definition of the client-server interface.
@@ -88,8 +91,6 @@ public interface IGenericServer extends IPluginCommonServer
 
     /**
      * Registers experiment.
-     * 
-     * @param attachments
      */
     @Transactional
     @RolesAllowed(RoleSet.USER)
@@ -107,5 +108,25 @@ public interface IGenericServer extends IPluginCommonServer
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
     public void registerMaterials(String sessionToken, String materialTypeCode,
             List<NewMaterial> newMaterials);
+
+    /**
+     * Returns attachment described by given sample identifier, filename and version.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.OBSERVER)
+    public AttachmentPE getSampleFileAttachment(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) SampleIdentifier sample,
+            String fileName, int version);
+
+    /**
+     * Returns attachment described by given project identifier, filename and version.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.OBSERVER)
+    public AttachmentPE getProjectFileAttachment(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier project,
+            String fileName, int version);
 
 }

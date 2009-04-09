@@ -37,8 +37,8 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<SampleGeneration> callback);
 
     /**
-     * @see IGenericClientService#registerSample(NewSample)
+     * @see IGenericClientService#registerSample(String, NewSample)
      */
-    public void registerSample(final NewSample sample,
+    public void registerSample(final String sessionKey, final NewSample sample,
             final AsyncCallback<Void> asyncCallback) throws UserFailureException;
 }

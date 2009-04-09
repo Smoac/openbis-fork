@@ -110,6 +110,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
     @Test
     public final void testRegisterSample()
     {
+        final String sessionKey = "some-session-key";
         final NewSample newSample =
                 createNewSample("/group1/sample1", "MASTER_PLATE", SampleProperty.EMPTY_ARRAY,
                         null, null);
@@ -117,7 +118,11 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
             {
                 {
                     prepareGetSessionToken(this);
-                    one(genericServer).registerSample(with(SESSION_TOKEN), getTranslatedSample());
+                    allowing(httpSession).getAttribute(sessionKey);
+                    will(returnValue(new UploadedFilesBean()));
+                    one(httpSession).removeAttribute(sessionKey);
+                    one(genericServer).registerSample(with(SESSION_TOKEN), getTranslatedSample(),
+                            with(new ArrayList<AttachmentPE>()));
                 }
 
                 private final NewSample getTranslatedSample()
@@ -126,7 +131,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                 }
 
             });
-        genericClientService.registerSample(newSample);
+        genericClientService.registerSample(sessionKey, newSample);
         context.assertIsSatisfied();
     }
 

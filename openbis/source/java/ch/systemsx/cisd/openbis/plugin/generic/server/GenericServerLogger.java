@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
@@ -64,10 +65,11 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
-    public void registerSample(final String sessionToken, final NewSample newSample)
+    public void registerSample(final String sessionToken, final NewSample newSample,
+            List<AttachmentPE> attachments)
     {
-        logTracking(sessionToken, "register_sample", "SAMPLE_TYPE(%s) SAMPLE(%S)", newSample
-                .getSampleType(), newSample.getIdentifier());
+        logTracking(sessionToken, "register_sample", "SAMPLE_TYPE(%s) SAMPLE(%S) ATTACHMENTS(%S)",
+                newSample.getSampleType(), newSample.getIdentifier(), attachments.size());
     }
 
     public ExperimentPE getExperimentInfo(final String sessionToken,
@@ -112,6 +114,22 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     {
         logAccess(sessionToken, "register_materials", "MATERIAL_TYPE(%s) MATERIALS(%s)",
                 materialTypeCode, CollectionUtils.abbreviate(newMaterials, 20));
+    }
+
+    public AttachmentPE getProjectFileAttachment(String sessionToken, ProjectIdentifier project,
+            String fileName, int version)
+    {
+        logAccess(sessionToken, "get_attachment", "PROJECT_IDENTIFIER(%s) FILE(%s) VERSION(%s)",
+                project, fileName, version);
+        return null;
+    }
+
+    public AttachmentPE getSampleFileAttachment(String sessionToken, SampleIdentifier sample,
+            String fileName, int version)
+    {
+        logAccess(sessionToken, "get_attachment", "SAMPLE_IDENTIFIER(%s) FILE(%s) VERSION(%s)",
+                sample, fileName, version);
+        return null;
     }
 
 }

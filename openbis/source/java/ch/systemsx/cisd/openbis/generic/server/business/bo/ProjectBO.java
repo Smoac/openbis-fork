@@ -16,16 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.Set;
+
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * The only productive implementation of {@link IProjectBO}. We are using an interface here to keep
@@ -93,5 +97,43 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
     {
         assert projectIdentifier != null : "Unspecified project identifier.";
         this.project = createProject(projectIdentifier, description, leaderId);
+    }
+
+    public void loadByProjectIdentifier(ProjectIdentifier identifier)
+    {
+        String databaseInstanceCode = identifier.getDatabaseInstanceCode();
+        String groupCode = identifier.getGroupCode();
+        String projectCode = identifier.getProjectCode();
+        project = getProjectDAO().tryFindProject(databaseInstanceCode, groupCode, projectCode);
+        if (project == null)
+        {
+            throw new UserFailureException(String
+                    .format("Project '%s' does not exist.", identifier));
+        }
+    }
+
+    public AttachmentPE getProjectFileAttachment(final String filename, final int version)
+    {
+        checkProjectLoaded();
+        project.ensureAttachmentsLoaded();
+        final Set<AttachmentPE> attachmentsSet = project.getAttachments();
+        for (AttachmentPE att : attachmentsSet)
+        {
+            if (att.getFileName().equals(filename) && att.getVersion() == version)
+            {
+                HibernateUtils.initialize(att.getAttachmentContent());
+                return att;
+            }
+        }
+        throw new UserFailureException("Attachment '" + filename + "' (version '" + version
+                + "') not found in project '" + project.getIdentifier() + "'.");
+    }
+
+    private void checkProjectLoaded()
+    {
+        if (project == null)
+        {
+            throw new IllegalStateException("Unloaded project.");
+        }
     }
 }

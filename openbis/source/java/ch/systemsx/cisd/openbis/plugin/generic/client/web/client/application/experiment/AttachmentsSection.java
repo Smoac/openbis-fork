@@ -52,16 +52,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLMe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
 /**
- * {@link SectionPanel} containing experiment attachments.
+ * {@link SectionPanel} containing attachments.
  * 
  * @author Izabela Adamczyk
  */
-public class ExperimentAttachmentsSection extends SectionPanel
+public class AttachmentsSection extends SectionPanel
 {
     public static final String ATTACHMENTS_ID_PREFIX =
             GenericConstants.ID_PREFIX + "experiment-attachment-section_";
@@ -70,10 +67,9 @@ public class ExperimentAttachmentsSection extends SectionPanel
 
     private final IMessageProvider messageProvider;
 
-    public ExperimentAttachmentsSection(final Experiment experiment,
-            final IViewContext<?> viewContext)
+    public AttachmentsSection(final Experiment experiment, final IViewContext<?> viewContext)
     {
-        super("Experiment Attachments");
+        super("Attachments");
         this.experiment = experiment;
         messageProvider = viewContext;
         if (experiment.getAttachments().size() > 0)
@@ -228,18 +224,14 @@ public class ExperimentAttachmentsSection extends SectionPanel
     private final static String createURL(final int version, final String fileName,
             final Experiment exp)
     {
-        Project project = exp.getProject();
-        Group group = project.getGroup();
-        DatabaseInstance instance = group.getInstance();
         URLMethodWithParameters methodWithParameters =
-                new URLMethodWithParameters(
-                        GenericConstants.EXPERIMENT_ATTACHMENT_DOWNLOAD_SERVLET_NAME);
+                new URLMethodWithParameters(GenericConstants.ATTACHMENT_DOWNLOAD_SERVLET_NAME);
         methodWithParameters.addParameter(GenericConstants.VERSION_PARAMETER, version);
         methodWithParameters.addParameter(GenericConstants.FILE_NAME_PARAMETER, fileName);
-        methodWithParameters.addParameter(GenericConstants.PROJECT_PARAMETER, project.getCode());
-        methodWithParameters.addParameter(GenericConstants.GROUP_PARAMETER, group.getCode());
-        methodWithParameters.addParameter(GenericConstants.EXPERIMENT_PARAMETER, exp.getCode());
-        methodWithParameters.addParameter(GenericConstants.DATABASE_PARAMETER, instance.getCode());
+        methodWithParameters.addParameter(GenericConstants.ATTACHMENT_HOLDER_PARAMETER, exp
+                .getAttachmentHolderKind().name());
+        methodWithParameters.addParameter(GenericConstants.IDENTIFIER_PARAMETER, exp
+                .getIdentifier());
         return methodWithParameters.toString();
     }
 

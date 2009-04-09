@@ -73,7 +73,7 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
     public CheckTableCommand attachmentsTable()
     {
         attachmentsSection =
-                new CheckTableCommand(ExperimentAttachmentsSection.ATTACHMENTS_ID_PREFIX
+                new CheckTableCommand(AttachmentsSection.ATTACHMENTS_ID_PREFIX
                         + identifier);
         return attachmentsSection;
     }

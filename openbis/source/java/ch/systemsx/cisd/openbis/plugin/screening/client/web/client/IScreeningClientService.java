@@ -44,5 +44,6 @@ public interface IScreeningClientService extends IClientService
     /**
      * Registers a new sample.
      */
-    public void registerSample(final NewSample sample) throws UserFailureException;
+    public void registerSample(final String sessionKey, final NewSample sample)
+            throws UserFailureException;
 }

@@ -16,9 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server;
 
+import java.util.List;
+
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -48,9 +51,10 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
-    public void registerSample(final String sessionToken, final NewSample newSample)
+    public void registerSample(final String sessionToken, final NewSample newSample,
+            List<AttachmentPE> attachments)
     {
-        logTracking(sessionToken, "register_plate", "PLATE_TYPE(%s) PLATE(%S)", newSample
-                .getSampleType(), newSample.getIdentifier());
+        logTracking(sessionToken, "register_plate", "PLATE_TYPE(%s) PLATE(%s) ATTACHMENTS(%s)",
+                newSample.getSampleType(), newSample.getIdentifier(), attachments.size());
     }
 }

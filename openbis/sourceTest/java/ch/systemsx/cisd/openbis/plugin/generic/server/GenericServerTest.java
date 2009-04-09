@@ -137,11 +137,11 @@ public final class GenericServerTest extends AbstractServerTestCase
                     will(returnValue(sampleBO));
 
                     one(sampleBO).define(newSample);
-                    one(sampleBO).save();
+                    exactly(2).of(sampleBO).save();
 
                 }
             });
-        createServer().registerSample(SESSION_TOKEN, newSample);
+        createServer().registerSample(SESSION_TOKEN, newSample, new ArrayList<AttachmentPE>());
         context.assertIsSatisfied();
     }
 
@@ -309,7 +309,7 @@ public final class GenericServerTest extends AbstractServerTestCase
 
                     one(experimentBO).define(newExperiment);
                     exactly(2).of(experimentBO).save();
-                    
+
                     one(experimentBO).getExperiment();
                     will(returnValue(experimentPE));
 

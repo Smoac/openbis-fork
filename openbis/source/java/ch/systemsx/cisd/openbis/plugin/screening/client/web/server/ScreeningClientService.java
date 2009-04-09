@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.server;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
@@ -26,10 +28,12 @@ import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.server.AttachmentRegistrationHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -93,15 +97,18 @@ public final class ScreeningClientService extends AbstractClientService implemen
         }
     }
 
-    public final void registerSample(final NewSample sample) throws UserFailureException
+    public final void registerSample(final String sessionKey, final NewSample sample)
+            throws UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            screeningServer.registerSample(sessionToken, sample);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+
+        final String sessionToken = getSessionToken();
+        new AttachmentRegistrationHelper<NewSample>()
+            {
+                @Override
+                public void register(List<AttachmentPE> attachments)
+                {
+                    screeningServer.registerSample(sessionToken, sample, attachments);
+                }
+            }.process(sessionKey, getHttpSession());
     }
 }

@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * @author Izabela Adamczyk
  */
 public final class Sample extends CodeWithRegistration<Sample> implements IInvalidationProvider,
-        Comparable<Sample>, IEntityInformationHolder
+        Comparable<Sample>, IEntityInformationHolder, IAttachmentHolder
 {
     public static final Sample[] EMPTY_ARRAY = new Sample[0];
 
@@ -53,12 +53,19 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
     private List<SampleProperty> properties;
 
     private Invalidation invalidation;
-    
+
     private Experiment experiment;
 
     private Long id;
 
     private Date modificationDate;
+
+    private List<Attachment> attachments;
+
+    public AttachmentHolderKind getAttachmentHolderKind()
+    {
+        return AttachmentHolderKind.SAMPLE;
+    }
 
     public SampleType getSampleType()
     {
@@ -141,7 +148,7 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
     {
         this.experiment = experiment;
     }
-    
+
     //
     // IIdentifierHolder
     //
@@ -198,5 +205,15 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
     public EntityKind getEntityKind()
     {
         return EntityKind.SAMPLE;
+    }
+
+    public void setAttachments(List<Attachment> attachments)
+    {
+        this.attachments = attachments;
+    }
+
+    public List<Attachment> getAttachments()
+    {
+        return attachments;
     }
 }

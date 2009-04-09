@@ -22,6 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -79,4 +80,14 @@ public interface ISampleBO
      */
     void edit(SampleIdentifier identifier, List<SampleProperty> properties,
             ExperimentIdentifier experimentIdentifierOrNul, Date version);
+
+    /**
+     * Adds the specified experiment attachment to the sample.
+     */
+    void addAttachment(AttachmentPE attachment);
+
+    /**
+     * Returns attachment (with content) given defined by filename and version.
+     */
+    public AttachmentPE getSampleFileAttachment(String fileName, int version);
 }

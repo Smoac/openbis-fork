@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.server.AttachmentRegistrationHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.MaterialTranslator;
@@ -51,7 +52,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -119,17 +119,18 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
-        public final void registerSample(final NewSample newSample)
+    public final void registerSample(final String sessionKey, final NewSample newSample)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            genericServer.registerSample(sessionToken, newSample);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        new AttachmentRegistrationHelper<NewSample>()
+            {
+                @Override
+                public void register(List<AttachmentPE> attachments)
+                {
+                    genericServer.registerSample(sessionToken, newSample, attachments);
+                }
+            }.process(sessionKey, getHttpSession());
     }
 
     public final List<BatchRegistrationResult> registerSamples(final SampleType sampleType,
@@ -227,51 +228,18 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
-    public void registerExperiment(final String sessionKey, NewExperiment experiment)
+    public void registerExperiment(final String sessionKey, final NewExperiment experiment)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        UploadedFilesBean uploadedFiles = null;
-        HttpSession session = null;
-        try
-        {
-            final String sessionToken = getSessionToken();
-            session = getHttpSession();
-            uploadedFiles = (UploadedFilesBean) session.getAttribute(sessionKey);
-            List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
-            if (uploadedFiles != null)
+        final String sessionToken = getSessionToken();
+        new AttachmentRegistrationHelper<NewExperiment>()
             {
-                for (final IUncheckedMultipartFile multipartFile : uploadedFiles.iterable())
+                @Override
+                public void register(List<AttachmentPE> attachments)
                 {
-                    String fileName = multipartFile.getOriginalFilename();
-                    byte[] content = multipartFile.getBytes();
-                    attachments.add(createAttachment(fileName, content));
+                    genericServer.registerExperiment(sessionToken, experiment, attachments);
                 }
-            }
-            genericServer.registerExperiment(sessionToken, experiment, attachments);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        } finally
-        {
-            if (uploadedFiles != null)
-            {
-                uploadedFiles.deleteTransferredFiles();
-            }
-            if (session != null)
-            {
-                session.removeAttribute(sessionKey);
-            }
-        }
-    }
-
-    private final static AttachmentPE createAttachment(String fileName, final byte[] content)
-    {
-        final AttachmentPE attachment = new AttachmentPE();
-        attachment.setFileName(fileName);
-        final AttachmentContentPE attachmentContent = new AttachmentContentPE();
-        attachmentContent.setValue(content);
-        attachment.setAttachmentContent(attachmentContent);
-        return attachment;
+            }.process(sessionKey, getHttpSession());
     }
 
     public final List<BatchRegistrationResult> registerMaterials(final MaterialType materialType,

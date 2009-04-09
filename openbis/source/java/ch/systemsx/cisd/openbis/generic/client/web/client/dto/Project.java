@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  * 
  * @author Tomasz Pylak
  */
-public class Project extends CodeWithRegistration<Project>
+public class Project extends CodeWithRegistration<Project> implements IAttachmentHolder
 {
     private Group group;
 
@@ -34,6 +34,11 @@ public class Project extends CodeWithRegistration<Project>
     private Person projectLeader;
 
     private String identifier;
+
+    public AttachmentHolderKind getAttachmentHolderKind()
+    {
+        return AttachmentHolderKind.PROJECT;
+    }
 
     public Group getGroup()
     {

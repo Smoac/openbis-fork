@@ -52,7 +52,8 @@ public interface IGenericClientService extends IClientService
     /**
      * Registers a new sample.
      */
-    public void registerSample(final NewSample sample) throws UserFailureException;
+    public void registerSample(final String sessionKey, final NewSample sample)
+            throws UserFailureException;
 
     /**
      * Registers new samples from files which have been previously uploaded.

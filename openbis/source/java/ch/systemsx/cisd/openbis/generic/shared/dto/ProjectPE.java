@@ -51,6 +51,8 @@ import org.hibernate.validator.Pattern;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
@@ -85,6 +87,8 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     private PersonPE registrator;
 
     private Date registrationDate;
+
+    private ProjectIdentifier projectIdentifier;
 
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
     @Generated(GenerationTime.INSERT)
@@ -266,6 +270,16 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     protected Set<AttachmentPE> getInternalAttachments()
     {
         return attachments;
+    }
+
+    @Transient
+    public final String getIdentifier()
+    {
+        if (projectIdentifier == null)
+        {
+            projectIdentifier = IdentifierHelper.createProjectIdentifier(this);
+        }
+        return projectIdentifier.toString();
     }
 
 }

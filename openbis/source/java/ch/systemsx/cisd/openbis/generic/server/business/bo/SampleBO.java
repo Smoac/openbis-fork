@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -23,10 +24,12 @@ import java.util.Set;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -40,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * The unique {@link ISampleBO} implementation.
@@ -49,6 +53,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public final class SampleBO extends AbstractSampleBusinessObject implements ISampleBO
 {
     private SamplePE sample;
+
+    private final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
 
     private boolean dataChanged;
 
@@ -110,17 +116,35 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     public final void save()
     {
         assert sample != null : "Sample not loaded.";
-        assert dataChanged : "Data have not been changed.";
-
-        try
+        if (dataChanged)
         {
-            getSampleDAO().createSample(sample);
-        } catch (final DataAccessException ex)
+            try
+            {
+                getSampleDAO().createSample(sample);
+            } catch (final DataAccessException ex)
+            {
+                throwException(ex, String.format("Sample '%s'", sample.getSampleIdentifier()));
+            }
+            dataChanged = false;
+        }
+        if (attachments.isEmpty() == false)
         {
-            throwException(ex, String.format("Sample '%s'", sample.getSampleIdentifier()));
+            final IAttachmentDAO dao = getAttachmentDAO();
+            for (final AttachmentPE property : attachments)
+            {
+                try
+                {
+                    dao.createAttachment(property, sample);
+                } catch (final DataAccessException e)
+                {
+                    final String fileName = property.getFileName();
+                    throwException(e, String.format("Filename '%s' for sample '%s'", fileName,
+                            sample.getSampleIdentifier()));
+                }
+            }
+            attachments.clear();
         }
         checkBusinessRules();
-        dataChanged = false;
     }
 
     private void checkBusinessRules()
@@ -304,5 +328,46 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     {
         final String code = createCode(EntityKind.SAMPLE);
         sample.setCode(code);
+    }
+
+    public void addAttachment(AttachmentPE sampleAttachment)
+    {
+        assert sample != null : "no sample has been loaded";
+        sampleAttachment.setRegistrator(findRegistrator());
+        escapeFileName(sampleAttachment);
+        attachments.add(sampleAttachment);
+    }
+
+    private void escapeFileName(final AttachmentPE attachment)
+    {
+        if (attachment != null)
+        {
+            attachment.setFileName(SamplePE.escapeFileName(attachment.getFileName()));
+        }
+    }
+
+    private void checkSampleLoaded()
+    {
+        if (sample == null)
+        {
+            throw new IllegalStateException("Unloaded sample.");
+        }
+    }
+
+    public AttachmentPE getSampleFileAttachment(final String filename, final int version)
+    {
+        checkSampleLoaded();
+        sample.ensureAttachmentsLoaded();
+        final Set<AttachmentPE> attachmentsSet = sample.getAttachments();
+        for (AttachmentPE att : attachmentsSet)
+        {
+            if (att.getFileName().equals(filename) && att.getVersion() == version)
+            {
+                HibernateUtils.initialize(att.getAttachmentContent());
+                return att;
+            }
+        }
+        throw new UserFailureException("Attachment '" + filename + "' (version '" + version
+                + "') not found in sample '" + sample.getIdentifier() + "'.");
     }
 }

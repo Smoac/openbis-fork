@@ -21,6 +21,11 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.application.fra
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -41,6 +46,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.FormPanelListener;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.AttachmentManager;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
 
 /**
@@ -57,6 +64,10 @@ public final class GenericSampleRegistrationForm extends
 
     public static final String ID_SUFFIX_PARENT = "parent";
 
+    private static final int DEFAULT_NUMBER_OF_ATTACHMENTS = 3;
+
+    public static final String SESSION_KEY = createSimpleId(EntityKind.SAMPLE);
+
     private final IViewContext<IGenericClientServiceAsync> viewContext;
 
     private final SampleType sampleType;
@@ -67,12 +78,16 @@ public final class GenericSampleRegistrationForm extends
 
     private TextField<String> parent;
 
+    private AttachmentManager attachmentManager =
+            new AttachmentManager(SESSION_KEY, DEFAULT_NUMBER_OF_ATTACHMENTS, "Attachment");
+
     public GenericSampleRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
     {
         super(viewContext, sampleType.getSampleTypePropertyTypes(), EntityKind.SAMPLE);
         this.viewContext = viewContext;
         this.sampleType = sampleType;
+        addUploadFeatures(formPanel, SESSION_KEY);
     }
 
     private final String createSampleIdentifier()
@@ -92,12 +107,17 @@ public final class GenericSampleRegistrationForm extends
     @Override
     public final void submitValidForm()
     {
+    }
+
+    public final void registerSample()
+    {
         final NewSample newSample =
                 new NewSample(createSampleIdentifier(), sampleType, StringUtils.trimToNull(parent
                         .getValue()), StringUtils.trimToNull(container.getValue()));
         final List<SampleProperty> properties = extractProperties();
         newSample.setProperties(properties.toArray(SampleProperty.EMPTY_ARRAY));
-        viewContext.getService().registerSample(newSample, new RegisterSampleCallback(viewContext));
+        viewContext.getService().registerSample(SESSION_KEY, newSample,
+                new RegisterSampleCallback(viewContext));
     }
 
     public final class RegisterSampleCallback extends AbstractAsyncCallback<Void>
@@ -112,6 +132,18 @@ public final class GenericSampleRegistrationForm extends
         protected void process(Void result)
         {
             infoBox.displayInfo(createSuccessfullRegistrationInfo());
+            resetPanel();
+            setUploadEnabled(true);
+        }
+
+        @Override
+        protected final void finishOnFailure(final Throwable caught)
+        {
+            setUploadEnabled(true);
+        }
+
+        private void resetPanel()
+        {
             formPanel.reset();
         }
 
@@ -144,6 +176,50 @@ public final class GenericSampleRegistrationForm extends
 
         container = new VarcharField(viewContext.getMessage(Dict.PART_OF_SAMPLE), false);
         container.setId(getId() + ID_SUFFIX_CONTAINER);
+
+        formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
+            {
+                @Override
+                protected void onSuccessfullUpload()
+                {
+                    registerSample();
+                }
+
+                @Override
+                protected void setUploadEnabled()
+                {
+                    GenericSampleRegistrationForm.this.setUploadEnabled(true);
+                }
+            });
+        redefineSaveListeners();
+    }
+
+    protected void setUploadEnabled(boolean enabled)
+    {
+        saveButton.setEnabled(enabled);
+    }
+
+    void redefineSaveListeners()
+    {
+        saveButton.removeAllListeners();
+        saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public final void componentSelected(final ButtonEvent ce)
+                {
+                    if (formPanel.isValid())
+                    {
+                        if (attachmentManager.attachmentsDefined() > 0)
+                        {
+                            setUploadEnabled(false);
+                            formPanel.submit();
+                        } else
+                        {
+                            registerSample();
+                        }
+                    }
+                }
+            });
     }
 
     @Override
@@ -154,6 +230,10 @@ public final class GenericSampleRegistrationForm extends
         fields.add(groupSelectionWidget.asDatabaseModificationAware());
         fields.add(wrapUnaware(parent));
         fields.add(wrapUnaware(container));
+        for (FileUploadField attachmentField : attachmentManager.getFields())
+        {
+            fields.add(wrapUnaware((Field<?>) attachmentField));
+        }
         return fields;
     }
 

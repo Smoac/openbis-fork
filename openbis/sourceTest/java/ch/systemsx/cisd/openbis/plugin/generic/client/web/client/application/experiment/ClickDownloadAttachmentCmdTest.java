@@ -54,7 +54,7 @@ public class ClickDownloadAttachmentCmdTest extends AbstractDefaultTestCommand
     public void execute()
     {
         String attachmentGridId =
-                ExperimentAttachmentsSection.createAttachmentGridId(experimentIdentifier);
+                AttachmentsSection.createAttachmentGridId(experimentIdentifier);
         final Widget widget = GWTTestUtil.getWidgetWithID(attachmentGridId);
         final Grid<AttachmentModel> table = (Grid<AttachmentModel>) widget;
         table.fireEvent(Events.CellClick, createGridEvent(table, fileName));

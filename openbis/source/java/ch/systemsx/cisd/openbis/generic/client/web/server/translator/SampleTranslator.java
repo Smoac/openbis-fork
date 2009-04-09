@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
@@ -74,6 +75,15 @@ public final class SampleTranslator
             result.setRegistrationDate(samplePE.getRegistrationDate());
             result.setProperties(SamplePropertyTranslator.translate(samplePE.getProperties()));
             result.setExperiment(ExperimentTranslator.translate(samplePE.getExperiment()));
+            List<Attachment> attachments;
+            if (samplePE.attachmentsInitialized() == false)
+            {
+                attachments = DtoConverters.createUnmodifiableEmptyList();
+            } else
+            {
+                attachments = ExperimentTranslator.translate(samplePE.getAttachments());
+            }
+            result.setAttachments(attachments);
         }
         if (containerDep > 0 && samplePE.getContainer() != null)
         {
@@ -102,7 +112,6 @@ public final class SampleTranslator
             generated.add(SampleTranslator.translate(samplePE, false));
         }
         sampleGeneration.setGenerated(generated.toArray(new Sample[generated.size()]));
-
         return sampleGeneration;
     }
 

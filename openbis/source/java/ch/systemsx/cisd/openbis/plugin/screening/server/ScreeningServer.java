@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
@@ -29,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -99,7 +102,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 .getSampleInfo(session, sample);
     }
 
-    public final void registerSample(final String sessionToken, final NewSample newSample)
+    public final void registerSample(final String sessionToken, final NewSample newSample,
+            List<AttachmentPE> attachments)
     {
         throw new NotImplementedException();
     }

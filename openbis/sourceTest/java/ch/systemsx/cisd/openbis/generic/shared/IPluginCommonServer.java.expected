@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
+import java.util.List;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -26,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSample
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -59,6 +62,7 @@ public interface IPluginCommonServer extends IServer
     @RolesAllowed(RoleSet.USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
     public void registerSample(final String sessionToken,
-            @AuthorizationGuard(guardClass = NewSamplePredicate.class) final NewSample newSample);
+            @AuthorizationGuard(guardClass = NewSamplePredicate.class) final NewSample newSample,
+            List<AttachmentPE> attachments);
 
 }
