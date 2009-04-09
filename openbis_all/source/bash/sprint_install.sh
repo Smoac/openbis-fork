@@ -14,8 +14,9 @@ cd -
 DB_SNAPSHOT=db_snapshots/sprint$PREV_VER-lims_productive.sql
 KEYSTORE=~/.keystore
 
-# Unalias rm command
+# Unalias rm and cp commands
 unalias rm
+unalias cp
 
 echo Stopping the components...
 ./sprint/openBIS-server/apache-tomcat/bin/shutdown.sh
@@ -62,5 +63,6 @@ rm -rf openbis
 
 # Reset the rm command alias
 alias 'rm=rm -i'
+alias 'cp=cp -i'
 
 echo Done!
