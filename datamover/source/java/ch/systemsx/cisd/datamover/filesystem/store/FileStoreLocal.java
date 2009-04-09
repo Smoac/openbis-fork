@@ -26,8 +26,8 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusWithResult;
-import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.LastModificationChecker;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
@@ -62,6 +62,8 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
 
     private final boolean skipAccessibilityTest;
 
+    private final LastModificationChecker lastModificationChecker;
+
     public FileStoreLocal(final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark,
             final String description, final IFileSysOperationsFactory factory,
             final boolean skipAccessibilityTest)
@@ -71,6 +73,7 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
         this.remover = factory.getRemover();
         this.mover = factory.getMover();
         this.highwaterMarkWatcher = createHighwaterMarkWatcher(hostAwareFileWithHighwaterMark);
+        this.lastModificationChecker = new LastModificationChecker(getPath());
     }
 
     private final static HighwaterMarkWatcher createHighwaterMarkWatcher(
@@ -96,39 +99,13 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
     public final StatusWithResult<Long> lastChanged(final StoreItem item,
             final long stopWhenFindYounger)
     {
-        try
-        {
-            long lastChanged =
-                    FileUtilities.lastChanged(getChildFile(item), true, stopWhenFindYounger);
-            return StatusWithResult.<Long> create(lastChanged);
-        } catch (UnknownLastChangedException ex)
-        {
-            return createLastChangedError(item, ex);
-        }
+        return lastModificationChecker.lastChanged(item, stopWhenFindYounger);
     }
 
     public final StatusWithResult<Long> lastChangedRelative(final StoreItem item,
             final long stopWhenFindYoungerRelative)
     {
-        try
-        {
-            long lastChanged =
-                    FileUtilities.lastChangedRelative(getChildFile(item), true,
-                            stopWhenFindYoungerRelative);
-            return StatusWithResult.<Long> create(lastChanged);
-        } catch (UnknownLastChangedException ex)
-        {
-            return createLastChangedError(item, ex);
-        }
-    }
-
-    private static StatusWithResult<Long> createLastChangedError(final StoreItem item,
-            UnknownLastChangedException ex)
-    {
-        String errorMsg =
-                String.format("Could not determine \"last changed time\" of %s: %s", item, ex
-                        .getCause());
-        return StatusWithResult.<Long> createError(errorMsg);
+        return lastModificationChecker.lastChangedRelative(item, stopWhenFindYoungerRelative);
     }
 
     public final BooleanStatus checkDirectoryFullyAccessible(final long timeOutMillis)
