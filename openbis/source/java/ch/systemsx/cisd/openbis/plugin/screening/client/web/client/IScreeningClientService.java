@@ -24,6 +24,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 
 /**
  * Service interface for the <i>generic</i> <i>GWT</i> client.
+ * <p>
+ * Each method should throw {@link UserFailureException}. The authorization framework can throw it
+ * when the user has insufficient privileges. If it is not marked, the GWT client will report
+ * unexpected exception.
+ * </p>
  * 
  * @author Christian Ribeaud
  */
