@@ -27,7 +27,9 @@ import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
@@ -38,8 +40,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.C
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.FormPanelListener;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.AttachmentManager;
 
 /**
  * A {@link LayoutContainer} extension for registering a new project.
