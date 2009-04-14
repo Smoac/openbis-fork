@@ -559,9 +559,11 @@ function find_dataset_dir {
 	local pattern=$1
 	local dir=`find $DATA/main-store/identified -type d | grep "$pattern"`
 	if [ "$dir" != "" ]; then
-	       return $dir
+	       assert_dir_exists $dir
+	       echo $dir
+	       return
 	fi
-        report_error "$DATA/main-store/identified does not contains a directory matching $pattern"
+        report_error "$DATA/main-store/identified does not contain a directory matching $pattern: $dir"
 }
 
 function assert_correct_experiment_info {
@@ -584,7 +586,6 @@ function assert_correct_content_of_processing_dir {
     assert_same_content $TEMPLATE/openBIS-client/testdata/register-experiments/processing-parameters.txt \
                         $DATA/processing-dir/processing-parameters-from-openbis
     local bds_container=`find_dataset_dir ".*-3VCP1$"`
-    assert_dir_exists $bds_container
     local data_set2=$bds_container/data/original/microX_200801011213_3VCP1
     assert_same_inode $data_set/TIFF/blabla_3VCP1_K13_8_w460.tif $data_set2/TIFF/blabla_3VCP1_K13_8_w460.tif
     assert_same_inode $data_set/TIFF/blabla_3VCP1_M03_2_w530.tif $data_set2/TIFF/blabla_3VCP1_M03_2_w530.tif
@@ -595,7 +596,6 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     echo ==== assert correct content of plate 3VCP1 in store ====
     
     local raw_data_dir=`find_dataset_dir ".*-3VCP1$"`
-    assert_dir_exists $raw_data_dir
     local raw_data_set=$raw_data_dir
     
     echo == check data structure version
@@ -685,7 +685,6 @@ function assert_correct_content_of_image_analysis_data {
     
     echo ====  check image analysis data for cell plate $cell_plate ====
     local plate_with_img_analysis=`find_dataset_dir $cell_plate_pattern`
-    assert_dir_exists $plate_with_img_analysis
     assert_same_content $TEST_DATA/$cell_plate $plate_with_img_analysis
 }
 
