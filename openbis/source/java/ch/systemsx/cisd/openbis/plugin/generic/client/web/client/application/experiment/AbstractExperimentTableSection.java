@@ -29,6 +29,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 
 /**

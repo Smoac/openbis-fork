@@ -49,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLMe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IAttachmentHolder;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.SectionPanel;
 
 /**
  * {@link SectionPanel} containing attachments.
