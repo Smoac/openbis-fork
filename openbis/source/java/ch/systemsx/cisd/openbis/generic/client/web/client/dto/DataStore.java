@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import java.util.Date;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 
 /**
@@ -25,19 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
  */
 public class DataStore extends Code<DataStore>
 {
-    private Date registrationDate;
-
     private String downloadUrl;
-
-    public Date getRegistrationDate()
-    {
-        return registrationDate;
-    }
-
-    public void setRegistrationDate(Date registrationDate)
-    {
-        this.registrationDate = registrationDate;
-    }
 
     public String getDownloadUrl()
     {

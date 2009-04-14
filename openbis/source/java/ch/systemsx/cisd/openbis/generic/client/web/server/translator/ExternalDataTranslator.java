@@ -48,29 +48,28 @@ public class ExternalDataTranslator
     {
     }
 
-    public static List<ExternalData> translate(List<ExternalDataPE> list, String dataStoreBaseURL)
+    public static List<ExternalData> translate(List<ExternalDataPE> list, String dedaultDataStoreBaseURL)
     {
         ArrayList<ExternalData> result = new ArrayList<ExternalData>(list.size());
         for (ExternalDataPE externalDataPE : list)
         {
-            ExternalData data = translate(externalDataPE, dataStoreBaseURL);
+            ExternalData data = translate(externalDataPE, dedaultDataStoreBaseURL);
             result.add(data);
         }
         return result;
     }
 
-    public static ExternalData translate(ExternalDataPE externalDataPE, String dataStoreBaseURL,
+    public static ExternalData translate(ExternalDataPE externalDataPE, String defaultDataStoreBaseURL,
             final LoadableFields... withExperimentFields)
     {
-        return translate(externalDataPE, dataStoreBaseURL, false, withExperimentFields);
+        return translate(externalDataPE, defaultDataStoreBaseURL, false, withExperimentFields);
     }
 
-    public static ExternalData translate(ExternalDataPE externalDataPE, String dataStoreBaseURL,
+    public static ExternalData translate(ExternalDataPE externalDataPE, String defaultDataStoreBaseURL,
             boolean loadSampleProperties, final LoadableFields... withExperimentFields)
     {
         SamplePE sample = tryToGetSample(externalDataPE);
         ExternalData externalData = new ExternalData();
-        externalData.setDataStoreBaseURL(dataStoreBaseURL);
         externalData.setCode(StringEscapeUtils.escapeHtml(externalDataPE.getCode()));
         externalData.setComplete(BooleanOrUnknown.tryToResolve(externalDataPE.getComplete()));
         externalData.setDataProducerCode(StringEscapeUtils.escapeHtml(externalDataPE
@@ -93,6 +92,7 @@ public class ExternalDataTranslator
                 .getSampleType()));
         externalData.setSampleCode(sample == null ? null : StringEscapeUtils.escapeHtml(sample
                 .getCode()));
+        externalData.setDataStore(DataStoreTranslator.translate(externalDataPE.getDataStore(), defaultDataStoreBaseURL));
         if (loadSampleProperties && sample != null)
         {
             externalData.setSampleProperties(SamplePropertyTranslator.translate(sample

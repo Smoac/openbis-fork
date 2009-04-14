@@ -37,8 +37,6 @@ public final class Group extends CodeWithRegistration<Group>
 
     private DatabaseInstance instance;
 
-    private DataStore dataStore;
-
     private String identifier;
 
     public final String getDescription()
@@ -79,16 +77,6 @@ public final class Group extends CodeWithRegistration<Group>
     public void setInstance(final DatabaseInstance instance)
     {
         this.instance = instance;
-    }
-
-    public DataStore getDataStore()
-    {
-        return dataStore;
-    }
-
-    public void setDataStore(final DataStore dataStore)
-    {
-        this.dataStore = dataStore;
     }
 
     public String getIdentifier()

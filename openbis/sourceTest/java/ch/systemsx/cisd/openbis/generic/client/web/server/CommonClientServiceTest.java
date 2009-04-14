@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
@@ -307,6 +308,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     public void testListExternalDataForExperiment()
     {
         final ExternalDataPE externalDataPE = new ExternalDataPE();
+        externalDataPE.setDataStore(new DataStorePE());
         FileFormatTypePE fileFormatTypePE = new FileFormatTypePE();
         fileFormatTypePE.setCode("PNG");
         fileFormatTypePE.setDescription("Portable Network Graphics");
@@ -333,7 +335,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         List<ExternalData> list = resultSet.getList();
         assertEquals(1, list.size());
         ExternalData data = list.get(0);
-        assertEquals(DATA_STORE_BASE_URL + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME, data.getDataStoreBaseURL());
+        assertEquals(DATA_STORE_BASE_URL + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME, data.getDataStore().getDownloadUrl());
         assertEquals("PNG", data.getFileFormatType().getCode());
         assertEquals("Portable Network Graphics", data.getFileFormatType().getDescription());
 

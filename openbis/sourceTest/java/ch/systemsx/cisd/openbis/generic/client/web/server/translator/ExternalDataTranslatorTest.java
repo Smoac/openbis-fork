@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -52,7 +53,9 @@ public class ExternalDataTranslatorTest extends AssertJUnit
     @Test
     public void testTranslationOfEmptyExternalDataPE()
     {
-        ExternalData externalData = ExternalDataTranslator.translate(new ExternalDataPE(), BASE_URL);
+        ExternalDataPE externalDataPE = new ExternalDataPE();
+        externalDataPE.setDataStore(new DataStorePE());
+        ExternalData externalData = ExternalDataTranslator.translate(externalDataPE, BASE_URL);
         
         assertEquals(null, externalData.getCode());
         assertEquals(null, externalData.getParentCode());
@@ -66,6 +69,7 @@ public class ExternalDataTranslatorTest extends AssertJUnit
     {
         ExternalDataPE externalDataPE = new ExternalDataPE();
         externalDataPE.setCode("code");
+        externalDataPE.setDataStore(new DataStorePE());
         externalDataPE.setComplete(BooleanOrUnknown.F);
         externalDataPE.setDataProducerCode("dataProducerCode");
         DataSetTypePE dataSetTypePE = new DataSetTypePE();
@@ -83,8 +87,10 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         externalDataPE.setLocatorType(locatorTypePE);
         ExternalDataPE parent1 = new ExternalDataPE();
         parent1.setCode("parent1");
+        parent1.setDataStore(new DataStorePE());
         ExternalDataPE parent2 = new ExternalDataPE();
         parent2.setCode("parent2");
+        parent2.setDataStore(new DataStorePE());
         externalDataPE.setParents(new LinkedHashSet<DataPE>(Arrays.asList(parent1, parent2)));
         ExperimentPE experimentPE = new ExperimentPE();
         experimentPE.setCode("my-experiment");
@@ -118,7 +124,7 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         
         ExternalData externalData = ExternalDataTranslator.translate(externalDataPE, BASE_URL);
         
-        assertEquals(BASE_URL, externalData.getDataStoreBaseURL());
+        assertEquals(BASE_URL, externalData.getDataStore().getDownloadUrl());
         assertEquals("code", externalData.getCode());
         assertEquals(Boolean.FALSE, externalData.getComplete());
         assertEquals("dataProducerCode", externalData.getDataProducerCode());
@@ -146,6 +152,7 @@ public class ExternalDataTranslatorTest extends AssertJUnit
     public void testTranslationADerivedExternalDataPE()
     {
         ExternalDataPE externalDataPE = new ExternalDataPE();
+        externalDataPE.setDataStore(new DataStorePE());
         SamplePE samplePE = new SamplePE();
         samplePE.setCode("sample");
         SampleTypePE sampleTypePE = new SampleTypePE();

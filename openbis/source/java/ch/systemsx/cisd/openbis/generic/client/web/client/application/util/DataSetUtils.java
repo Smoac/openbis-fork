@@ -29,7 +29,7 @@ public class DataSetUtils
     public static void showDataSet(ExternalData dataSet, GenericViewModel model)
     {
         URLMethodWithParameters methodWithParameters =
-            new URLMethodWithParameters(dataSet.getDataStoreBaseURL() + "/" + dataSet.getCode());
+            new URLMethodWithParameters(dataSet.getDataStore().getDownloadUrl() + "/" + dataSet.getCode());
         methodWithParameters.addParameter("sessionID", model.getSessionContext().getSessionID());
         WindowUtils.openWindow(methodWithParameters.toString());
     }
