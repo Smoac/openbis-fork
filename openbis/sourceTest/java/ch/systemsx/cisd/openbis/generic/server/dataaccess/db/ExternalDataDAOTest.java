@@ -135,6 +135,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         externalData.setId(externalDataDAO.tryToFindDataSetByCode(dataSetCode).getId());
         externalData.setCode(dataSetCode);
         externalData.setDataSetType(getDataSetType(DataSetTypeCode.HCS_IMAGE));
+        externalData.setDataStore(pickADataStore());
         externalData.setExperiment(pickAnExperiment());
         externalData.setSampleAcquiredFrom(pickASample());
         externalData.setFileFormatType(pickAFileFormatType());
