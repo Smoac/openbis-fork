@@ -132,7 +132,7 @@ public final class GenericSampleRegistrationForm extends
         protected void process(Void result)
         {
             infoBox.displayInfo(createSuccessfullRegistrationInfo());
-            // resetPanel();
+            resetPanel();
             setUploadEnabled(true);
         }
 
