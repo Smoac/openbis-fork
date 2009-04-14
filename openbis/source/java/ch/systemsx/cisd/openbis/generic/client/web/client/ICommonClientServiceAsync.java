@@ -366,4 +366,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void getProjectInfo(String projectIdentifier,
             final AsyncCallback<Project> projectInfoCallback);
 
+    /**
+     * @see ICommonClientService#generateCode(String)
+     */
+    public void generateCode(String codePrefix, final AsyncCallback<String> callback);
+
 }

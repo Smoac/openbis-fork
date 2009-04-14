@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeFieldWithGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -57,12 +57,15 @@ abstract public class AbstractGenericEntityRegistrationForm<T extends EntityType
 
     private PropertiesEditor<T, S, P> propertiesEditor;
 
+    private final EntityKind entityKind;
+
     public AbstractGenericEntityRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext,
             List<S> entityTypesPropertyTypes, EntityKind entityKind)
     {
         super(viewContext, createId(entityKind));
         this.viewContext = viewContext;
+        this.entityKind = entityKind;
         propertiesEditor =
                 createPropertiesEditor(entityTypesPropertyTypes, createId(entityKind), viewContext
                         .getCommonViewContext());
@@ -88,7 +91,9 @@ abstract public class AbstractGenericEntityRegistrationForm<T extends EntityType
 
     private final void createFormFields()
     {
-        codeField = new CodeField(viewContext, viewContext.getMessage(Dict.CODE));
+        codeField =
+                new CodeFieldWithGenerator(viewContext, viewContext.getMessage(Dict.CODE),
+                        entityKind.name().substring(0, 1));
         codeField.setId(getId() + ID_SUFFIX_CODE);
         createEntitySpecificFields();
     }

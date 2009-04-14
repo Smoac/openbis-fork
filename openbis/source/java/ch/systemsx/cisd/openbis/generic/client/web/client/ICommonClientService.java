@@ -421,4 +421,9 @@ public interface ICommonClientService extends IClientService
      */
     public Project getProjectInfo(final String projectIdentifier) throws UserFailureException;
 
+    /**
+     * Generates unique code.
+     */
+    public String generateCode(final String prefix) throws UserFailureException;
+
 }

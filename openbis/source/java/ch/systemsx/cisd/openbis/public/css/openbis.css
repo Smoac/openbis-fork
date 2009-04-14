@@ -110,3 +110,12 @@ body,div,td {
     height: 0%;
     width: 0%;
 }
+
+/*****************************
+ * Form
+ *****************************/
+
+.x-form-trigger-generate {
+    background-image: url(../images/generate-trigger.gif) !important;
+    cursor: pointer;
+}

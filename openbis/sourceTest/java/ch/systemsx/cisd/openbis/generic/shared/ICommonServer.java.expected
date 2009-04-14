@@ -478,4 +478,11 @@ public interface ICommonServer extends IServer
             String sessionToken,
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier identifier);
 
+    /**
+     * Returns unique code.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public String generateCode(String sessionToken, String prefix);
+
 }

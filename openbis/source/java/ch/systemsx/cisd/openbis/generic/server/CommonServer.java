@@ -794,4 +794,10 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         final ProjectPE project = bo.getProject();
         return project;
     }
+
+    public String generateCode(String sessionToken, String prefix)
+    {
+        getSessionManager().getSession(sessionToken);
+        return prefix + getDAOFactory().getCodeSequenceDAO().getNextCodeSequenceId();
+    }
 }

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
+import com.extjs.gxt.ui.client.widget.form.TriggerField;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
@@ -24,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  * 
  * @author Christian Ribeaud
  */
-public final class CodeField extends VarcharField
+public class CodeField extends TriggerField<String>
 {
     public static final String CODE_CHARS = "[a-zA-Z0-9_\\-]+";
 
@@ -52,10 +54,11 @@ public final class CodeField extends VarcharField
     public CodeField(final IMessageProvider messageProvider, final String label,
             final String pattern)
     {
-        super(label, true);
+        VarcharField.configureField(this, label, true);
         setMaxLength(40);
         setRegex(pattern);
         getMessages().setRegexText(messageProvider.getMessage(Dict.INVALID_CODE_MESSAGE, "Code"));
+        setHideTrigger(true);
     }
 
 }
