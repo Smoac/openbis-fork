@@ -96,8 +96,9 @@ public final class CommonServerTest extends AbstractServerTestCase
 
     private final ICommonServer createServer()
     {
-        CommonServer server = new CommonServer(authenticationService, sessionManager, 
-                daoFactory, commonBusinessObjectFactory, new LastModificationState());
+        CommonServer server =
+                new CommonServer(authenticationService, sessionManager, daoFactory,
+                        commonBusinessObjectFactory, new LastModificationState());
         server.setSampleTypeSlaveServerPlugin(sampleTypeSlaveServerPlugin);
         server.setDataSetTypeSlaveServerPlugin(dataSetTypeSlaveServerPlugin);
         return server;
@@ -659,7 +660,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         createServer().registerVocabulary(SESSION_TOKEN, new Vocabulary());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testAddVocabularyTerms()
     {
@@ -676,12 +677,12 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(vocabularyBO).save();
                 }
             });
-        
+
         createServer().addVocabularyTerms(SESSION_TOKEN, "v-code", terms);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDeleteVocabularyTerms()
     {
@@ -806,18 +807,20 @@ public final class CommonServerTest extends AbstractServerTestCase
         final List<SampleProperty> properties = new ArrayList<SampleProperty>();
         prepareGetSession();
         final Date version = new Date();
+        final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
         context.checking(new Expectations()
             {
                 {
                     one(commonBusinessObjectFactory).createSampleBO(SESSION);
                     will(returnValue(sampleBO));
 
-                    one(sampleBO).edit(identifier, properties, null, version);
+                    one(sampleBO).edit(identifier, properties, null, attachments, version);
                     one(sampleBO).save();
 
                 }
             });
-        createServer().editSample(SESSION_TOKEN, identifier, properties, null, version);
+        createServer()
+                .editSample(SESSION_TOKEN, identifier, properties, null, attachments, version);
         context.assertIsSatisfied();
     }
 
@@ -866,9 +869,9 @@ public final class CommonServerTest extends AbstractServerTestCase
                     ExternalDataPE ds2 = createDataSet("ds2", "type1");
                     ExternalDataPE ds3 = createDataSet("ds3", "type2");
                     will(returnValue(Arrays.asList(ds1, ds2, ds3)));
-                    
-                    one(dataSetTypeSlaveServerPlugin).deleteDataSets(SESSION, Arrays.asList(ds1, ds2),
-                            "reason");
+
+                    one(dataSetTypeSlaveServerPlugin).deleteDataSets(SESSION,
+                            Arrays.asList(ds1, ds2), "reason");
                     one(dataSetTypeSlaveServerPlugin).deleteDataSets(SESSION, Arrays.asList(ds3),
                             "reason");
                 }
@@ -878,7 +881,7 @@ public final class CommonServerTest extends AbstractServerTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     private ExternalDataPE createDataSet(String code, String type)
     {
         ExternalDataPE externalData = new ExternalDataPE();

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.List;
 
 /**
  * @author Izabela Adamczyk
@@ -25,4 +26,6 @@ public interface IAttachmentHolder
     public AttachmentHolderKind getAttachmentHolderKind();
 
     public String getIdentifier();
+
+    public List<Attachment> getAttachments();
 }

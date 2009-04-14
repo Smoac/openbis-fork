@@ -102,7 +102,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
     {
 
         final String sessionToken = getSessionToken();
-        new AttachmentRegistrationHelper<NewSample>()
+        new AttachmentRegistrationHelper()
             {
                 @Override
                 public void register(List<AttachmentPE> attachments)

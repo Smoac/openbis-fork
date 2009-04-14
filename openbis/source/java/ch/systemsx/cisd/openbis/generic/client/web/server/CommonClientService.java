@@ -29,7 +29,6 @@ import javax.servlet.http.HttpSession;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
-import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
@@ -98,7 +97,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
@@ -1060,59 +1058,26 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    private final static AttachmentPE createAttachment(String fileName, final byte[] content)
-    {
-        final AttachmentPE attachment = new AttachmentPE();
-        attachment.setFileName(fileName);
-        final AttachmentContentPE attachmentContent = new AttachmentContentPE();
-        attachmentContent.setValue(content);
-        attachment.setAttachmentContent(attachmentContent);
-        return attachment;
-    }
-
-    public void updateExperiment(String sessionKey, String experimentIdentifier,
-            List<ExperimentProperty> properties, String newProjectIdentifier, Date version)
+    public void updateExperiment(String sessionKey, final String experimentIdentifier,
+            final List<ExperimentProperty> properties, final String newProjectIdentifier,
+            final Date version)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-
-        UploadedFilesBean uploadedFiles = null;
-        HttpSession session = null;
-        try
-        {
-            final String sessionToken = getSessionToken();
-            session = getHttpSession();
-            uploadedFiles = (UploadedFilesBean) session.getAttribute(sessionKey);
-            List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
-            if (uploadedFiles != null)
+        final String sessionToken = getSessionToken();
+        new AttachmentRegistrationHelper()
             {
-                for (final IUncheckedMultipartFile multipartFile : uploadedFiles.iterable())
+                @Override
+                public void register(List<AttachmentPE> attachments)
                 {
-                    String fileName = multipartFile.getOriginalFilename();
-                    byte[] content = multipartFile.getBytes();
-                    attachments.add(createAttachment(fileName, content));
+                    final ExperimentIdentifier identifier =
+                            new ExperimentIdentifierFactory(experimentIdentifier)
+                                    .createIdentifier();
+                    final ProjectIdentifier project =
+                            new ProjectIdentifierFactory(newProjectIdentifier).createIdentifier();
+                    commonServer.editExperiment(sessionToken, identifier, properties, attachments,
+                            project, version);
                 }
-            }
-            final ExperimentIdentifier identifier =
-                    new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
-            final ProjectIdentifier project =
-                    new ProjectIdentifierFactory(newProjectIdentifier).createIdentifier();
-            commonServer.editExperiment(sessionToken, identifier, properties, attachments, project,
-                    version);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        } finally
-        {
-            if (uploadedFiles != null)
-            {
-                uploadedFiles.deleteTransferredFiles();
-            }
-            if (session != null)
-            {
-                session.removeAttribute(sessionKey);
-            }
-        }
-
+            }.process(sessionKey, getHttpSession());
     }
 
     public void uploadDataSets(List<String> dataSetCodes, DataSetUploadParameters uploadParameters)
@@ -1164,31 +1129,32 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public void updateSample(
-            String sampleIdentifier,
-            List<SampleProperty> properties,
-            ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier experimentIdentifierOrNull,
-            Date version)
+            String sessionKey,
+            final String sampleIdentifier,
+            final List<SampleProperty> properties,
+            final ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier experimentIdentifierOrNull,
+            final Date version)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final SampleIdentifier identifier =
-                    new SampleIdentifierFactory(sampleIdentifier).createIdentifier();
-            ExperimentIdentifier convExperimentIdentifierOrNull = null;
-            if (experimentIdentifierOrNull != null)
+        final String sessionToken = getSessionToken();
+        new AttachmentRegistrationHelper()
             {
-                convExperimentIdentifierOrNull =
-                        BeanUtils
-                                .createBean(ExperimentIdentifier.class, experimentIdentifierOrNull);
-            }
-            commonServer.editSample(sessionToken, identifier, properties,
-                    convExperimentIdentifierOrNull, version);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-
+                @Override
+                public void register(List<AttachmentPE> attachments)
+                {
+                    final SampleIdentifier identifier =
+                            new SampleIdentifierFactory(sampleIdentifier).createIdentifier();
+                    ExperimentIdentifier convExperimentIdentifierOrNull = null;
+                    if (experimentIdentifierOrNull != null)
+                    {
+                        convExperimentIdentifierOrNull =
+                                BeanUtils.createBean(ExperimentIdentifier.class,
+                                        experimentIdentifierOrNull);
+                    }
+                    commonServer.editSample(sessionToken, identifier, properties,
+                            convExperimentIdentifierOrNull, attachments, version);
+                }
+            }.process(sessionKey, getHttpSession());
     }
 
     public LastModificationState getLastModificationState()

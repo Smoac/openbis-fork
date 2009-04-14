@@ -34,6 +34,6 @@ public class SectionPanel extends ContentPanel
         setCollapsible(true);
         setAnimCollapse(false);
         setBodyBorder(false);
-        setScrollMode(Scroll.AUTOY);
+        setScrollMode(Scroll.AUTO);
     }
 }

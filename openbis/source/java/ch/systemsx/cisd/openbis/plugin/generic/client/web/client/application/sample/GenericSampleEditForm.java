@@ -164,7 +164,7 @@ public final class GenericSampleEditForm
         final List<SampleProperty> properties = extractProperties();
         ExperimentIdentifier experimentIdent =
                 experimentFieldOrNull != null ? experimentFieldOrNull.getValue() : null;
-        viewContext.getCommonService().updateSample(entity.getIdentifier(), properties,
+        viewContext.getCommonService().updateSample(sessionKey, entity.getIdentifier(), properties,
                 experimentIdent, entity.getModificationDate(),
                 new UpdateSampleCallback(viewContext));
     }

@@ -10,7 +10,7 @@ var generic = {
   version: "Version",
   versions: "Versions",
   versions_template: "Show all versions ({0})",
-  no_attachments_found: "There are no attachments in this experiment",
+  no_attachments_found: "There are no attachments in this {0}",
   no_samples_found: "There are no samples in this experiment",
 
   //

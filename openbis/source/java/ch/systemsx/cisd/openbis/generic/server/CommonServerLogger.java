@@ -350,8 +350,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public void uploadDataSets(String sessionToken, List<String> dataSetCodes,
             DataSetUploadContext uploadContext)
     {
-        logTracking(sessionToken, "upload_data_sets", "CODES(%s) CIFEX-URL(%s) FILE(%s)", dataSetCodes,
-                uploadContext.getCifexURL(), uploadContext.getFileName());
+        logTracking(sessionToken, "upload_data_sets", "CODES(%s) CIFEX-URL(%s) FILE(%s)",
+                dataSetCodes, uploadContext.getCifexURL(), uploadContext.getFileName());
     }
 
     public void editMaterial(String sessionToken, MaterialIdentifier identifier,
@@ -362,10 +362,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public void editSample(String sessionToken, SampleIdentifier identifier,
             List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
-            Date version)
+            List<AttachmentPE> attachments, Date version)
     {
-        logTracking(sessionToken, "edit_sample", "SAMPLE(%s), CHANGE_TO_EXPERIMENT(%S)",
-                identifier, experimentIdentifierOrNull);
+        logTracking(sessionToken, "edit_sample",
+                "SAMPLE(%s), CHANGE_TO_EXPERIMENT(%s) ATTACHMENTS(%s)", identifier,
+                experimentIdentifierOrNull, attachments.size());
 
     }
 

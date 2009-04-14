@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -34,6 +36,8 @@ public class Project extends CodeWithRegistration<Project> implements IAttachmen
     private Person projectLeader;
 
     private String identifier;
+
+    private List<Attachment> attachments;
 
     public AttachmentHolderKind getAttachmentHolderKind()
     {
@@ -78,6 +82,16 @@ public class Project extends CodeWithRegistration<Project> implements IAttachmen
     public void setIdentifier(String identifier)
     {
         this.identifier = identifier;
+    }
+
+    public void setAttachments(List<Attachment> attachments)
+    {
+        this.attachments = attachments;
+    }
+
+    public List<Attachment> getAttachments()
+    {
+        return attachments;
     }
 
 }

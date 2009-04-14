@@ -123,7 +123,7 @@ public final class GenericClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
-        new AttachmentRegistrationHelper<NewSample>()
+        new AttachmentRegistrationHelper()
             {
                 @Override
                 public void register(List<AttachmentPE> attachments)
@@ -232,7 +232,7 @@ public final class GenericClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
-        new AttachmentRegistrationHelper<NewExperiment>()
+        new AttachmentRegistrationHelper()
             {
                 @Override
                 public void register(List<AttachmentPE> attachments)

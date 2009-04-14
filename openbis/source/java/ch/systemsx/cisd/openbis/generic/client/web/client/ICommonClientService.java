@@ -390,9 +390,9 @@ public interface ICommonClientService extends IClientService
     /**
      * Updates sample.
      */
-    public void updateSample(final String sampleIdentifier, List<SampleProperty> properties,
-            ExperimentIdentifier experimentIdentifierOrNull, Date version)
-            throws UserFailureException;
+    public void updateSample(String sessionKey, final String sampleIdentifier,
+            List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
+            Date version) throws UserFailureException;
 
     /** Deletes the specified data sets. */
     public void deleteDataSets(List<String> dataSetCodes, String reason)

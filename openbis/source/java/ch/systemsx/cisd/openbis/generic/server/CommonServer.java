@@ -625,7 +625,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
                     businessObjectFactory.createExternalDataTable(session);
             externalDataTable.loadByDataSetCodes(dataSetCodes);
             List<ExternalDataPE> dataSets = externalDataTable.getExternalData();
-            Map<DataSetTypePE, List<ExternalDataPE>> groupedDataSets = new LinkedHashMap<DataSetTypePE, List<ExternalDataPE>>();
+            Map<DataSetTypePE, List<ExternalDataPE>> groupedDataSets =
+                    new LinkedHashMap<DataSetTypePE, List<ExternalDataPE>>();
             for (ExternalDataPE dataSet : dataSets)
             {
                 DataSetTypePE dataSetType = dataSet.getDataSetType();
@@ -742,11 +743,11 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public void editSample(String sessionToken, SampleIdentifier identifier,
             List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
-            Date version)
+            List<AttachmentPE> attachments, Date version)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-        sampleBO.edit(identifier, properties, experimentIdentifierOrNull, version);
+        sampleBO.edit(identifier, properties, experimentIdentifierOrNull, attachments, version);
         sampleBO.save();
 
     }

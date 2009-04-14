@@ -436,7 +436,7 @@ public interface ICommonServer extends IServer
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) SampleIdentifier identifier,
             List<SampleProperty> properties,
             @AuthorizationGuard(guardClass = NullableGroupIdentifierPredicate.class) ExperimentIdentifier experimentIdentifierOrNull,
-            Date version);
+            List<AttachmentPE> attachments, Date version);
 
     /**
      * Lists vocabulary terms of a given vocabulary. Includes terms usage statistics.

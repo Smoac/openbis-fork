@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IAttachmentHolder;
 
 /**
  * {@link SectionPanel} containing attachments.
@@ -61,24 +61,28 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 public class AttachmentsSection extends SectionPanel
 {
     public static final String ATTACHMENTS_ID_PREFIX =
-            GenericConstants.ID_PREFIX + "experiment-attachment-section_";
+            GenericConstants.ID_PREFIX + "attachment-section_";
 
-    private final Experiment experiment;
+    // FIXME: add attachmentHolderKind
+
+    private final IAttachmentHolder attachmentHolder;
 
     private final IMessageProvider messageProvider;
 
-    public AttachmentsSection(final Experiment experiment, final IViewContext<?> viewContext)
+    public AttachmentsSection(final IAttachmentHolder attachmentHolder,
+            final IViewContext<?> viewContext)
     {
         super("Attachments");
-        this.experiment = experiment;
+        this.attachmentHolder = attachmentHolder;
         messageProvider = viewContext;
-        if (experiment.getAttachments().size() > 0)
+        if (attachmentHolder.getAttachments().size() > 0)
         {
             add(createAttachmentsGrid());
         } else
         {
-            add(new Html(messageProvider.getMessage(Dict.NO_ATTACHMENTS_FOUND)), new RowData(-1,
-                    -1, new Margins(3)));
+            add(new Html(messageProvider.getMessage(Dict.NO_ATTACHMENTS_FOUND, attachmentHolder
+                    .getAttachmentHolderKind().name().toLowerCase())), new RowData(-1, -1,
+                    new Margins(3)));
         }
     }
 
@@ -93,7 +97,7 @@ public class AttachmentsSection extends SectionPanel
     private Component createAttachmentsGrid()
     {
         final ListStore<AttachmentModel> attachmentStore = new ListStore<AttachmentModel>();
-        attachmentStore.add(AttachmentModel.convert(experiment.getAttachments()));
+        attachmentStore.add(AttachmentModel.convert(attachmentHolder.getAttachments()));
         final Grid<AttachmentModel> attachmentGrid =
                 new Grid<AttachmentModel>(attachmentStore, new ColumnModel(
                         defineAttachmentColumns()));
@@ -127,7 +131,7 @@ public class AttachmentsSection extends SectionPanel
                 private void showVersionsPanel(final String fileName,
                         final List<Attachment> allFiles)
                 {
-                    final String tabTitle = experiment.getIdentifier() + ">" + fileName;
+                    final String tabTitle = attachmentHolder.getIdentifier() + ">" + fileName;
                     final ITabItemFactory tabFactory = new ITabItemFactory()
                         {
                             public ITabItem create()
@@ -138,7 +142,7 @@ public class AttachmentsSection extends SectionPanel
 
                             public String getId()
                             {
-                                return createAttachmentVersionTabId(fileName, experiment
+                                return createAttachmentVersionTabId(fileName, attachmentHolder
                                         .getIdentifier());
                             }
                         };
@@ -151,7 +155,7 @@ public class AttachmentsSection extends SectionPanel
                     return files;
                 }
             });
-        attachmentGrid.setId(createAttachmentGridId(experiment.getIdentifier()));
+        attachmentGrid.setId(createAttachmentGridId(attachmentHolder.getIdentifier()));
         return attachmentGrid;
     }
 
@@ -175,8 +179,9 @@ public class AttachmentsSection extends SectionPanel
     {
 
         ContentPanel panel = new ContentPanel();
-        panel.setHeading("Versions of file '" + fileName + "' from experiment '"
-                + experiment.getIdentifier() + "'");
+        panel.setHeading("Versions of file '" + fileName + "' from "
+                + attachmentHolder.getAttachmentHolderKind().name().toLowerCase() + " '"
+                + attachmentHolder.getIdentifier() + "'");
         final ListStore<AttachmentVersionModel> attachmentStore =
                 new ListStore<AttachmentVersionModel>();
         attachmentStore.add(AttachmentVersionModel.convert(oldVersions));
@@ -204,7 +209,7 @@ public class AttachmentsSection extends SectionPanel
                     attachmentGrid.getSelectionModel().deselectAll();
                 }
             });
-        panel.setId(createAttachmentVersionTabId(fileName, experiment.getIdentifier()));
+        panel.setId(createAttachmentVersionTabId(fileName, attachmentHolder.getIdentifier()));
         panel.add(attachmentGrid);
         return panel;
     }
@@ -218,11 +223,11 @@ public class AttachmentsSection extends SectionPanel
 
     private void downloadAttachment(String fileName, int version)
     {
-        WindowUtils.openWindow(createURL(version, fileName, experiment));
+        WindowUtils.openWindow(createURL(version, fileName, attachmentHolder));
     }
 
     private final static String createURL(final int version, final String fileName,
-            final Experiment exp)
+            final IAttachmentHolder exp)
     {
         URLMethodWithParameters methodWithParameters =
                 new URLMethodWithParameters(GenericConstants.ATTACHMENT_DOWNLOAD_SERVLET_NAME);

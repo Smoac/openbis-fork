@@ -340,11 +340,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             Date version, final AsyncCallback<Void> asyncCallback) throws UserFailureException;
 
     /**
-     * @see ICommonClientService#updateSample(String, List, ExperimentIdentifier, Date)
+     * @see ICommonClientService#updateSample(String, String, List, ExperimentIdentifier, Date)
      */
-    public void updateSample(final String sampleIdentifier, List<SampleProperty> properties,
-            ExperimentIdentifier experimentIdentifierOrNull, Date version,
-            final AsyncCallback<Void> asyncCallback) throws UserFailureException;
+    public void updateSample(String sessionKey, final String sampleIdentifier,
+            List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
+            Date version, final AsyncCallback<Void> asyncCallback) throws UserFailureException;
 
     /** @see ICommonClientService#deleteDataSets(List, String) */
     public void deleteDataSets(List<String> dataSetCodes, String reason,

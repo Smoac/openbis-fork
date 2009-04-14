@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -528,7 +529,7 @@ public final class SampleBOTest extends AbstractBOTest
         prepareTryToLoadOfGroupSample(identifier, sample);
         try
         {
-            createSampleBO().edit(identifier, null, null, now);
+            createSampleBO().edit(identifier, null, null, new ArrayList<AttachmentPE>(), now);
         } catch (UserFailureException e)
         {
             return;
@@ -549,7 +550,8 @@ public final class SampleBOTest extends AbstractBOTest
         prepareTryToLoadOfGroupSample(identifier, sample);
         prepareNoPropertiesToUpdate(sample);
         ExperimentIdentifier experimentIdentifier = null;
-        createSampleBO().edit(identifier, null, experimentIdentifier, now);
+        createSampleBO().edit(identifier, null, experimentIdentifier,
+                new ArrayList<AttachmentPE>(), now);
     }
 
     private void prepareNoPropertiesToUpdate(final SamplePE sample)
@@ -614,7 +616,8 @@ public final class SampleBOTest extends AbstractBOTest
                     will(returnValue(new ArrayList<ExternalDataPE>()));
                 }
             });
-        createSampleBO().edit(identifier, null, experimentIdentifier, now);
+        createSampleBO().edit(identifier, null, experimentIdentifier,
+                new ArrayList<AttachmentPE>(), now);
 
         assertEquals(experimentToAttach, sample.getExperiment());
     }

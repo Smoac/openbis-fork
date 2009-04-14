@@ -79,7 +79,8 @@ public interface ISampleBO
      * sample is connected.
      */
     void edit(SampleIdentifier identifier, List<SampleProperty> properties,
-            ExperimentIdentifier experimentIdentifierOrNul, Date version);
+            ExperimentIdentifier experimentIdentifierOrNul, List<AttachmentPE> attachments,
+            Date version);
 
     /**
      * Adds the specified experiment attachment to the sample.
@@ -90,4 +91,7 @@ public interface ISampleBO
      * Returns attachment (with content) given defined by filename and version.
      */
     public AttachmentPE getSampleFileAttachment(String fileName, int version);
+
+    /** Adds attachments */
+    void enrichWithAttachments();
 }

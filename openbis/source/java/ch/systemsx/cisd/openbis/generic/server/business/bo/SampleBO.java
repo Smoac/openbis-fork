@@ -225,7 +225,8 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     }
 
     public void edit(SampleIdentifier identifier, List<SampleProperty> properties,
-            ExperimentIdentifier experimentIdentifierOrNull, Date version)
+            ExperimentIdentifier experimentIdentifierOrNull, List<AttachmentPE> newAttachments,
+            Date version)
     {
         loadBySampleIdentifier(identifier);
         if (sample.getModificationDate().equals(version) == false)
@@ -234,6 +235,10 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         }
         updateProperties(properties);
         updateExperiment(experimentIdentifierOrNull);
+        for (AttachmentPE a : newAttachments)
+        {
+            addAttachment(a);
+        }
         dataChanged = true;
     }
 
@@ -369,5 +374,13 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         }
         throw new UserFailureException("Attachment '" + filename + "' (version '" + version
                 + "') not found in sample '" + sample.getIdentifier() + "'.");
+    }
+
+    public final void enrichWithAttachments()
+    {
+        if (sample != null)
+        {
+            sample.ensureAttachmentsLoaded();
+        }
     }
 }

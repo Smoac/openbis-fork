@@ -11,7 +11,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailure
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 
-public abstract class AttachmentRegistrationHelper<T>
+public abstract class AttachmentRegistrationHelper
 {
 
     abstract public void register(List<AttachmentPE> attachments);

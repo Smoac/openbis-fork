@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
  * @author Izabela Adamczyk
  */
 @Friend(toClasses = AttachmentDownloadServlet.class)
-public final class ExperimentAttachmentDownloadServletTest
+public final class AttachmentDownloadServletTest
 {
     static final String SESSION_TOKEN = "session-token";
 

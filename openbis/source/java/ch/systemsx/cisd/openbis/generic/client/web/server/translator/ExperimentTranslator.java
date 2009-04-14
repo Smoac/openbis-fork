@@ -105,6 +105,7 @@ public final class ExperimentTranslator
     }
 
     public final static List<Attachment> translate(final Set<AttachmentPE> set)
+    // FIXME: move to AattachmentTranslator
     {
         if (set == null)
         {

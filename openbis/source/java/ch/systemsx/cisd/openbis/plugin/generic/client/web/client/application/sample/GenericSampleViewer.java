@@ -74,6 +74,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.AttachmentsSection;
 
 /**
  * The <i>generic</i> sample viewer.
@@ -127,9 +128,11 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         return data;
     }
 
-    private final Component createRightPanel()
+    private final Component createRightPanel(SampleGeneration sampleGeneration)
     {
         final LayoutContainer container = new LayoutContainer();
+        container.add(new AttachmentsSection(sampleGeneration.getGenerator(), viewContext),
+                new RowData(1, 0.33, new Margins(5, 5, 0, 0)));
         container.setLayout(new RowLayout());
         // 'Part of' samples
         ContentPanel panel = createContentPanel(viewContext.getMessage(Dict.PART_OF_HEADING));
@@ -142,13 +145,13 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         partOfSamplesGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         partOfSamplesGrid.setLoadMask(true);
         panel.add(partOfSamplesGrid);
-        container.add(panel, new RowData(1, 0.5, new Margins(0, 5, 5, 0)));
+        container.add(panel, new RowData(1, 0.33, new Margins(5, 5, 0, 0)));
         // External data
         panel = createContentPanel(viewContext.getMessage(Dict.EXTERNAL_DATA_HEADING));
         disposableBrowser =
                 SampleDataSetBrowser.create(viewContext, sampleIdentifier, getId() + DATA_POSTFIX);
         panel.add(disposableBrowser.getComponent());
-        container.add(panel, new RowData(1, 0.5, new Margins(0, 5, 0, 0)));
+        container.add(panel, new RowData(1, 0.34, new Margins(5, 5, 0, 0)));
         return container;
     }
 
@@ -390,7 +393,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
             final Component leftPanel = genericSampleViewer.createLeftPanel(result);
             genericSampleViewer.add(leftPanel, GenericSampleViewer.createLeftBorderLayoutData());
             // Right panel
-            final Component rightPanel = genericSampleViewer.createRightPanel();
+            final Component rightPanel = genericSampleViewer.createRightPanel(result);
             genericSampleViewer.add(rightPanel, GenericSampleViewer.createRightBorderLayoutData());
             genericSampleViewer.layout();
             genericSampleViewer.loadStores();

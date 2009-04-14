@@ -118,6 +118,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         final Session session = getSessionManager().getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(identifier);
+        sampleBO.enrichWithAttachments();
         final SamplePE sample = sampleBO.getSample();
         return getSampleTypeSlaveServerPlugin(sample.getSampleType())
                 .getSampleInfo(session, sample);
