@@ -331,7 +331,7 @@ public interface ICommonServer extends IServer
     public void registerProject(
             String sessionToken,
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier projectIdentifier,
-            String description, String leaderId);
+            String description, String leaderId, List<AttachmentPE> attachments);
 
     /**
      * Performs an <i>Hibernate Search</i> based on given parameters.
@@ -468,5 +468,14 @@ public interface ICommonServer extends IServer
      */
     @RolesAllowed(RoleSet.OBSERVER)
     public LastModificationState getLastModificationState(String sessionToken);
+
+    /**
+     * For given {@link ProjectIdentifier} returns the corresponding {@link ProjectPE}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public ProjectPE getProjectInfo(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier identifier);
 
 }

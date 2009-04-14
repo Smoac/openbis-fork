@@ -942,23 +942,27 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void registerProject(Project project)
+    public void registerProject(String sessionKey, final Project project)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         assert project != null : "Unspecified project.";
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final ProjectIdentifier projectIdentifier =
-                    new ProjectIdentifierFactory(project.getIdentifier()).createIdentifier();
-            Person leader = project.getProjectLeader();
-            final String leaderId = leader == null ? null : project.getProjectLeader().getUserId();
-            commonServer.registerProject(sessionToken, projectIdentifier, project.getDescription(),
-                    leaderId);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        new AttachmentRegistrationHelper()
+            {
+                @Override
+                public void register(List<AttachmentPE> attachments)
+                {
+                    final ProjectIdentifier projectIdentifier =
+                            new ProjectIdentifierFactory(project.getIdentifier())
+                                    .createIdentifier();
+                    Person leader = project.getProjectLeader();
+                    final String leaderId =
+                            leader == null ? null : project.getProjectLeader().getUserId();
+                    commonServer.registerProject(sessionToken, projectIdentifier, project
+                            .getDescription(), leaderId, attachments);
+                }
+            }.process(sessionKey, getHttpSession());
+
     }
 
     public String prepareExportDataSetSearchHits(TableExportCriteria<ExternalData> exportCriteria)
@@ -1162,6 +1166,23 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             return commonServer.getLastModificationState(getSessionToken());
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public Project getProjectInfo(String projectIdentifier)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final ProjectIdentifier identifier =
+                    new ProjectIdentifierFactory(projectIdentifier).createIdentifier();
+            final ProjectPE project = commonServer.getProjectInfo(sessionToken, identifier);
+            return ProjectTranslator.translate(project);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

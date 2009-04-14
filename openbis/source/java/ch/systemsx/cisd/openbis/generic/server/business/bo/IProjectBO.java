@@ -56,4 +56,12 @@ public interface IProjectBO extends IBusinessObject
      * Returns attachment (with content) given defined by filename and version.
      */
     public AttachmentPE getProjectFileAttachment(String fileName, int version);
+
+    /** Loads attachments */
+    public void enrichWithAttachments();
+
+    /**
+     * Adds the specified attachment to the project.
+     */
+    public void addAttachment(AttachmentPE att);
 }

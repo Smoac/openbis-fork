@@ -541,11 +541,16 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     public void registerProject(String sessionToken, ProjectIdentifier projectIdentifier,
-            String description, String leaderId)
+            String description, String leaderId, List<AttachmentPE> attachments)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
         projectBO.define(projectIdentifier, description, leaderId);
+        projectBO.save();
+        for (AttachmentPE att : attachments)
+        {
+            projectBO.addAttachment(att);
+        }
         projectBO.save();
 
     }
@@ -778,5 +783,15 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     {
         checkSession(sessionToken);
         return lastModificationState;
+    }
+
+    public ProjectPE getProjectInfo(String sessionToken, ProjectIdentifier identifier)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IProjectBO bo = businessObjectFactory.createProjectBO(session);
+        bo.loadByProjectIdentifier(identifier);
+        bo.enrichWithAttachments();
+        final ProjectPE project = bo.getProject();
+        return project;
     }
 }

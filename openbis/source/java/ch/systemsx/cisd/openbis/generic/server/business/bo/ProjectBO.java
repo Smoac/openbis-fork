@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -47,6 +50,10 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
      * </p>
      */
     private ProjectPE project;
+
+    private boolean dataChanged;
+
+    private final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
 
     public ProjectBO(final IDAOFactory daoFactory, final Session session)
     {
@@ -78,12 +85,32 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
     public final void save()
     {
         assert project != null : "Can not save an undefined project.";
-        try
+        if (dataChanged)
         {
-            getProjectDAO().createProject(project);
-        } catch (final DataAccessException ex)
+            try
+            {
+                getProjectDAO().createProject(project);
+            } catch (final DataAccessException ex)
+            {
+                throwException(ex, "Project '" + project.getCode() + "'");
+            }
+        }
+        if (attachments.isEmpty() == false)
         {
-            throwException(ex, "Project '" + project.getCode() + "'");
+            final IAttachmentDAO attachmentDAO = getAttachmentDAO();
+            for (final AttachmentPE property : attachments)
+            {
+                try
+                {
+                    attachmentDAO.createAttachment(property, project);
+                } catch (final DataAccessException e)
+                {
+                    final String fileName = property.getFileName();
+                    throwException(e, String.format("Filename '%s' for project '%s'", fileName,
+                            project.getIdentifier()));
+                }
+            }
+            attachments.clear();
         }
     }
 
@@ -97,6 +124,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
     {
         assert projectIdentifier != null : "Unspecified project identifier.";
         this.project = createProject(projectIdentifier, description, leaderId);
+        dataChanged = true;
     }
 
     public void loadByProjectIdentifier(ProjectIdentifier identifier)
@@ -109,6 +137,23 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         {
             throw new UserFailureException(String
                     .format("Project '%s' does not exist.", identifier));
+        }
+        dataChanged = false;
+    }
+
+    public final void addAttachment(final AttachmentPE attachment)
+    {
+        assert project != null : "no project has been loaded";
+        attachment.setRegistrator(findRegistrator());
+        escapeFileName(attachment);
+        attachments.add(attachment);
+    }
+
+    private void escapeFileName(final AttachmentPE attachment)
+    {
+        if (attachment != null)
+        {
+            attachment.setFileName(ProjectPE.escapeFileName(attachment.getFileName()));
         }
     }
 
@@ -134,6 +179,14 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         if (project == null)
         {
             throw new IllegalStateException("Unloaded project.");
+        }
+    }
+
+    public final void enrichWithAttachments()
+    {
+        if (project != null)
+        {
+            project.ensureAttachmentsLoaded();
         }
     }
 }

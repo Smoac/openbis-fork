@@ -175,7 +175,7 @@ public final class ProjectRegistrationForm extends AbstractRegistrationForm
     private void registerProject()
     {
         final Project project = createProject();
-        viewContext.getService().registerProject(project,
+        viewContext.getService().registerProject(SESSION_KEY, project,
                 new ProjectRegistrationCallback(viewContext, project));
     }
 

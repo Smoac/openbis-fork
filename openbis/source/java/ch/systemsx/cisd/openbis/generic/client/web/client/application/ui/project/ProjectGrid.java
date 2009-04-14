@@ -18,10 +18,23 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.projec
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ProjectViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.ProjectColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
@@ -46,15 +59,36 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
 
     public static final String GRID_ID = BROWSER_ID + "_grid";
 
+    public static final String SHOW_DETAILS_BUTTON_ID = BROWSER_ID + "-show-details";
+
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        return new ProjectGrid(viewContext).asDisposableWithoutToolbar();
+        final ProjectGrid grid = new ProjectGrid(viewContext);
+        return grid.asDisposableWithToolbar(grid.createToolbar());
     }
 
     private ProjectGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID, GRID_ID);
+    }
+
+    private final Component createToolbar()
+    {
+        ToolBar toolbar = new ToolBar();
+        toolbar.add(new FillToolItem());
+        Button showDetailsButton =
+                createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
+                        new ISelectedEntityInvoker<BaseEntityModel<Project>>()
+                            {
+                                public void invoke(BaseEntityModel<Project> selectedItem)
+                                {
+                                    showEntityViewer(selectedItem, false);
+                                }
+                            });
+        showDetailsButton.setId(SHOW_DETAILS_BUTTON_ID);
+        toolbar.add(new AdapterToolItem(showDetailsButton));
+        return toolbar;
     }
 
     @Override
@@ -82,6 +116,26 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
     {
         return asColumnFilters(new ProjectColDefKind[]
             { ProjectColDefKind.CODE, ProjectColDefKind.GROUP });
+    }
+
+    @Override
+    protected void showEntityViewer(BaseEntityModel<Project> modelData, boolean editMode)
+    {
+        final Project project = modelData.getBaseObject();
+        final ITabItemFactory tabFactory = new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    return DefaultTabItem.createUnaware(new ProjectViewer(viewContext, project
+                            .getIdentifier()), false);
+                }
+
+                public String getId()
+                {
+                    return ProjectViewer.createId(project.getIdentifier());
+                }
+            };
+        DispatcherHelper.dispatchNaviEvent(tabFactory);
     }
 
     public DatabaseModificationKind[] getRelevantModifications()

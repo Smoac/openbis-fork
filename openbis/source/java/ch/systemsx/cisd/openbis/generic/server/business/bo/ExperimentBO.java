@@ -257,12 +257,12 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         }
         if (attachments.isEmpty() == false)
         {
-            final IAttachmentDAO experimentPropertyDAO = getAttachmentDAO();
+            final IAttachmentDAO attachmentDAO = getAttachmentDAO();
             for (final AttachmentPE property : attachments)
             {
                 try
                 {
-                    experimentPropertyDAO.createAttachment(property, experiment);
+                    attachmentDAO.createAttachment(property, experiment);
                 } catch (final DataAccessException e)
                 {
                     final String fileName = property.getFileName();

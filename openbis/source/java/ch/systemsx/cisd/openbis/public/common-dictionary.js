@@ -329,6 +329,16 @@ var common = {
  incorrect_material_syntax: "Incorrect material specification. Please provide the material code followed by the type in brackets: 'code (type)'.",
  TITLE_CHOOSE_EXPERIMENT: "Choose an Experiment",
  
+ //
+ // Attachments
+ //
+ no_attachments_found: "There are no attachments in this {0}",
+ file_name: "File Name",
+ version_file_name: "File Version",
+ version: "Version",
+ versions: "Versions",
+ versions_template: "Show all versions ({0})",
+ 
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };

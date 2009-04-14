@@ -345,7 +345,8 @@ public interface ICommonClientService extends IClientService
     /**
      * Registers given {@link Project}.
      */
-    public void registerProject(final Project project) throws UserFailureException;
+    public void registerProject(String sessionKey, final Project project)
+            throws UserFailureException;
 
     /**
      * Returns {@link ExternalData} fulfilling given {@link DataSetSearchCriteria}.
@@ -414,5 +415,10 @@ public interface ICommonClientService extends IClientService
      * database object.
      */
     public LastModificationState getLastModificationState() throws UserFailureException;
+
+    /**
+     * For given <var>projectIdentifier</var> returns corresponding {@link Project}.
+     */
+    public Project getProjectInfo(final String projectIdentifier) throws UserFailureException;
 
 }

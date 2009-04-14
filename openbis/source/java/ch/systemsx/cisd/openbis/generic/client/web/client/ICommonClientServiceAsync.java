@@ -289,8 +289,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listVocabularyTerms(Vocabulary vocabulary,
             AsyncCallback<List<VocabularyTerm>> callback);
 
-    /** @see ICommonClientService#registerProject(Project) */
-    public void registerProject(Project project,
+    /** @see ICommonClientService#registerProject(String, Project) */
+    public void registerProject(String sessionKey, Project project,
             final AsyncCallback<Void> projectRegistrationCallback);
 
     /**
@@ -359,5 +359,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /** @see ICommonClientService#getLastModificationState() */
     public void getLastModificationState(AsyncCallback<LastModificationState> asyncCallback);
+
+    /**
+     * @see ICommonClientService#getProjectInfo(String)
+     */
+    public void getProjectInfo(String projectIdentifier,
+            final AsyncCallback<Project> projectInfoCallback);
 
 }

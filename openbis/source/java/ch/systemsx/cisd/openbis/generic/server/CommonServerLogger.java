@@ -294,9 +294,10 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public void registerProject(String sessionToken, ProjectIdentifier projectIdentifier,
-            String description, String leaderId)
+            String description, String leaderId, List<AttachmentPE> attachments)
     {
-        logTracking(sessionToken, "register_project", "PROJECT(%s)", projectIdentifier);
+        logTracking(sessionToken, "register_project", "PROJECT(%s) ATTACHMNETS(%s)",
+                projectIdentifier, attachments.size());
     }
 
     public List<ExternalDataPE> searchForDataSets(String sessionToken,
@@ -392,6 +393,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public LastModificationState getLastModificationState(String sessionToken)
     {
+        return null;
+    }
+
+    public ProjectPE getProjectInfo(String sessionToken, ProjectIdentifier identifier)
+    {
+        logAccess(sessionToken, "get_project_info", "IDENTIFIER(%s)", identifier);
         return null;
     }
 
