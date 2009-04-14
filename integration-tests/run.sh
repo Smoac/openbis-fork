@@ -555,59 +555,13 @@ function launch_tests {
     switch_processing_pipeline "off"
 }
 
-# assumes that parent has exactly one subdirectory, echos its full path
-function get_single_subdirectory_path {
-	local parent_dir=$1
-	
-	local count=`ls -1 $parent_dir | wc -l`
-	if [ ! $count -eq 1 ]; then
-		report_error "Directory $parent_dir should contain exactly one subdirectory, but it has $count subdirectories."
-		echo "ERROR_INCORRECT_NUMBER_OF_CHILDREN"
-	else
-		echo $parent_dir/`ls -1 $parent_dir | head -1`
-	fi
-}
-
-# Finds a dataset directory which has a given sufix in dataset code and returns its name. 
-# If search_in_content is true, searches not in the name of dataset dir, but in the name of its subdirectory.
-# Works with sharded directories.
 function find_dataset_dir {
-	local code_suffix=$1
-	local identified_dir=$2
-	# values: true/false
-	local search_in_content=$3
-	
-	local sharding1
-	for sharding1 in `ls $identified_dir`; do
-		sharding2=`get_single_subdirectory_path $identified_dir/$sharding1`
-		sharding3=`get_single_subdirectory_path $sharding2`
-		if [ `ls $sharding3 | wc -l` -eq 0 ]; then
-			# empty trash directory
-			continue
-		fi
-		dataset_dir=`get_single_subdirectory_path $sharding3`
-		if [ "$search_in_content" == "true" ]; then
-			if [ -d $dataset_dir/original ]; then
-				dir_to_search=`get_single_subdirectory_path $dataset_dir/original`
-			else
-				continue
-			fi
-		else
-			dir_to_search=$dataset_dir
-		fi
-
-		without_suffix=${dir_to_search%$code_suffix}
-		if [ $dir_to_search != $without_suffix ]; then
-			echo $dir_to_search
-			return
-		fi
-	done
-	report_error "Could not find any dataset inside $identified_dir which would contain $code_suffix as a suffix"
-}
-
-function find_dataset_dir_in_store {
-	local sample_name=$1
-	find_dataset_dir $sample_name $DATA/main-store/identified false
+	local pattern=$1
+	local dir=`find $DATA/main-store/identified -type d | grep "$pattern"`
+	if [ $dir != "" ]; then
+	       return $dir
+	fi
+        report_error "$DATA/main-store/identified does not contains a directory matching $pattern"
 }
 
 function assert_correct_experiment_info {
@@ -629,7 +583,7 @@ function assert_correct_content_of_processing_dir {
     assert_same_content $TEST_DATA/3VCP1 $data_set
     assert_same_content $TEMPLATE/openBIS-client/testdata/register-experiments/processing-parameters.txt \
                         $DATA/processing-dir/processing-parameters-from-openbis
-    local bds_container=`find_dataset_dir_in_store 3VCP1`
+    local bds_container=`find_dataset_dir ".*-3VCP1$"`
     assert_dir_exists $bds_container
     local data_set2=$bds_container/data/original/microX_200801011213_3VCP1
     assert_same_inode $data_set/TIFF/blabla_3VCP1_K13_8_w460.tif $data_set2/TIFF/blabla_3VCP1_K13_8_w460.tif
@@ -640,7 +594,7 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     local cell_plate=3VCP1
     echo ==== assert correct content of plate 3VCP1 in store ====
     
-    local raw_data_dir=`find_dataset_dir_in_store 3VCP1`
+    local raw_data_dir=`find_dataset_dir ".*-3VCP1$"`
     assert_dir_exists $raw_data_dir
     local raw_data_set=$raw_data_dir
     
@@ -727,10 +681,10 @@ function assert_correct_content_of_invalid_plate_in_store {
 }
     
 function assert_correct_content_of_image_analysis_data {
-    local cell_plate=$1
+    local cell_plate_pattern=$1
     
     echo ====  check image analysis data for cell plate $cell_plate ====
-    local plate_with_img_analysis=`find_dataset_dir $cell_plate $DATA/main-store/identified true`
+    local plate_with_img_analysis=`find_dataset_dir $cell_plate_pattern`
     assert_dir_exists $plate_with_img_analysis
     assert_same_content $TEST_DATA/$cell_plate $plate_with_img_analysis
 }
@@ -775,9 +729,9 @@ function assert_correct_content {
     assert_correct_content_of_processing_dir
     assert_correct_content_of_plate_3VCP1_in_store
     assert_correct_content_of_invalid_plate_in_store 3VCP4
-    assert_correct_content_of_image_analysis_data 3VCP1
-    assert_correct_content_of_image_analysis_data 3VCP3
-    assert_correct_content_of_image_analysis_data 3VCP4
+    assert_correct_content_of_image_analysis_data ".*-2.*3VCP1$"
+    assert_correct_content_of_image_analysis_data ".*-6.*3VCP3$"
+    assert_correct_content_of_image_analysis_data ".*-9.*3VCP4$"
     assert_correct_content_of_unidentified_plate_in_store UnknownPlate
     # id;procedure_type;code;is_placeholder;data_id_parent;is_complete;data_producer_code;production_timestamp
     assert_correct_dataset_content_in_database 1 "1;EXP1;MICROX-3VCP1;f;;F;microX;2008-01-01.*"
