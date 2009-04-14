@@ -558,10 +558,13 @@ function launch_tests {
 function find_dataset_dir {
 	local pattern=$1
 	local dir=`find $DATA/main-store/identified -type d | grep "$pattern"`
-	if [ "$dir" != "" ]; then
-	       assert_dir_exists $dir
-	       echo $dir
-	       return
+        if [ "$dir" != "" ]; then
+                if [ ! -d "$dir" ]; then
+                        report_error Directory \"$dir\" does not exist!  
+                else
+                        echo $dir
+                        return
+	        fi
 	fi
         report_error "$DATA/main-store/identified does not contain a directory matching $pattern: $dir"
 }
