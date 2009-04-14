@@ -684,10 +684,11 @@ function assert_correct_content_of_invalid_plate_in_store {
 }
     
 function assert_correct_content_of_image_analysis_data {
-    local cell_plate_pattern=$1
+    local cell_plate=$1
+    local pattern=$2
     
     echo ====  check image analysis data for cell plate $cell_plate ====
-    local plate_with_img_analysis=`find_dataset_dir $cell_plate_pattern`
+    local plate_with_img_analysis=`find_dataset_dir $pattern`
     assert_same_content $TEST_DATA/$cell_plate $plate_with_img_analysis
 }
 
@@ -731,9 +732,9 @@ function assert_correct_content {
     assert_correct_content_of_processing_dir
     assert_correct_content_of_plate_3VCP1_in_store
     assert_correct_content_of_invalid_plate_in_store 3VCP4
-    assert_correct_content_of_image_analysis_data ".*-2.*3VCP1$"
-    assert_correct_content_of_image_analysis_data ".*-6.*3VCP3$"
-    assert_correct_content_of_image_analysis_data ".*-9.*3VCP4$"
+    assert_correct_content_of_image_analysis_data 3VCP1 ".*-2.*3VCP1$"
+    assert_correct_content_of_image_analysis_data 3VCP3 ".*-6.*3VCP3$"
+    assert_correct_content_of_image_analysis_data 3VCP4 ".*-9.*3VCP4$"
     assert_correct_content_of_unidentified_plate_in_store UnknownPlate
     # id;procedure_type;code;is_placeholder;data_id_parent;is_complete;data_producer_code;production_timestamp
     assert_correct_dataset_content_in_database 1 "1;EXP1;MICROX-3VCP1;f;;F;microX;2008-01-01.*"
