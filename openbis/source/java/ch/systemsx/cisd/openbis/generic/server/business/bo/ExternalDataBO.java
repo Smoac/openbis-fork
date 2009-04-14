@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatType;
@@ -115,7 +116,8 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
                 .getStorageFormat()));
         externalData.setLocatorType(getLocatorTypeDAO().tryToFindLocatorTypeByCode(
                 locatorType.getCode()));
-        externalData.setDataStore(getDataStoreDAO().tryToFindDataStoreByCode(data.getDataStoreCode()));
+        DataStorePE dataStore = getDataStoreDAO().tryToFindDataStoreByCode(data.getDataStoreCode());
+        externalData.setDataStore(dataStore);
         defineDataSetProperties(externalData, convertToDataSetProperties(data
                 .getDataSetProperties()));
 
@@ -123,7 +125,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         if (parentDataSetCode != null)
         {
             final Set<DataPE> parents = new HashSet<DataPE>();
-            parents.add(getOrCreateParentData(parentDataSetCode, sample));
+            parents.add(getOrCreateParentData(parentDataSetCode, dataStore, sample));
             externalData.setParents(parents);
         }
         sourceType.setSample(externalData, sample);
@@ -171,7 +173,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         return fileFormatTypeOrNull;
     }
 
-    private final DataPE getOrCreateParentData(final String parentDataSetCode, SamplePE sample)
+    private final DataPE getOrCreateParentData(final String parentDataSetCode, DataStorePE dataStore, SamplePE sample)
     {
         assert parentDataSetCode != null : "Unspecified parent data set code.";
 
@@ -180,6 +182,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         if (parent == null)
         {
             parent = new DataPE();
+            parent.setDataStore(dataStore);
             parent.setCode(parentDataSetCode);
             String code = DataSetTypeCode.UNKNOWN.getCode();
             parent.setDataSetType(getDataSetTypeDAO().tryToFindDataSetTypeByCode(code));

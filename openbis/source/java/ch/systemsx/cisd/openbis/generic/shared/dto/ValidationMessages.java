@@ -47,6 +47,8 @@ public final class ValidationMessages
     public static final String CODE_PATTERN_MESSAGE =
             "Given code '%s' contains illegal characters (allowed: A-Z, a-z, 0-9, _ and -)";
 
+    public static final String DATA_STORE_NOT_NULL_MESSAGE = "Data store" + CAN_NOT_BE_NULL;
+    
     public static final String DATA_SET_TYPE_NOT_NULL_MESSAGE = "Data set type" + CAN_NOT_BE_NULL;
 
     public static final String DATA_TYPE_NOT_NULL_MESSAGE = "Data type" + CAN_NOT_BE_NULL;

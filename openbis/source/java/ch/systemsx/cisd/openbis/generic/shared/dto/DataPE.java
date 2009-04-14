@@ -34,7 +34,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -112,7 +111,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     private DataStorePE dataStore;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotNull(message = ValidationMessages.DATA_STORE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.DATA_STORE_COLUMN, updatable = false)
     public final DataStorePE getDataStore()
     {

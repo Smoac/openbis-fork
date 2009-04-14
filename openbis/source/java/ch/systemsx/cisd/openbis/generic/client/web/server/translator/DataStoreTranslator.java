@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
 import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 
@@ -32,7 +34,7 @@ public class DataStoreTranslator
     {
         DataStore dataStore = new DataStore();
         String downloadUrl = dataStorePE.getDownloadUrl();
-        if (downloadUrl == null)
+        if (StringUtils.isBlank(downloadUrl))
         {
             downloadUrl = defaultDataStoreBaseURL;
         } else
