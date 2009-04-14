@@ -134,13 +134,18 @@ public final class GenericClientService extends AbstractClientService implements
     }
 
     public final List<BatchRegistrationResult> registerSamples(final SampleType sampleType,
-            final String sessionKey)
+            final String sessionKey, String defaultGroupIdentifier)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         HttpSession session = null;
         UploadedFilesBean uploadedFiles = null;
         try
         {
+            if (defaultGroupIdentifier != null)
+            {
+                throw new UserFailureException(
+                        "Automatic generation of codes has not been implemented yet.");
+            }
             final String sessionToken = getSessionToken();
             session = getHttpSession();
             assert session.getAttribute(sessionKey) != null

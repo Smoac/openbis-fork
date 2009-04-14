@@ -288,7 +288,8 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
 
     private boolean valueNotInTheList()
     {
-        return getValue() == null && getRawValue() != null && getRawValue().equals("") == false
+        return isEnabled() && getValue() == null && getRawValue() != null
+                && getRawValue().equals("") == false
                 && getRawValue().equals(getEmptyText()) == false && optionNoneSelected() == false;
     }
 

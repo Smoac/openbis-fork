@@ -62,7 +62,7 @@ public interface IGenericClientService extends IClientService
      * </p>
      */
     public List<BatchRegistrationResult> registerSamples(final SampleType sampleType,
-            final String sessionKey) throws UserFailureException;
+            final String sessionKey, String defaultGroupIdentifier) throws UserFailureException;
 
     /**
      * For given <var>experimentIdentifier</var> returns corresponding {@link Experiment}.

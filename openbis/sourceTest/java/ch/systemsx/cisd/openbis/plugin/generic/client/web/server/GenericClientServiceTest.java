@@ -174,7 +174,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
             });
         uploadedFilesBean.addMultipartFile(multipartFile);
         final List<BatchRegistrationResult> result =
-                genericClientService.registerSamples(sampleType, sessionKey);
+                genericClientService.registerSamples(sampleType, sessionKey, null);
         assertEquals(1, result.size());
         final BatchRegistrationResult batchRegistrationResult = result.get(0);
         assertEquals(fileName, batchRegistrationResult.getFileName());

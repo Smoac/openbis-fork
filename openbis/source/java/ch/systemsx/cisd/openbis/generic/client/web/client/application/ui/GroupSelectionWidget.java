@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * 
  * @author Izabela Adamczyk
  */
-public final class GroupSelectionWidget extends DropDownList<GroupModel, Group>
+public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
 {
     private static final String EMPTY_RESULT_SUFFIX = "groups";
 
@@ -80,6 +80,7 @@ public final class GroupSelectionWidget extends DropDownList<GroupModel, Group>
     {
         final Group group = new Group();
         group.setCode(SHARED_GROUP_CODE);
+        group.setIdentifier("/");
         return group;
     }
 
@@ -146,7 +147,7 @@ public final class GroupSelectionWidget extends DropDownList<GroupModel, Group>
     {
         viewContext.getCommonService().listGroups(null, new ListGroupsCallback(viewContext));
     }
-    
+
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.any(ObjectKind.GROUP);

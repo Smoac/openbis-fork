@@ -19,9 +19,12 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sa
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.Component;
@@ -37,6 +40,7 @@ import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.user.client.ui.HTML;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
@@ -44,10 +48,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ClickableFormPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HelpHtml;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
@@ -79,6 +87,10 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
     private final InfoBox infoBox;
 
     private final SampleType sampleType;
+
+    private CheckBoxField generateCodesCheckbox;
+
+    private GroupSelectionWidget groupSelector;
 
     public GenericSampleBatchRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
@@ -112,8 +124,49 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
         {
             fieldSet.add(createFileUploadField(i));
         }
+        fieldSet.add(generateCodesCheckbox =
+                new CheckBoxField("Generate codes automatically", false));
+        fieldSet.add(groupSelector =
+                createGroupField(viewContext.getCommonViewContext(), "" + getId(), true,
+                        generateCodesCheckbox));
+        generateCodesCheckbox.addListener(Events.Change, new Listener<FieldEvent>()
+            {
+                public void handleEvent(FieldEvent be)
+                {
+                    boolean selected = (Boolean) be.value;
+                    groupSelector.setVisible(selected);
+                    groupSelector.setEnabled(selected);
+                    groupSelector.validate();
+                }
+            });
         formPanel.add(fieldSet);
         return formPanel;
+    }
+
+    private final GroupSelectionWidget createGroupField(
+            IViewContext<ICommonClientServiceAsync> context, String idSuffix, boolean addShared,
+            final CheckBoxField checkbox)
+    {
+        GroupSelectionWidget field = new GroupSelectionWidget(context, idSuffix, addShared)
+            {
+
+                @Override
+                protected boolean validateValue(String val)
+                {
+                    if (checkbox.getValue() && tryGetSelectedGroup() == null)
+                    {
+                        forceInvalid(GXT.MESSAGES.textField_blankText());
+                        return false;
+                    }
+                    clearInvalid();
+                    return true;
+                }
+
+            };
+        FieldUtil.markAsMandatory(field);
+        field.setFieldLabel("Default Group");
+        field.setVisible(false);
+        return field;
     }
 
     private final static FieldSet createFieldSet()
@@ -158,8 +211,14 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
                 @Override
                 protected void onSuccessfullUpload()
                 {
+                    String defaultGroupIdentifier = null;
+                    Group selectedGroup = groupSelector.tryGetSelectedGroup();
+                    if (generateCodesCheckbox.getValue() && selectedGroup != null)
+                    {
+                        defaultGroupIdentifier = selectedGroup.getIdentifier();
+                    }
                     viewContext.getService().registerSamples(sampleType, SESSION_KEY,
-                            new RegisterSamplesCallback(viewContext));
+                            defaultGroupIdentifier, new RegisterSamplesCallback(viewContext));
                 }
 
                 @Override
@@ -198,6 +257,7 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
     {
         final FileUploadField file = new FileUploadField();
         file.setAllowBlank(counter > 0);
+        file.setAutoValidate(true);
         final int number = counter + 1;
         file.setFieldLabel(Format.substitute(FIELD_LABEL_TEMPLATE, number));
         file.setName(Format.substitute(FIELD_NAME_TEMPLATE, number));

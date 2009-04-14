@@ -51,9 +51,10 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<Void> asyncCallback) throws UserFailureException;
 
     /**
-     * @see IGenericClientService#registerSamples(SampleType, String)
+     * @see IGenericClientService#registerSamples(SampleType, String, String)
      */
     public void registerSamples(final SampleType sampleType, final String sessionKey,
+            String defaultGroupIdentifier,
             final AsyncCallback<List<BatchRegistrationResult>> asyncCallback)
             throws UserFailureException;
 
