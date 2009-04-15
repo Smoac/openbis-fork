@@ -63,7 +63,8 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
         setId(createId(experimentIdentifier));
         this.experimentIdentifier = experimentIdentifier;
         this.modificationObserver = new CompositeDatabaseModificationObserver();
-        loadData();
+        setHeading("Experiment " + experimentIdentifier);
+        reloadData();
     }
 
     public static String createId(String experimentIdentifier)
@@ -79,7 +80,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
     /**
      * Load the experiment information.
      */
-    private void loadData()
+    protected void reloadData()
     {
         viewContext.getService().getExperimentInfo(experimentIdentifier,
                 new ExperimentInfoCallback(viewContext, this, modificationObserver));
@@ -118,8 +119,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
             genericExperimentViewer.setScrollMode(Scroll.AUTO);
             addSection(genericExperimentViewer,
                     new ExperimentPropertiesSection(result, viewContext));
-            addSection(genericExperimentViewer, new AttachmentsSection(result,
-                    viewContext));
+            addSection(genericExperimentViewer, new AttachmentsSection(result, viewContext));
 
             ExperimentSamplesSection sampleSection =
                     new ExperimentSamplesSection(result, viewContext);

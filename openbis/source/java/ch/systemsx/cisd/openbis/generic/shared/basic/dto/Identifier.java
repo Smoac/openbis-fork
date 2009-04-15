@@ -32,12 +32,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 public class Identifier<T extends Identifier<T>> implements IsSerializable, Comparable<T>,
         IIdentifierHolder
 {
+    public static final String IDENTIFIER_COLUMN = "identifier";
+
     public final static Comparator<IIdentifierHolder> IDENTIFIER_HOLDER_COMPARATOR =
             new IdentifierHolderComparator();
 
     private String identifier;
 
-    @BeanProperty(label = "identifier")
+    @BeanProperty(label = IDENTIFIER_COLUMN, optional = true)
     public final void setIdentifier(final String identifier)
     {
         this.identifier = identifier;

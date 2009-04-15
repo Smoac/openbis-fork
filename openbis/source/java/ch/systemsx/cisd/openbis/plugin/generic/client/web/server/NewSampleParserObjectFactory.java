@@ -40,10 +40,14 @@ final class NewSampleParserObjectFactory extends AbstractParserObjectFactory<New
 {
     private final SampleType sampleType;
 
-    NewSampleParserObjectFactory(final SampleType sampleType, final IPropertyMapper propertyMapper)
+    private final boolean identifierExpectedInFile;
+
+    NewSampleParserObjectFactory(final SampleType sampleType, final IPropertyMapper propertyMapper,
+            boolean identifierExpectedInFile)
     {
         super(NewSample.class, propertyMapper);
         this.sampleType = sampleType;
+        this.identifierExpectedInFile = identifierExpectedInFile;
     }
 
     private final SampleTypePropertyType createSampleTypePropertyType(final String propertyTypeCode)
@@ -88,6 +92,16 @@ final class NewSampleParserObjectFactory extends AbstractParserObjectFactory<New
     public final NewSample createObject(final String[] lineTokens) throws ParserException
     {
         final NewSample newSample = super.createObject(lineTokens);
+        if (identifierExpectedInFile && newSample.getIdentifier() == null)
+        {
+            throw new ParserException("Mandatory column '" + NewSample.IDENTIFIER_COLUMN
+                    + "' is missing.");
+        }
+        if (identifierExpectedInFile == false && newSample.getIdentifier() != null)
+        {
+            throw new ParserException("Requested automatical generation of codes. Column '"
+                    + NewSample.IDENTIFIER_COLUMN + "' should be removed from the file.");
+        }
         newSample.setSampleType(sampleType);
         setProperties(newSample, lineTokens);
         newSample

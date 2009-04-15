@@ -63,7 +63,8 @@ public final class GenericMaterialViewer extends AbstractViewer<IGenericClientSe
         super(viewContext);
         setId(createId(materialIdentifier));
         this.materialIdentifier = materialIdentifier;
-        loadData();
+        setHeading("Material " + materialIdentifier);
+        reloadData();
     }
 
     public static String createId(String materialIdentifier)
@@ -79,7 +80,7 @@ public final class GenericMaterialViewer extends AbstractViewer<IGenericClientSe
     /**
      * Load the material information.
      */
-    private void loadData()
+    protected void reloadData()
     {
         viewContext.getService().getMaterialInfo(materialIdentifier,
                 new MaterialInfoCallback(viewContext, this));
@@ -126,7 +127,7 @@ public final class GenericMaterialViewer extends AbstractViewer<IGenericClientSe
 
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
-        loadData(); // reloads everything
+        reloadData(); // reloads everything
     }
 
 }

@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Attachment
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.AttachmentModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer.ExperimentInfoCallback;
@@ -55,7 +56,8 @@ public class ClickDownloadAttachmentCmdTest extends AbstractDefaultTestCommand
     public void execute()
     {
         String attachmentGridId =
-                AttachmentsSection.createAttachmentGridId(experimentIdentifier);
+                AttachmentsSection.createAttachmentGridId(experimentIdentifier,
+                        AttachmentHolderKind.EXPERIMENT);
         final Widget widget = GWTTestUtil.getWidgetWithID(attachmentGridId);
         final Grid<AttachmentModel> table = (Grid<AttachmentModel>) widget;
         table.fireEvent(Events.CellClick, createGridEvent(table, fileName));

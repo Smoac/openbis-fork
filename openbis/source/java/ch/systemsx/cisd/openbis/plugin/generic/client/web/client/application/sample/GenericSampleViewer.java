@@ -114,7 +114,8 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         super(viewContext);
         setId(createId(sampleIdentifier));
         this.sampleIdentifier = sampleIdentifier;
-        loadData();
+        setHeading("Sample " + sampleIdentifier);
+        reloadData();
     }
 
     public static final String createId(String sampleIdentifier)
@@ -320,7 +321,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     /**
      * Load the sample information.
      */
-    private void loadData()
+    protected void reloadData()
     {
         viewContext.getService().getSampleInfo(sampleIdentifier,
                 new SampleGenerationInfoCallback(viewContext, this));

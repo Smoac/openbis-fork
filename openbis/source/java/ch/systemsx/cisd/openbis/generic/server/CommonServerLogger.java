@@ -404,7 +404,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public String generateCode(String sessionToken, String prefix)
     {
-        logAccess(sessionToken, "getnerateCode", "PREFIX(%s)", prefix);
+        logAccess(sessionToken, "generate_code", "PREFIX(%s)", prefix);
         return null;
     }
 

@@ -48,7 +48,7 @@ public final class ProjectViewer extends ContentPanel
         setHeading(viewContext.getMessage(Dict.PROJECT) + " " + projectIdentifier);
         setId(createId(projectIdentifier));
         this.projectIdentifier = projectIdentifier;
-        loadData();
+        reloadData();
     }
 
     public static String createId(String projectIdentifier)
@@ -64,7 +64,7 @@ public final class ProjectViewer extends ContentPanel
     /**
      * Load the experiment information.
      */
-    private void loadData()
+    private void reloadData()
     {
         viewContext.getService().getProjectInfo(projectIdentifier,
                 new ProjectInfoCallback(viewContext, this));

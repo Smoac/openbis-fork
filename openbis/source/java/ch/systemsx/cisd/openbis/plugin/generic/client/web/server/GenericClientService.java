@@ -141,11 +141,7 @@ public final class GenericClientService extends AbstractClientService implements
         UploadedFilesBean uploadedFiles = null;
         try
         {
-            if (defaultGroupIdentifier != null)
-            {
-                throw new UserFailureException(
-                        "Automatic generation of codes has not been implemented yet.");
-            }
+            final boolean isAutoGenerateCodes = defaultGroupIdentifier != null;
             final String sessionToken = getSessionToken();
             session = getHttpSession();
             assert session.getAttribute(sessionKey) != null
@@ -163,7 +159,8 @@ public final class GenericClientService extends AbstractClientService implements
                             public final IParserObjectFactory<NewSample> createFactory(
                                     final IPropertyMapper propertyMapper) throws ParserException
                             {
-                                return new NewSampleParserObjectFactory(sampleType, propertyMapper);
+                                return new NewSampleParserObjectFactory(sampleType, propertyMapper,
+                                        isAutoGenerateCodes == false);
                             }
                         });
             final List<NewSample> newSamples = new ArrayList<NewSample>();
@@ -179,6 +176,15 @@ public final class GenericClientService extends AbstractClientService implements
                 newSamples.addAll(loadedSamples);
                 results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
                         .format("%d sample(s) found and registered.", loadedSamples.size())));
+            }
+            if (isAutoGenerateCodes)
+            {
+                List<String> codes =
+                        genericServer.generateCodes(sessionToken, "S", newSamples.size());
+                for (int i = 0; i < newSamples.size(); i++)
+                {
+                    newSamples.get(i).setIdentifier(defaultGroupIdentifier + "/" + codes.get(i));
+                }
             }
             genericServer.registerSamples(sessionToken, sampleType, newSamples);
             return results;

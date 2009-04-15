@@ -132,4 +132,10 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
+    public List<String> generateCodes(String sessionToken, String prefix, int number)
+    {
+        logAccess(sessionToken, "generate_codes", "PREFIX(%s) NUMBER(%s)", prefix, number);
+        return null;
+    }
+
 }

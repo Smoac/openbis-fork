@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IAttachmentHolder;
 
 /**
@@ -152,14 +153,15 @@ public class AttachmentsSection extends SectionPanel
                     return files;
                 }
             });
-        attachmentGrid.setId(createAttachmentGridId(attachmentHolder.getIdentifier()));
+        attachmentGrid.setId(createAttachmentGridId(attachmentHolder.getIdentifier(),
+                attachmentHolder.getAttachmentHolderKind()));
         return attachmentGrid;
     }
 
     // @Private
-    public static String createAttachmentGridId(String identifier)
+    public static String createAttachmentGridId(String identifier, AttachmentHolderKind kind)
     {
-        return ATTACHMENTS_ID_PREFIX + identifier;
+        return ATTACHMENTS_ID_PREFIX + kind.name() + identifier;
     }
 
     private List<ColumnConfig> defineAttachmentVersionColumns()

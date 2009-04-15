@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -290,6 +291,17 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         final ISampleBO bo = businessObjectFactory.createSampleBO(session);
         bo.loadBySampleIdentifier(sample);
         return bo.getSampleFileAttachment(fileName, version);
+    }
+
+    public List<String> generateCodes(String sessionToken, String prefix, int number)
+    {
+        getSessionManager().getSession(sessionToken);
+        ArrayList<String> result = new ArrayList<String>();
+        for (int i = 0; i < number; i++)
+        {
+            result.add(prefix + getDAOFactory().getCodeSequenceDAO().getNextCodeSequenceId());
+        }
+        return result;
     }
 
 }

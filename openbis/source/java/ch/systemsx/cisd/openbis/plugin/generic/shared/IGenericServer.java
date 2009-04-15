@@ -129,4 +129,10 @@ public interface IGenericServer extends IPluginCommonServer
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier project,
             String fileName, int version);
 
+    /**
+     * Returns a list of unique codes.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<String> generateCodes(String sessionToken, String prefix, int number);
 }
