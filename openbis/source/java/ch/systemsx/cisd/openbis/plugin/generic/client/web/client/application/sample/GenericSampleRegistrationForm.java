@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.google.gwt.core.client.JavaScriptException;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -144,7 +145,13 @@ public final class GenericSampleRegistrationForm extends
 
         private void resetPanel()
         {
-            formPanel.reset();
+            try
+            {
+                formPanel.reset();
+            } catch (JavaScriptException e)
+            {
+                // ignored
+            }
         }
 
         private String createSuccessfullRegistrationInfo()
