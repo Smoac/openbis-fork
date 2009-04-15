@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
  * <li>Parent data set code
  * <li>Data producer code
  * <li>Data production date
+ * <li>Data set properties file name
  * </ul>
  * The name is split into entities separated by the property {@link #ENTITY_SEPARATOR_PROPERTY_NAME}
  * . It is assumed that each of the above-mentioned pieces of information is one of these entities.
@@ -89,6 +90,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
  * <td>Format of the data production date. For the correct syntax see <a
  * href="http://java.sun.com/j2se/1.5.0/docs/api/java/text/SimpleDateFormat.html"
  * >SimpleDateFormat</a>.</td>
+ * </tr>
+ * <tr>
+ * <td><code>data-set-properties-file-name</code></td>
+ * <td><code>&nbsp;</code></td>
+ * <td>Path to a file inside a data set directory which contains data set properties.</td>
  * </tr>
  * </table>
  * The first entity has index 0, the second 1, etc. Using negative numbers one can specify entities
