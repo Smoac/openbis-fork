@@ -24,16 +24,13 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
-import com.google.gwt.core.client.JavaScriptException;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
@@ -180,55 +177,23 @@ public final class ProjectRegistrationForm extends AbstractRegistrationForm
                 new ProjectRegistrationCallback(viewContext, project));
     }
 
-    public final class ProjectRegistrationCallback extends AbstractAsyncCallback<Void>
+    public final class ProjectRegistrationCallback extends
+            AbstractRegistrationForm.AbstractRegistrationCallback
     {
         private final Project project;
 
         ProjectRegistrationCallback(final IViewContext<?> viewContext, final Project project)
         {
-            super(viewContext, new InfoBoxCallbackListener<Void>(infoBox));
+            super(viewContext);
             this.project = project;
         }
 
-        private final String createMessage()
+        @Override
+        protected String createSuccessfullRegistrationInfo()
         {
             return "Project <b>" + project.getIdentifier().toUpperCase()
                     + "</b> successfully registered.";
         }
 
-        //
-        // AbstractAsyncCallback
-        //
-
-        @Override
-        protected final void process(final Void result)
-        {
-            infoBox.displayInfo(createMessage());
-            resetPanel();
-            setUploadEnabled(true);
-        }
-
-        @Override
-        protected final void finishOnFailure(final Throwable caught)
-        {
-            setUploadEnabled(true);
-        }
-
-        private void resetPanel()
-        {
-            try
-            {
-                formPanel.reset();
-            } catch (JavaScriptException e)
-            {
-                // ignored
-            }
-        }
-
-    }
-
-    protected void setUploadEnabled(boolean enabled)
-    {
-        saveButton.setEnabled(enabled);
     }
 }

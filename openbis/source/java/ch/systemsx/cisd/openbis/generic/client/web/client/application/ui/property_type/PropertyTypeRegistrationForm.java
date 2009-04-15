@@ -22,11 +22,9 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
@@ -268,31 +266,21 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
                 && selectedItemOrNull.get(ModelDataPropertyNames.CODE).equals(dataTypeCode.name());
     }
 
-    public final class PropertyTypeRegistrationCallback extends AbstractAsyncCallback<Void>
+    public final class PropertyTypeRegistrationCallback extends AbstractRegistrationForm.AbstractRegistrationCallback
     {
         private final PropertyType propertyType;
 
         PropertyTypeRegistrationCallback(final IViewContext<?> viewContext,
                 final PropertyType propertyType)
         {
-            super(viewContext, new InfoBoxCallbackListener<Void>(infoBox));
+            super(viewContext);
             this.propertyType = propertyType;
         }
 
-        private final String createMessage()
+        @Override
+        protected String createSuccessfullRegistrationInfo()
         {
             return "Property type <b>" + propertyType.getCode() + "</b> successfully registered.";
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        @Override
-        protected final void process(final Void result)
-        {
-            infoBox.displayInfo(createMessage());
-            formPanel.reset();
         }
     }
 

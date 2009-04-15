@@ -29,13 +29,12 @@ import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
@@ -112,31 +111,18 @@ public final class GenericExperimentRegistrationForm
     {
     }
 
-    public final class RegisterExperimentCallback extends AbstractAsyncCallback<Void>
+    public final class RegisterExperimentCallback extends AbstractRegistrationForm.AbstractRegistrationCallback
     {
 
         RegisterExperimentCallback(final IViewContext<?> viewContext)
         {
-            super(viewContext, new InfoBoxCallbackListener<Void>(infoBox));
+            super(viewContext);
         }
 
-        private final String createSuccessfullRegistrationInfo()
+        @Override
+        protected String createSuccessfullRegistrationInfo()
         {
             return "Experiment <b>" + createExpeimentIdentifier() + "</b> successfully registered";
-        }
-
-        @Override
-        protected final void process(final Void result)
-        {
-            infoBox.displayInfo(createSuccessfullRegistrationInfo());
-            resetPanel();
-            setUploadEnabled(true);
-        }
-
-        @Override
-        protected final void finishOnFailure(final Throwable caught)
-        {
-            setUploadEnabled(true);
         }
 
     }
@@ -170,11 +156,6 @@ public final class GenericExperimentRegistrationForm
                 }
             });
         redefineSaveListeners();
-    }
-
-    protected void setUploadEnabled(boolean enabled)
-    {
-        saveButton.setEnabled(enabled);
     }
 
     void redefineSaveListeners()
@@ -223,11 +204,6 @@ public final class GenericExperimentRegistrationForm
         newExp.setSamples(extractSamples());
         viewContext.getService().registerExperiment(SESSION_KEY, newExp,
                 new RegisterExperimentCallback(viewContext));
-    }
-
-    private void resetPanel()
-    {
-        formPanel.reset();
     }
 
     @Override

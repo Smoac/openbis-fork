@@ -29,11 +29,15 @@ import com.extjs.gxt.ui.client.widget.form.HiddenField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.google.gwt.core.client.JavaScriptException;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ClickableFormPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -135,6 +139,11 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         return panel;
     }
 
+    protected void setUploadEnabled(boolean enabled)
+    {
+        saveButton.setEnabled(enabled);
+    }
+    
     /**
      * Submits a valid form.
      * <p>
@@ -146,6 +155,45 @@ public abstract class AbstractRegistrationForm extends ContentPanel
     //
     // Helper classes
     //
+
+    protected abstract class AbstractRegistrationCallback extends AbstractAsyncCallback<Void>
+    {
+        protected AbstractRegistrationCallback(final IViewContext<?> viewContext)
+        {
+            super(viewContext, new InfoBoxCallbackListener<Void>(infoBox));
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        @Override
+        protected final void process(final Void result)
+        {
+            infoBox.displayInfo(createSuccessfullRegistrationInfo());
+            resetPanel();
+            setUploadEnabled(true);
+        }
+
+        protected abstract String createSuccessfullRegistrationInfo();
+        
+        @Override
+        protected final void finishOnFailure(final Throwable caught)
+        {
+            setUploadEnabled(true);
+        }
+
+        private void resetPanel()
+        {
+            try
+            {
+                formPanel.reset();
+            } catch (JavaScriptException e)
+            {
+                // ignored because it might be thrown for file upload field in system tests on CI server
+            }
+        }
+    }
 
     public final static class InfoBoxResetListener implements Listener<FieldEvent>, ClickListener
     {
@@ -194,7 +242,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         hiddenField.setValue(value);
         return hiddenField;
     }
-
+    
     static protected final void addUploadFeatures(FormPanel panel, String sessionKey)
     {
         panel.setWidth(AbstractRegistrationForm.DEFAULT_LABEL_WIDTH

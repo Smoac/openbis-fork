@@ -19,10 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabu
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
@@ -73,31 +71,21 @@ public final class VocabularyRegistrationForm extends AbstractRegistrationForm
     // Helper classes
     //
 
-    public final class VocabularyRegistrationCallback extends AbstractAsyncCallback<Void>
+    public final class VocabularyRegistrationCallback extends AbstractRegistrationForm.AbstractRegistrationCallback
     {
         private final Vocabulary vocabulary;
 
         VocabularyRegistrationCallback(final IViewContext<?> viewContext,
                 final Vocabulary vocabulary)
         {
-            super(viewContext, new InfoBoxCallbackListener<Void>(infoBox));
+            super(viewContext);
             this.vocabulary = vocabulary;
         }
 
-        private final String createMessage()
+        @Override
+        protected String createSuccessfullRegistrationInfo()
         {
             return "Vocabulary <b>" + vocabulary.getCode() + "</b> successfully registered.";
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        @Override
-        protected final void process(final Void result)
-        {
-            infoBox.displayInfo(createMessage());
-            formPanel.reset();
         }
     }
 }

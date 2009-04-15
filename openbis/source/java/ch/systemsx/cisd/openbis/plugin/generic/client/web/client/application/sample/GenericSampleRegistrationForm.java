@@ -27,16 +27,14 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.google.gwt.core.client.JavaScriptException;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
@@ -121,40 +119,16 @@ public final class GenericSampleRegistrationForm extends
                 new RegisterSampleCallback(viewContext));
     }
 
-    public final class RegisterSampleCallback extends AbstractAsyncCallback<Void>
-
+    public final class RegisterSampleCallback extends
+            AbstractRegistrationForm.AbstractRegistrationCallback
     {
         public RegisterSampleCallback(IViewContext<?> viewContext)
         {
-            super(viewContext, new InfoBoxCallbackListener<Void>(infoBox));
+            super(viewContext);
         }
 
         @Override
-        protected void process(Void result)
-        {
-            infoBox.displayInfo(createSuccessfullRegistrationInfo());
-            resetPanel();
-            setUploadEnabled(true);
-        }
-
-        @Override
-        protected final void finishOnFailure(final Throwable caught)
-        {
-            setUploadEnabled(true);
-        }
-
-        private void resetPanel()
-        {
-            try
-            {
-                formPanel.reset();
-            } catch (JavaScriptException e)
-            {
-                // ignored
-            }
-        }
-
-        private String createSuccessfullRegistrationInfo()
+        protected String createSuccessfullRegistrationInfo()
         {
             String code = codeField.getValue();
             final Group selectedGroup = groupSelectionWidget.tryGetSelectedGroup();
@@ -199,11 +173,6 @@ public final class GenericSampleRegistrationForm extends
                 }
             });
         redefineSaveListeners();
-    }
-
-    protected void setUploadEnabled(boolean enabled)
-    {
-        saveButton.setEnabled(enabled);
     }
 
     void redefineSaveListeners()
