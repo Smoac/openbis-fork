@@ -54,7 +54,7 @@ import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 public final class HibernateTransformer implements MethodInterceptor
 {
 
-    private final static ThreadLocal<HibernateBeanReplicator> HIBERNATE_BEAN_REPLICATOR =
+    public final static ThreadLocal<HibernateBeanReplicator> HIBERNATE_BEAN_REPLICATOR =
             new ThreadLocal<HibernateBeanReplicator>()
                 {
 

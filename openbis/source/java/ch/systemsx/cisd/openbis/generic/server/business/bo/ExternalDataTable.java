@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
+import ch.systemsx.cisd.openbis.generic.server.util.HibernateTransformer;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -267,7 +268,9 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     {
         IDataStoreService service = dssFactory.create(dataStore.getRemoteUrl());
         String sessionToken = dataStore.getSessionToken();
-        service.uploadDataSetsToCIFEX(sessionToken, dataSets, context);
+        List<ExternalDataPE> cleanDataSets =
+                HibernateTransformer.HIBERNATE_BEAN_REPLICATOR.get().copy(dataSets);
+        service.uploadDataSetsToCIFEX(sessionToken, cleanDataSets, context);
     }
     
     private void deleteDataSets(DataStorePE dataStore, List<String> locations)
