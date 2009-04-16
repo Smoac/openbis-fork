@@ -116,6 +116,7 @@ public class GroupsView extends ContentPanel
         leaderColumnConfig.setId(ModelDataPropertyNames.LEADER);
         leaderColumnConfig.setHeader(viewContext.getMessage(Dict.LEADER));
         leaderColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
+        leaderColumnConfig.setHidden(true);
         configs.add(leaderColumnConfig);
 
         final ColumnConfig registratorColumnConfig = new ColumnConfig();
