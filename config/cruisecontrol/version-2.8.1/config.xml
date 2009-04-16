@@ -1,7 +1,6 @@
 <cruisecontrol>
   <property name="trunk" value="projects/cisd/trunk"/>
   <property name="project.trunk" value="${trunk}/${project.name}"/>
-  <property name="lims.nightly-build.dir" value="${trunk}/lims"/>
   <property name="openbis.nightly-build.dir" value="${trunk}/openbis"/>
   <property name="status.file" value="status.txt"/>
   <property name="quiet-period" value="120"/>
@@ -53,6 +52,39 @@
     </modificationset>
     <schedule interval="60">
       <ant target="nightly-build" time="0300" buildfile="${openbis.nightly-build.dir}/build/build.xml" anthome="apache-ant"/>
+    </schedule>
+    <log>
+      <merge dir="${openbis.nightly-build.dir}/targets/test-output"/>
+    </log>
+    <publishers>
+      <onsuccess>
+        <artifactspublisher dest="artifacts/${project.name}" dir="${openbis.nightly-build.dir}/targets/dist/"/>
+      </onsuccess>
+      <onfailure>
+        <htmlemail buildresultsurl="http://cisd-ci:8090/buildresults/lims" 
+               returnaddress="cisd-group@systemsx.ch" mailhost="127.0.0.1"
+               xsldir="webapps/cruisecontrol/xsl/"
+               css="webapps/cruisecontrol/css/cruisecontrol.css">
+          <map alias="felmer" address="franz-josef.elmer@bsse.ethz.ch"/>
+          <map alias="brinn" address="bernd.rinn@bsse.ethz.ch"/>
+          <map alias="charlesr" address="charles.ramin-wright@bsse.ethz.ch"/>
+          <map alias="tpylak" address="tomasz.pylak@bsse.ethz.ch"/>
+          <map alias="izabel" address="izabela.adamczyk@bsse.ethz.ch" />
+          <map alias="buczekp" address="piotr.buczek@bsse.ethz.ch" />
+        </htmlemail>
+      </onfailure>
+    </publishers>
+  </project>
+
+  <project name="openbis (system tests)" requiremodification="false">
+    <bootstrappers>
+      <svnbootstrapper localWorkingCopy="${openbis.nightly-build.dir}"/>
+    </bootstrappers>
+    <modificationset>
+      <svn localWorkingCopy="${openbis.nightly-build.dir}"/>
+    </modificationset>
+    <schedule interval="31536000">
+      <ant target="run-system-tests" buildfile="${openbis.nightly-build.dir}/build/build.xml" anthome="apache-ant"/>
     </schedule>
     <log>
       <merge dir="${openbis.nightly-build.dir}/targets/test-output"/>
