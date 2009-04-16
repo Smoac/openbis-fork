@@ -159,7 +159,7 @@ var common = {
   //
   
   menu_administration: "Administration",
-  ADMINISTRATION_MENU_MANAGE_GROUPS: "Manage Groups",
+  ADMINISTRATION_MENU_MANAGE_GROUPS: "Groups",
   
   menu_authorization: "Authorization",
   AUTHORIZATION_MENU_USERS: "Users",
@@ -224,7 +224,7 @@ var common = {
   //
   // Group View
   //
-  leader: "Leader",
+  leader: "Head",
   
   //
   // Role View
@@ -328,7 +328,7 @@ var common = {
  choose_any_material: "Choose Any Material...",
  incorrect_material_syntax: "Incorrect material specification. Please provide the material code followed by the type in brackets: 'code (type)'.",
  TITLE_CHOOSE_EXPERIMENT: "Choose an Experiment",
- 
+
  //
  // Attachments
  //
@@ -338,6 +338,7 @@ var common = {
  version: "Version",
  versions: "Versions",
  versions_template: "Show all versions ({0})",
+ 
  
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
