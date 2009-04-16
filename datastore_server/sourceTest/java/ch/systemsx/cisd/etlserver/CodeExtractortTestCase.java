@@ -41,4 +41,7 @@ public abstract class CodeExtractortTestCase
     protected static final String DATA_PRODUCTION_DATE_FORMAT =
             PREFIX + DefaultDataSetInfoExtractor.DATA_PRODUCTION_DATE_FORMAT;
 
+    protected static final String DATA_SET_PROPERTIES_FILE_NAME_KEY =
+            PREFIX + DefaultDataSetInfoExtractor.DATA_SET_PROPERTIES_FILE_NAME_KEY;
+    
 }

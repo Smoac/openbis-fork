@@ -18,15 +18,19 @@ package ch.systemsx.cisd.etlserver;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Properties;
 
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -36,6 +40,16 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCase
 {
+    private static final File WORKING_DIRECTORY =
+            new File("targets/unit-test-wd/DefaultDataSetInfoExtractorTest");
+
+    @BeforeTest
+    public void setUp()
+    {
+        LogInitializer.init();
+        FileUtilities.deleteRecursively(WORKING_DIRECTORY);
+        assertTrue(WORKING_DIRECTORY.mkdirs());
+    }
 
     @Test
     public void testHappyCaseWithDefaultProperties()
@@ -84,21 +98,27 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
         properties.setProperty(INDEX_OF_PARENT_DATA_SET_CODE, "1");
         properties.setProperty(INDEX_OF_DATA_PRODUCER_CODE, "-2");
         properties.setProperty(INDEX_OF_DATA_PRODUCTION_DATE, "-1");
-        final String format = "yyyy-MM-dd HH:mm:ss";
+        final String format = "yyyy-MM-dd";
         properties.setProperty(DATA_PRODUCTION_DATE_FORMAT, format);
+        properties.setProperty(DATA_SET_PROPERTIES_FILE_NAME_KEY, "props.tsv");
         final IDataSetInfoExtractor extractor = new DefaultDataSetInfoExtractor(properties);
         final String producerCode = "M1";
         final String parentDataSetCode = "1234-8";
-        final String productionDate = "2007-09-03 18:03:12";
+        final String productionDate = "2007-09-03";
         final String barcode = "XYZ-123";
+        File incoming = new File(WORKING_DIRECTORY, barcode + separator + parentDataSetCode
+                + separator + "A" + separator + producerCode + separator + productionDate);
+        incoming.mkdir();
+        FileUtilities.writeToFile(new File(incoming, "props.tsv"), "property\tvalue\np1\tv1\np2\tv2");
         final DataSetInformation dsInfo =
-                extractor.getDataSetInformation(new File(barcode + separator + parentDataSetCode
-                        + separator + "A" + separator + producerCode + separator + productionDate));
+                extractor.getDataSetInformation(incoming);
         assertEquals(barcode, dsInfo.getSampleIdentifier().getSampleCode());
         assertEquals(parentDataSetCode, dsInfo.getParentDataSetCode());
         assertEquals(producerCode, dsInfo.getProducerCode());
         final SimpleDateFormat dateFormat = new SimpleDateFormat(format);
         assertEquals(productionDate, dateFormat.format(dsInfo.getProductionDate()));
+        assertEquals("[NewProperty{property=p1,value=v1}, NewProperty{property=p2,value=v2}]",
+                dsInfo.getDataSetProperties().toString());
     }
 
     @Test

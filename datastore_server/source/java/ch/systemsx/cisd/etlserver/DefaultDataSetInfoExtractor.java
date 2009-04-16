@@ -161,7 +161,7 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
     /** Default data production date format. */
     private static final String DEFAULT_DATA_PRODUCTION_DATE_FORMAT = "yyyyMMddHHmmss";
 
-    public static final String DATA_SET_PROPERTIES_FILE_NAME_KEY = "data-set-properties-file-name";
+    @Private static final String DATA_SET_PROPERTIES_FILE_NAME_KEY = "data-set-properties-file-name";
 
     private final int indexOfSampleCode;
 
