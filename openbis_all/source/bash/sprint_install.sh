@@ -2,6 +2,10 @@
 # Performs the sprint components installation.
 # This script assumes that you already are on the sprint server and must be run from that place
 # in the home directory.
+#
+# If the file ~/.keystore exists it will replace openBIS.keystore of the distribution and
+# the Java option -Djavax.net.ssl.trustStore=openBIS.keystore in the start up scripts will
+# be removed assuming that ~/.keystore does not contains a self-signed certificate.
 
 VER=SNAPSHOT
 if [ $1 ]; then
@@ -37,10 +41,12 @@ cd sprint
 unzip ../openBIS-server*$VER*
 cd openBIS-server
 ./install.sh --nostartup $PWD ../../service.properties
-cp -p $KEYSTORE apache-tomcat/openBIS.keystore
-sed 's/-Djavax.net.ssl.trustStore=openBIS.keystore //g' apache-tomcat/bin/startup.sh > new-startup.sh
-mv -f new-startup.sh apache-tomcat/bin/startup.sh
-chmod 744 apache-tomcat/bin/startup.sh
+if [ -f $KEYSTORE ]; then
+  cp -p $KEYSTORE apache-tomcat/openBIS.keystore
+  sed 's/-Djavax.net.ssl.trustStore=openBIS.keystore //g' apache-tomcat/bin/startup.sh > new-startup.sh
+  mv -f new-startup.sh apache-tomcat/bin/startup.sh
+  chmod 744 apache-tomcat/bin/startup.sh
+fi
 apache-tomcat/bin/startup.sh
 
 echo Installing datastore server...
@@ -48,10 +54,12 @@ cd ..
 unzip ../datastore_server*$VER*
 cd datastore_server
 cp -p ~/datastore_server-service.properties etc/service.properties
-cp -p $KEYSTORE etc/openBIS.keystore
-cp -Rf ~/old/sprint-$PREV_VER/datastore_server/data/store/* data/store
-sed 's/-Djavax.net.ssl.trustStore=etc\/openBIS.keystore //g' datastore_server.sh > xxx
-mv -f xxx datastore_server.sh
+if [ -f $KEYSTORE ]; then
+  cp -p $KEYSTORE etc/openBIS.keystore
+  cp -Rf ~/old/sprint-$PREV_VER/datastore_server/data/store/* data/store
+  sed 's/-Djavax.net.ssl.trustStore=etc\/openBIS.keystore //g' datastore_server.sh > xxx
+  mv -f xxx datastore_server.sh
+fi
 chmod 744 datastore_server.sh
 export JAVA_HOME=/usr
 ./datastore_server.sh start
