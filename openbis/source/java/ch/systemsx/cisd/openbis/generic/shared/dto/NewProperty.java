@@ -18,7 +18,10 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import ch.systemsx.cisd.common.annotation.BeanProperty;
+import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 
 /**
@@ -62,6 +65,13 @@ public class NewProperty implements Serializable
     public void setValue(String value)
     {
         this.value = value;
+    }
+
+    @Override
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this,
+                ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
     }
 
 }
