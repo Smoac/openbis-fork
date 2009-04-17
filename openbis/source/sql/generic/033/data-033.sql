@@ -262,7 +262,7 @@ insert into file_format_types
 values 
 (nextval('FILE_FORMAT_TYPE_ID_SEQ')
 ,'SRF'
-,'SRF File'
+,'Sequence Read Format File'
 ,(select id from database_instances where code = 'SYSTEM_DEFAULT')
 );
 
