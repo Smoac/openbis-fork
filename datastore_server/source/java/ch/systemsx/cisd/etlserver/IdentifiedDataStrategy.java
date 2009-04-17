@@ -33,8 +33,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
  */
 public final class IdentifiedDataStrategy implements IDataStoreStrategy
 {
-    private static final String IDENTIFIED_DIRECTORY_NAME = "identified";
-
     static final String DATA_SET_TYPE_PREFIX = "DataSetType_";
 
     static final String UNEXPECTED_PATHS_MSG_FORMAT =
@@ -61,19 +59,13 @@ public final class IdentifiedDataStrategy implements IDataStoreStrategy
      * Note that this method does not call {@link File#mkdirs()} on returned <code>File</code>.
      * </p>
      */
-    private final static File createBaseDirectory(final File baseDir,
-            final DataSetInformation dataSetInfo, final DataSetType dataSetType)
+    @Private
+    static File createBaseDirectory(final File baseDir, final DataSetInformation dataSetInfo)
     {
         String dataSetCode = dataSetInfo.getDataSetCode();
-        return createBaseDirectory(baseDir, dataSetCode);
-
-    }
-
-    @Private
-    static File createBaseDirectory(final File baseDir, String dataSetCode)
-    {
-        final File mainDir = new File(baseDir, IDENTIFIED_DIRECTORY_NAME);
-        final File shardingDir = createShardingDir(mainDir, dataSetCode);
+        final String instanceUUID = dataSetInfo.getInstanceUUID();
+        final File instanceDir = new File(baseDir, instanceUUID);
+        final File shardingDir = createShardingDir(instanceDir, dataSetCode);
         final File datasetDir = new File(shardingDir, dataSetCode);
         return datasetDir;
     }
@@ -104,8 +96,7 @@ public final class IdentifiedDataStrategy implements IDataStoreStrategy
     {
         assert storeRoot != null : "Store root can not be null";
         assert dataSetInfo != null : "Data set information can not be null";
-        assert dataSetType != null : "Data set type can not be null";
-        final File baseDirectory = createBaseDirectory(storeRoot, dataSetInfo, dataSetType);
+        final File baseDirectory = createBaseDirectory(storeRoot, dataSetInfo);
         if (baseDirectory.exists())
         {
             throw EnvironmentFailureException.fromTemplate(STORAGE_LAYOUT_ERROR_MSG_PREFIX

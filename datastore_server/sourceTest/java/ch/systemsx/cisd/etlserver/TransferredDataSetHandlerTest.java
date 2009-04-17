@@ -113,8 +113,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
     private static final Date DATA_PRODUCTION_DATE = new Date(2001);
 
-    private static final String EXAMPLE_PROCESSOR_ID =
-            ProcedureTypeCode.DATA_ACQUISITION.getCode();
+    private static final String EXAMPLE_PROCESSOR_ID = ProcedureTypeCode.DATA_ACQUISITION.getCode();
 
     private static final class ExternalDataMatcher extends BaseMatcher<ExternalData>
     {
@@ -292,7 +291,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         dataSetInformation.setProductionDate(DATA_PRODUCTION_DATE);
         dataSetInformation.setDataSetCode(DATA_SET_CODE);
         dataSetInformation.setParentDataSetCode(PARENT_DATA_SET_CODE);
-        targetFolder = IdentifiedDataStrategy.createBaseDirectory(workingDirectory, DATA_SET_CODE);
+        targetFolder =
+                IdentifiedDataStrategy.createBaseDirectory(workingDirectory, dataSetInformation);
         targetData1 = createTargetData(data1);
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO);
     }
@@ -427,10 +427,10 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
                     one(typeExtractor).getFileFormatType(dataSet);
                     will(returnValue(FILE_FORMAT_TYPE));
-                    
+
                     one(typeExtractor).getProcessorType(dataSet);
                     will(returnValue(EXAMPLE_PROCESSOR_ID));
-                    
+
                     one(typeExtractor).isMeasuredData(dataSet);
                     will(returnValue(true));
                 }
@@ -529,8 +529,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
     @Test
     public final void testBaseDirectoryCouldNotBeCreated() throws IOException
     {
-        FileUtils
-                .touch(IdentifiedDataStrategy.createBaseDirectory(workingDirectory, DATA_SET_CODE));
+        FileUtils.touch(IdentifiedDataStrategy.createBaseDirectory(workingDirectory,
+                dataSetInformation));
         prepareForStrategyIDENTIFIED(data1, null, createBaseExperiment(dataSetInformation));
         try
         {
@@ -723,7 +723,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
                     one(processorFactory).createProcessor();
                     will(returnValue(processor));
-                    
+
                     allowing(processor).getRequiredInputDataFormat();
                     will(returnValue(StorageFormat.PROPRIETARY));
 

@@ -97,7 +97,7 @@ public class IdentifiedDataStrategyTest extends AbstractFileSystemTestCase
         assertTrue("Null values not permited here", exceptionThrown);
         final DataSetInformation dataSetInfo = createDataSetInfo();
         File baseDirectory = strategy.getBaseDirectory(workingDirectory, dataSetInfo, dataSetType);
-        final File file = new File(workingDirectory, "identified/27/35/33/data-set-code");
+        final File file = new File(workingDirectory, "1111-2222/27/35/33/data-set-code");
         assertEquals(file, baseDirectory);
         assertTrue(baseDirectory.exists() == false);
         // Create a file instead of a directory
