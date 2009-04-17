@@ -1,0 +1,1 @@
+-- screening specific data types have been removed, but the migration script is not affected by this fact 
