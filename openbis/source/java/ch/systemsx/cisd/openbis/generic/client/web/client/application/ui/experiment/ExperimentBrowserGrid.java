@@ -16,11 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
-import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
-import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
-
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -44,10 +39,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableExperiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.SetUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.AbstractEntityBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
@@ -71,7 +65,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * 
  * @author Tomasz Pylak
  */
-public class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment, ExperimentModel>
+public class ExperimentBrowserGrid extends
+        AbstractEntityBrowserGrid<Experiment, ExperimentModel, ListExperimentsCriteria>
 {
     public static final String ID_SUFFIX_EDIT_BUTTON = "_edit-button";
 
@@ -80,10 +75,6 @@ public class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment, Exper
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + PREFIX;
 
     public static final String GRID_ID = BROWSER_ID + "_grid";
-
-    private final ExperimentBrowserToolbar topToolbar;
-
-    private ListExperimentsCriteria criteria;
 
     /**
      * Creates a grid without additional toolbar buttons. It can server as a entity chooser.
@@ -103,7 +94,7 @@ public class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment, Exper
                     // do nothing - avoid showing the details after double click
                 }
             };
-        browserGrid.addToolbarRefreshButton();
+        browserGrid.addToolbarRefreshButton(toolbar);
         return browserGrid.asDisposableWithToolbar(toolbar);
     }
 
@@ -113,44 +104,37 @@ public class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment, Exper
     {
         final ExperimentBrowserToolbar toolbar = new ExperimentBrowserToolbar(viewContext, null);
         final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar);
-        browserGrid.extendToolbar();
+        browserGrid.extendToolbar(toolbar);
         return browserGrid.asDisposableWithToolbar(toolbar);
     }
 
     private ExperimentBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
-            ExperimentBrowserToolbar topToolbar)
+            ICriteriaProvider<ListExperimentsCriteria> criteriaProvider)
     {
-        super(viewContext, GRID_ID);
-        this.topToolbar = topToolbar;
+        super(viewContext, GRID_ID, criteriaProvider);
         setId(BROWSER_ID);
     }
 
-    private void extendToolbar()
+    private void extendToolbar(ExperimentBrowserToolbar topToolbar)
     {
-        addToolbarRefreshButton();
+        addToolbarRefreshButton(topToolbar);
 
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
         Button showDetailsButton =
                 createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
-        this.topToolbar.add(new AdapterToolItem(showDetailsButton));
-        this.topToolbar.add(new SeparatorToolItem());
+        topToolbar.add(new AdapterToolItem(showDetailsButton));
+        topToolbar.add(new SeparatorToolItem());
         String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
         Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
         editButton.setId(GRID_ID + ID_SUFFIX_EDIT_BUTTON);
-        this.topToolbar.add(new AdapterToolItem(editButton));
+        topToolbar.add(new AdapterToolItem(editButton));
     }
 
-    private void addToolbarRefreshButton()
+    private void addToolbarRefreshButton(ExperimentBrowserToolbar topToolbar)
     {
         SelectionChangedListener<?> refreshButtonListener = addRefreshButton(topToolbar);
-        this.topToolbar.setCriteriaChangedListener(refreshButtonListener);
-        this.topToolbar.add(new FillToolItem());
-    }
-
-    @Override
-    protected boolean isRefreshEnabled()
-    {
-        return topToolbar.tryGetCriteria() != null;
+        topToolbar.setCriteriaChangedListener(refreshButtonListener);
+        topToolbar.add(new FillToolItem());
     }
 
     @Override
@@ -159,15 +143,6 @@ public class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment, Exper
     {
         copyPagingConfig(resultSetConfig);
         viewContext.getService().listExperiments(criteria, callback);
-    }
-
-    private void copyPagingConfig(DefaultResultSetConfig<String, Experiment> resultSetConfig)
-    {
-        criteria.setLimit(resultSetConfig.getLimit());
-        criteria.setOffset(resultSetConfig.getOffset());
-        criteria.setSortInfo(resultSetConfig.getSortInfo());
-        criteria.setFilterInfos(resultSetConfig.getFilterInfos());
-        criteria.setResultSetKey(resultSetConfig.getResultSetKey());
     }
 
     private EditableExperiment createEditableEntity(Experiment experiment,
@@ -223,7 +198,13 @@ public class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment, Exper
         viewContext.getService().prepareExportExperiments(exportCriteria, callback);
     }
 
-    private static final String createHeader(ListExperimentsCriteria criteria)
+    @Override
+    protected final String createHeader()
+    {
+        return doCreateHeader(criteria);
+    }
+
+    private static final String doCreateHeader(ListExperimentsCriteria criteria)
     {
         final StringBuilder builder = new StringBuilder("Experiments");
         builder.append(" of type ");
@@ -236,24 +217,26 @@ public class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment, Exper
     }
 
     @Override
-    protected final void refresh()
+    protected boolean hasColumnsDefinitionChanged(ListExperimentsCriteria newCriteria)
     {
-        ListExperimentsCriteria newCriteria = topToolbar.tryGetCriteria();
-        if (newCriteria == null)
+        ExperimentType newEntityType = newCriteria.getExperimentType();
+        if (newEntityType == null)
         {
-            return;
+            return false; // nothing chosen
         }
-        boolean refreshColumnsDefinition =
-                hasColumnsDefinitionChanged(newCriteria.getExperimentType());
-        this.criteria = newCriteria;
-        String newHeader = createHeader(criteria);
-
-        super.refresh(newHeader, refreshColumnsDefinition);
+        if (criteria == null)
+        {
+            return true; // first selection
+        }
+        ExperimentType prevEntityType = criteria.getExperimentType();
+        return newEntityType.equals(prevEntityType) == false
+                || propertiesEqual(newEntityType, prevEntityType) == false;
     }
 
-    private boolean hasColumnsDefinitionChanged(ExperimentType entityType)
+    private boolean propertiesEqual(ExperimentType entityType1, ExperimentType entityType2)
     {
-        return criteria == null || entityType.equals(criteria.getExperimentType()) == false;
+        return entityType1.getExperimentTypePropertyTypes().equals(
+                entityType2.getExperimentTypePropertyTypes());
     }
 
     @Override
@@ -263,31 +246,9 @@ public class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment, Exper
             { CommonExperimentColDefKind.CODE });
     }
 
-    public DatabaseModificationKind[] getRelevantModifications()
+    @Override
+    protected Set<DatabaseModificationKind> getGridRelevantModifications()
     {
-        List<DatabaseModificationKind> relevantModifications =
-                new ArrayList<DatabaseModificationKind>();
-        SetUtils.addAll(relevantModifications, topToolbar.getRelevantModifications());
-        relevantModifications.addAll(getGridRelevantModifications());
-        return relevantModifications.toArray(DatabaseModificationKind.EMPTY_ARRAY);
+        return getGridRelevantModifications(ObjectKind.EXPERIMENT);
     }
-
-    private static Set<DatabaseModificationKind> getGridRelevantModifications()
-    {
-        Set<DatabaseModificationKind> result = new HashSet<DatabaseModificationKind>();
-        result.add(createOrDelete(ObjectKind.EXPERIMENT));
-        result.add(edit(ObjectKind.EXPERIMENT));
-        result.add(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT));
-        return result;
-    }
-
-    public void update(Set<DatabaseModificationKind> observedModifications)
-    {
-        topToolbar.update(observedModifications);
-        if (SetUtils.containsAny(observedModifications, getGridRelevantModifications()))
-        {
-            refreshGridSilently();
-        }
-    }
-
 }

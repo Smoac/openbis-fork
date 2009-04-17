@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
@@ -78,4 +80,35 @@ public class ColumnDefsAndConfigs<T>
     {
         return columnConfigs;
     }
+
+    /** restores the column configs for those columns which existed before */
+    public void restorePreviousSettings(List<ColumnConfig> previousColumnConfigs)
+    {
+        Map<String, ColumnConfig> prevMap = asMap(previousColumnConfigs);
+        List<ColumnConfig> newColumnConfigs = new ArrayList<ColumnConfig>();
+        for (ColumnConfig newColumnConfig : columnConfigs)
+        {
+            ColumnConfig prevColumnConfig = prevMap.get(newColumnConfig.getId());
+            if (prevColumnConfig != null)
+            {
+                newColumnConfigs.add(prevColumnConfig);
+            } else
+            {
+                newColumnConfigs.add(newColumnConfig);
+            }
+        }
+        this.columnConfigs.clear();
+        this.columnConfigs.addAll(newColumnConfigs);
+    }
+
+    private static Map<String/* column id */, ColumnConfig> asMap(List<ColumnConfig> columnConfigs)
+    {
+        Map<String, ColumnConfig> visibilityMap = new HashMap<String, ColumnConfig>();
+        for (ColumnConfig columnConfig : columnConfigs)
+        {
+            visibilityMap.put(columnConfig.getId(), columnConfig);
+        }
+        return visibilityMap;
+    }
+
 }

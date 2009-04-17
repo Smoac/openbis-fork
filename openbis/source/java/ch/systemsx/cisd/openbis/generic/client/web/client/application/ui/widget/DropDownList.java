@@ -114,9 +114,43 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
      */
     public void refreshStore()
     {
+        refreshStore(new ListItemsCallback(viewContextOrNull));
+    }
+
+    /**
+     * Additionally executes a callback after the data refresh is done.
+     * 
+     * @see DropDownList#refreshStore()
+     */
+    public void refreshStore(final IDataRefreshCallback dataRefreshCallback)
+    {
+        if (viewContextOrNull == null)
+        {
+            return;
+        }
+        AbstractAsyncCallback<List<E>> callback = mergeWithStandardCallback(dataRefreshCallback);
+        refreshStore(callback);
+    }
+
+    private AbstractAsyncCallback<List<E>> mergeWithStandardCallback(
+            final IDataRefreshCallback dataRefreshCallback)
+    {
+        return new AbstractAsyncCallback<List<E>>(viewContextOrNull)
+            {
+                @Override
+                protected void process(List<E> result)
+                {
+                    new ListItemsCallback(viewContextOrNull).process(result);
+                    dataRefreshCallback.postRefresh(true);
+                }
+            };
+    }
+
+    private void refreshStore(AbstractAsyncCallback<List<E>> callback)
+    {
         if (viewContextOrNull != null)
         {
-            loadData(new ListItemsCallback(viewContextOrNull));
+            loadData(callback);
         }
     }
 

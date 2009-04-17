@@ -16,11 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
-import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
-import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
-
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -37,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
@@ -45,12 +39,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.SetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
@@ -76,7 +68,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * @author Christian Ribeaud
  * @author Tomasz Pylak
  */
-public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleModel>
+public final class SampleBrowserGrid extends
+        AbstractEntityBrowserGrid<Sample, SampleModel, ListSampleCriteria>
 {
     private static final String PREFIX = GenericConstants.ID_PREFIX + "sample-browser";
 
@@ -85,74 +78,35 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
 
     public static final String GRID_ID = PREFIX + "_grid";
 
-    private final ICriteriaProvider criteriaProvider;
-
-    // criteria used in the previous refresh operation or null if it has not occurred yet
-    private ListSampleCriteria criteria;
-
-    private interface ICriteriaProvider
-    {
-        ListSampleCriteria tryGetCriteria();
-
-        IDatabaseModificationObserver tryGetModificationObserver();
-    }
-
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final SampleBrowserToolbar toolbar = new SampleBrowserToolbar(viewContext);
-        ICriteriaProvider criteriaProvider = asCriteriaProvider(toolbar);
+        ICriteriaProvider<ListSampleCriteria> criteriaProvider = toolbar;
         final SampleBrowserGrid browserGrid =
                 new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, true, false);
         browserGrid.extendTopToolbar(toolbar);
         return browserGrid.asDisposableWithToolbar(toolbar);
     }
 
-    private static ICriteriaProvider asCriteriaProvider(final SampleBrowserToolbar toolbar)
-    {
-        return new ICriteriaProvider()
-            {
-                public ListSampleCriteria tryGetCriteria()
-                {
-                    return toolbar.tryGetCriteria();
-                }
-
-                public IDatabaseModificationObserver tryGetModificationObserver()
-                {
-                    return toolbar;
-                }
-            };
-    }
-
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext,
             final String experimentIdentifier, String gridId)
     {
-        ICriteriaProvider criteriaProvider = new ICriteriaProvider()
-            {
-                public ListSampleCriteria tryGetCriteria()
-                {
-                    ListSampleCriteria criteria = new ListSampleCriteria();
-                    criteria.setExperimentIdentifier(experimentIdentifier);
-                    return criteria;
-                }
-
-                public IDatabaseModificationObserver tryGetModificationObserver()
-                {
-                    return null;
-                }
-            };
-
+        final ListSampleCriteria criteria = new ListSampleCriteria();
+        criteria.setExperimentIdentifier(experimentIdentifier);
+        ICriteriaProvider<ListSampleCriteria> criteriaProvider =
+                createUnrefreshableCriteriaProvider(criteria);
         final SampleBrowserGrid browserGrid =
                 new SampleBrowserGrid(viewContext, criteriaProvider, gridId, false, true);
         return browserGrid.asDisposableWithoutToolbar();
     }
 
     private SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
-            ICriteriaProvider criteriaProvider, String gridId, boolean showHeader,
-            boolean refreshAutomatically)
+            ICriteriaProvider<ListSampleCriteria> criteriaProvider, String gridId,
+            boolean showHeader, boolean refreshAutomatically)
     {
-        super(viewContext, gridId, showHeader, refreshAutomatically);
+        super(viewContext, gridId, showHeader, refreshAutomatically, criteriaProvider);
 
         registerLinkClickListenerFor(CommonSampleColDefKind.EXPERIMENT.id(),
                 new ICellListener<Sample>()
@@ -167,7 +121,6 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
                             new OpenEntityDetailsTabAction(entity, viewContext).execute();
                         }
                     });
-        this.criteriaProvider = criteriaProvider;
         setId(BROWSER_ID);
     }
 
@@ -191,26 +144,11 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
     }
 
     @Override
-    protected boolean isRefreshEnabled()
-    {
-        return criteriaProvider.tryGetCriteria() != null;
-    }
-
-    @Override
     protected void listEntities(DefaultResultSetConfig<String, Sample> resultSetConfig,
             AbstractAsyncCallback<ResultSet<Sample>> callback)
     {
         copyPagingConfig(resultSetConfig);
         viewContext.getService().listSamples(criteria, callback);
-    }
-
-    private void copyPagingConfig(DefaultResultSetConfig<String, Sample> resultSetConfig)
-    {
-        criteria.setLimit(resultSetConfig.getLimit());
-        criteria.setOffset(resultSetConfig.getOffset());
-        criteria.setSortInfo(resultSetConfig.getSortInfo());
-        criteria.setFilterInfos(resultSetConfig.getFilterInfos());
-        criteria.setResultSetKey(resultSetConfig.getResultSetKey());
     }
 
     @Override
@@ -252,7 +190,13 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
         DispatcherHelper.dispatchNaviEvent(tabView);
     }
 
-    private static final String createHeader(ListSampleCriteria criteria)
+    @Override
+    protected final String createHeader()
+    {
+        return doCreateHeader(criteria);
+    }
+
+    private static final String doCreateHeader(ListSampleCriteria criteria)
     {
         final StringBuilder builder = new StringBuilder("Samples");
         if (criteria.getSampleType() != null)
@@ -282,28 +226,6 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
         return builder.toString();
     }
 
-    /**
-     * Refreshes the sample browser grid up to given parameters.
-     * <p>
-     * Note that, doing so, the result set associated on the server side with this
-     * <code>resultSetKey</code> will be removed.
-     * </p>
-     */
-    @Override
-    protected final void refresh()
-    {
-        ListSampleCriteria newCriteria = criteriaProvider.tryGetCriteria();
-        if (newCriteria == null)
-        {
-            return;
-        }
-        boolean refreshColumnsDefinition = hasColumnsDefinitionChanged(newCriteria);
-        this.criteria = newCriteria;
-        String newHeader = createHeader(newCriteria);
-
-        super.refresh(newHeader, refreshColumnsDefinition);
-    }
-
     @Override
     protected void prepareExportEntities(TableExportCriteria<Sample> exportCriteria,
             AbstractAsyncCallback<String> callback)
@@ -318,49 +240,32 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
         return SampleModel.createColumnsSchema(viewContext, criteria.getSampleType());
     }
 
-    private boolean hasColumnsDefinitionChanged(ListSampleCriteria newCriteria)
+    @Override
+    protected boolean hasColumnsDefinitionChanged(ListSampleCriteria newCriteria)
     {
-
-        SampleType sampleType = newCriteria.getSampleType();
-        return criteria == null || sampleType != null
-                && sampleType.equals(criteria.getSampleType()) == false;
+        SampleType newEntityType = newCriteria.getSampleType();
+        if (newEntityType == null)
+        {
+            return false; // nothing chosen
+        }
+        if (criteria == null)
+        {
+            return true; // first selection
+        }
+        SampleType prevEntityType = criteria.getSampleType();
+        return newEntityType.equals(prevEntityType) == false
+                || propertiesEqual(newEntityType, prevEntityType) == false;
     }
 
-    public DatabaseModificationKind[] getRelevantModifications()
+    private boolean propertiesEqual(SampleType entityType1, SampleType entityType2)
     {
-        List<DatabaseModificationKind> relevantModifications =
-                new ArrayList<DatabaseModificationKind>();
-        IDatabaseModificationObserver criteriaModificationObserver =
-                criteriaProvider.tryGetModificationObserver();
-        if (criteriaModificationObserver != null)
-        {
-            SetUtils.addAll(relevantModifications, criteriaModificationObserver
-                    .getRelevantModifications());
-        }
-        relevantModifications.addAll(getGridRelevantModifications());
-        return relevantModifications.toArray(DatabaseModificationKind.EMPTY_ARRAY);
+        return entityType1.getSampleTypePropertyTypes().equals(
+                entityType2.getSampleTypePropertyTypes());
     }
 
-    private static Set<DatabaseModificationKind> getGridRelevantModifications()
+    @Override
+    protected Set<DatabaseModificationKind> getGridRelevantModifications()
     {
-        Set<DatabaseModificationKind> result = new HashSet<DatabaseModificationKind>();
-        result.add(createOrDelete(ObjectKind.SAMPLE));
-        result.add(edit(ObjectKind.SAMPLE));
-        result.add(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT));
-        return result;
-    }
-
-    public void update(Set<DatabaseModificationKind> observedModifications)
-    {
-        IDatabaseModificationObserver criteriaModificationObserver =
-                criteriaProvider.tryGetModificationObserver();
-        if (criteriaModificationObserver != null)
-        {
-            criteriaModificationObserver.update(observedModifications);
-        }
-        if (SetUtils.containsAny(observedModifications, getGridRelevantModifications()))
-        {
-            refreshGridSilently();
-        }
+        return getGridRelevantModifications(ObjectKind.SAMPLE);
     }
 }

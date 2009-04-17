@@ -16,11 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material;
 
-import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
-import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
-
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -37,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MaterialModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
@@ -45,10 +39,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableMaterial;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.material.CommonMaterialColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.SetUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.AbstractEntityBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
@@ -71,29 +64,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * 
  * @author Izabela Adamczyk
  */
-public class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialModel>
+public class MaterialBrowserGrid extends
+        AbstractEntityBrowserGrid<Material, MaterialModel, ListMaterialCriteria>
 {
     private static final String PREFIX = "material-browser";
 
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + PREFIX;
 
     public static final String GRID_ID = BROWSER_ID + "_grid";
-
-    // criteria used in the previous refresh operation or null if it has not occurred yet
-    private ListMaterialCriteria criteria;
-
-    private ICriteriaProvider criteriaProvider;
-
-    private interface ICriteriaProvider
-    {
-        /**
-         * @return criteria which should be used to display materials or null if they are not yet
-         *         set.
-         */
-        ListMaterialCriteria tryGetCriteria();
-
-        IDatabaseModificationObserver tryGetModificationObserver();
-    }
 
     /**
      * Creates a browser with a toolbar which allows to choose the material type. Allows to show or
@@ -109,18 +87,7 @@ public class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialM
             final IViewContext<ICommonClientServiceAsync> viewContext, boolean detailsAvailable)
     {
         final MaterialBrowserToolbar toolbar = new MaterialBrowserToolbar(viewContext, null);
-        final ICriteriaProvider criteriaProvider = new ICriteriaProvider()
-            {
-                public ListMaterialCriteria tryGetCriteria()
-                {
-                    return toolbar.tryGetCriteria();
-                }
-
-                public IDatabaseModificationObserver tryGetModificationObserver()
-                {
-                    return toolbar;
-                }
-            };
+        final ICriteriaProvider<ListMaterialCriteria> criteriaProvider = toolbar;
         final MaterialBrowserGrid browserGrid =
                 createBrowserGrid(viewContext, criteriaProvider, detailsAvailable);
         browserGrid.extendTopToolbar(toolbar, detailsAvailable);
@@ -149,18 +116,8 @@ public class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialM
     private static DisposableEntityChooser<Material> createWithoutTypeChooser(
             final IViewContext<ICommonClientServiceAsync> viewContext, final MaterialType initValue)
     {
-        final ICriteriaProvider criteriaProvider = new ICriteriaProvider()
-            {
-                public ListMaterialCriteria tryGetCriteria()
-                {
-                    return new ListMaterialCriteria(initValue);
-                }
-
-                public IDatabaseModificationObserver tryGetModificationObserver()
-                {
-                    return null;
-                }
-            };
+        final ICriteriaProvider<ListMaterialCriteria> criteriaProvider =
+                createUnrefreshableCriteriaProvider(new ListMaterialCriteria(initValue));
         boolean detailsAvailable = false;
         final MaterialBrowserGrid browserGrid =
                 createBrowserGrid(viewContext, criteriaProvider, detailsAvailable);
@@ -169,7 +126,7 @@ public class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialM
 
     private static MaterialBrowserGrid createBrowserGrid(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            final ICriteriaProvider criteriaProvider, boolean detailsAvailable)
+            final ICriteriaProvider<ListMaterialCriteria> criteriaProvider, boolean detailsAvailable)
     {
         if (detailsAvailable)
         {
@@ -189,10 +146,9 @@ public class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialM
     }
 
     private MaterialBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
-            boolean refreshAutomatically, ICriteriaProvider criteriaProvider)
+            boolean refreshAutomatically, ICriteriaProvider<ListMaterialCriteria> criteriaProvider)
     {
-        super(viewContext, GRID_ID, true, refreshAutomatically);
-        this.criteriaProvider = criteriaProvider;
+        super(viewContext, GRID_ID, true, refreshAutomatically, criteriaProvider);
         setId(BROWSER_ID);
     }
 
@@ -217,26 +173,11 @@ public class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialM
     }
 
     @Override
-    protected boolean isRefreshEnabled()
-    {
-        return criteriaProvider.tryGetCriteria() != null;
-    }
-
-    @Override
     protected void listEntities(DefaultResultSetConfig<String, Material> resultSetConfig,
             AbstractAsyncCallback<ResultSet<Material>> callback)
     {
         copyPagingConfig(resultSetConfig);
         viewContext.getService().listMaterials(criteria, callback);
-    }
-
-    private void copyPagingConfig(DefaultResultSetConfig<String, Material> resultSetConfig)
-    {
-        criteria.setLimit(resultSetConfig.getLimit());
-        criteria.setOffset(resultSetConfig.getOffset());
-        criteria.setSortInfo(resultSetConfig.getSortInfo());
-        criteria.setFilterInfos(resultSetConfig.getFilterInfos());
-        criteria.setResultSetKey(resultSetConfig.getResultSetKey());
     }
 
     @Override
@@ -258,7 +199,13 @@ public class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialM
         viewContext.getService().prepareExportMaterials(exportCriteria, callback);
     }
 
-    private static final String createHeader(ListMaterialCriteria criteria)
+    @Override
+    protected final String createHeader()
+    {
+        return doCreateHeader(criteria);
+    }
+
+    private static final String doCreateHeader(ListMaterialCriteria criteria)
     {
         final StringBuilder builder = new StringBuilder("Materials");
         builder.append(" of type ");
@@ -267,24 +214,32 @@ public class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialM
     }
 
     @Override
-    protected final void refresh()
+    protected boolean hasColumnsDefinitionChanged(ListMaterialCriteria newCriteria)
     {
-        ListMaterialCriteria newCriteria = criteriaProvider.tryGetCriteria();
-        if (newCriteria == null)
+        MaterialType newEntityType = newCriteria.getMaterialType();
+        if (newEntityType == null)
         {
-            return;
+            return false; // nothing chosen
         }
-        boolean refreshColumnsDefinition =
-                hasColumnsDefinitionChanged(newCriteria.getMaterialType());
-        this.criteria = newCriteria;
-        String newHeader = createHeader(criteria);
-
-        super.refresh(newHeader, refreshColumnsDefinition);
+        if (criteria == null)
+        {
+            return true; // first selection
+        }
+        MaterialType prevEntityType = criteria.getMaterialType();
+        return newEntityType.equals(prevEntityType) == false
+                || propertiesEqual(newEntityType, prevEntityType) == false;
     }
 
-    private boolean hasColumnsDefinitionChanged(MaterialType entityType)
+    private boolean propertiesEqual(MaterialType entityType1, MaterialType entityType2)
     {
-        return criteria == null || entityType.equals(criteria.getMaterialType()) == false;
+        return entityType1.getMaterialTypePropertyTypes().equals(
+                entityType2.getMaterialTypePropertyTypes());
+    }
+
+    @Override
+    protected Set<DatabaseModificationKind> getGridRelevantModifications()
+    {
+        return getGridRelevantModifications(ObjectKind.MATERIAL);
     }
 
     @Override
@@ -326,43 +281,5 @@ public class MaterialBrowserGrid extends AbstractBrowserGrid<Material, MaterialM
                 .getProperties(), selectedType, entity.getCode() + " ("
                 + entity.getMaterialType().getCode() + ")", entity.getId(), entity
                 .getModificationDate());
-    }
-
-    public DatabaseModificationKind[] getRelevantModifications()
-    {
-        List<DatabaseModificationKind> relevantModifications =
-                new ArrayList<DatabaseModificationKind>();
-        IDatabaseModificationObserver criteriaModificationObserver =
-                criteriaProvider.tryGetModificationObserver();
-        if (criteriaModificationObserver != null)
-        {
-            SetUtils.addAll(relevantModifications, criteriaModificationObserver
-                    .getRelevantModifications());
-        }
-        relevantModifications.addAll(getGridRelevantModifications());
-        return relevantModifications.toArray(DatabaseModificationKind.EMPTY_ARRAY);
-    }
-
-    private static Set<DatabaseModificationKind> getGridRelevantModifications()
-    {
-        Set<DatabaseModificationKind> result = new HashSet<DatabaseModificationKind>();
-        result.add(createOrDelete(ObjectKind.MATERIAL));
-        result.add(edit(ObjectKind.MATERIAL));
-        result.add(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT));
-        return result;
-    }
-
-    public void update(Set<DatabaseModificationKind> observedModifications)
-    {
-        IDatabaseModificationObserver criteriaModificationObserver =
-                criteriaProvider.tryGetModificationObserver();
-        if (criteriaModificationObserver != null)
-        {
-            criteriaModificationObserver.update(observedModifications);
-        }
-        if (SetUtils.containsAny(observedModifications, getGridRelevantModifications()))
-        {
-            refreshGridSilently();
-        }
     }
 }

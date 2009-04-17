@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-
 /**
  * An <i>abstract</i> entity type property type.
  * 
@@ -85,6 +84,18 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Is
     public final void setEntityType(final T entityType)
     {
         this.entityType = entityType;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == null || obj instanceof EntityTypePropertyType == false)
+        {
+            return false;
+        }
+        EntityTypePropertyType<T> that = (EntityTypePropertyType<T>) obj;
+        return this.compareTo(that) == 0;
     }
 
     //

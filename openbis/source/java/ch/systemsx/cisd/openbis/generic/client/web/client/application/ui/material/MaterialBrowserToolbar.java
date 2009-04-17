@@ -30,7 +30,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.AbstractEntityBrowserGrid.ICriteriaProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -41,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * 
  * @author Izabela Adamczyk
  */
-class MaterialBrowserToolbar extends ToolBar implements IDatabaseModificationObserver
+class MaterialBrowserToolbar extends ToolBar implements ICriteriaProvider<ListMaterialCriteria>
 {
     public static final String ID = "material-browser-toolbar";
 
@@ -95,13 +96,17 @@ class MaterialBrowserToolbar extends ToolBar implements IDatabaseModificationObs
                     createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
-    public void update(Set<DatabaseModificationKind> observedModifications)
+    public void update(Set<DatabaseModificationKind> observedModifications,
+            IDataRefreshCallback entityTypeRefreshCallback)
     {
         if (observedModifications.contains(createOrDelete(ObjectKind.MATERIAL_TYPE))
                 || observedModifications
                         .contains(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)))
         {
-            selectMaterialTypeCombo.update(observedModifications);
+            selectMaterialTypeCombo.refreshStore(entityTypeRefreshCallback);
+        } else
+        {
+            entityTypeRefreshCallback.postRefresh(true);
         }
     }
 

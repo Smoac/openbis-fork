@@ -30,8 +30,9 @@ import com.google.gwt.user.client.Element;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.AbstractEntityBrowserGrid.ICriteriaProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -44,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * @author Izabela Adamczyk
  * @author Christian Ribeaud
  */
-final class SampleBrowserToolbar extends ToolBar implements IDatabaseModificationObserver
+final class SampleBrowserToolbar extends ToolBar implements ICriteriaProvider<ListSampleCriteria>
 {
     public static final String ID = "sample-browser-toolbar";
 
@@ -124,13 +125,17 @@ final class SampleBrowserToolbar extends ToolBar implements IDatabaseModificatio
                     createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
-    public void update(Set<DatabaseModificationKind> observedModifications)
+    public void update(Set<DatabaseModificationKind> observedModifications,
+            IDataRefreshCallback entityTypeRefreshCallback)
     {
         if (observedModifications.contains(createOrDelete(ObjectKind.SAMPLE_TYPE))
                 || observedModifications
                         .contains(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)))
         {
-            selectSampleTypeCombo.refreshStore();
+            selectSampleTypeCombo.refreshStore(entityTypeRefreshCallback);
+        } else
+        {
+            entityTypeRefreshCallback.postRefresh(true);
         }
         if (observedModifications.contains(createOrDelete(ObjectKind.GROUP)))
         {

@@ -65,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -158,16 +159,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private IDataRefreshCallback refreshCallback;
 
-    public interface IDataRefreshCallback
-    {
-        /**
-         * called after the grid is refreshed with new data
-         * 
-         * @param wasSuccessful false if the call ended with a failure
-         */
-        void postRefresh(boolean wasSuccessful);
-    }
-
     protected AbstractBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             String gridId)
     {
@@ -181,7 +172,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
      * @param refreshAutomatically should the data be automatically loaded when the grid is rendered
      *            for the first time?
      */
-    protected AbstractBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
+    protected AbstractBrowserGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             String gridId, boolean showHeader, boolean refreshAutomatically)
     {
         this.viewContext = viewContext;
@@ -700,11 +691,23 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         setHeader(headerOrNull);
         if (columns == null || refreshColumnsDefinition)
         {
-            this.columns = createColumnsDefinition();
+            refreshColumnDefinitions();
         }
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
 
         reloadData();
+    }
+
+    private void refreshColumnDefinitions()
+    {
+        ColumnDefsAndConfigs<T> newColumnsDefinition = createColumnsDefinition();
+        if (columns != null)
+        {
+            List<ColumnConfig> previousColumnConfigs = columns.getColumnConfigs();
+            newColumnsDefinition.restorePreviousSettings(previousColumnConfigs);
+        }
+        this.columns = newColumnsDefinition;
+
     }
 
     // refreshes the data, does not clear the cache

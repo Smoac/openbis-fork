@@ -31,7 +31,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.AbstractEntityBrowserGrid.ICriteriaProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
@@ -45,7 +46,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * @author Izabela Adamczyk
  * @author Christian Ribeaud
  */
-class ExperimentBrowserToolbar extends ToolBar implements IDatabaseModificationObserver
+class ExperimentBrowserToolbar extends ToolBar implements
+        ICriteriaProvider<ListExperimentsCriteria>
 {
     public static final String ID = "experiment-browser-toolbar";
 
@@ -116,13 +118,17 @@ class ExperimentBrowserToolbar extends ToolBar implements IDatabaseModificationO
                     createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
-    public void update(Set<DatabaseModificationKind> observedModifications)
+    public void update(Set<DatabaseModificationKind> observedModifications,
+            IDataRefreshCallback entityTypeRefreshCallback)
     {
         if (observedModifications.contains(createOrDelete(ObjectKind.EXPERIMENT_TYPE))
                 || observedModifications
                         .contains(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)))
         {
-            selectExperimentTypeCombo.refreshStore();
+            selectExperimentTypeCombo.refreshStore(entityTypeRefreshCallback);
+        } else
+        {
+            entityTypeRefreshCallback.postRefresh(true);
         }
         if (observedModifications.contains(createOrDelete(ObjectKind.PROJECT)))
         {
