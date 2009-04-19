@@ -18,21 +18,12 @@
     <taskdef name="dependency-checker"
              classname="classycle.ant.DependencyCheckingTask"
              classpath="${lib}/classycle/classycle.jar" />
-    <!-- Cobertura -->
-    <path id="cobertura.classpath">
-        <fileset dir="${lib}/cobertura" includes="**/*.jar" />
-        <pathelement location="${lib}/log4j/log4j.jar" />
-    </path>
-    <property name="cobertura.datafile" value="${targets}/cobertura.ser" />
-    <taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
 
     <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter" />
     <property name="server-resource" value="${resource}/server" />
     <property name="sources" value="source/java" />
     <property name="sources.test" value="sourceTest/java" />
     <property name="classes" value="${targets}/ant/classes" />
-    <property name="cobertura.instrumented" value="${targets}/ant/instrumented" />
-    <property name="cobertura.report" value="${targets}/cobertura-report" />
     <property name="output.test" value="${targets}/test-output" />
     <property name="build.info.filename" value="BUILD.INFO" />
     <property name="build.info.file" value="${classes}/${build.info.filename}" />
@@ -127,39 +118,4 @@
         </exec>
     </target>
 
-    <!--
-      // Adds the logging code to the already compiled class files.
-      -->
-    <target name="cobertura-instrument"
-            depends="compile"
-            description="Adds the logging code to the already compiled class files.">
-        <delete quiet="false" failonerror="false">
-            <fileset dir="${cobertura.instrumented}" />
-        </delete>
-        <cobertura-instrument todir="${cobertura.instrumented}" datafile="${cobertura.datafile}">
-            <fileset dir="${classes}">
-                <include name="**/*.class" />
-                <exclude name="**/*Test.class" />
-            </fileset>
-        </cobertura-instrument>
-    </target>
-
-    <!--
-      // Generate a series of HTML files containing the coverage data in a user-readable form.
-      -->
-    <target name="cobertura-report"
-            depends="run-tests"
-            description="Generate a series of HTML files containing the coverage data in a user-readable form.">
-        <delete quiet="false" failonerror="false">
-            <fileset dir="${cobertura.report}" />
-        </delete>
-        <cobertura-report destdir="${cobertura.report}/" datafile="${cobertura.datafile}">
-            <fileset dir="${sources}">
-                <include name="**/*.java" />
-            </fileset>
-            <fileset dir="${sources.test}">
-                <include name="**/*.java" />
-            </fileset>
-        </cobertura-report>
-    </target>
 </project>
