@@ -10,7 +10,7 @@ if [ "$1" = "--private" ]; then
 	protocol=svn+ssh
 	shift
 fi
-repository=$protocol://source.systemsx.ch/repos
+repository=$protocol://svncisd.ethz.ch/repos
 if [ "$1" = "--revision" ]; then
 	shift
 	revision="$1"

@@ -8,7 +8,7 @@
            classname="ch.systemsx.cisd.ant.task.subversion.SVNRecursiveCheckoutTask" 
            classpathref="build-resource.path"/>
  
-  <property name="repositoryRoot.default" value="svn+ssh://source.systemsx.ch/repos"/>
+  <property name="repositoryRoot.default" value="svn+ssh://svncisd.ethz.ch/repos"/>
 
 
   <target name="checkout">
@@ -105,7 +105,7 @@
        tag      Tag number. Mandatory
        group    Group of the project. Default: cisd
        repositoryRoot  URL of the root of the Subversion repository. 
-                       Default: ${repositoryRoot.default}=svn+ssh://source.systemsx.ch/repos 
+                       Default: ${repositoryRoot.default}=svn+ssh://svncisd.ethz.ch/repos 
   --> 
   <target name="branch-and-tag">
     <condition property="repositoryRoot" value="${repositoryRoot.default}">
@@ -130,7 +130,7 @@
        tag      Tag number. Mandatory
        group    Group of the project. Default: cisd
        repositoryRoot  URL of the root of the Subversion repository. 
-                       Default: ${repositoryRoot.default}=svn+ssh://source.systemsx.ch/repos 
+                       Default: ${repositoryRoot.default}=svn+ssh://svncisd.ethz.ch/repos 
   --> 
   <target name="tag-sprint">
     <condition property="repositoryRoot" value="${repositoryRoot.default}">
@@ -158,7 +158,7 @@
        result.dir      Folder which will contain the result. Mandatory
        group           Group of the project. Default: cisd
        repositoryRoot  URL of the root of the Subversion repository. 
-                       Default: ${repositoryRoot.default}=svn+ssh://source.systemsx.ch/repos 
+                       Default: ${repositoryRoot.default}=svn+ssh://svncisd.ethz.ch/repos 
   --> 
   <target name="build" depends="checkout"> 
     <exec executable="ant" failonerror="true">
