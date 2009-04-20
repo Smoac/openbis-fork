@@ -26,7 +26,6 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
-import com.extjs.gxt.ui.client.widget.form.TextArea;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentManager;
@@ -37,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
@@ -56,9 +54,6 @@ public final class GenericExperimentRegistrationForm
         extends
         AbstractGenericEntityRegistrationForm<ExperimentType, ExperimentTypePropertyType, ExperimentProperty>
 {
-
-    public static final String ID_SUFFIX_SAMPLES = "_samples";
-
     public static final String ID = createId(EntityKind.EXPERIMENT);
 
     public static final String SESSION_KEY = createSimpleId(EntityKind.EXPERIMENT);
@@ -74,7 +69,7 @@ public final class GenericExperimentRegistrationForm
     private AttachmentManager attachmentManager =
             new AttachmentManager(SESSION_KEY, DEFAULT_NUMBER_OF_ATTACHMENTS, "Attachment");
 
-    private TextArea samplesArea;
+    private ExperimentSamplesPanel samplesArea;
 
     public GenericExperimentRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext,
@@ -94,24 +89,13 @@ public final class GenericExperimentRegistrationForm
         return result.toUpperCase();
     }
 
-    private final String[] extractSamples()
-    {
-        String text = samplesArea.getValue();
-        if (StringUtils.isBlank(text) == false)
-        {
-            return text.split("\n|\r\n|, *");
-        } else
-        {
-            return new String[0];
-        }
-    }
-
     @Override
     public final void submitValidForm()
     {
     }
 
-    public final class RegisterExperimentCallback extends AbstractRegistrationForm.AbstractRegistrationCallback
+    public final class RegisterExperimentCallback extends
+            AbstractRegistrationForm.AbstractRegistrationCallback
     {
 
         RegisterExperimentCallback(final IViewContext<?> viewContext)
@@ -135,11 +119,7 @@ public final class GenericExperimentRegistrationForm
         FieldUtil.markAsMandatory(projectSelectionWidget);
         projectSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.PROJECT));
 
-        samplesArea = new TextArea();
-        samplesArea.setFieldLabel(viewContext.getMessage(Dict.SAMPLES));
-        samplesArea.setHeight("10em");
-        samplesArea.setEmptyText(viewContext.getMessage(Dict.SAMPLES_LIST));
-        samplesArea.setId(ID + ID_SUFFIX_SAMPLES);
+        samplesArea = new ExperimentSamplesPanel(viewContext, ID);
 
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
@@ -201,7 +181,7 @@ public final class GenericExperimentRegistrationForm
                 new NewExperiment(createExpeimentIdentifier(), experimentType.getCode());
         final List<ExperimentProperty> properties = extractProperties();
         newExp.setProperties(properties.toArray(ExperimentProperty.EMPTY_ARRAY));
-        newExp.setSamples(extractSamples());
+        newExp.setSamples(samplesArea.extractSamples());
         viewContext.getService().registerExperiment(SESSION_KEY, newExp,
                 new RegisterExperimentCallback(viewContext));
     }
