@@ -65,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 public final class CommonClientServiceTest extends AbstractClientServiceTest
 {
     private static final String DATA_STORE_BASE_URL = "baseURL";
+
     private static final String CIFEX_URL = "cifexURL";
 
     private CommonClientService commonClientService;
@@ -137,7 +138,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         final ListSampleCriteria criteria = createListCriteria();
         prepareListEntities(entities, criteria);
 
-        final ResultSet<Sample> resultSet = commonClientService.listSamples(criteria);
+        final ResultSet<Sample> resultSet = commonClientService.listSamples(criteria, true);
         assertEqualEntities(entities, resultSet);
         context.assertIsSatisfied();
     }
@@ -335,7 +336,8 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         List<ExternalData> list = resultSet.getList();
         assertEquals(1, list.size());
         ExternalData data = list.get(0);
-        assertEquals(DATA_STORE_BASE_URL + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME, data.getDataStore().getDownloadUrl());
+        assertEquals(DATA_STORE_BASE_URL + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME, data
+                .getDataStore().getDownloadUrl());
         assertEquals("PNG", data.getFileFormatType().getCode());
         assertEquals("Portable Network Graphics", data.getFileFormatType().getDescription());
 

@@ -52,6 +52,8 @@ public abstract class Dict
 
     public static final String NOT_IMPLEMENTED = "not_implemented";
 
+    public static final String LOAD_IN_PROGRESS = "load_in_progress";
+
     //
     // Field
     //
@@ -250,11 +252,10 @@ public abstract class Dict
 
     public static final String DEFAULT_VALUE_TOOLTIP = "default_value_tooltip";
 
-
     //
     // Property Type Assignment Browser
     //
-    
+
     public static final String UNASSIGN_BUTTON_LABEL = "unassign_button_label";
 
     public static final String UNASSIGNMENT_CONFIRMATION_DIALOG_TITLE =
@@ -333,14 +334,18 @@ public abstract class Dict
     public static final String CONFIRM_DATASET_UPLOAD_TITLE = "confirm_dataset_upload_title";
 
     public static final String CONFIRM_DATASET_UPLOAD_MSG = "confirm_dataset_upload_msg";
-    
-    public static final String CONFIRM_DATASET_UPLOAD_FILE_NAME_FIELD = "confirm_dataset_upload_file_name_field";
-    
-    public static final String CONFIRM_DATASET_UPLOAD_COMMENT_FIELD = "confirm_dataset_upload_comment_field";
-    
-    public static final String CONFIRM_DATASET_UPLOAD_USER_FIELD = "confirm_dataset_upload_user_field";
-    
-    public static final String CONFIRM_DATASET_UPLOAD_PASSWORD_FIELD = "confirm_dataset_upload_password_field";
+
+    public static final String CONFIRM_DATASET_UPLOAD_FILE_NAME_FIELD =
+            "confirm_dataset_upload_file_name_field";
+
+    public static final String CONFIRM_DATASET_UPLOAD_COMMENT_FIELD =
+            "confirm_dataset_upload_comment_field";
+
+    public static final String CONFIRM_DATASET_UPLOAD_USER_FIELD =
+            "confirm_dataset_upload_user_field";
+
+    public static final String CONFIRM_DATASET_UPLOAD_PASSWORD_FIELD =
+            "confirm_dataset_upload_password_field";
 
     //
     // Sample Registration

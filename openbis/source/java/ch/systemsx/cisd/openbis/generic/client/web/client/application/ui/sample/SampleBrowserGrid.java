@@ -148,7 +148,7 @@ public final class SampleBrowserGrid extends
             AbstractAsyncCallback<ResultSet<Sample>> callback)
     {
         copyPagingConfig(resultSetConfig);
-        viewContext.getService().listSamples(criteria, callback);
+        viewContext.getService().listSamples(criteria, true, callback);
     }
 
     @Override

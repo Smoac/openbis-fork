@@ -129,8 +129,8 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of samples for given sample type.
      */
-    public ResultSet<Sample> listSamples(final ListSampleCriteria criteria)
-            throws UserFailureException;
+    public ResultSet<Sample> listSamples(final ListSampleCriteria criteria,
+            boolean withExperimentAndProperties) throws UserFailureException;
 
     /**
      * Returns a key which can be used be the export servlet (and eventually

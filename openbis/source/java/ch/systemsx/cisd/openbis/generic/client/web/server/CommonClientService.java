@@ -540,12 +540,13 @@ public final class CommonClientService extends AbstractClientService implements
 
     // ---------------- methods which list entities using cache
 
-    public final ResultSet<Sample> listSamples(final ListSampleCriteria listCriteria)
+    public final ResultSet<Sample> listSamples(final ListSampleCriteria listCriteria,
+            boolean withExperimentAndProperties)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         return listEntities(listCriteria, new ListSamplesOriginalDataProvider(commonServer,
-                sessionToken, listCriteria));
+                sessionToken, listCriteria, withExperimentAndProperties));
     }
 
     public ResultSet<ExternalData> searchForDataSets(DataSetSearchCriteria criteria,
@@ -743,7 +744,7 @@ public final class CommonClientService extends AbstractClientService implements
                 }
             });
     }
-    
+
     public ResultSet<? extends EntityType> listDataSetTypes(
             DefaultResultSetConfig<String, DataSetType> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -881,7 +882,7 @@ public final class CommonClientService extends AbstractClientService implements
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
-    
+
     public void unassignPropertyType(EntityKind entityKind, String propertyTypeCode,
             String entityTypeCode)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -1110,7 +1111,7 @@ public final class CommonClientService extends AbstractClientService implements
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
-    
+
     public void registerDataSetType(DataSetType entityType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {

@@ -191,12 +191,14 @@ public interface ICommonServer extends IServer
     /**
      * Lists samples using given configuration.
      * 
+     * @param withExperimentAndProperties if true every sample is enriched with properties and
+     *            experiment information
      * @return a sorted list of {@link SamplePE}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public List<SamplePE> listSamples(final String sessionToken,
-            final ListSampleCriteriaDTO criteria);
+            final ListSampleCriteriaDTO criteria, boolean withExperimentAndProperties);
 
     /**
      * Lists experiments.

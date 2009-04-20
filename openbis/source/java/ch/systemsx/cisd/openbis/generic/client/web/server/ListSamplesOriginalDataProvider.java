@@ -21,11 +21,14 @@ final class ListSamplesOriginalDataProvider extends AbstractOriginalDataProvider
 
     private final ListSampleCriteria listCriteria;
 
+    private final boolean withExperimentAndProperties;
+
     ListSamplesOriginalDataProvider(final ICommonServer commonServer, final String sessionToken,
-            final ListSampleCriteria listCriteria)
+            final ListSampleCriteria listCriteria, boolean withExperimentAndProperties)
     {
         super(commonServer, sessionToken);
         this.listCriteria = listCriteria;
+        this.withExperimentAndProperties = withExperimentAndProperties;
     }
 
     //
@@ -36,7 +39,7 @@ final class ListSamplesOriginalDataProvider extends AbstractOriginalDataProvider
     {
         final List<SamplePE> samples =
                 commonServer.listSamples(sessionToken, ListSampleCriteriaTranslator
-                        .translate(listCriteria));
+                        .translate(listCriteria), withExperimentAndProperties);
         final List<Sample> list = new ArrayList<Sample>(samples.size());
         for (final SamplePE sample : samples)
         {

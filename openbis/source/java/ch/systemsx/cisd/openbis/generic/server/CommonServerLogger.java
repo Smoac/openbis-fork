@@ -167,11 +167,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public final List<SamplePE> listSamples(final String sessionToken,
-            final ListSampleCriteriaDTO criteria)
+            final ListSampleCriteriaDTO criteria, boolean withExperimentAndProperties)
     {
-        logAccess(sessionToken, "list_samples", "TYPE(%s) OWNERS(%s) CONTAINER(%s) EXPERIMENT(%s)",
-                criteria.getSampleType(), criteria.getOwnerIdentifiers(), criteria
-                        .getContainerIdentifier(), criteria.getExperimentIdentifier());
+        String detailLevel = (withExperimentAndProperties ? "with" : "without");
+        String cmd = "list_samples " + detailLevel + " properties and experiment";
+        logAccess(sessionToken, cmd, "TYPE(%s) OWNERS(%s) CONTAINER(%s) EXPERIMENT(%s)", criteria
+                .getSampleType(), criteria.getOwnerIdentifiers(),
+                criteria.getContainerIdentifier(), criteria.getExperimentIdentifier());
         return null;
     }
 

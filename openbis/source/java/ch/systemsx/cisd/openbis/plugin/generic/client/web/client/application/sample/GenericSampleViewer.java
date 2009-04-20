@@ -218,10 +218,10 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
                 {
                     final ListSampleCriteria sampleCriteria = new ListSampleCriteria();
                     sampleCriteria.setContainerIdentifier(sampleIdentifier);
-                    viewContext.getCommonService().listSamples(
-                            sampleCriteria,
+                    ListSamplesCallback listCallback =
                             new ListSamplesCallback(viewContext, callback,
-                                    showComponentsPanelAction));
+                                    showComponentsPanelAction);
+                    viewContext.getCommonService().listSamples(sampleCriteria, true, listCallback);
                 }
             };
     }

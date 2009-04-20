@@ -69,7 +69,7 @@ public final class GenericExperimentRegistrationForm
     private AttachmentManager attachmentManager =
             new AttachmentManager(SESSION_KEY, DEFAULT_NUMBER_OF_ATTACHMENTS, "Attachment");
 
-    private ExperimentSamplesPanel samplesArea;
+    private ExperimentSamplesArea samplesArea;
 
     public GenericExperimentRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext,
@@ -81,7 +81,7 @@ public final class GenericExperimentRegistrationForm
         addUploadFeatures(formPanel, SESSION_KEY);
     }
 
-    private final String createExpeimentIdentifier()
+    private final String createExperimentIdentifier()
     {
         final Project project = projectSelectionWidget.tryGetSelectedProject();
         final String code = codeField.getValue();
@@ -106,7 +106,7 @@ public final class GenericExperimentRegistrationForm
         @Override
         protected String createSuccessfullRegistrationInfo()
         {
-            return "Experiment <b>" + createExpeimentIdentifier() + "</b> successfully registered";
+            return "Experiment <b>" + createExperimentIdentifier() + "</b> successfully registered";
         }
 
     }
@@ -119,7 +119,7 @@ public final class GenericExperimentRegistrationForm
         FieldUtil.markAsMandatory(projectSelectionWidget);
         projectSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.PROJECT));
 
-        samplesArea = new ExperimentSamplesPanel(viewContext, ID);
+        samplesArea = new ExperimentSamplesArea(viewContext, ID + createExperimentIdentifier());
 
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
@@ -178,10 +178,10 @@ public final class GenericExperimentRegistrationForm
     private void registerExperiment()
     {
         final NewExperiment newExp =
-                new NewExperiment(createExpeimentIdentifier(), experimentType.getCode());
+                new NewExperiment(createExperimentIdentifier(), experimentType.getCode());
         final List<ExperimentProperty> properties = extractProperties();
         newExp.setProperties(properties.toArray(ExperimentProperty.EMPTY_ARRAY));
-        newExp.setSamples(samplesArea.extractSamples());
+        newExp.setSamples(samplesArea.getSampleCodes());
         viewContext.getService().registerExperiment(SESSION_KEY, newExp,
                 new RegisterExperimentCallback(viewContext));
     }

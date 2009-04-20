@@ -340,12 +340,15 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     public final List<SamplePE> listSamples(final String sessionToken,
-            final ListSampleCriteriaDTO criteria)
+            final ListSampleCriteriaDTO criteria, boolean withExperimentAndProperties)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
         sampleTable.loadSamplesByCriteria(criteria);
-        sampleTable.enrichWithExperimentAndProperties();
+        if (withExperimentAndProperties)
+        {
+            sampleTable.enrichWithExperimentAndProperties();
+        }
         final List<SamplePE> samples = sampleTable.getSamples();
         Collections.sort(samples);
         return samples;
@@ -644,8 +647,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             throw createUserFailureException(ex);
         }
     }
-    
-        public void registerDataSetType(String sessionToken, DataSetType entityType)
+
+    public void registerDataSetType(String sessionToken, DataSetType entityType)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         try

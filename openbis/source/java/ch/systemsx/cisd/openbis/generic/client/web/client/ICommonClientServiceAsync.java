@@ -104,9 +104,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listSampleTypes(AsyncCallback<List<SampleType>> asyncCallback);
 
     /**
-     * @see ICommonClientService#listSamples(ListSampleCriteria)
+     * @see ICommonClientService#listSamples(ListSampleCriteria, boolean)
      */
-    public void listSamples(final ListSampleCriteria criteria,
+    public void listSamples(final ListSampleCriteria criteria, boolean withExperimentAndProperties,
             AsyncCallback<ResultSet<Sample>> asyncCallback);
 
     /**
@@ -126,7 +126,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void prepareExportPropertyTypeAssignments(
             final TableExportCriteria<EntityTypePropertyType<?>> criteria,
             AsyncCallback<String> asyncCallback);
-    
+
     /**
      * @see ICommonClientService#countPropertyTypedEntities(EntityKind, String, String)
      */

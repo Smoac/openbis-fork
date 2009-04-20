@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +32,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentManager;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
@@ -38,6 +41,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableExperiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -67,7 +73,11 @@ public final class GenericExperimentEditForm
 
     private Html attachmentsInfo;
 
+    private Html samplesInfo;
+
     private ProjectSelectionWidget projectChooser;
+
+    private ExperimentSamplesArea samplesArea;
 
     private String originalProjectIdentifier;
 
@@ -86,6 +96,7 @@ public final class GenericExperimentEditForm
         super(viewContext, entity, editMode);
         this.viewContext = viewContext;
         super.initializeComponents(viewContext);
+
         sessionKey = createSimpleId(EntityKind.EXPERIMENT, entity.getId() + "");
         originalProjectIdentifier = entity.getProjectIdentifier();
         setHeaderVisible(true);
@@ -93,9 +104,11 @@ public final class GenericExperimentEditForm
         projectChooser =
                 new ProjectSelectionWidget(viewContext, sessionKey, originalProjectIdentifier);
         FieldUtil.markAsMandatory(projectChooser);
+        samplesArea = createSamplesArea();
         attachmentManager =
                 new AttachmentManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS, "New Attachment");
         addUploadFeatures(formPanel, sessionKey);
+
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
                 @Override
@@ -111,6 +124,40 @@ public final class GenericExperimentEditForm
                 }
             });
         redefineSaveListeners();
+    }
+
+    private ExperimentSamplesArea createSamplesArea()
+    {
+        ExperimentSamplesArea area =
+                new ExperimentSamplesArea(viewContext, ID_PREFIX + entity.getIdentifier());
+        area.setEnabled(false);
+        area.setValue(viewContext.getMessage(Dict.LOAD_IN_PROGRESS));
+        loadSamplesInBackground();
+        return area;
+    }
+
+    private void loadSamplesInBackground()
+    {
+        final ListSampleCriteria sampleCriteria = new ListSampleCriteria();
+        sampleCriteria.setExperimentIdentifier(entity.getIdentifier());
+        viewContext.getCommonService().listSamples(sampleCriteria, true,
+                new ListSamplesCallback(viewContext));
+    }
+
+    private class ListSamplesCallback extends AbstractAsyncCallback<ResultSet<Sample>>
+    {
+
+        public ListSamplesCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        protected void process(ResultSet<Sample> result)
+        {
+            samplesArea.setSamples(result.getList());
+            samplesArea.setEnabled(true);
+        }
     }
 
     void redefineSaveListeners()
@@ -192,9 +239,10 @@ public final class GenericExperimentEditForm
         List<DatabaseModificationAwareField<?>> fields =
                 new ArrayList<DatabaseModificationAwareField<?>>();
         fields.add(projectChooser.asDatabaseModificationAware());
+        fields.add(wrapUnaware(samplesArea));
         for (FileUploadField f : attachmentManager.getFields())
         {
-            fields.add(DatabaseModificationAwareField.wrapUnaware(f));
+            fields.add(wrapUnaware(f));
         }
         return fields;
     }
@@ -204,6 +252,7 @@ public final class GenericExperimentEditForm
     {
         final ArrayList<Widget> widgets = new ArrayList<Widget>();
         widgets.add(attachmentsInfo = new Html());
+        widgets.add(samplesInfo = new Html());
         return widgets;
     }
 
@@ -211,9 +260,11 @@ public final class GenericExperimentEditForm
     protected void updateCheckPageWidgets()
     {
         projectChooser.updateOriginalValue();
+        samplesArea.updateOriginalValue(samplesArea.getValue());
         originalProjectIdentifier = projectChooser.tryGetSelectedProject().getIdentifier();
         entity.setIdentifier(originalProjectIdentifier + "/" + entity.getCode());
         attachmentsInfo.setHtml(getAttachmentInfoText(attachmentManager.attachmentsDefined()));
+        samplesInfo.setHtml(viewContext.getMessage(Dict.SAMPLES) + ": " + samplesArea.getValue());
         updateHeader();
     }
 

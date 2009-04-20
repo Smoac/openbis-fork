@@ -81,7 +81,7 @@ public final class FillExperimentRegistrationForm extends AbstractDefaultTestCom
         GWTUtils.setSelectedItem(projectSelector, ModelDataPropertyNames.CODE, projectNameOrNull);
 
         final TextArea samplesField =
-                (TextArea) GWTTestUtil.getWidgetWithID(ExperimentSamplesPanel
+                (TextArea) GWTTestUtil.getWidgetWithID(ExperimentSamplesArea
                         .createId(GenericExperimentRegistrationForm.ID));
         samplesField.setRawValue(samples);
 

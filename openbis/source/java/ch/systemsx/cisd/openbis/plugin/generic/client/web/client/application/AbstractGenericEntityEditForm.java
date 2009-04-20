@@ -112,13 +112,13 @@ abstract public class AbstractGenericEntityEditForm<T extends EntityType, S exte
     {
         List<DatabaseModificationAwareField<?>> fields =
                 new ArrayList<DatabaseModificationAwareField<?>>();
-        for (DatabaseModificationAwareField<?> specificField : editor.getPropertyFields())
-        {
-            fields.add(specificField);
-        }
         for (DatabaseModificationAwareField<?> propertyField : getEntitySpecificFormFields())
         {
             fields.add(propertyField);
+        }
+        for (DatabaseModificationAwareField<?> specificField : editor.getPropertyFields())
+        {
+            fields.add(specificField);
         }
         return fields;
     }

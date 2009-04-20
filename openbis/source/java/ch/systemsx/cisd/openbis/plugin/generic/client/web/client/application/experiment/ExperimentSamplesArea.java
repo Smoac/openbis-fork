@@ -16,20 +16,26 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 
 /**
+ * A text area to specify samples for an experiment. Samples are specified by giving codes separated
+ * by commas, spaces or new lines.
+ * 
  * @author Tomasz Pylak
  */
-final class ExperimentSamplesPanel extends TextArea
+final class ExperimentSamplesArea extends TextArea
 {
     public static final String ID_SUFFIX_SAMPLES = "_samples";
 
-    public ExperimentSamplesPanel(IMessageProvider messageProvider, String idPrefix)
+    public ExperimentSamplesArea(IMessageProvider messageProvider, String idPrefix)
     {
         super();
         setFieldLabel(messageProvider.getMessage(Dict.SAMPLES));
@@ -43,7 +49,7 @@ final class ExperimentSamplesPanel extends TextArea
         return idPrefix + ID_SUFFIX_SAMPLES;
     }
 
-    public final String[] extractSamples()
+    public final String[] getSampleCodes()
     {
         String text = getValue();
         if (StringUtils.isBlank(text) == false)
@@ -53,5 +59,42 @@ final class ExperimentSamplesPanel extends TextArea
         {
             return new String[0];
         }
+    }
+
+    public final void setSamples(List<Sample> samples)
+    {
+        setSamples(extractCodes(samples));
+    }
+
+    private static String[] extractCodes(List<Sample> samples)
+    {
+        String[] codes = new String[samples.size()];
+        int i = 0;
+        for (Sample sample : samples)
+        {
+            codes[i] = sample.getCode();
+            i++;
+        }
+        return codes;
+    }
+
+    private final void setSamples(String[] samples)
+    {
+        String textValue = createTextValue(samples);
+        setValue(textValue);
+    }
+
+    private static String createTextValue(String[] samples)
+    {
+        StringBuffer sb = new StringBuffer();
+        for (String sample : samples)
+        {
+            if (sb.length() > 0)
+            {
+                sb.append(", ");
+            }
+            sb.append(sample);
+        }
+        return sb.toString();
     }
 }
