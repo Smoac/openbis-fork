@@ -43,4 +43,9 @@ public interface IEntityTypePropertyTypeBO
      */
     EntityTypePropertyTypePE getLoadedAssignment();
 
+    /**
+     * Deletes loaded assignment. Does nothing if no assignment loaded.
+     */
+    void deleteLoadedAssignment();
+
 }

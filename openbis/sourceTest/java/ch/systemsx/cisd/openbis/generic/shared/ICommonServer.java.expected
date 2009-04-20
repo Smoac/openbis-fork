@@ -297,6 +297,12 @@ public interface ICommonServer extends IServer
             final String propertyTypeCode, final String entityTypeCode, final boolean isMandatory,
             final String defaultValue);
 
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.PROPERTY_TYPE_ASSIGNMENT)
+    public void unassignPropertyType(String sessionToken, EntityKind entityKind,
+            String propertyTypeCode, String entityTypeCode);
+
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public int countPropertyTypedEntities(String sessionToken, EntityKind entityKind,

@@ -71,6 +71,16 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         return assignment;
     }
 
+    public void deleteLoadedAssignment()
+    {
+        if (assignment == null)
+        {
+            return;
+        }
+        getEntityPropertyTypeDAO(entityKind).delete(assignment);
+        assignment = null;
+    }
+
     public void loadAssignment(String propertyTypeCode, String entityTypeCode)
     {
         EntityTypePE entityType = findEntityType(entityTypeCode);

@@ -80,4 +80,9 @@ public interface IEntityPropertyTypeDAO
      */
     public void updateProperties(List<EntityPropertyPE> properties);
 
+    /**
+     * Deletes specified assignment.
+     */
+    public void delete(EntityTypePropertyTypePE assignment);
+
 }

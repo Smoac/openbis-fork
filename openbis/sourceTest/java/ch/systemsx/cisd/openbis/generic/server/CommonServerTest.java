@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.jmock.Expectations;
@@ -46,9 +47,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
@@ -87,6 +91,17 @@ public final class CommonServerTest extends AbstractServerTestCase
     private static final String GROUP_1 = "GROUP-1";
 
     private static final String DATABASE_1 = "DATABASE-1";
+    
+    private static final class MockExperimentTypePropertyType extends ExperimentTypePropertyTypePE
+    {
+        private static final long serialVersionUID = 1L;
+
+        MockExperimentTypePropertyType()
+        {
+            propertyValues = new LinkedHashSet<EntityPropertyPE>();
+            propertyValues.add(new ExperimentPropertyPE());
+        }
+    }
 
     private ICommonBusinessObjectFactory commonBusinessObjectFactory;
 
@@ -732,6 +747,60 @@ public final class CommonServerTest extends AbstractServerTestCase
                 "Mandatory property type 'USER.DISTANCE' successfully assigned to experiment type 'ARCHERY'",
                 createServer().assignPropertyType(SESSION_TOKEN, entityKind, propertyTypeCode,
                         entityTypeCode, mandatory, value));
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testUassignPropertyType()
+    {
+        prepareGetSession();
+        final EntityKind entityKind = EntityKind.EXPERIMENT;
+        final String propertyTypeCode = "USER.DISTANCE";
+        final String entityTypeCode = "ARCHERY";
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createEntityTypePropertyTypeBO(SESSION,
+                            entityKind);
+                    will(returnValue(entityTypePropertyTypeBO));
+
+                    one(entityTypePropertyTypeBO).loadAssignment(propertyTypeCode, entityTypeCode);
+                    one(entityTypePropertyTypeBO).deleteLoadedAssignment();
+                }
+            });
+        
+        createServer().unassignPropertyType(SESSION_TOKEN, entityKind, propertyTypeCode, entityTypeCode);
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test 
+    public void testCountPropertyTypedEntities()
+    {
+        prepareGetSession();
+        final EntityKind entityKind = EntityKind.EXPERIMENT;
+        final String propertyTypeCode = "USER.DISTANCE";
+        final String entityTypeCode = "ARCHERY";
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createEntityTypePropertyTypeBO(SESSION,
+                            entityKind);
+                    will(returnValue(entityTypePropertyTypeBO));
+
+                    one(entityTypePropertyTypeBO).loadAssignment(propertyTypeCode, entityTypeCode);
+                    one(entityTypePropertyTypeBO).getLoadedAssignment();
+                    ExperimentTypePropertyTypePE experimentTypePropertyTypePE =
+                            new MockExperimentTypePropertyType();
+                    will(returnValue(experimentTypePropertyTypePE));
+                }
+            });
+
+        int count =
+                createServer().countPropertyTypedEntities(SESSION_TOKEN, entityKind,
+                        propertyTypeCode, entityTypeCode);
+        
+        assertEquals(1, count);
         context.assertIsSatisfied();
     }
 

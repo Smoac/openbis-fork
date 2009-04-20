@@ -53,13 +53,7 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
     public final void testTryFindAssignment(EntityKind entityKind, String typeCode,
             String propertyCode)
     {
-        EntityTypePE entityType =
-                daoFactory.getEntityTypeDAO(entityKind).tryToFindEntityTypeByCode(typeCode);
-        PropertyTypePE propertyType =
-                daoFactory.getPropertyTypeDAO().tryFindPropertyTypeByCode(propertyCode);
-        EntityTypePropertyTypePE assignment =
-                daoFactory.getEntityPropertyTypeDAO(entityKind).tryFindAssignment(entityType,
-                        propertyType);
+        EntityTypePropertyTypePE assignment = tryToGetAssignment(entityKind, typeCode, propertyCode);
         Assert.assertEquals(true, assignment.isMandatory());
     }
 
@@ -67,13 +61,7 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
     public final void testTryFindNonexistentAssignment(EntityKind entityKind, String typeCode,
             String propertyCode)
     {
-        EntityTypePE entityType =
-                daoFactory.getEntityTypeDAO(entityKind).tryToFindEntityTypeByCode(typeCode);
-        PropertyTypePE propertyType =
-                daoFactory.getPropertyTypeDAO().tryFindPropertyTypeByCode(propertyCode);
-        EntityTypePropertyTypePE assignment =
-                daoFactory.getEntityPropertyTypeDAO(entityKind).tryFindAssignment(entityType,
-                        propertyType);
+        EntityTypePropertyTypePE assignment = tryToGetAssignment(entityKind, typeCode, propertyCode);
         Assert.assertNull(assignment);
     }
 
@@ -172,6 +160,29 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
         
         assertEquals(1, properties.size());
         assertEquals("FLY", properties.get(0).getVocabularyTerm().getCode());
+    }
+    
+    @Test
+    public void testDelete()
+    {
+        EntityTypePropertyTypePE assignment =
+                tryToGetAssignment(EntityKind.EXPERIMENT, "SIRNA_HCS", "USER.DESCRIPTION");
+        assertEquals(false, assignment.getPropertyValues().isEmpty());
+        
+        daoFactory.getEntityPropertyTypeDAO(EntityKind.EXPERIMENT).delete(assignment);
+    }
+
+    private EntityTypePropertyTypePE tryToGetAssignment(EntityKind entityKind, String entityTypeCode,
+            String propertyTypeCode)
+    {
+        EntityTypePE entityType =
+                daoFactory.getEntityTypeDAO(entityKind).tryToFindEntityTypeByCode(entityTypeCode);
+        PropertyTypePE propertyType =
+                daoFactory.getPropertyTypeDAO().tryFindPropertyTypeByCode(propertyTypeCode);
+        EntityTypePropertyTypePE assignment =
+                daoFactory.getEntityPropertyTypeDAO(entityKind).tryFindAssignment(entityType,
+                        propertyType);
+        return assignment;
     }
 
     @SuppressWarnings("unused")

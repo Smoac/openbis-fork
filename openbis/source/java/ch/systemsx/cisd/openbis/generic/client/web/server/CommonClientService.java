@@ -882,6 +882,21 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
     
+    public void unassignPropertyType(EntityKind entityKind, String propertyTypeCode,
+            String entityTypeCode)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.unassignPropertyType(sessionToken, DtoConverters
+                    .convertEntityKind(entityKind), propertyTypeCode, entityTypeCode);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
     public int countPropertyTypedEntities(EntityKind entityKind, String propertyTypeCode,
             String entityTypeCode)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException

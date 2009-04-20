@@ -178,6 +178,19 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         {
             operationLog.info("UPDATE: " + properties.size() + " of kind " + entityKind + " updated.");
         }
-
     }
+
+    public void delete(EntityTypePropertyTypePE assignment)
+    {
+        HibernateTemplate template = getHibernateTemplate();
+        template.delete(assignment);
+        template.flush();
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("DELETE: assignment between " + entityKind + " of type "
+                    + assignment.getEntityType().getCode() + " and property type "
+                    + assignment.getPropertyType().getCode());
+        }
+    }
+    
 }

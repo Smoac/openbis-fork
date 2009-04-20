@@ -298,6 +298,15 @@ public interface ICommonServer extends IServer
             final String defaultValue);
 
     /**
+     * Unassigns property type to entity type.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.PROPERTY_TYPE_ASSIGNMENT)
+    public void unassignPropertyType(String sessionToken, EntityKind entityKind,
+            String propertyTypeCode, String entityTypeCode);
+
+    /**
      * Returns the number of entities of specified kind and type which have a property of specified
      * type.
      */

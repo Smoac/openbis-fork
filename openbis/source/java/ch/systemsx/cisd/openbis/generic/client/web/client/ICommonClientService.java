@@ -334,6 +334,12 @@ public interface ICommonClientService extends IClientService
     public String assignPropertyType(EntityKind entityKind, String propertyTypeCode,
             String entityTypeCode, boolean isMandatory, String defaultValue)
             throws UserFailureException;
+    
+    /**
+     * Unassigns property type to entity type.
+     */
+    public void unassignPropertyType(EntityKind entityKind, String propertyTypeCode,
+            String entityTypeCode) throws UserFailureException;
 
     /**
      * Registers given {@link PropertyType}.

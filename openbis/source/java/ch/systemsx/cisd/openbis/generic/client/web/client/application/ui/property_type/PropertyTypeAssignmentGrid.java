@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -33,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeAssignmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
@@ -57,6 +59,95 @@ public class PropertyTypeAssignmentGrid extends
 
     public static final String GRID_ID = BROWSER_ID + "_grid";
 
+    static final class UnassignmentPreparationCallback extends AbstractAsyncCallback<Integer>
+    {
+        private final IViewContext<ICommonClientServiceAsync> commonViewContext;
+        private final EntityTypePropertyType<?> etpt;
+        private final IBrowserGridActionInvoker invoker;
+
+        private UnassignmentPreparationCallback(IViewContext<ICommonClientServiceAsync> viewContext,
+                EntityTypePropertyType<?> etpt, IBrowserGridActionInvoker invoker)
+        {
+            super(viewContext);
+            commonViewContext = viewContext;
+            this.etpt = etpt;
+            this.invoker = invoker;
+        }
+
+        @Override
+        protected void process(Integer result)
+        {
+            Dialog dialog =
+                    new UnassignmentConfirmationDialog(commonViewContext, etpt, result, invoker);
+            dialog.show();
+        }
+    }
+
+    static final class RefreshCallback extends AbstractAsyncCallback<Void>
+    {
+        private final IBrowserGridActionInvoker invoker;
+
+        private RefreshCallback(IViewContext<?> viewContext, IBrowserGridActionInvoker invoker)
+        {
+            super(viewContext);
+            this.invoker = invoker;
+        }
+        
+        @Override
+        protected void process(Void result)
+        {
+            invoker.refresh();
+        }
+    }
+    
+    private static final class UnassignmentConfirmationDialog extends Dialog
+    {
+        private final IViewContext<ICommonClientServiceAsync> viewContext;
+        private final IBrowserGridActionInvoker invoker;
+        private final EntityKind entityKind;
+        private final String entityTypeCode;
+        private final String propertyTypeCode;
+
+        UnassignmentConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
+                EntityTypePropertyType<?> etpt, int numberOfProperties,
+                IBrowserGridActionInvoker invoker)
+        {
+            this.viewContext = viewContext;
+            this.invoker = invoker;
+            setHeading(viewContext.getMessage(Dict.UNASSIGNMENT_CONFIRMATION_DIALOG_TITLE));
+            setButtons(Dialog.YESNO);
+            setHideOnButtonClick(true);
+            setModal(true);
+            entityKind = etpt.getEntityKind();
+            entityTypeCode = etpt.getEntityType().getCode();
+            propertyTypeCode = etpt.getPropertyType().getCode();
+            String entityKindCode = entityKind.toString().toLowerCase();
+            if (numberOfProperties == 0)
+            {
+                addText(viewContext.getMessage(
+                        Dict.UNASSIGNMENT_CONFIRMATION_TEMPLATE_WITHOUT_PROPERTIES, entityKindCode,
+                        entityTypeCode, propertyTypeCode));
+            } else
+            {
+                addText(viewContext.getMessage(
+                        Dict.UNASSIGNMENT_CONFIRMATION_TEMPLATE_WITH_PROPERTIES, entityKindCode,
+                        entityTypeCode, propertyTypeCode, numberOfProperties));
+            }
+            setWidth(400);
+        }
+
+        @Override
+        protected void onButtonPressed(Button button)
+        {
+            super.onButtonPressed(button);
+            if (button.getItemId().equals(Dialog.YES))
+            {
+                viewContext.getService().unassignPropertyType(entityKind, propertyTypeCode,
+                        entityTypeCode, new RefreshCallback(viewContext, invoker));
+            }
+        }
+    }
+    
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -80,16 +171,11 @@ public class PropertyTypeAssignmentGrid extends
                         EntityKind entityKind = etpt.getEntityKind();
                         String propertyTypeCode = etpt.getPropertyType().getCode();
                         String entityTypeCode = etpt.getEntityType().getCode();
+                        IBrowserGridActionInvoker invoker = asActionInvoker();
+                        AsyncCallback<Integer> callback =
+                                new UnassignmentPreparationCallback(viewContext, etpt, invoker);
                         viewContext.getService().countPropertyTypedEntities(entityKind,
-                                propertyTypeCode, entityTypeCode,
-                                new AbstractAsyncCallback<Integer>(viewContext)
-                                    {
-                                        @Override
-                                        protected void process(Integer result)
-                                        {
-                                            new UnassignmentConfirmationDialog(viewContext, etpt, result).show();
-                                        }
-                                    });
+                                propertyTypeCode, entityTypeCode, callback);
                     }
                 }
             });
@@ -134,45 +220,4 @@ public class PropertyTypeAssignmentGrid extends
             { DatabaseModificationKind.createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
     
-    private static final class UnassignmentConfirmationDialog extends Dialog
-    {
-        private EntityKind entityKind;
-        private String entityTypeCode;
-        private String propertyTypeCode;
-
-        UnassignmentConfirmationDialog(IViewContext<?> viewContext, EntityTypePropertyType<?> etpt,
-                int numberOfProperties)
-        {
-            setHeading(viewContext.getMessage(Dict.UNASSIGNMENT_CONFIRMATION_DIALOG_TITLE));
-            setButtons(Dialog.YESNO);
-            setHideOnButtonClick(true);
-            setModal(true);
-            entityKind = etpt.getEntityKind();
-            entityTypeCode = etpt.getEntityType().getCode();
-            propertyTypeCode = etpt.getPropertyType().getCode();
-            String entityKindCode = entityKind.toString().toLowerCase();
-            if (numberOfProperties == 0)
-            {
-                addText(viewContext.getMessage(
-                        Dict.UNASSIGNMENT_CONFIRMATION_TEMPLATE_WITHOUT_PROPERTIES, entityKindCode,
-                        entityTypeCode, propertyTypeCode));
-            } else
-            {
-                addText(viewContext.getMessage(
-                        Dict.UNASSIGNMENT_CONFIRMATION_TEMPLATE_WITH_PROPERTIES, entityKindCode,
-                        entityTypeCode, propertyTypeCode, numberOfProperties));
-            }
-            setWidth(400);
-        }
-
-        @Override
-        protected void onButtonPressed(Button button)
-        {
-            super.onButtonPressed(button);
-            if (button.getItemId().equals(Dialog.YES))
-            {
-                System.out.println("unassign: "+entityKind+" of type "+entityTypeCode+" from property type "+propertyTypeCode);
-            }
-        }
-    }
 }

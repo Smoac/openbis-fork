@@ -489,15 +489,24 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return String.format("%s property type '%s' successfully assigned to %s type '%s'",
                 isMandatory ? "Mandatory" : "Optional", propertyTypeCode, entityKind.getLabel(),
                 entityTypeCode);
+    }
 
+    public void unassignPropertyType(String sessionToken, EntityKind entityKind,
+            String propertyTypeCode, String entityTypeCode)
+    {
+        assert sessionToken != null : "Unspecified session token";
+        Session session = getSessionManager().getSession(sessionToken);
+        
+        IEntityTypePropertyTypeBO etptBO =
+            businessObjectFactory.createEntityTypePropertyTypeBO(session, entityKind);
+        etptBO.loadAssignment(propertyTypeCode, entityTypeCode);
+        etptBO.deleteLoadedAssignment();
     }
 
     public int countPropertyTypedEntities(String sessionToken, EntityKind entityKind,
             String propertyTypeCode, String entityTypeCode)
     {
         assert sessionToken != null : "Unspecified session token";
-        checkSession(sessionToken);
-
         Session session = getSessionManager().getSession(sessionToken);
 
         IEntityTypePropertyTypeBO etptBO =

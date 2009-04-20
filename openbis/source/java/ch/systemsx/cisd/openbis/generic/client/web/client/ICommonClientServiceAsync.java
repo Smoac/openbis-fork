@@ -284,6 +284,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             String entityTypeCode, boolean isMandatory, String defaultValue,
             AsyncCallback<String> process);
 
+    /**
+     * @see ICommonClientService#unassignPropertyType(EntityKind, String, String)
+     */
+    public void unassignPropertyType(EntityKind entityKind, String propertyTypeCode,
+            String entityTypeCode, AsyncCallback<Void> callback);
+    
     /** @see ICommonClientService#registerPropertyType(PropertyType) */
     public void registerPropertyType(final PropertyType propertyType,
             final AsyncCallback<Void> asyncCallback);
