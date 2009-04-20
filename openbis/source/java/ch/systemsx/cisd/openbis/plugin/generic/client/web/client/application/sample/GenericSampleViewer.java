@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
@@ -97,11 +98,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
     private Grid<SampleModel> partOfSamplesGrid;
 
-    private ContentPanel attachmentsPanel;
-
-    private ContentPanel componentsPanel;
-
-    private ContentPanel externalDataPanel;
+    private IDelegatedAction hideComponentsPanelAction;
 
     private final String sampleIdentifier;
 
@@ -138,11 +135,14 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     private final Component createRightPanel(SampleGeneration sampleGeneration)
     {
         final LayoutContainer container = new LayoutContainer();
-        attachmentsPanel = new AttachmentsSection(sampleGeneration.getGenerator(), viewContext);
-        container.add(attachmentsPanel, new RowData(1, 0.33, new Margins(5, 5, 0, 0)));
+        final double defaultHeight = 1.0 / 3; // all child panels have the same height as default
+        final ContentPanel attachmentsPanel =
+                new AttachmentsSection(sampleGeneration.getGenerator(), viewContext);
+        container.add(attachmentsPanel, new RowData(1, defaultHeight, new Margins(5, 5, 0, 0)));
         container.setLayout(new RowLayout());
         // 'Part of' samples
-        componentsPanel = createContentPanel(viewContext.getMessage(Dict.PART_OF_HEADING));
+        final ContentPanel componentsPanel =
+                createContentPanel(viewContext.getMessage(Dict.PART_OF_HEADING));
         final ListLoader<BaseListLoadConfig> sampleLoader =
                 createListLoader(createRpcProxyForPartOfSamples());
         final ListStore<SampleModel> sampleListStore = createListStore(sampleLoader);
@@ -153,14 +153,27 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         partOfSamplesGrid.setLoadMask(true);
         partOfSamplesGrid.setVisible(false);
         componentsPanel.add(partOfSamplesGrid);
-        // panel.setVisible(false);
-        container.add(componentsPanel, new RowData(1, 0.33, new Margins(5, 5, 0, 0)));
+        container.add(componentsPanel, new RowData(1, defaultHeight, new Margins(5, 5, 0, 0)));
         // External data
-        externalDataPanel = createContentPanel(viewContext.getMessage(Dict.EXTERNAL_DATA_HEADING));
+        final ContentPanel externalDataPanel =
+                createContentPanel(viewContext.getMessage(Dict.EXTERNAL_DATA_HEADING));
         disposableBrowser =
                 SampleDataSetBrowser.create(viewContext, sampleIdentifier, getId() + DATA_POSTFIX);
         externalDataPanel.add(disposableBrowser.getComponent());
-        container.add(externalDataPanel, new RowData(1, 0.34, new Margins(5, 5, 0, 0)));
+        final RowData externalDataRow = new RowData(1, defaultHeight, new Margins(5, 5, 0, 0));
+        container.add(externalDataPanel, externalDataRow);
+
+        hideComponentsPanelAction = new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    componentsPanel.hide();
+                    // external data panel doubles its height to fill the free space
+                    externalDataRow.setHeight(2 * defaultHeight);
+                    container.layout();
+                }
+
+            };
         return container;
     }
 
@@ -191,7 +204,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
     private final RpcProxy<BaseListLoadConfig, BaseListLoadResult<SampleModel>> createRpcProxyForPartOfSamples()
     {
-        final GenericSampleViewer viewer = this;
         return new RpcProxy<BaseListLoadConfig, BaseListLoadResult<SampleModel>>()
             {
 
@@ -205,8 +217,10 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
                 {
                     final ListSampleCriteria sampleCriteria = new ListSampleCriteria();
                     sampleCriteria.setContainerIdentifier(sampleIdentifier);
-                    viewContext.getCommonService().listSamples(sampleCriteria,
-                            new ListSamplesCallback(viewContext, callback, viewer));
+                    viewContext.getCommonService().listSamples(
+                            sampleCriteria,
+                            new ListSamplesCallback(viewContext, callback,
+                                    hideComponentsPanelAction));
                 }
             };
     }
@@ -321,11 +335,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
         return propertyGrid;
     }
-    
-    private final void hideComponentsPanel()
-    {
-        componentsPanel.setVisible(false);
-    }
 
     private final void loadStores()
     {
@@ -340,7 +349,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         viewContext.getService().getSampleInfo(sampleIdentifier,
                 new SampleGenerationInfoCallback(viewContext, this));
     }
-    
+
     //
     // Helper classes
     //
@@ -349,15 +358,15 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     {
         private final AsyncCallback<BaseListLoadResult<SampleModel>> delegate;
 
-        private final GenericSampleViewer genericSampleViewer;
+        private final IDelegatedAction noResultsAction;
 
         ListSamplesCallback(final IViewContext<IGenericClientServiceAsync> viewContext,
                 final AsyncCallback<BaseListLoadResult<SampleModel>> callback,
-                final GenericSampleViewer genericSampleViewer)
+                final IDelegatedAction noResultsAction)
         {
             super(viewContext);
-            this.genericSampleViewer = genericSampleViewer;
             this.delegate = callback;
+            this.noResultsAction = noResultsAction;
         }
 
         //
@@ -375,7 +384,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         {
             if (result.getTotalLength() == 0)
             {
-                genericSampleViewer.hideComponentsPanel();
+                noResultsAction.execute();
             } else
             {
                 final List<SampleModel> sampleModels = SampleModel.asSampleModels(result.getList());
