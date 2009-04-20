@@ -492,6 +492,20 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     }
 
+    public int countPropertyTypedEntities(String sessionToken, EntityKind entityKind,
+            String propertyTypeCode, String entityTypeCode)
+    {
+        assert sessionToken != null : "Unspecified session token";
+        checkSession(sessionToken);
+
+        Session session = getSessionManager().getSession(sessionToken);
+
+        IEntityTypePropertyTypeBO etptBO =
+                businessObjectFactory.createEntityTypePropertyTypeBO(session, entityKind);
+        etptBO.loadAssignment(propertyTypeCode, entityTypeCode);
+        return etptBO.getLoadedAssignment().getPropertyValues().size();
+    }
+
     public final void registerPropertyType(final String sessionToken,
             final PropertyType propertyType)
     {

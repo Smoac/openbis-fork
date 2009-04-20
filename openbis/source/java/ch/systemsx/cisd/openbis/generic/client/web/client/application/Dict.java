@@ -250,6 +250,22 @@ public abstract class Dict
 
     public static final String DEFAULT_VALUE_TOOLTIP = "default_value_tooltip";
 
+
+    //
+    // Property Type Assignment Browser
+    //
+    
+    public static final String UNASSIGN_BUTTON_LABEL = "unassign_button_label";
+
+    public static final String UNASSIGNMENT_CONFIRMATION_DIALOG_TITLE =
+            "unassignment_confirmation_dialog_title";
+
+    public static final String UNASSIGNMENT_CONFIRMATION_TEMPLATE_WITHOUT_PROPERTIES =
+            "unassignment_confirmation_template_without_properties";
+
+    public static final String UNASSIGNMENT_CONFIRMATION_TEMPLATE_WITH_PROPERTIES =
+            "unassignment_confirmation_template_with_properties";
+
     // -------- generic plugin dictionary -------------------
 
     //

@@ -297,6 +297,11 @@ public interface ICommonServer extends IServer
             final String propertyTypeCode, final String entityTypeCode, final boolean isMandatory,
             final String defaultValue);
 
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public int countPropertyTypedEntities(String sessionToken, EntityKind entityKind,
+            String propertyTypeCode, String entityTypeCode);
+
     /**
      * Registers given {@link Vocabulary}.
      */

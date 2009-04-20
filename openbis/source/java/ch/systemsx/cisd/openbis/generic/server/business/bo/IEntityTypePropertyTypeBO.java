@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+
 
 /**
  * Business Object dealing with entity type - property type relations.
@@ -30,5 +32,15 @@ public interface IEntityTypePropertyTypeBO
      */
     void createAssignment(String propertyTypeCode, String entityTypeCode, boolean isMandatory,
             String defaultValue);
+    
+    /**
+     * Loads assignments between specified property type and entity type.
+     */
+    void loadAssignment(String propertyTypeCode, String entityTypeCode);
+    
+    /**
+     * Returns loaded assignment.
+     */
+    EntityTypePropertyTypePE getLoadedAssignment();
 
 }

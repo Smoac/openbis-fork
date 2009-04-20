@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -43,6 +44,8 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
 
     private IEntityPropertiesConverter propertiesConverter;
 
+    private EntityTypePropertyTypePE assignment;
+
     @Private
     EntityTypePropertyTypeBO(IDAOFactory daoFactory, Session session, EntityKind entityKind,
             IEntityPropertiesConverter converter)
@@ -59,13 +62,29 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         this.entityKind = entityKind;
     }
 
+    public EntityTypePropertyTypePE getLoadedAssignment()
+    {
+        if (assignment == null)
+        {
+            throw new IllegalStateException("No assignment loaded.");
+        }
+        return assignment;
+    }
+
+    public void loadAssignment(String propertyTypeCode, String entityTypeCode)
+    {
+        EntityTypePE entityType = findEntityType(entityTypeCode);
+        PropertyTypePE propertyType = findPropertyType(propertyTypeCode);
+        IEntityPropertyTypeDAO entityPropertyTypeDAO = getEntityPropertyTypeDAO(entityKind);
+        assignment = entityPropertyTypeDAO.tryFindAssignment(entityType, propertyType);
+    }
+
     public void createAssignment(String propertyTypeCode, String entityTypeCode,
             boolean isMandatory, String defaultValue)
     {
         EntityTypePE entityType = findEntityType(entityTypeCode);
         PropertyTypePE propertyType = findPropertyType(propertyTypeCode);
-        EntityTypePropertyTypePE assignment =
-                createAssignment(isMandatory, entityType, propertyType);
+        assignment = createAssignment(isMandatory, entityType, propertyType);
         List<IEntityPropertiesHolder<EntityPropertyPE>> entities =
                 getEntityPropertyTypeDAO(entityKind).listEntities(entityType);
         final int size = entities.size();
@@ -101,14 +120,14 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
             final EntityTypePE entityType, final PropertyTypePE propertyType)
     {
         checkAssignmentDoesNotExist(entityType, propertyType);
-        final EntityTypePropertyTypePE assignment =
+        final EntityTypePropertyTypePE etpt =
                 EntityTypePropertyTypePE.createEntityTypePropertyType(entityKind);
-        assignment.setPropertyType(propertyType);
-        assignment.setRegistrator(findRegistrator());
-        assignment.setEntityType(entityType);
-        assignment.setMandatory(mandatory);
-        getEntityPropertyTypeDAO(entityKind).createEntityPropertyTypeAssignment(assignment);
-        return assignment;
+        etpt.setPropertyType(propertyType);
+        etpt.setRegistrator(findRegistrator());
+        etpt.setEntityType(entityType);
+        etpt.setMandatory(mandatory);
+        getEntityPropertyTypeDAO(entityKind).createEntityPropertyTypeAssignment(etpt);
+        return etpt;
     }
 
     private PropertyTypePE findPropertyType(String propertyTypeCode)

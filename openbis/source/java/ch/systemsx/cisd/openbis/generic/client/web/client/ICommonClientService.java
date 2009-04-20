@@ -205,6 +205,13 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
+     * Returns the number of entities of specified kind and type which have a property of specified
+     * type.
+     */
+    public int countPropertyTypedEntities(EntityKind entityKind, String propertyTypeCode,
+            String entityTypeCode) throws UserFailureException;
+
+    /**
      * Returns a list of all projects.
      */
     public ResultSet<Project> listProjects(DefaultResultSetConfig<String, Project> criteria)

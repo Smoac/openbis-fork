@@ -298,6 +298,15 @@ public interface ICommonServer extends IServer
             final String defaultValue);
 
     /**
+     * Returns the number of entities of specified kind and type which have a property of specified
+     * type.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public int countPropertyTypedEntities(String sessionToken, EntityKind entityKind,
+            String propertyTypeCode, String entityTypeCode);
+
+    /**
      * Registers given {@link Vocabulary}.
      */
     @Transactional

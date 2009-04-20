@@ -18,10 +18,18 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.proper
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeAssignmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
@@ -31,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
@@ -54,9 +63,38 @@ public class PropertyTypeAssignmentGrid extends
         return new PropertyTypeAssignmentGrid(viewContext).asDisposableWithoutToolbar();
     }
 
-    private PropertyTypeAssignmentGrid(IViewContext<ICommonClientServiceAsync> viewContext)
+    private PropertyTypeAssignmentGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID, GRID_ID);
+        Button button = new Button(viewContext.getMessage(Dict.UNASSIGN_BUTTON_LABEL));
+        button.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public void componentSelected(ButtonEvent ce)
+                {
+                    List<BaseEntityModel<EntityTypePropertyType<?>>> items = getSelectedItems();
+                    if (items.size() == 1)
+                    {
+                        BaseEntityModel<EntityTypePropertyType<?>> item = items.get(0);
+                        final EntityTypePropertyType<?> etpt = item.getBaseObject();
+                        EntityKind entityKind = etpt.getEntityKind();
+                        String propertyTypeCode = etpt.getPropertyType().getCode();
+                        String entityTypeCode = etpt.getEntityType().getCode();
+                        viewContext.getService().countPropertyTypedEntities(entityKind,
+                                propertyTypeCode, entityTypeCode,
+                                new AbstractAsyncCallback<Integer>(viewContext)
+                                    {
+                                        @Override
+                                        protected void process(Integer result)
+                                        {
+                                            new UnassignmentConfirmationDialog(viewContext, etpt, result).show();
+                                        }
+                                    });
+                    }
+                }
+            });
+        pagingToolbar.add(new AdapterToolItem(button));
+
     }
 
     @Override
@@ -94,5 +132,47 @@ public class PropertyTypeAssignmentGrid extends
     {
         return new DatabaseModificationKind[]
             { DatabaseModificationKind.createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
+    }
+    
+    private static final class UnassignmentConfirmationDialog extends Dialog
+    {
+        private EntityKind entityKind;
+        private String entityTypeCode;
+        private String propertyTypeCode;
+
+        UnassignmentConfirmationDialog(IViewContext<?> viewContext, EntityTypePropertyType<?> etpt,
+                int numberOfProperties)
+        {
+            setHeading(viewContext.getMessage(Dict.UNASSIGNMENT_CONFIRMATION_DIALOG_TITLE));
+            setButtons(Dialog.YESNO);
+            setHideOnButtonClick(true);
+            setModal(true);
+            entityKind = etpt.getEntityKind();
+            entityTypeCode = etpt.getEntityType().getCode();
+            propertyTypeCode = etpt.getPropertyType().getCode();
+            String entityKindCode = entityKind.toString().toLowerCase();
+            if (numberOfProperties == 0)
+            {
+                addText(viewContext.getMessage(
+                        Dict.UNASSIGNMENT_CONFIRMATION_TEMPLATE_WITHOUT_PROPERTIES, entityKindCode,
+                        entityTypeCode, propertyTypeCode));
+            } else
+            {
+                addText(viewContext.getMessage(
+                        Dict.UNASSIGNMENT_CONFIRMATION_TEMPLATE_WITH_PROPERTIES, entityKindCode,
+                        entityTypeCode, propertyTypeCode, numberOfProperties));
+            }
+            setWidth(400);
+        }
+
+        @Override
+        protected void onButtonPressed(Button button)
+        {
+            super.onButtonPressed(button);
+            if (button.getItemId().equals(Dialog.YES))
+            {
+                System.out.println("unassign: "+entityKind+" of type "+entityTypeCode+" from property type "+propertyTypeCode);
+            }
+        }
     }
 }

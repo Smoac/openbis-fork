@@ -126,6 +126,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void prepareExportPropertyTypeAssignments(
             final TableExportCriteria<EntityTypePropertyType<?>> criteria,
             AsyncCallback<String> asyncCallback);
+    
+    /**
+     * @see ICommonClientService#countPropertyTypedEntities(EntityKind, String, String)
+     */
+    public void countPropertyTypedEntities(EntityKind entityKind, String propertyTypeCode,
+            String entityTypeCode, AsyncCallback<Integer> asyncCallback);
 
     /**
      * @see ICommonClientService#listExperiments(ListExperimentsCriteria)
