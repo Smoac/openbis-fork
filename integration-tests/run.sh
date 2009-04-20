@@ -557,7 +557,7 @@ function launch_tests {
 
 function find_dataset_dir {
 	local pattern=$1
-	local dir=`find $DATA/main-store/identified -type d | grep "$pattern"`
+	local dir=`find $DATA/main-store/E96C8910-596A-409D-BDA4-BBD3FE6629A7 -type d | grep "$pattern"`
         if [ "$dir" != "" ]; then
                 if [ ! -d "$dir" ]; then
                         report_error Directory \"$dir\" does not exist!  
