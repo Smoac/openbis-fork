@@ -87,6 +87,12 @@ public class GatherRevisionAndVersionTask extends Property
         final String parentDir = getParentDir();
         for (final String projectName : projectNames)
         {
+            // We ignore the build_resources project as the one-button-build modifies it ourselves
+            // and otherwise all non-trunk builds would be marked 'dirty'
+            if (SVNUtilities.BUILD_RESOURCES_PROJECT.equals(projectName))
+            {
+                continue;
+            }
             final String path = parentDir + File.separatorChar + projectName;
             final SVNInfoRecord info = actions.info(path);
             addVersion(versions, info);
