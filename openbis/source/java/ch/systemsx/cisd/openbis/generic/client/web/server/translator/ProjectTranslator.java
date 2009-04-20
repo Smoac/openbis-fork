@@ -59,6 +59,7 @@ public final class ProjectTranslator
         }
         final Project result = new Project();
         result.setId(project.getId());
+        result.setModificationDate(project.getModificationDate());
         result.setCode(StringEscapeUtils.escapeHtml(project.getCode()));
         result.setDescription(StringEscapeUtils.escapeHtml(project.getDescription()));
         result.setGroup(GroupTranslator.translate(project.getGroup()));

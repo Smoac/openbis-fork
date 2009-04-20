@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension for filling {@link ProjectRegistrationForm}.
+ * A {@link AbstractDefaultTestCommand} extension for filling {@link AbstractProjectEditRegisterForm}.
  * 
  * @author Izabela Adamczyk
  */
@@ -54,14 +54,15 @@ public final class FillProjectRegistrationForm extends AbstractDefaultTestComman
 
     public final void execute()
     {
-        GWTTestUtil.setTextFieldValue(ProjectRegistrationForm.ID + "_code", code);
-        GWTTestUtil.setTextFieldValue(ProjectRegistrationForm.ID + "_description", description);
+        GWTTestUtil.setTextFieldValue(ProjectRegistrationForm.createId() + "_code", code);
+        GWTTestUtil.setTextFieldValue(ProjectRegistrationForm.createId() + "_description",
+                description);
         final GroupSelectionWidget groupSelector =
                 (GroupSelectionWidget) GWTTestUtil.getWidgetWithID(GroupSelectionWidget.ID
-                        + GroupSelectionWidget.SUFFIX + ProjectRegistrationForm.ID);
+                        + GroupSelectionWidget.SUFFIX + AbstractProjectEditRegisterForm.createId(null));
         GWTUtils.setSelectedItem(groupSelector, ModelDataPropertyNames.CODE, groupName);
 
-        GWTTestUtil.clickButtonWithID(ProjectRegistrationForm.ID
+        GWTTestUtil.clickButtonWithID(ProjectRegistrationForm.createId()
                 + AbstractRegistrationForm.SAVE_BUTTON);
     }
 

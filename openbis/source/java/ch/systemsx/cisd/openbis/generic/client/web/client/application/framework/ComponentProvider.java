@@ -277,7 +277,7 @@ public final class ComponentProvider
 
                 public String getId()
                 {
-                    return ProjectRegistrationForm.ID;
+                    return ProjectRegistrationForm.createId();
                 }
             };
     }

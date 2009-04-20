@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project;
 
+import java.util.Date;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
@@ -23,69 +25,74 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 
 /**
- * {@link AbstractProjectEditRegisterForm} extension for registering projects.
+ * {@link AbstractProjectEditRegisterForm} extension for editing projects.
  * 
  * @author Izabela Adamczyk
  */
-public class ProjectRegistrationForm extends AbstractProjectEditRegisterForm
+public class ProjectEditForm extends AbstractProjectEditRegisterForm
 {
-
-    protected ProjectRegistrationForm(IViewContext<ICommonClientServiceAsync> viewContext)
-    {
-        super(viewContext, null);
-    }
+    private final Project project;
 
     public static DatabaseModificationAwareComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+            final IViewContext<ICommonClientServiceAsync> viewContext, Project project)
     {
-        ProjectRegistrationForm form = new ProjectRegistrationForm(viewContext);
+        ProjectEditForm form = new ProjectEditForm(viewContext, project);
         return new DatabaseModificationAwareComponent(form, form.getGroupField());
     }
 
-    public static String createId()
+    protected ProjectEditForm(IViewContext<ICommonClientServiceAsync> viewContext, Project project)
     {
-        return AbstractProjectEditRegisterForm.createId(null);
-    }
-
-    private final Project createProject()
-    {
-        final Project project = new Project();
-        project.setDescription(projectDescriptionField.getValue());
-        project.setIdentifier(groupField.tryGetSelectedGroup().getIdentifier() + "/"
-                + projectCodeField.getValue());
-        return project;
+        super(viewContext, project.getId());
+        this.project = project;
     }
 
     @Override
     protected void saveProject()
     {
-        final Project project = createProject();
-        viewContext.getService().registerProject(sessionKey, project,
-                new ProjectRegistrationCallback(viewContext, project));
+        viewContext.getCommonService().updateProject(sessionKey, project.getIdentifier(),
+                projectDescriptionField.getValue(), project.getModificationDate(),
+                new ProjectEditCallback(viewContext));
     }
 
-    public final class ProjectRegistrationCallback extends
-            AbstractRegistrationForm.AbstractRegistrationCallback<Void>
+    public final class ProjectEditCallback extends
+            AbstractRegistrationForm.AbstractRegistrationCallback<Date>
     {
-        private final Project project;
 
-        ProjectRegistrationCallback(final IViewContext<?> viewContext, final Project project)
+        ProjectEditCallback(final IViewContext<?> viewContext)
         {
             super(viewContext);
-            this.project = project;
+        }
+
+        @Override
+        protected void process(final Date result)
+        {
+            project.setModificationDate(result);
+            updateOriginalValues();
+            super.process(result);
         }
 
         @Override
         protected String createSuccessfullRegistrationInfo()
         {
             return "Project <b>" + project.getIdentifier().toUpperCase()
-                    + "</b> successfully registered.";
+                    + "</b> successfully updated.";
         }
     }
 
     @Override
     protected void setValues()
     {
+        projectDescriptionField.setValue(project.getDescription());
+        groupField.setEnabled(false);
+        groupField.setVisible(false);
+        projectCodeField.setValue(project.getCode());
+        projectCodeField.setEnabled(false);
+    }
+
+    public void updateOriginalValues()
+    {
+        projectDescriptionField.setOriginalValue(projectDescriptionField.getValue());
+        projectCodeField.setOriginalValue(projectCodeField.getValue());
     }
 
 }

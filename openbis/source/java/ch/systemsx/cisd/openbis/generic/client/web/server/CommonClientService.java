@@ -1265,4 +1265,24 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public Date updateProject(String sessionKey, final String projectIdentifier,
+            final String description, final Date version)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+        final Date modificationDate = new Date();
+        new AttachmentRegistrationHelper()
+            {
+                @Override
+                public void register(List<AttachmentPE> attachments)
+                {
+                    final ProjectIdentifier identifier =
+                            new ProjectIdentifierFactory(projectIdentifier).createIdentifier();
+                    modificationDate.setTime(commonServer.editProject(sessionToken, identifier,
+                            attachments, description, version).getTime());
+                }
+            }.process(sessionKey, getHttpSession());
+        return modificationDate;
+    }
+
 }

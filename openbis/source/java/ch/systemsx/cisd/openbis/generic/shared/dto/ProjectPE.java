@@ -34,6 +34,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+import javax.persistence.Version;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -89,6 +90,8 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     private Date registrationDate;
 
     private ProjectIdentifier projectIdentifier;
+
+    private Date modificationDate;
 
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
     @Generated(GenerationTime.INSERT)
@@ -280,6 +283,18 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
             projectIdentifier = IdentifierHelper.createProjectIdentifier(this);
         }
         return projectIdentifier.toString();
+    }
+
+    @Version
+    @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date versionDate)
+    {
+        this.modificationDate = versionDate;
     }
 
 }

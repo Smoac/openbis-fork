@@ -266,7 +266,8 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
                 && selectedItemOrNull.get(ModelDataPropertyNames.CODE).equals(dataTypeCode.name());
     }
 
-    public final class PropertyTypeRegistrationCallback extends AbstractRegistrationForm.AbstractRegistrationCallback
+    public final class PropertyTypeRegistrationCallback extends
+            AbstractRegistrationForm.AbstractRegistrationCallback<Void>
     {
         private final PropertyType propertyType;
 

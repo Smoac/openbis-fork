@@ -143,7 +143,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
     {
         saveButton.setEnabled(enabled);
     }
-    
+
     /**
      * Submits a valid form.
      * <p>
@@ -156,11 +156,11 @@ public abstract class AbstractRegistrationForm extends ContentPanel
     // Helper classes
     //
 
-    protected abstract class AbstractRegistrationCallback extends AbstractAsyncCallback<Void>
+    protected abstract class AbstractRegistrationCallback<T> extends AbstractAsyncCallback<T>
     {
         protected AbstractRegistrationCallback(final IViewContext<?> viewContext)
         {
-            super(viewContext, new InfoBoxCallbackListener<Void>(infoBox));
+            super(viewContext, new InfoBoxCallbackListener<T>(infoBox));
         }
 
         //
@@ -168,7 +168,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         //
 
         @Override
-        protected final void process(final Void result)
+        protected void process(final T result)
         {
             infoBox.displayInfo(createSuccessfullRegistrationInfo());
             resetPanel();
@@ -176,7 +176,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         }
 
         protected abstract String createSuccessfullRegistrationInfo();
-        
+
         @Override
         protected final void finishOnFailure(final Throwable caught)
         {
@@ -190,7 +190,8 @@ public abstract class AbstractRegistrationForm extends ContentPanel
                 formPanel.reset();
             } catch (JavaScriptException e)
             {
-                // ignored because it might be thrown for file upload field in system tests on CI server
+                // ignored because it might be thrown for file upload field in system tests on CI
+                // server
             }
         }
     }
@@ -242,7 +243,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         hiddenField.setValue(value);
         return hiddenField;
     }
-    
+
     static protected final void addUploadFeatures(FormPanel panel, String sessionKey)
     {
         panel.setWidth(AbstractRegistrationForm.DEFAULT_LABEL_WIDTH

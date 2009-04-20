@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -30,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ProjectViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
@@ -61,6 +63,8 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
 
     public static final String SHOW_DETAILS_BUTTON_ID = BROWSER_ID + "-show-details";
 
+    public static final String EDIT_BUTTON_ID = BROWSER_ID + "-edit";
+
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -88,6 +92,18 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                             });
         showDetailsButton.setId(SHOW_DETAILS_BUTTON_ID);
         toolbar.add(new AdapterToolItem(showDetailsButton));
+        toolbar.add(new SeparatorToolItem());
+        Button editButton =
+                createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
+                        new ISelectedEntityInvoker<BaseEntityModel<Project>>()
+                            {
+                                public void invoke(BaseEntityModel<Project> selectedItem)
+                                {
+                                    showEntityViewer(selectedItem, true);
+                                }
+                            });
+        editButton.setId(EDIT_BUTTON_ID);
+        toolbar.add(new AdapterToolItem(editButton));
         return toolbar;
     }
 
@@ -122,25 +138,48 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
     protected void showEntityViewer(BaseEntityModel<Project> modelData, boolean editMode)
     {
         final Project project = modelData.getBaseObject();
-        final ITabItemFactory tabFactory = new ITabItemFactory()
-            {
-                public ITabItem create()
-                {
-                    return DefaultTabItem.createUnaware(new ProjectViewer(viewContext, project
-                            .getIdentifier()), false);
-                }
 
-                public String getId()
+        ITabItemFactory tabFactory;
+        if (editMode == false)
+        {
+            tabFactory = new ITabItemFactory()
                 {
-                    return ProjectViewer.createId(project.getIdentifier());
-                }
-            };
+                    public ITabItem create()
+                    {
+                        return DefaultTabItem.createUnaware(new ProjectViewer(viewContext, project
+                                .getIdentifier()), false);
+                    }
+
+                    public String getId()
+                    {
+                        return ProjectViewer.createId(project.getIdentifier());
+                    }
+                };
+        } else
+        {
+            tabFactory = new ITabItemFactory()
+                {
+                    public ITabItem create()
+                    {
+                        DatabaseModificationAwareComponent component =
+                                ProjectEditForm.create(viewContext, project);
+                        return DefaultTabItem.create("Edit Project " + project.getIdentifier(),
+                                component, viewContext, true);
+                    }
+
+                    public String getId()
+                    {
+                        return ProjectEditForm.createId(project.getId());
+                    }
+                };
+        }
         DispatcherHelper.dispatchNaviEvent(tabFactory);
     }
 
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.PROJECT) };
+            { DatabaseModificationKind.createOrDelete(ObjectKind.PROJECT),
+                    DatabaseModificationKind.edit(ObjectKind.PROJECT) };
     }
 }

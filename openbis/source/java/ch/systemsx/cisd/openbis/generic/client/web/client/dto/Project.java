@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
@@ -50,6 +51,8 @@ public class Project extends CodeWithRegistration<Project> implements IAttachmen
     }
 
     private List<Attachment> attachments;
+
+    private Date modificationDate;
 
     public AttachmentHolderKind getAttachmentHolderKind()
     {
@@ -104,6 +107,16 @@ public class Project extends CodeWithRegistration<Project> implements IAttachmen
     public List<Attachment> getAttachments()
     {
         return attachments;
+    }
+
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date modificationDate)
+    {
+        this.modificationDate = modificationDate;
     }
 
 }

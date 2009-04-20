@@ -120,7 +120,7 @@ public final class GenericSampleRegistrationForm extends
     }
 
     public final class RegisterSampleCallback extends
-            AbstractRegistrationForm.AbstractRegistrationCallback
+            AbstractRegistrationForm.AbstractRegistrationCallback<Void>
     {
         public RegisterSampleCallback(IViewContext<?> viewContext)
         {

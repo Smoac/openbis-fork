@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -188,5 +189,22 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         {
             project.ensureAttachmentsLoaded();
         }
+    }
+
+    public void edit(ProjectIdentifier identifier, List<AttachmentPE> newAttachments,
+            String description, Date version)
+    {
+        loadByProjectIdentifier(identifier);
+        if (version.equals(project.getModificationDate()) == false)
+        {
+            throw new UserFailureException("Project has been modified in the meantime.");
+        }
+        project.setDescription(description);
+        for (AttachmentPE a : newAttachments)
+        {
+            addAttachment(a);
+        }
+        dataChanged = true;
+
     }
 }

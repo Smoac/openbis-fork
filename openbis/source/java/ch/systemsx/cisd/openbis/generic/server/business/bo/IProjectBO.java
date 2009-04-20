@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.Date;
+import java.util.List;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -64,4 +67,10 @@ public interface IProjectBO extends IBusinessObject
      * Adds the specified attachment to the project.
      */
     public void addAttachment(AttachmentPE att);
+
+    /**
+     * Updates the project.
+     */
+    public void edit(ProjectIdentifier identifier, List<AttachmentPE> attachments,
+            String description, Date version);
 }

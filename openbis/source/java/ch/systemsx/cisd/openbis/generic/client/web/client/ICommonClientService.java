@@ -421,6 +421,12 @@ public interface ICommonClientService extends IClientService
             List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
             Date version) throws UserFailureException;
 
+    /**
+     * Updates project.
+     */
+    public Date updateProject(String sessionKey, final String projectIdentifier,
+            String description, Date version) throws UserFailureException;
+
     /** Deletes the specified data sets. */
     public void deleteDataSets(List<String> dataSetCodes, String reason)
             throws UserFailureException;

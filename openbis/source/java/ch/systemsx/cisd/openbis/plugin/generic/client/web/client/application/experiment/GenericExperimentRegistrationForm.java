@@ -95,7 +95,7 @@ public final class GenericExperimentRegistrationForm
     }
 
     public final class RegisterExperimentCallback extends
-            AbstractRegistrationForm.AbstractRegistrationCallback
+            AbstractRegistrationForm.AbstractRegistrationCallback<Void>
     {
 
         RegisterExperimentCallback(final IViewContext<?> viewContext)

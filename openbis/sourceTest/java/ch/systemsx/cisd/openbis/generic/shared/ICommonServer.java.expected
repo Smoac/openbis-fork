@@ -514,4 +514,15 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.OBSERVER)
     public String generateCode(String sessionToken, String prefix);
 
+    /**
+     * Saves changed project.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.USER)
+    @DatabaseUpdateModification(value = ObjectKind.PROJECT)
+    public Date editProject(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier identifier,
+            List<AttachmentPE> attachments, String description, Date version);
+
 }

@@ -395,4 +395,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void generateCode(String codePrefix, final AsyncCallback<String> callback);
 
+    /**
+     * @see ICommonClientService#updateProject(String, String, String, Date)
+     */
+    public void updateProject(String sessionKey, String identifier, String description,
+            Date version, AsyncCallback<Date> projectEditCallback);
+
 }

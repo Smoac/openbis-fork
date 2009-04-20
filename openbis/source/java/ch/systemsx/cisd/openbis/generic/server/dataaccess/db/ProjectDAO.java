@@ -106,11 +106,12 @@ public class ProjectDAO extends AbstractDAO implements IProjectDAO
 
         project.setCode(CodeConverter.tryToDatabase(project.getCode()));
         final HibernateTemplate template = getHibernateTemplate();
-        template.persist(project);
+        template.saveOrUpdate(project);
         template.flush();
+        template.refresh(project);
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("ADD: project '%s'.", project));
+            operationLog.info(String.format("SAVE: project '%s'.", project));
         }
     }
 

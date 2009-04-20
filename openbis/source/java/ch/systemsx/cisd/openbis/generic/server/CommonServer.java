@@ -499,9 +499,9 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     {
         assert sessionToken != null : "Unspecified session token";
         Session session = getSessionManager().getSession(sessionToken);
-        
+
         IEntityTypePropertyTypeBO etptBO =
-            businessObjectFactory.createEntityTypePropertyTypeBO(session, entityKind);
+                businessObjectFactory.createEntityTypePropertyTypeBO(session, entityKind);
         etptBO.loadAssignment(propertyTypeCode, entityTypeCode);
         etptBO.deleteLoadedAssignment();
     }
@@ -840,5 +840,15 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     {
         getSessionManager().getSession(sessionToken);
         return prefix + getDAOFactory().getCodeSequenceDAO().getNextCodeSequenceId();
+    }
+
+    public Date editProject(String sessionToken, ProjectIdentifier identifier,
+            List<AttachmentPE> attachments, String description, Date version)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IProjectBO bo = businessObjectFactory.createProjectBO(session);
+        bo.edit(identifier, attachments, description, version);
+        bo.save();
+        return bo.getProject().getModificationDate();
     }
 }
