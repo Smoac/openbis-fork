@@ -41,6 +41,8 @@ public class DataSetMenu extends TopMenuItem
         Menu menu = new Menu();
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_SEARCH, messageProvider,
                 componentProvider.getDataSetSearch()));
+        menu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_TYPES, messageProvider,
+                componentProvider.getDataSetTypeBrowser()));
         setMenu(menu);
     }
 }

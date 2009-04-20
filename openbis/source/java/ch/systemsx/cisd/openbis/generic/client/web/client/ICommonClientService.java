@@ -274,6 +274,16 @@ public interface ICommonClientService extends IClientService
     public String prepareExportExperimentTypes(final TableExportCriteria<ExperimentType> criteria)
             throws UserFailureException;
 
+    public ResultSet<? extends EntityType> listDataSetTypes(
+            DefaultResultSetConfig<String, DataSetType> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for DataSetType.
+     */
+    public String prepareExportDataSetTypes(final TableExportCriteria<DataSetType> criteria)
+            throws UserFailureException;
+
     /**
      * Assumes that preparation of the export ( {@link #prepareExportSamples(TableExportCriteria)}
      * or {@link #prepareExportExperiments(TableExportCriteria)} has been invoked before and
@@ -368,6 +378,9 @@ public interface ICommonClientService extends IClientService
 
     /** Registers a new material type */
     public void registerMaterialType(MaterialType entityType) throws UserFailureException;
+
+    /** Registers a new data set type */
+    public void registerDataSetType(DataSetType entityType) throws UserFailureException;
 
     /** Registers a new sample type */
     public void registerSampleType(SampleType entityType) throws UserFailureException;

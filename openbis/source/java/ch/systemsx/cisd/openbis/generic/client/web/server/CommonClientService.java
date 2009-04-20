@@ -532,6 +532,12 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
+    public String prepareExportDataSetTypes(final TableExportCriteria<DataSetType> criteria)
+            throws UserFailureException
+    {
+        return prepareExportEntities(criteria);
+    }
+
     // ---------------- methods which list entities using cache
 
     public final ResultSet<Sample> listSamples(final ListSampleCriteria listCriteria)
@@ -734,6 +740,19 @@ public final class CommonClientService extends AbstractClientService implements
                 public List<ExperimentType> getOriginalData() throws UserFailureException
                 {
                     return listExperimentTypes();
+                }
+            });
+    }
+    
+    public ResultSet<? extends EntityType> listDataSetTypes(
+            DefaultResultSetConfig<String, DataSetType> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return listEntities(criteria, new IOriginalDataProvider<DataSetType>()
+            {
+                public List<DataSetType> getOriginalData() throws UserFailureException
+                {
+                    return listDataSetTypes();
                 }
             });
     }
@@ -1056,6 +1075,19 @@ public final class CommonClientService extends AbstractClientService implements
         {
             final String sessionToken = getSessionToken();
             commonServer.registerSampleType(sessionToken, entityType);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+    
+    public void registerDataSetType(DataSetType entityType)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.registerDataSetType(sessionToken, entityType);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

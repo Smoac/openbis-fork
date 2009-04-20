@@ -167,6 +167,7 @@ var common = {
 
   menu_data_set: "Data Set",
   DATA_SET_MENU_SEARCH: "Search",
+  DATA_SET_MENU_TYPES: "Types",
   
   menu_experiment: "Experiment",
   EXPERIMENT_MENU_BROWSE: "Browse",

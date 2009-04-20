@@ -24,6 +24,7 @@ import java.util.Set;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
@@ -332,6 +333,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public void registerExperimentType(String sessionToken, ExperimentType entityType)
     {
         logTracking(sessionToken, "register_experiment_type", "CODE(%s)", entityType.getCode());
+    }
+
+    public void registerDataSetType(String sessionToken, DataSetType entityType)
+    {
+        logTracking(sessionToken, "register_data_set_type", "CODE(%s)", entityType.getCode());
     }
 
     public void editExperiment(String sessionToken, ExperimentIdentifier experimentIdentifier,

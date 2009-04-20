@@ -20,6 +20,7 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -92,6 +93,12 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
     public void define(ExperimentType entityType)
     {
         this.entityKind = EntityKind.EXPERIMENT;
+        this.entityTypePE = convertGeneric(entityType, entityKind, getHomeDatabaseInstance());
+    }
+
+    public void define(DataSetType entityType)
+    {
+        this.entityKind = EntityKind.DATA_SET;
         this.entityTypePE = convertGeneric(entityType, entityKind, getHomeDatabaseInstance());
     }
 }

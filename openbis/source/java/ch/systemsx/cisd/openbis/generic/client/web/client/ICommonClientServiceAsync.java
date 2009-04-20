@@ -225,6 +225,15 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void prepareExportExperimentTypes(final TableExportCriteria<EntityType> criteria,
             AsyncCallback<String> callback);
 
+    /** @see ICommonClientService#listDataSetTypes(DefaultResultSetConfig) */
+    public void listDataSetTypes(DefaultResultSetConfig<String, EntityType> criteria,
+            final AsyncCallback<ResultSet<EntityType>> asyncCallback)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+
+    /** @see ICommonClientService#prepareExportDataSetTypes(TableExportCriteria) */
+    public void prepareExportDataSetTypes(final TableExportCriteria<EntityType> criteria,
+            AsyncCallback<String> callback);
+
     /**
      * @see ICommonClientService#getExportTable(String, String)
      */
@@ -318,6 +327,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#registerMaterialType(MaterialType) */
     public void registerMaterialType(MaterialType entityType,
             final AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#registerDataSetType(DataSetType) */
+    public void registerDataSetType(DataSetType entityType, final AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#registerSampleType(SampleType) */
     public void registerSampleType(SampleType entityType, final AsyncCallback<Void> asyncCallback);

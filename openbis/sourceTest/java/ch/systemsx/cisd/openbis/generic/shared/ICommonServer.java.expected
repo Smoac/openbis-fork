@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupVali
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.MatchingEntityValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
@@ -383,6 +384,14 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT_TYPE)
     public void registerExperimentType(String sessionToken, ExperimentType entityType);
+
+    /**
+     * Creates a new data set type.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.DATASET_TYPE)
+    public void registerDataSetType(String sessionToken, DataSetType entityType);
 
     /**
      * Deletes specified data sets.

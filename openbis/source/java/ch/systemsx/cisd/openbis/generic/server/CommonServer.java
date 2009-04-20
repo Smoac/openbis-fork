@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
@@ -608,6 +609,20 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     public void registerExperimentType(String sessionToken, ExperimentType entityType)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IEntityTypeBO entityTypeBO = businessObjectFactory.createEntityTypeBO(session);
+            entityTypeBO.define(entityType);
+            entityTypeBO.save();
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+    
+        public void registerDataSetType(String sessionToken, DataSetType entityType)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         try
