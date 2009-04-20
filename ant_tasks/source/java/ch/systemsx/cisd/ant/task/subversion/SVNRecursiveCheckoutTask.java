@@ -131,23 +131,23 @@ public class SVNRecursiveCheckoutTask extends Task
                     final String projectName = SVNUtilities.getProjectName(path);
                     if (false == projectsAlreadyCheckedOut.contains(projectName))
                     {
-                        checkOutProject(projectName, pathProvider);
+                        checkOutProject(projectName, pathProvider, false);
                     }
                 }
             }
             if (false == projectsAlreadyCheckedOut.contains(CLASSYCLE_LIBRARY))
             {
-                checkOutProject(CLASSYCLE_LIBRARY, pathProvider);
+                checkOutProject(CLASSYCLE_LIBRARY, pathProvider, false);
             }
             // Make old build scripts work
             if (false == projectsAlreadyCheckedOut.contains(COBERTURA_LIBRARY))
             {
-                checkOutProject(COBERTURA_LIBRARY, pathProvider);
+                checkOutProject(COBERTURA_LIBRARY, pathProvider, true);
             }
         }
 
         private void checkOutProject(final String projectName,
-                final ISVNProjectPathProvider pathProvider)
+                final ISVNProjectPathProvider pathProvider, boolean ignoreException)
         {
             projectsAlreadyCheckedOut.add(projectName);
             final String projectToCheckOut = pathProvider.getPath(projectName);
@@ -156,7 +156,13 @@ public class SVNRecursiveCheckoutTask extends Task
                 checkoutCmd.checkout(projectToCheckOut, projectName, pathProvider.getRevision());
             } catch (final SVNException ex)
             {
-                throw new BuildException(ex.getMessage(), ex.getCause());
+                if (ignoreException)
+                {
+                    return;
+                } else
+                {
+                    throw new BuildException(ex.getMessage(), ex.getCause());
+                }
             }
             final File projectWorkingCopyDir =
                     new File(checkoutCmd.getDirectoryToCheckout(), projectName);
