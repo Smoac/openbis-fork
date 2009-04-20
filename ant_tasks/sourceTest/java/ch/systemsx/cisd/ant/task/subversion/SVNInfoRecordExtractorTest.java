@@ -18,7 +18,6 @@ package ch.systemsx.cisd.ant.task.subversion;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -68,12 +67,11 @@ public class SVNInfoRecordExtractorTest
                                     "Text Last Updated: 2007-05-07 16:20:04 +0200 (Mon, 07 May 2007)",
                                     "Checksum: 9236ea7a96fc9aa92c1b4ba8cabe1ae3", ""));
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testExtractingOfInfo3()
     {
-        ArrayList<String> lines = new ArrayList<String>();
-        lines.addAll(INFO3);
-        SVNInfoRecord infoRecord = extract(lines);
+        SVNInfoRecord infoRecord = extract(INFO3);
 
         assertEquals("build\\build.xml", infoRecord.getWorkingCopyPath());
         assertEquals("svn+ssh://cisd-hal.ethz.ch/internal/cisd/ant_tasks/trunk/build/build.xml",
@@ -89,13 +87,11 @@ public class SVNInfoRecordExtractorTest
                 .getLastChangedDate());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testExtractingOfInfo2Info3()
     {
-        ArrayList<String> lines = new ArrayList<String>();
-        lines.addAll(INFO2);
-        lines.addAll(INFO3);
-        SVNInfoRecord infoRecord = extract(lines);
+        SVNInfoRecord infoRecord = extract(INFO3, INFO2);
 
         assertEquals("build", infoRecord.getWorkingCopyPath());
         assertEquals("svn+ssh://cisd-hal.ethz.ch/internal/cisd/ant_tasks/trunk/build", infoRecord
@@ -111,14 +107,11 @@ public class SVNInfoRecordExtractorTest
                 .getLastChangedDate());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testExtractingOfInfo1Info2Info3()
     {
-        ArrayList<String> lines = new ArrayList<String>();
-        lines.addAll(INFO1);
-        lines.addAll(INFO2);
-        lines.addAll(INFO3);
-        SVNInfoRecord infoRecord = extract(lines);
+        SVNInfoRecord infoRecord = extract(INFO3, INFO2, INFO1);
 
         assertEquals(".", infoRecord.getWorkingCopyPath());
         assertEquals("svn+ssh://cisd-hal.ethz.ch/internal/cisd/ant_tasks/trunk", infoRecord
@@ -130,15 +123,18 @@ public class SVNInfoRecordExtractorTest
         assertEquals("add", infoRecord.getSchedule());
         assertEquals("felmer", infoRecord.getLastChangedAuthor());
         assertEquals(288, infoRecord.getLastChangedRevision());
-        assertEquals("2007-05-07 16:27:11 +0200 (Mon, 07 May 2007)", infoRecord
+        assertEquals("2007-05-07 16:21:00 +0200 (Mon, 07 May 2007)", infoRecord
                 .getLastChangedDate());
     }
 
-    private SVNInfoRecord extract(ArrayList<String> lines)
+    private SVNInfoRecord extract(List<String>... lines)
     {
-        SVNUtilities.ProcessInfo processInfo = new SVNUtilities.ProcessInfo("info", lines, 0);
         SVNInfoRecord infoRecord = new SVNInfoRecord();
-        new SVNInfoRecordExtractor().fillInfoRecord(infoRecord, processInfo);
+        for (List<String> l : lines)
+        {
+            SVNUtilities.ProcessInfo processInfo = new SVNUtilities.ProcessInfo("info", l, 0);
+            new SVNInfoRecordExtractor().fillInfoRecord(infoRecord, processInfo);
+        }
         return infoRecord;
     }
 }

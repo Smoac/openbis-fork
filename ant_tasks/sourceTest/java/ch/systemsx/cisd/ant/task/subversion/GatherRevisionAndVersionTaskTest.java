@@ -49,7 +49,9 @@ public class GatherRevisionAndVersionTaskTest
 
     private SVNProject project1;
 
-    private SVNProject libraries;
+    private SVNProject librariesActivation;
+
+    private SVNProject librariesBeanLib;
 
     private SVNProject common;
 
@@ -222,11 +224,11 @@ public class GatherRevisionAndVersionTaskTest
 
     private static class SVNProject
     {
-        private final String name;
+        final String name;
 
-        private final List<String> files = new ArrayList<String>();
+        final List<String> files = new ArrayList<String>();
 
-        private String classpathContent;
+        String classpathContent;
 
         SVNProject(final String name)
         {
@@ -264,10 +266,10 @@ public class GatherRevisionAndVersionTaskTest
             registerProject(svn, projectBaseDir, revision, lastChangedRevision);
         }
 
-        private void registerProject(final MockSVN svn, final String projectBaseDir,
+        void registerProject(final MockSVN svn, final String projectBaseDir,
                 final int revision, final int lastChangedRevision)
         {
-            final SVNInfoRecord info = svn.register(".." + File.separator + name);
+            final SVNInfoRecord info = svn.register(getWDPath());
             final Updater updater = info.getUpdater();
             updater.setRepositoryUrl(BASE_REPOSITORY_URL + "/" + projectBaseDir);
             updater.setRevision(revision);
@@ -277,6 +279,40 @@ public class GatherRevisionAndVersionTaskTest
             {
                 svn.registerContent(name + '/' + CLASSPATH_FILE, classpathContent);
             }
+        }
+
+        String getWDPath()
+        {
+            return ".." + File.separator + name;
+        }
+    }
+    
+    private static class SVNLibraryProject extends SVNProject
+    {
+        SVNLibraryProject(String name)
+        {
+            super(name);
+        }
+
+        @Override
+        void registerAsTrunk(final MockSVN svn, final int revision, final int lastChangedRevision)
+        {
+            final String projectBaseDir = SVNUtilities.LIBRARIES_TRUNK + "/" + name;
+            registerProject(svn, projectBaseDir, revision, lastChangedRevision);
+        }
+
+        @Override
+        void registerVersion(final MockSVN svn, final String version, final int revision,
+                final int lastChangedRevision)
+        {
+            final String projectBaseDir = version + "/" + SVNUtilities.LIBRARIES + "/" + name;
+            registerProject(svn, projectBaseDir, revision, lastChangedRevision);
+        }
+
+        @Override
+        String getWDPath()
+        {
+            return ".." + File.separator + SVNUtilities.LIBRARIES + File.separator + name;
         }
 
     }
@@ -290,9 +326,11 @@ public class GatherRevisionAndVersionTaskTest
                 .addClasspathFile("<classpath>\n"
                         + "<classpathentry kind=\"src\" path=\"source/java\"/>\n"
                         + "<classpathentry kind=\"lib\" path=\"/libraries/activation/activation.jar\"/>\n"
+                        + "<classpathentry kind=\"lib\" path=\"/libraries/beanlib/beanlib.jar\"/>\n"
                         + "<classpathentry kind=\"con\" path=\"org.eclipse.jdt.launching.JRE_CONTAINER\"/>\n"
                         + "<classpathentry kind=\"src\" path=\"/common\"/>\n" + "</classpath>\n");
-        libraries = new SVNProject("libraries").addFiles("lib1.jar");
+        librariesActivation = new SVNLibraryProject("activation").addFiles("activation.jar");
+        librariesBeanLib = new SVNLibraryProject("beanlib").addFiles("beanlib.jar");
         common = new SVNProject("common").addFiles("build.xml");
         common
                 .addClasspathFile("<classpath>\n"
@@ -322,7 +360,8 @@ public class GatherRevisionAndVersionTaskTest
     {
         System.out.println("testRevisionAndTrunkVersionAndDoNotFailOnInconsistencyAndDirty()");
         project1.registerAsTrunk(svn, 10, 3);
-        libraries.registerAsTrunk(svn, 10, 6);
+        librariesActivation.registerAsTrunk(svn, 10, 6);
+        librariesBeanLib.registerAsTrunk(svn, 10, 7);
         common.registerAsTrunk(svn, 11, 7);
         buildResources.registerAsTrunk(svn, 10, 5);
         svn.register(".").getUpdater().setRepositoryUrl(
@@ -345,7 +384,8 @@ public class GatherRevisionAndVersionTaskTest
         System.out.println("testRevisionAndVersionAndDoNotFailOnInconsistencyAndDirty()");
         final String version = "1.2.3";
         project1.registerVersion(svn, version, 10, 3);
-        libraries.registerVersion(svn, version, 10, 6);
+        librariesActivation.registerVersion(svn, version, 10, 6);
+        librariesBeanLib.registerVersion(svn, version, 10, 7);
         common.registerVersion(svn, version, 11, 7);
         buildResources.registerVersion(svn, version, 10, 5);
         svn.register(".").getUpdater().setRepositoryUrl(

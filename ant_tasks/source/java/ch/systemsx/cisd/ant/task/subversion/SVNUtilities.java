@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.ant.common.StringUtils;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -40,32 +39,34 @@ import ch.systemsx.cisd.common.process.InputStreamReaderGobbler;
 class SVNUtilities
 {
 
-    @Private
     static final String DEFAULT_GROUP = "cisd";
 
-    @Private
-    static final String DEFAULT_REPOSITORY_ROOT = "svn+ssh://source.systemsx.ch/repos";
+    static final String DEFAULT_REPOSITORY_ROOT = "svn+ssh://svncisd.ethz.ch/repos";
 
-    @Private
     static final String DEFAULT_VERSION = "trunk";
 
-    @Private
+    static final String LIBRARIES = "libraries";
+
+    static final String LIBRARIES_TRUNK = LIBRARIES + "/" + DEFAULT_VERSION;
+
     static final String HEAD_REVISION = "HEAD";
 
-    /** A project all other projects depend on implicitely. */
+    /** A project all other projects depend on implicitly. */
     static final String BUILD_RESOURCES_PROJECT = "build_resources";
+
+    static final String CISD_ANT_TASKS_FILE = "cisd-ant-tasks.jar";
 
     private static final String RELEASE_PATTERN_PREFIX = "(([0-9]+\\.)[0-9]+)\\.";
 
     /** The regular expression that a release tag has to match. */
     static final String RELEASE_TAG_PATTERN_STRING = RELEASE_PATTERN_PREFIX + "[0-9]+";
-    
-    /** The prefix for the sprint tagging.  */
+
+    /** The prefix for the sprint tagging. */
     private static final String SPRINT_PATTERN_PREFIX = "S";
-    
+
     /** Pattern which matches the sprint tagging */
     static final String SPRINT_TAG_PATTERN_STRING = SPRINT_PATTERN_PREFIX + "[0-9]+(\\.[0-9])?";
-    
+
     /** The regular expression that a release branch has to match. */
     static final String RELEASE_BRANCH_PATTERN_STRING = RELEASE_PATTERN_PREFIX + "x";
 
@@ -115,16 +116,45 @@ class SVNUtilities
      */
     static String getTopLevelDirectory(final String path)
     {
+        return getNDirectoryLevels(path, 1);
+    }
+
+    /**
+     * @return <var>n/var> directory levels of <var>path</var>, with the leading '/' removed.
+     */
+    private static String getNDirectoryLevels(final String path, final int n)
+    {
         assert path != null && path.startsWith("/");
 
-        final int topLevelEndIndex = path.indexOf("/", 1);
-        if (topLevelEndIndex >= 0)
+        int endIndex = 0;
+        for (int i = 0; i < n && endIndex >= 0; ++i)
         {
-            return path.substring(1, topLevelEndIndex);
-        } else
+            endIndex = path.indexOf("/", endIndex + 1);
+        }
+        if (endIndex > 0)
+        {
+            return path.substring(1, endIndex);
+        } else if (endIndex == -1)
         {
             return path.substring(1);
+        } else
+        {
+            return "/";
         }
+    }
+
+    /**
+     * Returns the project name part of a path. If the project is in libraries, then the project
+     * name will contain the next level of the directory, e.g. <code>libraries/activation</code>.
+     */
+    static String getProjectName(final String path)
+    {
+        String projectName = getTopLevelDirectory(path);
+        if (LIBRARIES.equals(projectName))
+        {
+            projectName = getNDirectoryLevels(path, 2);
+        }
+        return projectName;
     }
 
     /**
@@ -175,7 +205,7 @@ class SVNUtilities
     static void checkProjectName(final String projectName) throws UserFailureException
     {
         assert projectName != null;
-        checkName(projectName, "Project");
+        checkName(projectName, "Project", true);
     }
 
     /**
@@ -186,7 +216,7 @@ class SVNUtilities
     static void checkGroupName(final String groupName) throws UserFailureException
     {
         assert groupName != null;
-        checkName(groupName, "Group");
+        checkName(groupName, "Group", false);
     }
 
     /**
@@ -195,8 +225,8 @@ class SVNUtilities
      * @throws UserFailureException If <var>projectName</var> is invalid. <var>typeOfName</var> is
      *             used to create a meaningful error message.
      */
-    private static void checkName(final String name, final String typeOfName)
-            throws UserFailureException
+    private static void checkName(final String name, final String typeOfName,
+            final boolean slashAllowed) throws UserFailureException
     {
         assert name != null;
         assert typeOfName != null;
@@ -205,7 +235,7 @@ class SVNUtilities
         {
             throw new UserFailureException(typeOfName + " name is empty.");
         }
-        if (name.indexOf('/') >= 0 || name.indexOf('\\') >= 0)
+        if ((name.indexOf('/') >= 0 && slashAllowed == false) || name.indexOf('\\') >= 0)
         {
             throw new UserFailureException(typeOfName + " name '" + name
                     + "' contains illegal character.");
@@ -221,6 +251,13 @@ class SVNUtilities
     static ProcessInfo subversionCommand(final ISimpleLogger logger,
             final boolean redirectErrorStream, final String command, final String... args)
     {
+        return subversionCommand(logger, redirectErrorStream, null, command, args);
+    }
+
+    static ProcessInfo subversionCommand(final ISimpleLogger logger,
+            final boolean redirectErrorStream, final File workingDirectoryOrNull,
+            final String command, final String... args)
+    {
         final File svnExecutable = OSUtilities.findExecutable("svn");
         if (svnExecutable == null)
         {
@@ -233,6 +270,10 @@ class SVNUtilities
         fullCommand.addAll(Arrays.asList(args));
         final ProcessBuilder builder = new ProcessBuilder(fullCommand);
         builder.redirectErrorStream(redirectErrorStream);
+        if (workingDirectoryOrNull != null)
+        {
+            builder.directory(workingDirectoryOrNull);
+        }
         final String commandString = StringUtils.join(builder.command(), " ");
         logger.log(LogLevel.INFO, String.format("Executing '%s'", commandString));
         try

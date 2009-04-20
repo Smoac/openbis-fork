@@ -254,7 +254,7 @@ public class SVNBranchAndTagTask extends Task
         final ISVNProjectPathProvider sourcePathProvider = source.getPathProvider();
         final ISVNProjectPathProvider destinationPathProvider = destination.getPathProvider();
         final Set<String> dependentProjects =
-                new SVNDependentProjectsCollector(source.getPathProvider(), svn)
+                new SVNDependentProjectsCollector(source.getPathProvider(), svn, false)
                         .collectDependentProjectsFromClasspath();
 
         final String tagName = destination.getVersion();

@@ -30,8 +30,7 @@ import ch.systemsx.cisd.ant.common.TextBasedEclipseClasspathLocation;
 
 /**
  * A class which collects all dependent projects of a project path in subversion (including the
- * project itself), following the dependencies specified by Eclipse' <code>.classpath</code>
- * files.
+ * project itself), following the dependencies specified by Eclipse' <code>.classpath</code> files.
  * <p>
  * Works on both a subversion repository or working copy.
  * 
@@ -43,23 +42,27 @@ class SVNDependentProjectsCollector
 
     private final ISVNActions actions;
 
+    private final boolean librariesOneByOne;
+
     /**
      * Creates a new instance for the specified project URL and factory for actions on the
-     * Subversion reporistory.
+     * Subversion repository.
      */
-    public SVNDependentProjectsCollector(ISVNProjectPathProvider pathProvider, ISVNActions actions)
+    public SVNDependentProjectsCollector(ISVNProjectPathProvider pathProvider, ISVNActions actions,
+            boolean librariesOneByOne)
     {
         assert pathProvider != null;
         assert actions != null;
 
         this.pathProvider = pathProvider;
         this.actions = actions;
+        this.librariesOneByOne = librariesOneByOne;
     }
 
     /**
      * @return The set of projects that the project in <var>projectUrl</var> depends on (including
      *         itself).
-     * @throws SVNException If there is a problem performing an <code>svn cat</code> command.
+     * @throws SVNException If there is a problem performing a <code>svn cat</code> command.
      */
     public Set<String> collectDependentProjectsFromClasspath() throws SVNException
     {
@@ -121,14 +124,17 @@ class SVNDependentProjectsCollector
         {
             if (entry.isSubprojectEntry())
             {
-                projects.add(SVNUtilities.getTopLevelDirectory(entry.getPath()));
+                projects.add(librariesOneByOne ? SVNUtilities.getProjectName(entry.getPath())
+                        : SVNUtilities.getTopLevelDirectory(entry.getPath()));
             }
         }
 
         @Override
         public IProjectHandler createHandler(EclipseClasspathEntry entry)
         {
-            final String projectName = SVNUtilities.getTopLevelDirectory(entry.getPath());
+            final String projectName =
+                    librariesOneByOne ? SVNUtilities.getProjectName(entry.getPath()) : SVNUtilities
+                            .getTopLevelDirectory(entry.getPath());
             return new ProjectHandler(projects, pathProvider.getPath(projectName),
                     locationsAlreadyVisited);
         }

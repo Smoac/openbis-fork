@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.ant.task.subversion;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -115,14 +116,29 @@ public class SVNRecursiveCheckoutTaskTest
     private static class SVNRecursiveCheckoutTaskCheckoutMock extends SVNRecursiveCheckoutTask
     {
 
-        SVNCheckoutMock mock;
+        SVNCheckoutMock checkoutMock;
 
         @Override
         ISVNCheckout createSVNCheckout(final String repositoryUrl, final String workingCopyDir)
         {
-            assert mock == null;
-            mock = new SVNCheckoutMock(repositoryUrl, workingCopyDir);
-            return mock;
+            assert checkoutMock == null;
+            checkoutMock = new SVNCheckoutMock(repositoryUrl, workingCopyDir);
+            return checkoutMock;
+        }
+
+        @Override
+        ISVNFileExporter createSVNFileExporter()
+        {
+            return new ISVNFileExporter()
+                {
+                    public void export(String repositoryUrl, File targetDirectory)
+                            throws SVNException
+                    {
+                        assertTrue(repositoryUrl
+                                .endsWith("build_resources/trunk/lib/cisd-ant-tasks.jar"));
+                        assertTrue(targetDirectory.getPath().endsWith("build_resources/lib"));
+                    }
+                };
         }
 
     }
@@ -145,14 +161,15 @@ public class SVNRecursiveCheckoutTaskTest
         task.setFeatureBranch("someBranch");
         task.setProject(new Project()); // Required for log not to throw a NPE.
         task.execute();
-        assertEquals(2, task.mock.checkedOutPaths.size());
-        assertEquals(projPath, task.mock.checkedOutPaths.get(0));
+        assertEquals(2, task.checkoutMock.checkedOutPaths.size());
+        assertEquals(projPath, task.checkoutMock.checkedOutPaths.get(0));
         // That is a hidden dependency that is always resolved.
-        assertEquals(SVNUtilities.BUILD_RESOURCES_PROJECT, task.mock.checkedOutPaths.get(1));
-        assertEquals(projPath, task.mock.checkedOutProjects.get(0));
-        assertEquals(SVNUtilities.BUILD_RESOURCES_PROJECT, task.mock.checkedOutProjects.get(1));
-        assertEquals(SVNUtilities.HEAD_REVISION, task.mock.checkedOutRevision.get(0));
-        assertEquals(SVNUtilities.HEAD_REVISION, task.mock.checkedOutRevision.get(1));
+        assertEquals(SVNUtilities.BUILD_RESOURCES_PROJECT, task.checkoutMock.checkedOutPaths.get(1));
+        assertEquals(projPath, task.checkoutMock.checkedOutProjects.get(0));
+        assertEquals(SVNUtilities.BUILD_RESOURCES_PROJECT, task.checkoutMock.checkedOutProjects
+                .get(1));
+        assertEquals(SVNUtilities.HEAD_REVISION, task.checkoutMock.checkedOutRevision.get(0));
+        assertEquals(SVNUtilities.HEAD_REVISION, task.checkoutMock.checkedOutRevision.get(1));
     }
 
     @DataProvider(name = "reposUrl")
@@ -204,19 +221,26 @@ public class SVNRecursiveCheckoutTaskTest
 
         final List<String> expectedPaths =
                 isTrunk ? Arrays.asList(projPath + "/trunk", SVNUtilities.BUILD_RESOURCES_PROJECT
-                        + "/trunk", "libraries/trunk", "common/trunk") : Arrays.asList(projPath,
-                        SVNUtilities.BUILD_RESOURCES_PROJECT, "libraries", "common");
-        assertEquals(expectedPaths, task.mock.checkedOutPaths);
+                        + "/trunk", "libraries/trunk/activation", "libraries/trunk/commons-cli",
+                        "libraries/trunk/log4j", "libraries/trunk/mail", "libraries/trunk/testng",
+                        "common/trunk", "libraries/trunk/classycle", "libraries/trunk/cobertura")
+                        : Arrays.asList(projPath, SVNUtilities.BUILD_RESOURCES_PROJECT,
+                                "libraries/activation", "libraries/commons-cli", "libraries/log4j",
+                                "libraries/mail", "libraries/testng", "common",
+                                "libraries/classycle", "libraries/cobertura");
+        assertEquals(expectedPaths, task.checkoutMock.checkedOutPaths);
         final List<String> expectedProjects =
-                Arrays
-                        .asList(projPath, SVNUtilities.BUILD_RESOURCES_PROJECT, "libraries",
-                                "common");
-        assertEquals(expectedProjects, task.mock.checkedOutProjects);
-        assertEquals(task.mock.checkedOutProjects.size(), task.mock.checkedOutRevision.size());
-        for (int i = 0; i < task.mock.checkedOutRevision.size(); ++i)
+                Arrays.asList(projPath, SVNUtilities.BUILD_RESOURCES_PROJECT,
+                        "libraries/activation", "libraries/commons-cli", "libraries/log4j",
+                        "libraries/mail", "libraries/testng", "common", "libraries/classycle",
+                        "libraries/cobertura");
+        assertEquals(expectedProjects, task.checkoutMock.checkedOutProjects);
+        assertEquals(task.checkoutMock.checkedOutProjects.size(),
+                task.checkoutMock.checkedOutRevision.size());
+        for (int i = 0; i < task.checkoutMock.checkedOutRevision.size(); ++i)
         {
-            assertEquals("Entry " + i, SVNUtilities.HEAD_REVISION, task.mock.checkedOutRevision
-                    .get(i));
+            assertEquals("Entry " + i, SVNUtilities.HEAD_REVISION,
+                    task.checkoutMock.checkedOutRevision.get(i));
         }
     }
 
@@ -284,19 +308,27 @@ public class SVNRecursiveCheckoutTaskTest
 
         final List<String> expectedPaths =
                 isTrunk ? Arrays.asList(projPath + "/trunk", SVNUtilities.BUILD_RESOURCES_PROJECT
-                        + "/trunk", "libraries/trunk", "common/trunk", "common2/trunk") : Arrays
-                        .asList(projPath, SVNUtilities.BUILD_RESOURCES_PROJECT, "libraries",
-                                "common", "common2");
-        CollectionIO.writeIterable(System.out, task.mock.checkedOutPaths);
-        assertEquals(expectedPaths, task.mock.checkedOutPaths);
+                        + "/trunk", "libraries/trunk/activation", "libraries/trunk/commons-cli",
+                        "libraries/trunk/log4j", "libraries/trunk/mail", "libraries/trunk/testng",
+                        "common/trunk", "common2/trunk", "libraries/trunk/classycle",
+                        "libraries/trunk/cobertura") : Arrays.asList(projPath,
+                        SVNUtilities.BUILD_RESOURCES_PROJECT, "libraries/activation",
+                        "libraries/commons-cli", "libraries/log4j", "libraries/mail",
+                        "libraries/testng", "common", "common2", "libraries/classycle",
+                        "libraries/cobertura");
+        CollectionIO.writeIterable(System.out, task.checkoutMock.checkedOutPaths);
+        assertEquals(expectedPaths, task.checkoutMock.checkedOutPaths);
         final List<String> expectedProjects =
-                Arrays.asList(projPath, SVNUtilities.BUILD_RESOURCES_PROJECT, "libraries",
-                        "common", "common2");
-        assertEquals(expectedProjects, task.mock.checkedOutProjects);
-        assertEquals(task.mock.checkedOutProjects.size(), task.mock.checkedOutRevision.size());
-        for (int i = 0; i < task.mock.checkedOutRevision.size(); ++i)
+                Arrays.asList(projPath, SVNUtilities.BUILD_RESOURCES_PROJECT,
+                        "libraries/activation", "libraries/commons-cli", "libraries/log4j",
+                        "libraries/mail", "libraries/testng", "common", "common2",
+                        "libraries/classycle", "libraries/cobertura");
+        assertEquals(expectedProjects, task.checkoutMock.checkedOutProjects);
+        assertEquals(task.checkoutMock.checkedOutProjects.size(),
+                task.checkoutMock.checkedOutRevision.size());
+        for (int i = 0; i < task.checkoutMock.checkedOutRevision.size(); ++i)
         {
-            assertEquals("Entry " + i, revision, task.mock.checkedOutRevision.get(i));
+            assertEquals("Entry " + i, revision, task.checkoutMock.checkedOutRevision.get(i));
         }
     }
 

@@ -28,13 +28,13 @@ interface ISVNProjectPathProvider
 {
 
     /**
-     * @return The absolute path of the project ofthe context of this path provider.
+     * @return The absolute path of the project of the context of this path provider.
      */
     public String getPath();
 
     /**
      * @param subProjectName The name of the sub project (interpreted in the context of this path
-     *            provider). Must not contain any path delimiter.
+     *            provider). Only Unix path delimiter is allowed ('/')
      * @return The absolute path of the <var>subProjectName</var> in the context of this path
      *         provider.
      * @throws UserFailureException If <var>subProjectName</var> is invalid.

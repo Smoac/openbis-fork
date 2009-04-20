@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.ant.task.subversion;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +28,7 @@ import org.apache.tools.ant.Task;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.ant.common.AbstractEclipseClasspathExecutor;
 import ch.systemsx.cisd.ant.common.EclipseClasspathEntry;
+import ch.systemsx.cisd.ant.common.StringUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
@@ -78,6 +80,11 @@ public class SVNRecursiveCheckoutTask extends Task
 {
 
     /**
+     * The logger for this task.
+     */
+    private final AntTaskSimpleLoggerAdapter LOGGER = new AntTaskSimpleLoggerAdapter(this);
+
+    /**
      * The set of projects that have already been checked out. We need to keep track of it, because
      * the same project can be referenced from several other projects.
      */
@@ -99,6 +106,10 @@ public class SVNRecursiveCheckoutTask extends Task
      */
     private final class SVNCheckoutDependentExecutor extends AbstractEclipseClasspathExecutor
     {
+        private static final String CLASSYCLE_LIBRARY = "libraries/classycle";
+
+        private static final String COBERTURA_LIBRARY = "libraries/cobertura";
+
         private final ISVNCheckout checkoutCmd;
 
         SVNCheckoutDependentExecutor(final ISVNCheckout checkoutCmd)
@@ -117,32 +128,49 @@ public class SVNRecursiveCheckoutTask extends Task
                 final String path = entry.getPath();
                 if (path.startsWith("/"))
                 {
-                    final String projectName = SVNUtilities.getTopLevelDirectory(path);
+                    final String projectName = SVNUtilities.getProjectName(path);
                     if (false == projectsAlreadyCheckedOut.contains(projectName))
                     {
-                        projectsAlreadyCheckedOut.add(projectName);
-                        final String projectToCheckOut = pathProvider.getPath(projectName);
-                        try
-                        {
-                            checkoutCmd.checkout(projectToCheckOut, projectName, pathProvider
-                                    .getRevision());
-                        } catch (final SVNException ex)
-                        {
-                            throw new BuildException(ex.getMessage(), ex.getCause());
-                        }
-                        final File projectWorkingCopyDir =
-                                new File(checkoutCmd.getDirectoryToCheckout(), projectName);
-                        new SVNCheckoutDependentExecutor(checkoutCmd)
-                                .execute(projectWorkingCopyDir);
+                        checkOutProject(projectName, pathProvider);
                     }
                 }
             }
+            if (false == projectsAlreadyCheckedOut.contains(CLASSYCLE_LIBRARY))
+            {
+                checkOutProject(CLASSYCLE_LIBRARY, pathProvider);
+            }
+            // Make old build scripts work
+            if (false == projectsAlreadyCheckedOut.contains(COBERTURA_LIBRARY))
+            {
+                checkOutProject(COBERTURA_LIBRARY, pathProvider);
+            }
+        }
+
+        private void checkOutProject(final String projectName,
+                final ISVNProjectPathProvider pathProvider)
+        {
+            projectsAlreadyCheckedOut.add(projectName);
+            final String projectToCheckOut = pathProvider.getPath(projectName);
+            try
+            {
+                checkoutCmd.checkout(projectToCheckOut, projectName, pathProvider.getRevision());
+            } catch (final SVNException ex)
+            {
+                throw new BuildException(ex.getMessage(), ex.getCause());
+            }
+            final File projectWorkingCopyDir =
+                    new File(checkoutCmd.getDirectoryToCheckout(), projectName);
+            new SVNCheckoutDependentExecutor(checkoutCmd).execute(projectWorkingCopyDir);
         }
 
         @Override
         protected void handleAbsentsOfClasspathFile(final File eclipseClasspathFile)
         {
-            log("No Eclipse .classpath file found in '" + eclipseClasspathFile.getParent() + "'.");
+            if (eclipseClasspathFile.getPath().indexOf(SVNUtilities.LIBRARIES) < 0)
+            {
+                log("No Eclipse .classpath file found in '" + eclipseClasspathFile.getParent()
+                        + "'.");
+            }
         }
 
     }
@@ -150,8 +178,8 @@ public class SVNRecursiveCheckoutTask extends Task
     /**
      * Requires the following properties:
      * <ul>
-     * <li> url - the URL of the subversion repository </li>
-     * <li> dir - the directory to check out all related projects to </li>
+     * <li>url - the URL of the subversion repository</li>
+     * <li>dir - the directory to check out all related projects to</li>
      * </ul>
      */
     @Override
@@ -173,6 +201,15 @@ public class SVNRecursiveCheckoutTask extends Task
             // .classpath.
             checkoutCmd.checkout(pathProvider.getPath(SVNUtilities.BUILD_RESOURCES_PROJECT),
                     SVNUtilities.BUILD_RESOURCES_PROJECT, pathProvider.getRevision());
+            // Replace cisd-ant-tasks.jar with current one from trunk
+            final ISVNFileExporter exporterCmd = createSVNFileExporter();
+            final File libDir =
+                    new File(new File(checkoutCmd.getDirectoryToCheckout(),
+                            SVNUtilities.BUILD_RESOURCES_PROJECT), "lib");
+            exporterCmd.export(StringUtils.join(Arrays
+                    .asList(context.getRepositoryRoot(), context.getGroup(),
+                            SVNUtilities.BUILD_RESOURCES_PROJECT, SVNUtilities.DEFAULT_VERSION,
+                            "lib", SVNUtilities.CISD_ANT_TASKS_FILE), "/"), libDir);
             new SVNCheckoutDependentExecutor(checkoutCmd).execute(new File(workingCopyDir,
                     pathProvider.getProjectName()));
         } catch (final SVNException ex)
@@ -187,7 +224,16 @@ public class SVNRecursiveCheckoutTask extends Task
     @Private
     ISVNCheckout createSVNCheckout(final String repositoryUrl, final String workingCopyDir)
     {
-        return new SVNCheckout(new AntTaskSimpleLoggerAdapter(this), workingCopyDir);
+        return new SVNCheckout(LOGGER, workingCopyDir);
+    }
+
+    /**
+     * <em>Can be overwritten in unit tests.</em>
+     */
+    @Private
+    ISVNFileExporter createSVNFileExporter()
+    {
+        return new SVNFileExporter(LOGGER);
     }
 
     /**
@@ -280,11 +326,11 @@ public class SVNRecursiveCheckoutTask extends Task
     /**
      * Sets the version to <var>versionName</var>.
      * <p>
-     * If <code>versionName == "trunk"</code>, the version will be the trunk. If <var>versionName</var>
-     * fits into the release branch schema, it will be interpreted as a release branch, if it fits
-     * into a release tag schema, it will be interpreted as a release tag. If it fits into a sprint
-     * tag, it will be interpreted as a sprint tag. In all other cases the version will be
-     * interpreted as a feature branch.
+     * If <code>versionName == "trunk"</code>, the version will be the trunk. If
+     * <var>versionName</var> fits into the release branch schema, it will be interpreted as a
+     * release branch, if it fits into a release tag schema, it will be interpreted as a release
+     * tag. If it fits into a sprint tag, it will be interpreted as a sprint tag. In all other cases
+     * the version will be interpreted as a feature branch.
      */
     public void setVersion(final String versionName)
     {

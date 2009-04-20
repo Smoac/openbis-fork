@@ -28,31 +28,42 @@ import ch.systemsx.cisd.ant.task.subversion.SVNUtilities.ProcessInfo;
  */
 class SVNInfoRecordExtractor
 {
+    private static final String LAST_CHANGED_DATE = "Last Changed Date";
+    private static final String LAST_CHANGED_REV = "Last Changed Rev";
+    private static final String LAST_CHANGED_AUTHOR = "Last Changed Author";
+
     private static interface ValueHandler
     {
-        public void handle(SVNInfoRecord record, String value);
+        public void handle(SVNInfoRecord record, String key, String value);
+        
+        public void commit(SVNInfoRecord record);
     }
 
     private static abstract class FirstValueHandler implements ValueHandler
     {
         private boolean first = true;
 
-        public void handle(SVNInfoRecord record, String value)
+        public void handle(SVNInfoRecord record, String key, String value)
         {
             if (first)
             {
-                update(record.getUpdater(), value);
+                update(record.getUpdater(), key, value);
                 first = false;
             }
         }
+        
+        public void commit(SVNInfoRecord record)
+        {
+        }
 
-        protected abstract void update(Updater updater, String value);
+        protected abstract void update(Updater updater, String key, String value);
+        
     }
 
     private static final class PathHandler extends FirstValueHandler
     {
         @Override
-        protected void update(Updater updater, String value)
+        protected void update(Updater updater, String key, String value)
         {
             updater.setWorkingCopyPath(value);
         }
@@ -61,7 +72,7 @@ class SVNInfoRecordExtractor
     private static final class RepositoryUrlHandler extends FirstValueHandler
     {
         @Override
-        protected void update(Updater updater, String value)
+        protected void update(Updater updater, String key, String value)
         {
             updater.setRepositoryUrl(value);
         }
@@ -70,7 +81,7 @@ class SVNInfoRecordExtractor
     private static final class RepositoryRootHandler extends FirstValueHandler
     {
         @Override
-        protected void update(Updater updater, String value)
+        protected void update(Updater updater, String key, String value)
         {
             updater.setRepositoryRootUrl(value);
         }
@@ -79,7 +90,7 @@ class SVNInfoRecordExtractor
     private static final class RepositoryUUIDHandler extends FirstValueHandler
     {
         @Override
-        protected void update(Updater updater, String value)
+        protected void update(Updater updater, String key, String value)
         {
             updater.setRepositoryUUID(value);
         }
@@ -88,34 +99,89 @@ class SVNInfoRecordExtractor
     private static final class ScheduleHandler extends FirstValueHandler
     {
         @Override
-        protected void update(Updater updater, String value)
+        protected void update(Updater updater, String key, String value)
         {
             updater.setSchedule(value);
         }
     }
 
-    private static final class LastChangedAuthorHandler extends FirstValueHandler
+    private static final class LastChangedHandler implements ValueHandler
     {
-        @Override
-        protected void update(Updater updater, String value)
-        {
-            updater.setLastChangedAuthor(value);
-        }
-    }
+        private String lastChangedAuthor;
+        
+        private int lastChangedRev;
+        
+        private String lastChangedDate;
 
-    private static final class LastChangedDateHandler extends FirstValueHandler
-    {
-        @Override
-        protected void update(Updater updater, String value)
+        private LastChangedHandler()
         {
-            updater.setLastChangedDate(value);
+            reset();
         }
+        
+        public void handle(SVNInfoRecord record, String key, String value)
+        {
+            if (LAST_CHANGED_REV.equals(key))
+            {
+                if (lastChangedRev > -1)
+                {
+                    commit(record);
+                } else
+                {
+                    try
+                    {
+                        lastChangedRev = Integer.parseInt(value);
+                    } catch (NumberFormatException ex)
+                    {
+                        throw SVNException.fromTemplate(
+                                "Subversion reports invalid last changed revision number '%s'.", value);
+                    }
+                }
+            } else if (LAST_CHANGED_AUTHOR.equals(key))
+            {
+                if (lastChangedAuthor != null)
+                {
+                    commit(record);
+                } else
+                {
+                    lastChangedAuthor = value;
+                }
+            } else if (LAST_CHANGED_DATE.equals(key))
+            {
+                if (lastChangedDate != null)
+                {
+                    commit(record);
+                } else
+                {
+                    lastChangedDate = value;
+                }
+            }
+        }
+
+        private void reset()
+        {
+            lastChangedAuthor = null;
+            lastChangedDate = null;
+            lastChangedRev = -1;
+        }
+        
+        public void commit(SVNInfoRecord record)
+        {
+            if (record.getLastChangedRevision() < lastChangedRev)
+            {
+                final Updater updater = record.getUpdater();
+                updater.setLastChangedAuthor(lastChangedAuthor);
+                updater.setLastChangedDate(lastChangedDate);
+                updater.setLastChangedRevision(lastChangedRev);
+            }
+            reset();
+        }
+
     }
 
     private static final class NodeKindHandler extends FirstValueHandler
     {
         @Override
-        protected void update(Updater updater, String value)
+        protected void update(Updater updater, String key, String value)
         {
             if ("directory".equalsIgnoreCase(value))
             {
@@ -133,7 +199,7 @@ class SVNInfoRecordExtractor
 
     private static final class RevisionHandler implements ValueHandler
     {
-        public void handle(SVNInfoRecord record, String value)
+        public void handle(SVNInfoRecord record, String key, String value)
         {
             try
             {
@@ -145,22 +211,9 @@ class SVNInfoRecordExtractor
                         value);
             }
         }
-    }
 
-    private static final class LastChangedRevisionHandler implements ValueHandler
-    {
-        public void handle(SVNInfoRecord record, String value)
+        public void commit(SVNInfoRecord record)
         {
-            try
-            {
-                Updater updater = record.getUpdater();
-                updater.setLastChangedRevision(Math.max(record.getLastChangedRevision(), Integer
-                        .parseInt(value)));
-            } catch (NumberFormatException ex)
-            {
-                throw SVNException.fromTemplate(
-                        "Subversion reports invalid last changed revision number '%s'.", value);
-            }
         }
     }
 
@@ -176,9 +229,10 @@ class SVNInfoRecordExtractor
         valueHandlerMap.put("Revision", new RevisionHandler());
         valueHandlerMap.put("Node Kind", new NodeKindHandler());
         valueHandlerMap.put("Schedule", new ScheduleHandler());
-        valueHandlerMap.put("Last Changed Author", new LastChangedAuthorHandler());
-        valueHandlerMap.put("Last Changed Rev", new LastChangedRevisionHandler());
-        valueHandlerMap.put("Last Changed Date", new LastChangedDateHandler());
+        final LastChangedHandler lastChangedHandler = new LastChangedHandler();
+        valueHandlerMap.put(LAST_CHANGED_AUTHOR, lastChangedHandler);
+        valueHandlerMap.put(LAST_CHANGED_REV, lastChangedHandler);
+        valueHandlerMap.put(LAST_CHANGED_DATE, lastChangedHandler);
     }
 
     void fillInfoRecord(final SVNInfoRecord record, final ProcessInfo subversionProcessInfo)
@@ -188,12 +242,18 @@ class SVNInfoRecordExtractor
             int index = line.indexOf(':');
             if (index > 0)
             {
-                ValueHandler valueHandler = valueHandlerMap.get(line.substring(0, index));
+                final String key = line.substring(0, index);
+                ValueHandler valueHandler = valueHandlerMap.get(key);
                 if (valueHandler != null)
                 {
-                    valueHandler.handle(record, line.substring(index + 1).trim());
+                    final String value = line.substring(index + 1).trim();
+                    valueHandler.handle(record, key, value);
                 }
             }
+        }
+        for (ValueHandler handler : valueHandlerMap.values())
+        {
+            handler.commit(record);
         }
     }
 

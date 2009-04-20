@@ -61,7 +61,7 @@ class SVNRepositoryProjectContext
 
     /**
      * @return The root url of the subversion repository. Defaults to
-     *         <code>svn+ssh://source.systemsx.ch/repos</code>.
+     *         <code>svn+ssh://svncisd.ethz.ch/repos</code>.
      */
     public String getRepositoryRoot()
     {
@@ -127,8 +127,8 @@ class SVNRepositoryProjectContext
     }
 
     /**
-     * @return The version of the project. If it ends in <code>.x</code>, it will refer to a
-     *         branch. Defaults to {@link SVNProjectVersionType#TRUNK}.
+     * @return The version of the project. If it ends in <code>.x</code>, it will refer to a branch.
+     *         Defaults to {@link SVNProjectVersionType#TRUNK}.
      */
     public String getVersion()
     {
@@ -200,8 +200,8 @@ class SVNRepositoryProjectContext
      * Sets the {@link SVNProjectVersionType} to {@link SVNProjectVersionType#RELEASE_TAG} and the
      * version to <var>tagName</var>.
      * 
-     * @throws UserFailureException If the <var>tagName</var> does not match the pattern for
-     *             release tags.
+     * @throws UserFailureException If the <var>tagName</var> does not match the pattern for release
+     *             tags.
      */
     public void setReleaseTag(String tagName) throws UserFailureException
     {
@@ -209,7 +209,8 @@ class SVNRepositoryProjectContext
 
         if (false == isReleaseTag(tagName))
         {
-            throw new UserFailureException("Release tag name '" + tagName + "' does not match the pattern.");
+            throw new UserFailureException("Release tag name '" + tagName
+                    + "' does not match the pattern.");
         }
         this.versionType = SVNProjectVersionType.RELEASE_TAG;
         this.version = tagName;
@@ -227,8 +228,8 @@ class SVNRepositoryProjectContext
      * Sets the {@link SVNProjectVersionType} to {@link SVNProjectVersionType#SPRINT_TAG} and the
      * version to <var>tagName</var>.
      * 
-     * @throws UserFailureException If the <var>tagName</var> does not match the pattern for
-     *             sprint tags.
+     * @throws UserFailureException If the <var>tagName</var> does not match the pattern for sprint
+     *             tags.
      */
     public void setSprintTag(String tagName) throws UserFailureException
     {
@@ -236,13 +237,13 @@ class SVNRepositoryProjectContext
 
         if (false == isSprintTag(tagName))
         {
-            throw new UserFailureException("Sprint tag name '" + tagName + "' does not match the pattern.");
+            throw new UserFailureException("Sprint tag name '" + tagName
+                    + "' does not match the pattern.");
         }
         this.versionType = SVNProjectVersionType.SPRINT_TAG;
         this.version = tagName;
     }
 
-    
     /**
      * @return <code>true</code> if <var>versionName</var> is a sprint tag.
      */
@@ -344,7 +345,7 @@ class SVNRepositoryProjectContext
                     {
                         throw new UserFailureException("Sub-project name must not be empty.");
                     }
-                    if (subProjectName.indexOf('/') >= 0 || subProjectName.indexOf('\\') >= 0)
+                    if (subProjectName.indexOf('\\') >= 0)
                     {
                         throw UserFailureException.fromTemplate(
                                 "Sub-project '%s' contains invalid characters.", subProjectName);
@@ -352,8 +353,17 @@ class SVNRepositoryProjectContext
 
                     if (SVNProjectVersionType.TRUNK == versionType)
                     {
-                        return StringUtils.join(Arrays.asList(getRepositoryUrl(), subProjectName,
-                                SVNUtilities.DEFAULT_VERSION), "/");
+                        if (subProjectName.startsWith(SVNUtilities.LIBRARIES)
+                                && subProjectName.equals(SVNUtilities.LIBRARIES) == false)
+                        {
+                            return StringUtils.join(Arrays.asList(getRepositoryUrl(),
+                                    SVNUtilities.LIBRARIES_TRUNK, subProjectName
+                                            .substring(SVNUtilities.LIBRARIES.length() + 1)), "/");
+                        } else
+                        {
+                            return StringUtils.join(Arrays.asList(getRepositoryUrl(),
+                                    subProjectName, SVNUtilities.DEFAULT_VERSION), "/");
+                        }
                     } else
                     {
                         return StringUtils.join(Arrays.asList(getRepositoryUrl(), subProjectName),

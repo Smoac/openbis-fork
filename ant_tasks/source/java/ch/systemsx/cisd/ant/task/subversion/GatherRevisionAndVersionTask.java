@@ -147,7 +147,7 @@ public class GatherRevisionAndVersionTask extends Property
     private Set<String> collectProjects(final ISVNActions actions)
     {
         final ISVNProjectPathProvider pathProvider = createPathProvider(getProject().getBaseDir());
-        return new SVNDependentProjectsCollector(pathProvider, actions)
+        return new SVNDependentProjectsCollector(pathProvider, actions, true)
                 .collectDependentProjectsFromClasspath();
     }
 
@@ -166,6 +166,10 @@ public class GatherRevisionAndVersionTask extends Property
             if (versions.size() == 0)
             {
                 throw new BuildException("Couldn't determine version.");
+            }
+            if (versions.size() > 1)
+            {
+                throw new BuildException("Versions are inconsistent.");
             }
             addProperty(versionProperty, versions.iterator().next());
         }
@@ -207,18 +211,25 @@ public class GatherRevisionAndVersionTask extends Property
     private void addVersion(final HashSet<String> versions, final SVNInfoRecord info)
     {
         final String repositoryURL = info.getRepositoryUrl();
-        if (repositoryURL.endsWith("/trunk"))
+        if (repositoryURL.indexOf("/trunk") >= 0)
         {
             versions.add(TRUNK_VERSION);
         } else
         {
-            final int endIndex = repositoryURL.lastIndexOf('/');
+            int endIndex = repositoryURL.lastIndexOf('/');
             if (endIndex >= 0)
             {
-                final int startIndex = repositoryURL.lastIndexOf('/', endIndex - 1);
+                int startIndex = repositoryURL.lastIndexOf('/', endIndex - 1);
                 if (startIndex >= 0)
                 {
-                    versions.add(repositoryURL.substring(startIndex + 1, endIndex));
+                    String version = repositoryURL.substring(startIndex + 1, endIndex);
+                    if (SVNUtilities.LIBRARIES.equals(version))
+                    {
+                        endIndex = startIndex;
+                        startIndex = repositoryURL.lastIndexOf('/', endIndex - 1);
+                        version = repositoryURL.substring(startIndex + 1, endIndex);
+                    }
+                    versions.add(version);
                 }
             }
         }

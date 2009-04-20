@@ -103,7 +103,16 @@ class SVNInfoRecord
 
             public void setRepositoryUUID(String repositoryUUID)
             {
-                SVNInfoRecord.this.repositoryUUID = repositoryUUID;
+                if (SVNInfoRecord.this.repositoryUUID == null)
+                {
+                    SVNInfoRecord.this.repositoryUUID = repositoryUUID;
+                } else
+                {
+                    if (SVNInfoRecord.this.repositoryUUID.equals(repositoryUUID) == false)
+                    {
+                        throw new SVNException("Found working copies from different repositories.");
+                    }
+                }
             }
 
             public void setRepositoryUrl(String repositoryUrl)

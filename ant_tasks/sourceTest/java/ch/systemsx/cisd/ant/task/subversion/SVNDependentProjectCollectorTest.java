@@ -134,7 +134,7 @@ public class SVNDependentProjectCollectorTest
     {
         final SVNDependentProjectsCollector collector =
                 new SVNDependentProjectsCollector(pathProvider, new MockSVNRepositoryActions(
-                        listMap, catMap));
+                        listMap, catMap), true);
         return collector;
     }
 
@@ -184,8 +184,8 @@ public class SVNDependentProjectCollectorTest
                                 + "</classpath>\n" + "");
         SVNDependentProjectsCollector collector = createCollector(pathProvider, listMap, catMap);
         final Set<String> projectsExpected =
-                new HashSet<String>(Arrays.asList("proj1", "proj2", "proj3", "libraries",
-                        "build_resources"));
+                new HashSet<String>(Arrays.asList("proj1", "proj2", "proj3",
+                        "libraries/activation", "libraries/mail", "build_resources"));
         final Set<String> projectsFound = collector.collectDependentProjectsFromClasspath();
         assertEquals(projectsExpected, projectsFound);
     }
@@ -236,7 +236,7 @@ public class SVNDependentProjectCollectorTest
         SVNDependentProjectsCollector collector = createCollector(pathProvider, listMap, catMap);
         final Set<String> projectsExpected =
                 new HashSet<String>(Arrays.asList("proj1", "proj2", "proj3", "build_resources",
-                        "libraries"));
+                        "libraries/activation", "libraries/mail"));
         final Set<String> projectsFound = collector.collectDependentProjectsFromClasspath();
         assertEquals(projectsExpected, projectsFound);
     }
