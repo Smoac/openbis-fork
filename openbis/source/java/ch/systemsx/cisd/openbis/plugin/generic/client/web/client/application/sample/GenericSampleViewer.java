@@ -98,7 +98,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
     private Grid<SampleModel> partOfSamplesGrid;
 
-    private IDelegatedAction hideComponentsPanelAction;
+    private IDelegatedAction showComponentsPanelAction;
 
     private final String sampleIdentifier;
 
@@ -151,25 +151,26 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         partOfSamplesGrid.setId(getId() + COMPONENTS_POSTFIX);
         partOfSamplesGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         partOfSamplesGrid.setLoadMask(true);
-        partOfSamplesGrid.setVisible(false);
         componentsPanel.add(partOfSamplesGrid);
+        componentsPanel.setVisible(false);
         container.add(componentsPanel, new RowData(1, defaultHeight, new Margins(5, 5, 0, 0)));
         // External data
         final ContentPanel externalDataPanel =
                 createContentPanel(viewContext.getMessage(Dict.EXTERNAL_DATA_HEADING));
         disposableBrowser =
                 SampleDataSetBrowser.create(viewContext, sampleIdentifier, getId() + DATA_POSTFIX);
+        // external data panel has the height doubled when components panel is not visible
         externalDataPanel.add(disposableBrowser.getComponent());
-        final RowData externalDataRow = new RowData(1, defaultHeight, new Margins(5, 5, 0, 0));
+        final RowData externalDataRow = new RowData(1, 2 * defaultHeight, new Margins(5, 5, 0, 0));
         container.add(externalDataPanel, externalDataRow);
 
-        hideComponentsPanelAction = new IDelegatedAction()
+        showComponentsPanelAction = new IDelegatedAction()
             {
                 public void execute()
                 {
-                    componentsPanel.hide();
-                    // external data panel doubles its height to fill the free space
-                    externalDataRow.setHeight(2 * defaultHeight);
+                    componentsPanel.setVisible(true);
+                    // switching back to default size of external data panel
+                    externalDataRow.setHeight(defaultHeight);
                     container.layout();
                 }
 
@@ -220,7 +221,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
                     viewContext.getCommonService().listSamples(
                             sampleCriteria,
                             new ListSamplesCallback(viewContext, callback,
-                                    hideComponentsPanelAction));
+                                    showComponentsPanelAction));
                 }
             };
     }
@@ -358,7 +359,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     {
         private final AsyncCallback<BaseListLoadResult<SampleModel>> delegate;
 
-        private final IDelegatedAction noResultsAction;
+        private final IDelegatedAction showResultsAction;
 
         ListSamplesCallback(final IViewContext<IGenericClientServiceAsync> viewContext,
                 final AsyncCallback<BaseListLoadResult<SampleModel>> callback,
@@ -366,7 +367,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         {
             super(viewContext);
             this.delegate = callback;
-            this.noResultsAction = noResultsAction;
+            this.showResultsAction = noResultsAction;
         }
 
         //
@@ -382,15 +383,13 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         @Override
         protected final void process(final ResultSet<Sample> result)
         {
-            if (result.getTotalLength() == 0)
+            final List<SampleModel> sampleModels = SampleModel.asSampleModels(result.getList());
+            final BaseListLoadResult<SampleModel> baseListLoadResult =
+                    new BaseListLoadResult<SampleModel>(sampleModels);
+            delegate.onSuccess(baseListLoadResult);
+            if (result.getTotalLength() > 0)
             {
-                noResultsAction.execute();
-            } else
-            {
-                final List<SampleModel> sampleModels = SampleModel.asSampleModels(result.getList());
-                final BaseListLoadResult<SampleModel> baseListLoadResult =
-                        new BaseListLoadResult<SampleModel>(sampleModels);
-                delegate.onSuccess(baseListLoadResult);
+                showResultsAction.execute();
             }
         }
     }
