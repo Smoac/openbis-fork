@@ -219,8 +219,8 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         if (sample.getGroup() == null)
         {
             throw UserFailureException.fromTemplate(
-                    "The sample '%s' has to belong to a group to be registered in the experiment.",
-                    sample.getSampleIdentifier());
+                    "The sample '%s' is shared and cannot be assigned to any experiment.", sample
+                            .getSampleIdentifier());
         }
     }
 
