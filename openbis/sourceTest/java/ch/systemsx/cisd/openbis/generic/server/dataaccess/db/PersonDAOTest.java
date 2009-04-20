@@ -27,7 +27,6 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.test.annotation.NotTransactional;
 import org.springframework.test.annotation.Rollback;
 import org.testng.annotations.Test;
 
@@ -60,7 +59,6 @@ public final class PersonDAOTest extends AbstractDAOTest
     }
 
     @Test
-    @NotTransactional
     public final void testCreatePersonWithAnotherDatabaseInstance()
     {
         final IPersonDAO personDAO = daoFactory.getPersonDAO();
@@ -148,9 +146,9 @@ public final class PersonDAOTest extends AbstractDAOTest
 
     }
 
-    @Test(dependsOnMethods = "testCreatePersonWithAnotherDatabaseInstance")
     public final void testListPersons()
     {
+        testCreatePersonWithAnotherDatabaseInstance();
         final IPersonDAO personDAO = daoFactory.getPersonDAO();
         final List<PersonPE> list = personDAO.listPersons();
         assertTrue(list.size() > 0);
