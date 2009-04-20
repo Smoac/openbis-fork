@@ -38,6 +38,7 @@ import javax.persistence.UniqueConstraint;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
@@ -93,6 +94,8 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
 
     private Set<RoleAssignmentPE> roleAssignments = new HashSet<RoleAssignmentPE>();
 
+    private byte[] serializedDisplaySettings;
+    
     private final void setSystemUser(final boolean systemUser)
     {
         this.systemUser = systemUser;
@@ -231,6 +234,18 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
         assert roleAssignment != null : "Unspecified role assignment.";
         getRoleAssignmentsInternal().remove(roleAssignment);
         roleAssignment.setPersonInternal(null);
+    }
+    
+    @Column(name = ColumnNames.PERSON_DISPLAY_SETTINGS, updatable = false)
+    @Type(type = "org.springframework.orm.hibernate3.support.BlobByteArrayType")
+    public byte[] getSerializedDisplaySettings()
+    {
+        return serializedDisplaySettings;
+    }
+
+    public void setSerializedDisplaySettings(final byte[] value)
+    {
+        this.serializedDisplaySettings = value;
     }
 
     //

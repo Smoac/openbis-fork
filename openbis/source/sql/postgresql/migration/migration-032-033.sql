@@ -19,7 +19,7 @@ values
 (nextval('FILE_FORMAT_TYPE_ID_SEQ')
 ,'HDF5'
 ,'Hierarchical Data Format File, version 5'
-,(select id from database_instances where code = 'SYSTEM_DEFAULT')
+,(select id from database_instances where is_original_source = 'T')
 );
 
 insert into file_format_types
@@ -31,7 +31,7 @@ values
 (nextval('FILE_FORMAT_TYPE_ID_SEQ')
 ,'PROPRIETARY'
 ,'Proprietary Format File'
-,(select id from database_instances where code = 'SYSTEM_DEFAULT')
+,(select id from database_instances where is_original_source = 'T')
 );
 
 insert into file_format_types
@@ -43,7 +43,7 @@ values
 (nextval('FILE_FORMAT_TYPE_ID_SEQ')
 ,'SRF'
 ,'Sequence Read Format File'
-,(select id from database_instances where code = 'SYSTEM_DEFAULT')
+,(select id from database_instances where is_original_source = 'T')
 );
 
 insert into file_format_types
@@ -55,7 +55,7 @@ values
 (nextval('FILE_FORMAT_TYPE_ID_SEQ')
 ,'TSV'
 ,'Tab Separated Values File'
-,(select id from database_instances where code = 'SYSTEM_DEFAULT')
+,(select id from database_instances where is_original_source = 'T')
 );
 
 insert into file_format_types
@@ -67,6 +67,6 @@ values
 (nextval('FILE_FORMAT_TYPE_ID_SEQ')
 ,'XML'
 ,'XML File'
-,(select id from database_instances where code = 'SYSTEM_DEFAULT')
+,(select id from database_instances where is_original_source = 'T')
 );
 

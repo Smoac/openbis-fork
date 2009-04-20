@@ -132,6 +132,8 @@ public final class ColumnNames {
 	public static final String PERSON_GRANTEE_COLUMN = "pers_id_grantee";
 
 	public static final String PERSON_LEADER_COLUMN = "pers_id_leader";
+	
+	public static final String PERSON_DISPLAY_SETTINGS = "display_settings";
 
 	public static final String PERSON_REGISTERER_COLUMN = "pers_id_registerer";
 
