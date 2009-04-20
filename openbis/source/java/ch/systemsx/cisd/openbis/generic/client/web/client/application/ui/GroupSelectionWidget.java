@@ -109,6 +109,7 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
                 if (homeGroupIndex > -1)
                 {
                     setValue(groupStore.getAt(homeGroupIndex));
+                    setOriginalValue(getValue());
                 }
             } else
             {
