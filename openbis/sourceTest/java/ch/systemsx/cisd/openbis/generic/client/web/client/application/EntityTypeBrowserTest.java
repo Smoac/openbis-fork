@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.EntityTypeColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeGrid;
@@ -58,6 +59,15 @@ public class EntityTypeBrowserTest extends AbstractGWTTestCase
                 new CheckTableCommand(ExperimentTypeGrid.GRID_ID,
                         ExperimentTypeGrid.ListEntitiesCallback.class);
         checkGridRows(table, "SIRNA_HCS", 2);
+    }
+
+    public final void testListDataSetTypes()
+    {
+        loginAndGotoTab(ActionMenuKind.DATA_SET_MENU_TYPES);
+        CheckTableCommand table =
+                new CheckTableCommand(DataSetTypeGrid.GRID_ID,
+                        DataSetTypeGrid.ListEntitiesCallback.class);
+        checkGridRows(table, "HCS_IMAGE_ANALYSIS_DATA", 3);
     }
 
     private void checkGridRows(CheckTableCommand table, String expectedCode, int expectedRowsNum)
