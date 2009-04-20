@@ -23,14 +23,16 @@
                 <include name="**/*.class" />
                 <include name="${build.info.filename}" />
             </fileset>
-	    			<zipfileset src="${lib}/cisd-base/cisd-base.jar" />
+	          <zipfileset src="${lib}/cisd-base/cisd-base.jar">
+                <exclude name="${build.info.filename}" />
+            </zipfileset>
             <manifest>
                 <attribute name="Main-Class" value="ch.systemsx.cisd.base.utilities.BuildAndEnvironmentInfo" />
                 <attribute name="Version" value="${version.number}" />
                 <attribute name="Build-Number" value="${version.number} (r${revision.number},${clean.flag})" />
             </manifest>
         </recursive-jar>
-	</target>
+  </target>
  
   <target name="dist" depends="jar">
     <mkdir dir="${dist}"/> 
