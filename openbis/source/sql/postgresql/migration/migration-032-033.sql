@@ -1,3 +1,11 @@
+-- -------
+-- Modify PERSON
+-- -------
+
+ALTER TABLE persons
+    ADD COLUMN display_settings file;
+
+
 -------------------------------------------------------------------------
 --  Purpose:  Insert additional initial data set into the table FILE_FORMAT_TYPES
 -------------------------------------------------------------------------
@@ -61,3 +69,4 @@ values
 ,'XML File'
 ,(select id from database_instances where code = 'SYSTEM_DEFAULT')
 );
+
