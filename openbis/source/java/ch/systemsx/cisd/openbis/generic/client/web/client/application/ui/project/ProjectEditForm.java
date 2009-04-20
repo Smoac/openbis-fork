@@ -42,7 +42,7 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
 
     protected ProjectEditForm(IViewContext<ICommonClientServiceAsync> viewContext, Project project)
     {
-        super(viewContext, project.getId());
+        super(viewContext, project.getId(), project.getGroup().getCode());
         this.project = project;
     }
 
@@ -84,7 +84,6 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
     {
         projectDescriptionField.setValue(project.getDescription());
         groupField.setEnabled(false);
-        groupField.setVisible(false);
         projectCodeField.setValue(project.getCode());
         projectCodeField.setEnabled(false);
     }
@@ -93,6 +92,7 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
     {
         projectDescriptionField.setOriginalValue(projectDescriptionField.getValue());
         projectCodeField.setOriginalValue(projectCodeField.getValue());
+        groupField.setOriginalValue(groupField.getValue());
     }
 
 }

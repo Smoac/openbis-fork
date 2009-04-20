@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.GroupModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
@@ -48,6 +49,8 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
 
     private final IViewContext<?> viewContext;
 
+    private final String initialGroupOrNull;
+
     public static final boolean isSharedGroup(Group g)
     {
         return SHARED_GROUP_CODE.equals(g.getCode());
@@ -60,10 +63,18 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
     public GroupSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
             boolean addShared)
     {
+        this(viewContext, idSuffix, addShared, null);
+    }
+
+    public GroupSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
+            boolean addShared, final String initialGroupCodeOrNull)
+    {
         super(viewContext, SUFFIX + idSuffix, Dict.GROUP, ModelDataPropertyNames.CODE,
                 CHOOSE_SUFFIX, EMPTY_RESULT_SUFFIX);
         this.viewContext = viewContext;
         this.addShared = addShared;
+        this.initialGroupOrNull = initialGroupCodeOrNull;
+
     }
 
     /**
@@ -105,11 +116,19 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
             {
                 setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, CHOOSE_SUFFIX));
                 setReadOnly(false);
-                final int homeGroupIndex = getHomeGroupIndex(groupStore);
-                if (homeGroupIndex > -1)
+                if (initialGroupOrNull != null)
                 {
-                    setValue(groupStore.getAt(homeGroupIndex));
+                    GWTUtils.setSelectedItem(GroupSelectionWidget.this,
+                            ModelDataPropertyNames.CODE, initialGroupOrNull);
                     setOriginalValue(getValue());
+                } else
+                {
+                    final int homeGroupIndex = getHomeGroupIndex(groupStore);
+                    if (homeGroupIndex > -1)
+                    {
+                        setValue(groupStore.getAt(homeGroupIndex));
+                        setOriginalValue(getValue());
+                    }
                 }
             } else
             {

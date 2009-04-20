@@ -28,8 +28,8 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
  * could be use for sorting when using <i>Result Set</i>.
  * </p>
  * <p>
- * <b>Important note</b>: Do not put a <code>_</code> in the property name except for specifying
- * a field path.
+ * <b>Important note</b>: Do not put a <code>_</code> in the property name except for specifying a
+ * field path.
  * </p>
  * 
  * @author Christian Ribeaud

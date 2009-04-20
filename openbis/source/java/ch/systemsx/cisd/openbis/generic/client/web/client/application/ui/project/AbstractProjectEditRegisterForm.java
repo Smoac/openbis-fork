@@ -65,7 +65,14 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
     abstract protected void setValues();
 
     protected AbstractProjectEditRegisterForm(
-            final IViewContext<ICommonClientServiceAsync> viewContext, Long projectIdOrNull)
+            final IViewContext<ICommonClientServiceAsync> viewContext)
+    {
+        this(viewContext, null, null);
+    }
+
+    protected AbstractProjectEditRegisterForm(
+            final IViewContext<ICommonClientServiceAsync> viewContext, Long projectIdOrNull,
+            String groupCodeOrNull)
     {
         super(viewContext, createId(projectIdOrNull), DEFAULT_LABEL_WIDTH + 20, DEFAULT_FIELD_WIDTH);
         sessionKey = createId(projectIdOrNull);
@@ -73,7 +80,7 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
                 new AttachmentManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS, "Attachment");
         this.viewContext = viewContext;
         projectCodeField = createProjectCodeField();
-        groupField = createGroupField();
+        groupField = createGroupField(groupCodeOrNull);
         projectDescriptionField = createProjectDescriptionField();
         addUploadFeatures(formPanel, sessionKey);
     }
@@ -107,9 +114,9 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
         return varcharField;
     }
 
-    private final GroupSelectionWidget createGroupField()
+    private final GroupSelectionWidget createGroupField(String code)
     {
-        GroupSelectionWidget field = new GroupSelectionWidget(viewContext, getId(), false);
+        GroupSelectionWidget field = new GroupSelectionWidget(viewContext, getId(), false, code);
         FieldUtil.markAsMandatory(field);
         field.setFieldLabel(viewContext.getMessage(Dict.GROUP));
         return field;
