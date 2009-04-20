@@ -42,8 +42,6 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
 
     private static final String EXP_REUSE = "EXP-REUSE";
 
-    private static final String CISD_CISD_DEFAULT = "CISD:/CISD/DEFAULT";
-
     private static final String SIRNA_HCS = "SIRNA_HCS";
 
     private void prepareShowExperiment(final String projectName, final String experimentTypeName,
@@ -57,8 +55,10 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
     public final void testDownloadAttachment()
     {
         prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_REUSE);
-        remoteConsole.prepare(new ClickDownloadAttachmentCmdTest("cellPlates.txt",
-                CISD_CISD_DEFAULT + "/" + EXP_REUSE));
+        //
+        // Assumption: technicalId(CISD:/CISD/DEFAULT/EXP_REUSE) = 8
+        //
+        remoteConsole.prepare(new ClickDownloadAttachmentCmdTest("cellPlates.txt", 8L));
 
         // this callback will be used when the attempt to open an URL will occur
         OpenedUrlCallback openedUrlCallback = new OpenedUrlCallback(client.tryToGetViewContext());

@@ -61,8 +61,6 @@ public class AttachmentsSection extends SectionPanel
     public static final String ATTACHMENTS_ID_PREFIX =
             GenericConstants.ID_PREFIX + "attachment-section_";
 
-    // FIXME: add attachmentHolderKind
-
     private final IAttachmentHolder attachmentHolder;
 
     private final IMessageProvider messageProvider;
@@ -153,15 +151,15 @@ public class AttachmentsSection extends SectionPanel
                     return files;
                 }
             });
-        attachmentGrid.setId(createAttachmentGridId(attachmentHolder.getIdentifier(),
-                attachmentHolder.getAttachmentHolderKind()));
+        attachmentGrid.setId(createAttachmentGridId(attachmentHolder.getId(), attachmentHolder
+                .getAttachmentHolderKind()));
         return attachmentGrid;
     }
 
     // @Private
-    public static String createAttachmentGridId(String identifier, AttachmentHolderKind kind)
+    public static String createAttachmentGridId(Long id, AttachmentHolderKind kind)
     {
-        return ATTACHMENTS_ID_PREFIX + kind.name() + identifier;
+        return ATTACHMENTS_ID_PREFIX + kind.name() + id;
     }
 
     private List<ColumnConfig> defineAttachmentVersionColumns()

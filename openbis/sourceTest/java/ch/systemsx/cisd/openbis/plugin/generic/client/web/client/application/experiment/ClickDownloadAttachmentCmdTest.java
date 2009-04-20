@@ -42,12 +42,12 @@ public class ClickDownloadAttachmentCmdTest extends AbstractDefaultTestCommand
 
     private final String fileName;
 
-    private final String experimentIdentifier;
+    private final Long experimentId;
 
-    public ClickDownloadAttachmentCmdTest(final String fileName, final String experimentIdentifier)
+    public ClickDownloadAttachmentCmdTest(final String fileName, final Long experimentId)
     {
         this.fileName = fileName;
-        this.experimentIdentifier = experimentIdentifier;
+        this.experimentId = experimentId;
         addCallbackClass(ExperimentInfoCallback.class);
         addCallbackClass(SampleBrowserGrid.ListEntitiesCallback.class);
     }
@@ -56,7 +56,7 @@ public class ClickDownloadAttachmentCmdTest extends AbstractDefaultTestCommand
     public void execute()
     {
         String attachmentGridId =
-                AttachmentsSection.createAttachmentGridId(experimentIdentifier,
+                AttachmentsSection.createAttachmentGridId(experimentId,
                         AttachmentHolderKind.EXPERIMENT);
         final Widget widget = GWTTestUtil.getWidgetWithID(attachmentGridId);
         final Grid<AttachmentModel> table = (Grid<AttachmentModel>) widget;

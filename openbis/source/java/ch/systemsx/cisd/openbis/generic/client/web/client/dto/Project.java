@@ -37,6 +37,18 @@ public class Project extends CodeWithRegistration<Project> implements IAttachmen
 
     private String identifier;
 
+    private Long id;
+
+    public Long getId()
+    {
+        return id;
+    }
+
+    public void setId(Long id)
+    {
+        this.id = id;
+    }
+
     private List<Attachment> attachments;
 
     public AttachmentHolderKind getAttachmentHolderKind()

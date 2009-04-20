@@ -27,5 +27,7 @@ public interface IAttachmentHolder
 
     public String getIdentifier();
 
+    public Long getId();
+
     public List<Attachment> getAttachments();
 }
