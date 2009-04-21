@@ -21,6 +21,7 @@ import com.google.gwt.user.client.rpc.RemoteService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
 /**
  * The basic <i>GWT</i> client service interface.
@@ -48,10 +49,10 @@ public interface IClientService extends RemoteService
      * returned.
      */
     public SessionContext tryToLogin(String userID, String password) throws UserFailureException;
-
+    
     /**
      * Logs out.
      */
-    public void logout();
+    public void logout(DisplaySettings displaySettings);
 
 }

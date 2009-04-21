@@ -20,6 +20,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
 /**
  * @author Christian Ribeaud
@@ -27,16 +28,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 public interface IClientServiceAsync
 {
 
-    /** @see ICommonClientService#getApplicationInfo() */
+    /** @see IClientService#getApplicationInfo() */
     public void getApplicationInfo(AsyncCallback<ApplicationInfo> callback);
 
-    /** @see ICommonClientService#tryToGetCurrentSessionContext() */
+    /** @see IClientService#tryToGetCurrentSessionContext() */
     public void tryToGetCurrentSessionContext(AsyncCallback<SessionContext> callback);
 
-    /** @see ICommonClientService#tryToLogin(String, String) */
+    /** @see IClientService#tryToLogin(String, String) */
     public void tryToLogin(String userID, String password, AsyncCallback<SessionContext> callback);
 
-    /** @see ICommonClientService#logout() */
-    public void logout(AsyncCallback<Void> callback);
+    /** @see IClientService#logout(DisplaySettings) */
+    public void logout(DisplaySettings displaySettings, AsyncCallback<Void> callback);
 
 }

@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.sampl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
 /**
  * Implements functionality of the top menu.
@@ -174,7 +175,10 @@ public class TopMenu extends LayoutContainer
                             @Override
                             public final void componentSelected(final ComponentEvent ce)
                             {
-                                viewContext.getService().logout(
+                                DisplaySettings displaySettings =
+                                        viewContext.getModel().getSessionContext()
+                                                .getDisplaySettings();
+                                viewContext.getService().logout(displaySettings,
                                         new AbstractAsyncCallback<Void>(viewContext)
                                             {
 

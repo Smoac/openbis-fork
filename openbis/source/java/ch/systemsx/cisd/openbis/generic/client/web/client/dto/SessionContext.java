@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+
 /**
  * 
  *
@@ -27,6 +29,7 @@ public class SessionContext implements IsSerializable
 {
     private User user;
     private String sessionID;
+    private DisplaySettings displaySettings;
 
     public final User getUser()
     {
@@ -47,4 +50,16 @@ public class SessionContext implements IsSerializable
     {
         this.sessionID = sessionID;
     }
+
+    public final DisplaySettings getDisplaySettings()
+    {
+        return displaySettings;
+    }
+
+    public final void setDisplaySettings(DisplaySettings displaySettings)
+    {
+        this.displaySettings = displaySettings;
+    }
+
+    
 }

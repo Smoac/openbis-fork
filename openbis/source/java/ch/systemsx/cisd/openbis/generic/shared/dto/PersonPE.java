@@ -16,6 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -51,6 +56,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
@@ -93,6 +99,8 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     private DatabaseInstancePE databaseInstance;
 
     private Set<RoleAssignmentPE> roleAssignments = new HashSet<RoleAssignmentPE>();
+    
+    private DisplaySettings displaySettings;
 
     private byte[] serializedDisplaySettings;
     
@@ -236,14 +244,48 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
         roleAssignment.setPersonInternal(null);
     }
     
-    @Column(name = ColumnNames.PERSON_DISPLAY_SETTINGS, updatable = false)
+    @Transient
+    public DisplaySettings getDisplaySettings()
+    {
+        if (displaySettings == null)
+        {
+            displaySettings = new DisplaySettings();
+            byte[] serializedSettings = getSerializedDisplaySettings();
+            if (serializedSettings != null)
+            {
+                ByteArrayInputStream bais = new ByteArrayInputStream(serializedSettings);
+                try {
+                    displaySettings = (DisplaySettings) new ObjectInputStream(bais).readObject();
+                } catch (Exception ex) {
+                    // ignored using default settings
+                }
+            }
+        }
+        return displaySettings;
+    }
+    
+    public void setDisplaySettings(DisplaySettings displaySettings)
+    {
+        this.displaySettings = displaySettings;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            new ObjectOutputStream(baos).writeObject(displaySettings);
+            setSerializedDisplaySettings(baos.toByteArray());
+        } catch (IOException ex) {
+            setSerializedDisplaySettings(null);
+        }
+
+    }
+    
+    @Column(name = ColumnNames.PERSON_DISPLAY_SETTINGS, updatable = true)
     @Type(type = "org.springframework.orm.hibernate3.support.BlobByteArrayType")
-    public byte[] getSerializedDisplaySettings()
+    @SuppressWarnings("unused")
+    private byte[] getSerializedDisplaySettings()
     {
         return serializedDisplaySettings;
     }
 
-    public void setSerializedDisplaySettings(final byte[] value)
+    private void setSerializedDisplaySettings(final byte[] value)
     {
         this.serializedDisplaySettings = value;
     }
@@ -302,6 +344,10 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
         builder.append("lastName", lastName);
         builder.append("email", email);
         builder.append("systemUser", systemUser);
+        if (serializedDisplaySettings != null)
+        {
+            builder.append("displaySettings", "<" + serializedDisplaySettings.length + " bytes>"); 
+        }
         builder.append(getDatabaseInstance());
         return builder.toString();
     }

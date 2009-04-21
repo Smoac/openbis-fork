@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -79,6 +80,8 @@ public abstract class AbstractClientService implements IClientService
         final PersonPE person = session.tryGetPerson();
         if (person != null)
         {
+            DisplaySettings displaySettings = person.getDisplaySettings();
+            sessionContext.setDisplaySettings(displaySettings);
             final GroupPE homeGroup = person.getHomeGroup();
             if (homeGroup != null)
             {
@@ -212,7 +215,7 @@ public abstract class AbstractClientService implements IClientService
         }
     }
 
-    public final void logout()
+    public final void logout(DisplaySettings displaySettings)
     {
         try
         {
@@ -225,7 +228,10 @@ public abstract class AbstractClientService implements IClientService
                 httpSession.removeAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
                 httpSession.removeAttribute(SessionConstants.OPENBIS_EXPORT_MANAGER);
                 httpSession.invalidate();
-                getServer().logout(session.getSessionToken());
+                String sessionToken = session.getSessionToken();
+                IServer server = getServer();
+                server.saveDisplaySettings(sessionToken, displaySettings);
+                server.logout(sessionToken);
             }
         } catch (final UserFailureException e)
         {

@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.SampleServerPluginRegistry;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
@@ -232,5 +233,16 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
             daoFactory.getPersonDAO().updatePerson(person);
         }
         return session;
+    }
+
+    public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        PersonPE person = session.tryGetPerson();
+        if (person != null)
+        {
+            person.setDisplaySettings(displaySettings);
+            getDAOFactory().getPersonDAO().updatePerson(person);
+        }
     }
 }

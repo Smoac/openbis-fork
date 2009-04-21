@@ -23,6 +23,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -130,6 +131,11 @@ public abstract class AbstractServerLogger implements IServer
     public final void logout(final String sessionToken) throws UserFailureException
     {
         // No logging because already done by the session manager
+    }
+
+    public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings)
+    {
+        logTracking(sessionToken, "save_display_settings", "");
     }
 
 }

@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
@@ -42,6 +43,9 @@ public interface IServer extends ISessionProvider
      */
     @Transactional
     public Session tryToAuthenticate(final String user, final String password);
+    
+    @Transactional
+    public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings);
 
     /**
      * Logout the session with the specified session token.
