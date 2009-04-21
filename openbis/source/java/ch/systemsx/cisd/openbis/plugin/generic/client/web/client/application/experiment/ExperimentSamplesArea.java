@@ -49,8 +49,13 @@ final class ExperimentSamplesArea extends TextArea
         return idPrefix + ID_SUFFIX_SAMPLES;
     }
 
-    public final String[] getSampleCodes()
+    // null if the area has not been modified, the list of all sample codes otherwise
+    public final String[] tryGetSampleCodes()
     {
+        if (isDirty() == false)
+        {
+            return null;
+        }
         String text = getValue();
         if (StringUtils.isBlank(text) == false)
         {

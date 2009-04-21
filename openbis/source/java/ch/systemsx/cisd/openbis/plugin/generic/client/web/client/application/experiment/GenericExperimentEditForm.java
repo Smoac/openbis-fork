@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityEditForm;
 
@@ -185,14 +186,18 @@ public final class GenericExperimentEditForm
 
     private void save()
     {
-        final List<ExperimentProperty> properties = extractProperties();
-        final String newProjectIdentifier = extractIdentifier();
-        viewContext.getCommonService().updateExperiment(sessionKey, entity.getIdentifier(),
-                properties, newProjectIdentifier, entity.getModificationDate(),
+        ExperimentUpdates updates = new ExperimentUpdates();
+        updates.setExperimentIdentifier(entity.getIdentifier());
+        updates.setVersion(entity.getModificationDate());
+        updates.setProperties(extractProperties());
+        updates.setProjectIdentifier(extractProjectIdentifier());
+        updates.setAttachmentSessionKey(sessionKey);
+        updates.setSampleCodes(samplesArea.tryGetSampleCodes());
+        viewContext.getCommonService().updateExperiment(updates,
                 new RegisterExperimentCallback(viewContext));
     }
 
-    private String extractIdentifier()
+    private String extractProjectIdentifier()
     {
         return projectChooser.tryGetSelectedProject().getIdentifier();
     }
@@ -264,7 +269,11 @@ public final class GenericExperimentEditForm
         originalProjectIdentifier = projectChooser.tryGetSelectedProject().getIdentifier();
         entity.setIdentifier(originalProjectIdentifier + "/" + entity.getCode());
         attachmentsInfo.setHtml(getAttachmentInfoText(attachmentManager.attachmentsDefined()));
-        samplesInfo.setHtml(viewContext.getMessage(Dict.SAMPLES) + ": " + samplesArea.getValue());
+        if (samplesArea.tryGetSampleCodes() != null)
+        {
+            samplesInfo.setHtml(viewContext.getMessage(Dict.SAMPLES) + ": "
+                    + samplesArea.getValue());
+        }
         updateHeader();
     }
 

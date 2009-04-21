@@ -16,15 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import java.util.Date;
-import java.util.List;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
  * A generic experiment <i>Business Object</i>.
@@ -63,8 +59,7 @@ public interface IExperimentBO extends IBusinessObject
     public void addAttachment(AttachmentPE attachment);
 
     /**
-     * Changes given experiment. Currently allowed changes: properties.
+     * Changes given experiment.
      */
-    public void edit(ExperimentIdentifier identifier, List<ExperimentProperty> properties,
-            List<AttachmentPE> attachments, ProjectIdentifier newProjectIdentifier, Date version);
+    public void edit(ExperimentUpdatesDTO updates);
 }

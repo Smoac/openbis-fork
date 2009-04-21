@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnVa
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NullableGroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
@@ -36,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.MatchingE
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
@@ -439,11 +440,7 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
     public void editExperiment(
             String sessionToken,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ExperimentIdentifier experimentIdentifier,
-            List<ExperimentProperty> properties,
-            List<AttachmentPE> attachments,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier newProjectIdentifier,
-            Date version);
+            @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class) ExperimentUpdatesDTO updates);
 
     /**
      * Saves changed material.

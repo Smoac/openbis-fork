@@ -181,7 +181,7 @@ public final class GenericExperimentRegistrationForm
                 new NewExperiment(createExperimentIdentifier(), experimentType.getCode());
         final List<ExperimentProperty> properties = extractProperties();
         newExp.setProperties(properties.toArray(ExperimentProperty.EMPTY_ARRAY));
-        newExp.setSamples(samplesArea.getSampleCodes());
+        newExp.setSamples(samplesArea.tryGetSampleCodes());
         viewContext.getService().registerExperiment(SESSION_KEY, newExp,
                 new RegisterExperimentCallback(viewContext));
     }

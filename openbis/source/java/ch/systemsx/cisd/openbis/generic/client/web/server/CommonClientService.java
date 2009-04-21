@@ -80,9 +80,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
@@ -102,6 +102,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
@@ -1125,9 +1126,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void updateExperiment(String sessionKey, final String experimentIdentifier,
-            final List<ExperimentProperty> properties, final String newProjectIdentifier,
-            final Date version)
+    public void updateExperiment(final ExperimentUpdates updates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
@@ -1136,15 +1135,32 @@ public final class CommonClientService extends AbstractClientService implements
                 @Override
                 public void register(List<AttachmentPE> attachments)
                 {
-                    final ExperimentIdentifier identifier =
-                            new ExperimentIdentifierFactory(experimentIdentifier)
-                                    .createIdentifier();
-                    final ProjectIdentifier project =
-                            new ProjectIdentifierFactory(newProjectIdentifier).createIdentifier();
-                    commonServer.editExperiment(sessionToken, identifier, properties, attachments,
-                            project, version);
+                    ExperimentUpdatesDTO updatesDTO =
+                            createExperimentUpdatesDTO(updates, attachments);
+                    commonServer.editExperiment(sessionToken, updatesDTO);
                 }
-            }.process(sessionKey, getHttpSession());
+            }.process(updates.getAttachmentSessionKey(), getHttpSession());
+    }
+
+    private static ExperimentUpdatesDTO createExperimentUpdatesDTO(ExperimentUpdates updates,
+            List<AttachmentPE> attachments)
+    {
+        ExperimentUpdatesDTO updatesDTO = new ExperimentUpdatesDTO();
+
+        final ExperimentIdentifier identifier =
+                new ExperimentIdentifierFactory(updates.getExperimentIdentifier())
+                        .createIdentifier();
+        updatesDTO.setExperimentIdentifier(identifier);
+
+        final ProjectIdentifier project =
+                new ProjectIdentifierFactory(updates.getProjectIdentifier()).createIdentifier();
+        updatesDTO.setProjectIdentifier(project);
+
+        updatesDTO.setAttachments(attachments);
+        updatesDTO.setProperties(updates.getProperties());
+        updatesDTO.setSampleCodes(updates.getSampleCodes());
+        updatesDTO.setVersion(updates.getVersion());
+        return updatesDTO;
     }
 
     public void uploadDataSets(List<String> dataSetCodes, DataSetUploadParameters uploadParameters)

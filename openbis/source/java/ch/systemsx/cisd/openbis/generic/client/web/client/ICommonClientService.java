@@ -45,8 +45,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -334,7 +334,7 @@ public interface ICommonClientService extends IClientService
     public String assignPropertyType(EntityKind entityKind, String propertyTypeCode,
             String entityTypeCode, boolean isMandatory, String defaultValue)
             throws UserFailureException;
-    
+
     /**
      * Unassigns property type to entity type.
      */
@@ -404,9 +404,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Updates experiment.
      */
-    public void updateExperiment(String attachmentSessionKey, final String experimentIdentifier,
-            List<ExperimentProperty> properties, String newProjectIdentifier, Date version)
-            throws UserFailureException;
+    public void updateExperiment(ExperimentUpdates experimentUpdates) throws UserFailureException;
 
     /**
      * Updates material.

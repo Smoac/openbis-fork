@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
@@ -359,13 +360,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logTracking(sessionToken, "register_data_set_type", "CODE(%s)", entityType.getCode());
     }
 
-    public void editExperiment(String sessionToken, ExperimentIdentifier experimentIdentifier,
-            List<ExperimentProperty> properties, List<AttachmentPE> attachments,
-            ProjectIdentifier newProjectIdentifierOrNull, Date version)
+    public void editExperiment(String sessionToken, ExperimentUpdatesDTO updates)
     {
         logTracking(sessionToken, "edit_experiment",
-                "EXPERIMENT(%s) ATTACHMENTS_ADDED(%s) NEW_PROJECT(%s)", experimentIdentifier,
-                attachments.size(), newProjectIdentifierOrNull);
+                "EXPERIMENT(%s) ATTACHMENTS_ADDED(%s) NEW_PROJECT(%s) SAMPLES(%s)", updates
+                        .getExperimentIdentifier(), updates.getAttachments().size(), updates
+                        .getProjectIdentifier(), StringUtils.join(updates.getSampleCodes(), ","));
     }
 
     public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason)
@@ -393,7 +393,6 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logTracking(sessionToken, "edit_sample",
                 "SAMPLE(%s), CHANGE_TO_EXPERIMENT(%s) ATTACHMENTS(%s)", identifier,
                 experimentIdentifierOrNull, attachments.size());
-
     }
 
     public List<VocabularyTermWithStats> listVocabularyTermsWithStatistics(String sessionToken,

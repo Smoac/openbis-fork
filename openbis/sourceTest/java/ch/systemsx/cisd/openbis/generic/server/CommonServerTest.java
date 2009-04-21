@@ -34,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
@@ -53,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
@@ -91,7 +91,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     private static final String GROUP_1 = "GROUP-1";
 
     private static final String DATABASE_1 = "DATABASE-1";
-    
+
     private static final class MockExperimentTypePropertyType extends ExperimentTypePropertyTypePE
     {
         private static final long serialVersionUID = 1L;
@@ -749,7 +749,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                         entityTypeCode, mandatory, value));
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testUassignPropertyType()
     {
@@ -768,13 +768,14 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(entityTypePropertyTypeBO).deleteLoadedAssignment();
                 }
             });
-        
-        createServer().unassignPropertyType(SESSION_TOKEN, entityKind, propertyTypeCode, entityTypeCode);
-        
+
+        createServer().unassignPropertyType(SESSION_TOKEN, entityKind, propertyTypeCode,
+                entityTypeCode);
+
         context.assertIsSatisfied();
     }
-    
-    @Test 
+
+    @Test
     public void testCountPropertyTypedEntities()
     {
         prepareGetSession();
@@ -799,7 +800,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         int count =
                 createServer().countPropertyTypedEntities(SESSION_TOKEN, entityKind,
                         propertyTypeCode, entityTypeCode);
-        
+
         assertEquals(1, count);
         context.assertIsSatisfied();
     }
@@ -898,26 +899,24 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final ExperimentIdentifier identifier =
                 new ExperimentIdentifier(DATABASE_1, GROUP_1, PROJECT_1, EXP_1);
-        final List<ExperimentProperty> properties = new ArrayList<ExperimentProperty>();
-        final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
         final ProjectIdentifier newProjectIdentifier =
                 new ProjectIdentifier(DATABASE_1, GROUP_1, PROJECT_1);
+        final ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
+        updates.setExperimentIdentifier(identifier);
+        updates.setProjectIdentifier(newProjectIdentifier);
         prepareGetSession();
-        final Date version = new Date();
         context.checking(new Expectations()
             {
                 {
                     one(commonBusinessObjectFactory).createExperimentBO(SESSION);
                     will(returnValue(experimentBO));
 
-                    one(experimentBO).edit(identifier, properties, attachments,
-                            newProjectIdentifier, version);
+                    one(experimentBO).edit(updates);
                     one(experimentBO).save();
 
                 }
             });
-        createServer().editExperiment(SESSION_TOKEN, identifier, properties, attachments,
-                newProjectIdentifier, version);
+        createServer().editExperiment(SESSION_TOKEN, updates);
         context.assertIsSatisfied();
     }
 

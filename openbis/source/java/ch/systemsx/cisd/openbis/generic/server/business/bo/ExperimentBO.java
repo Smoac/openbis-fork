@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -25,8 +24,8 @@ import org.springframework.dao.DataAccessException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
@@ -35,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -298,21 +298,30 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         }
     }
 
-    public void edit(ExperimentIdentifier identifier, List<ExperimentProperty> properties,
-            List<AttachmentPE> newAttachments, ProjectIdentifier newProjectIdentifier, Date version)
+    public void edit(ExperimentUpdatesDTO updates)
     {
-        loadByExperimentIdentifier(identifier);
-        if (experiment.getModificationDate().equals(version) == false)
+        loadByExperimentIdentifier(updates.getExperimentIdentifier());
+        if (experiment.getModificationDate().equals(updates.getVersion()) == false)
         {
             throw new UserFailureException("Experiment has been modified in the meantime.");
         }
-        updateProperties(properties);
-        updateProject(newProjectIdentifier);
-        for (AttachmentPE a : newAttachments)
+        updateProperties(updates.getProperties());
+        updateProject(updates.getProjectIdentifier());
+        for (AttachmentPE a : updates.getAttachments())
         {
             addAttachment(a);
         }
+        String[] sampleCodes = updates.getSampleCodes();
+        if (sampleCodes != null)
+        {
+            updateSamples(sampleCodes);
+        }
         dataChanged = true;
+    }
+
+    private void updateSamples(String[] sampleCodes)
+    {
+        // TODO 2009-04-21, Tomasz Pylak: implement updating samples
     }
 
     private void updateProject(ProjectIdentifier newProjectIdentifier)

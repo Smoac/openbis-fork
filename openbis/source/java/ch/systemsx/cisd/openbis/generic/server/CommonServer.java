@@ -55,7 +55,6 @@ import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -75,6 +74,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
@@ -712,10 +712,10 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
     }
 
-    public void editExperiment(String sessionToken, ExperimentIdentifier identifier,
-            List<ExperimentProperty> properties, List<AttachmentPE> attachments,
-            ProjectIdentifier newProjectIdentifier, Date version)
+    public void editExperiment(String sessionToken, ExperimentUpdatesDTO updates)
     {
+        ProjectIdentifier newProjectIdentifier = updates.getProjectIdentifier();
+        ExperimentIdentifier identifier = updates.getExperimentIdentifier();
         final Session session = getSessionManager().getSession(sessionToken);
         if (newProjectIdentifier.equals(identifier) == false)
         {
@@ -724,7 +724,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
 
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
-        experimentBO.edit(identifier, properties, attachments, newProjectIdentifier, version);
+        experimentBO.edit(updates);
         experimentBO.save();
     }
 

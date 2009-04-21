@@ -47,8 +47,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -289,7 +289,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void unassignPropertyType(EntityKind entityKind, String propertyTypeCode,
             String entityTypeCode, AsyncCallback<Void> callback);
-    
+
     /** @see ICommonClientService#registerPropertyType(PropertyType) */
     public void registerPropertyType(final PropertyType propertyType,
             final AsyncCallback<Void> asyncCallback);
@@ -351,10 +351,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<Void> asyncCallback);
 
     /**
-     * @see ICommonClientService#updateExperiment(String, String, List, String, Date)
+     * @see ICommonClientService#updateExperiment(ExperimentUpdates)
      */
-    public void updateExperiment(String attachmentSessionKey, final String experimentIdentifier,
-            List<ExperimentProperty> properties, String newProjectIdentifier, Date version,
+    public void updateExperiment(ExperimentUpdates experimentUpdates,
             final AsyncCallback<Void> asyncCallback) throws UserFailureException;
 
     /**
