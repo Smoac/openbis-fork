@@ -304,6 +304,7 @@ public final class SqlUnitMigrationTest
         arguments.setOldDumpFile(currentSchemaFile.getAbsolutePath());
         arguments.setNewDumpFile(expectedSchemaFile.getAbsolutePath());
         arguments.setIgnoreFunctionWhitespace(true);
+        arguments.setIgnoreStartWith(true);
         PgDiff.createDiff(new PrintWriter(writer), arguments);
         final String delta = writer.toString();
         return delta == null ? "" : delta;
