@@ -254,7 +254,7 @@ public class SVNRecursiveCheckoutTask extends Task
 
     /**
      * Sets the root url of the subversion repository. Defaults to
-     * <code>svn+ssh://source.systemsx.ch/repos</code>.
+     * <code>svn+ssh://svncisd.ethz.ch/repos</code>.
      */
     public void setRepositoryRoot(final String repositoryRoot)
     {
