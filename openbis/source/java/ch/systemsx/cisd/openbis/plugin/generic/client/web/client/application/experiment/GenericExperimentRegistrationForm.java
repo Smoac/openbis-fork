@@ -119,7 +119,7 @@ public final class GenericExperimentRegistrationForm
         FieldUtil.markAsMandatory(projectSelectionWidget);
         projectSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.PROJECT));
 
-        samplesArea = new ExperimentSamplesArea(viewContext, ID + createExperimentIdentifier());
+        samplesArea = new ExperimentSamplesArea(viewContext, ID);
 
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
