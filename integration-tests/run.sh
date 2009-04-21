@@ -146,7 +146,7 @@ function build_zips_from_svn {
 
     RSC=build_resources
     rm -fr $RSC
-    run_svn checkout svn+ssh://source.systemsx.ch/repos/cisd/build_resources/trunk $RSC
+    run_svn checkout svn+ssh://svncisd.ethz.ch/repos/cisd/build_resources/trunk $RSC
     build_components "build_remote $RSC" $build_dss $build_dmv $build_openbis
     mv $RSC/*.zip $INSTALL
     rm -fr $RSC 
