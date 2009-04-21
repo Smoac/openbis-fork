@@ -22,7 +22,7 @@ CISD_SERVER=cisd-vesuvio.ethz.ch
 DEMO_SERVER=cisd-openbis.ethz.ch
 SPRINT_INSTALL_SCRIPT=sprint_install.sh
 
-svn checkout svn+ssh://source.systemsx.ch/repos/cisd/build_resources/trunk build_resources
+svn checkout svn+ssh://svncisd.ethz.ch/repos/cisd/build_resources/trunk build_resources
 cd build_resources
 echo Tagging openBIS to $FULL_VER...
 ./tag_sprint.sh openbis_all $FULL_VER
