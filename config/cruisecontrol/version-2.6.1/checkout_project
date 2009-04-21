@@ -6,4 +6,4 @@ if [ $# -ne 1 ]; then
 fi
 export JAVA_HOME=/usr/java/jdk5_32
 rm -rf projects/cisd/trunk/$1
-svn co http://source.systemsx.ch/repos/cisd/$1/trunk projects/cisd/trunk/$1
+svn co http://svncisd.ethz.ch/repos/cisd/$1/trunk projects/cisd/trunk/$1
