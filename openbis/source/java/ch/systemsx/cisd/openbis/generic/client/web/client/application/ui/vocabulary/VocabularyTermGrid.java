@@ -173,6 +173,12 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         viewContext.getService().prepareExportVocabularyTerms(exportCriteria, callback);
     }
 
+    @Override
+    protected String getGridDisplayTypeID()
+    {
+        return "vocabulary-terms";
+    }
+
     private void askForNewTerms()
     {
         final TextArea textArea = new TextArea();

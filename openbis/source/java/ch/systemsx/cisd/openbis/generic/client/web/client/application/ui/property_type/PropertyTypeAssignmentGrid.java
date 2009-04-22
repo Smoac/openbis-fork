@@ -214,6 +214,12 @@ public class PropertyTypeAssignmentGrid extends
         viewContext.getService().prepareExportPropertyTypeAssignments(exportCriteria, callback);
     }
 
+    @Override
+    protected String getGridDisplayTypeID()
+    {
+        return getGridID();
+    }
+    
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]

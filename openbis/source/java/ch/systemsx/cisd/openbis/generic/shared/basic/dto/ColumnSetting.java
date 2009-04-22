@@ -37,6 +37,7 @@ public class ColumnSetting implements Serializable, IsSerializable
     
     private boolean hidden;
     
+    private int width;
 
     public final String getColumnID()
     {
@@ -56,6 +57,16 @@ public class ColumnSetting implements Serializable, IsSerializable
     public final void setHidden(boolean hidden)
     {
         this.hidden = hidden;
+    }
+
+    public final int getWidth()
+    {
+        return width;
+    }
+
+    public final void setWidth(int width)
+    {
+        this.width = width;
     }
 
     @Override

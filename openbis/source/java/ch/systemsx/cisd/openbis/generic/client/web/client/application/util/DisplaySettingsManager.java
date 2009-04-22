@@ -19,9 +19,13 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.event.ColumnModelEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridView;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
@@ -48,23 +52,61 @@ public class DisplaySettingsManager
         this.displaySettings = displaySettings;
     }
     
+    public void prepareGrid(final String id, final Grid<?> grid)
+    {
+        Listener<ColumnModelEvent> listener = new Listener<ColumnModelEvent>()
+                {
+                    public void handleEvent(ColumnModelEvent event)
+                    {
+                        updateColumnSettings(id, grid);
+                    }
+                };
+        ColumnModel columnModel = grid.getColumnModel();
+        columnModel.addListener(Events.HiddenChange, listener);
+        columnModel.addListener(Events.WidthChange, listener);
+        synchronizeColumnModel(id, grid);
+    }
+    
     /**
      * Synchronizes the {@link ColumnModel} of the specified grid with the {@link ColumnSetting}s.
      * The grid ID is used to get the appropriated column settings. If there are no settings found
      * nothing will be done.
      */
-    public void synchronizeColumnModel(Grid<?> grid)
+    private void synchronizeColumnModel(String id, Grid<?> grid)
     {
-        List<ColumnSetting> columnSettings = displaySettings.getColumnSettings().get(grid.getId());
+        List<ColumnSetting> columnSettings = displaySettings.getColumnSettings().get(id);
         if (columnSettings == null)
         {
             return;
         }
+        boolean refreshNeeded = false;
         ColumnModel columnModel = grid.getColumnModel();
         for (ColumnSetting columnSetting : columnSettings)
         {
             ColumnConfig columnConfig = columnModel.getColumnById(columnSetting.getColumnID());
-            columnConfig.setHidden(columnSetting.isHidden());
+            if (columnConfig != null)
+            {
+                boolean hidden = columnSetting.isHidden();
+                if (columnConfig.isHidden() != hidden)
+                {
+                    columnConfig.setHidden(hidden);
+                    refreshNeeded = true;
+                }
+                int width = columnSetting.getWidth();
+                if (columnConfig.getWidth() != width)
+                {
+                    columnConfig.setWidth(width);
+                    refreshNeeded = true;
+                }
+            }
+        }
+        if (refreshNeeded)
+        {
+            GridView view = grid.getView();
+            if (view != null && grid.isRendered())
+            {
+                view.refresh(true);
+            }
         }
     }
     
@@ -72,17 +114,19 @@ public class DisplaySettingsManager
      * Updates the column settings for the specified grid. The grid ID will be used to identify
      * its column settings in the method {@link #synchronizeColumnModel(Grid)}.
      */
-    public void updateColumnSettings(Grid<?> grid)
+    private void updateColumnSettings(String id, Grid<?> grid)
     {
         ColumnModel columnModel = grid.getColumnModel();
         List<ColumnSetting> columnSettings = new ArrayList<ColumnSetting>();
         for (int i = 0; i < columnModel.getColumnCount(); i++)
         {
+            ColumnConfig columnConfig = columnModel.getColumn(i);
             ColumnSetting columnSetting = new ColumnSetting();
-            columnSetting.setColumnID(columnModel.getColumnId(i));
-            columnSetting.setHidden(columnModel.isHidden(i));
+            columnSetting.setColumnID(columnConfig.getId());
+            columnSetting.setHidden(columnConfig.isHidden());
+            columnSetting.setWidth(columnConfig.getWidth());
             columnSettings.add(columnSetting);
         }
-        displaySettings.getColumnSettings().put(grid.getId(), columnSettings);
+        displaySettings.getColumnSettings().put(id, columnSettings);
     }
 }

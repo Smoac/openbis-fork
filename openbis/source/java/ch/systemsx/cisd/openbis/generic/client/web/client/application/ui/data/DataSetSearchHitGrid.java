@@ -124,6 +124,12 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
         return DataSetSearchHitModel.createColumnsSchema(viewContext, availablePropertyTypes);
     }
 
+    @Override
+    protected String getGridDisplayTypeID()
+    {
+        return BROWSER_ID;
+    }
+
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]

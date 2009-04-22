@@ -105,6 +105,13 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
         return asColumnFilters(new EntityTypeColDefKind[]
             { EntityTypeColDefKind.CODE });
     }
+    
+    @Override
+    protected String getGridDisplayTypeID()
+    {
+        return getGridID();
+    }
+    
 
     public DatabaseModificationKind[] getRelevantModifications()
     {

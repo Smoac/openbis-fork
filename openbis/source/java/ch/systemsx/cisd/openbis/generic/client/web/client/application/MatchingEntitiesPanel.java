@@ -158,6 +158,12 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
                     MatchingEntityColumnKind.MATCHING_FIELD });
     }
 
+    @Override
+    protected String getGridDisplayTypeID()
+    {
+        return GRID_ID;
+    }
+
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]

@@ -205,6 +205,16 @@ public class MaterialBrowserGrid extends
         return doCreateHeader(criteria);
     }
 
+    @Override
+    protected String getGridDisplayTypeID()
+    {
+        if (criteria == null)
+        {
+            return "generic-material-browser";
+        }
+        return "material-browser-" + criteria.getMaterialType().getCode();
+    }
+
     private static final String doCreateHeader(ListMaterialCriteria criteria)
     {
         final StringBuilder builder = new StringBuilder("Materials");

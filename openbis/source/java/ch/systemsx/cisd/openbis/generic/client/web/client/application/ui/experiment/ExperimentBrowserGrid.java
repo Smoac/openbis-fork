@@ -222,6 +222,16 @@ public class ExperimentBrowserGrid extends
     {
         return doCreateHeader(criteria);
     }
+    
+    @Override
+    protected String getGridDisplayTypeID()
+    {
+        if (criteria == null)
+        {
+            return "generic-experiment-browser";
+        }
+        return "experiment-browser-" + criteria.getExperimentType().getCode();
+    }
 
     private static final String doCreateHeader(ListExperimentsCriteria criteria)
     {

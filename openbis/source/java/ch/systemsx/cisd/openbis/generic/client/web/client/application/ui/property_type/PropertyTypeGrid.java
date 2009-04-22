@@ -94,6 +94,12 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
         viewContext.getService().prepareExportPropertyTypes(exportCriteria, callback);
     }
 
+    @Override
+    protected String getGridDisplayTypeID()
+    {
+        return getGridID();
+    }
+
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]

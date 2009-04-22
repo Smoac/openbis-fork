@@ -141,6 +141,12 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
         DispatcherHelper.dispatchNaviEvent(tabFactory);
     }
 
+    @Override
+    protected String getGridDisplayTypeID()
+    {
+        return getGridID();
+    }
+
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]

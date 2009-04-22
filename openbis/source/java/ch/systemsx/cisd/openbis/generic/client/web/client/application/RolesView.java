@@ -137,6 +137,7 @@ public class RolesView extends ContentPanel
         grid.setBorders(true);
         grid.setId(TABLE_ID);
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
+        viewContext.getDisplaySettingsManager().prepareGrid(grid.getId(), grid);
 
         cp.add(grid);
 

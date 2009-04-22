@@ -249,7 +249,6 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     {
         if (displaySettings == null)
         {
-            displaySettings = new DisplaySettings();
             byte[] serializedSettings = getSerializedDisplaySettings();
             if (serializedSettings != null)
             {
@@ -259,6 +258,10 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
                 } catch (Exception ex) {
                     // ignored using default settings
                 }
+            }
+            if (displaySettings == null)
+            {
+                displaySettings = new DisplaySettings();
             }
         }
         return displaySettings;

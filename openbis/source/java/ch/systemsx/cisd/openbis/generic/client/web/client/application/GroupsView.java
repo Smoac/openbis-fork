@@ -19,13 +19,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.core.XTemplate;
-import com.extjs.gxt.ui.client.event.ColumnModelEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -49,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddGroupDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
@@ -154,20 +150,11 @@ public class GroupsView extends ContentPanel
 
         final Grid<GroupModel> grid = new Grid<GroupModel>(store, cm);
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        final DisplaySettingsManager displaySettingsManager =
-                viewContext.getDisplaySettingsManager();
-        grid.getColumnModel().addListener(Events.HiddenChange, new Listener<ColumnModelEvent>()
-            {
-                public void handleEvent(ColumnModelEvent event)
-                {
-                    displaySettingsManager.updateColumnSettings(grid);
-                }
-            });
         grid.addPlugin(expander);
         grid.setBorders(true);
         grid.setId(TABLE_ID);
-        displaySettingsManager.synchronizeColumnModel(grid);
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
+        viewContext.getDisplaySettingsManager().prepareGrid(grid.getId(), grid);
 
         cp.add(grid);
         final Button addGroupButton =

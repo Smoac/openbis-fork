@@ -56,6 +56,12 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
     {
         viewContext.getService().listSampleDataSets(sampleIdentifier, resultSetConfig, callback);
     }
+    
+    @Override
+    protected String getGridDisplayTypeID()
+    {
+        return "experiment-samples";
+    }
 
     public DatabaseModificationKind[] getRelevantModifications()
     {

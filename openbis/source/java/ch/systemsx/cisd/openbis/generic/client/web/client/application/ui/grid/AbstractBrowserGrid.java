@@ -126,6 +126,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     /** @return on which fields user can set filters? */
     abstract protected List<IColumnDefinition<T>> getAvailableFilters();
 
+    /**
+     * Returns the ID to identify the type of grid needed for display settings.
+     * Default implementation returns the grid ID.
+     */
+    abstract protected String getGridDisplayTypeID();
+
     // --------
 
     protected final IViewContext<ICommonClientServiceAsync> viewContext;
@@ -240,6 +246,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     protected void allowMultipleSelection()
     {
         grid.getSelectionModel().setSelectionMode(SelectionMode.MULTI);
+    }
+    
+    protected String getGridID()
+    {
+        return grid.getId();
     }
 
     private List<PagingColumnFilter<T>> createFilterWidgets()
@@ -755,9 +766,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         ColumnModel columnModel = new ColumnModel(columns.getColumnConfigs());
         grid.reconfigure(grid.getStore(), columnModel);
+        viewContext.getDisplaySettingsManager().prepareGrid(getGridDisplayTypeID(), grid);
         pagingLoader.load(0, PAGE_SIZE);
     }
-
+    
     private IDataRefreshCallback createRefreshCallback(
             IDataRefreshCallback externalRefreshCallbackOrNull)
     {

@@ -76,4 +76,5 @@ abstract public class AbstractSimpleBrowserGrid<T/* Entity */> extends
     {
         refreshGridSilently();
     }
+
 }

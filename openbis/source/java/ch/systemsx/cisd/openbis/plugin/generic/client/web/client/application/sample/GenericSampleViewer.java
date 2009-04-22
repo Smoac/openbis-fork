@@ -149,6 +149,9 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         partOfSamplesGrid =
                 new Grid<SampleModel>(sampleListStore, createPartOfSamplesColumnModel());
         partOfSamplesGrid.setId(getId() + COMPONENTS_POSTFIX);
+        viewContext.getDisplaySettingsManager().prepareGrid(
+                "sample-" + sampleGeneration.getGenerator().getSampleType().getCode()
+                        + "-components", partOfSamplesGrid);
         partOfSamplesGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         partOfSamplesGrid.setLoadMask(true);
         componentsPanel.add(partOfSamplesGrid);

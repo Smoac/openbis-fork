@@ -43,8 +43,9 @@ public class ExperimentSamplesSection extends SectionPanel
         setLayout(new RowLayout());
         String experimentIdentifier = experiment.getIdentifier();
         sampleDisposableGrid =
-                SampleBrowserGrid.create(viewContext.getCommonViewContext(), experimentIdentifier,
-                        createId(experimentIdentifier));
+                SampleBrowserGrid.createGridForExperimentSamples(
+                        viewContext.getCommonViewContext(), experimentIdentifier,
+                        createId(experimentIdentifier), experiment.getExperimentType());
         add(sampleDisposableGrid.getComponent(), new RowData(-1, 200));
     }
 

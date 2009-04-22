@@ -155,6 +155,7 @@ public class PersonsView extends ContentPanel
         grid.setId(TABLE_ID);
         grid.setBorders(true);
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
+        viewContext.getDisplaySettingsManager().prepareGrid(grid.getId(), grid);
         cp.add(grid);
 
         final Button addPersonButton =

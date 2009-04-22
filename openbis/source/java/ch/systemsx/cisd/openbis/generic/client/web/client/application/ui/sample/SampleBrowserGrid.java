@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
@@ -89,9 +90,9 @@ public final class SampleBrowserGrid extends
         return browserGrid.asDisposableWithToolbar(toolbar);
     }
 
-    public static IDisposableComponent create(
+    public static IDisposableComponent createGridForExperimentSamples(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            final String experimentIdentifier, String gridId)
+            final String experimentIdentifier, String gridId, ExperimentType experimentType)
     {
         final ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setExperimentIdentifier(experimentIdentifier);
@@ -99,8 +100,11 @@ public final class SampleBrowserGrid extends
                 createUnrefreshableCriteriaProvider(criteria);
         final SampleBrowserGrid browserGrid =
                 new SampleBrowserGrid(viewContext, criteriaProvider, gridId, false, true);
+        browserGrid.displayTypeID = "expermiment-" + experimentType.getCode() + "-samples";
         return browserGrid.asDisposableWithoutToolbar();
     }
+    
+    private String displayTypeID;
 
     private SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             ICriteriaProvider<ListSampleCriteria> criteriaProvider, String gridId,
@@ -141,6 +145,25 @@ public final class SampleBrowserGrid extends
         String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
         Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
         toolbar.add(new AdapterToolItem(editButton));
+    }
+
+    @Override
+    protected String getGridDisplayTypeID()
+    {
+        if (displayTypeID != null)
+        {
+            return displayTypeID;
+        }
+        if (criteria == null)
+        {
+            return "generic-sample-browser";
+        }
+        SampleType sampleType = criteria.getSampleType();
+        if (sampleType == null)
+        {
+            return "generic-sample-browser-with-criteria";
+        }
+        return "sample-browser-" + sampleType.getCode();
     }
 
     @Override

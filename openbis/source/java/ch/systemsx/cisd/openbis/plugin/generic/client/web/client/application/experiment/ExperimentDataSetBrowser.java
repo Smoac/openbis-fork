@@ -67,6 +67,12 @@ public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
                 callback);
     }
 
+    @Override
+    protected String getGridDisplayTypeID()
+    {
+        return "experiment-data";
+    }
+
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]

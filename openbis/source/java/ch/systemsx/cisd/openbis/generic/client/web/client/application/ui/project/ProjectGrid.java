@@ -176,6 +176,12 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
         DispatcherHelper.dispatchNaviEvent(tabFactory);
     }
 
+    @Override
+    protected String getGridDisplayTypeID()
+    {
+        return getGridID();
+    }
+
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
