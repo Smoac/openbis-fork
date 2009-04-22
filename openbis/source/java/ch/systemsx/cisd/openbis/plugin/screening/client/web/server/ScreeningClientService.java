@@ -24,12 +24,11 @@ import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
-import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AttachmentRegistrationHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.server.translator.DtoConverters;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -89,8 +88,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
             final SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
             final SampleGenerationDTO sampleGeneration =
                     screeningServer.getSampleInfo(sessionToken, identifier);
-            return BeanUtils.createBean(SampleGeneration.class, sampleGeneration, DtoConverters
-                    .getSampleConverter());
+            return SampleTranslator.translate(sampleGeneration);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
