@@ -29,7 +29,8 @@ public class ExperimentType extends EntityType
 {
     private List<ExperimentTypePropertyType> experimentTypePropertyTypes;
 
-    public List<ExperimentTypePropertyType> getExperimentTypePropertyTypes()
+    @Override
+    public List<ExperimentTypePropertyType> getAssignedPropertyTypes()
     {
         return experimentTypePropertyTypes;
     }

@@ -58,7 +58,8 @@ public final class SampleType extends EntityType implements IsSerializable
         return partOfHierarchyDepth;
     }
 
-    public final List<SampleTypePropertyType> getSampleTypePropertyTypes()
+    @Override
+    public final List<SampleTypePropertyType> getAssignedPropertyTypes()
     {
         return sampleTypePropertyTypes;
     }

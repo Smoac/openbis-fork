@@ -219,8 +219,8 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
                 public final void load(final BaseListLoadConfig loadConfig,
                         final AsyncCallback<BaseListLoadResult<SampleModel>> callback)
                 {
-                    final ListSampleCriteria sampleCriteria = new ListSampleCriteria();
-                    sampleCriteria.setContainerIdentifier(sampleIdentifier);
+                    final ListSampleCriteria sampleCriteria =
+                            ListSampleCriteria.createForContainer(sampleIdentifier);
                     ListSamplesCallback listCallback =
                             new ListSamplesCallback(viewContext, callback,
                                     showComponentsPanelAction);

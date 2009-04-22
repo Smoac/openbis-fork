@@ -83,7 +83,7 @@ public final class GenericSampleRegistrationForm extends
     public GenericSampleRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
     {
-        super(viewContext, sampleType.getSampleTypePropertyTypes(), EntityKind.SAMPLE);
+        super(viewContext, sampleType.getAssignedPropertyTypes(), EntityKind.SAMPLE);
         this.viewContext = viewContext;
         this.sampleType = sampleType;
         addUploadFeatures(SESSION_KEY);

@@ -136,10 +136,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     protected final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    // ------------ dictionary messages which should be moved to an external file
-
-    private static final String LABEL_FILTERS = "Filters";
-
     // ------ private section. NOTE: it should remain unaccessible to subclasses! ---------------
 
     private static final int PAGE_SIZE = 50;
@@ -194,7 +190,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 new BrowserGridPagingToolBar(asActionInvoker(), viewContext, PAGE_SIZE);
         pagingToolbar.bind(pagingLoader);
         this.filterWidgets = createFilterWidgets();
-        Component filterToolbar = createFilterToolbar(filterWidgets);
+        Component filterToolbar = createFilterToolbar(filterWidgets, viewContext);
 
         final LayoutContainer bottomToolbars = createBottomToolbars(filterToolbar, pagingToolbar);
         this.contentPanel = createEmptyContentPanel();
@@ -901,7 +897,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return bottomToolbars;
     }
 
-    private static <T> ToolBar createFilterToolbar(List<PagingColumnFilter<T>> filterWidgets)
+    private static <T> ToolBar createFilterToolbar(List<PagingColumnFilter<T>> filterWidgets,
+            IMessageProvider messageProvider)
     {
         ToolBar filterToolbar = new ToolBar();
         if (filterWidgets.size() == 0)
@@ -909,7 +906,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             return filterToolbar;
         }
 
-        filterToolbar.add(new LabelToolItem(LABEL_FILTERS + ": "));
+        filterToolbar.add(new LabelToolItem(messageProvider.getMessage(Dict.FILTERS) + ": "));
         for (PagingColumnFilter<T> filterWidget : filterWidgets)
         {
             filterToolbar.add(new AdapterToolItem(filterWidget));

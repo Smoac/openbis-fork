@@ -30,7 +30,8 @@ public class MaterialType extends EntityType
 
     private List<MaterialTypePropertyType> materialTypePropertyTypes;
 
-    public List<MaterialTypePropertyType> getMaterialTypePropertyTypes()
+    @Override
+    public List<MaterialTypePropertyType> getAssignedPropertyTypes()
     {
         return materialTypePropertyTypes;
     }

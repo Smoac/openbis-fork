@@ -94,8 +94,8 @@ public final class SampleBrowserGrid extends
             final IViewContext<ICommonClientServiceAsync> viewContext,
             final String experimentIdentifier, String gridId, ExperimentType experimentType)
     {
-        final ListSampleCriteria criteria = new ListSampleCriteria();
-        criteria.setExperimentIdentifier(experimentIdentifier);
+        final ListSampleCriteria criteria =
+                ListSampleCriteria.createForExperiment(experimentIdentifier);
         ICriteriaProvider<ListSampleCriteria> criteriaProvider =
                 createUnrefreshableCriteriaProvider(criteria);
         final SampleBrowserGrid browserGrid =
@@ -282,8 +282,8 @@ public final class SampleBrowserGrid extends
 
     private boolean propertiesEqual(SampleType entityType1, SampleType entityType2)
     {
-        return entityType1.getSampleTypePropertyTypes().equals(
-                entityType2.getSampleTypePropertyTypes());
+        return entityType1.getAssignedPropertyTypes().equals(
+                entityType2.getAssignedPropertyTypes());
     }
 
     @Override

@@ -538,6 +538,8 @@ public abstract class Dict
     public static final String LEADER = "leader";
 
     public static final String FILTER = "filter";
+    
+    public static final String FILTERS = "filters";
 
     public static final String ENTITY_TYPE_ASSIGNMENTS = "entity_type_assignments";
 

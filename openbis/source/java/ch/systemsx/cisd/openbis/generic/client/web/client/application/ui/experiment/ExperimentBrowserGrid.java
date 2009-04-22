@@ -167,7 +167,7 @@ public class ExperimentBrowserGrid extends
     private EditableExperiment createEditableEntity(Experiment experiment,
             ExperimentType selectedType)
     {
-        return new EditableExperiment(selectedType.getExperimentTypePropertyTypes(), experiment
+        return new EditableExperiment(selectedType.getAssignedPropertyTypes(), experiment
                 .getProperties(), selectedType, experiment.getIdentifier(), experiment.getId(),
                 experiment.getModificationDate(), experiment.getProject().getIdentifier(),
                 experiment.getCode());
@@ -264,8 +264,8 @@ public class ExperimentBrowserGrid extends
 
     private boolean propertiesEqual(ExperimentType entityType1, ExperimentType entityType2)
     {
-        return entityType1.getExperimentTypePropertyTypes().equals(
-                entityType2.getExperimentTypePropertyTypes());
+        return entityType1.getAssignedPropertyTypes().equals(
+                entityType2.getAssignedPropertyTypes());
     }
 
     @Override

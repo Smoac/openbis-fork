@@ -29,13 +29,13 @@ public class DataSetType extends EntityType
 {
     private List<DataSetTypePropertyType> dataSetTypePropertyTypes;
 
-    public List<DataSetTypePropertyType> getDataSetTypePropertyTypes()
+    @Override
+    public List<DataSetTypePropertyType> getAssignedPropertyTypes()
     {
         return dataSetTypePropertyTypes;
     }
 
-    public void setDataSetTypePropertyTypes(
-            List<DataSetTypePropertyType> dataSetTypePropertyTypes)
+    public void setDataSetTypePropertyTypes(List<DataSetTypePropertyType> dataSetTypePropertyTypes)
     {
         this.dataSetTypePropertyTypes = dataSetTypePropertyTypes;
     }

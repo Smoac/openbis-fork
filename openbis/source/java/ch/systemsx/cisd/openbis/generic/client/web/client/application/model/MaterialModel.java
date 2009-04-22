@@ -82,7 +82,7 @@ public final class MaterialModel extends BaseEntityModel<Material>
             MaterialType selectedType)
     {
         List<MaterialTypePropertyType> entityTypePropertyTypes =
-                selectedType.getMaterialTypePropertyTypes();
+                selectedType.getAssignedPropertyTypes();
         List<IColumnDefinitionUI<Material>> list = createColDefList();
         for (MaterialTypePropertyType etpt : entityTypePropertyTypes)
         {

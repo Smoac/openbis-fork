@@ -48,12 +48,28 @@ public final class ListSampleCriteria extends DefaultResultSetConfig<String, Sam
     // --------- filter 3 fields
     private String experimentIdentifier;
 
+    // ----
+
+    public static ListSampleCriteria createForContainer(String containerIdentifier)
+    {
+        final ListSampleCriteria criteria = new ListSampleCriteria();
+        criteria.setContainerIdentifier(containerIdentifier);
+        return criteria;
+    }
+
+    public static ListSampleCriteria createForExperiment(String experimentIdentifier)
+    {
+        final ListSampleCriteria criteria = new ListSampleCriteria();
+        criteria.setExperimentIdentifier(experimentIdentifier);
+        return criteria;
+    }
+
     public final String getContainerIdentifier()
     {
         return containerIdentifier;
     }
 
-    public final void setContainerIdentifier(final String containerIdentifier)
+    private final void setContainerIdentifier(final String containerIdentifier)
     {
         this.containerIdentifier = containerIdentifier;
     }
@@ -103,7 +119,7 @@ public final class ListSampleCriteria extends DefaultResultSetConfig<String, Sam
         return experimentIdentifier;
     }
 
-    public void setExperimentIdentifier(final String experimentIdentifier)
+    private void setExperimentIdentifier(final String experimentIdentifier)
     {
         this.experimentIdentifier = experimentIdentifier;
     }

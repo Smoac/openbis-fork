@@ -242,8 +242,8 @@ public class MaterialBrowserGrid extends
 
     private boolean propertiesEqual(MaterialType entityType1, MaterialType entityType2)
     {
-        return entityType1.getMaterialTypePropertyTypes().equals(
-                entityType2.getMaterialTypePropertyTypes());
+        return entityType1.getAssignedPropertyTypes().equals(
+                entityType2.getAssignedPropertyTypes());
     }
 
     @Override
@@ -287,7 +287,7 @@ public class MaterialBrowserGrid extends
 
     private EditableMaterial createEditableEntity(Material entity, MaterialType selectedType)
     {
-        return new EditableMaterial(selectedType.getMaterialTypePropertyTypes(), entity
+        return new EditableMaterial(selectedType.getAssignedPropertyTypes(), entity
                 .getProperties(), selectedType, entity.getCode() + " ("
                 + entity.getMaterialType().getCode() + ")", entity.getId(), entity
                 .getModificationDate());

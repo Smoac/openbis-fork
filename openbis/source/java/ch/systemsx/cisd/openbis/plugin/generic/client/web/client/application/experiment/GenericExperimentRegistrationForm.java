@@ -85,7 +85,7 @@ public final class GenericExperimentRegistrationForm
             final IViewContext<IGenericClientServiceAsync> viewContext,
             final ExperimentType experimentType)
     {
-        super(viewContext, experimentType.getExperimentTypePropertyTypes(), EntityKind.EXPERIMENT);
+        super(viewContext, experimentType.getAssignedPropertyTypes(), EntityKind.EXPERIMENT);
         this.viewContext = viewContext;
         this.experimentType = experimentType;
         importSampleTypeSelection = new SampleTypeSelectionWidget(viewContext, ID, false);

@@ -32,7 +32,7 @@ public class EditableSample extends
 
     public EditableSample(Sample sample, SampleType sampleType)
     {
-        super(EntityKind.SAMPLE, sampleType.getSampleTypePropertyTypes(), sample.getProperties(),
+        super(EntityKind.SAMPLE, sampleType.getAssignedPropertyTypes(), sample.getProperties(),
                 sampleType, sample.getIdentifier(), sample.getId(), sample.getModificationDate());
         this.sample = sample;
     }

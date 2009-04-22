@@ -139,8 +139,8 @@ public final class GenericExperimentEditForm
 
     private void loadSamplesInBackground()
     {
-        final ListSampleCriteria sampleCriteria = new ListSampleCriteria();
-        sampleCriteria.setExperimentIdentifier(entity.getIdentifier());
+        final ListSampleCriteria sampleCriteria =
+                ListSampleCriteria.createForExperiment(entity.getIdentifier());
         viewContext.getCommonService().listSamples(sampleCriteria, true,
                 new ListSamplesCallback(viewContext));
     }

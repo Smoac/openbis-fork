@@ -13,6 +13,7 @@ var common = {
   registrator: "Registrator",
   registration_date: "Registration Date",
   filter: "Filter",
+  filters: "Filters",
   not_implemented: "Sorry, feature has not been implemented yet!",
   edit: "Edit",
   material: "Material",

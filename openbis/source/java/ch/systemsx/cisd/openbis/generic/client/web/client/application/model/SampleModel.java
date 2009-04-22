@@ -103,7 +103,7 @@ public final class SampleModel extends BaseEntityModel<Sample>
             SampleType selectedType)
     {
         List<SampleTypePropertyType> sampleTypePropertyTypes =
-                selectedType.getSampleTypePropertyTypes();
+                selectedType.getAssignedPropertyTypes();
         List<IColumnDefinitionUI<Sample>> list = createColDefList();
         for (SampleTypePropertyType etpt : sampleTypePropertyTypes)
         {
