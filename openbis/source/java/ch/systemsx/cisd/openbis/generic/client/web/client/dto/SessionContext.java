@@ -18,10 +18,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
 /**
- * 
+ * Context of a web session. Contains session ID, {@link User}, and {@link DisplaySettings}. 
  *
  * @author Franz-Josef Elmer
  */
@@ -51,11 +52,30 @@ public class SessionContext implements IsSerializable
         this.sessionID = sessionID;
     }
 
+    /**
+     * Returns the manager for the {@link DisplaySettings}. Display settings should be manipulated
+     * only via a {@link DisplaySettingsManager}.
+     */
+    public final DisplaySettingsManager getDisplaySettingsManager()
+    {
+        return new DisplaySettingsManager(displaySettings);
+    }
+
+    /**
+     * Returns the display settings. Display settings shouldn't be manipulated directly. Instead a
+     * {@link DisplaySettingsManager} as returned by {@link #getDisplaySettingsManager()} should be
+     * used.
+     */
     public final DisplaySettings getDisplaySettings()
     {
         return displaySettings;
     }
 
+    /**
+     * Sets the display settings. This method should be used on the client. In order to manipulate
+     * the display settings use a {@link DisplaySettingsManager} as returned by
+     * {@link #getDisplaySettingsManager()}.
+     */
     public final void setDisplaySettings(DisplaySettings displaySettings)
     {
         this.displaySettings = displaySettings;

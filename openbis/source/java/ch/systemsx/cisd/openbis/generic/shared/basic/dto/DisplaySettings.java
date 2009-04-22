@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
@@ -27,6 +28,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * for transferring it's content remotely but also to store it in the database. Thus, CHANGES IN
  * THIS CLASS MIGHT LEAD TO A LOST OF PERSONAL SETTINGS. In all cases deserialisation leads to an
  * exception the default settings is used.
+ * <p>
+ * Note: This class has to be Java serializable and GWT serializable.
  * 
  * @author Franz-Josef Elmer
  */
@@ -34,14 +37,15 @@ public class DisplaySettings implements Serializable, IsSerializable
 {
     private static final long serialVersionUID = 1L;
     
-    private Map<String, String[]> columnSettings = new LinkedHashMap<String, String[]>();
+    private Map<String, List<ColumnSetting>> columnSettings =
+            new LinkedHashMap<String, List<ColumnSetting>>();
 
-    public final Map<String, String[]> getColumnSettings()
+    public final Map<String, List<ColumnSetting>> getColumnSettings()
     {
         return columnSettings;
     }
 
-    public final void setColumnSettings(Map<String, String[]> columnSettings)
+    public final void setColumnSettings(Map<String, List<ColumnSetting>> columnSettings)
     {
         this.columnSettings = columnSettings;
     }
