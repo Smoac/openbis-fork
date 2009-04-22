@@ -22,7 +22,6 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
@@ -46,14 +45,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -400,24 +396,6 @@ public interface ICommonClientService extends IClientService
 
     /** Registers a new experiment type */
     public void registerExperimentType(ExperimentType entityType) throws UserFailureException;
-
-    /**
-     * Updates experiment.
-     */
-    public void updateExperiment(ExperimentUpdates experimentUpdates) throws UserFailureException;
-
-    /**
-     * Updates material.
-     */
-    public void updateMaterial(final String materialIdentifier, List<MaterialProperty> properties,
-            Date version) throws UserFailureException;
-
-    /**
-     * Updates sample.
-     */
-    public void updateSample(String sessionKey, final String sampleIdentifier,
-            List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
-            Date version) throws UserFailureException;
 
     /**
      * Updates project.

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -34,6 +35,7 @@ import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
+import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
@@ -46,19 +48,25 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.MaterialTra
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
@@ -373,6 +381,88 @@ public final class GenericClientService extends AbstractClientService implements
                 session.removeAttribute(sessionKey);
             }
         }
+    }
+
+    public void updateSample(
+            String sessionKey,
+            final String sampleIdentifier,
+            final List<SampleProperty> properties,
+            final ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier experimentIdentifierOrNull,
+            final Date version)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+        new AttachmentRegistrationHelper()
+            {
+                @Override
+                public void register(List<AttachmentPE> attachments)
+                {
+                    final SampleIdentifier identifier =
+                            new SampleIdentifierFactory(sampleIdentifier).createIdentifier();
+                    ExperimentIdentifier convExperimentIdentifierOrNull = null;
+                    if (experimentIdentifierOrNull != null)
+                    {
+                        convExperimentIdentifierOrNull =
+                                BeanUtils.createBean(ExperimentIdentifier.class,
+                                        experimentIdentifierOrNull);
+                    }
+                    genericServer.editSample(sessionToken, identifier, properties,
+                            convExperimentIdentifierOrNull, attachments, version);
+                }
+            }.process(sessionKey, getHttpSession());
+    }
+
+    public void updateMaterial(String materialIdentifier, List<MaterialProperty> properties,
+            Date version)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final MaterialIdentifier identifier =
+                    MaterialIdentifier.tryParseIdentifier(materialIdentifier);
+            genericServer.editMaterial(sessionToken, identifier, properties, version);
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public void updateExperiment(final ExperimentUpdates updates)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+        new AttachmentRegistrationHelper()
+            {
+                @Override
+                public void register(List<AttachmentPE> attachments)
+                {
+                    ExperimentUpdatesDTO updatesDTO =
+                            createExperimentUpdatesDTO(updates, attachments);
+                    genericServer.editExperiment(sessionToken, updatesDTO);
+                }
+            }.process(updates.getAttachmentSessionKey(), getHttpSession());
+    }
+
+    private static ExperimentUpdatesDTO createExperimentUpdatesDTO(ExperimentUpdates updates,
+            List<AttachmentPE> attachments)
+    {
+        ExperimentUpdatesDTO updatesDTO = new ExperimentUpdatesDTO();
+
+        final ExperimentIdentifier identifier =
+                new ExperimentIdentifierFactory(updates.getExperimentIdentifier())
+                        .createIdentifier();
+        updatesDTO.setExperimentIdentifier(identifier);
+
+        final ProjectIdentifier project =
+                new ProjectIdentifierFactory(updates.getProjectIdentifier()).createIdentifier();
+        updatesDTO.setProjectIdentifier(project);
+
+        updatesDTO.setAttachments(attachments);
+        updatesDTO.setProperties(updates.getProperties());
+        updatesDTO.setSampleCodes(updates.getSampleCodes());
+        updatesDTO.setVersion(updates.getVersion());
+        return updatesDTO;
     }
 
 }

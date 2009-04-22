@@ -16,19 +16,25 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
+import java.util.Date;
 import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -136,6 +142,29 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     {
         logAccess(sessionToken, "generate_codes", "PREFIX(%s) NUMBER(%s)", prefix, number);
         return null;
+    }
+
+    public void editExperiment(String sessionToken, ExperimentUpdatesDTO updates)
+    {
+        logTracking(sessionToken, "edit_experiment",
+                "EXPERIMENT(%s) ATTACHMENTS_ADDED(%s) NEW_PROJECT(%s) SAMPLES(%s)", updates
+                        .getExperimentIdentifier(), updates.getAttachments().size(), updates
+                        .getProjectIdentifier(), StringUtils.join(updates.getSampleCodes(), ","));
+    }
+
+    public void editMaterial(String sessionToken, MaterialIdentifier identifier,
+            List<MaterialProperty> properties, Date version)
+    {
+        logTracking(sessionToken, "edit_material", "MATERIAL(%s)", identifier);
+    }
+
+    public void editSample(String sessionToken, SampleIdentifier identifier,
+            List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
+            List<AttachmentPE> attachments, Date version)
+    {
+        logTracking(sessionToken, "edit_sample",
+                "SAMPLE(%s), CHANGE_TO_EXPERIMENT(%s) ATTACHMENTS(%s)", identifier,
+                experimentIdentifierOrNull, attachments.size());
     }
 
 }

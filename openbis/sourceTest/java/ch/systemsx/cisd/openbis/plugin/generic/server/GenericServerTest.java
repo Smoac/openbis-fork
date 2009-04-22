@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.jmock.Expectations;
@@ -30,19 +31,26 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
@@ -54,6 +62,20 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 @Friend(toClasses = GenericServer.class)
 public final class GenericServerTest extends AbstractServerTestCase
 {
+    private static final String MATERIAL_TYPE_1 = "MATERIAL-TYPE-1";
+
+    private static final String MATERIAL_1 = "MATERIAL-1";
+
+    private static final String SAMPLE_1 = "SAMPLE-1";
+
+    private static final String EXP_1 = "EXP-1";
+
+    private static final String PROJECT_1 = "PROJECT-1";
+
+    private static final String GROUP_1 = "GROUP-1";
+
+    private static final String DATABASE_1 = "DATABASE-1";
+
     private IGenericBusinessObjectFactory genericBusinessObjectFactory;
 
     private ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin;
@@ -400,6 +422,80 @@ public final class GenericServerTest extends AbstractServerTestCase
                 }
             });
         createServer().registerMaterials(SESSION_TOKEN, typeCode, newMaterials);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testEditMaterialNothingChanged() throws Exception
+    {
+        final MaterialIdentifier identifier = new MaterialIdentifier(MATERIAL_1, MATERIAL_TYPE_1);
+        final List<MaterialProperty> properties = new ArrayList<MaterialProperty>();
+        prepareGetSession();
+        final Date version = new Date();
+        context.checking(new Expectations()
+            {
+                {
+                    one(genericBusinessObjectFactory).createMaterialBO(SESSION);
+                    will(returnValue(materialBO));
+
+                    one(materialBO).edit(identifier, properties, version);
+                    one(materialBO).save();
+
+                }
+            });
+        createServer().editMaterial(SESSION_TOKEN, identifier, properties, version);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testEditSampleNothingChanged() throws Exception
+    {
+        final SampleIdentifier identifier =
+                SampleIdentifier.createOwnedBy(new SampleOwnerIdentifier(new GroupIdentifier(
+                        DATABASE_1, GROUP_1)), SAMPLE_1);
+        final List<SampleProperty> properties = new ArrayList<SampleProperty>();
+        prepareGetSession();
+        final Date version = new Date();
+        final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(genericBusinessObjectFactory).createSampleBO(SESSION);
+                    will(returnValue(sampleBO));
+
+                    one(sampleBO).edit(identifier, properties, null, attachments, version);
+                    one(sampleBO).save();
+
+                }
+            });
+        createServer()
+                .editSample(SESSION_TOKEN, identifier, properties, null, attachments, version);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testEditExperimentNothingChanged() throws Exception
+    {
+        final ExperimentIdentifier identifier =
+                new ExperimentIdentifier(DATABASE_1, GROUP_1, PROJECT_1, EXP_1);
+        final ProjectIdentifier newProjectIdentifier =
+                new ProjectIdentifier(DATABASE_1, GROUP_1, PROJECT_1);
+        final ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
+        updates.setExperimentIdentifier(identifier);
+        updates.setProjectIdentifier(newProjectIdentifier);
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(genericBusinessObjectFactory).createExperimentBO(SESSION);
+                    will(returnValue(experimentBO));
+
+                    one(experimentBO).edit(updates);
+                    one(experimentBO).save();
+
+                }
+            });
+        createServer().editExperiment(SESSION_TOKEN, updates);
         context.assertIsSatisfied();
     }
 

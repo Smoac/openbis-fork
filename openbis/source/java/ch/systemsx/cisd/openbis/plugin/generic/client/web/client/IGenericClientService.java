@@ -16,18 +16,23 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client;
 
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
@@ -90,5 +95,23 @@ public interface IGenericClientService extends IClientService
      */
     public List<BatchRegistrationResult> registerMaterials(final MaterialType materialType,
             final String sessionKey) throws UserFailureException;
+
+    /**
+     * Updates experiment.
+     */
+    public void updateExperiment(ExperimentUpdates experimentUpdates) throws UserFailureException;
+
+    /**
+     * Updates material.
+     */
+    public void updateMaterial(final String materialIdentifier, List<MaterialProperty> properties,
+            Date version) throws UserFailureException;
+
+    /**
+     * Updates sample.
+     */
+    public void updateSample(String sessionKey, final String sampleIdentifier,
+            List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
+            Date version) throws UserFailureException;
 
 }

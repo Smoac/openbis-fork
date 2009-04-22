@@ -193,7 +193,7 @@ public final class GenericExperimentEditForm
         updates.setProjectIdentifier(extractProjectIdentifier());
         updates.setAttachmentSessionKey(sessionKey);
         updates.setSampleCodes(samplesArea.tryGetSampleCodes());
-        viewContext.getCommonService().updateExperiment(updates,
+        viewContext.getService().updateExperiment(updates,
                 new RegisterExperimentCallback(viewContext));
     }
 

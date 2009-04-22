@@ -24,7 +24,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
@@ -40,7 +39,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWithStats;
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -48,14 +46,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -349,25 +344,6 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#registerExperimentType(ExperimentType) */
     public void registerExperimentType(ExperimentType entityType,
             final AsyncCallback<Void> asyncCallback);
-
-    /**
-     * @see ICommonClientService#updateExperiment(ExperimentUpdates)
-     */
-    public void updateExperiment(ExperimentUpdates experimentUpdates,
-            final AsyncCallback<Void> asyncCallback) throws UserFailureException;
-
-    /**
-     * @see ICommonClientService#updateMaterial(String, List, Date)
-     */
-    public void updateMaterial(final String materialIdentifier, List<MaterialProperty> properties,
-            Date version, final AsyncCallback<Void> asyncCallback) throws UserFailureException;
-
-    /**
-     * @see ICommonClientService#updateSample(String, String, List, ExperimentIdentifier, Date)
-     */
-    public void updateSample(String sessionKey, final String sampleIdentifier,
-            List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
-            Date version, final AsyncCallback<Void> asyncCallback) throws UserFailureException;
 
     /** @see ICommonClientService#deleteDataSets(List, String) */
     public void deleteDataSets(List<String> dataSetCodes, String reason,

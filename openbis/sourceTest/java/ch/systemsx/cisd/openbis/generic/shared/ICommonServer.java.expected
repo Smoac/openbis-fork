@@ -27,9 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnVa
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NullableGroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExternalDataValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
@@ -39,11 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -55,7 +50,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
@@ -431,39 +425,6 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.OBSERVER)
     public void uploadDataSets(String sessionToken, List<String> dataSetCodes,
             DataSetUploadContext uploadContext);
-
-    /**
-     * Saves changed experiment.
-     */
-    @Transactional
-    @RolesAllowed(RoleSet.USER)
-    @DatabaseUpdateModification(value =
-        { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE })
-    public void editExperiment(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class) ExperimentUpdatesDTO updates);
-
-    /**
-     * Saves changed material.
-     */
-    @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
-    @DatabaseUpdateModification(value = ObjectKind.MATERIAL)
-    public void editMaterial(String sessionToken, MaterialIdentifier identifier,
-            List<MaterialProperty> properties, Date version);
-
-    /**
-     * Saves changed sample.
-     */
-    @Transactional
-    @RolesAllowed(RoleSet.USER)
-    @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
-    public void editSample(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) SampleIdentifier identifier,
-            List<SampleProperty> properties,
-            @AuthorizationGuard(guardClass = NullableGroupIdentifierPredicate.class) ExperimentIdentifier experimentIdentifierOrNull,
-            List<AttachmentPE> attachments, Date version);
 
     /**
      * Lists vocabulary terms of a given vocabulary. Includes terms usage statistics.

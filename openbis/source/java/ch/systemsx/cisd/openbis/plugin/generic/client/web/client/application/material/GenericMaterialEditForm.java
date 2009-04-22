@@ -70,7 +70,7 @@ public final class GenericMaterialEditForm
     public final void submitValidForm()
     {
         final List<MaterialProperty> properties = extractProperties();
-        viewContext.getCommonService().updateMaterial(entity.getIdentifier(), properties,
+        viewContext.getService().updateMaterial(entity.getIdentifier(), properties,
                 entity.getModificationDate(), new RegisterMaterialCallback(viewContext));
     }
 

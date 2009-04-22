@@ -16,28 +16,35 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.shared;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
+import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
 import ch.systemsx.cisd.openbis.generic.shared.IPluginCommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperimentPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NullableGroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -135,4 +142,37 @@ public interface IGenericServer extends IPluginCommonServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public List<String> generateCodes(String sessionToken, String prefix, int number);
+
+    /**
+     * Saves changed experiment.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.USER)
+    @DatabaseUpdateModification(value =
+        { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE })
+    public void editExperiment(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class) ExperimentUpdatesDTO updates);
+
+    /**
+     * Saves changed material.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseUpdateModification(value = ObjectKind.MATERIAL)
+    public void editMaterial(String sessionToken, MaterialIdentifier identifier,
+            List<MaterialProperty> properties, Date version);
+
+    /**
+     * Saves changed sample.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.USER)
+    @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
+    public void editSample(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) SampleIdentifier identifier,
+            List<SampleProperty> properties,
+            @AuthorizationGuard(guardClass = NullableGroupIdentifierPredicate.class) ExperimentIdentifier experimentIdentifierOrNull,
+            List<AttachmentPE> attachments, Date version);
 }

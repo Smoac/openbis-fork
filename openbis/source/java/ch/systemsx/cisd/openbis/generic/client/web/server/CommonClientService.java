@@ -82,16 +82,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -102,7 +98,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
@@ -1126,43 +1121,6 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void updateExperiment(final ExperimentUpdates updates)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        final String sessionToken = getSessionToken();
-        new AttachmentRegistrationHelper()
-            {
-                @Override
-                public void register(List<AttachmentPE> attachments)
-                {
-                    ExperimentUpdatesDTO updatesDTO =
-                            createExperimentUpdatesDTO(updates, attachments);
-                    commonServer.editExperiment(sessionToken, updatesDTO);
-                }
-            }.process(updates.getAttachmentSessionKey(), getHttpSession());
-    }
-
-    private static ExperimentUpdatesDTO createExperimentUpdatesDTO(ExperimentUpdates updates,
-            List<AttachmentPE> attachments)
-    {
-        ExperimentUpdatesDTO updatesDTO = new ExperimentUpdatesDTO();
-
-        final ExperimentIdentifier identifier =
-                new ExperimentIdentifierFactory(updates.getExperimentIdentifier())
-                        .createIdentifier();
-        updatesDTO.setExperimentIdentifier(identifier);
-
-        final ProjectIdentifier project =
-                new ProjectIdentifierFactory(updates.getProjectIdentifier()).createIdentifier();
-        updatesDTO.setProjectIdentifier(project);
-
-        updatesDTO.setAttachments(attachments);
-        updatesDTO.setProperties(updates.getProperties());
-        updatesDTO.setSampleCodes(updates.getSampleCodes());
-        updatesDTO.setVersion(updates.getVersion());
-        return updatesDTO;
-    }
-
     public void uploadDataSets(List<String> dataSetCodes, DataSetUploadParameters uploadParameters)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1182,22 +1140,6 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void updateMaterial(String materialIdentifier, List<MaterialProperty> properties,
-            Date version)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final MaterialIdentifier identifier =
-                    MaterialIdentifier.tryParseIdentifier(materialIdentifier);
-            commonServer.editMaterial(sessionToken, identifier, properties, version);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-    }
-
     public void deleteDataSets(List<String> dataSetCodes, String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1209,35 +1151,6 @@ public final class CommonClientService extends AbstractClientService implements
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
-    }
-
-    public void updateSample(
-            String sessionKey,
-            final String sampleIdentifier,
-            final List<SampleProperty> properties,
-            final ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier experimentIdentifierOrNull,
-            final Date version)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        final String sessionToken = getSessionToken();
-        new AttachmentRegistrationHelper()
-            {
-                @Override
-                public void register(List<AttachmentPE> attachments)
-                {
-                    final SampleIdentifier identifier =
-                            new SampleIdentifierFactory(sampleIdentifier).createIdentifier();
-                    ExperimentIdentifier convExperimentIdentifierOrNull = null;
-                    if (experimentIdentifierOrNull != null)
-                    {
-                        convExperimentIdentifierOrNull =
-                                BeanUtils.createBean(ExperimentIdentifier.class,
-                                        experimentIdentifierOrNull);
-                    }
-                    commonServer.editSample(sessionToken, identifier, properties,
-                            convExperimentIdentifierOrNull, attachments, version);
-                }
-            }.process(sessionKey, getHttpSession());
     }
 
     public LastModificationState getLastModificationState()

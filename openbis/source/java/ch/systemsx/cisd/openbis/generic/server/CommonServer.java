@@ -34,17 +34,14 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -57,11 +54,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -74,7 +68,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
@@ -710,92 +703,6 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         {
             throw createUserFailureException(ex);
         }
-    }
-
-    public void editExperiment(String sessionToken, ExperimentUpdatesDTO updates)
-    {
-        ProjectIdentifier newProjectIdentifier = updates.getProjectIdentifier();
-        ExperimentIdentifier identifier = updates.getExperimentIdentifier();
-        final Session session = getSessionManager().getSession(sessionToken);
-        if (newProjectIdentifier.equals(identifier) == false)
-        {
-            checkExternalData(identifier, session);
-            checkSampleConsistency(identifier, newProjectIdentifier, session);
-        }
-
-        final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
-        experimentBO.edit(updates);
-        experimentBO.save();
-    }
-
-    private void checkExternalData(ExperimentIdentifier identifier, final Session session)
-    {
-        final IExternalDataTable externalDataTable =
-                businessObjectFactory.createExternalDataTable(session);
-        externalDataTable.loadByExperimentIdentifier(identifier);
-        if (externalDataTable.getExternalData().size() > 0)
-        {
-            throw new UserFailureException(
-                    "Changing the project of experiment containing data sets is not allowed.");
-        }
-    }
-
-    private void checkSampleConsistency(ExperimentIdentifier identifier,
-            ProjectIdentifier newProjectIdentifier, final Session session)
-    {
-        ListSampleCriteriaDTO criteria =
-                ListSampleCriteriaDTO.createExperimentIdentifier(identifier);
-        final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
-        sampleTable.loadSamplesByCriteria(criteria);
-        final List<SamplePE> samples = sampleTable.getSamples();
-        if (samples.size() > 0)
-        {
-            checkExperimentGroupMatches(samples.get(0).getSampleIdentifier(), newProjectIdentifier);
-        }
-    }
-
-    private void checkExperimentGroupMatches(SampleIdentifier sampleIdentifier,
-            ProjectIdentifier newProjectIdentifier)
-    {
-        assert sampleIdentifier != null : "Sample identifier not specified";
-        assert newProjectIdentifier != null : "Project identifier not specified";
-        final GroupIdentifier sampleGroup = sampleIdentifier.getGroupLevel();
-        if (sampleGroup == null)
-        {
-            throw new UserFailureException(
-                    "Inconsistency detected: shared sample found in experiment.");
-        }
-        if (sampleGroup.getDatabaseInstanceCode().equals(
-                newProjectIdentifier.getDatabaseInstanceCode()) == false
-                || sampleGroup.getGroupCode().equals(newProjectIdentifier.getGroupCode()) == false)
-        {
-            throw new UserFailureException(
-                    String
-                            .format(
-                                    "Project cannot be changed to '%s' because experiment containes samples from group '%s'.",
-                                    newProjectIdentifier, sampleGroup));
-        }
-    }
-
-    public void editMaterial(String sessionToken, MaterialIdentifier identifier,
-            List<MaterialProperty> properties, Date version)
-    {
-        final Session session = getSessionManager().getSession(sessionToken);
-        final IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
-        materialBO.edit(identifier, properties, version);
-        materialBO.save();
-
-    }
-
-    public void editSample(String sessionToken, SampleIdentifier identifier,
-            List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
-            List<AttachmentPE> attachments, Date version)
-    {
-        final Session session = getSessionManager().getSession(sessionToken);
-        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-        sampleBO.edit(identifier, properties, experimentIdentifierOrNull, attachments, version);
-        sampleBO.save();
-
     }
 
     public List<VocabularyTermWithStats> listVocabularyTermsWithStatistics(String sessionToken,

@@ -33,8 +33,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
@@ -164,7 +164,7 @@ public final class GenericSampleEditForm
         final List<SampleProperty> properties = extractProperties();
         ExperimentIdentifier experimentIdent =
                 experimentFieldOrNull != null ? experimentFieldOrNull.getValue() : null;
-        viewContext.getCommonService().updateSample(sessionKey, entity.getIdentifier(), properties,
+        viewContext.getService().updateSample(sessionKey, entity.getIdentifier(), properties,
                 experimentIdent, entity.getModificationDate(),
                 new UpdateSampleCallback(viewContext));
     }
