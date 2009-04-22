@@ -167,7 +167,7 @@ public final class GenericClientService extends AbstractClientService implements
 
         private List<BatchRegistrationResult> resultList;
 
-        String[] identifiers;
+        String[] sampleCodes;
 
         public List<NewSample> getSamples()
         {
@@ -179,9 +179,9 @@ public final class GenericClientService extends AbstractClientService implements
             return resultList;
         }
 
-        public String[] getIdentifiers()
+        public String[] getCodes()
         {
-            return identifiers;
+            return sampleCodes;
         }
 
         public SampleExtractor prepareSamples(final SampleType sampleType, final String sessionKey,
@@ -238,10 +238,12 @@ public final class GenericClientService extends AbstractClientService implements
                 }
                 resultList = results;
                 samples = newSamples;
-                identifiers = new String[samples.size()];
+                sampleCodes = new String[samples.size()];
                 for (int i = 0; i < samples.size(); i++)
                 {
-                    identifiers[i] = samples.get(i).getIdentifier();
+                    sampleCodes[i] =
+                            SampleIdentifierFactory.parse(samples.get(i).getIdentifier())
+                                    .getSampleCode();
                 }
                 return this;
             } catch (final UserFailureException e)
@@ -312,7 +314,7 @@ public final class GenericClientService extends AbstractClientService implements
                                     .getDatabaseInstanceCode(), identifier.getGroupCode())
                                     .toString());
             experiment.setNewSamples(extractor.getSamples());
-            experiment.setSamples(extractor.getIdentifiers());
+            experiment.setSamples(extractor.getCodes());
         }
         new AttachmentRegistrationHelper()
             {
@@ -432,6 +434,17 @@ public final class GenericClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
+        if (updates.isRegisterSamples())
+        {
+            final ProjectIdentifier newProject =
+                    new ProjectIdentifierFactory(updates.getProjectIdentifier()).createIdentifier();
+            SampleExtractor extractor =
+                    new SampleExtractor().prepareSamples(updates.getSampleType(), updates
+                            .getSamplesSessionKey(), new GroupIdentifier(newProject
+                            .getDatabaseInstanceCode(), newProject.getGroupCode()).toString());
+            updates.setNewSamples(extractor.getSamples());
+            updates.setSampleCodes(extractor.getCodes());
+        }
         new AttachmentRegistrationHelper()
             {
                 @Override
@@ -457,11 +470,13 @@ public final class GenericClientService extends AbstractClientService implements
         final ProjectIdentifier project =
                 new ProjectIdentifierFactory(updates.getProjectIdentifier()).createIdentifier();
         updatesDTO.setProjectIdentifier(project);
-
         updatesDTO.setAttachments(attachments);
         updatesDTO.setProperties(updates.getProperties());
         updatesDTO.setSampleCodes(updates.getSampleCodes());
         updatesDTO.setVersion(updates.getVersion());
+        updatesDTO.setRegisterSamples(updates.isRegisterSamples());
+        updatesDTO.setNewSamples(updates.getNewSamples());
+        updatesDTO.setSampleType(updates.getSampleType());
         return updatesDTO;
     }
 

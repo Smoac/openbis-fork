@@ -368,7 +368,7 @@ public final class ExperimentBOTest extends AbstractBOTest
 
         String[] editedSamples = new String[]
             { untouchedSample.getCode(), assignedSample.getCode() };
-        expBO.updateSamples(editedSamples);
+        expBO.updateSamples(editedSamples, false);
         assertEquals(exp, untouchedSample.getExperiment());
         assertEquals(exp, assignedSample.getExperiment());
         assertNull(unassignedSample.getExperiment());
@@ -407,7 +407,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         String errorMsg = "Sample 'assignedSample' is already assigned to the experiment";
         try
         {
-            expBO.updateSamples(editedSamples);
+            expBO.updateSamples(editedSamples, false);
         } catch (UserFailureException e)
         {
 
@@ -434,7 +434,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         try
         {
             expBO.updateSamples(new String[]
-                { unknownSampleCode });
+                { unknownSampleCode }, false);
         } catch (UserFailureException e)
         {
 
@@ -469,7 +469,7 @@ public final class ExperimentBOTest extends AbstractBOTest
                 "Operation cannot be performed, because some datasets have been already produced for the sample 'assignedSample'.";
         try
         {
-            expBO.updateSamples(new String[] {}); // remove all samples
+            expBO.updateSamples(new String[] {}, false); // remove all samples
         } catch (UserFailureException e)
         {
 

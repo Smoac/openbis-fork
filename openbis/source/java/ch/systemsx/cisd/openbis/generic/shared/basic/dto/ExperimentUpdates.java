@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.List;
+
 /**
  * Description of the updates which should be performed on the experiment.
  * 
@@ -33,6 +35,16 @@ public class ExperimentUpdates extends BasicExperimentUpdates
     // the key in the session at which points to the new attachments which will be added to the old
     // ones.
     private String attachmentSessionKey;
+
+    private SampleType sampleType;
+
+    private boolean generateCodes;
+
+    private boolean registerSamples;
+
+    private String samplesSessionKey;
+
+    private List<NewSample> newSamples;
 
     public String getAttachmentSessionKey()
     {
@@ -62,6 +74,56 @@ public class ExperimentUpdates extends BasicExperimentUpdates
     public void setProjectIdentifier(String newProjectIdentifier)
     {
         this.projectIdentifier = newProjectIdentifier;
+    }
+
+    public void setSampleType(SampleType sampleType)
+    {
+        this.sampleType = sampleType;
+    }
+
+    public void setGenerateCodes(boolean generateCodes)
+    {
+        this.generateCodes = generateCodes;
+    }
+
+    public SampleType getSampleType()
+    {
+        return sampleType;
+    }
+
+    public boolean isGenerateCodes()
+    {
+        return generateCodes;
+    }
+
+    public boolean isRegisterSamples()
+    {
+        return registerSamples;
+    }
+
+    public void setRegisterSamples(boolean registerSamples)
+    {
+        this.registerSamples = registerSamples;
+    }
+
+    public void setSamplesSessionKey(String samplesSessionKey)
+    {
+        this.samplesSessionKey = samplesSessionKey;
+    }
+
+    public String getSamplesSessionKey()
+    {
+        return samplesSessionKey;
+    }
+
+    public void setNewSamples(List<NewSample> samples)
+    {
+        this.newSamples = samples;
+    }
+
+    public List<NewSample> getNewSamples()
+    {
+        return newSamples;
     }
 
 }

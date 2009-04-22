@@ -321,27 +321,31 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         String[] sampleCodes = updates.getSampleCodes();
         if (sampleCodes != null)
         {
-            updateSamples(sampleCodes);
+            updateSamples(sampleCodes, updates.isRegisterSamples());
         }
         dataChanged = true;
     }
 
     @Private
-    void updateSamples(String[] sampleCodes)
+    void updateSamples(String[] sampleCodes, boolean append)
     {
         List<SamplePE> samples = experiment.getSamples();
         String[] currentSampleCodes = extractCodes(samples);
         Set<String> currentSampleCodesSet = asSet(currentSampleCodes);
-
         Set<String> codesToAdd = asSet(sampleCodes);
-        codesToAdd.removeAll(currentSampleCodesSet);
+        if (append == false)
+        {
+            codesToAdd.removeAll(currentSampleCodesSet);
+        }
         GroupPE group = experiment.getProject().getGroup();
         List<SamplePE> samplesToAdd = findUnassignedSamples(getSampleDAO(), codesToAdd, group);
         addToExperiment(samplesToAdd);
-
-        Set<String> codesToRemove = asSet(currentSampleCodes);
-        codesToRemove.removeAll(asSet(sampleCodes));
-        removeFromExperiment(filterSamples(samples, codesToRemove));
+        if (append == false)
+        {
+            Set<String> codesToRemove = asSet(currentSampleCodes);
+            codesToRemove.removeAll(asSet(sampleCodes));
+            removeFromExperiment(filterSamples(samples, codesToRemove));
+        }
     }
 
     private static List<SamplePE> filterSamples(List<SamplePE> samples, Set<String> extractedCodes)

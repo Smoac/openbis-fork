@@ -22,11 +22,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -40,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableExperiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -49,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityEditForm;
 
@@ -70,7 +79,7 @@ public final class GenericExperimentEditForm
 
     private final FileFieldManager attachmentManager;
 
-    private String sessionKey;
+    private String attachmentsSessionKey;
 
     private Html attachmentsInfo;
 
@@ -81,6 +90,18 @@ public final class GenericExperimentEditForm
     private ExperimentSamplesArea samplesArea;
 
     private String originalProjectIdentifier;
+
+    private final String samplesSessionKey;
+
+    private FileFieldManager importSamplesFileManager;
+
+    private SampleTypeSelectionWidget importSampleTypeSelection;
+
+    private Radio existingSamplesRadio;
+
+    private Radio importSamplesRadio;
+
+    private CheckBox autoGenerateCodes;
 
     public static DatabaseModificationAwareComponent create(
             IViewContext<IGenericClientServiceAsync> viewContext, EditableExperiment entity,
@@ -98,18 +119,32 @@ public final class GenericExperimentEditForm
         this.viewContext = viewContext;
         super.initializeComponents(viewContext);
 
-        sessionKey = createSimpleId(EntityKind.EXPERIMENT, entity.getId() + "");
+        String simpleId = createSimpleId(EntityKind.EXPERIMENT, entity.getId() + "");
+        attachmentsSessionKey = simpleId + "_attachments";
+        samplesSessionKey = simpleId + "_samples";
         originalProjectIdentifier = entity.getProjectIdentifier();
         setHeaderVisible(true);
         updateHeader();
         projectChooser =
-                new ProjectSelectionWidget(viewContext, sessionKey, originalProjectIdentifier);
+                new ProjectSelectionWidget(viewContext, attachmentsSessionKey,
+                        originalProjectIdentifier);
         FieldUtil.markAsMandatory(projectChooser);
         samplesArea = createSamplesArea();
+        importSamplesFileManager = new FileFieldManager(samplesSessionKey, 1, "File");
+        importSamplesFileManager.setMandatory();
+        importSampleTypeSelection = new SampleTypeSelectionWidget(viewContext, simpleId, false);
+        FieldUtil.markAsMandatory(importSampleTypeSelection);
+        existingSamplesRadio = GenericExperimentRegistrationForm.cerateExistingSamplesRadio();
+        importSamplesRadio = GenericExperimentRegistrationForm.createImportRadio();
+        autoGenerateCodes = GenericExperimentRegistrationForm.createAutoGenerateCheckbox();
         attachmentManager =
-                new FileFieldManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS, "New Attachment");
-        addUploadFeatures(sessionKey);
-
+                new FileFieldManager(attachmentsSessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS,
+                        "New Attachment");
+        List<String> sesionKeys = new ArrayList<String>();
+        sesionKeys.add(attachmentsSessionKey);
+        sesionKeys.add(samplesSessionKey);
+        addUploadFeatures(sesionKeys);
+        updateSamples();
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
                 @Override
@@ -125,6 +160,23 @@ public final class GenericExperimentEditForm
                 }
             });
         redefineSaveListeners();
+    }
+
+	// TODO 2009-04-22, IA: merge this class with GenericExperimentRegistrationForm
+    private void updateSamples()
+    {
+        Boolean useExistingSamples = existingSamplesRadio.getValue();
+        samplesArea.setVisible(useExistingSamples);
+        samplesArea.setEnabled(useExistingSamples);
+        importSampleTypeSelection.setVisible(useExistingSamples == false);
+        importSampleTypeSelection.setEnabled(useExistingSamples == false);
+        autoGenerateCodes.setVisible(useExistingSamples == false);
+        autoGenerateCodes.setEnabled(useExistingSamples == false);
+        for (FileUploadField samplesFileField : importSamplesFileManager.getFields())
+        {
+            samplesFileField.setVisible(useExistingSamples == false);
+            samplesFileField.setEnabled(useExistingSamples == false);
+        }
     }
 
     private ExperimentSamplesArea createSamplesArea()
@@ -171,7 +223,8 @@ public final class GenericExperimentEditForm
                 {
                     if (formPanel.isValid())
                     {
-                        if (attachmentManager.filesDefined() > 0)
+                        if (attachmentManager.filesDefined() > 0
+                                || importSamplesFileManager.filesDefined() > 0)
                         {
                             // setUploadEnabled(false);
                             formPanel.submit();
@@ -191,8 +244,12 @@ public final class GenericExperimentEditForm
         updates.setVersion(entity.getModificationDate());
         updates.setProperties(extractProperties());
         updates.setProjectIdentifier(extractProjectIdentifier());
-        updates.setAttachmentSessionKey(sessionKey);
-        updates.setSampleCodes(samplesArea.tryGetSampleCodes());
+        updates.setAttachmentSessionKey(attachmentsSessionKey);
+        updates.setSampleCodes(getSamples());
+        updates.setSampleType(getSampleType());
+        updates.setGenerateCodes(autoGenerateCodes.getValue().booleanValue());
+        updates.setRegisterSamples(existingSamplesRadio.getValue() == false);
+        updates.setSamplesSessionKey(samplesSessionKey);
         viewContext.getService().updateExperiment(updates,
                 new RegisterExperimentCallback(viewContext));
     }
@@ -237,6 +294,24 @@ public final class GenericExperimentEditForm
         return new ExperimentPropertyEditor(entityTypesPropertyTypes, properties, id, context);
     }
 
+    RadioGroup createSamplesSourceRadio(Radio existing, Radio importFromFile)
+    {
+        RadioGroup result = new RadioGroup();
+        result.setSelectionRequired(true);
+        result.setFieldLabel("Add Samples");
+        result.setOrientation(Orientation.HORIZONTAL);
+        result.add(existing);
+        result.add(importFromFile);
+        result.addListener(Events.Change, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    updateSamples();
+                }
+            });
+        return result;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     protected List<DatabaseModificationAwareField<?>> getEntitySpecificFormFields()
@@ -244,7 +319,15 @@ public final class GenericExperimentEditForm
         List<DatabaseModificationAwareField<?>> fields =
                 new ArrayList<DatabaseModificationAwareField<?>>();
         fields.add(projectChooser.asDatabaseModificationAware());
+        fields.add(wrapUnaware(createSamplesSourceRadio(existingSamplesRadio, importSamplesRadio)));
         fields.add(wrapUnaware(samplesArea));
+        fields.add(importSampleTypeSelection.asDatabaseModificationAware());
+        for (FileUploadField samplesFileField : importSamplesFileManager.getFields())
+        {
+            fields.add(wrapUnaware((Field<?>) samplesFileField));
+        }
+        fields.add(wrapUnaware(autoGenerateCodes));
+
         for (FileUploadField f : attachmentManager.getFields())
         {
             fields.add(wrapUnaware(f));
@@ -293,5 +376,21 @@ public final class GenericExperimentEditForm
     private void updateHeader()
     {
         setHeading("Experiment " + entity.getIdentifier());
+    }
+
+    private String[] getSamples()
+    {
+        if (existingSamplesRadio.getValue())
+            return samplesArea.tryGetSampleCodes();
+        else
+            return null;
+    }
+
+    private SampleType getSampleType()
+    {
+        if (existingSamplesRadio.getValue() == false)
+            return importSampleTypeSelection.tryGetSelectedSampleType();
+        else
+            return null;
     }
 }

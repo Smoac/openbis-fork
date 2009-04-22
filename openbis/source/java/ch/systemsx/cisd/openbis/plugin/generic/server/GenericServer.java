@@ -323,6 +323,10 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         ProjectIdentifier newProjectIdentifier = updates.getProjectIdentifier();
         ExperimentIdentifier identifier = updates.getExperimentIdentifier();
         final Session session = getSessionManager().getSession(sessionToken);
+        if (updates.isRegisterSamples())
+        {
+            registerSamples(sessionToken, updates.getSampleType(), updates.getNewSamples());
+        }
         if (newProjectIdentifier.equals(identifier) == false)
         {
             checkExternalData(identifier, session);

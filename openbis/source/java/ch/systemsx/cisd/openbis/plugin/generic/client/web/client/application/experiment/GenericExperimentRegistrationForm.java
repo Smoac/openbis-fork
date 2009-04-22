@@ -162,21 +162,21 @@ public final class GenericExperimentRegistrationForm
         return result;
     }
 
-    private Radio createImportRadio()
+    static Radio createImportRadio()
     {
         Radio importRadio = new Radio();
         importRadio.setBoxLabel("from file");
         return importRadio;
     }
 
-    private CheckBox createAutoGenerateCheckbox()
+    static CheckBox createAutoGenerateCheckbox()
     {
         CheckBox result = new CheckBox();
         result.setFieldLabel("Create codes automatically");
         return result;
     }
 
-    private Radio cerateExistingSamplesRadio()
+    static Radio cerateExistingSamplesRadio()
     {
         Radio existingRadio = new Radio();
         existingRadio.setBoxLabel("existing");
