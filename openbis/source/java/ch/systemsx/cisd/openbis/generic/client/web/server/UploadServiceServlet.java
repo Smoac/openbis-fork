@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -49,9 +51,9 @@ import ch.systemsx.cisd.common.utilities.Message;
  * </p>
  * <p>
  * This service is synchronized on the session object to serialize parallel invocations from the
- * same client. The <i>HTTP</i> response returns an empty string or <code>null</code> if the
- * upload was successful and is finished. Otherwise it returns a {@link Message} as <i>XML</i>
- * string in case of exception.
+ * same client. The <i>HTTP</i> response returns an empty string or <code>null</code> if the upload
+ * was successful and is finished. Otherwise it returns a {@link Message} as <i>XML</i> string in
+ * case of exception.
  * </p>
  * <p>
  * <i>URL</i> mappings are: <code>/upload</code> and <code>/openbis/upload</code>.
@@ -133,35 +135,55 @@ public final class UploadServiceServlet extends AbstractCommandController
     {
         if (request instanceof AbstractMultipartHttpServletRequest)
         {
-            final AbstractMultipartHttpServletRequest multipartRequest =
-                    (AbstractMultipartHttpServletRequest) request;
-            final UploadedFilesBean uploadedFiles = (UploadedFilesBean) command;
-            final String sessionKey = uploadedFiles.getSessionKey();
-            if (sessionKey == null)
-            {
-                throw new ServletException(
-                        "No form field 'sessionKey' could be found in the transmitted form.");
-            }
-            for (final Iterator<String> iterator = cast(multipartRequest.getFileNames()); iterator
-                    .hasNext(); /**/)
-            {
-                final String fileName = iterator.next();
-                final MultipartFile multipartFile = multipartRequest.getFile(fileName);
-                if (multipartFile.isEmpty() == false)
-                {
-                    uploadedFiles.addMultipartFile(multipartFile);
-                }
-            }
-            if (uploadedFiles.size() == 0)
-            {
-                throw UserFailureException.fromTemplate("No file has been uploaded, that is, "
-                        + "the chosen file(s) has no content.");
-            }
             // We must have a session reaching this point. See the constructor where we set
             // 'setRequireSession(true)'.
             final HttpSession session = request.getSession(false);
             assert session != null : "Session must be specified.";
-            session.setAttribute(sessionKey, uploadedFiles);
+            final AbstractMultipartHttpServletRequest multipartRequest =
+                    (AbstractMultipartHttpServletRequest) request;
+            final String sessionKeysNumberParameter = request.getParameter("sessionKeysNumber");
+            if (sessionKeysNumberParameter == null
+                    || Integer.parseInt(sessionKeysNumberParameter) < 1)
+            {
+                throw new ServletException(
+                        "No form field 'sessionKeysNumber' could be found in the transmitted form.");
+            }
+            List<String> sessionKeys = new ArrayList<String>();
+            for (int i = 0; i < Integer.parseInt(sessionKeysNumberParameter); i++)
+            {
+                String sessionKey = request.getParameter("sessionKey_" + i);
+                if (sessionKey == null)
+                {
+                    throw new ServletException("No field 'sessionKey_" + i
+                            + "' could be found in the transmitted form.");
+                }
+                sessionKeys.add(sessionKey);
+            }
+            boolean atLeastOneFileUploaded = false;
+            for (String sessionKey : sessionKeys)
+            {
+                final UploadedFilesBean uploadedFiles = new UploadedFilesBean();
+                for (final Iterator<String> iterator = cast(multipartRequest.getFileNames()); iterator
+                        .hasNext(); /**/)
+                {
+                    final String fileName = iterator.next();
+                    if (fileName.startsWith(sessionKey))
+                    {
+                        final MultipartFile multipartFile = multipartRequest.getFile(fileName);
+                        if (multipartFile.isEmpty() == false)
+                        {
+                            uploadedFiles.addMultipartFile(multipartFile);
+                            atLeastOneFileUploaded = true;
+                        }
+                    }
+                }
+                if (atLeastOneFileUploaded == false)
+                {
+                    throw UserFailureException.fromTemplate("No file has been uploaded or "
+                            + "the chosen files have no content.");
+                }
+                session.setAttribute(sessionKey, uploadedFiles);
+            }
             sendResponse(response, null);
         }
         return null;

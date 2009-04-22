@@ -76,7 +76,7 @@ public class ProjectRegistrationForm extends AbstractProjectEditRegisterForm
         }
 
         @Override
-        protected String createSuccessfullRegistrationInfo()
+        protected String createSuccessfullRegistrationInfo(Void result)
         {
             return "Project <b>" + project.getIdentifier().toUpperCase()
                     + "</b> successfully registered.";

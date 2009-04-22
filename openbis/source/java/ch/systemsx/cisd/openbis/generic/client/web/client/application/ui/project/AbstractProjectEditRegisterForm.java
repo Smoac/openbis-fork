@@ -27,7 +27,7 @@ import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentManager;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -56,7 +56,7 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
 
     protected final GroupSelectionWidget groupField;
 
-    private final AttachmentManager attachmentManager;
+    private final FileFieldManager attachmentManager;
 
     protected final String sessionKey;
 
@@ -77,12 +77,12 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
         super(viewContext, createId(projectIdOrNull), DEFAULT_LABEL_WIDTH + 20, DEFAULT_FIELD_WIDTH);
         sessionKey = createId(projectIdOrNull);
         attachmentManager =
-                new AttachmentManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS, "Attachment");
+                new FileFieldManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS, "Attachment");
         this.viewContext = viewContext;
         projectCodeField = createProjectCodeField();
         groupField = createGroupField(groupCodeOrNull);
         projectDescriptionField = createProjectDescriptionField();
-        addUploadFeatures(formPanel, sessionKey);
+        addUploadFeatures(sessionKey);
     }
 
     public static String createId(Long id)
@@ -161,7 +161,7 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
                 {
                     if (formPanel.isValid())
                     {
-                        if (attachmentManager.attachmentsDefined() > 0)
+                        if (attachmentManager.filesDefined() > 0)
                         {
                             setUploadEnabled(false);
                             formPanel.submit();

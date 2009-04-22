@@ -33,7 +33,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentManager;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -66,7 +66,7 @@ public final class GenericSampleEditForm
 {
     private static final int DEFAULT_NUMBER_OF_ATTACHMENTS = 3;
 
-    private final AttachmentManager attachmentManager;
+    private final FileFieldManager attachmentManager;
 
     private String sessionKey;
 
@@ -101,8 +101,8 @@ public final class GenericSampleEditForm
         super.initializeComponents(viewContext);
         sessionKey = createSimpleId(EntityKind.SAMPLE, entity.getId() + "");
         attachmentManager =
-                new AttachmentManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS, "New Attachment");
-        addUploadFeatures(formPanel, sessionKey);
+                new FileFieldManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS, "New Attachment");
+        addUploadFeatures(sessionKey);
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
                 @Override
@@ -130,7 +130,7 @@ public final class GenericSampleEditForm
                 {
                     if (formPanel.isValid())
                     {
-                        if (attachmentManager.attachmentsDefined() > 0)
+                        if (attachmentManager.filesDefined() > 0)
                         {
                             formPanel.submit();
                         } else
@@ -222,7 +222,7 @@ public final class GenericSampleEditForm
         {
             experimentFieldOrNull.updateOriginalValue();
             updateSpecificPropertiesGrid();
-            attachmentsInfo.setHtml(getAttachmentInfoText(attachmentManager.attachmentsDefined()));
+            attachmentsInfo.setHtml(getAttachmentInfoText(attachmentManager.filesDefined()));
             updateHeader();
         }
     }

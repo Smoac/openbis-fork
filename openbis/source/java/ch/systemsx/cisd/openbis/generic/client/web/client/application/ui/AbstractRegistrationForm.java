@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -49,6 +52,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  */
 public abstract class AbstractRegistrationForm extends ContentPanel
 {
+    private static final String SESSION_KEY_PREFIX = "sessionKey_";
+
+    private static final String SESSION_KEYS_NUMBER = "sessionKeysNumber";
+
     public static final String SAVE_BUTTON = "save-button";
 
     public static final int DEFAULT_LABEL_WIDTH = 100;
@@ -64,6 +71,8 @@ public abstract class AbstractRegistrationForm extends ContentPanel
     protected final int fieldWitdh;
 
     protected Button saveButton;
+
+    private boolean sessionKeysInitiated = false;
 
     protected AbstractRegistrationForm(final IMessageProvider messageProvider, final String id)
     {
@@ -89,6 +98,18 @@ public abstract class AbstractRegistrationForm extends ContentPanel
     {
         final InfoBox infoBox = new InfoBox();
         return infoBox;
+    }
+
+    protected void resetPanel()
+    {
+        try
+        {
+            formPanel.reset();
+        } catch (JavaScriptException e)
+        {
+            // ignored because it might be thrown for file upload field in system tests on CI
+            // server
+        }
     }
 
     protected ClickableFormPanel createFormPanel(final IMessageProvider messageProvider)
@@ -131,7 +152,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
                 @Override
                 public final void componentSelected(final ButtonEvent ce)
                 {
-                    panel.reset();
+                    resetPanel();
                 }
             });
         panel.addButton(resetButton);
@@ -170,12 +191,12 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         @Override
         protected void process(final T result)
         {
-            infoBox.displayInfo(createSuccessfullRegistrationInfo());
+            infoBox.displayInfo(createSuccessfullRegistrationInfo(result));
             resetPanel();
             setUploadEnabled(true);
         }
 
-        protected abstract String createSuccessfullRegistrationInfo();
+        protected abstract String createSuccessfullRegistrationInfo(T result);
 
         @Override
         protected final void finishOnFailure(final Throwable caught)
@@ -183,17 +204,6 @@ public abstract class AbstractRegistrationForm extends ContentPanel
             setUploadEnabled(true);
         }
 
-        private void resetPanel()
-        {
-            try
-            {
-                formPanel.reset();
-            } catch (JavaScriptException e)
-            {
-                // ignored because it might be thrown for file upload field in system tests on CI
-                // server
-            }
-        }
     }
 
     public final static class InfoBoxResetListener implements Listener<FieldEvent>, ClickListener
@@ -236,24 +246,41 @@ public abstract class AbstractRegistrationForm extends ContentPanel
      * This key is the session attribute key where you can access the uploaded files.
      * </p>
      */
-    public final static HiddenField<String> createHiddenSessionField(String value)
+    public final static HiddenField<String> createHiddenSessionField(String value, int counter)
+    {
+        String name = SESSION_KEY_PREFIX + counter;
+        return createHiddenField(name, value);
+    }
+
+    private static HiddenField<String> createHiddenField(String name, String value)
     {
         final HiddenField<String> hiddenField = new HiddenField<String>();
-        hiddenField.setName("sessionKey");
+        hiddenField.setName(name);
         hiddenField.setValue(value);
         return hiddenField;
     }
 
-    static protected final void addUploadFeatures(FormPanel panel, String sessionKey)
+    protected final void addUploadFeatures(String sessionKey)
     {
-        panel.setWidth(AbstractRegistrationForm.DEFAULT_LABEL_WIDTH
+        ArrayList<String> sessionKeys = new ArrayList<String>();
+        sessionKeys.add(sessionKey);
+        addUploadFeatures(sessionKeys);
+    }
+
+    protected final void addUploadFeatures(List<String> sessionKeys)
+    {
+        assert sessionKeysInitiated == false : "This method should be called only once.";
+        formPanel.setWidth(AbstractRegistrationForm.DEFAULT_LABEL_WIDTH
                 + AbstractRegistrationForm.DEFAULT_FIELD_WIDTH + 50);
-        panel.setAction(GenericConstants.createServicePath("upload"));
-        panel.setEncoding(Encoding.MULTIPART);
-        panel.setMethod(Method.POST);
-        final HiddenField<String> sessionKeyField =
-                AbstractRegistrationForm.createHiddenSessionField(sessionKey);
-        panel.add(sessionKeyField);
+        formPanel.setAction(GenericConstants.createServicePath("upload"));
+        formPanel.setEncoding(Encoding.MULTIPART);
+        formPanel.setMethod(Method.POST);
+        formPanel.add(createHiddenField(SESSION_KEYS_NUMBER, sessionKeys.size() + ""));
+        for (int i = 0; i < sessionKeys.size(); i++)
+        {
+            formPanel.add(AbstractRegistrationForm.createHiddenSessionField(sessionKeys.get(i), i));
+        }
+        sessionKeysInitiated = true;
     }
 
 }

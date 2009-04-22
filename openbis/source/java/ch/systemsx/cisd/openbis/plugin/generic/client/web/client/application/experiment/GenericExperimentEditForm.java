@@ -31,8 +31,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
@@ -68,7 +68,7 @@ public final class GenericExperimentEditForm
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
 
-    private final AttachmentManager attachmentManager;
+    private final FileFieldManager attachmentManager;
 
     private String sessionKey;
 
@@ -107,8 +107,8 @@ public final class GenericExperimentEditForm
         FieldUtil.markAsMandatory(projectChooser);
         samplesArea = createSamplesArea();
         attachmentManager =
-                new AttachmentManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS, "New Attachment");
-        addUploadFeatures(formPanel, sessionKey);
+                new FileFieldManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS, "New Attachment");
+        addUploadFeatures(sessionKey);
 
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
@@ -171,7 +171,7 @@ public final class GenericExperimentEditForm
                 {
                     if (formPanel.isValid())
                     {
-                        if (attachmentManager.attachmentsDefined() > 0)
+                        if (attachmentManager.filesDefined() > 0)
                         {
                             // setUploadEnabled(false);
                             formPanel.submit();
@@ -268,7 +268,7 @@ public final class GenericExperimentEditForm
         samplesArea.updateOriginalValue(samplesArea.getValue());
         originalProjectIdentifier = projectChooser.tryGetSelectedProject().getIdentifier();
         entity.setIdentifier(originalProjectIdentifier + "/" + entity.getCode());
-        attachmentsInfo.setHtml(getAttachmentInfoText(attachmentManager.attachmentsDefined()));
+        attachmentsInfo.setHtml(getAttachmentInfoText(attachmentManager.filesDefined()));
         if (samplesArea.tryGetSampleCodes() != null)
         {
             samplesInfo.setHtml(viewContext.getMessage(Dict.SAMPLES) + ": "

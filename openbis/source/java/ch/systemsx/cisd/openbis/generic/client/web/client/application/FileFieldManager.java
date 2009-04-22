@@ -22,49 +22,59 @@ import java.util.List;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+
 /**
  * Stores and manages {@link FileUploadField} fields.
  * 
  * @author Izabela Adamczyk
  */
-public class AttachmentManager
+public class FileFieldManager
 {
     private final String fieldLabel;
 
     private static final String FIELD_NAME_TEMPLATE = "{0}_{1}";
 
-    private final List<FileUploadField> attachmentFields;
+    private final List<FileUploadField> fileFields;
 
     private final String sessionKey;
 
-    public AttachmentManager(String sessionKey, int initialNumberOfAttachments, String fieldLabel)
+    public FileFieldManager(String sessionKey, int initialNumberOfFields, String fieldLabel)
     {
         this.sessionKey = sessionKey;
         this.fieldLabel = fieldLabel;
-        attachmentFields = new ArrayList<FileUploadField>();
-        for (int i = 0; i < initialNumberOfAttachments; i++)
+        fileFields = new ArrayList<FileUploadField>();
+        for (int i = 0; i < initialNumberOfFields; i++)
         {
-            attachmentFields.add(createFileUploadField(i));
+            fileFields.add(createFileUploadField(i));
         }
+    }
+
+    public void setMandatory()
+    {
+        assert fileFields.size() > 0;
+        FileUploadField field = fileFields.get(0);
+        field.setAllowBlank(false);
+        FieldUtil.markAsMandatory(field);
     }
 
     public List<FileUploadField> getFields()
     {
-        return attachmentFields;
+        return fileFields;
     }
 
     public FileUploadField addField()
     {
-        int counter = attachmentFields.size();
+        int counter = fileFields.size();
         FileUploadField field = createFileUploadField(counter);
-        attachmentFields.add(field);
+        fileFields.add(field);
         return field;
     }
 
-    public int attachmentsDefined()
+    public int filesDefined()
     {
         int i = 0;
-        for (FileUploadField field : attachmentFields)
+        for (FileUploadField field : fileFields)
         {
             Object value = field.getValue();
             if (value != null && String.valueOf(value).length() > 0)

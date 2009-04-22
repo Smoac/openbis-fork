@@ -28,13 +28,14 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -56,7 +57,10 @@ public final class GenericExperimentRegistrationForm
 {
     public static final String ID = createId(EntityKind.EXPERIMENT);
 
-    public static final String SESSION_KEY = createSimpleId(EntityKind.EXPERIMENT);
+    public static final String ATTACHMENTS_SESSION_KEY = createSimpleId(EntityKind.EXPERIMENT);
+
+    public static final String SAMPLES_SESSION_KEY =
+            createSimpleId(EntityKind.EXPERIMENT) + "_samples";
 
     private static final int DEFAULT_NUMBER_OF_ATTACHMENTS = 3;
 
@@ -66,10 +70,16 @@ public final class GenericExperimentRegistrationForm
 
     private ProjectSelectionWidget projectSelectionWidget;
 
-    private AttachmentManager attachmentManager =
-            new AttachmentManager(SESSION_KEY, DEFAULT_NUMBER_OF_ATTACHMENTS, "Attachment");
+    private FileFieldManager attachmentManager =
+            new FileFieldManager(ATTACHMENTS_SESSION_KEY, DEFAULT_NUMBER_OF_ATTACHMENTS,
+                    "Attachment");
+
+    private FileFieldManager importSamplesFileManager =
+            new FileFieldManager(SAMPLES_SESSION_KEY, 1, "File");
 
     private ExperimentSamplesArea samplesArea;
+
+    private final SampleTypeSelectionWidget importSampleTypeSelection;
 
     public GenericExperimentRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext,
@@ -78,7 +88,11 @@ public final class GenericExperimentRegistrationForm
         super(viewContext, experimentType.getExperimentTypePropertyTypes(), EntityKind.EXPERIMENT);
         this.viewContext = viewContext;
         this.experimentType = experimentType;
-        addUploadFeatures(formPanel, SESSION_KEY);
+        importSampleTypeSelection = new SampleTypeSelectionWidget(viewContext, ID, false);
+        List<String> sesionKeys = new ArrayList<String>();
+        sesionKeys.add(ATTACHMENTS_SESSION_KEY);
+        sesionKeys.add(SAMPLES_SESSION_KEY);
+        addUploadFeatures(sesionKeys);
     }
 
     private final String createExperimentIdentifier()
@@ -104,7 +118,7 @@ public final class GenericExperimentRegistrationForm
         }
 
         @Override
-        protected String createSuccessfullRegistrationInfo()
+        protected String createSuccessfullRegistrationInfo(Void result)
         {
             return "Experiment <b>" + createExperimentIdentifier() + "</b> successfully registered";
         }
@@ -120,6 +134,21 @@ public final class GenericExperimentRegistrationForm
         projectSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.PROJECT));
 
         samplesArea = new ExperimentSamplesArea(viewContext, ID);
+
+        // importSampleTypeSelection
+        // .addSelectionChangedListener(new SelectionChangedListener<ModelData>()
+        // {
+        // @Override
+        // public final void selectionChanged(final SelectionChangedEvent<ModelData> se)
+        // {
+        // final SampleType sampleType =
+        // importSampleTypeSelection.tryGetSelectedSampleType();
+        // if (sampleType != null)
+        // {
+        //
+        // }
+        // }
+        // });
 
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
@@ -148,7 +177,8 @@ public final class GenericExperimentRegistrationForm
                 {
                     if (formPanel.isValid())
                     {
-                        if (attachmentManager.attachmentsDefined() > 0)
+                        if (attachmentManager.filesDefined() > 0
+                                || importSamplesFileManager.filesDefined() > 0)
                         {
                             setUploadEnabled(false);
                             formPanel.submit();
@@ -168,6 +198,11 @@ public final class GenericExperimentRegistrationForm
                 new ArrayList<DatabaseModificationAwareField<?>>();
         fields.add(projectSelectionWidget.asDatabaseModificationAware());
         fields.add(wrapUnaware(samplesArea));
+        fields.add(importSampleTypeSelection.asDatabaseModificationAware());
+        for (FileUploadField samplesFileField : importSamplesFileManager.getFields())
+        {
+            fields.add(wrapUnaware((Field<?>) samplesFileField));
+        }
         for (FileUploadField attachmentField : attachmentManager.getFields())
         {
             fields.add(wrapUnaware((Field<?>) attachmentField));
@@ -182,7 +217,7 @@ public final class GenericExperimentRegistrationForm
         final List<ExperimentProperty> properties = extractProperties();
         newExp.setProperties(properties.toArray(ExperimentProperty.EMPTY_ARRAY));
         newExp.setSamples(samplesArea.tryGetSampleCodes());
-        viewContext.getService().registerExperiment(SESSION_KEY, newExp,
+        viewContext.getService().registerExperiment(ATTACHMENTS_SESSION_KEY, newExp,
                 new RegisterExperimentCallback(viewContext));
     }
 

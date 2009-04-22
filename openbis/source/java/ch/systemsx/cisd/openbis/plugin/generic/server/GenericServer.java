@@ -222,7 +222,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         }
         experimentBO.save();
 
-        if (newExperiment.getSamples().length > 0)
+        if (newExperiment.getSamples() != null && newExperiment.getSamples().length > 0)
         {
             ExperimentPE experiment = experimentBO.getExperiment();
             List<SampleIdentifier> sampleIdentifiers =

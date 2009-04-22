@@ -279,7 +279,7 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
         }
 
         @Override
-        protected String createSuccessfullRegistrationInfo()
+        protected String createSuccessfullRegistrationInfo(Void result)
         {
             return "Property type <b>" + propertyType.getCode() + "</b> successfully registered.";
         }

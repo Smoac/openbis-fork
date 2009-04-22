@@ -29,8 +29,8 @@ import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
@@ -77,8 +77,8 @@ public final class GenericSampleRegistrationForm extends
 
     private TextField<String> parent;
 
-    private AttachmentManager attachmentManager =
-            new AttachmentManager(SESSION_KEY, DEFAULT_NUMBER_OF_ATTACHMENTS, "Attachment");
+    private FileFieldManager attachmentManager =
+            new FileFieldManager(SESSION_KEY, DEFAULT_NUMBER_OF_ATTACHMENTS, "Attachment");
 
     public GenericSampleRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
@@ -86,7 +86,7 @@ public final class GenericSampleRegistrationForm extends
         super(viewContext, sampleType.getSampleTypePropertyTypes(), EntityKind.SAMPLE);
         this.viewContext = viewContext;
         this.sampleType = sampleType;
-        addUploadFeatures(formPanel, SESSION_KEY);
+        addUploadFeatures(SESSION_KEY);
     }
 
     private final String createSampleIdentifier()
@@ -128,7 +128,7 @@ public final class GenericSampleRegistrationForm extends
         }
 
         @Override
-        protected String createSuccessfullRegistrationInfo()
+        protected String createSuccessfullRegistrationInfo(Void result)
         {
             String code = codeField.getValue();
             final Group selectedGroup = groupSelectionWidget.tryGetSelectedGroup();
@@ -185,7 +185,7 @@ public final class GenericSampleRegistrationForm extends
                 {
                     if (formPanel.isValid())
                     {
-                        if (attachmentManager.attachmentsDefined() > 0)
+                        if (attachmentManager.filesDefined() > 0)
                         {
                             setUploadEnabled(false);
                             formPanel.submit();

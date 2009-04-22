@@ -16,44 +16,32 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
+
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.GXT;
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.util.Format;
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.HiddenField;
-import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
-import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
-import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
-import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.HTML;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ClickableFormPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HelpHtml;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -64,7 +52,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Christian Ribeaud
  */
-public final class GenericSampleBatchRegistrationForm extends LayoutContainer
+public final class GenericSampleBatchRegistrationForm extends AbstractRegistrationForm
 {
     private static final String PREFIX = "sample-batch-registration";
 
@@ -74,17 +62,11 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
 
     private static final String FIELD_LABEL_TEMPLATE = "File";
 
-    private static final String FIELD_NAME_TEMPLATE = SESSION_KEY + "_{0}";
+    private static final int DEFAULT_NUMBER_OF_FILES = 1;
 
-    private static final int NUMBER_OF_FIELDS = 1;
+    private final FileFieldManager fileFieldsManager;
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
-
-    private FormPanel formPanel;
-
-    private Button submitButton;
-
-    private final InfoBox infoBox;
 
     private final SampleType sampleType;
 
@@ -95,40 +77,17 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
     public GenericSampleBatchRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
     {
-        super(new FlowLayout(5));
-        setScrollMode(Scroll.AUTO);
+        super(viewContext.getCommonViewContext(), ID);
         this.viewContext = viewContext;
         this.sampleType = sampleType;
-        add(infoBox = createInfoBox());
-        add(createUI());
-        add(createHelp());
-    }
-
-    private final static HTML createHelp()
-    {
-        return new HelpHtml(PREFIX);
-    }
-
-    private final static InfoBox createInfoBox()
-    {
-        final InfoBox infoBox = new InfoBox();
-        return infoBox;
-    }
-
-    private final Component createUI()
-    {
-        submitButton = createButton();
-        formPanel = createFormPanel(submitButton);
-        final FieldSet fieldSet = createFieldSet();
-        for (int i = 0; i < NUMBER_OF_FIELDS; i++)
-        {
-            fieldSet.add(createFileUploadField(i));
-        }
-        fieldSet.add(generateCodesCheckbox =
-                new CheckBoxField("Generate codes automatically", false));
-        fieldSet.add(groupSelector =
+        fileFieldsManager =
+                new FileFieldManager(SESSION_KEY, DEFAULT_NUMBER_OF_FILES, FIELD_LABEL_TEMPLATE);
+        fileFieldsManager.setMandatory();
+        setScrollMode(Scroll.AUTO);
+        generateCodesCheckbox = new CheckBoxField("Generate codes automatically", false);
+        groupSelector =
                 createGroupField(viewContext.getCommonViewContext(), "" + getId(), true,
-                        generateCodesCheckbox));
+                        generateCodesCheckbox);
         generateCodesCheckbox.addListener(Events.Change, new Listener<FieldEvent>()
             {
                 public void handleEvent(FieldEvent be)
@@ -139,8 +98,12 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
                     groupSelector.validate();
                 }
             });
-        formPanel.add(fieldSet);
-        return formPanel;
+        addUploadFeatures(SESSION_KEY);
+    }
+
+    private final static HTML createHelp()
+    {
+        return new HelpHtml(PREFIX);
     }
 
     private final GroupSelectionWidget createGroupField(
@@ -161,7 +124,6 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
                     clearInvalid();
                     return true;
                 }
-
             };
         FieldUtil.markAsMandatory(field);
         field.setFieldLabel("Default Group");
@@ -169,124 +131,77 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
         return field;
     }
 
-    private final static FieldSet createFieldSet()
+    private final void addFormFields()
     {
-        final FieldSet fieldSet = new FieldSet();
-        fieldSet.setHeading("Upload files");
-        fieldSet.setLayout(createFormLayout());
-        return fieldSet;
-    }
-
-    private final static FormLayout createFormLayout()
-    {
-        final FormLayout formLayout = new FormLayout();
-        formLayout.setLabelWidth(AbstractRegistrationForm.DEFAULT_LABEL_WIDTH);
-        formLayout.setDefaultWidth(AbstractRegistrationForm.DEFAULT_FIELD_WIDTH);
-        return formLayout;
-    }
-
-    private final FormPanel createFormPanel(final Button button)
-    {
-        final ClickableFormPanel panel = new ClickableFormPanel();
-        panel.addClickListener(new AbstractRegistrationForm.InfoBoxResetListener(infoBox));
-        panel.setLayout(new FlowLayout());
-        panel.setWidth(AbstractRegistrationForm.DEFAULT_LABEL_WIDTH
-                + AbstractRegistrationForm.DEFAULT_FIELD_WIDTH + 50);
-        panel.setHeaderVisible(false);
-        panel.setBodyBorder(false);
-        panel.setAction(GenericConstants.createServicePath("upload"));
-        panel.setEncoding(Encoding.MULTIPART);
-        panel.setMethod(Method.POST);
-        panel.setButtonAlign(HorizontalAlignment.RIGHT);
-        final HiddenField<String> sessionKeyField =
-                AbstractRegistrationForm.createHiddenSessionField(SESSION_KEY);
-        panel.add(sessionKeyField);
-        panel.addButton(button);
-        final GenericSampleBatchRegistrationForm thisForm = this;
-        // Does some action after the form has been successfully submitted. Note that the response
-        // coming from the server could be an error message. Even in case of error on the server
-        // side this listener will be informed.
-        panel.addListener(Events.Submit, new FormPanelListener(infoBox)
+        for (FileUploadField attachmentField : fileFieldsManager.getFields())
+        {
+            formPanel.add(wrapUnaware((Field<?>) attachmentField).get());
+        }
+        formPanel.add(generateCodesCheckbox);
+        formPanel.add(groupSelector);
+        formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
                 @Override
                 protected void onSuccessfullUpload()
                 {
-                    String defaultGroupIdentifier = null;
-                    Group selectedGroup = groupSelector.tryGetSelectedGroup();
-                    if (generateCodesCheckbox.getValue() && selectedGroup != null)
-                    {
-                        defaultGroupIdentifier = selectedGroup.getIdentifier();
-                    }
-                    viewContext.getService().registerSamples(sampleType, SESSION_KEY,
-                            defaultGroupIdentifier, new RegisterSamplesCallback(viewContext));
+                    save();
                 }
 
                 @Override
                 protected void setUploadEnabled()
                 {
-                    thisForm.setUploadEnabled(true);
+                    GenericSampleBatchRegistrationForm.this.setUploadEnabled(true);
                 }
             });
-        return panel;
+        redefineSaveListeners();
     }
 
-    private final Button createButton()
+    protected void save()
     {
-        final Button button = new Button(viewContext.getMessage(Dict.BUTTON_SUBMIT));
-        button.addSelectionListener(new SelectionListener<ButtonEvent>()
+        String defaultGroupIdentifier = null;
+        Group selectedGroup = groupSelector.tryGetSelectedGroup();
+        if (generateCodesCheckbox.getValue() && selectedGroup != null)
+        {
+            defaultGroupIdentifier = selectedGroup.getIdentifier();
+        }
+        viewContext.getService().registerSamples(sampleType, SESSION_KEY, defaultGroupIdentifier,
+                new RegisterSamplesCallback(viewContext));
+    }
+
+    void redefineSaveListeners()
+    {
+        saveButton.removeAllListeners();
+        saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
-
-                //
-                // SelectionListener
-                //
-
                 @Override
                 public final void componentSelected(final ButtonEvent ce)
                 {
                     if (formPanel.isValid())
                     {
-                        setUploadEnabled(false);
-                        formPanel.submit();
+                        if (fileFieldsManager.filesDefined() > 0)
+                        {
+                            setUploadEnabled(false);
+                            formPanel.submit();
+                        } else
+                        {
+                            save();
+                        }
                     }
                 }
             });
-        return button;
     }
-
-    private final FileUploadField createFileUploadField(final int counter)
-    {
-        final FileUploadField file = new FileUploadField();
-        file.setAllowBlank(counter > 0);
-        file.setAutoValidate(true);
-        final int number = counter + 1;
-        file.setFieldLabel(Format.substitute(FIELD_LABEL_TEMPLATE, number));
-        file.setName(Format.substitute(FIELD_NAME_TEMPLATE, number));
-        return file;
-    }
-
-    private void setUploadEnabled(final boolean enabled)
-    {
-        submitButton.setEnabled(enabled);
-    }
-
-    //
-    // Helper classes
-    //
 
     private final class RegisterSamplesCallback extends
-            AbstractAsyncCallback<List<BatchRegistrationResult>>
+            AbstractRegistrationForm.AbstractRegistrationCallback<List<BatchRegistrationResult>>
     {
         RegisterSamplesCallback(final IViewContext<IGenericClientServiceAsync> viewContext)
         {
-            super(viewContext, new InfoBoxCallbackListener<List<BatchRegistrationResult>>(infoBox));
+            super(viewContext);
         }
 
-        //
-        // AbstractAsyncCallback
-        //
-
         @Override
-        protected final void process(final List<BatchRegistrationResult> result)
+        protected String createSuccessfullRegistrationInfo(
+                final List<BatchRegistrationResult> result)
         {
             final StringBuilder builder = new StringBuilder();
             for (final BatchRegistrationResult batchRegistrationResult : result)
@@ -295,16 +210,30 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
                 builder.append(batchRegistrationResult.getMessage());
                 builder.append("<br />");
             }
-            infoBox.displayInfo(builder.toString());
-            formPanel.reset();
-            setUploadEnabled(true);
+            return builder.toString();
         }
 
-        @Override
-        protected final void finishOnFailure(final Throwable caught)
-        {
-            setUploadEnabled(true);
-        }
+    }
+
+    @Override
+    protected void resetPanel()
+    {
+        super.resetPanel();
+        groupSelector.setVisible(false);
+        groupSelector.setEnabled(false);
+    }
+
+    @Override
+    protected final void submitValidForm()
+    {
+    }
+
+    @Override
+    protected final void onRender(final Element target, final int index)
+    {
+        super.onRender(target, index);
+        addFormFields();
+        add(createHelp());
     }
 
 }

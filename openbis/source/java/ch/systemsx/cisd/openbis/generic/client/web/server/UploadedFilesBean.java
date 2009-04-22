@@ -40,12 +40,6 @@ public final class UploadedFilesBean
 
     private List<IUncheckedMultipartFile> multipartFiles = new ArrayList<IUncheckedMultipartFile>();
 
-    /**
-     * The session key under which this <i>bean</i> can be found, to access the uploaded files, for
-     * instance.
-     */
-    private String sessionKey;
-
     private final File createTempFile() throws IOException
     {
         final File tempFile = File.createTempFile(CLASS_SIMPLE_NAME, null);
@@ -91,16 +85,6 @@ public final class UploadedFilesBean
         {
             ((FileMultipartFileAdapter) multipartFile).destFile.delete();
         }
-    }
-
-    public final String getSessionKey()
-    {
-        return sessionKey;
-    }
-
-    public final void setSessionKey(final String sessionKey)
-    {
-        this.sessionKey = sessionKey;
     }
 
     //

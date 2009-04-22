@@ -84,7 +84,7 @@ public final class VocabularyRegistrationForm extends AbstractRegistrationForm
         }
 
         @Override
-        protected String createSuccessfullRegistrationInfo()
+        protected String createSuccessfullRegistrationInfo(Void result)
         {
             return "Vocabulary <b>" + vocabulary.getCode() + "</b> successfully registered.";
         }
