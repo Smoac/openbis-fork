@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
@@ -33,6 +34,8 @@ public interface IViewContext<T extends IClientServiceAsync> extends IMessagePro
     public T getService();
 
     public GenericViewModel getModel();
+    
+    public DisplaySettingsManager getDisplaySettingsManager();
 
     public IGenericImageBundle getImageBundle();
 

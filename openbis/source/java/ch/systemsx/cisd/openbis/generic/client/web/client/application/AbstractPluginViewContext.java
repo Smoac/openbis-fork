@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.CompositeMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
@@ -86,6 +87,11 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
     public final GenericViewModel getModel()
     {
         return commonViewContext.getModel();
+    }
+
+    public DisplaySettingsManager getDisplaySettingsManager()
+    {
+        return commonViewContext.getDisplaySettingsManager();
     }
 
     public final IPageController getPageController()

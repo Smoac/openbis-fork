@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.DefaultClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
@@ -67,6 +68,11 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     public final GenericViewModel getModel()
     {
         return viewModel;
+    }
+
+    public DisplaySettingsManager getDisplaySettingsManager()
+    {
+        return new DisplaySettingsManager(viewModel.getSessionContext().getDisplaySettings());
     }
 
     public final IGenericImageBundle getImageBundle()

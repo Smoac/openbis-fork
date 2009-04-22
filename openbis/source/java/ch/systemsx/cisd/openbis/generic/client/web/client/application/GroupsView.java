@@ -155,7 +155,7 @@ public class GroupsView extends ContentPanel
         final Grid<GroupModel> grid = new Grid<GroupModel>(store, cm);
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         final DisplaySettingsManager displaySettingsManager =
-                viewContext.getModel().getSessionContext().getDisplaySettingsManager();
+                viewContext.getDisplaySettingsManager();
         grid.getColumnModel().addListener(Events.HiddenChange, new Listener<ColumnModelEvent>()
             {
                 public void handleEvent(ColumnModelEvent event)
