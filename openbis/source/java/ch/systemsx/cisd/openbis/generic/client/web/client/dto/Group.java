@@ -89,4 +89,37 @@ public final class Group extends CodeWithRegistration<Group>
         this.identifier = identifier;
     }
 
+    //
+    // Object
+    //
+
+    // equals and hashCode methods based on simple toString value representation
+    // instead of Equals/HashCodeBuilder from apache.commons library like in GroupPE
+
+    @Override
+    public String toString()
+    {
+        return getInstance() + "/" + getCode();
+    }
+
+    @Override
+    public final boolean equals(final Object obj)
+    {
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj instanceof Group == false)
+        {
+            return false;
+        }
+        final Group that = (Group) obj;
+        return this.toString().equals(that.toString());
+    }
+
+    @Override
+    public final int hashCode()
+    {
+        return this.toString().hashCode();
+    }
 }

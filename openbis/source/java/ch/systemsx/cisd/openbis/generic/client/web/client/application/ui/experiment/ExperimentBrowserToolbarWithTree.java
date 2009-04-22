@@ -19,43 +19,35 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experi
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 
 /**
- * The toolbar of experiment browser with a project selected with an internal combo box.
+ * The toolbar of experiment browser with a project selected with an external tree.
  * 
  * @author Piotr Buczek
  */
-class ExperimentBrowserToolbar extends AbstractExperimentBrowserToolbar
+class ExperimentBrowserToolbarWithTree extends AbstractExperimentBrowserToolbar
 {
     public static final String ID = AbstractExperimentBrowserToolbar.ABSTRACT_ID;
 
-    /** @param groupOrNull if specified, only projects from that group will be presented */
-    public ExperimentBrowserToolbar(final IViewContext<ICommonClientServiceAsync> viewContext,
-            Group groupOrNull)
+    /** @see AbstractExperimentBrowserToolbar */
+    public ExperimentBrowserToolbarWithTree(
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            ProjectSelectionTreeWidget tree)
     {
-        super(viewContext, createProjectSelectionWidgetWrapper(viewContext, groupOrNull));
+        super(viewContext, createProjectSelectionWidgetWrapper(tree));
     }
 
     private static final ProjectSelectionWidgetWrapper createProjectSelectionWidgetWrapper(
-            final IViewContext<ICommonClientServiceAsync> viewContext, final Group groupOrNull)
+            final ProjectSelectionTreeWidget widget)
     {
         return new ProjectSelectionWidgetWrapper()
             {
-
-                private ProjectSelectionWidget widget =
-                        new ProjectSelectionWidget(viewContext, groupOrNull, ID);
 
                 public Widget getWidget()
                 {
@@ -69,7 +61,7 @@ class ExperimentBrowserToolbar extends AbstractExperimentBrowserToolbar
 
                 public void addSelectionChangedListener(SelectionChangedListener<?> listener)
                 {
-                    widget.addSelectionChangedListener(listener);
+                    widget.setSelectionChangedListener(listener);
                 }
 
                 public DatabaseModificationKind[] getRelevantModifications()
@@ -83,16 +75,6 @@ class ExperimentBrowserToolbar extends AbstractExperimentBrowserToolbar
                 }
 
             };
-    }
-
-    @Override
-    protected void display()
-    {
-        super.display();
-        add(new SeparatorToolItem());
-        add(new LabelToolItem(viewContext.getMessage(Dict.PROJECT)
-                + GenericConstants.LABEL_SEPARATOR));
-        add(new AdapterToolItem(selectProjectWidgetWrapper.getWidget()));
     }
 
 }

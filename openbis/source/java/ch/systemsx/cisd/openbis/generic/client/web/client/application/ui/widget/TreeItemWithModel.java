@@ -20,9 +20,11 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.tree.TreeItem;
 import com.extjs.gxt.ui.client.widget.tree.TreeItemUI;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+
 /**
  * A generic @{link TreeItem} extension with {@link ModelData} and an optional
- * {@link TreeItemAction} executed on select.
+ * {@link IDelegatedAction} executed on select.
  * 
  * @author Piotr Buczek
  */
@@ -42,7 +44,7 @@ public class TreeItemWithModel extends TreeItem
      * Constructor of an item with given model and text equal to this models toString value, and
      * given action executed on select.
      */
-    public TreeItemWithModel(ModelData model, TreeItemAction action)
+    public TreeItemWithModel(ModelData model, IDelegatedAction action)
     {
         this(model);
         this.setUI(new TreeItemUIWithActionOnSelect(this, action));
@@ -59,19 +61,13 @@ public class TreeItemWithModel extends TreeItem
     // Helper classes
     //
 
-    /** An action to be executed on tree item. */
-    public interface TreeItemAction
-    {
-        public void execute(TreeItem treeItem);
-    }
-
-    /** A {@link TreeItemUI} extension that adds a {@link TreeItemAction} execution on select. */
+    /** A {@link TreeItemUI} extension that adds an {@link IDelegatedAction} execution on select. */
     private final class TreeItemUIWithActionOnSelect extends TreeItemUI
     {
 
-        private TreeItemAction action;
+        private IDelegatedAction action;
 
-        public TreeItemUIWithActionOnSelect(TreeItem item, TreeItemAction action)
+        public TreeItemUIWithActionOnSelect(TreeItem item, IDelegatedAction action)
         {
             super(item);
             this.action = action;
@@ -83,7 +79,7 @@ public class TreeItemWithModel extends TreeItem
             super.onSelectedChange(selected);
             if (selected)
             {
-                action.execute(item);
+                action.execute();
             }
         }
     }

@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
  * A {@link AbstractDefaultTestCommand} extension for creating experiment list.
  * 
  * @author Izabela Adamczyk
+ * @author Piotr Buczek
  */
 public class ListExperiments extends AbstractDefaultTestCommand
 {
@@ -40,7 +41,7 @@ public class ListExperiments extends AbstractDefaultTestCommand
     {
         this.projectCodeOrNull = projectNameOrNull;
         this.experimentTypeName = experimentTypeNameOrNull;
-        addCallbackClass(ProjectSelectionWidget.ListProjectsCallback.class);
+        addCallbackClass(ProjectSelectionTreeWidget.ListProjectsCallback.class);
         addCallbackClass(ExperimentTypeSelectionWidget.ListItemsCallback.class);
     }
 
@@ -50,20 +51,20 @@ public class ListExperiments extends AbstractDefaultTestCommand
 
     public void execute()
     {
-        final ProjectSelectionWidget project =
-                (ProjectSelectionWidget) GWTTestUtil.getWidgetWithID(ProjectSelectionWidget.ID
-                        + ProjectSelectionWidget.SUFFIX + ExperimentBrowserToolbar.ID);
+        final ProjectSelectionTreeWidget projectSelector =
+                (ProjectSelectionTreeWidget) GWTTestUtil
+                        .getWidgetWithID(ProjectSelectionTreeWidget.ID);
 
         final ComboBox<ExperimentTypeModel> experimentTypeSelector =
                 (ExperimentTypeSelectionWidget) GWTTestUtil
                         .getWidgetWithID(ExperimentTypeSelectionWidget.ID
                                 + ExperimentTypeSelectionWidget.SUFFIX
-                                + ExperimentBrowserToolbar.ID);
+                                + ExperimentBrowserToolbarWithTree.ID);
 
         GWTUtils.setSelectedItem(experimentTypeSelector, ModelDataPropertyNames.CODE,
                 experimentTypeName);
-        GWTUtils.setSelectedItem(project, ProjectSelectionWidget.DISPLAY_COLUMN_ID,
-                projectCodeOrNull);
+        GWTUtils.setSelectedItem(projectSelector,
+                ProjectSelectionTreeWidget.PROJECT_WITH_GROUP_CODE, projectCodeOrNull);
 
         GridTestUtils.pressRefreshGridButton();
     }

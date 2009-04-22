@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
@@ -39,6 +40,7 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -47,6 +49,8 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
@@ -285,6 +289,42 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     protected final DisposableEntityChooser<T> asDisposableWithoutToolbar()
     {
         return asDisposableMaterialChooser(this);
+    }
+
+    /**
+     * @return this grid as a disposable component with a specified toolbar at the top and a tree on
+     *         the left.
+     */
+    protected final DisposableEntityChooser<T> asDisposableWithToolbarAndTree(
+            final Component toolbar, final Component tree)
+    {
+        final LayoutContainer container = new LayoutContainer();
+        container.setLayout(new RowLayout());
+        container.add(toolbar);
+
+        final LayoutContainer subContainer = new LayoutContainer();
+        subContainer.setLayout(new BorderLayout());
+        subContainer.add(tree, createLeftBorderLayoutData());
+        subContainer.add(this, createCenterBorderLayoutData());
+
+        container.add(subContainer, new RowData(1, 1));
+
+        return asDisposableMaterialChooser(container);
+    }
+
+    private final BorderLayoutData createLeftBorderLayoutData()
+    {
+        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.WEST, 200, 150, 400);
+        data.setMargins(new Margins(0, 5, 0, 0));
+        data.setCollapsible(true);
+        data.setFloatable(false);
+        return data;
+    }
+
+    private final BorderLayoutData createCenterBorderLayoutData()
+    {
+        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.CENTER);
+        return data;
     }
 
     private DisposableEntityChooser<T> asDisposableMaterialChooser(final Component mainComponent)

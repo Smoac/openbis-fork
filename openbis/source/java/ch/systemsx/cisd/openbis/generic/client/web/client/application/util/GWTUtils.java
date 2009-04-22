@@ -25,6 +25,8 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.tree.Tree;
+import com.extjs.gxt.ui.client.widget.tree.TreeItem;
 import com.google.gwt.user.client.ui.ListBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
@@ -110,6 +112,38 @@ public final class GWTUtils
         final List<T> selection = new ArrayList<T>();
         selection.add(list.get(0));
         comboBox.setSelection(selection);
+    }
+
+    /**
+     * Selects given <var>value</var> of given <var>tree</var>.
+     */
+    public final static void setSelectedItem(final Tree tree, final String property,
+            final String value)
+    {
+        assert tree != null : "Unspecified tree.";
+        assert property != null : "Unspecified model property.";
+        assert value != null : "Unspecified model property value.";
+        final List<TreeItem> items = tree.getAllItems();
+
+        final List<Object> possibleValues = new ArrayList<Object>();
+        for (TreeItem item : items)
+        {
+            ModelData model = item.getModel();
+            if (model != null)
+            {
+                Object val = item.getModel().get(property);
+                if (val == value || (val != null && val.equals(value)))
+                {
+                    tree.setSelectedItem(item);
+                    return;
+                } else
+                {
+                    possibleValues.add(item.getModel().get(property));
+                }
+            }
+        }
+        throw new IllegalArgumentException("Given value '" + value + "' for property '" + property
+                + "' not found in the tree. Possible values are '" + possibleValues + "'.");
     }
 
     /**
