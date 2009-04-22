@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
@@ -100,21 +101,15 @@ public final class ProjectSelectionTreeWidget extends Tree implements IDatabaseM
         return result;
     }
 
-    /** @return a {@link TreeItem} for given group (creates one it none has been created yet) */
+    /** @return a {@link TreeItem} for given group */
     private TreeItem getGroupTreeItem(Group group)
     {
-        TreeItem result = groupItems.get(group);
-        if (result == null)
-        {
-            result = createGroupTreeItem(group);
-        }
-        return result;
+        return groupItems.get(group);
     }
 
     private void clearTree()
     {
         root.removeAll();
-        groupItems.clear();
     }
 
     /**
@@ -123,6 +118,34 @@ public final class ProjectSelectionTreeWidget extends Tree implements IDatabaseM
     private void rebuildTree(List<Project> projects)
     {
         clearTree();
+        addGroupItems(projects);
+        addProjectItems(projects);
+        expandAll();
+    }
+
+    /** @return need a sorted set of groups of given <var>projects</var> */
+    private Set<Group> getSortedGroups(List<Project> projects)
+    {
+        Set<Group> groups = new TreeSet<Group>();
+        for (final Project project : projects)
+        {
+            groups.add(project.getGroup());
+        }
+        return groups;
+    }
+
+    /** adds group items for given <var>projects</var> to the tree */
+    private void addGroupItems(List<Project> projects)
+    {
+        for (Group group : getSortedGroups(projects))
+        {
+            createGroupTreeItem(group);
+        }
+    }
+
+    /** adds project items for given <var>projects</var> to the tree */
+    private void addProjectItems(List<Project> projects)
+    {
         for (final Project project : projects)
         {
             TreeItem item =
@@ -130,7 +153,6 @@ public final class ProjectSelectionTreeWidget extends Tree implements IDatabaseM
                             createSelectItemAction(project));
             getGroupTreeItem(project.getGroup()).add(item);
         }
-        this.expandAll();
     }
 
     /**
