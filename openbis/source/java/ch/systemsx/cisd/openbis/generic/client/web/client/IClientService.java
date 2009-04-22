@@ -51,6 +51,11 @@ public interface IClientService extends RemoteService
     public SessionContext tryToLogin(String userID, String password) throws UserFailureException;
     
     /**
+     * Updates display settings on the server.
+     */
+    public void updateDisplaySettings(DisplaySettings displaySettings);
+    
+    /**
      * Logs out.
      */
     public void logout(DisplaySettings displaySettings);

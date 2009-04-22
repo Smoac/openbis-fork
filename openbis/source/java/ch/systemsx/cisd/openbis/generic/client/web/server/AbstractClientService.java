@@ -215,6 +215,22 @@ public abstract class AbstractClientService implements IClientService
         }
     }
 
+    public void updateDisplaySettings(DisplaySettings displaySettings)
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            IServer server = getServer();
+            server.saveDisplaySettings(sessionToken, displaySettings);
+        } catch (InvalidSessionException e)
+        {
+            // ignored
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
     public final void logout(DisplaySettings displaySettings)
     {
         try

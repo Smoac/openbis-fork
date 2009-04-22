@@ -16,12 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.google.gwt.user.client.Timer;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IUpdater;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.DefaultClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
 /**
  * The <i>generic</i> {@link IViewContext} implementation.
@@ -43,6 +47,8 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     private final IPageController pageController;
 
     private final IClientPluginFactoryProvider clientPluginFactoryProvider;
+    
+    private final Timer timer;
 
     CommonViewContext(final ICommonClientServiceAsync service,
             final IMessageProvider messageProvider, final IGenericImageBundle imageBundle,
@@ -54,6 +60,24 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
         this.pageController = pageController;
         viewModel = new GenericViewModel();
         clientPluginFactoryProvider = new DefaultClientPluginFactoryProvider(this);
+        timer = new Timer()
+            {
+                @Override
+                public void run()
+                {
+                    DisplaySettings displaySettings =
+                            viewModel.getSessionContext().getDisplaySettings();
+                    AbstractAsyncCallback<Void> callback =
+                            new AbstractAsyncCallback<Void>(CommonViewContext.this)
+                                {
+                                    @Override
+                                    public final void process(final Void result)
+                                    {
+                                    }
+                                };
+                    service.updateDisplaySettings(displaySettings, callback);
+                }
+            };
     }
 
     //
@@ -72,7 +96,14 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
 
     public DisplaySettingsManager getDisplaySettingsManager()
     {
-        return new DisplaySettingsManager(viewModel.getSessionContext().getDisplaySettings());
+        DisplaySettings displaySettings = viewModel.getSessionContext().getDisplaySettings();
+        return new DisplaySettingsManager(displaySettings, new IUpdater()
+            {
+                public void update()
+                {
+                    timer.schedule(10000);
+                }
+            });
     }
 
     public final IGenericImageBundle getImageBundle()

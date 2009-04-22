@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,19 +32,23 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
 /**
  * Manager of {@link DisplaySettings}. The manager itself is stateless. It only changes the wrapped
- * {@link DisplaySettings} object.
- *
+ * {@link DisplaySettings} object. The two attributes of this class are assumed to be de facto
+ * singletons. The display setting manager will be created as often as components to be managed are
+ * created.
+ * 
  * @author Franz-Josef Elmer
  */
 public class DisplaySettingsManager
 {
     private final DisplaySettings displaySettings;
+    private final IUpdater updater;
 
     /**
      * Creates an instance for the specified display settings.
      */
-    public DisplaySettingsManager(DisplaySettings displaySettings)
+    public DisplaySettingsManager(DisplaySettings displaySettings, IUpdater updater)
     {
+        this.updater = updater;
         if (displaySettings == null)
         {
             throw new IllegalArgumentException("Unspecified display manager.");
@@ -59,7 +63,6 @@ public class DisplaySettingsManager
      */
     public void prepareGrid(final String displayTypeID, final Grid<?> grid)
     {
-        System.out.println("prepare " + displayTypeID);
         Listener<ColumnModelEvent> listener = new Listener<ColumnModelEvent>()
                 {
                     public void handleEvent(ColumnModelEvent event)
@@ -125,5 +128,6 @@ public class DisplaySettingsManager
             columnSettings.add(columnSetting);
         }
         displaySettings.getColumnSettings().put(displayTypeID, columnSettings);
+        updater.update();
     }
 }

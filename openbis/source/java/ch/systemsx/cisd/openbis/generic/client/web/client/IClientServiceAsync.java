@@ -37,6 +37,9 @@ public interface IClientServiceAsync
     /** @see IClientService#tryToLogin(String, String) */
     public void tryToLogin(String userID, String password, AsyncCallback<SessionContext> callback);
 
+    /** @see IClientService#updateDisplaySettings(DisplaySettings) */
+    public void updateDisplaySettings(DisplaySettings displaySettings, AsyncCallback<Void> callback);
+    
     /** @see IClientService#logout(DisplaySettings) */
     public void logout(DisplaySettings displaySettings, AsyncCallback<Void> callback);
 
