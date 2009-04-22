@@ -818,13 +818,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private void saveCacheKey(final String newResultSetKey)
     {
-        if (resultSetKey == null)
+        if (resultSetKey != null)
         {
-            resultSetKey = newResultSetKey;
-        } else
-        {
-            assert resultSetKey.equals(newResultSetKey) : "Result set keys not the same.";
+            disposeCache();
         }
+        resultSetKey = newResultSetKey;
     }
 
     private void disposeCache()
