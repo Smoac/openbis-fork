@@ -265,7 +265,6 @@ public final class GenericExperimentEditForm
     protected void updateCheckPageWidgets()
     {
         projectChooser.updateOriginalValue();
-        samplesArea.updateOriginalValue(samplesArea.getValue());
         originalProjectIdentifier = projectChooser.tryGetSelectedProject().getIdentifier();
         entity.setIdentifier(originalProjectIdentifier + "/" + entity.getCode());
         attachmentsInfo.setHtml(getAttachmentInfoText(attachmentManager.filesDefined()));
@@ -274,6 +273,7 @@ public final class GenericExperimentEditForm
             samplesInfo.setHtml(viewContext.getMessage(Dict.SAMPLES) + ": "
                     + samplesArea.getValue());
         }
+        samplesArea.updateOriginalValue(samplesArea.getValue());
         updateHeader();
     }
 

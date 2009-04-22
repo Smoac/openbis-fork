@@ -17,15 +17,19 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
@@ -35,8 +39,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -319,9 +326,109 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         dataChanged = true;
     }
 
-    private void updateSamples(String[] sampleCodes)
+    @Private
+    void updateSamples(String[] sampleCodes)
     {
-        // TODO 2009-04-21, Tomasz Pylak: implement updating samples
+        List<SamplePE> samples = experiment.getSamples();
+        String[] currentSampleCodes = extractCodes(samples);
+        Set<String> currentSampleCodesSet = asSet(currentSampleCodes);
+
+        Set<String> codesToAdd = asSet(sampleCodes);
+        codesToAdd.removeAll(currentSampleCodesSet);
+        GroupPE group = experiment.getProject().getGroup();
+        List<SamplePE> samplesToAdd = findUnassignedSamples(getSampleDAO(), codesToAdd, group);
+        addToExperiment(samplesToAdd);
+
+        Set<String> codesToRemove = asSet(currentSampleCodes);
+        codesToRemove.removeAll(asSet(sampleCodes));
+        removeFromExperiment(filterSamples(samples, codesToRemove));
+    }
+
+    private static List<SamplePE> filterSamples(List<SamplePE> samples, Set<String> extractedCodes)
+    {
+        List<SamplePE> result = new ArrayList<SamplePE>();
+        for (SamplePE sample : samples)
+        {
+            if (extractedCodes.contains(sample.getCode()))
+            {
+                result.add(sample);
+            }
+        }
+        return result;
+    }
+
+    private void removeFromExperiment(List<SamplePE> samples)
+    {
+        for (SamplePE sample : samples)
+        {
+            SampleBO.checkSampleWithoutDatasets(getExternalDataDAO(), sample);
+            experiment.removeSample(sample);
+        }
+    }
+
+    private void addToExperiment(List<SamplePE> samples)
+    {
+        for (SamplePE sample : samples)
+        {
+            sample.setExperiment(experiment);
+        }
+    }
+
+    // Finds samples in the specified group. Throws exception if some samples do not exist.
+    // Throws exception if any sample is already assigned to an experiment.
+    private static List<SamplePE> findUnassignedSamples(ISampleDAO sampleDAO,
+            Set<String> sampleCodes, GroupPE group) throws UserFailureException
+    {
+        List<SamplePE> samples = new ArrayList<SamplePE>();
+        List<String> missingSamples = new ArrayList<String>();
+        for (String code : sampleCodes)
+        {
+            SamplePE sample = sampleDAO.tryFindByCodeAndGroup(code, group, HierarchyType.CHILD);
+            if (sample == null)
+            {
+                missingSamples.add(code);
+            } else
+            {
+                checkSampleUnassigned(code, sample);
+                samples.add(sample);
+            }
+        }
+        if (missingSamples.size() > 0)
+        {
+            throw UserFailureException.fromTemplate(
+                    "Samples with following codes do not exist in the group '%s': '%s'.", group
+                            .getCode(), CollectionUtils.abbreviate(missingSamples, 10));
+        } else
+        {
+            return samples;
+        }
+    }
+
+    private static void checkSampleUnassigned(String code, SamplePE sample)
+    {
+        if (sample.getExperiment() != null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "Sample '%s' is already assigned to the experiment '%s'.", code, sample
+                            .getExperiment().getIdentifier());
+        }
+    }
+
+    private static Set<String> asSet(String[] objects)
+    {
+        return new HashSet<String>(Arrays.asList(objects));
+    }
+
+    private static String[] extractCodes(List<SamplePE> samples)
+    {
+        String[] codes = new String[samples.size()];
+        int i = 0;
+        for (SamplePE sample : samples)
+        {
+            codes[i] = sample.getCode();
+            i++;
+        }
+        return codes;
     }
 
     private void updateProject(ProjectIdentifier newProjectIdentifier)

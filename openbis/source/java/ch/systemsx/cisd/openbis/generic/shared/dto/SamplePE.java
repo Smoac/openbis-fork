@@ -321,7 +321,11 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
             experiment.addSample(this);
         } else
         {
-            setExperimentInternal(experiment);
+            ExperimentPE previousExperiment = getExperiment();
+            if (previousExperiment != null)
+            {
+                previousExperiment.removeSample(this);
+            }
         }
     }
 

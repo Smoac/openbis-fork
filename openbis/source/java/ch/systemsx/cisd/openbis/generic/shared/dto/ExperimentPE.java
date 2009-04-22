@@ -291,6 +291,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
     }
 
     @Transient
+    /* Note: modifications of the returned collection will result in an exception. */
     public List<SamplePE> getSamples()
     {
         return new UnmodifiableListDecorator<SamplePE>(getExperimentSamples());
@@ -318,6 +319,12 @@ public class ExperimentPE extends AttachmentHolderPE implements
         {
             addSample(sample);
         }
+    }
+
+    public void removeSample(SamplePE sample)
+    {
+        getExperimentSamples().remove(sample);
+        sample.setExperimentInternal(null);
     }
 
     public void addSample(SamplePE sample)

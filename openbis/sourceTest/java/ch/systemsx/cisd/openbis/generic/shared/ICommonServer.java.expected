@@ -437,7 +437,8 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.USER)
-    @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
+    @DatabaseUpdateModification(value =
+        { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE })
     public void editExperiment(
             String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class) ExperimentUpdatesDTO updates);

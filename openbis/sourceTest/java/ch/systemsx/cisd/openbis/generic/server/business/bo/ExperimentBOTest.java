@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 
@@ -27,6 +28,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -35,8 +37,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -74,19 +80,23 @@ public final class ExperimentBOTest extends AbstractBOTest
     {
         final ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
         final ExperimentPE exp = CommonTestUtils.createExperiment(identifier);
-        final ProjectPE project = exp.getProject();
+        prepareLoadExperimentByIdentifier(identifier, exp);
+        loadExperiment(identifier, exp);
+        context.assertIsSatisfied();
+    }
+
+    private void prepareLoadExperimentByIdentifier(final ExperimentIdentifier identifier,
+            final ExperimentPE exp)
+    {
+        prepareAnyDaoCreation();
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getProjectDAO();
-                    will(returnValue(projectDAO));
+                    final ProjectPE project = exp.getProject();
 
                     one(projectDAO).tryFindProject(identifier.getDatabaseInstanceCode(),
                             identifier.getGroupCode(), identifier.getProjectCode());
                     will(returnValue(project));
-
-                    one(daoFactory).getExperimentDAO();
-                    will(returnValue(experimentDAO));
 
                     one(experimentDAO).tryFindByCodeAndProject(project,
                             identifier.getExperimentCode());
@@ -94,10 +104,6 @@ public final class ExperimentBOTest extends AbstractBOTest
 
                 }
             });
-        final ExperimentBO expBO = createExperimentBO();
-        expBO.loadByExperimentIdentifier(identifier);
-        AssertJUnit.assertEquals(exp, expBO.getExperiment());
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -110,18 +116,13 @@ public final class ExperimentBOTest extends AbstractBOTest
         attachment2.setVersion(attachment1.getVersion() + 1);
         setExperimentAttachments(exp, attachment1, attachment2);
         final ProjectPE project = exp.getProject();
+        prepareAnyDaoCreation();
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getProjectDAO();
-                    will(returnValue(projectDAO));
-
                     one(projectDAO).tryFindProject(identifier.getDatabaseInstanceCode(),
                             identifier.getGroupCode(), identifier.getProjectCode());
                     will(returnValue(project));
-
-                    one(daoFactory).getExperimentDAO();
-                    will(returnValue(experimentDAO));
 
                     one(experimentDAO).tryFindByCodeAndProject(project,
                             identifier.getExperimentCode());
@@ -164,15 +165,10 @@ public final class ExperimentBOTest extends AbstractBOTest
         final ExperimentTypePE type = createExperimentType(expTypeCode);
         final ExperimentPE experiment = createExperiment(project, expCode, type);
 
+        prepareAnyDaoCreation();
         context.checking(new Expectations()
             {
                 {
-                    atLeast(1).of(daoFactory).getEntityPropertyTypeDAO(EntityKind.EXPERIMENT);
-                    will(Expectations.returnValue(entityPropertyTypeDAO));
-
-                    atLeast(1).of(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
-                    will(Expectations.returnValue(entityTypeDAO));
-
                     atLeast(1).of(entityTypeDAO).listEntityTypes();
                     will(Expectations.returnValue(Collections.singletonList(type)));
 
@@ -183,14 +179,8 @@ public final class ExperimentBOTest extends AbstractBOTest
                     one(entityTypeDAO).tryToFindEntityTypeByCode(expTypeCode);
                     will(returnValue(type));
 
-                    one(daoFactory).getProjectDAO();
-                    will(returnValue(projectDAO));
-
                     one(projectDAO).tryFindProject(dbCode, groupCode, projectCode);
                     will(returnValue(project));
-
-                    one(daoFactory).getExperimentDAO();
-                    will(returnValue(experimentDAO));
 
                     one(experimentDAO).createExperiment(experiment);
                 }
@@ -215,13 +205,10 @@ public final class ExperimentBOTest extends AbstractBOTest
         newExperiment.setIdentifier(createIdentifier(dbCode, groupCode, projectCode, expCode));
         newExperiment.setExperimentTypeCode(expTypeCode);
 
+        prepareAnyDaoCreation();
         context.checking(new Expectations()
             {
                 {
-
-                    one(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
-                    will(returnValue(entityTypeDAO));
-
                     one(entityTypeDAO).tryToFindEntityTypeByCode(expTypeCode);
                     will(returnValue(null));
                 }
@@ -256,21 +243,15 @@ public final class ExperimentBOTest extends AbstractBOTest
 
         final ExperimentTypePE type = createExperimentType(expTypeCode);
 
+        prepareAnyDaoCreation();
         context.checking(new Expectations()
             {
                 {
-
-                    atLeast(1).of(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
-                    will(Expectations.returnValue(entityTypeDAO));
-
                     atLeast(1).of(entityTypeDAO).listEntityTypes();
                     will(Expectations.returnValue(Collections.singletonList(type)));
 
                     one(entityTypeDAO).tryToFindEntityTypeByCode(expTypeCode);
                     will(returnValue(type));
-
-                    one(daoFactory).getProjectDAO();
-                    will(returnValue(projectDAO));
 
                     one(projectDAO).tryFindProject(dbCode, groupCode, projectCode);
                     will(returnValue(null));
@@ -310,15 +291,10 @@ public final class ExperimentBOTest extends AbstractBOTest
         final ExperimentTypePE type = createExperimentType(expTypeCode);
         final ExperimentPE experiment = createExperiment(project, expCode, type);
 
+        prepareAnyDaoCreation();
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getEntityPropertyTypeDAO(EntityKind.EXPERIMENT);
-                    will(Expectations.returnValue(entityPropertyTypeDAO));
-
-                    allowing(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
-                    will(Expectations.returnValue(entityTypeDAO));
-
                     allowing(entityTypeDAO).listEntityTypes();
                     will(Expectations.returnValue(Collections.singletonList(type)));
 
@@ -329,14 +305,8 @@ public final class ExperimentBOTest extends AbstractBOTest
                     one(entityTypeDAO).tryToFindEntityTypeByCode(expTypeCode);
                     will(returnValue(type));
 
-                    one(daoFactory).getProjectDAO();
-                    will(returnValue(projectDAO));
-
                     one(projectDAO).tryFindProject(dbCode, groupCode, projectCode);
                     will(returnValue(project));
-
-                    one(daoFactory).getExperimentDAO();
-                    will(returnValue(experimentDAO));
 
                     one(experimentDAO).createExperiment(experiment);
                     will(throwException(new DataIntegrityViolationException(
@@ -357,13 +327,200 @@ public final class ExperimentBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
-    private String createIdentifier(final String dbCode, final String groupCode,
+    private void prepareAnyDaoCreation()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getEntityPropertyTypeDAO(EntityKind.EXPERIMENT);
+                    will(Expectations.returnValue(entityPropertyTypeDAO));
+
+                    allowing(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
+                    will(Expectations.returnValue(entityTypeDAO));
+
+                    allowing(daoFactory).getProjectDAO();
+                    will(returnValue(projectDAO));
+
+                    allowing(daoFactory).getExperimentDAO();
+                    will(returnValue(experimentDAO));
+
+                    allowing(daoFactory).getExternalDataDAO();
+                    will(returnValue(externalDataDAO));
+                }
+            });
+    }
+
+    @Test
+    public final void testEditSamples()
+    {
+        SamplePE untouchedSample = createSampleWithCode("untouchedSample");
+        SamplePE unassignedSample = createSampleWithCode("unassignedSample");
+        SamplePE assignedSample = createSampleWithCode("assignedSample");
+
+        final ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
+        final ExperimentPE exp = CommonTestUtils.createExperiment(identifier);
+        exp.setSamples(Arrays.asList(untouchedSample, unassignedSample));
+
+        prepareLoadExperimentByIdentifier(identifier, exp);
+        prepareTryFindSample(exp.getProject().getGroup(), assignedSample.getCode(), assignedSample);
+        prepareNoDatasetsFound();
+        final ExperimentBO expBO = loadExperiment(identifier, exp);
+
+        String[] editedSamples = new String[]
+            { untouchedSample.getCode(), assignedSample.getCode() };
+        expBO.updateSamples(editedSamples);
+        assertEquals(exp, untouchedSample.getExperiment());
+        assertEquals(exp, assignedSample.getExperiment());
+        assertNull(unassignedSample.getExperiment());
+    }
+
+    private void prepareNoDatasetsFound()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(externalDataDAO).listExternalData(with(any(SamplePE.class)),
+                            with(any(SourceType.class)));
+                    will(returnValue(new ArrayList<ExternalDataPE>()));
+                }
+            });
+    }
+
+    @Test
+    public final void testEditSamplesAddingAssignedSampleFails()
+    {
+        SamplePE assignedSample = createSampleWithCode("assignedSample");
+        assignedSample.setExperiment(createExperiment("anotherExp"));
+
+        final ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
+        final ExperimentPE exp = CommonTestUtils.createExperiment(identifier);
+        assert exp.getSamples().size() == 0 : "no samples expected";
+
+        prepareLoadExperimentByIdentifier(identifier, exp);
+        prepareTryFindSample(exp.getProject().getGroup(), assignedSample.getCode(), assignedSample);
+
+        final ExperimentBO expBO = loadExperiment(identifier, exp);
+
+        String[] editedSamples = new String[]
+            { assignedSample.getCode() };
+
+        String errorMsg = "Sample 'assignedSample' is already assigned to the experiment";
+        try
+        {
+            expBO.updateSamples(editedSamples);
+        } catch (UserFailureException e)
+        {
+
+            AssertionUtil.assertContains(errorMsg, e.getMessage());
+            return;
+        }
+        fail("exception expected with the error msg: " + errorMsg);
+    }
+
+    @Test
+    public final void testEditSamplesAssigningUnexistingSampleFails()
+    {
+        String unknownSampleCode = "unknownSampleCode";
+
+        final ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
+        final ExperimentPE exp = CommonTestUtils.createExperiment(identifier);
+
+        prepareLoadExperimentByIdentifier(identifier, exp);
+        final ExperimentBO expBO = loadExperiment(identifier, exp);
+
+        prepareTryFindSample(exp.getProject().getGroup(), unknownSampleCode, null);
+        String errorMsg =
+                "Samples with following codes do not exist in the group 'HOME_GROUP': '[unknownSampleCode]'.";
+        try
+        {
+            expBO.updateSamples(new String[]
+                { unknownSampleCode });
+        } catch (UserFailureException e)
+        {
+
+            assertEquals(errorMsg, e.getMessage());
+            return;
+        }
+        fail("exception expected with the error msg: " + errorMsg);
+    }
+
+    @Test
+    public final void testEditSamplesUnassigningSampleWithDatasetsFails()
+    {
+        final SamplePE assignedSample = createSampleWithCode("assignedSample");
+
+        final ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
+        final ExperimentPE exp = CommonTestUtils.createExperiment(identifier);
+        exp.setSamples(Arrays.asList(assignedSample));
+
+        prepareLoadExperimentByIdentifier(identifier, exp);
+        final ExperimentBO expBO = loadExperiment(identifier, exp);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(externalDataDAO).listExternalData(with(assignedSample),
+                            with(any(SourceType.class)));
+                    // one dataset found
+                    will(returnValue(Arrays.asList(new ExternalDataPE())));
+                }
+            });
+
+        String errorMsg =
+                "Operation cannot be performed, because some datasets have been already produced for the sample 'assignedSample'.";
+        try
+        {
+            expBO.updateSamples(new String[] {}); // remove all samples
+        } catch (UserFailureException e)
+        {
+
+            assertEquals(errorMsg, e.getMessage());
+            return;
+        }
+        fail("exception expected with the error msg: " + errorMsg);
+    }
+
+    private static ExperimentPE createExperiment(String code)
+    {
+        ExperimentIdentifier ident =
+                new ExperimentIdentifier(CommonTestUtils.createProjectIdentifier(), code);
+        return CommonTestUtils.createExperiment(ident);
+    }
+
+    private ExperimentBO loadExperiment(final ExperimentIdentifier identifier,
+            final ExperimentPE exp)
+    {
+        final ExperimentBO expBO = createExperimentBO();
+        expBO.loadByExperimentIdentifier(identifier);
+        AssertJUnit.assertEquals(exp, expBO.getExperiment());
+        return expBO;
+    }
+
+    private void prepareTryFindSample(final GroupPE group, final String sampleCode,
+            final SamplePE foundSample)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(sampleDAO).tryFindByCodeAndGroup(sampleCode, group, HierarchyType.CHILD);
+                    will(returnValue(foundSample));
+                }
+            });
+    }
+
+    private static SamplePE createSampleWithCode(String code)
+    {
+        SamplePE s = CommonTestUtils.createSample();
+        s.setCode(code);
+        return s;
+    }
+
+    private static String createIdentifier(final String dbCode, final String groupCode,
             final String projectCode, final String expCode)
     {
         return dbCode + ":/" + groupCode + "/" + projectCode + "/" + expCode;
     }
 
-    private ExperimentPE createExperiment(ProjectPE project, final String expCode,
+    private static ExperimentPE createExperiment(ProjectPE project, final String expCode,
             ExperimentTypePE type)
     {
         ExperimentPE experiment = new ExperimentPE();
@@ -373,7 +530,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         return experiment;
     }
 
-    private ProjectPE createProject(final String dbCode, final String groupCode,
+    private static ProjectPE createProject(final String dbCode, final String groupCode,
             final String projectCode)
     {
         ProjectPE project = new ProjectPE();
@@ -387,7 +544,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         return project;
     }
 
-    private ExperimentTypePE createExperimentType(final String expTypeCode)
+    private static ExperimentTypePE createExperimentType(final String expTypeCode)
     {
         ExperimentTypePE experimentType = new ExperimentTypePE();
         experimentType.setDatabaseInstance(new DatabaseInstancePE());
@@ -395,8 +552,8 @@ public final class ExperimentBOTest extends AbstractBOTest
         return experimentType;
     }
 
-    private void setExperimentAttachments(final ExperimentPE exp, final AttachmentPE attachment1,
-            final AttachmentPE attachment2)
+    private static void setExperimentAttachments(final ExperimentPE exp,
+            final AttachmentPE attachment1, final AttachmentPE attachment2)
     {
         final HashSet<AttachmentPE> set = new HashSet<AttachmentPE>();
         set.add(attachment1);
@@ -404,7 +561,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         exp.setInternalAttachments(set);
     }
 
-    private void testThrowingExceptionOnUnknownFileVersion(final AttachmentPE attachment,
+    private static void testThrowingExceptionOnUnknownFileVersion(final AttachmentPE attachment,
             final ExperimentBO expBO)
     {
         boolean exceptionThrown = false;
@@ -421,7 +578,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         }
     }
 
-    private void testThrowingExceptionOnUnknownFilename(final AttachmentPE attachment2,
+    private static void testThrowingExceptionOnUnknownFilename(final AttachmentPE attachment2,
             final ExperimentBO expBO)
     {
         boolean exceptionThrown;

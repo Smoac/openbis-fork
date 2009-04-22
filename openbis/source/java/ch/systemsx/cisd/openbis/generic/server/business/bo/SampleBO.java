@@ -153,21 +153,6 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
                 .getSampleType());
     }
 
-    public boolean hasDatasets()
-    {
-        assert sample != null;
-
-        final IExternalDataDAO externalDataDAO = getExternalDataDAO();
-        long count = 0;
-        for (final SourceType dataSourceType : SourceType.values())
-        {
-            final List<ExternalDataPE> list =
-                    externalDataDAO.listExternalData(sample, dataSourceType);
-            count += list.size();
-        }
-        return count > 0;
-    }
-
     public void setExperiment(ExperimentPE experiment)
     {
         assert sample != null : "Sample not loaded.";
@@ -192,14 +177,33 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
 
     private final void checkSampleWithoutDatasets()
     {
-        if (hasDatasets())
+        checkSampleWithoutDatasets(getExternalDataDAO(), sample);
+    }
+
+    public static final void checkSampleWithoutDatasets(IExternalDataDAO externalDataDAO,
+            SamplePE sample)
+    {
+        if (hasDatasets(externalDataDAO, sample))
         {
             throw UserFailureException
                     .fromTemplate(
-                            "Cannot use sample '%s' in the experiment, because in the previous "
-                                    + "invalidated experiment there were some data acquired for this sample.",
-                            getSample().getSampleIdentifier());
+                            "Operation cannot be performed, because some datasets have been already produced for the sample '%s'.",
+                            sample.getSampleIdentifier());
         }
+    }
+
+    private static boolean hasDatasets(IExternalDataDAO externalDataDAO, SamplePE sample)
+    {
+        assert sample != null;
+
+        long count = 0;
+        for (final SourceType dataSourceType : SourceType.values())
+        {
+            final List<ExternalDataPE> list =
+                    externalDataDAO.listExternalData(sample, dataSourceType);
+            count += list.size();
+        }
+        return count > 0;
     }
 
     private final static void checkSampleUnused(final SamplePE sample)
@@ -287,6 +291,11 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
                             "The sample '%s' cannot be %s because there are already datasets registered for this sample.",
                             sample.getSampleIdentifier(), actionDesc);
         }
+    }
+
+    private boolean hasDatasets()
+    {
+        return hasDatasets(getExternalDataDAO(), sample);
     }
 
     private boolean isExperimentChangeUnnecessary(ExperimentPE newExperimentOrNull,

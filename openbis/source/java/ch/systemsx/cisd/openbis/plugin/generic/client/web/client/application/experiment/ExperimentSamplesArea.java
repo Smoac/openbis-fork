@@ -87,6 +87,7 @@ final class ExperimentSamplesArea extends TextArea
     {
         String textValue = createTextValue(samples);
         setValue(textValue);
+        setOriginalValue(textValue);
     }
 
     private static String createTextValue(String[] samples)
