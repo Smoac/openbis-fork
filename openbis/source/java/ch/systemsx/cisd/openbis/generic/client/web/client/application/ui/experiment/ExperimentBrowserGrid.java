@@ -25,7 +25,6 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -87,8 +86,11 @@ public class ExperimentBrowserGrid extends
     public static DisposableEntityChooser<Experiment> createChooser(
             final IViewContext<ICommonClientServiceAsync> viewContext, Group groupOrNull)
     {
-        final AbstractExperimentBrowserToolbar toolbar =
-                new ExperimentBrowserToolbar(viewContext, groupOrNull);
+        final ProjectSelectionTreeWidget tree =
+                new ProjectSelectionTreeWidget(viewContext, groupOrNull);
+        final SectionPanel treeSection = new ProjectSelectionSection(tree);
+        final ExperimentBrowserToolbar toolbar =
+                new ExperimentBrowserToolbar(viewContext, tree);
         final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar)
             {
                 @Override
@@ -97,19 +99,20 @@ public class ExperimentBrowserGrid extends
                     // do nothing - avoid showing the details after double click
                 }
             };
-        browserGrid.addToolbarRefreshButton(toolbar);
-        return browserGrid.asDisposableWithToolbar(toolbar);
+        browserGrid.addGridRefreshListener(toolbar);
+        return browserGrid.asDisposableWithToolbarAndTree(toolbar, treeSection);
     }
 
     /** Create a grid with the toolbar and a tree. */
     public static DisposableEntityChooser<Experiment> create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        final ProjectSelectionTreeWidget tree = new ProjectSelectionTreeWidget(viewContext);
+        final ProjectSelectionTreeWidget tree = new ProjectSelectionTreeWidget(viewContext, null);
         final SectionPanel treeSection = new ProjectSelectionSection(tree);
-        final AbstractExperimentBrowserToolbar toolbar =
-                new ExperimentBrowserToolbarWithTree(viewContext, tree);
+        final ExperimentBrowserToolbar toolbar =
+                new ExperimentBrowserToolbar(viewContext, tree);
         final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar);
+        browserGrid.addGridRefreshListener(toolbar);
         browserGrid.extendToolbar(toolbar);
         return browserGrid.asDisposableWithToolbarAndTree(toolbar, treeSection);
     }
@@ -121,11 +124,8 @@ public class ExperimentBrowserGrid extends
         setId(BROWSER_ID);
     }
 
-    private void extendToolbar(AbstractExperimentBrowserToolbar topToolbar)
+    private void extendToolbar(ExperimentBrowserToolbar topToolbar)
     {
-        topToolbar.setCriteriaChangedListener(createGridRefreshListener());
-
-        topToolbar.add(new FillToolItem());
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
         Button showDetailsButton =
                 createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
@@ -137,11 +137,9 @@ public class ExperimentBrowserGrid extends
         topToolbar.add(new AdapterToolItem(editButton));
     }
 
-    private void addToolbarRefreshButton(AbstractExperimentBrowserToolbar topToolbar)
+    private void addGridRefreshListener(ExperimentBrowserToolbar topToolbar)
     {
-        SelectionChangedListener<?> refreshButtonListener = addRefreshButton(topToolbar);
-        topToolbar.setCriteriaChangedListener(refreshButtonListener);
-        topToolbar.add(new FillToolItem());
+        topToolbar.setCriteriaChangedListener(createGridRefreshListener());
     }
 
     private <D extends ModelData> SelectionChangedListener<D> createGridRefreshListener()

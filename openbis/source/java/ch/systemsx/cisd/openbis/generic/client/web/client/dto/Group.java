@@ -99,7 +99,7 @@ public final class Group extends CodeWithRegistration<Group>
     @Override
     public String toString()
     {
-        return getInstance() + "/" + getCode();
+        return getInstance().getCode() + "/" + getCode();
     }
 
     @Override

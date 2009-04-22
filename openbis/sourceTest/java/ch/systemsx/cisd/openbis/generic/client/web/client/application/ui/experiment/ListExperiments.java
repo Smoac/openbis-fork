@@ -58,7 +58,7 @@ public class ListExperiments extends AbstractDefaultTestCommand
                 (ExperimentTypeSelectionWidget) GWTTestUtil
                         .getWidgetWithID(ExperimentTypeSelectionWidget.ID
                                 + ExperimentTypeSelectionWidget.SUFFIX
-                                + ExperimentBrowserToolbarWithTree.ID);
+                                + ExperimentBrowserToolbar.ID);
 
         GWTUtils.setSelectedItem(experimentTypeSelector, ModelDataPropertyNames.CODE,
                 experimentTypeName);

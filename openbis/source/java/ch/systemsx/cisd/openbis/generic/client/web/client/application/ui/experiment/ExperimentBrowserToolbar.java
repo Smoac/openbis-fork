@@ -16,83 +16,119 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
+
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
-import com.google.gwt.user.client.ui.Widget;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.AbstractEntityBrowserGrid.ICriteriaProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
- * The toolbar of experiment browser with a project selected with an internal combo box.
+ * The toolbar of experiment browser with a project selected with an external tree.
  * 
  * @author Piotr Buczek
  */
-class ExperimentBrowserToolbar extends AbstractExperimentBrowserToolbar
+class ExperimentBrowserToolbar extends ToolBar implements
+        ICriteriaProvider<ListExperimentsCriteria>
 {
-    public static final String ID = AbstractExperimentBrowserToolbar.ABSTRACT_ID;
+    public static final String ID = "experiment-browser-toolbar";
 
-    /** @param groupOrNull if specified, only projects from that group will be presented */
-    public ExperimentBrowserToolbar(final IViewContext<ICommonClientServiceAsync> viewContext,
-            Group groupOrNull)
+    private final ExperimentTypeSelectionWidget selectExperimentTypeCombo;
+
+    private final ProjectSelectionTreeWidget selectProjectTree;
+
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
+
+    public ExperimentBrowserToolbar(
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            ProjectSelectionTreeWidget tree)
     {
-        super(viewContext, createProjectSelectionWidgetWrapper(viewContext, groupOrNull));
+        this.viewContext = viewContext;
+        selectExperimentTypeCombo = new ExperimentTypeSelectionWidget(viewContext, ID);
+        selectProjectTree = tree;
+        display();
     }
 
-    private static final ProjectSelectionWidgetWrapper createProjectSelectionWidgetWrapper(
-            final IViewContext<ICommonClientServiceAsync> viewContext, final Group groupOrNull)
+    public void setCriteriaChangedListener(SelectionChangedListener<?> criteriaChangedListener)
     {
-        return new ProjectSelectionWidgetWrapper()
-            {
+        selectExperimentTypeCombo.addSelectionChangedListener(criteriaChangedListener);
+        selectProjectTree.setSelectionChangedListener(criteriaChangedListener);
+    }
 
-                private ProjectSelectionWidget widget =
-                        new ProjectSelectionWidget(viewContext, groupOrNull, ID);
+    protected void display()
+    {
+        setBorders(true);
+        add(new LabelToolItem(viewContext.getMessage(Dict.EXPERIMENT_TYPE)
+                + GenericConstants.LABEL_SEPARATOR));
+        add(new AdapterToolItem(selectExperimentTypeCombo));
+        add(new FillToolItem());
+    }
 
-                public Widget getWidget()
-                {
-                    return widget;
-                }
-
-                public Project tryGetSelectedProject()
-                {
-                    return widget.tryGetSelectedProject();
-                }
-
-                public void addSelectionChangedListener(SelectionChangedListener<?> listener)
-                {
-                    widget.addSelectionChangedListener(listener);
-                }
-
-                public DatabaseModificationKind[] getRelevantModifications()
-                {
-                    return widget.getRelevantModifications();
-                }
-
-                public void update(Set<DatabaseModificationKind> observedModifications)
-                {
-                    widget.update(observedModifications);
-                }
-
-            };
+    public final ListExperimentsCriteria tryGetCriteria()
+    {
+        final ExperimentType selectedType =
+                selectExperimentTypeCombo.tryGetSelectedExperimentType();
+        if (selectedType == null)
+        {
+            return null;
+        }
+        final Project selectedProject = selectProjectTree.tryGetSelectedProject();
+        if (selectedProject == null)
+        {
+            return null;
+        }
+        ListExperimentsCriteria criteria = new ListExperimentsCriteria();
+        criteria.setExperimentType(selectedType);
+        criteria.setProjectCode(selectedProject.getCode());
+        criteria.setGroupCode(selectedProject.getGroup().getCode());
+        return criteria;
     }
 
     @Override
-    protected void display()
+    protected final void onRender(final Element parent, final int pos)
     {
-        super.display();
-        add(new SeparatorToolItem());
-        add(new LabelToolItem(viewContext.getMessage(Dict.PROJECT)
-                + GenericConstants.LABEL_SEPARATOR));
-        add(new AdapterToolItem(selectProjectWidgetWrapper.getWidget()));
+        super.onRender(parent, pos);
+    }
+
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return new DatabaseModificationKind[]
+            { createOrDelete(ObjectKind.EXPERIMENT_TYPE), createOrDelete(ObjectKind.PROJECT),
+                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
+    }
+
+    public void update(Set<DatabaseModificationKind> observedModifications,
+            IDataRefreshCallback entityTypeRefreshCallback)
+    {
+        if (observedModifications.contains(createOrDelete(ObjectKind.EXPERIMENT_TYPE))
+                || observedModifications
+                        .contains(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)))
+        {
+            selectExperimentTypeCombo.refreshStore(entityTypeRefreshCallback);
+        } else
+        {
+            entityTypeRefreshCallback.postRefresh(true);
+        }
+        if (observedModifications.contains(createOrDelete(ObjectKind.PROJECT)))
+        {
+            selectProjectTree.update(observedModifications);
+        }
     }
 
 }

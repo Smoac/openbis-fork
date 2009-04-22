@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,13 +57,16 @@ public final class ProjectSelectionTreeWidget extends Tree implements IDatabaseM
 
     private final IViewContext<?> viewContext;
 
+    private Group groupOrNull;
+
     private Project selectedProjectOrNull;
 
     private SelectionChangedListener<?> selectionChangedListener;
 
-    public ProjectSelectionTreeWidget(final IViewContext<?> viewContext)
+    public ProjectSelectionTreeWidget(final IViewContext<?> viewContext, Group groupOrNull)
     {
         this.viewContext = viewContext;
+        this.groupOrNull = groupOrNull;
         setId(ID);
         refreshTree();
     }
@@ -214,11 +218,35 @@ public final class ProjectSelectionTreeWidget extends Tree implements IDatabaseM
         @Override
         protected void process(final ResultSet<Project> result)
         {
-            rebuildTree(result.getList());
+            List<Project> projects = result.getList();
+            rebuildTree(getProjectsFilteredByGroup(projects));
             if (selectedProjectOrNull != null)
             {
                 trySelectByIdentifier(selectedProjectOrNull.getIdentifier());
             }
+        }
+
+        private List<Project> getProjectsFilteredByGroup(List<Project> projects)
+        {
+            List<Project> result = new ArrayList<Project>(projects);
+            for (Project project : projects)
+            {
+                if (matchesTheGroup(project) == false)
+                {
+                    result.remove(project);
+                }
+            }
+            return result;
+        }
+
+        private boolean matchesTheGroup(Project project)
+        {
+            if (groupOrNull == null)
+            {
+                return true;
+            }
+            Group projectGroup = project.getGroup();
+            return projectGroup.equals(groupOrNull);
         }
 
     }

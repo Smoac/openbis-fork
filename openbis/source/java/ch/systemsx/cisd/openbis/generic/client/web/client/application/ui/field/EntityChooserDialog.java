@@ -20,8 +20,8 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.google.gwt.user.client.Event;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -36,7 +36,7 @@ class EntityChooserDialog<T> extends SimpleDialog
 
     private static final int PAGING_TOOLBAR_HEIGHT = 65;
 
-    private static final int WIDTH = 530;
+    private static final int WIDTH = 730;
 
     private static final int HEIGHT = 600;
 
