@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -180,6 +181,7 @@ public class PropertyTypeAssignmentGrid extends
                 }
             });
         pagingToolbar.add(new AdapterToolItem(button));
+        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.PROPERTY_TYPE_ASSIGNMENT_BROWSER_GRID);
 
     }
 
@@ -214,12 +216,6 @@ public class PropertyTypeAssignmentGrid extends
         viewContext.getService().prepareExportPropertyTypeAssignments(exportCriteria, callback);
     }
 
-    @Override
-    protected String getGridDisplayTypeID()
-    {
-        return getGridID();
-    }
-    
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]

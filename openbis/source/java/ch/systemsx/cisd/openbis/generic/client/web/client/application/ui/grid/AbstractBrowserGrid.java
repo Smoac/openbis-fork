@@ -72,6 +72,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
@@ -83,6 +84,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo.SortDir;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 
 /**
  * @author Tomasz Pylak
@@ -126,12 +129,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     /** @return on which fields user can set filters? */
     abstract protected List<IColumnDefinition<T>> getAvailableFilters();
 
-    /**
-     * Returns the ID to identify the type of grid needed for display settings.
-     * Default implementation returns the grid ID.
-     */
-    abstract protected String getGridDisplayTypeID();
-
     // --------
 
     protected final IViewContext<ICommonClientServiceAsync> viewContext;
@@ -154,7 +151,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private final boolean refreshAutomatically;
 
     private final List<PagingColumnFilter<T>> filterWidgets;
-
+    
     // --------- non-final fields
 
     // available columns configs and definitions
@@ -164,6 +161,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private String resultSetKey;
 
     private IDataRefreshCallback refreshCallback;
+    
+    private IDisplayTypeIDGenerator displayTypeIDGenerator;
+    
+    private EntityKind entityKind;
 
     protected AbstractBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             String gridId)
@@ -247,6 +248,21 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     protected String getGridID()
     {
         return grid.getId();
+    }
+    
+    protected void setDisplayTypeIDGenerator(IDisplayTypeIDGenerator displayTypeIDGenerator)
+    {
+        this.displayTypeIDGenerator = displayTypeIDGenerator;
+    }
+
+    protected void setEntityKindForDisplayTypeIDGeneration(EntityKind entityKind)
+    {
+        this.entityKind = entityKind;
+    }
+    
+    protected EntityType tryToGetEntityType()
+    {
+        return null;
     }
 
     private List<PagingColumnFilter<T>> createFilterWidgets()
@@ -766,6 +782,16 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         pagingLoader.load(0, PAGE_SIZE);
     }
     
+    private String getGridDisplayTypeID()
+    {
+        if (displayTypeIDGenerator == null)
+        {
+            throw new IllegalStateException("Undefined display type ID generator.");
+        }
+        return displayTypeIDGenerator.createID(entityKind, tryToGetEntityType());
+    }
+    
+   
     private IDataRefreshCallback createRefreshCallback(
             IDataRefreshCallback externalRefreshCallbackOrNull)
     {

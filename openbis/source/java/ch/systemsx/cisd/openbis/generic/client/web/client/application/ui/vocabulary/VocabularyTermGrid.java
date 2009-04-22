@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
@@ -127,6 +128,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
             pagingToolbar.add(new AdapterToolItem(deleteButton));
             allowMultipleSelection();
         }
+        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.VOCABULARY_TERMS_GRID);
     }
 
     public static String createGridId(String vocabularyCode)
@@ -171,12 +173,6 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportVocabularyTerms(exportCriteria, callback);
-    }
-
-    @Override
-    protected String getGridDisplayTypeID()
-    {
-        return "vocabulary-terms";
     }
 
     private void askForNewTerms()

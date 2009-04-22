@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.ProjectColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
@@ -75,6 +76,7 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
     private ProjectGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID, GRID_ID);
+        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.PROJECT_BROWSER_GRID);
     }
 
     private final Component createToolbar()
@@ -174,12 +176,6 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                 };
         }
         DispatcherHelper.dispatchNaviEvent(tabFactory);
-    }
-
-    @Override
-    protected String getGridDisplayTypeID()
-    {
-        return getGridID();
     }
 
     public DatabaseModificationKind[] getRelevantModifications()

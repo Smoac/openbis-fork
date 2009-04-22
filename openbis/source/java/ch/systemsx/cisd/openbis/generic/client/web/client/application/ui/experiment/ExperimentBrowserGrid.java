@@ -122,6 +122,7 @@ public class ExperimentBrowserGrid extends
     {
         super(viewContext, GRID_ID, criteriaProvider);
         setId(BROWSER_ID);
+        setEntityKindForDisplayTypeIDGeneration(EntityKind.EXPERIMENT);
     }
 
     private void extendToolbar(ExperimentBrowserToolbar topToolbar)
@@ -222,15 +223,11 @@ public class ExperimentBrowserGrid extends
     {
         return doCreateHeader(criteria);
     }
-    
+
     @Override
-    protected String getGridDisplayTypeID()
+    protected EntityType tryToGetEntityType()
     {
-        if (criteria == null)
-        {
-            return "generic-experiment-browser";
-        }
-        return "experiment-browser-" + criteria.getExperimentType().getCode();
+        return criteria == null ? null : criteria.getExperimentType();
     }
 
     private static final String doCreateHeader(ListExperimentsCriteria criteria)

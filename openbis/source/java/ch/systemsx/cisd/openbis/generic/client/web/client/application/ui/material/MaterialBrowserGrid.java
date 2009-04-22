@@ -150,6 +150,7 @@ public class MaterialBrowserGrid extends
     {
         super(viewContext, GRID_ID, true, refreshAutomatically, criteriaProvider);
         setId(BROWSER_ID);
+        setEntityKindForDisplayTypeIDGeneration(EntityKind.MATERIAL);
     }
 
     private void extendTopToolbar(MaterialBrowserToolbar toolbar, boolean detailsAvailable)
@@ -206,13 +207,9 @@ public class MaterialBrowserGrid extends
     }
 
     @Override
-    protected String getGridDisplayTypeID()
+    protected EntityType tryToGetEntityType()
     {
-        if (criteria == null)
-        {
-            return "generic-material-browser";
-        }
-        return "material-browser-" + criteria.getMaterialType().getCode();
+        return criteria == null ? null : criteria.getMaterialType();
     }
 
     private static final String doCreateHeader(ListMaterialCriteria criteria)

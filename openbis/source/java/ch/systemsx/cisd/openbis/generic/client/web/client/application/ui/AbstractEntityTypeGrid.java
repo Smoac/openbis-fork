@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.EntityTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.AddEntityTypeDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -54,6 +55,7 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
             String browserId, String gridId)
     {
         super(viewContext, browserId, gridId);
+        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.TYPE_BROWSER_GRID);
     }
 
     public final Component createToolbar(final String title)
@@ -106,13 +108,6 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
             { EntityTypeColDefKind.CODE });
     }
     
-    @Override
-    protected String getGridDisplayTypeID()
-    {
-        return getGridID();
-    }
-    
-
     public DatabaseModificationKind[] getRelevantModifications()
     {
         // grid is refreshed manually when a new type is added, so there can be no auto-refresh

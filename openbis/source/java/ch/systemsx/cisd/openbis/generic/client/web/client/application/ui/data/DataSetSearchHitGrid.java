@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetSearchHitColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
@@ -71,6 +72,7 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
     private DataSetSearchHitGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID);
+        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.DATA_SET_SEARCH_RESULT_GRID);
     }
 
     @Override
@@ -122,12 +124,6 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
     protected ColumnDefsAndConfigs<ExternalData> createColumnsDefinition()
     {
         return DataSetSearchHitModel.createColumnsSchema(viewContext, availablePropertyTypes);
-    }
-
-    @Override
-    protected String getGridDisplayTypeID()
-    {
-        return BROWSER_ID;
     }
 
     public DatabaseModificationKind[] getRelevantModifications()

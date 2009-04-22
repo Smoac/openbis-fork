@@ -21,10 +21,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
@@ -48,6 +50,8 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
     {
         super(viewContext, browserId);
         this.sampleIdentifier = sampleIdentifier;
+        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
+        setEntityKindForDisplayTypeIDGeneration(EntityKind.DATA_SET);
     }
 
     @Override
@@ -57,12 +61,6 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
         viewContext.getService().listSampleDataSets(sampleIdentifier, resultSetConfig, callback);
     }
     
-    @Override
-    protected String getGridDisplayTypeID()
-    {
-        return "experiment-samples";
-    }
-
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.any(ObjectKind.DATA_SET);

@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -58,6 +59,7 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
     private PropertyTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID, GRID_ID);
+        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.PROPERTY_TYPE_BROWSER_GRID);
     }
 
     @Override
@@ -92,12 +94,6 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportPropertyTypes(exportCriteria, callback);
-    }
-
-    @Override
-    protected String getGridDisplayTypeID()
-    {
-        return getGridID();
     }
 
     public DatabaseModificationKind[] getRelevantModifications()

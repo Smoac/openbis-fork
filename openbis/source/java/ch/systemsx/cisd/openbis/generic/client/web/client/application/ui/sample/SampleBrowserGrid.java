@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
@@ -100,12 +101,11 @@ public final class SampleBrowserGrid extends
                 createUnrefreshableCriteriaProvider(criteria);
         final SampleBrowserGrid browserGrid =
                 new SampleBrowserGrid(viewContext, criteriaProvider, gridId, false, true);
-        browserGrid.displayTypeID = "expermiment-" + experimentType.getCode() + "-samples";
+        browserGrid.setDisplayTypeIDGenerator(DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
+        browserGrid.setEntityKindForDisplayTypeIDGeneration(EntityKind.SAMPLE);
         return browserGrid.asDisposableWithoutToolbar();
     }
     
-    private String displayTypeID;
-
     private SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             ICriteriaProvider<ListSampleCriteria> criteriaProvider, String gridId,
             boolean showHeader, boolean refreshAutomatically)
@@ -126,6 +126,7 @@ public final class SampleBrowserGrid extends
                         }
                     });
         setId(BROWSER_ID);
+        setEntityKindForDisplayTypeIDGeneration(EntityKind.SAMPLE);
     }
 
     // adds show, show-details and invalidate buttons
@@ -148,22 +149,9 @@ public final class SampleBrowserGrid extends
     }
 
     @Override
-    protected String getGridDisplayTypeID()
+    protected EntityType tryToGetEntityType()
     {
-        if (displayTypeID != null)
-        {
-            return displayTypeID;
-        }
-        if (criteria == null)
-        {
-            return "generic-sample-browser";
-        }
-        SampleType sampleType = criteria.getSampleType();
-        if (sampleType == null)
-        {
-            return "generic-sample-browser-with-criteria";
-        }
-        return "sample-browser-" + sampleType.getCode();
+        return criteria == null ? null : criteria.getSampleType();
     }
 
     @Override

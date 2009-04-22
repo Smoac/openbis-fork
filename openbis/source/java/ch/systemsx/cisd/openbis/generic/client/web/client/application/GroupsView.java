@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddGroupDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
@@ -154,7 +155,8 @@ public class GroupsView extends ContentPanel
         grid.setBorders(true);
         grid.setId(TABLE_ID);
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
-        viewContext.getDisplaySettingsManager().prepareGrid(grid.getId(), grid);
+        String displayTypeID = DisplayTypeIDGenerator.GROUPS_BROWSER_GRID.createID(null, null);
+        viewContext.getDisplaySettingsManager().prepareGrid(displayTypeID, grid);
 
         cp.add(grid);
         final Button addGroupButton =

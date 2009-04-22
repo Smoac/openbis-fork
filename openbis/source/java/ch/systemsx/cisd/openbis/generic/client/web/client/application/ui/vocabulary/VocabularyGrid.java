@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -88,6 +89,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
     private VocabularyGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID, GRID_ID);
+        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.VOCABULARY_BROWSER_GRID);
     }
 
     @Override
@@ -139,12 +141,6 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                 }
             };
         DispatcherHelper.dispatchNaviEvent(tabFactory);
-    }
-
-    @Override
-    protected String getGridDisplayTypeID()
-    {
-        return getGridID();
     }
 
     public DatabaseModificationKind[] getRelevantModifications()

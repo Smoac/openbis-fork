@@ -52,29 +52,30 @@ public class DisplaySettingsManager
         this.displaySettings = displaySettings;
     }
     
-    public void prepareGrid(final String id, final Grid<?> grid)
+    /**
+     * Prepares the specified grid using column settings for the specified display type ID.
+     * Preparation means synchronisation of the {@link ColumnModel} and registering a listener
+     * which updates settings after column configuration changes.
+     */
+    public void prepareGrid(final String displayTypeID, final Grid<?> grid)
     {
+        System.out.println("prepare " + displayTypeID);
         Listener<ColumnModelEvent> listener = new Listener<ColumnModelEvent>()
                 {
                     public void handleEvent(ColumnModelEvent event)
                     {
-                        updateColumnSettings(id, grid);
+                        updateColumnSettings(displayTypeID, grid);
                     }
                 };
         ColumnModel columnModel = grid.getColumnModel();
         columnModel.addListener(Events.HiddenChange, listener);
         columnModel.addListener(Events.WidthChange, listener);
-        synchronizeColumnModel(id, grid);
+        synchronizeColumnModel(displayTypeID, grid);
     }
     
-    /**
-     * Synchronizes the {@link ColumnModel} of the specified grid with the {@link ColumnSetting}s.
-     * The grid ID is used to get the appropriated column settings. If there are no settings found
-     * nothing will be done.
-     */
-    private void synchronizeColumnModel(String id, Grid<?> grid)
+    private void synchronizeColumnModel(String displayTypeID, Grid<?> grid)
     {
-        List<ColumnSetting> columnSettings = displaySettings.getColumnSettings().get(id);
+        List<ColumnSetting> columnSettings = displaySettings.getColumnSettings().get(displayTypeID);
         if (columnSettings == null)
         {
             return;
@@ -110,11 +111,7 @@ public class DisplaySettingsManager
         }
     }
     
-    /**
-     * Updates the column settings for the specified grid. The grid ID will be used to identify
-     * its column settings in the method {@link #synchronizeColumnModel(Grid)}.
-     */
-    private void updateColumnSettings(String id, Grid<?> grid)
+    private void updateColumnSettings(String displayTypeID, Grid<?> grid)
     {
         ColumnModel columnModel = grid.getColumnModel();
         List<ColumnSetting> columnSettings = new ArrayList<ColumnSetting>();
@@ -127,6 +124,6 @@ public class DisplaySettingsManager
             columnSetting.setWidth(columnConfig.getWidth());
             columnSettings.add(columnSetting);
         }
-        displaySettings.getColumnSettings().put(id, columnSettings);
+        displaySettings.getColumnSettings().put(displayTypeID, columnSettings);
     }
 }

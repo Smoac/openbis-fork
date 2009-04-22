@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddRoleDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
@@ -137,7 +138,8 @@ public class RolesView extends ContentPanel
         grid.setBorders(true);
         grid.setId(TABLE_ID);
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
-        viewContext.getDisplaySettingsManager().prepareGrid(grid.getId(), grid);
+        String displayTypeID = DisplayTypeIDGenerator.ROLE_ASSIGNMENT_BROWSER_GRID.createID(null, null);
+        viewContext.getDisplaySettingsManager().prepareGrid(displayTypeID, grid);
 
         cp.add(grid);
 

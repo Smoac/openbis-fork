@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddPersonDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -155,7 +156,8 @@ public class PersonsView extends ContentPanel
         grid.setId(TABLE_ID);
         grid.setBorders(true);
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
-        viewContext.getDisplaySettingsManager().prepareGrid(grid.getId(), grid);
+        String displayTypeID = DisplayTypeIDGenerator.PERSON_BROWSER_GRID.createID(null, null);
+        viewContext.getDisplaySettingsManager().prepareGrid(displayTypeID, grid);
         cp.add(grid);
 
         final Button addPersonButton =

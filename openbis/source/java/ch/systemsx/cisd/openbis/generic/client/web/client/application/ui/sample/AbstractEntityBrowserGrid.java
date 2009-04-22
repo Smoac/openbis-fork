@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.SetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -59,7 +60,7 @@ public abstract class AbstractEntityBrowserGrid<T/* Entity */, M extends BaseEnt
 
     /** @return text which should be used as a grid header */
     abstract protected String createHeader();
-
+    
     private final ICriteriaProvider<K> criteriaProvider;
 
     // criteria used in the previous refresh operation or null if it has not occurred yet
@@ -85,6 +86,7 @@ public abstract class AbstractEntityBrowserGrid<T/* Entity */, M extends BaseEnt
     {
         super(viewContext, gridId);
         this.criteriaProvider = criteriaProvider;
+        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
     }
 
     protected AbstractEntityBrowserGrid(IViewContext<ICommonClientServiceAsync> viewContext,
@@ -93,6 +95,7 @@ public abstract class AbstractEntityBrowserGrid<T/* Entity */, M extends BaseEnt
     {
         super(viewContext, gridId, showHeader, refreshAutomatically);
         this.criteriaProvider = criteriaProvider;
+        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
     }
 
     /**
@@ -159,7 +162,7 @@ public abstract class AbstractEntityBrowserGrid<T/* Entity */, M extends BaseEnt
         criteria.setFilterInfos(resultSetConfig.getFilterInfos());
         criteria.setResultSetKey(resultSetConfig.getResultSetKey());
     }
-
+    
     // ------ static helpers
 
     protected final static Set<DatabaseModificationKind> getGridRelevantModifications(
