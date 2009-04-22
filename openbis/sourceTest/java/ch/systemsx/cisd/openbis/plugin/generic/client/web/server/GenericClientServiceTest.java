@@ -188,15 +188,16 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         final NewExperiment newExperiment =
                 createNewExperiment("/group1/project1/exp1", "SIRNA_HCS",
                         ExperimentProperty.EMPTY_ARRAY);
-        final String sessionKey = "some-session-key";
+        final String attachmentSessionKey = "attachment-session-key";
+        final String sampleSessionKey = "sample-session-key";
         context.checking(new Expectations()
             {
                 {
                     prepareGetSessionToken(this);
-                    allowing(httpSession).getAttribute(sessionKey);
+                    allowing(httpSession).getAttribute(attachmentSessionKey);
                     // TODO 2009-01-20, IA: Add test for attachment handling
                     will(returnValue(new UploadedFilesBean()));
-                    one(httpSession).removeAttribute(sessionKey);
+                    one(httpSession).removeAttribute(attachmentSessionKey);
                     one(genericServer).registerExperiment(with(SESSION_TOKEN),
                             getTranslatedExperiment(), with(new ArrayList<AttachmentPE>()));
                 }
@@ -207,7 +208,8 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                 }
 
             });
-        genericClientService.registerExperiment(sessionKey, newExperiment);
+        genericClientService.registerExperiment(attachmentSessionKey, sampleSessionKey,
+                newExperiment);
         context.assertIsSatisfied();
     }
 

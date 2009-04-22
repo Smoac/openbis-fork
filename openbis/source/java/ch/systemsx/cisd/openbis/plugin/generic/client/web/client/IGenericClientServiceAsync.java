@@ -71,10 +71,10 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<Material> materialInfoCallback);
 
     /**
-     * @see IGenericClientService#registerExperiment(String,NewExperiment)
+     * @see IGenericClientService#registerExperiment(String,String,NewExperiment)
      */
-    public void registerExperiment(final String sessionKey, NewExperiment newExp,
-            AsyncCallback<Void> assyncCallback) throws UserFailureException;
+    public void registerExperiment(final String attachmentsSessionKey, String samplesSessionKey,
+            NewExperiment newExp, AsyncCallback<Void> assyncCallback) throws UserFailureException;
 
     /**
      * @see IGenericClientService#registerMaterials(MaterialType, String)

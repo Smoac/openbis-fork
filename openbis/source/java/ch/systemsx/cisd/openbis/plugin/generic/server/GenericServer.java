@@ -213,6 +213,12 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         assert newExperiment != null : "Unspecified new experiment.";
 
         final Session session = getSessionManager().getSession(sessionToken);
+
+        if (newExperiment.isRegisterSamples())
+        {
+            registerSamples(sessionToken, newExperiment.getSampleType(), newExperiment
+                    .getNewSamples());
+        }
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
         experimentBO.define(newExperiment);
         experimentBO.save();

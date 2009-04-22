@@ -177,12 +177,12 @@ public final class UploadServiceServlet extends AbstractCommandController
                         }
                     }
                 }
-                if (atLeastOneFileUploaded == false)
-                {
-                    throw UserFailureException.fromTemplate("No file has been uploaded or "
-                            + "the chosen files have no content.");
-                }
                 session.setAttribute(sessionKey, uploadedFiles);
+            }
+            if (atLeastOneFileUploaded == false)
+            {
+                throw UserFailureException.fromTemplate("No file has been uploaded or "
+                        + "the chosen files have no content.");
             }
             sendResponse(response, null);
         }

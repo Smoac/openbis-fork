@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.List;
 
 /**
  * A experiment to register.
@@ -24,11 +25,19 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  */
 public final class NewExperiment extends Identifier<NewExperiment>
 {
-    private String experimentTypeCode;
+    private String experimentTypeCode = null;
 
     private String[] samples = new String[0];
 
     private ExperimentProperty[] properties = ExperimentProperty.EMPTY_ARRAY;
+
+    private SampleType sampleType = null;
+
+    private boolean generateCodes = false;
+
+    private boolean registerSamples = false;
+
+    private List<NewSample> newSamples;
 
     public NewExperiment()
     {
@@ -75,4 +84,45 @@ public final class NewExperiment extends Identifier<NewExperiment>
     {
         this.samples = samples;
     }
+
+    public void setSampleType(SampleType sampleType)
+    {
+        this.sampleType = sampleType;
+    }
+
+    public SampleType getSampleType()
+    {
+        return sampleType;
+    }
+
+    public void setGenerateCodes(boolean generateCodes)
+    {
+        this.generateCodes = generateCodes;
+    }
+
+    public boolean isGenerateCodes()
+    {
+        return generateCodes;
+    }
+
+    public void setRegisterSamples(boolean register)
+    {
+        this.registerSamples = register;
+    }
+
+    public boolean isRegisterSamples()
+    {
+        return registerSamples;
+    }
+
+    public void setNewSamples(List<NewSample> newSamples)
+    {
+        this.newSamples = newSamples;
+    }
+
+    public List<NewSample> getNewSamples()
+    {
+        return newSamples;
+    }
+
 }

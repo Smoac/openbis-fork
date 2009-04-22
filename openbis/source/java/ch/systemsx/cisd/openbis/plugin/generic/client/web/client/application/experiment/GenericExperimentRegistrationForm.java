@@ -22,10 +22,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -43,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 
@@ -57,7 +64,8 @@ public final class GenericExperimentRegistrationForm
 {
     public static final String ID = createId(EntityKind.EXPERIMENT);
 
-    public static final String ATTACHMENTS_SESSION_KEY = createSimpleId(EntityKind.EXPERIMENT);
+    public static final String ATTACHMENTS_SESSION_KEY =
+            createSimpleId(EntityKind.EXPERIMENT) + "_attachments";
 
     public static final String SAMPLES_SESSION_KEY =
             createSimpleId(EntityKind.EXPERIMENT) + "_samples";
@@ -81,6 +89,12 @@ public final class GenericExperimentRegistrationForm
 
     private final SampleTypeSelectionWidget importSampleTypeSelection;
 
+    private final Radio importSamplesRadio;
+
+    private final Radio existingSamplesRadio;
+
+    private CheckBox autoGenerateCodes;
+
     public GenericExperimentRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext,
             final ExperimentType experimentType)
@@ -88,7 +102,12 @@ public final class GenericExperimentRegistrationForm
         super(viewContext, experimentType.getAssignedPropertyTypes(), EntityKind.EXPERIMENT);
         this.viewContext = viewContext;
         this.experimentType = experimentType;
+        importSamplesFileManager.setMandatory();
         importSampleTypeSelection = new SampleTypeSelectionWidget(viewContext, ID, false);
+        FieldUtil.markAsMandatory(importSampleTypeSelection);
+        existingSamplesRadio = cerateExistingSamplesRadio();
+        importSamplesRadio = createImportRadio();
+        autoGenerateCodes = createAutoGenerateCheckbox();
         List<String> sesionKeys = new ArrayList<String>();
         sesionKeys.add(ATTACHMENTS_SESSION_KEY);
         sesionKeys.add(SAMPLES_SESSION_KEY);
@@ -125,6 +144,46 @@ public final class GenericExperimentRegistrationForm
 
     }
 
+    RadioGroup createSamplesSourceRadio(Radio existing, Radio importFromFile)
+    {
+        RadioGroup result = new RadioGroup();
+        result.setSelectionRequired(true);
+        result.setFieldLabel("Add Samples");
+        result.setOrientation(Orientation.HORIZONTAL);
+        result.add(existing);
+        result.add(importFromFile);
+        result.addListener(Events.Change, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    updateSamples();
+                }
+            });
+        return result;
+    }
+
+    private Radio createImportRadio()
+    {
+        Radio importRadio = new Radio();
+        importRadio.setBoxLabel("from file");
+        return importRadio;
+    }
+
+    private CheckBox createAutoGenerateCheckbox()
+    {
+        CheckBox result = new CheckBox();
+        result.setFieldLabel("Create codes automatically");
+        return result;
+    }
+
+    private Radio cerateExistingSamplesRadio()
+    {
+        Radio existingRadio = new Radio();
+        existingRadio.setBoxLabel("existing");
+        existingRadio.setValue(true);
+        return existingRadio;
+    }
+
     @Override
     protected void createEntitySpecificFields()
     {
@@ -132,24 +191,8 @@ public final class GenericExperimentRegistrationForm
         projectSelectionWidget = new ProjectSelectionWidget(viewContext, getId());
         FieldUtil.markAsMandatory(projectSelectionWidget);
         projectSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.PROJECT));
-
         samplesArea = new ExperimentSamplesArea(viewContext, ID);
-
-        // importSampleTypeSelection
-        // .addSelectionChangedListener(new SelectionChangedListener<ModelData>()
-        // {
-        // @Override
-        // public final void selectionChanged(final SelectionChangedEvent<ModelData> se)
-        // {
-        // final SampleType sampleType =
-        // importSampleTypeSelection.tryGetSelectedSampleType();
-        // if (sampleType != null)
-        // {
-        //
-        // }
-        // }
-        // });
-
+        updateSamples();
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
                 @Override
@@ -192,22 +235,46 @@ public final class GenericExperimentRegistrationForm
     }
 
     @Override
+    protected void resetPanel()
+    {
+        super.resetPanel();
+    }
+
+    @Override
     protected List<DatabaseModificationAwareField<?>> getEntitySpecificFields()
     {
         final ArrayList<DatabaseModificationAwareField<?>> fields =
                 new ArrayList<DatabaseModificationAwareField<?>>();
         fields.add(projectSelectionWidget.asDatabaseModificationAware());
+        fields.add(wrapUnaware(createSamplesSourceRadio(existingSamplesRadio, importSamplesRadio)));
         fields.add(wrapUnaware(samplesArea));
         fields.add(importSampleTypeSelection.asDatabaseModificationAware());
         for (FileUploadField samplesFileField : importSamplesFileManager.getFields())
         {
             fields.add(wrapUnaware((Field<?>) samplesFileField));
         }
+        fields.add(wrapUnaware(autoGenerateCodes));
         for (FileUploadField attachmentField : attachmentManager.getFields())
         {
             fields.add(wrapUnaware((Field<?>) attachmentField));
         }
         return fields;
+    }
+
+    private void updateSamples()
+    {
+        Boolean useExistingSamples = existingSamplesRadio.getValue();
+        samplesArea.setVisible(useExistingSamples);
+        samplesArea.setEnabled(useExistingSamples);
+        importSampleTypeSelection.setVisible(useExistingSamples == false);
+        importSampleTypeSelection.setEnabled(useExistingSamples == false);
+        autoGenerateCodes.setVisible(useExistingSamples == false);
+        autoGenerateCodes.setEnabled(useExistingSamples == false);
+        for (FileUploadField samplesFileField : importSamplesFileManager.getFields())
+        {
+            samplesFileField.setVisible(useExistingSamples == false);
+            samplesFileField.setEnabled(useExistingSamples == false);
+        }
     }
 
     private void registerExperiment()
@@ -216,9 +283,28 @@ public final class GenericExperimentRegistrationForm
                 new NewExperiment(createExperimentIdentifier(), experimentType.getCode());
         final List<ExperimentProperty> properties = extractProperties();
         newExp.setProperties(properties.toArray(ExperimentProperty.EMPTY_ARRAY));
-        newExp.setSamples(samplesArea.tryGetSampleCodes());
-        viewContext.getService().registerExperiment(ATTACHMENTS_SESSION_KEY, newExp,
-                new RegisterExperimentCallback(viewContext));
+        newExp.setSamples(getSamples());
+        newExp.setSampleType(getSampleType());
+        newExp.setGenerateCodes(autoGenerateCodes.getValue().booleanValue());
+        newExp.setRegisterSamples(existingSamplesRadio.getValue() == false);
+        viewContext.getService().registerExperiment(ATTACHMENTS_SESSION_KEY, SAMPLES_SESSION_KEY,
+                newExp, new RegisterExperimentCallback(viewContext));
+    }
+
+    private String[] getSamples()
+    {
+        if (existingSamplesRadio.getValue())
+            return samplesArea.tryGetSampleCodes();
+        else
+            return null;
+    }
+
+    private SampleType getSampleType()
+    {
+        if (existingSamplesRadio.getValue() == false)
+            return importSampleTypeSelection.tryGetSelectedSampleType();
+        else
+            return null;
     }
 
     @Override
