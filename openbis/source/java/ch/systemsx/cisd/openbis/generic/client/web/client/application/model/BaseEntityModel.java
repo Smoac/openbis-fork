@@ -46,16 +46,16 @@ public class BaseEntityModel<T> extends BaseModelData
 {
     private static final long serialVersionUID = 1L;
 
-    public BaseEntityModel(final T entity, IColumnDefinitionKind<T>[] colDefKinds)
+    public BaseEntityModel(final T entity, IColumnDefinitionKind<T>[] staticColumnDefinitions)
     {
-        this(entity, createColumnsDefinition(colDefKinds, null));
+        this(entity, createColumnsDefinition(staticColumnDefinitions, null));
     }
 
-    protected BaseEntityModel(final T entity, List<? extends IColumnDefinition<T>> columnsSchema)
+    public BaseEntityModel(final T entity, List<? extends IColumnDefinition<T>> columnDefinitions)
     {
         set(ModelDataPropertyNames.OBJECT, entity);
 
-        for (IColumnDefinition<T> column : columnsSchema)
+        for (IColumnDefinition<T> column : columnDefinitions)
         {
             String value = renderColumnValue(entity, column);
             set(column.getIdentifier(), value);
