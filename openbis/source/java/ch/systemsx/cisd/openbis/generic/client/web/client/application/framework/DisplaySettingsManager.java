@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ColumnModelEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -50,12 +51,12 @@ public class DisplaySettingsManager
      */
     public DisplaySettingsManager(DisplaySettings displaySettings, IUpdater updater)
     {
-        this.updater = updater;
         if (displaySettings == null)
         {
             throw new IllegalArgumentException("Unspecified display manager.");
         }
         this.displaySettings = displaySettings;
+        this.updater = updater;
     }
     
     /**
@@ -65,6 +66,28 @@ public class DisplaySettingsManager
      */
     public <M extends ModelData> void prepareGrid(final String displayTypeID, final Grid<M> grid)
     {
+        prepareGrid(displayTypeID, new IGrid<M>()
+            {
+                public ColumnModel getColumnModel()
+                {
+                    return grid.getColumnModel();
+                }
+
+                public ListStore<M> getStore()
+                {
+                    return grid.getStore();
+                }
+
+                public void reconfigure(ListStore<M> store, ColumnModel columnModel)
+                {
+                    grid.reconfigure(store, columnModel);
+                }
+            });
+    }
+    
+    public <M extends ModelData> void prepareGrid(final String displayTypeID, final IGrid<M> grid)
+    {
+        synchronizeColumnModel(displayTypeID, grid);
         Listener<ColumnModelEvent> listener = new Listener<ColumnModelEvent>()
                 {
                     public void handleEvent(ColumnModelEvent event)
@@ -75,10 +98,9 @@ public class DisplaySettingsManager
         ColumnModel columnModel = grid.getColumnModel();
         columnModel.addListener(Events.HiddenChange, listener);
         columnModel.addListener(Events.WidthChange, listener);
-        synchronizeColumnModel(displayTypeID, grid);
     }
     
-    private <M extends ModelData> void synchronizeColumnModel(String displayTypeID, Grid<M> grid)
+    private <M extends ModelData> void synchronizeColumnModel(String displayTypeID, IGrid<M> grid)
     {
         List<ColumnSetting> columnSettings = displaySettings.getColumnSettings().get(displayTypeID);
         if (columnSettings == null)
@@ -129,7 +151,7 @@ public class DisplaySettingsManager
         }
     }
     
-    private <M extends ModelData> void updateColumnSettings(String displayTypeID, Grid<M> grid)
+    private <M extends ModelData> void updateColumnSettings(String displayTypeID, IGrid<M> grid)
     {
         ColumnModel columnModel = grid.getColumnModel();
         List<ColumnSetting> columnSettings = new ArrayList<ColumnSetting>();
