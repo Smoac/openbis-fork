@@ -147,8 +147,8 @@ public final class GenericClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         SampleExtractor info =
-                new SampleExtractor()
-                        .prepareSamples(sampleType, sessionKey, defaultGroupIdentifier);
+                new SampleExtractor().prepareSamples(sampleType, sessionKey,
+                        defaultGroupIdentifier, defaultGroupIdentifier != null);
         try
         {
             final String sessionToken = getSessionToken();
@@ -185,13 +185,12 @@ public final class GenericClientService extends AbstractClientService implements
         }
 
         public SampleExtractor prepareSamples(final SampleType sampleType, final String sessionKey,
-                String defaultGroupIdentifier)
+                String defaultGroupIdentifier, final boolean isAutoGenerateCodes)
         {
             HttpSession session = null;
             UploadedFilesBean uploadedFiles = null;
             try
             {
-                final boolean isAutoGenerateCodes = defaultGroupIdentifier != null;
                 final String sessionToken = getSessionToken();
                 session = getHttpSession();
                 assert session.getAttribute(sessionKey) != null
@@ -200,51 +199,13 @@ public final class GenericClientService extends AbstractClientService implements
                                 sessionKey);
                 uploadedFiles = (UploadedFilesBean) session.getAttribute(sessionKey);
                 final BisTabFileLoader<NewSample> tabFileLoader =
-                        new BisTabFileLoader<NewSample>(
-                                new IParserObjectFactoryFactory<NewSample>()
-                                    {
-                                        public final IParserObjectFactory<NewSample> createFactory(
-                                                final IPropertyMapper propertyMapper)
-                                                throws ParserException
-                                        {
-                                            return new NewSampleParserObjectFactory(sampleType,
-                                                    propertyMapper, isAutoGenerateCodes == false);
-                                        }
-                                    });
+                        createSampleLoader(sampleType, isAutoGenerateCodes);
                 final List<NewSample> newSamples = new ArrayList<NewSample>();
                 final List<BatchRegistrationResult> results =
-                        new ArrayList<BatchRegistrationResult>(uploadedFiles.size());
-                for (final IUncheckedMultipartFile multipartFile : uploadedFiles.iterable())
-                {
-                    final StringReader stringReader =
-                            new StringReader(new String(multipartFile.getBytes()));
-                    final List<NewSample> loadedSamples =
-                            tabFileLoader.load(new DelegatedReader(stringReader, multipartFile
-                                    .getOriginalFilename()));
-                    newSamples.addAll(loadedSamples);
-                    results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(),
-                            String.format("%d sample(s) found and registered.", loadedSamples
-                                    .size())));
-                }
-                if (isAutoGenerateCodes)
-                {
-                    List<String> codes =
-                            genericServer.generateCodes(sessionToken, "S", newSamples.size());
-                    for (int i = 0; i < newSamples.size(); i++)
-                    {
-                        newSamples.get(i)
-                                .setIdentifier(defaultGroupIdentifier + "/" + codes.get(i));
-                    }
-                }
-                resultList = results;
-                samples = newSamples;
-                sampleCodes = new String[samples.size()];
-                for (int i = 0; i < samples.size(); i++)
-                {
-                    sampleCodes[i] =
-                            SampleIdentifierFactory.parse(samples.get(i).getIdentifier())
-                                    .getSampleCode();
-                }
+                        loadSamplesFromFiles(uploadedFiles, tabFileLoader, newSamples);
+                generateIdentifiers(defaultGroupIdentifier, isAutoGenerateCodes, sessionToken,
+                        newSamples);
+                fillTheBean(newSamples, results);
                 return this;
             } catch (final UserFailureException e)
             {
@@ -258,6 +219,74 @@ public final class GenericClientService extends AbstractClientService implements
                 if (session != null)
                 {
                     session.removeAttribute(sessionKey);
+                }
+            }
+        }
+
+        private void fillTheBean(final List<NewSample> newSamples,
+                final List<BatchRegistrationResult> results)
+        {
+            resultList = results;
+            samples = newSamples;
+            sampleCodes = new String[samples.size()];
+            for (int i = 0; i < samples.size(); i++)
+            {
+                sampleCodes[i] =
+                        SampleIdentifierFactory.parse(samples.get(i).getIdentifier())
+                                .getSampleCode();
+            }
+        }
+
+        private BisTabFileLoader<NewSample> createSampleLoader(final SampleType sampleType,
+                final boolean isAutoGenerateCodes)
+        {
+            final BisTabFileLoader<NewSample> tabFileLoader =
+                    new BisTabFileLoader<NewSample>(
+                            new IParserObjectFactoryFactory<NewSample>()
+                                {
+                                    public final IParserObjectFactory<NewSample> createFactory(
+                                            final IPropertyMapper propertyMapper)
+                                            throws ParserException
+                                    {
+                                        return new NewSampleParserObjectFactory(sampleType,
+                                                propertyMapper, isAutoGenerateCodes == false);
+                                    }
+                                });
+            return tabFileLoader;
+        }
+
+        private List<BatchRegistrationResult> loadSamplesFromFiles(UploadedFilesBean uploadedFiles,
+                final BisTabFileLoader<NewSample> tabFileLoader, final List<NewSample> newSamples)
+        {
+            final List<BatchRegistrationResult> results =
+                    new ArrayList<BatchRegistrationResult>(uploadedFiles.size());
+            for (final IUncheckedMultipartFile multipartFile : uploadedFiles.iterable())
+            {
+                final StringReader stringReader =
+                        new StringReader(new String(multipartFile.getBytes()));
+                final List<NewSample> loadedSamples =
+                        tabFileLoader.load(new DelegatedReader(stringReader, multipartFile
+                                .getOriginalFilename()));
+                newSamples.addAll(loadedSamples);
+                results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(),
+                        String.format("%d sample(s) found and registered.", loadedSamples
+                                .size())));
+            }
+            return results;
+        }
+
+        private void generateIdentifiers(String defaultGroupIdentifier,
+                final boolean isAutoGenerateCodes, final String sessionToken,
+                final List<NewSample> newSamples)
+        {
+            if (isAutoGenerateCodes)
+            {
+                List<String> codes =
+                        genericServer.generateCodes(sessionToken, "S", newSamples.size());
+                for (int i = 0; i < newSamples.size(); i++)
+                {
+                    newSamples.get(i)
+                            .setIdentifier(defaultGroupIdentifier + "/" + codes.get(i));
                 }
             }
         }
@@ -312,7 +341,7 @@ public final class GenericClientService extends AbstractClientService implements
                     new SampleExtractor().prepareSamples(experiment.getSampleType(),
                             samplesSessionKey, new GroupIdentifier(identifier
                                     .getDatabaseInstanceCode(), identifier.getGroupCode())
-                                    .toString());
+                                    .toString(), experiment.isGenerateCodes());
             experiment.setNewSamples(extractor.getSamples());
             experiment.setSamples(extractor.getCodes());
         }
@@ -441,7 +470,8 @@ public final class GenericClientService extends AbstractClientService implements
             SampleExtractor extractor =
                     new SampleExtractor().prepareSamples(updates.getSampleType(), updates
                             .getSamplesSessionKey(), new GroupIdentifier(newProject
-                            .getDatabaseInstanceCode(), newProject.getGroupCode()).toString());
+                            .getDatabaseInstanceCode(), newProject.getGroupCode()).toString(),
+                            updates.isGenerateCodes());
             updates.setNewSamples(extractor.getSamples());
             updates.setSampleCodes(extractor.getCodes());
         }
