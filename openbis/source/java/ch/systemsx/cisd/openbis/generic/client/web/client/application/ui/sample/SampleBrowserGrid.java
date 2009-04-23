@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
@@ -135,14 +134,12 @@ public final class SampleBrowserGrid extends
     // adds show, show-details and invalidate buttons
     private void extendTopToolbar(SampleBrowserToolbar toolbar)
     {
+        toolbar.setCriteriaChangedListener(createGridRefreshListener());
+        toolbar.add(new FillToolItem());
+
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
         Button showDetailsButton =
                 createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
-
-        SelectionChangedListener<?> refreshButtonListener = addRefreshButton(toolbar);
-        toolbar.setCriteriaChangedListener(refreshButtonListener);
-
-        toolbar.add(new FillToolItem());
         toolbar.add(new AdapterToolItem(showDetailsButton));
 
         toolbar.add(new SeparatorToolItem());

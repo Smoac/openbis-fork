@@ -20,7 +20,6 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MaterialTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -52,9 +51,6 @@ public class ListMaterials extends AbstractDefaultTestCommand
                         .getWidgetWithID(MaterialTypeSelectionWidget.ID
                                 + MaterialTypeSelectionWidget.SUFFIX + MaterialBrowserToolbar.ID);
 
-        GWTUtils.setSelectedItem(typeSelector, ModelDataPropertyNames.CODE,
-                materialTypeName);
-
-        GridTestUtils.pressRefreshGridButton();
+        GWTUtils.setSelectedItem(typeSelector, ModelDataPropertyNames.CODE, materialTypeName);
     }
 }

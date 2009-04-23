@@ -60,9 +60,9 @@ public class ListExperiments extends AbstractDefaultTestCommand
                                 + ExperimentTypeSelectionWidget.SUFFIX
                                 + ExperimentBrowserToolbar.ID);
 
-        GWTUtils.setSelectedItem(experimentTypeSelector, ModelDataPropertyNames.CODE,
-                experimentTypeName);
         GWTUtils.setSelectedItem(projectSelector,
                 ProjectSelectionTreeWidget.PROJECT_WITH_GROUP_CODE, projectCodeOrNull);
+        GWTUtils.setSelectedItem(experimentTypeSelector, ModelDataPropertyNames.CODE,
+                experimentTypeName);
     }
 }

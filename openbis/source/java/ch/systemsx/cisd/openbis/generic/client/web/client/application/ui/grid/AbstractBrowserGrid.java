@@ -151,7 +151,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private final boolean refreshAutomatically;
 
     private final List<PagingColumnFilter<T>> filterWidgets;
-    
+
     // --------- non-final fields
 
     // available columns configs and definitions
@@ -161,9 +161,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private String resultSetKey;
 
     private IDataRefreshCallback refreshCallback;
-    
+
     private IDisplayTypeIDGenerator displayTypeIDGenerator;
-    
+
     private EntityKind entityKind;
 
     protected AbstractBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
@@ -244,12 +244,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         grid.getSelectionModel().setSelectionMode(SelectionMode.MULTI);
     }
-    
+
     protected String getGridID()
     {
         return grid.getId();
     }
-    
+
     protected void setDisplayTypeIDGenerator(IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
         this.displayTypeIDGenerator = displayTypeIDGenerator;
@@ -259,7 +259,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         this.entityKind = entityKind;
     }
-    
+
     protected EntityType tryToGetEntityType()
     {
         return null;
@@ -564,6 +564,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     new BasePagingLoadResult<M>(models, resultSetConfig.getOffset(), result
                             .getTotalLength());
             delegate.onSuccess(loadResult);
+            pagingToolbar.enableExportButton();
             onComplete(true);
         }
 
@@ -697,29 +698,16 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return grid.getSelectionModel().getSelectedItems();
     }
 
-    protected final SelectionChangedListener<?> addRefreshButton(ToolBar container)
-    {
-        String title = viewContext.getMessage(Dict.BUTTON_SHOW);
-        Button showButton = BrowserGridPagingToolBar.createRefreshButton(title, asActionInvoker());
-        showButton.setEnabled(false);
-        container.add(new AdapterToolItem(showButton));
-        return createRefreshButtonsListener(showButton);
-    }
-
-    private <D extends ModelData> SelectionChangedListener<D> createRefreshButtonsListener(
-            final Button showButton)
+    public <D extends ModelData> SelectionChangedListener<D> createGridRefreshListener()
     {
         return new SelectionChangedListener<D>()
             {
                 @Override
                 public void selectionChanged(SelectionChangedEvent<D> se)
                 {
-                    updateDefaultRefreshButton();
-
-                    boolean isEnabled = isRefreshEnabled();
-                    // Refreshes the state of the specified refresh button.
-                    BrowserGridPagingToolBar
-                            .updateRefreshButton(showButton, isEnabled, viewContext);
+                    pagingToolbar.disableExportButton();
+                    refresh();
+                    // export button is reenabled when ListEntitiesCallback is complete
                 }
             };
     }
@@ -781,7 +769,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         viewContext.getDisplaySettingsManager().prepareGrid(getGridDisplayTypeID(), grid);
         pagingLoader.load(0, PAGE_SIZE);
     }
-    
+
     private String getGridDisplayTypeID()
     {
         if (displayTypeIDGenerator == null)
@@ -790,8 +778,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
         return displayTypeIDGenerator.createID(entityKind, tryToGetEntityType());
     }
-    
-   
+
     private IDataRefreshCallback createRefreshCallback(
             IDataRefreshCallback externalRefreshCallbackOrNull)
     {
@@ -852,21 +839,27 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private void saveCacheKey(final String newResultSetKey)
     {
-        if (resultSetKey != null)
-        {
-            disposeCache();
-        }
+        String oldResultSetKey = resultSetKey;
         resultSetKey = newResultSetKey;
+        if (oldResultSetKey != null)
+        {
+            removeResultSet(oldResultSetKey);
+        }
     }
 
     private void disposeCache()
     {
         if (resultSetKey != null)
         {
-            viewContext.getService().removeResultSet(resultSetKey,
-                    new VoidAsyncCallback<Void>(viewContext));
+            removeResultSet(resultSetKey);
             resultSetKey = null;
         }
+    }
+
+    private void removeResultSet(String resultSetKey2)
+    {
+        viewContext.getService().removeResultSet(resultSetKey2,
+                new VoidAsyncCallback<Void>(viewContext));
     }
 
     private boolean isHardRefreshNeeded()

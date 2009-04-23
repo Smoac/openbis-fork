@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.materi
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
@@ -158,8 +157,7 @@ public class MaterialBrowserGrid extends
 
     private void extendTopToolbar(MaterialBrowserToolbar toolbar, boolean detailsAvailable)
     {
-        SelectionChangedListener<?> refreshButtonListener = addRefreshButton(toolbar);
-        toolbar.setCriteriaChangedListener(refreshButtonListener);
+        toolbar.setCriteriaChangedListener(createGridRefreshListener());
         toolbar.add(new FillToolItem());
 
         if (detailsAvailable)

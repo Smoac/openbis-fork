@@ -19,12 +19,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experi
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -128,6 +126,7 @@ public class ExperimentBrowserGrid extends
 
     private void extendToolbar(ExperimentBrowserToolbar topToolbar)
     {
+        topToolbar.add(new FillToolItem());
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
         Button showDetailsButton =
                 createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
@@ -142,20 +141,6 @@ public class ExperimentBrowserGrid extends
     private void addGridRefreshListener(ExperimentBrowserToolbar topToolbar)
     {
         topToolbar.setCriteriaChangedListener(createGridRefreshListener());
-    }
-
-    private <D extends ModelData> SelectionChangedListener<D> createGridRefreshListener()
-    {
-        final ExperimentBrowserGrid grid = this;
-
-        return new SelectionChangedListener<D>()
-            {
-                @Override
-                public void selectionChanged(SelectionChangedEvent<D> se)
-                {
-                    grid.refresh();
-                }
-            };
     }
 
     @Override

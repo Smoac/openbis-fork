@@ -96,7 +96,7 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
         exportButton.setTitle(title);
     }
 
-    private final void disableExportButton()
+    public final void disableExportButton()
     {
         exportButton.setEnabled(false);
         String title = messageProvider.getMessage(Dict.TOOLTIP_EXPORT_DISABLED);

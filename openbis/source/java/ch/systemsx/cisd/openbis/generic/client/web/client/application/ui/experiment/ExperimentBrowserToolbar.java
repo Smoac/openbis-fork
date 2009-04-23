@@ -22,7 +22,6 @@ import java.util.Set;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
@@ -55,8 +54,7 @@ class ExperimentBrowserToolbar extends ToolBar implements
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    public ExperimentBrowserToolbar(
-            final IViewContext<ICommonClientServiceAsync> viewContext,
+    public ExperimentBrowserToolbar(final IViewContext<ICommonClientServiceAsync> viewContext,
             ProjectSelectionTreeWidget tree)
     {
         this.viewContext = viewContext;
@@ -77,7 +75,6 @@ class ExperimentBrowserToolbar extends ToolBar implements
         add(new LabelToolItem(viewContext.getMessage(Dict.EXPERIMENT_TYPE)
                 + GenericConstants.LABEL_SEPARATOR));
         add(new AdapterToolItem(selectExperimentTypeCombo));
-        add(new FillToolItem());
     }
 
     public final ListExperimentsCriteria tryGetCriteria()
