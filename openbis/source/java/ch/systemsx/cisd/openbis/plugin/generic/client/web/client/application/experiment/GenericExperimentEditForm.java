@@ -162,7 +162,7 @@ public final class GenericExperimentEditForm
         redefineSaveListeners();
     }
 
-	// TODO 2009-04-22, IA: merge this class with GenericExperimentRegistrationForm
+    // TODO 2009-04-22, IA: merge this class with GenericExperimentRegistrationForm
     private void updateSamples()
     {
         Boolean useExistingSamples = existingSamplesRadio.getValue();
@@ -176,7 +176,10 @@ public final class GenericExperimentEditForm
         {
             samplesFileField.setVisible(useExistingSamples == false);
             samplesFileField.setEnabled(useExistingSamples == false);
+            samplesFileField.validate();
         }
+        samplesArea.validate();
+        importSampleTypeSelection.validate();
     }
 
     private ExperimentSamplesArea createSamplesArea()

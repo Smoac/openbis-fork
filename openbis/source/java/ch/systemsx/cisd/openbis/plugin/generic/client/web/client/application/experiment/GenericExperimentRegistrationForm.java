@@ -274,7 +274,10 @@ public final class GenericExperimentRegistrationForm
         {
             samplesFileField.setVisible(useExistingSamples == false);
             samplesFileField.setEnabled(useExistingSamples == false);
+            samplesFileField.validate();
         }
+        samplesArea.validate();
+        importSampleTypeSelection.validate();
     }
 
     private void registerExperiment()
