@@ -16,13 +16,23 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind.DEFAULT_COLUMN_WIDTH;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Logout;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.CheckSampleTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ExportSamplesTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.ChangeTableColumnSettingsCommand;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.PiggyBackCommand;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test <i>AMC</i>.
@@ -32,17 +42,42 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
 public class SampleBrowserTest extends AbstractGWTTestCase
 {
 
+    public final void testChangeColumnSettings()
+    {
+        loginAndGotoListSamplesTab();
+        remoteConsole.prepare(new ListSamples("CISD", "MASTER_PLATE"));
+        ChangeTableColumnSettingsCommand settingsCommand =
+                new ChangeTableColumnSettingsCommand(SampleBrowserGrid.GRID_ID,
+                        SampleBrowserGrid.ListEntitiesCallback.class);
+        settingsCommand.hiddenChangeEvent(CommonSampleColDefKind.CODE.name(), true);
+        settingsCommand.widthChangeEvent(CommonSampleColDefKind.REGISTRATOR.name(), 2 * DEFAULT_COLUMN_WIDTH);
+        remoteConsole.prepare(new PiggyBackCommand(settingsCommand, new Logout()));
+        Login login = new Login("test", "a");
+        login.addCallbackClass(TopMenu.LogoutCallback.class);
+        remoteConsole.prepare(login);
+        remoteConsole.prepare(new OpenTab(ActionMenuKind.SAMPLE_MENU_BROWSE));
+        remoteConsole.prepare(new ListSamples("CISD", "MASTER_PLATE"));
+        CheckSampleTable checkCommand = new CheckSampleTable();
+        checkCommand.expectedColumnHidden(CommonSampleColDefKind.CODE.name(), true);
+        checkCommand.expectedColumnWidth(CommonSampleColDefKind.REGISTRATOR.name(), 2 * DEFAULT_COLUMN_WIDTH);
+        remoteConsole.prepare(checkCommand);
+
+        launchTest(30000);
+    }
+    
     public final void testListMasterPlates()
     {
         loginAndGotoListSamplesTab();
         remoteConsole.prepare(new ListSamples("CISD", "MASTER_PLATE"));
         CheckSampleTable table = new CheckSampleTable();
+        table.expectedColumnHidden(CommonSampleColDefKind.CODE.name(), false);
+        table.expectedColumnWidth(CommonSampleColDefKind.REGISTRATOR.name(), DEFAULT_COLUMN_WIDTH);
         table.expectedRow(new SampleRow("MP001-1").identifier("CISD", "CISD").invalid()
                 .noExperiment().property("PLATE_GEOMETRY", "384_WELLS_16X24"));
         table.expectedRow(new SampleRow("MP002-1").identifier("CISD", "CISD").valid()
                 .noExperiment().property("PLATE_GEOMETRY", "384_WELLS_16X24"));
         remoteConsole.prepare(table.expectedSize(5));
-
+        
         launchTest(20000);
     }
 

@@ -37,6 +37,7 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.menu.Item;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
@@ -167,7 +168,7 @@ public final class GWTTestUtil
     /**
      * Gets the {@link ComboBox} with specified id.
      * 
-     * @throws AssertionError if not found or isn't a list box.
+     * @throws AssertionError if not found or isn't a combo box.
      */
     @SuppressWarnings("unchecked")
     public final static ComboBox<ModelData> getComboBoxWithID(final String id)
@@ -177,6 +178,20 @@ public final class GWTTestUtil
         Assert.assertTrue("Widget '" + id + "' isn't a ComboBox: " + widget.getClass(),
                 widget instanceof ComboBox);
         return (ComboBox<ModelData>) widget;
+    }
+
+    /**
+     * Gets the {@link Grid} with specified id.
+     * 
+     * @throws AssertionError if not found or isn't a grid.
+     */
+    @SuppressWarnings("unchecked")
+    public final static Grid<ModelData> getGridWithID(final String id)
+    {
+        final Widget widget = GWTTestUtil.getWidgetWithID(id);
+        assertWidgetFound("Grid", id, widget);
+        Assert.assertTrue("Widget '" + id + "' isn't a Grid: " + widget.getClass(), widget instanceof Grid);
+        return (Grid<ModelData>) widget;
     }
 
     /**

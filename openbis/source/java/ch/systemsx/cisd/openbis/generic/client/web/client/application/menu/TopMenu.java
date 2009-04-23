@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SearchWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.administration.AdministrationMenu;
@@ -52,6 +53,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
  */
 public class TopMenu extends LayoutContainer
 {
+    public final static class LogoutCallback extends AbstractAsyncCallback<Void>
+    {
+        LogoutCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        public final void process(final Void result)
+        {
+            viewContext.getPageController().reload(true);
+        }
+    }
 
     public static final String ID = GenericConstants.ID_PREFIX + "top-menu";
 
@@ -179,19 +193,7 @@ public class TopMenu extends LayoutContainer
                                         viewContext.getModel().getSessionContext()
                                                 .getDisplaySettings();
                                 viewContext.getService().logout(displaySettings,
-                                        new AbstractAsyncCallback<Void>(viewContext)
-                                            {
-
-                                                //
-                                                // AbstractAsyncCallback
-                                                //
-
-                                                @Override
-                                                public final void process(final Void result)
-                                                {
-                                                    viewContext.getPageController().reload(true);
-                                                }
-                                            });
+                                        new LogoutCallback(viewContext));
                             }
                         };
             addSelectionListener(listener);

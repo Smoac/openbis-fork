@@ -22,9 +22,10 @@ import java.util.Map;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Command for checking the content (i.e. <code>ListStore</code>) of a table (i.e. <code>Grid</code>
@@ -34,6 +35,67 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class CheckTableCommand extends AbstractDefaultTestCommand
 {
+    private abstract static class ColumnModelExpectation
+    {
+        private final String columnID;
+
+        ColumnModelExpectation(String columnID)
+        {
+            this.columnID = columnID;
+        }
+        
+        protected ColumnConfig getColumn(ColumnModel columnModel)
+        {
+            ColumnConfig column = columnModel.getColumnById(columnID);
+            if (column == null)
+            {
+                fail("Unknown column '" + columnID + "'.");
+            }
+            return column;
+        }
+        
+        protected String createFailureMessage()
+        {
+            return "Column '" + columnID + "':";
+        }
+
+        public abstract void check(ColumnModel columnModel);
+    }
+    
+    private static class ColumnHiddenExpectation extends ColumnModelExpectation
+    {
+        private final boolean hidden;
+
+        ColumnHiddenExpectation(String columnID, boolean hidden)
+        {
+            super(columnID);
+            this.hidden = hidden;
+        }
+
+        @Override
+        public void check(ColumnModel columnModel)
+        {
+            assertEquals(createFailureMessage(), hidden, getColumn(columnModel).isHidden());
+        }
+    }
+    
+    private static class ColumnWidthExpectation extends ColumnModelExpectation
+    {
+        private final int width;
+        
+        ColumnWidthExpectation(String columnID, int width)
+        {
+            super(columnID);
+            this.width = width;
+        }
+        
+        @Override
+        public void check(ColumnModel columnModel)
+        {
+            assertEquals(createFailureMessage(), width, getColumn(columnModel).getWidth());
+        }
+    }
+    
     private final String tableID;
 
     private int expectedNumberOfRows = -1;
@@ -61,7 +123,22 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
         super(callbackClass);
         this.tableID = tableID;
     }
+    
+    private List<ColumnModelExpectation> columnModelExpectations = new ArrayList<ColumnModelExpectation>();
+    
+    
+    public CheckTableCommand expectedColumnHidden(String columnID, boolean hidden)
+    {
+        columnModelExpectations.add(new ColumnHiddenExpectation(columnID, hidden));
+        return this;
+    }
 
+    public CheckTableCommand expectedColumnWidth(String columnID, int width)
+    {
+        columnModelExpectations.add(new ColumnWidthExpectation(columnID, width));
+        return this;
+    }
+    
     /**
      * Prepares this with the expectation upon the number of table rows.
      */
@@ -98,7 +175,8 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
 
     public void execute()
     {
-        final ListStore<ModelData> store = getTableStore();
+        Grid<ModelData> grid = checkColumnModelExpectations();
+        final ListStore<ModelData> store = grid.getStore();
         final List<Row> matchedRows = new ArrayList<Row>();
         for (final Row expectedRow : expectedRows)
         {
@@ -143,6 +221,17 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
         }
     }
 
+    private Grid<ModelData> checkColumnModelExpectations()
+    {
+        Grid<ModelData> grid = GWTTestUtil.getGridWithID(tableID);
+        ColumnModel columnModel = grid.getColumnModel();
+        for (ColumnModelExpectation expectation : columnModelExpectations)
+        {
+            expectation.check(columnModel);
+        }
+        return grid;
+    }
+
     private boolean match(final Row expectedRow, final ModelData row)
     {
         for (final Map.Entry<String, Object> entry : expectedRow.getColumnIDValuesMap().entrySet())
@@ -168,11 +257,4 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private ListStore<ModelData> getTableStore()
-    {
-        final Widget widget = GWTTestUtil.getWidgetWithID(tableID);
-        assertTrue("Not a Widget of type Grid: " + widget.getClass(), widget instanceof Grid);
-        return ((Grid<ModelData>) widget).getStore();
-    }
 }
