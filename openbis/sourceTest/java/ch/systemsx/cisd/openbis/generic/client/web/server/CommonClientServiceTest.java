@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -341,6 +342,56 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         assertEquals("PNG", data.getFileFormatType().getCode());
         assertEquals("Portable Network Graphics", data.getFileFormatType().getDescription());
 
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testUpdateDisplaySettings()
+    {
+        final DisplaySettings displaySettings = new DisplaySettings();
+        context.checking(new Expectations()
+            {
+                {
+                    prepareGetSessionToken(this);
+                    
+                    one(commonServer).saveDisplaySettings(SESSION_TOKEN, displaySettings);
+                }
+            });
+        
+        commonClientService.updateDisplaySettings(displaySettings);
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testLogout()
+    {
+        final DisplaySettings displaySettings = new DisplaySettings();
+        context.checking(new Expectations()
+            {
+                {
+                    one(requestContextProvider).getHttpServletRequest();
+                    will(returnValue(servletRequest));
+                    
+                    one(servletRequest).getSession(false);
+                    will(returnValue(httpSession));
+                    
+                    one(httpSession).getAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
+                    will(returnValue(createSessionMock()));
+                    
+                    one(httpSession).removeAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
+                    one(httpSession).removeAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY);
+                    one(httpSession).removeAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
+                    one(httpSession).removeAttribute(SessionConstants.OPENBIS_EXPORT_MANAGER);
+                    one(httpSession).invalidate();
+                    
+                    one(commonServer).saveDisplaySettings(SESSION_TOKEN, displaySettings);
+                    one(commonServer).logout(SESSION_TOKEN);
+                }
+            });
+
+        commonClientService.logout(displaySettings);
+        
         context.assertIsSatisfied();
     }
 }

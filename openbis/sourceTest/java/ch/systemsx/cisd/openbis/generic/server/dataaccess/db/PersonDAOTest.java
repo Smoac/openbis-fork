@@ -22,7 +22,9 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
@@ -31,6 +33,8 @@ import org.springframework.test.annotation.Rollback;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
@@ -175,5 +179,30 @@ public final class PersonDAOTest extends AbstractDAOTest
         final PersonPE personDTO = personDAO.listPersons().get(0);
         final Long id = personDTO.getId();
         assertEquals(personDTO, personDAO.getPerson(id));
+    }
+    
+    @Test
+    public void testUpdate()
+    {
+        IPersonDAO personDAO = daoFactory.getPersonDAO();
+        List<PersonPE> persons = personDAO.listPersons();
+        assertEquals(false, persons.isEmpty());
+        
+        PersonPE person = persons.get(0);
+        assertEquals(0, person.getDisplaySettings().getColumnSettings().size());
+        
+        DisplaySettings displaySettings = new DisplaySettings();
+        ColumnSetting columnSetting = new ColumnSetting();
+        columnSetting.setColumnID("column1");
+        displaySettings.getColumnSettings().put("id", Arrays.asList(columnSetting));
+        person.setDisplaySettings(displaySettings);
+        
+        personDAO.updatePerson(person);
+        
+        PersonPE reloadedPerson = personDAO.tryFindPersonByUserId(person.getUserId());
+        displaySettings = reloadedPerson.getDisplaySettings();
+        Map<String, List<ColumnSetting>> columnSettings = displaySettings.getColumnSettings();
+        List<ColumnSetting> settings = columnSettings.get("id");
+        assertEquals(columnSetting.getColumnID(), settings.get(0).getColumnID());
     }
 }

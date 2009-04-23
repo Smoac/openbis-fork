@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -888,4 +889,27 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testSaveDisplaySettings()
+    {
+        final DisplaySettings displaySettings = new DisplaySettings();
+        final PersonPE person = new PersonPE();
+        context.checking(new Expectations()
+            {
+                {
+                    one(sessionManager).getSession(SESSION_TOKEN);
+                    Session session = createSession();
+                    session.setPerson(person);
+                    will(returnValue(session));
+                    
+                    one(personDAO).updatePerson(person);
+                }
+            });
+        
+        createServer().saveDisplaySettings(SESSION_TOKEN, displaySettings);
+        
+        assertSame(displaySettings, person.getDisplaySettings());
+        
+        context.assertIsSatisfied();
+    }
 }
