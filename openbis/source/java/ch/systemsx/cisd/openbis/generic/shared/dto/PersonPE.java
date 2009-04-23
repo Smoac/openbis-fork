@@ -282,7 +282,6 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     
     @Column(name = ColumnNames.PERSON_DISPLAY_SETTINGS, updatable = true)
     @Type(type = "org.springframework.orm.hibernate3.support.BlobByteArrayType")
-    @SuppressWarnings("unused")
     private byte[] getSerializedDisplaySettings()
     {
         return serializedDisplaySettings;
