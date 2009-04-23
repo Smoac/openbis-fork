@@ -25,6 +25,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
  * 
  * @author Christian Ribeaud
  */
+// TODO 2009-04-23, Tomasz Pylak: do we still need this class when types are created dynamically?
 public enum SampleTypeCode
 {
     CELL_PLATE("CELL_PLATE", "cell plate"), CONTROL_LAYOUT("CONTROL_LAYOUT", "control layout"),
