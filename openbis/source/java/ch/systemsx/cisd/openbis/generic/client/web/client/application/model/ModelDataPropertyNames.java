@@ -74,8 +74,6 @@ public final class ModelDataPropertyNames
 
     public static final String ROLES = "roles";
 
-    public static final String SAMPLE_TYPE = "sampleType";
-
     public static final String USER_ID = "userId";
 
     public static final String PROJECT = "project";

@@ -16,17 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractPropertyColDef;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IEntityPropertiesHolder;
 
 /**
  * An {@link AbstractPropertyColRenderer} which renders value in a default way (as a simple String).
  * 
  * @author Piotr Buczek
  */
-class DefaultPropertyColRenderer<T> extends AbstractPropertyColRenderer<T>
+class DefaultPropertyColRenderer<T extends IEntityPropertiesHolder> extends
+        AbstractPropertyColRenderer<T>
 {
 
-    public DefaultPropertyColRenderer(AbstractPropertyColDef<T> colDef)
+    public DefaultPropertyColRenderer(EntityPropertyColDef<T> colDef)
     {
         super(colDef);
     }

@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * @author Izabela Adamczyk
  */
 public final class Sample extends CodeWithRegistration<Sample> implements IInvalidationProvider,
-        Comparable<Sample>, IEntityInformationHolder, IAttachmentHolder
+        Comparable<Sample>, IEntityInformationHolder, IAttachmentHolder, IEntityPropertiesHolder
 {
     public static final Sample[] EMPTY_ARRAY = new Sample[0];
 

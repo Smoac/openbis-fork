@@ -22,6 +22,8 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -32,14 +34,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
  * @author Christian Ribeaud
  */
 public class ExternalData extends CodeWithRegistration<ExternalData> implements
-        IInvalidationProvider
+        IInvalidationProvider, IEntityInformationHolder, IEntityPropertiesHolder
 {
     private boolean derived;
 
     private Boolean complete;
 
     private Invalidation invalidation;
-    
+
     private Experiment experiment;
 
     private DataSetType dataSetType;
@@ -65,7 +67,7 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     private List<SampleProperty> sampleProperties;
 
     private List<DataSetProperty> dataSetProperties;
-    
+
     private DataStore dataStore;
 
     public final String getSampleIdentifier()
@@ -223,7 +225,7 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         this.dataSetProperties = dataSetProperties;
     }
 
-    public List<DataSetProperty> getDataSetProperties()
+    public List<DataSetProperty> getProperties()
     {
         return dataSetProperties;
     }
@@ -236,5 +238,20 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     public final void setDataStore(DataStore dataStore)
     {
         this.dataStore = dataStore;
+    }
+
+    public EntityKind getEntityKind()
+    {
+        return EntityKind.DATA_SET;
+    }
+
+    public EntityType getEntityType()
+    {
+        return dataSetType;
+    }
+
+    public String getIdentifier()
+    {
+        return getCode();
     }
 }

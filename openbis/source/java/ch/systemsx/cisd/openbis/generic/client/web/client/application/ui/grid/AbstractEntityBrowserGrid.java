@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
@@ -28,10 +28,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.SetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
@@ -46,9 +47,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * 
  * @author Tomasz Pylak
  */
-public abstract class AbstractEntityBrowserGrid<T/* Entity */, M extends BaseEntityModel<T>, K extends DefaultResultSetConfig<String, T>>
+public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolder, M extends BaseEntityModel<T>, K extends DefaultResultSetConfig<String, T>>
         extends AbstractBrowserGrid<T, M>
 {
+    abstract protected IColumnDefinitionKind<T>[] getStaticColumnsDefinition();
+
     /**
      * @return Database modifications which affect the grid and not necessarily the criteria
      *         provider
@@ -60,7 +63,7 @@ public abstract class AbstractEntityBrowserGrid<T/* Entity */, M extends BaseEnt
 
     /** @return text which should be used as a grid header */
     abstract protected String createHeader();
-    
+
     private final ICriteriaProvider<K> criteriaProvider;
 
     // criteria used in the previous refresh operation or null if it has not occurred yet
@@ -162,7 +165,7 @@ public abstract class AbstractEntityBrowserGrid<T/* Entity */, M extends BaseEnt
         criteria.setFilterInfos(resultSetConfig.getFilterInfos());
         criteria.setResultSetKey(resultSetConfig.getResultSetKey());
     }
-    
+
     // ------ static helpers
 
     protected final static Set<DatabaseModificationKind> getGridRelevantModifications(

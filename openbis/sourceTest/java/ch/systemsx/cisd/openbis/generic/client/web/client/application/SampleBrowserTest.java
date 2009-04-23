@@ -53,8 +53,8 @@ public class SampleBrowserTest extends AbstractGWTTestCase
                 "MASTER_PLATE"));
         ExportSamplesTestCommand exportCommand = new ExportSamplesTestCommand(client);
         remoteConsole.prepare(exportCommand);
-        String header = "Code\tExperiment\tProject\tRegistrator\tRegistration Date\tPlate Geometry";
-        String firstLine = "MP\t\t\tDoe, John\t2008-11-05 09:20:47 GMT+01:00\t384_WELLS_16X24";
+        String header = "Code\tExperiment\tProject\tRegistrator\tRegistration Date";
+        String firstLine = "MP\t\t\tDoe, John\t2008-11-05 09:20:47 GMT+01:00";
         remoteConsole.prepare(exportCommand.createCheckExportCommand(header, firstLine, 2));
 
         launchTest(20000);

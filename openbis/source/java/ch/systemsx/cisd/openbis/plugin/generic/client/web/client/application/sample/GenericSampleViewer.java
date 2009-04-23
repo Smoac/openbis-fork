@@ -56,7 +56,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModelFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
@@ -98,7 +98,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
     public static final String DATA_POSTFIX = "-data";
 
-    private Grid<SampleModel> partOfSamplesGrid;
+    private Grid<ModelData> partOfSamplesGrid;
 
     private IDelegatedAction showComponentsPanelAction;
 
@@ -149,9 +149,8 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
                 createContentPanel(viewContext.getMessage(Dict.PART_OF_HEADING));
         final ListLoader<BaseListLoadConfig> sampleLoader =
                 createListLoader(createRpcProxyForPartOfSamples());
-        final ListStore<SampleModel> sampleListStore = createListStore(sampleLoader);
-        partOfSamplesGrid =
-                new Grid<SampleModel>(sampleListStore, createPartOfSamplesColumnModel());
+        final ListStore<ModelData> sampleListStore = createListStore(sampleLoader);
+        partOfSamplesGrid = new Grid<ModelData>(sampleListStore, createPartOfSamplesColumnModel());
         partOfSamplesGrid.setId(getId() + COMPONENTS_POSTFIX);
         String displayTypeID =
                 DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID.createID(EntityKind.SAMPLE, null);
@@ -210,9 +209,9 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         return baseListLoader;
     }
 
-    private final RpcProxy<BaseListLoadConfig, BaseListLoadResult<SampleModel>> createRpcProxyForPartOfSamples()
+    private final RpcProxy<BaseListLoadConfig, BaseListLoadResult<ModelData>> createRpcProxyForPartOfSamples()
     {
-        return new RpcProxy<BaseListLoadConfig, BaseListLoadResult<SampleModel>>()
+        return new RpcProxy<BaseListLoadConfig, BaseListLoadResult<ModelData>>()
             {
 
                 //
@@ -221,7 +220,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
                 @Override
                 public final void load(final BaseListLoadConfig loadConfig,
-                        final AsyncCallback<BaseListLoadResult<SampleModel>> callback)
+                        final AsyncCallback<BaseListLoadResult<ModelData>> callback)
                 {
                     final ListSampleCriteria sampleCriteria =
                             ListSampleCriteria.createForContainer(sampleIdentifier);
@@ -374,12 +373,12 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
     final static class ListSamplesCallback extends AbstractAsyncCallback<ResultSet<Sample>>
     {
-        private final AsyncCallback<BaseListLoadResult<SampleModel>> delegate;
+        private final AsyncCallback<BaseListLoadResult<ModelData>> delegate;
 
         private final IDelegatedAction showResultsAction;
 
         ListSamplesCallback(final IViewContext<IGenericClientServiceAsync> viewContext,
-                final AsyncCallback<BaseListLoadResult<SampleModel>> callback,
+                final AsyncCallback<BaseListLoadResult<ModelData>> callback,
                 final IDelegatedAction noResultsAction)
         {
             super(viewContext);
@@ -400,9 +399,10 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         @Override
         protected final void process(final ResultSet<Sample> result)
         {
-            final List<SampleModel> sampleModels = SampleModel.asSampleModels(result.getList());
-            final BaseListLoadResult<SampleModel> baseListLoadResult =
-                    new BaseListLoadResult<SampleModel>(sampleModels);
+            final List<ModelData> sampleModels =
+                    SampleModelFactory.asSampleModels(result.getList());
+            final BaseListLoadResult<ModelData> baseListLoadResult =
+                    new BaseListLoadResult<ModelData>(sampleModels);
             delegate.onSuccess(baseListLoadResult);
             if (result.getTotalLength() > 0)
             {

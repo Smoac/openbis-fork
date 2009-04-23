@@ -16,10 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.ParentGeneratedFromSampleColDef;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.PropertySampleColDef;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
@@ -135,7 +136,8 @@ public class SampleRow extends Row
     public final SampleRow property(final String propertyCode, final Object value)
     {
         final PropertyType propertyType = createPropertyType(propertyCode, true);
-        final String identifier = new PropertySampleColDef(propertyType, true).getIdentifier();
+        final String identifier =
+                new EntityPropertyColDef<Sample>(propertyType, true).getIdentifier();
         withCell(identifier, value);
         return this;
     }
@@ -148,7 +150,8 @@ public class SampleRow extends Row
             final Object value)
     {
         final PropertyType propertyType = createPropertyType(propertyCode, internalNamespace);
-        final String identifier = new PropertySampleColDef(propertyType, true).getIdentifier();
+        final String identifier =
+                new EntityPropertyColDef<Sample>(propertyType, true).getIdentifier();
         withCell(identifier, value);
         return this;
     }

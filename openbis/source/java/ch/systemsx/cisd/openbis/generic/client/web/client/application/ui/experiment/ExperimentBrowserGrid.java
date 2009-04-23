@@ -35,15 +35,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.EntityGridModelFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableExperiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.AbstractEntityBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
@@ -68,7 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * @author Tomasz Pylak
  */
 public class ExperimentBrowserGrid extends
-        AbstractEntityBrowserGrid<Experiment, ExperimentModel, ListExperimentsCriteria>
+        AbstractEntityBrowserGrid<Experiment, BaseEntityModel<Experiment>, ListExperimentsCriteria>
 {
     public static final String ID_SUFFIX_EDIT_BUTTON = "_edit-button";
 
@@ -89,12 +91,12 @@ public class ExperimentBrowserGrid extends
         final ProjectSelectionTreeWidget tree =
                 new ProjectSelectionTreeWidget(viewContext, groupOrNull);
         final SectionPanel treeSection = new ProjectSelectionSection(tree);
-        final ExperimentBrowserToolbar toolbar =
-                new ExperimentBrowserToolbar(viewContext, tree);
+        final ExperimentBrowserToolbar toolbar = new ExperimentBrowserToolbar(viewContext, tree);
         final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar)
             {
                 @Override
-                protected void showEntityViewer(ExperimentModel experimentModel, boolean editMode)
+                protected void showEntityViewer(BaseEntityModel<Experiment> experimentModel,
+                        boolean editMode)
                 {
                     // do nothing - avoid showing the details after double click
                 }
@@ -109,8 +111,7 @@ public class ExperimentBrowserGrid extends
     {
         final ProjectSelectionTreeWidget tree = new ProjectSelectionTreeWidget(viewContext, null);
         final SectionPanel treeSection = new ProjectSelectionSection(tree);
-        final ExperimentBrowserToolbar toolbar =
-                new ExperimentBrowserToolbar(viewContext, tree);
+        final ExperimentBrowserToolbar toolbar = new ExperimentBrowserToolbar(viewContext, tree);
         final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar);
         browserGrid.addGridRefreshListener(toolbar);
         browserGrid.extendToolbar(toolbar);
@@ -175,7 +176,7 @@ public class ExperimentBrowserGrid extends
     }
 
     @Override
-    protected void showEntityViewer(ExperimentModel experimentModel, boolean editMode)
+    protected void showEntityViewer(BaseEntityModel<Experiment> experimentModel, boolean editMode)
     {
         final Experiment experiment = experimentModel.getBaseObject();
         final EntityKind entityKind = EntityKind.EXPERIMENT;
@@ -200,15 +201,26 @@ public class ExperimentBrowserGrid extends
     }
 
     @Override
-    protected ExperimentModel createModel(Experiment entity)
+    protected BaseEntityModel<Experiment> createModel(Experiment entity)
     {
-        return new ExperimentModel(entity);
+        return getColumnsFactory().createModel(entity);
     }
 
     @Override
     protected ColumnDefsAndConfigs<Experiment> createColumnsDefinition()
     {
-        return ExperimentModel.createColumnsSchema(viewContext, criteria.getExperimentType());
+        return getColumnsFactory().createColumnsSchema(viewContext, criteria.getExperimentType());
+    }
+
+    private EntityGridModelFactory<Experiment> getColumnsFactory()
+    {
+        return new EntityGridModelFactory<Experiment>(getStaticColumnsDefinition());
+    }
+
+    @Override
+    protected IColumnDefinitionKind<Experiment>[] getStaticColumnsDefinition()
+    {
+        return CommonExperimentColDefKind.values();
     }
 
     @Override
@@ -261,8 +273,8 @@ public class ExperimentBrowserGrid extends
 
     private boolean propertiesEqual(ExperimentType entityType1, ExperimentType entityType2)
     {
-        return entityType1.getAssignedPropertyTypes().equals(
-                entityType2.getAssignedPropertyTypes());
+        return entityType1.getAssignedPropertyTypes()
+                .equals(entityType2.getAssignedPropertyTypes());
     }
 
     @Override

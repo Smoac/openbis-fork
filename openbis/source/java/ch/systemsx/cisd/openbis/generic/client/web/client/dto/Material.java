@@ -33,7 +33,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
  * 
  * @author Izabela Adamczyk
  */
-public class Material extends CodeWithRegistration<Material> implements IEntityInformationHolder
+public class Material extends CodeWithRegistration<Material> implements IEntityInformationHolder,
+        IEntityPropertiesHolder
 {
     private DatabaseInstance databaseInstance;
 

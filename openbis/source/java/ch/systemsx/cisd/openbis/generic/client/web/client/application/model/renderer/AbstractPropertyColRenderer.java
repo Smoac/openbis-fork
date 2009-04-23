@@ -16,27 +16,29 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractPropertyColDef;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 
 /**
- * An abstract decorator for {@link AbstractPropertyColDef} to be used in grids for rendering values
+ * An abstract decorator for {@link EntityPropertyColDef} to be used in grids for rendering values
  * in a different way in grids than in export. <br>
- * It changes {@link AbstractPropertyColDef#getValue(Object)} behavior distinguishing certain
+ * It changes {@link EntityPropertyColDef#getValue(Object)} behavior distinguishing certain
  * property types so in grid there can be e.g. a link displayed for hyperlink property. Other
  * methods are delegated without any change.
  * 
  * @author Piotr Buczek
  */
-public abstract class AbstractPropertyColRenderer<T> implements IColumnDefinitionUI<T>
+public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHolder> implements
+        IColumnDefinitionUI<T>
 {
 
     /**
      * @return property renderer for given column of given entity
      */
-    public static <S> AbstractPropertyColRenderer<S> getPropertyColRenderer(
-            AbstractPropertyColDef<S> colDef)
+    public static <S extends IEntityPropertiesHolder> AbstractPropertyColRenderer<S> getPropertyColRenderer(
+            EntityPropertyColDef<S> colDef)
     {
         switch (colDef.getDataTypeCode())
         {
@@ -49,9 +51,9 @@ public abstract class AbstractPropertyColRenderer<T> implements IColumnDefinitio
         }
     }
 
-    protected final AbstractPropertyColDef<T> colDef;
+    protected final EntityPropertyColDef<T> colDef;
 
-    public AbstractPropertyColRenderer(AbstractPropertyColDef<T> colDef)
+    public AbstractPropertyColRenderer(EntityPropertyColDef<T> colDef)
     {
         super();
         this.colDef = colDef;

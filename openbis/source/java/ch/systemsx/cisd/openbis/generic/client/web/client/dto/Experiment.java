@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
  * @author Tomasz Pylak
  */
 public class Experiment extends CodeWithRegistration<Experiment> implements IInvalidationProvider,
-        IEntityInformationHolder, IAttachmentHolder
+        IEntityInformationHolder, IAttachmentHolder, IEntityPropertiesHolder
 {
     private Project project;
 

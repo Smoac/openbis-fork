@@ -33,15 +33,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MaterialModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.EntityGridModelFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableMaterial;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.material.CommonMaterialColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.AbstractEntityBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
@@ -65,7 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * @author Izabela Adamczyk
  */
 public class MaterialBrowserGrid extends
-        AbstractEntityBrowserGrid<Material, MaterialModel, ListMaterialCriteria>
+        AbstractEntityBrowserGrid<Material, BaseEntityModel<Material>, ListMaterialCriteria>
 {
     private static final String PREFIX = "material-browser";
 
@@ -136,7 +138,8 @@ public class MaterialBrowserGrid extends
             return new MaterialBrowserGrid(viewContext, true, criteriaProvider)
                 {
                     @Override
-                    protected void showEntityViewer(MaterialModel materialModel, boolean editMode)
+                    protected void showEntityViewer(BaseEntityModel<Material> materialModel,
+                            boolean editMode)
                     {
                         // do nothing - avoid showing the details after double click
                     }
@@ -182,15 +185,20 @@ public class MaterialBrowserGrid extends
     }
 
     @Override
-    protected MaterialModel createModel(Material entity)
+    protected BaseEntityModel<Material> createModel(Material entity)
     {
-        return new MaterialModel(entity);
+        return getColumnsFactory().createModel(entity);
     }
 
     @Override
     protected ColumnDefsAndConfigs<Material> createColumnsDefinition()
     {
-        return MaterialModel.createColumnsSchema(viewContext, criteria.getMaterialType());
+        return getColumnsFactory().createColumnsSchema(viewContext, criteria.getMaterialType());
+    }
+
+    private EntityGridModelFactory<Material> getColumnsFactory()
+    {
+        return new EntityGridModelFactory<Material>(getStaticColumnsDefinition());
     }
 
     @Override
@@ -239,8 +247,8 @@ public class MaterialBrowserGrid extends
 
     private boolean propertiesEqual(MaterialType entityType1, MaterialType entityType2)
     {
-        return entityType1.getAssignedPropertyTypes().equals(
-                entityType2.getAssignedPropertyTypes());
+        return entityType1.getAssignedPropertyTypes()
+                .equals(entityType2.getAssignedPropertyTypes());
     }
 
     @Override
@@ -257,7 +265,7 @@ public class MaterialBrowserGrid extends
     }
 
     @Override
-    protected void showEntityViewer(MaterialModel modelData, boolean editMode)
+    protected void showEntityViewer(BaseEntityModel<Material> modelData, boolean editMode)
     {
         final Material material = modelData.getBaseObject();
         final EntityKind entityKind = EntityKind.MATERIAL;
@@ -284,9 +292,15 @@ public class MaterialBrowserGrid extends
 
     private EditableMaterial createEditableEntity(Material entity, MaterialType selectedType)
     {
-        return new EditableMaterial(selectedType.getAssignedPropertyTypes(), entity
-                .getProperties(), selectedType, entity.getCode() + " ("
-                + entity.getMaterialType().getCode() + ")", entity.getId(), entity
-                .getModificationDate());
+        return new EditableMaterial(selectedType.getAssignedPropertyTypes(),
+                entity.getProperties(), selectedType, entity.getCode() + " ("
+                        + entity.getMaterialType().getCode() + ")", entity.getId(), entity
+                        .getModificationDate());
+    }
+
+    @Override
+    protected IColumnDefinitionKind<Material>[] getStaticColumnsDefinition()
+    {
+        return CommonMaterialColDefKind.values();
     }
 }

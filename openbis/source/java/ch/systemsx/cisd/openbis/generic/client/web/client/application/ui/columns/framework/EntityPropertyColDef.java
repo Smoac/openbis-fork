@@ -20,21 +20,22 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
+ * Column definition for a one entity property.
+ * 
  * @author Tomasz Pylak
  */
-public abstract class AbstractPropertyColDef<T> extends AbstractColumnDefinition<T> implements
-        IsSerializable
+public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
+        AbstractColumnDefinition<T> implements IsSerializable
 {
-    protected abstract List<? extends EntityProperty<?, ?>> getProperties(T entity);
-
     private static final int PROPERTY_COLUMN_WIDTH = 120;
 
-    private static final String PROPERTY_PREFIX = "property";
+    private static final String PROPERTY_PREFIX = "property-";
 
     private String identifierPrefix;
 
@@ -45,26 +46,26 @@ public abstract class AbstractPropertyColDef<T> extends AbstractColumnDefinition
     private PropertyType propertyType;
 
     // GWT only
-    public AbstractPropertyColDef()
+    public EntityPropertyColDef()
     {
     }
 
-    public AbstractPropertyColDef(PropertyType propertyType, boolean isDisplayedByDefault)
+    public EntityPropertyColDef(PropertyType propertyType, boolean isDisplayedByDefault)
     {
         this(propertyType, isDisplayedByDefault, PROPERTY_COLUMN_WIDTH, propertyType.getLabel(), "");
     }
 
-    public AbstractPropertyColDef(PropertyType propertyType, boolean isDisplayedByDefault,
-            int width, String propertyTypeLabel, String identifierPrefix)
+    public EntityPropertyColDef(PropertyType propertyType, boolean isDisplayedByDefault, int width,
+            String propertyTypeLabel, String identifierPrefix)
     {
         this(propertyType.getSimpleCode(), isDisplayedByDefault, width, propertyType
-                .isInternalNamespace(), propertyTypeLabel, identifierPrefix + PROPERTY_PREFIX,
+                .isInternalNamespace(), propertyTypeLabel, PROPERTY_PREFIX + identifierPrefix,
                 propertyType);
     }
 
-    protected AbstractPropertyColDef(String propertyTypeCode, boolean isDisplayedByDefault,
-            int width, boolean isInternalNamespace, String propertyTypeLabel,
-            String identifierPrefix, PropertyType propertyType)
+    private EntityPropertyColDef(String propertyTypeCode, boolean isDisplayedByDefault, int width,
+            boolean isInternalNamespace, String propertyTypeLabel, String identifierPrefix,
+            PropertyType propertyType)
     {
         super(propertyTypeLabel, width, isDisplayedByDefault);
         this.isInternalNamespace = isInternalNamespace;
@@ -74,14 +75,9 @@ public abstract class AbstractPropertyColDef<T> extends AbstractColumnDefinition
     }
 
     @Override
-    protected String tryGetValue(T entity)
+    protected final String tryGetValue(T entity)
     {
-        return tryGetValue(getProperties(entity));
-    }
-
-    private String tryGetValue(List<? extends EntityProperty<?, ?>> properties)
-    {
-        for (EntityProperty<?, ?> prop : properties)
+        for (EntityProperty<?, ?> prop : getProperties(entity))
         {
             if (isMatching(prop))
             {
@@ -89,6 +85,11 @@ public abstract class AbstractPropertyColDef<T> extends AbstractColumnDefinition
             }
         }
         return null;
+    }
+
+    protected List<? extends EntityProperty<?, ?>> getProperties(T entity)
+    {
+        return entity.getProperties();
     }
 
     private boolean isMatching(EntityProperty<?, ?> prop)

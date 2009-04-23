@@ -18,14 +18,14 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractPropertyColDef;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 public final class DataSetExperimentPropertyColDef extends
-        AbstractPropertyColDef<ExternalData>
+        EntityPropertyColDef<ExternalData>
 {
     private static final String ID_PREFIX = "exp";
 

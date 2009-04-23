@@ -16,18 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractPropertyColDef;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IEntityPropertiesHolder;
 
 /**
  * An {@link AbstractPropertyColRenderer} which renders value as an external hyperlink.
  * 
  * @author Piotr Buczek
  */
-class HyperlinkPropertyColRenderer<T> extends AbstractPropertyColRenderer<T>
+class HyperlinkPropertyColRenderer<T extends IEntityPropertiesHolder> extends
+        AbstractPropertyColRenderer<T>
 {
 
-    public HyperlinkPropertyColRenderer(AbstractPropertyColDef<T> colDef)
+    public HyperlinkPropertyColRenderer(EntityPropertyColDef<T> colDef)
     {
         super(colDef);
     }

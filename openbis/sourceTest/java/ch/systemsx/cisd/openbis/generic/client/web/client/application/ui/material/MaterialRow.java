@@ -16,8 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.material.CommonMaterialColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.material.PropertyMaterialColDef;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
@@ -49,7 +50,8 @@ public class MaterialRow extends Row
             boolean internalNamespace)
     {
         final PropertyType propertyType = createPropertyType(propertyCode, internalNamespace);
-        final String propertyIdentifier = new PropertyMaterialColDef(propertyType).getIdentifier();
+        final String propertyIdentifier =
+                new EntityPropertyColDef<Material>(propertyType, true).getIdentifier();
         withCell(propertyIdentifier, value);
         return this;
     }

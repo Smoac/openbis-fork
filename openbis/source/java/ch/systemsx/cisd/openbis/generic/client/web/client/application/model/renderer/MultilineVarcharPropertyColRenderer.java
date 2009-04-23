@@ -16,18 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractPropertyColDef;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IEntityPropertiesHolder;
 
 /**
  * An {@link AbstractPropertyColRenderer} which renders value preserving newlines.
  * 
  * @author Piotr Buczek
  */
-class MultilineVarcharPropertyColRenderer<T> extends AbstractPropertyColRenderer<T>
+class MultilineVarcharPropertyColRenderer<T extends IEntityPropertiesHolder> extends
+        AbstractPropertyColRenderer<T>
 {
 
-    public MultilineVarcharPropertyColRenderer(AbstractPropertyColDef<T> colDef)
+    public MultilineVarcharPropertyColRenderer(EntityPropertyColDef<T> colDef)
     {
         super(colDef);
     }

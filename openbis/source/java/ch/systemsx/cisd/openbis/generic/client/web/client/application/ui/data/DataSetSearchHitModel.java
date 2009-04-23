@@ -29,13 +29,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 
 /**
  * @author Tomasz Pylak
@@ -64,26 +59,95 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
     private static List<IColumnDefinitionUI<ExternalData>> createColumnsSchema(ExternalData entity)
     {
         List<IColumnDefinitionUI<ExternalData>> list = createCommonColumnsSchema(null);
-        for (DataSetProperty prop : DataSetPropertyColDef.getDataSetProperties(entity))
+
+        List<PropertyType> datasetProperties =
+                extractPropertyTypes(DataSetPropertyColDef.getDataSetProperties(entity));
+        list.addAll(createDatasetPropertyTypeColDefs(datasetProperties));
+
+        List<PropertyType> experimentProperties =
+                extractPropertyTypes(DataSetExperimentPropertyColDef
+                        .getExperimentProperties(entity));
+        list.addAll(createExperimentPropertyTypeColDefs(experimentProperties));
+
+        List<PropertyType> sampleProperties =
+                extractPropertyTypes(DataSetSamplePropertyColDef.getSampleProperties(entity));
+        list.addAll(createSamplePropertyTypeColDefs(sampleProperties));
+
+        return list;
+    }
+
+    private static List<IColumnDefinitionUI<ExternalData>> createDatasetPropertyTypeColDefs(
+            List<PropertyType> propertyTypes)
+    {
+        List<IColumnDefinitionUI<ExternalData>> list = createEmptyList();
+        for (PropertyType prop : propertyTypes)
         {
-            DataSetTypePropertyType etpt = prop.getEntityTypePropertyType();
-            list.add(createDataSetPropertyTypeColDef(etpt.getPropertyType()));
-        }
-        for (ExperimentProperty prop : DataSetExperimentPropertyColDef
-                .getExperimentProperties(entity))
-        {
-            ExperimentTypePropertyType etpt = prop.getEntityTypePropertyType();
-            list.add(createExperimentPropertyTypeColDef(etpt.getPropertyType()));
-        }
-        for (SampleProperty prop : DataSetSamplePropertyColDef.getSampleProperties(entity))
-        {
-            SampleTypePropertyType etpt = prop.getEntityTypePropertyType();
-            list.add(createSamplePropertyTypeColDef(etpt.getPropertyType()));
+            list.add(createDatasetPropertyTypeColDef(prop));
         }
         return list;
     }
 
-    private static IColumnDefinitionUI<ExternalData> createDataSetPropertyTypeColDef(
+    private static List<IColumnDefinitionUI<ExternalData>> createExperimentPropertyTypeColDefs(
+            List<PropertyType> propertyTypes)
+    {
+        List<IColumnDefinitionUI<ExternalData>> list = createEmptyList();
+        for (PropertyType prop : propertyTypes)
+        {
+            list.add(createExperimentPropertyTypeColDef(prop));
+        }
+        return list;
+    }
+
+    private static List<IColumnDefinitionUI<ExternalData>> createSamplePropertyTypeColDefs(
+            List<PropertyType> propertyTypes)
+    {
+        List<IColumnDefinitionUI<ExternalData>> list = createEmptyList();
+        for (PropertyType prop : propertyTypes)
+        {
+            list.add(createSamplePropertyTypeColDef(prop));
+        }
+        return list;
+    }
+
+    private static ArrayList<IColumnDefinitionUI<ExternalData>> createEmptyList()
+    {
+        return new ArrayList<IColumnDefinitionUI<ExternalData>>();
+    }
+
+    private static List<PropertyType> extractPropertyTypes(
+            List<? extends EntityProperty<?, ?>> properties)
+    {
+        List<PropertyType> propertyTypes = new ArrayList<PropertyType>();
+        for (EntityProperty<?, ?> prop : properties)
+        {
+            PropertyType propertyType = prop.getEntityTypePropertyType().getPropertyType();
+            propertyTypes.add(propertyType);
+        }
+        return propertyTypes;
+    }
+
+    public static ColumnDefsAndConfigs<ExternalData> createColumnsSchema(
+            IMessageProvider messageProvider, List<PropertyType> mergedPropertyTypes)
+    {
+        List<IColumnDefinitionUI<ExternalData>> commonColumnsSchema =
+                createCommonColumnsSchema(messageProvider);
+        ColumnDefsAndConfigs<ExternalData> columns =
+                ColumnDefsAndConfigs.create(commonColumnsSchema);
+
+        List<PropertyType> datasetProperties = filterDataSetPropertyTypes(mergedPropertyTypes);
+        columns.addColumns(createDatasetPropertyTypeColDefs(datasetProperties));
+
+        List<PropertyType> experimentProperties =
+                filterExperimentPropertyTypes(mergedPropertyTypes);
+        columns.addColumns(createExperimentPropertyTypeColDefs(experimentProperties));
+
+        List<PropertyType> sampleProperties = filterSamplePropertyTypes(mergedPropertyTypes);
+        columns.addColumns(createSamplePropertyTypeColDefs(sampleProperties));
+
+        return columns;
+    }
+
+    private static IColumnDefinitionUI<ExternalData> createDatasetPropertyTypeColDef(
             PropertyType propertyType)
     {
         String label = LABEL_DATA_SET_PROPERTY_PREFIX + propertyType.getLabel();
@@ -104,66 +168,10 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
         return new DataSetExperimentPropertyColDef(propertyType, true, PROPERTY_COLUMN_WIDTH, label);
     }
 
-    public static ColumnDefsAndConfigs<ExternalData> createColumnsSchema(
-            IMessageProvider messageProvider, List<PropertyType> propertyTypes)
-    {
-        List<IColumnDefinitionUI<ExternalData>> commonColumnsSchema =
-                createCommonColumnsSchema(messageProvider);
-        ColumnDefsAndConfigs<ExternalData> columns =
-                ColumnDefsAndConfigs.create(commonColumnsSchema);
-
-        columns.addColumns(createDataSetPropertyColumnsSchema(propertyTypes));
-        columns.addColumns(createExperimentsPropertyColumnsSchema(propertyTypes));
-        columns.addColumns(createSamplesPropertyColumnsSchema(propertyTypes));
-
-        return columns;
-    }
-
-    private static List<IColumnDefinitionUI<ExternalData>> createDataSetPropertyColumnsSchema(
-            List<PropertyType> propertyTypes)
-    {
-        List<PropertyType> dataSetPropertyTypes = filterDataSetPropertyTypes(propertyTypes);
-        List<IColumnDefinitionUI<ExternalData>> list = createEmptyColDefList();
-        for (PropertyType prop : dataSetPropertyTypes)
-        {
-            list.add(createDataSetPropertyTypeColDef(prop));
-        }
-        return list;
-    }
-
-    private static List<IColumnDefinitionUI<ExternalData>> createSamplesPropertyColumnsSchema(
-            List<PropertyType> propertyTypes)
-    {
-        List<PropertyType> experimentPropertyTypes = filterSamplePropertyTypes(propertyTypes);
-        List<IColumnDefinitionUI<ExternalData>> list = createEmptyColDefList();
-        for (PropertyType prop : experimentPropertyTypes)
-        {
-            list.add(createSamplePropertyTypeColDef(prop));
-        }
-        return list;
-    }
-
-    private static List<IColumnDefinitionUI<ExternalData>> createExperimentsPropertyColumnsSchema(
-            List<PropertyType> propertyTypes)
-    {
-        List<PropertyType> experimentPropertyTypes = filterExperimentPropertyTypes(propertyTypes);
-        List<IColumnDefinitionUI<ExternalData>> list = createEmptyColDefList();
-        for (PropertyType prop : experimentPropertyTypes)
-        {
-            list.add(createExperimentPropertyTypeColDef(prop));
-        }
-        return list;
-    }
-
     private static List<IColumnDefinitionUI<ExternalData>> createCommonColumnsSchema(
             IMessageProvider msgProviderOrNull)
     {
         return createColumnsDefinition(DataSetSearchHitColDefKind.values(), msgProviderOrNull);
-    }
-
-    private static ArrayList<IColumnDefinitionUI<ExternalData>> createEmptyColDefList()
-    {
-        return new ArrayList<IColumnDefinitionUI<ExternalData>>();
     }
 
     // returns property types which are assigned to at least one sample type

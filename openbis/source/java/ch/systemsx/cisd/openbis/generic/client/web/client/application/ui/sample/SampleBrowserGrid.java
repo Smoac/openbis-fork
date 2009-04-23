@@ -34,12 +34,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModelFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -71,7 +74,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * @author Tomasz Pylak
  */
 public final class SampleBrowserGrid extends
-        AbstractEntityBrowserGrid<Sample, SampleModel, ListSampleCriteria>
+        AbstractEntityBrowserGrid<Sample, BaseEntityModel<Sample>, ListSampleCriteria>
 {
     private static final String PREFIX = GenericConstants.ID_PREFIX + "sample-browser";
 
@@ -105,7 +108,7 @@ public final class SampleBrowserGrid extends
         browserGrid.setEntityKindForDisplayTypeIDGeneration(EntityKind.SAMPLE);
         return browserGrid.asDisposableWithoutToolbar();
     }
-    
+
     private SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             ICriteriaProvider<ListSampleCriteria> criteriaProvider, String gridId,
             boolean showHeader, boolean refreshAutomatically)
@@ -163,9 +166,9 @@ public final class SampleBrowserGrid extends
     }
 
     @Override
-    protected SampleModel createModel(Sample entity)
+    protected BaseEntityModel<Sample> createModel(Sample entity)
     {
-        return new SampleModel(entity);
+        return SampleModelFactory.createModel(entity);
     }
 
     @Override
@@ -177,7 +180,7 @@ public final class SampleBrowserGrid extends
     }
 
     @Override
-    protected void showEntityViewer(SampleModel sampleModel, boolean editMode)
+    protected void showEntityViewer(BaseEntityModel<Sample> sampleModel, boolean editMode)
     {
         final Sample sample = sampleModel.getBaseObject();
         final EntityKind entityKind = EntityKind.SAMPLE;
@@ -248,7 +251,7 @@ public final class SampleBrowserGrid extends
     protected ColumnDefsAndConfigs<Sample> createColumnsDefinition()
     {
         assert criteria != null : "criteria not set!";
-        return SampleModel.createColumnsSchema(viewContext, criteria.getSampleType());
+        return SampleModelFactory.createColumnsSchema(viewContext, criteria.getSampleType());
     }
 
     @Override
@@ -270,13 +273,19 @@ public final class SampleBrowserGrid extends
 
     private boolean propertiesEqual(SampleType entityType1, SampleType entityType2)
     {
-        return entityType1.getAssignedPropertyTypes().equals(
-                entityType2.getAssignedPropertyTypes());
+        return entityType1.getAssignedPropertyTypes()
+                .equals(entityType2.getAssignedPropertyTypes());
     }
 
     @Override
     protected Set<DatabaseModificationKind> getGridRelevantModifications()
     {
         return getGridRelevantModifications(ObjectKind.SAMPLE);
+    }
+
+    @Override
+    protected IColumnDefinitionKind<Sample>[] getStaticColumnsDefinition()
+    {
+        return CommonSampleColDefKind.values();
     }
 }
