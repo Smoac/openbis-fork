@@ -17,15 +17,17 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ColumnModelEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.GridView;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
@@ -61,7 +63,7 @@ public class DisplaySettingsManager
      * Preparation means synchronisation of the {@link ColumnModel} and registering a listener
      * which updates settings after column configuration changes.
      */
-    public void prepareGrid(final String displayTypeID, final Grid<?> grid)
+    public <M extends ModelData> void prepareGrid(final String displayTypeID, final Grid<M> grid)
     {
         Listener<ColumnModelEvent> listener = new Listener<ColumnModelEvent>()
                 {
@@ -76,7 +78,7 @@ public class DisplaySettingsManager
         synchronizeColumnModel(displayTypeID, grid);
     }
     
-    private void synchronizeColumnModel(String displayTypeID, Grid<?> grid)
+    private <M extends ModelData> void synchronizeColumnModel(String displayTypeID, Grid<M> grid)
     {
         List<ColumnSetting> columnSettings = displaySettings.getColumnSettings().get(displayTypeID);
         if (columnSettings == null)
@@ -85,11 +87,21 @@ public class DisplaySettingsManager
         }
         boolean refreshNeeded = false;
         ColumnModel columnModel = grid.getColumnModel();
-        for (ColumnSetting columnSetting : columnSettings)
+        List<ColumnConfig> newColumnConfigList = new ArrayList<ColumnConfig>();
+        Set<Integer> indices = new HashSet<Integer>();
+        for (int i = 0; i < columnSettings.size(); i++)
         {
-            ColumnConfig columnConfig = columnModel.getColumnById(columnSetting.getColumnID());
-            if (columnConfig != null)
+            ColumnSetting columnSetting = columnSettings.get(i);
+            int index = columnModel.getIndexById(columnSetting.getColumnID());
+            if (index >= 0)
             {
+                if (i != index)
+                {
+                    refreshNeeded = true;
+                }
+                indices.add(index);
+                ColumnConfig columnConfig = columnModel.getColumn(index);
+                newColumnConfigList.add(columnConfig);
                 boolean hidden = columnSetting.isHidden();
                 if (columnConfig.isHidden() != hidden)
                 {
@@ -104,17 +116,20 @@ public class DisplaySettingsManager
                 }
             }
         }
+        for (int i = 0; i < columnModel.getColumnCount(); i++)
+        {
+            if (indices.contains(i) == false)
+            {
+                newColumnConfigList.add(columnModel.getColumn(i));
+            }
+        }
         if (refreshNeeded)
         {
-            GridView view = grid.getView();
-            if (view != null && grid.isRendered())
-            {
-                view.refresh(true);
-            }
+            grid.reconfigure(grid.getStore(), new ColumnModel(newColumnConfigList));
         }
     }
     
-    private void updateColumnSettings(String displayTypeID, Grid<?> grid)
+    private <M extends ModelData> void updateColumnSettings(String displayTypeID, Grid<M> grid)
     {
         ColumnModel columnModel = grid.getColumnModel();
         List<ColumnSetting> columnSettings = new ArrayList<ColumnSetting>();
