@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -40,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 public class MaterialPropertiesSection extends SectionPanel
 {
     public static final String PROPERTIES_ID_PREFIX =
-            GenericConstants.ID_PREFIX + "experiment-properties-section_";
+            GenericConstants.ID_PREFIX + "material-properties-section_";
 
     private final Material material;
 
@@ -83,7 +85,9 @@ public class MaterialPropertiesSection extends SectionPanel
         properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE), material
                 .getRegistrationDate());
 
-        for (final MaterialProperty property : material.getProperties())
+        final List<MaterialProperty> materialProperties = material.getProperties();
+        Collections.sort(materialProperties);
+        for (final MaterialProperty property : materialProperties)
         {
             final String simpleCode =
                     property.getEntityTypePropertyType().getPropertyType().getLabel();

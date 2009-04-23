@@ -16,21 +16,28 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * {@link SectionPanel} containing experiment properties.
@@ -42,18 +49,23 @@ public class ExperimentPropertiesSection extends SectionPanel
     public static final String PROPERTIES_ID_PREFIX =
             GenericConstants.ID_PREFIX + "experiment-properties-section_";
 
-    private final Experiment experiment;
+    private Experiment experiment;
+
+    private PropertyGrid grid;
 
     private final IViewContext<?> viewContext;
 
+    private final IDelegatedAction reloadDataAction;
+
     public ExperimentPropertiesSection(final Experiment experiment,
-            final IViewContext<?> viewContext)
+            final IViewContext<?> viewContext, final IDelegatedAction reloadDataAction)
     {
         super("Experiment Properties");
         this.experiment = experiment;
         this.viewContext = viewContext;
-        final PropertyGrid propertyGrid = createPropertyGrid();
-        add(propertyGrid);
+        this.reloadDataAction = reloadDataAction;
+        this.grid = createPropertyGrid();
+        add(grid);
     }
 
     private final PropertyGrid createPropertyGrid()
@@ -88,12 +100,55 @@ public class ExperimentPropertiesSection extends SectionPanel
         {
             properties.put(messageProvider.getMessage(Dict.INVALIDATION), invalidation);
         }
-        for (final ExperimentProperty property : experiment.getProperties())
+
+        final List<ExperimentProperty> experimentProperties = experiment.getProperties();
+        Collections.sort(experimentProperties);
+        for (final ExperimentProperty property : experimentProperties)
         {
             final String simpleCode =
                     property.getEntityTypePropertyType().getPropertyType().getLabel();
             properties.put(simpleCode, property);
         }
         return properties;
+    }
+
+    private final void reloadProperties()
+    {
+        final Map<String, Object> properties = createProperties(viewContext);
+        grid.resizeRows(properties.size());
+        grid.setProperties(properties);
+    }
+
+    private void setExperiment(Experiment experiment)
+    {
+        this.experiment = experiment;
+    }
+
+    public void reloadData(Experiment newExperiment)
+    {
+        setExperiment(newExperiment);
+        reloadProperties();
+    }
+
+    public IDatabaseModificationObserver getModificationObserver()
+    {
+        return new IDatabaseModificationObserver()
+            {
+
+                public DatabaseModificationKind[] getRelevantModifications()
+                {
+                    return new DatabaseModificationKind[]
+                        {
+                                DatabaseModificationKind.edit(ObjectKind.EXPERIMENT),
+                                DatabaseModificationKind
+                                        .createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                                DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM) };
+                }
+
+                public void update(Set<DatabaseModificationKind> observedModifications)
+                {
+                    reloadDataAction.execute();
+                }
+            };
     }
 }

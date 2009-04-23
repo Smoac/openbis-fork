@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sa
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +76,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -105,6 +105,8 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     private final String sampleIdentifier;
 
     private IDisposableComponent disposableBrowser;
+
+    private PropertyGrid propertyGrid;
 
     public static DatabaseModificationAwareComponent create(
             IViewContext<IGenericClientServiceAsync> viewContext, String sampleIdentifier)
@@ -294,14 +296,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
             generatedFrom = generatedFrom.getGeneratedFrom();
         }
         final List<SampleProperty> sampleProperties = sample.getProperties();
-        Collections.sort(sampleProperties, new Comparator<SampleProperty>()
-            {
-                public final int compare(final SampleProperty s1, final SampleProperty s2)
-                {
-                    return s1.getEntityTypePropertyType().getPropertyType().getLabel().compareTo(
-                            s2.getEntityTypePropertyType().getPropertyType().getLabel());
-                }
-            });
+        Collections.sort(sampleProperties);
         for (final SampleProperty property : sampleProperties)
         {
             final String label = property.getEntityTypePropertyType().getPropertyType().getLabel();
@@ -315,7 +310,8 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         final ContentPanel panel = new ContentPanel();
         panel.setScrollMode(Scroll.AUTOY);
         panel.setHeading(viewContext.getMessage(Dict.SAMPLE_PROPERTIES_HEADING));
-        panel.add(createPropertyGrid(sampleIdentifier, sampleGeneration, viewContext));
+        propertyGrid = createPropertyGrid(sampleIdentifier, sampleGeneration, viewContext);
+        panel.add(propertyGrid);
         return panel;
     }
 
@@ -342,6 +338,13 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         return propertyGrid;
     }
 
+    public final void reloadProperties(final SampleGeneration sampleGeneration)
+    {
+        final Map<String, Object> properties = createProperties(viewContext, sampleGeneration);
+        propertyGrid.resizeRows(properties.size());
+        propertyGrid.setProperties(properties);
+    }
+
     private final void loadStores()
     {
         partOfSamplesGrid.getStore().getLoader().load();
@@ -354,6 +357,15 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     {
         viewContext.getService().getSampleInfo(sampleIdentifier,
                 new SampleGenerationInfoCallback(viewContext, this));
+    }
+
+    /**
+     * Load the sample information for property grid.
+     */
+    private void reloadPropertyGridData()
+    {
+        viewContext.getService().getSampleInfo(sampleIdentifier,
+                new SampleReloadPropertyGridInfoCallback(viewContext, this));
     }
 
     //
@@ -438,6 +450,31 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         }
     }
 
+    public static final class SampleReloadPropertyGridInfoCallback extends
+            AbstractAsyncCallback<SampleGeneration>
+    {
+        private final GenericSampleViewer genericSampleViewer;
+
+        private SampleReloadPropertyGridInfoCallback(
+                final IViewContext<IGenericClientServiceAsync> viewContext,
+                final GenericSampleViewer genericSampleViewer)
+        {
+            super(viewContext);
+            this.genericSampleViewer = genericSampleViewer;
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        /** This method triggers reloading of the {@link PropertyGrid} data. */
+        @Override
+        protected final void process(final SampleGeneration result)
+        {
+            genericSampleViewer.reloadProperties(result);
+        }
+    }
+
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return createDatabaseModificationObserver().getRelevantModifications();
@@ -448,7 +485,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         createDatabaseModificationObserver().update(observedModifications);
     }
 
-    // TODO 2009-04-01, Tomasz Pylak: add auto-refresh for properties and contained samples
+    // TODO 2009-04-01, Tomasz Pylak: add auto-refresh for contained samples
     private CompositeDatabaseModificationObserver createDatabaseModificationObserver()
     {
         CompositeDatabaseModificationObserver observer =
@@ -457,6 +494,29 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         {
             observer.addObserver(disposableBrowser);
         }
+        if (propertyGrid != null)
+        {
+            observer.addObserver(new PropertyGridDatabaseModificationObserver());
+        }
         return observer;
+    }
+
+    private class PropertyGridDatabaseModificationObserver implements IDatabaseModificationObserver
+    {
+
+        public DatabaseModificationKind[] getRelevantModifications()
+        {
+            return new DatabaseModificationKind[]
+                {
+                        DatabaseModificationKind.edit(ObjectKind.SAMPLE),
+                        DatabaseModificationKind
+                                .createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                        DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM) };
+        }
+
+        public void update(Set<DatabaseModificationKind> observedModifications)
+        {
+            reloadPropertyGridData();
+        }
     }
 }

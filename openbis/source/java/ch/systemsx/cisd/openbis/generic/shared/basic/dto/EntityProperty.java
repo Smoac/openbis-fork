@@ -18,14 +18,13 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-
 /**
  * An <i>abstract</i> entity property.
  * 
  * @author Christian Ribeaud
  */
 public abstract class EntityProperty<T extends EntityType, P extends EntityTypePropertyType<T>>
-        implements IsSerializable
+        implements IsSerializable, Comparable<EntityProperty<T, P>>
 {
     private String value;
 
@@ -49,5 +48,15 @@ public abstract class EntityProperty<T extends EntityType, P extends EntityTypeP
     public final void setEntityTypePropertyType(final P entityTypePropertyType)
     {
         this.entityTypePropertyType = entityTypePropertyType;
+    }
+
+    // 
+    // Comparable
+    // 
+
+    public int compareTo(EntityProperty<T, P> o)
+    {
+        return this.getEntityTypePropertyType().getPropertyType().getLabel().compareTo(
+                o.getEntityTypePropertyType().getPropertyType().getLabel());
     }
 }
