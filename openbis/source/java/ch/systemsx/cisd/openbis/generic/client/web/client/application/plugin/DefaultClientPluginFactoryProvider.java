@@ -21,9 +21,9 @@ import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKindAndTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ClientPluginFactory;
 
 /**
@@ -79,7 +79,7 @@ public final class DefaultClientPluginFactoryProvider implements IClientPluginFa
     //
 
     public final IClientPluginFactory getClientPluginFactory(final EntityKind entityKind,
-            final EntityType entityType)
+            final BasicEntityType entityType)
     {
         assert entityKind != null : "Unspecified entity kind.";
         assert entityType != null : "Unspecified entity type.";

@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
@@ -36,7 +36,7 @@ public final class MatchingEntity implements IsSerializable
 
     private Person registrator;
 
-    private EntityType entityType;
+    private BasicEntityType entityType;
 
     private EntityKind entityKind;
 
@@ -69,12 +69,12 @@ public final class MatchingEntity implements IsSerializable
         this.registrator = registrator;
     }
 
-    public final EntityType getEntityType()
+    public final BasicEntityType getEntityType()
     {
         return entityType;
     }
 
-    public final void setEntityType(final EntityType entityType)
+    public final void setEntityType(final BasicEntityType entityType)
     {
         this.entityType = entityType;
     }

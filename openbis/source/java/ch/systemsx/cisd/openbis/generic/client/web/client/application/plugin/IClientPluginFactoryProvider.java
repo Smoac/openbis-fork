@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 
 /**
  * A {@link IClientPluginFactory} provider.
@@ -32,6 +32,6 @@ public interface IClientPluginFactoryProvider
      * 
      * @return never <code>null</code> but could return the <i>generic</i> implementation.
      */
-    public IClientPluginFactory getClientPluginFactory(
-            final EntityKind entityKind, final EntityType entityType);
+    public IClientPluginFactory getClientPluginFactory(final EntityKind entityKind,
+            final BasicEntityType entityType);
 }

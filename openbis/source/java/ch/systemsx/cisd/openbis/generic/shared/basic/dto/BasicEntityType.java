@@ -16,14 +16,23 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.util.List;
-
 /**
  * An <i>abstract</i> entity type.
  * 
  * @author Christian Ribeaud
  */
-abstract public class EntityType extends BasicEntityType
+public class BasicEntityType extends AbstractType
 {
-    abstract public List<? extends EntityTypePropertyType<?>> getAssignedPropertyTypes();
+    private DatabaseInstance databaseInstance;
+
+    public final DatabaseInstance getDatabaseInstance()
+    {
+        return databaseInstance;
+    }
+
+    public final void setDatabaseInstance(final DatabaseInstance databaseInstance)
+    {
+        this.databaseInstance = databaseInstance;
+    }
+
 }

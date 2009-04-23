@@ -16,10 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-
 /**
- * Bean combining {@link EntityKind} with entity type code. It determines plug-ins. 
- *
+ * Bean combining {@link EntityKind} with entity type code. It determines plug-ins.
+ * 
  * @author Franz-Josef Elmer
  */
 public final class EntityKindAndTypeCode
@@ -28,7 +27,7 @@ public final class EntityKindAndTypeCode
 
     private final String entityTypeCode;
 
-    public EntityKindAndTypeCode(final EntityKind entityKind, final EntityType entityType)
+    public EntityKindAndTypeCode(final EntityKind entityKind, final BasicEntityType entityType)
     {
         this(entityKind, entityType.getCode());
     }
