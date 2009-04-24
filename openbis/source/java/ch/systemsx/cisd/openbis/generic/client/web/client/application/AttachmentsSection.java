@@ -384,13 +384,20 @@ public class AttachmentsSection<T extends IAttachmentHolder> extends SectionPane
                 public DatabaseModificationKind[] getRelevantModifications()
                 {
                     return new DatabaseModificationKind[]
-                        { DatabaseModificationKind.edit(ObjectKind.EXPERIMENT) };
+                        { DatabaseModificationKind.edit(getObjectKind()) };
                 }
 
                 public void update(Set<DatabaseModificationKind> observedModifications)
                 {
                     reloadData();
                 }
+
+                private ObjectKind getObjectKind()
+                {
+                    return ObjectKind
+                            .valueOf(attachmentHolder.getAttachmentHolderKind().toString());
+                }
+
             };
     }
 

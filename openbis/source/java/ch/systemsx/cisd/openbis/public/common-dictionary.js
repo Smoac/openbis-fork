@@ -18,6 +18,8 @@ var common = {
   edit: "Edit",
   material: "Material",
   load_in_progress: "Loading...",
+  details_title: "{0} {1}",
+  edit_title: "Edit {0} {1}",
   
   //
   // Field
@@ -285,13 +287,6 @@ var common = {
  //
  project_registration: "Project Registration",
   
- // 
- // Project Viewer
- // 
-  
- details_title: "{0} {1}",
- edit_title: "Edit {0} {1}",
-   
  //
  // Data Set Search
  //

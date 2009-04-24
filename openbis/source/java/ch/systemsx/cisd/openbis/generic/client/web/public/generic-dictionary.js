@@ -13,7 +13,6 @@ var generic = {
   sample_properties_heading: "Sample Properties",
   part_of_heading: "Components",
   external_data_heading: "External Data",
-  details_title: "{0} {1}",
   
   //
   // Sample Registration
@@ -22,11 +21,6 @@ var generic = {
   instance_sample: "Shared",
   generated_from_sample: "Parent",
   part_of_sample: "Container",  
-  
-   //
-  // Edit
-  //
-  edit_title: "Edit {0} {1}",
   
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
