@@ -38,7 +38,7 @@ public class PropertyTypeAssignmentBrowserTest extends AbstractGWTTestCase
                 PropertyTypeAssignmentColDefKind.PROPERTY_TYPE_CODE.id(), "USER.DESCRIPTION")
                 .withCell(PropertyTypeAssignmentColDefKind.ENTITY_TYPE_CODE.id(), "CONTROL_LAYOUT")
                 .withCell(PropertyTypeAssignmentColDefKind.ENTITY_KIND.id(), "Sample"));
-        remoteConsole.prepare(table.expectedSize(28));
+        remoteConsole.prepare(table.expectedSize(29));
 
         launchTest(20000);
     }

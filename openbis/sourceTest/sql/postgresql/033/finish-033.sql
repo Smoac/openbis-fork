@@ -57,7 +57,7 @@ ALTER TABLE ONLY events
 ALTER TABLE ONLY attachment_contents
     ADD CONSTRAINT exac_pk PRIMARY KEY (id);
 ALTER TABLE ONLY external_data
-    ADD CONSTRAINT exda_bk_uk UNIQUE ("location", loty_id);
+    ADD CONSTRAINT exda_bk_uk UNIQUE (location, loty_id);
 ALTER TABLE ONLY external_data
     ADD CONSTRAINT exda_pk PRIMARY KEY (data_id);
 ALTER TABLE ONLY experiments
