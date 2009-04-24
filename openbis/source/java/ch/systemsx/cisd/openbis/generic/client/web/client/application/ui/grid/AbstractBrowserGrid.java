@@ -841,7 +841,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         String oldResultSetKey = resultSetKey;
         resultSetKey = newResultSetKey;
-        if (oldResultSetKey != null)
+        if (oldResultSetKey != null && oldResultSetKey.equals(newResultSetKey) == false)
         {
             removeResultSet(oldResultSetKey);
         }
