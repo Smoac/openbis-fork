@@ -24,6 +24,9 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 
 /**
@@ -39,16 +42,32 @@ public final class ProjectViewer extends ContentPanel
 
     private final String projectIdentifier;
 
+    private final CompositeDatabaseModificationObserver modificationObserver;
+
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    public ProjectViewer(final IViewContext<ICommonClientServiceAsync> viewContext,
+    public static DatabaseModificationAwareComponent create(
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            final String projectIdentifier)
+    {
+        ProjectViewer viewer = new ProjectViewer(viewContext, projectIdentifier);
+        return new DatabaseModificationAwareComponent(viewer, viewer.modificationObserver);
+    }
+
+    private ProjectViewer(final IViewContext<ICommonClientServiceAsync> viewContext,
             final String projectIdentifier)
     {
         this.viewContext = viewContext;
         setHeading(viewContext.getMessage(Dict.PROJECT) + " " + projectIdentifier);
         setId(createId(projectIdentifier));
         this.projectIdentifier = projectIdentifier;
-        reloadData();
+        this.modificationObserver = new CompositeDatabaseModificationObserver();
+        reloadAllData();
+    }
+
+    private void reloadAllData()
+    {
+        reloadData(new ProjectInfoCallback(viewContext, this, modificationObserver));
     }
 
     public static String createId(String projectIdentifier)
@@ -62,32 +81,51 @@ public final class ProjectViewer extends ContentPanel
     }
 
     /**
-     * Load the experiment information.
+     * Load the project information.
      */
-    private void reloadData()
+    protected void reloadData(AbstractAsyncCallback<Project> callback)
     {
-        viewContext.getService().getProjectInfo(projectIdentifier,
-                new ProjectInfoCallback(viewContext, this));
+        viewContext.getService().getProjectInfo(projectIdentifier, callback);
+    }
+
+    private AttachmentsSection<Project> createAttachmentsSection(final Project project)
+    {
+        final AttachmentsSection<Project> attachmentsSection =
+                new AttachmentsSection<Project>(project, viewContext);
+        attachmentsSection.setReloadDataAction(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    reloadData(attachmentsSection.getReloadDataCallback());
+                }
+            });
+        return attachmentsSection;
     }
 
     public static final class ProjectInfoCallback extends AbstractAsyncCallback<Project>
     {
         private final ProjectViewer viewer;
 
+        private final CompositeDatabaseModificationObserver modificationObserver;
+
         private ProjectInfoCallback(final IViewContext<ICommonClientServiceAsync> viewContext,
-                final ProjectViewer viewer)
+                final ProjectViewer viewer,
+                final CompositeDatabaseModificationObserver modificationObserver)
         {
             super(viewContext);
             this.viewer = viewer;
+            this.modificationObserver = modificationObserver;
         }
 
         @Override
-        // TODO 2009-04-01, Tomasz Pylak: add attachments auto-refresh
         protected final void process(final Project result)
         {
             viewer.removeAll();
             viewer.setScrollMode(Scroll.AUTO);
-            addSection(viewer, new AttachmentsSection(result, viewContext));
+            AttachmentsSection<Project> attachmentsSection =
+                    viewer.createAttachmentsSection(result);
+            addSection(viewer, attachmentsSection);
+            modificationObserver.addObserver(attachmentsSection.getDatabaseModificationObserver());
             viewer.layout();
         }
     }

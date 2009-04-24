@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
@@ -37,6 +38,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.AttachmentModel;
@@ -44,39 +46,48 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Atta
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IAttachmentHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * {@link SectionPanel} containing attachments.
  * 
  * @author Izabela Adamczyk
  */
-public class AttachmentsSection extends SectionPanel
+public class AttachmentsSection<T extends IAttachmentHolder> extends SectionPanel
 {
     public static final String ATTACHMENTS_ID_PREFIX =
             GenericConstants.ID_PREFIX + "attachment-section_";
 
-    private final IAttachmentHolder attachmentHolder;
+    private T attachmentHolder;
 
-    private final IMessageProvider messageProvider;
+    private IDelegatedAction reloadDataAction;
 
-    public AttachmentsSection(final IAttachmentHolder attachmentHolder,
-            final IViewContext<?> viewContext)
+    private final IViewContext<?> viewContext;
+
+    public AttachmentsSection(final T attachmentHolder, final IViewContext<?> viewContext)
     {
         super("Attachments");
         this.attachmentHolder = attachmentHolder;
-        messageProvider = viewContext;
+        this.viewContext = viewContext;
+        addContents();
+    }
+
+    private void addContents()
+    {
         if (attachmentHolder.getAttachments().size() > 0)
         {
             add(createAttachmentsGrid());
         } else
         {
-            add(new Html(messageProvider.getMessage(Dict.NO_ATTACHMENTS_FOUND, attachmentHolder
+            add(new Html(viewContext.getMessage(Dict.NO_ATTACHMENTS_FOUND, attachmentHolder
                     .getAttachmentHolderKind().name().toLowerCase())), new RowData(-1, -1,
                     new Margins(3)));
         }
@@ -165,9 +176,9 @@ public class AttachmentsSection extends SectionPanel
     private List<ColumnConfig> defineAttachmentVersionColumns()
     {
         final ArrayList<ColumnConfig> columns = new ArrayList<ColumnConfig>();
-        columns.add(createVersionFileName(messageProvider));
-        columns.add(ColumnConfigFactory.createRegistrationDateColumnConfig(messageProvider));
-        columns.add(ColumnConfigFactory.createRegistratorColumnConfig(messageProvider));
+        columns.add(createVersionFileName(viewContext));
+        columns.add(ColumnConfigFactory.createRegistrationDateColumnConfig(viewContext));
+        columns.add(ColumnConfigFactory.createRegistratorColumnConfig(viewContext));
         return columns;
     }
 
@@ -240,10 +251,10 @@ public class AttachmentsSection extends SectionPanel
     private List<ColumnConfig> defineAttachmentColumns()
     {
         final ArrayList<ColumnConfig> columns = new ArrayList<ColumnConfig>();
-        columns.add(createFileNameColumnConfig(messageProvider));
-        columns.add(ColumnConfigFactory.createRegistrationDateColumnConfig(messageProvider));
-        columns.add(ColumnConfigFactory.createRegistratorColumnConfig(messageProvider));
-        columns.add(createOlderVersionsColumnConfig(messageProvider));
+        columns.add(createFileNameColumnConfig(viewContext));
+        columns.add(ColumnConfigFactory.createRegistrationDateColumnConfig(viewContext));
+        columns.add(ColumnConfigFactory.createRegistratorColumnConfig(viewContext));
+        columns.add(createOlderVersionsColumnConfig(viewContext));
         return columns;
     }
 
@@ -330,5 +341,85 @@ public class AttachmentsSection extends SectionPanel
                 }
             });
         return column;
+    }
+
+    //
+    // auto-refresh
+    // 
+
+    public void setReloadDataAction(IDelegatedAction reloadDataAction)
+    {
+        this.reloadDataAction = reloadDataAction;
+    }
+
+    private void updateContents()
+    {
+        removeAll();
+        addContents();
+        layout();
+    }
+
+    private void setAttachmentHolder(T attachmentHolder)
+    {
+        this.attachmentHolder = attachmentHolder;
+    }
+
+    private void updateData(T newAttachmentHolder)
+    {
+        setAttachmentHolder(newAttachmentHolder);
+        updateContents();
+    }
+
+    private void reloadData()
+    {
+        assert reloadDataAction != null : "no reload action set";
+        reloadDataAction.execute();
+    }
+
+    public IDatabaseModificationObserver getDatabaseModificationObserver()
+    {
+        return new IDatabaseModificationObserver()
+            {
+
+                public DatabaseModificationKind[] getRelevantModifications()
+                {
+                    return new DatabaseModificationKind[]
+                        { DatabaseModificationKind.edit(ObjectKind.EXPERIMENT) };
+                }
+
+                public void update(Set<DatabaseModificationKind> observedModifications)
+                {
+                    reloadData();
+                }
+            };
+    }
+
+    public AbstractAsyncCallback<T> getReloadDataCallback()
+    {
+        return new ReloadDataCallback<T>(viewContext, this);
+    }
+
+    private static final class ReloadDataCallback<H extends IAttachmentHolder> extends
+            AbstractAsyncCallback<H>
+    {
+        private final AttachmentsSection<H> section;
+
+        private ReloadDataCallback(final IViewContext<?> viewContext,
+                final AttachmentsSection<H> section)
+        {
+            super(viewContext);
+            this.section = section;
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        /** This method triggers reloading of the {@link AttachmentsSection} data. */
+        @Override
+        protected final void process(final H result)
+        {
+            section.updateData(result);
+        }
     }
 }

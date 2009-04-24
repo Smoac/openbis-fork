@@ -285,6 +285,13 @@ var common = {
  //
  project_registration: "Project Registration",
   
+ // 
+ // Project Viewer
+ // 
+  
+ details_title: "{0} {1}",
+ edit_title: "Edit {0} {1}",
+   
  //
  // Data Set Search
  //

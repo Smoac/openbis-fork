@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationR
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
@@ -44,10 +45,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 public interface IGenericClientServiceAsync extends IClientServiceAsync
 {
     /**
+     * @see IGenericClientService#getSampleGenerationInfo(String)
+     */
+    public void getSampleGenerationInfo(final String sampleIdentifier,
+            AsyncCallback<SampleGeneration> asyncCallback);
+
+    /**
      * @see IGenericClientService#getSampleInfo(String)
      */
-    public void getSampleInfo(final String sampleIdentifier,
-            AsyncCallback<SampleGeneration> asyncCallback);
+    public void getSampleInfo(final String sampleIdentifier, AsyncCallback<Sample> asyncCallback);
 
     /**
      * @see IGenericClientService#registerSample(String, NewSample)

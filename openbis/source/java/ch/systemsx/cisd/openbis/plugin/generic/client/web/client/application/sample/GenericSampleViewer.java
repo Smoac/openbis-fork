@@ -108,6 +108,8 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
     private PropertyGrid propertyGrid;
 
+    private AttachmentsSection<Sample> attachmentsPanel;
+
     public static DatabaseModificationAwareComponent create(
             IViewContext<IGenericClientServiceAsync> viewContext, String sampleIdentifier)
     {
@@ -122,7 +124,12 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         setId(createId(sampleIdentifier));
         this.sampleIdentifier = sampleIdentifier;
         setHeading("Sample " + sampleIdentifier);
-        reloadData();
+        reloadAllData();
+    }
+
+    protected void reloadAllData()
+    {
+        reloadSampleGenerationData(new SampleGenerationInfoCallback(viewContext, this));
     }
 
     public static final String createId(String sampleIdentifier)
@@ -140,8 +147,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     {
         final LayoutContainer container = new LayoutContainer();
         final double defaultHeight = 1.0 / 3; // all child panels have the same height as default
-        final ContentPanel attachmentsPanel =
-                new AttachmentsSection(sampleGeneration.getGenerator(), viewContext);
+        attachmentsPanel = createAttachmentsSection(sampleGeneration.getGenerator());
         container.add(attachmentsPanel, new RowData(1, defaultHeight, new Margins(5, 5, 0, 0)));
         container.setLayout(new RowLayout());
         // 'Part of' samples
@@ -182,6 +188,20 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
             };
         return container;
+    }
+
+    private AttachmentsSection<Sample> createAttachmentsSection(final Sample sample)
+    {
+        final AttachmentsSection<Sample> attachmentsSection =
+                new AttachmentsSection<Sample>(sample, viewContext);
+        attachmentsSection.setReloadDataAction(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    reloadSampleData(attachmentsSection.getReloadDataCallback());
+                }
+            });
+        return attachmentsSection;
     }
 
     @Override
@@ -350,12 +370,19 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     }
 
     /**
-     * Load the sample information.
+     * Load the {@link SampleGeneration} information.
      */
-    protected void reloadData()
+    protected void reloadSampleGenerationData(AbstractAsyncCallback<SampleGeneration> callback)
     {
-        viewContext.getService().getSampleInfo(sampleIdentifier,
-                new SampleGenerationInfoCallback(viewContext, this));
+        viewContext.getService().getSampleGenerationInfo(sampleIdentifier, callback);
+    }
+
+    /**
+     * Load the {@link Sample} information.
+     */
+    protected void reloadSampleData(AbstractAsyncCallback<Sample> callback)
+    {
+        viewContext.getService().getSampleInfo(sampleIdentifier, callback);
     }
 
     /**
@@ -363,8 +390,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
      */
     private void reloadPropertyGridData()
     {
-        viewContext.getService().getSampleInfo(sampleIdentifier,
-                new SampleReloadPropertyGridInfoCallback(viewContext, this));
+        reloadSampleGenerationData(new ReloadPropertyGridCallback(viewContext, this));
     }
 
     //
@@ -450,12 +476,12 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         }
     }
 
-    public static final class SampleReloadPropertyGridInfoCallback extends
+    public static final class ReloadPropertyGridCallback extends
             AbstractAsyncCallback<SampleGeneration>
     {
         private final GenericSampleViewer genericSampleViewer;
 
-        private SampleReloadPropertyGridInfoCallback(
+        private ReloadPropertyGridCallback(
                 final IViewContext<IGenericClientServiceAsync> viewContext,
                 final GenericSampleViewer genericSampleViewer)
         {
@@ -472,6 +498,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         protected final void process(final SampleGeneration result)
         {
             genericSampleViewer.reloadProperties(result);
+
         }
     }
 
@@ -497,6 +524,10 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         if (propertyGrid != null)
         {
             observer.addObserver(new PropertyGridDatabaseModificationObserver());
+        }
+        if (attachmentsPanel != null)
+        {
+            observer.addObserver(attachmentsPanel.getDatabaseModificationObserver());
         }
         return observer;
     }

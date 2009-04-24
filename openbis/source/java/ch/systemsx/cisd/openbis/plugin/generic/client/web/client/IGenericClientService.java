@@ -49,10 +49,15 @@ public interface IGenericClientService extends IClientService
 {
 
     /**
-     * For given <var>sampleIdentifier</var> returns corresponding {@link Sample}.
+     * For given <var>sampleIdentifier</var> returns corresponding {@link SampleGeneration}.
      */
-    public SampleGeneration getSampleInfo(final String sampleIdentifier)
+    public SampleGeneration getSampleGenerationInfo(final String sampleIdentifier)
             throws UserFailureException;
+
+    /**
+     * For given <var>sample</var> returns corresponding {@link Sample}.
+     */
+    public Sample getSampleInfo(final String sampleIdentifier) throws UserFailureException;
 
     /**
      * Registers a new sample.

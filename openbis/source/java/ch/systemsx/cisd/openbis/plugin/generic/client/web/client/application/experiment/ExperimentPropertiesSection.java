@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -29,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPan
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
  * {@link SectionPanel} containing experiment properties.
@@ -53,17 +54,14 @@ public class ExperimentPropertiesSection extends SectionPanel
 
     private PropertyGrid grid;
 
-    private final IViewContext<?> viewContext;
-
-    private final IDelegatedAction reloadDataAction;
+    private final IViewContext<IGenericClientServiceAsync> viewContext;
 
     public ExperimentPropertiesSection(final Experiment experiment,
-            final IViewContext<?> viewContext, final IDelegatedAction reloadDataAction)
+            final IViewContext<IGenericClientServiceAsync> viewContext)
     {
         super("Experiment Properties");
         this.experiment = experiment;
         this.viewContext = viewContext;
-        this.reloadDataAction = reloadDataAction;
         this.grid = createPropertyGrid();
         add(grid);
     }
@@ -112,7 +110,11 @@ public class ExperimentPropertiesSection extends SectionPanel
         return properties;
     }
 
-    private final void reloadProperties()
+    //
+    // auto-refresh
+    // 
+
+    private final void updateProperties()
     {
         final Map<String, Object> properties = createProperties(viewContext);
         grid.resizeRows(properties.size());
@@ -124,13 +126,19 @@ public class ExperimentPropertiesSection extends SectionPanel
         this.experiment = experiment;
     }
 
-    public void reloadData(Experiment newExperiment)
+    private void updateData(Experiment newExperiment)
     {
         setExperiment(newExperiment);
-        reloadProperties();
+        updateProperties();
     }
 
-    public IDatabaseModificationObserver getModificationObserver()
+    private void reloadData()
+    {
+        viewContext.getService().getExperimentInfo(experiment.getIdentifier(),
+                new ExperimentInfoCallback(viewContext, this));
+    }
+
+    public IDatabaseModificationObserver getDatabaseModificationObserver()
     {
         return new IDatabaseModificationObserver()
             {
@@ -147,8 +155,31 @@ public class ExperimentPropertiesSection extends SectionPanel
 
                 public void update(Set<DatabaseModificationKind> observedModifications)
                 {
-                    reloadDataAction.execute();
+                    reloadData();
                 }
             };
+    }
+
+    private static final class ExperimentInfoCallback extends AbstractAsyncCallback<Experiment>
+    {
+        private final ExperimentPropertiesSection section;
+
+        private ExperimentInfoCallback(final IViewContext<?> viewContext,
+                final ExperimentPropertiesSection section)
+        {
+            super(viewContext);
+            this.section = section;
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        /** This method triggers reloading of the {@link ExperimentPropertiesSection} data. */
+        @Override
+        protected final void process(final Experiment result)
+        {
+            section.updateData(result);
+        }
     }
 }

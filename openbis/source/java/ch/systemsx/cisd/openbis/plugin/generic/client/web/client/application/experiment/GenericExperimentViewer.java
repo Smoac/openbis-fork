@@ -48,8 +48,6 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
 
     private final CompositeDatabaseModificationObserver modificationObserver;
 
-    private ExperimentPropertiesSection propertiesSection;
-
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> viewContext,
             final String experimentIdentifier)
@@ -67,7 +65,12 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
         this.experimentIdentifier = experimentIdentifier;
         this.modificationObserver = new CompositeDatabaseModificationObserver();
         setHeading("Experiment " + experimentIdentifier);
-        reloadData();
+        reloadAllData();
+    }
+
+    private void reloadAllData()
+    {
+        reloadData(new ExperimentInfoCallback(viewContext, this, modificationObserver));
     }
 
     public static String createId(String experimentIdentifier)
@@ -83,33 +86,30 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
     /**
      * Load the experiment information.
      */
-    protected void reloadData()
+    protected void reloadData(AbstractAsyncCallback<Experiment> callback)
     {
-        viewContext.getService().getExperimentInfo(experimentIdentifier,
-                new ExperimentInfoCallback(viewContext, this, modificationObserver));
-    }
-
-    /**
-     * Load the sample information for properties section.
-     */
-    private void reloadPropertiesSectionData()
-    {
-        viewContext.getService().getExperimentInfo(experimentIdentifier,
-                new ExperimentReloadPropertiesSectionInfoCallback(viewContext, this));
+        viewContext.getService().getExperimentInfo(experimentIdentifier, callback);
     }
 
     private ExperimentPropertiesSection createExperimentPropertiesSection(
             final Experiment experiment)
     {
-        propertiesSection =
-                new ExperimentPropertiesSection(experiment, viewContext, new IDelegatedAction()
-                    {
-                        public void execute()
-                        {
-                            reloadPropertiesSectionData();
-                        }
-                    });
-        return propertiesSection;
+        return new ExperimentPropertiesSection(experiment, viewContext);
+    }
+
+    private AttachmentsSection<Experiment> createAttachmentsSection(final Experiment experiment)
+    {
+        final AttachmentsSection<Experiment> attachmentsSection =
+                new AttachmentsSection<Experiment>(experiment, viewContext);
+        attachmentsSection.setReloadDataAction(new IDelegatedAction()
+            {
+
+                public void execute()
+                {
+                    reloadData(attachmentsSection.getReloadDataCallback());
+                }
+            });
+        return attachmentsSection;
     }
 
     public static final class ExperimentInfoCallback extends AbstractAsyncCallback<Experiment>
@@ -138,7 +138,6 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
          * </p>
          */
         @Override
-        // TODO 2009-04-01, Tomasz Pylak: add attachments auto-refresh
         protected final void process(final Experiment result)
         {
             genericExperimentViewer.removeAll();
@@ -147,9 +146,12 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
             ExperimentPropertiesSection propertiesSection =
                     genericExperimentViewer.createExperimentPropertiesSection(result);
             addSection(genericExperimentViewer, propertiesSection);
-            modificationObserver.addObserver(propertiesSection.getModificationObserver());
+            modificationObserver.addObserver(propertiesSection.getDatabaseModificationObserver());
 
-            addSection(genericExperimentViewer, new AttachmentsSection(result, viewContext));
+            AttachmentsSection<Experiment> attachmentsSection =
+                    genericExperimentViewer.createAttachmentsSection(result);
+            addSection(genericExperimentViewer, attachmentsSection);
+            modificationObserver.addObserver(attachmentsSection.getDatabaseModificationObserver());
 
             ExperimentSamplesSection sampleSection =
                     new ExperimentSamplesSection(result, viewContext);
@@ -165,28 +167,4 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
         }
     }
 
-    private static final class ExperimentReloadPropertiesSectionInfoCallback extends
-            AbstractAsyncCallback<Experiment>
-    {
-        private final GenericExperimentViewer genericExperimentViewer;
-
-        private ExperimentReloadPropertiesSectionInfoCallback(
-                final IViewContext<IGenericClientServiceAsync> viewContext,
-                final GenericExperimentViewer genericSampleViewer)
-        {
-            super(viewContext);
-            this.genericExperimentViewer = genericSampleViewer;
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        /** This method triggers reloading of the {@link ExperimentPropertiesSection} data. */
-        @Override
-        protected final void process(final Experiment result)
-        {
-            genericExperimentViewer.propertiesSection.reloadData(result);
-        }
-    }
 }

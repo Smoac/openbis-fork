@@ -148,13 +148,20 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                 {
                     public ITabItem create()
                     {
-                        return DefaultTabItem.createUnaware(new ProjectViewer(viewContext, project
-                                .getIdentifier()), false);
+                        final DatabaseModificationAwareComponent viewer =
+                                ProjectViewer.create(viewContext, project.getIdentifier());
+                        return DefaultTabItem.create(getDetailsTitle(), viewer, viewContext, false);
                     }
 
                     public String getId()
                     {
                         return ProjectViewer.createId(project.getIdentifier());
+                    }
+
+                    private String getDetailsTitle()
+                    {
+                        return viewContext.getMessage(Dict.DETAILS_TITLE, viewContext
+                                .getMessage(Dict.PROJECT), project.getIdentifier());
                     }
                 };
         } else

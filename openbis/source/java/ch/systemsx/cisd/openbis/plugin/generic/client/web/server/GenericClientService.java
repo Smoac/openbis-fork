@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AttachmentRegistrationHelper;
@@ -112,7 +113,7 @@ public final class GenericClientService extends AbstractClientService implements
     // IGenericClientService
     //
 
-    public final SampleGeneration getSampleInfo(final String sampleIdentifier)
+    public final SampleGeneration getSampleGenerationInfo(final String sampleIdentifier)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -126,6 +127,12 @@ public final class GenericClientService extends AbstractClientService implements
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
+    }
+
+    public final Sample getSampleInfo(final String sampleIdentifier)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return getSampleGenerationInfo(sampleIdentifier).getGenerator();
     }
 
     public final void registerSample(final String sessionKey, final NewSample newSample)
@@ -241,17 +248,15 @@ public final class GenericClientService extends AbstractClientService implements
                 final boolean isAutoGenerateCodes)
         {
             final BisTabFileLoader<NewSample> tabFileLoader =
-                    new BisTabFileLoader<NewSample>(
-                            new IParserObjectFactoryFactory<NewSample>()
-                                {
-                                    public final IParserObjectFactory<NewSample> createFactory(
-                                            final IPropertyMapper propertyMapper)
-                                            throws ParserException
-                                    {
-                                        return new NewSampleParserObjectFactory(sampleType,
-                                                propertyMapper, isAutoGenerateCodes == false);
-                                    }
-                                });
+                    new BisTabFileLoader<NewSample>(new IParserObjectFactoryFactory<NewSample>()
+                        {
+                            public final IParserObjectFactory<NewSample> createFactory(
+                                    final IPropertyMapper propertyMapper) throws ParserException
+                            {
+                                return new NewSampleParserObjectFactory(sampleType, propertyMapper,
+                                        isAutoGenerateCodes == false);
+                            }
+                        });
             return tabFileLoader;
         }
 
@@ -268,9 +273,8 @@ public final class GenericClientService extends AbstractClientService implements
                         tabFileLoader.load(new DelegatedReader(stringReader, multipartFile
                                 .getOriginalFilename()));
                 newSamples.addAll(loadedSamples);
-                results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(),
-                        String.format("%d sample(s) found and registered.", loadedSamples
-                                .size())));
+                results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
+                        .format("%d sample(s) found and registered.", loadedSamples.size())));
             }
             return results;
         }
@@ -285,8 +289,7 @@ public final class GenericClientService extends AbstractClientService implements
                         genericServer.generateCodes(sessionToken, "S", newSamples.size());
                 for (int i = 0; i < newSamples.size(); i++)
                 {
-                    newSamples.get(i)
-                            .setIdentifier(defaultGroupIdentifier + "/" + codes.get(i));
+                    newSamples.get(i).setIdentifier(defaultGroupIdentifier + "/" + codes.get(i));
                 }
             }
         }
