@@ -45,7 +45,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
@@ -61,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
@@ -86,7 +90,7 @@ public final class SampleBrowserGrid extends
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final SampleBrowserToolbar toolbar = new SampleBrowserToolbar(viewContext);
-        ICriteriaProvider<ListSampleCriteria> criteriaProvider = toolbar;
+        ISampleCriteriaProvider criteriaProvider = toolbar;
         final SampleBrowserGrid browserGrid =
                 new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, true, false);
         browserGrid.extendTopToolbar(toolbar);
@@ -99,20 +103,91 @@ public final class SampleBrowserGrid extends
     {
         final ListSampleCriteria criteria =
                 ListSampleCriteria.createForExperiment(experimentIdentifier);
-        ICriteriaProvider<ListSampleCriteria> criteriaProvider =
-                createUnrefreshableCriteriaProvider(criteria);
+        ISampleCriteriaProvider criteriaProvider =
+                new SampleCriteriaProvider(viewContext, criteria);
+        // we do not refresh the grid, the criteria provider will do this when property types will
+        // be loaded
+        boolean refreshAutomatically = false;
         final SampleBrowserGrid browserGrid =
-                new SampleBrowserGrid(viewContext, criteriaProvider, gridId, false, true);
+                new SampleBrowserGrid(viewContext, criteriaProvider, gridId, false,
+                        refreshAutomatically);
+        browserGrid.updateCriteriaProviderAndRefresh();
         browserGrid.setDisplayTypeIDGenerator(DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
         browserGrid.setEntityKindForDisplayTypeIDGeneration(EntityKind.SAMPLE);
         return browserGrid.asDisposableWithoutToolbar();
     }
 
+    public static interface ISampleCriteriaProvider extends ICriteriaProvider<ListSampleCriteria>,
+            IPropertyTypesProvider
+    {
+    }
+
+    public static interface IPropertyTypesProvider
+    {
+        public List<PropertyType> tryGetPropertyTypes();
+    }
+
+    /**
+     * Besides providing the static {@link ListSampleCriteria} this class provides all property
+     * types which should be used to build the grid property columns. It is also able to refresh
+     * these properties from the server.
+     */
+    private static class SampleCriteriaProvider implements ISampleCriteriaProvider
+    {
+        private final ICriteriaProvider<PropertyTypesCriteria> propertyTypeProvider;
+
+        private final ListSampleCriteria criteria;
+
+        public SampleCriteriaProvider(IViewContext<?> viewContext, ListSampleCriteria criteria)
+        {
+            this.propertyTypeProvider =
+                    new PropertyTypesCriteriaProvider(viewContext, EntityKind.SAMPLE);
+            this.criteria = criteria;
+        }
+
+        public List<PropertyType> tryGetPropertyTypes()
+        {
+            PropertyTypesCriteria propertyTypesCriteria = propertyTypeProvider.tryGetCriteria();
+            if (propertyTypesCriteria != null)
+            {
+                return propertyTypesCriteria.tryGetPropertyTypes();
+            } else
+            {
+                return null;
+            }
+        }
+
+        public ListSampleCriteria tryGetCriteria()
+        {
+            return criteria;
+        }
+
+        public void update(Set<DatabaseModificationKind> observedModifications,
+                IDataRefreshCallback dataRefreshCallback)
+        {
+            propertyTypeProvider.update(observedModifications, dataRefreshCallback);
+        }
+
+        public DatabaseModificationKind[] getRelevantModifications()
+        {
+            return propertyTypeProvider.getRelevantModifications();
+        }
+
+    }
+
+    // property types used in the previous refresh operation or null if it has not occurred yet
+    private List<PropertyType> previousPropertyTypes;
+
+    // provides property types which will be used to build property columns in the grid
+    private final IPropertyTypesProvider propertyTypesProvider;
+
     private SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
-            ICriteriaProvider<ListSampleCriteria> criteriaProvider, String gridId,
-            boolean showHeader, boolean refreshAutomatically)
+            ISampleCriteriaProvider criteriaProvider, String gridId, boolean showHeader,
+            boolean refreshAutomatically)
     {
         super(viewContext, gridId, showHeader, refreshAutomatically, criteriaProvider);
+        this.propertyTypesProvider = criteriaProvider;
+        this.previousPropertyTypes = null;
 
         registerLinkClickListenerFor(CommonSampleColDefKind.EXPERIMENT.id(),
                 new ICellListener<Sample>()
@@ -130,41 +205,6 @@ public final class SampleBrowserGrid extends
         setId(BROWSER_ID);
         setEntityKindForDisplayTypeIDGeneration(EntityKind.SAMPLE);
     }
-
-//    private static class ISampleCriteriaProvider implements ICriteriaProvider<ListSampleCriteria>
-//    {
-//        private final ICriteriaProvider<ListSampleCriteria> toolbarDelegator;
-//
-//        public ISampleCriteriaProvider(ICriteriaProvider<ListSampleCriteria> delegator)
-//        {
-//            this.toolbarDelegator = delegator;
-//        }
-//
-//        // provides all property types which should be used to build the grid property columns
-//        public List<PropertyType> tryGetPropertyTypes()
-//        {
-//            return toolbarDelegator.tryGetCriteria();
-//        }
-//
-//        // ----- ICriteriaProvider delegator
-//
-//        public DatabaseModificationKind[] getRelevantModifications()
-//        {
-//            return toolbarDelegator.getRelevantModifications();
-//        }
-//
-//        public ListSampleCriteria tryGetCriteria()
-//        {
-//            return toolbarDelegator.tryGetCriteria();
-//        }
-//
-//        public void update(Set<DatabaseModificationKind> observedModifications,
-//                IDataRefreshCallback dataRefreshCallback)
-//        {
-//            toolbarDelegator.update(observedModifications, dataRefreshCallback);
-//        }
-//
-//    }
 
     // adds show, show-details and invalidate buttons
     private void extendTopToolbar(SampleBrowserToolbar toolbar)
@@ -224,7 +264,9 @@ public final class SampleBrowserGrid extends
         {
             final IClientPlugin<SampleType, SampleTypePropertyType, SampleProperty, IIdentifierHolder, EditableSample> createClientPlugin =
                     clientPluginFactory.createClientPlugin(entityKind);
-            EditableSample editableEntity = new EditableSample(sample, criteria.getSampleType());
+            SampleType sampleType = criteria.getSampleType();
+            assert sampleType != null : "sample type is not provided";
+            EditableSample editableEntity = new EditableSample(sample, sampleType);
             tabView = createClientPlugin.createEntityEditor(editableEntity);
         } else
         {
@@ -244,11 +286,12 @@ public final class SampleBrowserGrid extends
 
     private static final String doCreateHeader(ListSampleCriteria criteria)
     {
+        SampleType sampleType = criteria.getSampleType();
         final StringBuilder builder = new StringBuilder("Samples");
-        if (criteria.getSampleType() != null)
+        if (sampleType != null)
         {
             builder.append(" of type ");
-            builder.append(criteria.getSampleType().getCode());
+            builder.append(sampleType.getCode());
         }
         if (criteria.isIncludeGroup())
         {
@@ -283,12 +326,29 @@ public final class SampleBrowserGrid extends
     protected ColumnDefsAndConfigs<Sample> createColumnsDefinition()
     {
         assert criteria != null : "criteria not set!";
-        return SampleModelFactory.createColumnsSchema(viewContext, criteria.getSampleType());
+        List<PropertyType> propertyTypes = propertyTypesProvider.tryGetPropertyTypes();
+        assert propertyTypes != null : "propertyTypes not set!";
+
+        return SampleModelFactory.createColumnsSchema(viewContext, propertyTypes, criteria
+                .getSampleType());
     }
 
     @Override
     protected boolean hasColumnsDefinitionChanged(ListSampleCriteria newCriteria)
     {
+        List<PropertyType> newPropertyTypes = propertyTypesProvider.tryGetPropertyTypes();
+        if (newPropertyTypes == null)
+        {
+            return false; // we are before the first auto-refresh
+        }
+        if (previousPropertyTypes == null)
+        {
+            return true; // first refresh
+        }
+        if (previousPropertyTypes.equals(newPropertyTypes) == false)
+        {
+            return true;
+        }
         EntityType newEntityType = newCriteria.getSampleType();
         EntityType prevEntityType = (criteria == null ? null : criteria.getSampleType());
         return hasColumnsDefinitionChanged(newEntityType, prevEntityType);

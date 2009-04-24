@@ -30,10 +30,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
- * {@link ModelData} for {@link Sample}. Allows to display static columns, properties and sample parents/containers.
+ * {@link ModelData} for {@link Sample}. Allows to display static columns, properties and sample
+ * parents/containers.
  * 
  * @author Izabela Adamczyk
  * @author Tomasz Pylak
@@ -41,9 +43,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 public final class SampleModelFactory
 {
     public static ColumnDefsAndConfigs<Sample> createColumnsSchema(
-            IMessageProvider messageProvider, SampleType selectedTypeOrNull)
+            IMessageProvider messageProvider, List<PropertyType> propertyTypes,
+            SampleType selectedTypeOrNull)
     {
-        return new SampleModelFactory().doCreateColumnsSchema(messageProvider, selectedTypeOrNull);
+        return new SampleModelFactory().doCreateColumnsSchema(messageProvider, propertyTypes,
+                selectedTypeOrNull);
     }
 
     public static BaseEntityModel<Sample> createModel(Sample entity)
@@ -74,12 +78,12 @@ public final class SampleModelFactory
     }
 
     private ColumnDefsAndConfigs<Sample> doCreateColumnsSchema(IMessageProvider messageProvider,
-            SampleType selectedTypeOrNull)
+            List<PropertyType> propertyTypes, SampleType selectedTypeOrNull)
     {
         assert messageProvider != null : "message provider needed to create table headers";
 
         ColumnDefsAndConfigs<Sample> columns =
-                entityGridModelFactory.createColumnsSchema(messageProvider, selectedTypeOrNull);
+                entityGridModelFactory.createColumnsSchema(messageProvider, propertyTypes);
         if (selectedTypeOrNull != null)
         {
             List<IColumnDefinitionUI<Sample>> parentColumnsSchema =

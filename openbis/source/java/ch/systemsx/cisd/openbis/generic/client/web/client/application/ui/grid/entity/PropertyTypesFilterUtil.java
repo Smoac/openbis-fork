@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
@@ -98,5 +100,17 @@ public class PropertyTypesFilterUtil
             }
         }
         return result;
+    }
+
+    public static List<PropertyType> extractPropertyTypes(EntityType selectedType)
+    {
+        List<? extends EntityTypePropertyType<?>> entityTypePropertyTypes =
+                selectedType.getAssignedPropertyTypes();
+        List<PropertyType> propertyTypes = new ArrayList<PropertyType>();
+        for (EntityTypePropertyType<?> etpt : entityTypePropertyTypes)
+        {
+            propertyTypes.add(etpt.getPropertyType());
+        }
+        return propertyTypes;
     }
 }

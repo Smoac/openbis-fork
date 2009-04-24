@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -295,10 +294,7 @@ public abstract class AbstractExternalDataGrid
                 viewContext, displayOnlyDatasetProperties));
         setId(browserId);
         setEntityKindForDisplayTypeIDGeneration(EntityKind.DATA_SET);
-        // We do not refresh the grid automatically, but we wait until all dataset property types
-        // will be fetched from the server (criteria provider will be updated), to set the available
-        // grid columns.
-        super.updateCriteria(new HashSet<DatabaseModificationKind>(), true);
+        super.updateCriteriaProviderAndRefresh();
 
         registerCellClickListenerFor(CommonExternalDataColDefKind.CODE.id(),
                 new ICellListener<ExternalData>()
@@ -329,7 +325,7 @@ public abstract class AbstractExternalDataGrid
         allowMultipleSelection();
     }
 
-    private static PropertyTypesCriteriaProvider createCriteriaProvider(
+    private static ICriteriaProvider<PropertyTypesCriteria> createCriteriaProvider(
             final IViewContext<ICommonClientServiceAsync> viewContext,
             boolean displayOnlyDatasetProperties)
     {

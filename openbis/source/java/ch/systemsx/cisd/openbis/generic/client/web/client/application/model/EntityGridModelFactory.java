@@ -24,11 +24,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
@@ -79,7 +79,7 @@ public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
         List<PropertyType> propertyTypesOrNull = null;
         if (selectedTypeOrNull != null)
         {
-            propertyTypesOrNull = extractPropertyTypes(selectedTypeOrNull);
+            propertyTypesOrNull = PropertyTypesFilterUtil.extractPropertyTypes(selectedTypeOrNull);
         }
         return createColumnsSchema(messageProvider, propertyTypesOrNull);
     }
@@ -121,18 +121,6 @@ public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
             list.add(new EntityPropertyColDef<T>(propertyType, true));
         }
         return list;
-    }
-
-    private static List<PropertyType> extractPropertyTypes(EntityType selectedType)
-    {
-        List<? extends EntityTypePropertyType<?>> entityTypePropertyTypes =
-                selectedType.getAssignedPropertyTypes();
-        List<PropertyType> propertyTypes = new ArrayList<PropertyType>();
-        for (EntityTypePropertyType<?> etpt : entityTypePropertyTypes)
-        {
-            propertyTypes.add(etpt.getPropertyType());
-        }
-        return propertyTypes;
     }
 
     private static <T> ArrayList<IColumnDefinitionUI<T>> createColDefList()

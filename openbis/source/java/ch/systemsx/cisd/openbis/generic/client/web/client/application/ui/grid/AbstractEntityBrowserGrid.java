@@ -145,18 +145,26 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
                 SetUtils.containsAny(observedModifications, getGridRelevantModifications());
         // we refresh the whole grid after the entity types are refreshed. In this way we are able
         // to take into account new property types which constitute new columns.
-        updateCriteria(observedModifications, shouldRefreshGridAfterwards);
+        criteriaProvider.update(observedModifications,
+                createRefreshGridCallback(shouldRefreshGridAfterwards));
     }
 
-    protected void updateCriteria(Set<DatabaseModificationKind> observedModifications,
-            final boolean shouldRefreshGridAfterwards)
+    /**
+     * Initializes criteria and refreshes the grid when criteria are fetched. <br>
+     * Note that in this way we do not refresh the grid automatically, but we wait until all the
+     * property types will be fetched from the server (criteria provider will be updated), to set
+     * the available grid columns.
+     */
+    protected void updateCriteriaProviderAndRefresh()
     {
-        IDataRefreshCallback entityTypeRefreshCallback =
-                createRefreshGridCallback(shouldRefreshGridAfterwards);
-        criteriaProvider.update(observedModifications, entityTypeRefreshCallback);
+        boolean shouldRefreshGridAfterwards = true;
+        HashSet<DatabaseModificationKind> observedModifications =
+                new HashSet<DatabaseModificationKind>();
+        criteriaProvider.update(observedModifications,
+                createRefreshGridCallback(shouldRefreshGridAfterwards));
     }
 
-    protected final IDataRefreshCallback createRefreshGridCallback(final boolean shouldRefreshGrid)
+    private final IDataRefreshCallback createRefreshGridCallback(final boolean shouldRefreshGrid)
     {
         IDataRefreshCallback entityTypeRefreshCallback = new IDataRefreshCallback()
             {

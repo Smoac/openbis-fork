@@ -14,7 +14,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
-/** The provider which is able to load and reload property types */
+/**
+ * The provider which is able to load and reload property types. When property types are loaded the
+ * specified callback is executed.<br>
+ */
 public class PropertyTypesCriteriaProvider implements ICriteriaProvider<PropertyTypesCriteria>
 {
     private final IViewContext<?> viewContext;

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
 
+import java.util.List;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
@@ -31,11 +32,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid.ICriteriaProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid.ISampleCriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
@@ -45,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * @author Izabela Adamczyk
  * @author Christian Ribeaud
  */
-final class SampleBrowserToolbar extends ToolBar implements ICriteriaProvider<ListSampleCriteria>
+final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvider
 {
     public static final String ID = "sample-browser-toolbar";
 
@@ -70,7 +73,7 @@ final class SampleBrowserToolbar extends ToolBar implements ICriteriaProvider<Li
 
     public ListSampleCriteria tryGetCriteria()
     {
-        final SampleType selectedType = selectSampleTypeCombo.tryGetSelectedSampleType();
+        final SampleType selectedType = tryGetSelectedSampleType();
         if (selectedType == null)
         {
             return null;
@@ -89,6 +92,21 @@ final class SampleBrowserToolbar extends ToolBar implements ICriteriaProvider<Li
         criteria.setIncludeGroup(includeGroup);
         criteria.setIncludeInstance(includeInstance);
         return criteria;
+    }
+
+    private SampleType tryGetSelectedSampleType()
+    {
+        return selectSampleTypeCombo.tryGetSelectedSampleType();
+    }
+
+    public List<PropertyType> tryGetPropertyTypes()
+    {
+        final SampleType selectedType = tryGetSelectedSampleType();
+        if (selectedType == null)
+        {
+            return null;
+        }
+        return PropertyTypesFilterUtil.extractPropertyTypes(selectedType);
     }
 
     public void setCriteriaChangedListener(SelectionChangedListener<?> criteriaChangedListener)

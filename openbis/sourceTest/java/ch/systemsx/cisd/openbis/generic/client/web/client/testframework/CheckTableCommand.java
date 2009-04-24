@@ -267,7 +267,6 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
             Object expectedColumnValue = wrapNull(entry.getValue());
             if (TestUtil.isEqual(rowColumnValue, expectedColumnValue) == false)
             {
-                rowColumnValue = row.get(key);
                 return false;
             }
         }
