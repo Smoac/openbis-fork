@@ -196,15 +196,17 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         K dataKey = resultConfig.getResultSetKey();
         if (dataKey == null)
         {
-            operationLog.debug("Unknown result set key: retrieving the data.");
+            debug("Unknown result set key: retrieving the data.");
             dataKey = resultSetKeyProvider.createKey();
             data = dataProvider.getOriginalData();
             results.put(dataKey, data);
         } else
         {
-            operationLog.debug(String.format("Data for result set key '%s' already cached.",
-                    dataKey));
+            debug(String.format("Data for result set key '%s' already cached.", dataKey));
             data = cast(results.get(dataKey));
+            if (data == null) {
+                debug(String.format("Invalid result set key '%s'.", dataKey));
+            }
         }
         assert data != null : "Unspecified data";
         data = filterData(data, resultConfig.getFilterInfos());
@@ -222,12 +224,15 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         assert resultSetKey != null : "Unspecified data key holder.";
         if (results.remove(resultSetKey) != null)
         {
-            operationLog.debug(String.format("Result set for key '%s' has been removed.",
-                    resultSetKey));
+            debug(String.format("Result set for key '%s' has been removed.", resultSetKey));
         } else
         {
-            operationLog.debug(String.format("No result set for key '%s' could be found.",
-                    resultSetKey));
+            debug(String.format("No result set for key '%s' could be found.", resultSetKey));
         }
+    }
+
+    private void debug(String msg)
+    {
+        operationLog.debug(msg);
     }
 }
