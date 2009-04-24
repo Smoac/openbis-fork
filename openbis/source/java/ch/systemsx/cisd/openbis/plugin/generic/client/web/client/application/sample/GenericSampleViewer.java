@@ -207,7 +207,10 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     @Override
     protected void onDetach()
     {
-        disposableBrowser.dispose();
+        if (disposableBrowser != null)
+        {
+            disposableBrowser.dispose();
+        }
         super.onDetach();
     }
 
@@ -357,7 +360,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         return propertyGrid;
     }
 
-    public final void reloadProperties(final SampleGeneration sampleGeneration)
+    public final void updateProperties(final SampleGeneration sampleGeneration)
     {
         final Map<String, Object> properties = createProperties(viewContext, sampleGeneration);
         propertyGrid.resizeRows(properties.size());
@@ -365,6 +368,11 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     }
 
     private final void loadStores()
+    {
+        loadComponentsStore();
+    }
+
+    private final void loadComponentsStore()
     {
         partOfSamplesGrid.getStore().getLoader().load();
     }
@@ -391,6 +399,14 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     private void reloadPropertyGridData()
     {
         reloadSampleGenerationData(new ReloadPropertyGridCallback(viewContext, this));
+    }
+
+    /**
+     * Load the sample information for components panel.
+     */
+    private void reloadComponentsPanelData()
+    {
+        loadComponentsStore();
     }
 
     //
@@ -497,7 +513,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         @Override
         protected final void process(final SampleGeneration result)
         {
-            genericSampleViewer.reloadProperties(result);
+            genericSampleViewer.updateProperties(result);
 
         }
     }
@@ -512,7 +528,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         createDatabaseModificationObserver().update(observedModifications);
     }
 
-    // TODO 2009-04-01, Tomasz Pylak: add auto-refresh for contained samples
     private CompositeDatabaseModificationObserver createDatabaseModificationObserver()
     {
         CompositeDatabaseModificationObserver observer =
@@ -528,6 +543,10 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         if (attachmentsPanel != null)
         {
             observer.addObserver(attachmentsPanel.getDatabaseModificationObserver());
+        }
+        if (partOfSamplesGrid != null)
+        {
+            observer.addObserver(new ComponentsPanelDatabaseModificationObserver());
         }
         return observer;
     }
@@ -548,6 +567,22 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         public void update(Set<DatabaseModificationKind> observedModifications)
         {
             reloadPropertyGridData();
+        }
+    }
+
+    private class ComponentsPanelDatabaseModificationObserver implements
+            IDatabaseModificationObserver
+    {
+
+        public DatabaseModificationKind[] getRelevantModifications()
+        {
+            return new DatabaseModificationKind[]
+                { DatabaseModificationKind.createOrDelete(ObjectKind.SAMPLE), };
+        }
+
+        public void update(Set<DatabaseModificationKind> observedModifications)
+        {
+            reloadComponentsPanelData();
         }
     }
 }
