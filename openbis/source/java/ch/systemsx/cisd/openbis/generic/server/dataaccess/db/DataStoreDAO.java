@@ -31,13 +31,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
  * Hibernate-based implementation of {@link IDataStoreDAO}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class DataStoreDAO extends AbstractDAO implements IDataStoreDAO
 {
     private static final Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, DataStoreDAO.class);
+            LogFactory.getLogger(LogCategory.OPERATION, DataStoreDAO.class);
 
     public DataStoreDAO(SessionFactory sessionFactory, DatabaseInstancePE databaseInstance)
     {
@@ -47,8 +47,10 @@ public class DataStoreDAO extends AbstractDAO implements IDataStoreDAO
     public void createOrUpdateDataStore(DataStorePE dataStore)
     {
         assert dataStore != null : "Unspecified data store";
-        
+
         HibernateTemplate template = getHibernateTemplate();
+
+        dataStore.setCode(CodeConverter.tryToDatabase(dataStore.getCode()));
         template.saveOrUpdate(dataStore);
         template.flush();
         if (operationLog.isInfoEnabled())
@@ -60,7 +62,7 @@ public class DataStoreDAO extends AbstractDAO implements IDataStoreDAO
     public DataStorePE tryToFindDataStoreByCode(String dataStoreCode)
     {
         assert dataStoreCode != null : "Unspecified data store code.";
-        
+
         final Criteria criteria = getSession().createCriteria(DataStorePE.class);
         criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(dataStoreCode)));
         return (DataStorePE) criteria.uniqueResult();
