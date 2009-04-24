@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.SetUt
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
@@ -109,7 +110,7 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
      * </p>
      */
     @Override
-    protected final void refresh()
+    protected void refresh()
     {
         K newCriteria = criteriaProvider.tryGetCriteria();
         if (newCriteria == null)
@@ -140,10 +141,23 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
 
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
-        final boolean shouldRefreshGrid =
+        final boolean shouldRefreshGridAfterwards =
                 SetUtils.containsAny(observedModifications, getGridRelevantModifications());
         // we refresh the whole grid after the entity types are refreshed. In this way we are able
         // to take into account new property types which constitute new columns.
+        updateCriteria(observedModifications, shouldRefreshGridAfterwards);
+    }
+
+    protected void updateCriteria(Set<DatabaseModificationKind> observedModifications,
+            final boolean shouldRefreshGridAfterwards)
+    {
+        IDataRefreshCallback entityTypeRefreshCallback =
+                createRefreshGridCallback(shouldRefreshGridAfterwards);
+        criteriaProvider.update(observedModifications, entityTypeRefreshCallback);
+    }
+
+    protected final IDataRefreshCallback createRefreshGridCallback(final boolean shouldRefreshGrid)
+    {
         IDataRefreshCallback entityTypeRefreshCallback = new IDataRefreshCallback()
             {
                 public void postRefresh(boolean wasSuccessful)
@@ -154,7 +168,7 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
                     }
                 }
             };
-        criteriaProvider.update(observedModifications, entityTypeRefreshCallback);
+        return entityTypeRefreshCallback;
     }
 
     protected final void copyPagingConfig(DefaultResultSetConfig<String, T> resultSetConfig)
@@ -198,5 +212,26 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
                     postRefreshCallback.postRefresh(true);
                 }
             };
+    }
+
+    protected static boolean hasColumnsDefinitionChanged(EntityType newEntityType,
+            EntityType prevEntityType)
+    {
+        if (newEntityType == null)
+        {
+            return false; // nothing chosen
+        }
+        if (prevEntityType == null)
+        {
+            return true; // first selection
+        }
+        return newEntityType.equals(prevEntityType) == false
+                || propertiesEqual(newEntityType, prevEntityType) == false;
+    }
+
+    private static boolean propertiesEqual(EntityType entityType1, EntityType entityType2)
+    {
+        return entityType1.getAssignedPropertyTypes()
+                .equals(entityType2.getAssignedPropertyTypes());
     }
 }

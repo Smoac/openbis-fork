@@ -57,12 +57,20 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public final class ExternalDataTable extends AbstractExternalDataBusinessObject implements
         IExternalDataTable
 {
-    @Private static final String UPLOAD_COMMENT_TEXT = "Uploaded zip file contains the following data sets:";
-    @Private static final String NEW_LINE = "\n";
-    @Private static final String AND_MORE_TEMPLATE = "and %d more.";
-    @Private static final String DELETION_DESCRIPTION = "single deletion";
-    
-    @Private static String createUploadComment(List<ExternalDataPE> dataSets)
+    @Private
+    static final String UPLOAD_COMMENT_TEXT = "Uploaded zip file contains the following data sets:";
+
+    @Private
+    static final String NEW_LINE = "\n";
+
+    @Private
+    static final String AND_MORE_TEMPLATE = "and %d more.";
+
+    @Private
+    static final String DELETION_DESCRIPTION = "single deletion";
+
+    @Private
+    static String createUploadComment(List<ExternalDataPE> dataSets)
     {
         StringBuilder builder = new StringBuilder(UPLOAD_COMMENT_TEXT);
         for (int i = 0, n = dataSets.size(); i < n; i++)
@@ -85,7 +93,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         }
         return builder.toString();
     }
-    
+
     private final IDataStoreServiceFactory dssFactory;
 
     private List<ExternalDataPE> externalData;
@@ -136,6 +144,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         for (ExternalDataPE externalDataPE : externalData)
         {
             enrichWithParentsAndExperiment(externalDataPE);
+            HibernateUtils.initialize(externalDataPE.getProperties());
         }
     }
 
@@ -156,6 +165,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             {
                 ExternalDataPE externalDataPE = (ExternalDataPE) dataSet;
                 HibernateUtils.initialize(dataSet.getParents());
+                HibernateUtils.initialize(dataSet.getProperties());
                 enrichWithParentsAndExperiment(externalDataPE);
                 externalData.add(externalDataPE);
             }
@@ -173,7 +183,8 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             List<ExternalDataPE> dataSets = entry.getValue();
             for (ExternalDataPE dataSet : dataSets)
             {
-                externalDataDAO.markAsDeleted(dataSet, session.tryGetPerson(), DELETION_DESCRIPTION, reason);
+                externalDataDAO.markAsDeleted(dataSet, session.tryGetPerson(),
+                        DELETION_DESCRIPTION, reason);
             }
             deleteDataSets(dataStore, getLocations(dataSets));
         }
@@ -235,10 +246,11 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                             + unknownDataSets);
         }
     }
-    
+
     private Map<DataStorePE, List<ExternalDataPE>> groupDataSetsByDataStores()
     {
-        Map<DataStorePE, List<ExternalDataPE>> map = new LinkedHashMap<DataStorePE, List<ExternalDataPE>>();
+        Map<DataStorePE, List<ExternalDataPE>> map =
+                new LinkedHashMap<DataStorePE, List<ExternalDataPE>>();
         for (ExternalDataPE dataSet : externalData)
         {
             DataStorePE dataStore = dataSet.getDataStore();
@@ -272,14 +284,14 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                 HibernateTransformer.HIBERNATE_BEAN_REPLICATOR.get().copy(dataSets);
         service.uploadDataSetsToCIFEX(sessionToken, cleanDataSets, context);
     }
-    
+
     private void deleteDataSets(DataStorePE dataStore, List<String> locations)
     {
         IDataStoreService service = dssFactory.create(dataStore.getRemoteUrl());
         String sessionToken = dataStore.getSessionToken();
         service.deleteDataSets(sessionToken, locations);
     }
-    
+
     private List<String> getKnownDataSets(DataStorePE dataStore, List<String> locations)
     {
         IDataStoreService service = dssFactory.create(dataStore.getRemoteUrl());

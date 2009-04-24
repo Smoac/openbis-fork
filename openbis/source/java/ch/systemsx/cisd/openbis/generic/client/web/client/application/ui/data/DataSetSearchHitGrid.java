@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -65,13 +66,11 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
         return grid.asDisposableWithToolbar(toolbar);
     }
 
-    private DataSetSearchCriteria criteria;
-
-    private List<PropertyType> availablePropertyTypes;
+    private DataSetSearchCriteria chosenSearchCriteria;
 
     private DataSetSearchHitGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, BROWSER_ID);
+        super(viewContext, BROWSER_ID, false);
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.DATA_SET_SEARCH_RESULT_GRID);
     }
 
@@ -87,17 +86,20 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
     protected void listEntities(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
             AbstractAsyncCallback<ResultSet<ExternalData>> callback)
     {
-        viewContext.getService().searchForDataSets(criteria, resultSetConfig, callback);
+        viewContext.getService().searchForDataSets(chosenSearchCriteria, resultSetConfig, callback);
     }
 
     public void refresh(DataSetSearchCriteria newCriteria, List<PropertyType> propertyTypes)
     {
-        criteria = newCriteria;
-        availablePropertyTypes = propertyTypes;
+        chosenSearchCriteria = newCriteria;
+        if (criteria != null)
+        {
+            criteria.setPropertyTypes(propertyTypes);
+        }
         refresh();
     }
 
-    // Will not be called.
+    // Will not be called, we override the model and column definitions creation methods.
     @Override
     protected IColumnDefinitionKind<ExternalData>[] getStaticColumnsDefinition()
     {
@@ -107,11 +109,11 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
     @Override
     protected void refresh()
     {
-        if (criteria == null)
+        if (chosenSearchCriteria == null)
         {
             return;
         }
-        super.refresh(null, false);
+        super.refresh();
     }
 
     @Override
@@ -123,16 +125,17 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
     @Override
     protected ColumnDefsAndConfigs<ExternalData> createColumnsDefinition()
     {
-        return DataSetSearchHitModel.createColumnsSchema(viewContext, availablePropertyTypes);
+        List<PropertyType> propertyTypes = criteria == null ? null : criteria.tryGetPropertyTypes();
+        return DataSetSearchHitModel.createColumnsSchema(viewContext, propertyTypes);
     }
 
-    public DatabaseModificationKind[] getRelevantModifications()
+    @Override
+    public Set<DatabaseModificationKind> getGridRelevantModifications()
     {
-        return new DatabaseModificationKind[]
-            { createOrDelete(ObjectKind.DATA_SET), edit(ObjectKind.EXPERIMENT),
-                    edit(ObjectKind.SAMPLE),
-                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                    createOrDelete(ObjectKind.VOCABULARY_TERM) };
+        Set<DatabaseModificationKind> relevantMods = super.getGridRelevantModifications();
+        relevantMods.add(edit(ObjectKind.EXPERIMENT));
+        relevantMods.add(edit(ObjectKind.SAMPLE));
+        relevantMods.add(createOrDelete(ObjectKind.VOCABULARY_TERM));
+        return relevantMods;
     }
-
 }

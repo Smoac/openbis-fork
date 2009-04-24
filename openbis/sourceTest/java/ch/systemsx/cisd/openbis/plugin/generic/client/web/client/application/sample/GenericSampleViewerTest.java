@@ -32,7 +32,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExternalDataModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
@@ -119,7 +118,6 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                     return checkSample.validOnSucess(callbackObjects, result);
                 }
 
-                @SuppressWarnings("unchecked")
                 public void execute()
                 {
                     checkSample.execute();
@@ -133,7 +131,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                                     + CELL_PLATE_EXAMPLE + DATA_POSTFIX
                                     + SampleDataSetBrowser.GRID_POSTFIX);
                     assertTrue(widget instanceof Grid);
-                    final Grid<ExternalDataModel> table = (Grid<ExternalDataModel>) widget;
+                    final Grid<?> table = (Grid<?>) widget;
                     final GridEvent gridEvent = new GridEvent(table);
                     gridEvent.rowIndex = 0;
                     gridEvent.colIndex = 0;

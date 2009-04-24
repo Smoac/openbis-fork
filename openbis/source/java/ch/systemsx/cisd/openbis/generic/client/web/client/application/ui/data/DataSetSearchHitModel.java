@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.data.ModelData;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
@@ -50,8 +52,14 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
     public DataSetSearchHitModel(final ExternalData entity)
     {
         super(entity, createColumnsSchema(entity));
+        renderCodeAsLink(this);
+    }
+
+    private static void renderCodeAsLink(ModelData model)
+    {
         String columnID = DataSetSearchHitColDefKind.CODE.id();
-        set(columnID, LinkRenderer.renderAsLink(String.valueOf(get(columnID))));
+        String originalValue = String.valueOf(model.get(columnID));
+        model.set(columnID, LinkRenderer.renderAsLink(originalValue));
     }
 
     // here we create the columns definition having just one table row. We need them only to render
@@ -127,23 +135,30 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
     }
 
     public static ColumnDefsAndConfigs<ExternalData> createColumnsSchema(
-            IMessageProvider messageProvider, List<PropertyType> mergedPropertyTypes)
+            IMessageProvider messageProvider, List<PropertyType> mergedPropertyTypesOrNull)
     {
         List<IColumnDefinitionUI<ExternalData>> commonColumnsSchema =
                 createCommonColumnsSchema(messageProvider);
         ColumnDefsAndConfigs<ExternalData> columns =
                 ColumnDefsAndConfigs.create(commonColumnsSchema);
 
-        List<PropertyType> datasetProperties = filterDataSetPropertyTypes(mergedPropertyTypes);
-        columns.addColumns(createDatasetPropertyTypeColDefs(datasetProperties));
+        if (mergedPropertyTypesOrNull != null)
+        {
+            List<PropertyType> datasetProperties =
+                    DataSetSearchPropertiesUtil
+                            .filterDataSetPropertyTypes(mergedPropertyTypesOrNull);
+            columns.addColumns(createDatasetPropertyTypeColDefs(datasetProperties));
 
-        List<PropertyType> experimentProperties =
-                filterExperimentPropertyTypes(mergedPropertyTypes);
-        columns.addColumns(createExperimentPropertyTypeColDefs(experimentProperties));
+            List<PropertyType> experimentProperties =
+                    DataSetSearchPropertiesUtil
+                            .filterExperimentPropertyTypes(mergedPropertyTypesOrNull);
+            columns.addColumns(createExperimentPropertyTypeColDefs(experimentProperties));
 
-        List<PropertyType> sampleProperties = filterSamplePropertyTypes(mergedPropertyTypes);
-        columns.addColumns(createSamplePropertyTypeColDefs(sampleProperties));
-
+            List<PropertyType> sampleProperties =
+                    DataSetSearchPropertiesUtil
+                            .filterSamplePropertyTypes(mergedPropertyTypesOrNull);
+            columns.addColumns(createSamplePropertyTypeColDefs(sampleProperties));
+        }
         return columns;
     }
 
@@ -172,46 +187,5 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
             IMessageProvider msgProviderOrNull)
     {
         return createColumnsDefinition(DataSetSearchHitColDefKind.values(), msgProviderOrNull);
-    }
-
-    // returns property types which are assigned to at least one sample type
-    public static List<PropertyType> filterSamplePropertyTypes(List<PropertyType> propertyTypes)
-    {
-        List<PropertyType> result = new ArrayList<PropertyType>();
-        for (final PropertyType st : propertyTypes)
-        {
-            if (st.getSampleTypePropertyTypes().size() > 0)
-            {
-                result.add(st);
-            }
-        }
-        return result;
-    }
-
-    // returns property types which are assigned to at least one experiment type
-    public static List<PropertyType> filterExperimentPropertyTypes(List<PropertyType> propertyTypes)
-    {
-        List<PropertyType> result = new ArrayList<PropertyType>();
-        for (final PropertyType st : propertyTypes)
-        {
-            if (st.getExperimentTypePropertyTypes().size() > 0)
-            {
-                result.add(st);
-            }
-        }
-        return result;
-    }
-
-    public static List<PropertyType> filterDataSetPropertyTypes(List<PropertyType> propertyTypes)
-    {
-        List<PropertyType> result = new ArrayList<PropertyType>();
-        for (final PropertyType st : propertyTypes)
-        {
-            if (st.getDataSetTypePropertyTypes().size() > 0)
-            {
-                result.add(st);
-            }
-        }
-        return result;
     }
 }

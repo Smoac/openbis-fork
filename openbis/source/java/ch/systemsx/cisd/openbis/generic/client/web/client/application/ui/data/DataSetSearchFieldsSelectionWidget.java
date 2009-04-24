@@ -218,7 +218,7 @@ public final class DataSetSearchFieldsSelectionWidget extends
             final List<DataSetSearchFieldComboModel> result, List<PropertyType> propertyTypes)
     {
         List<PropertyType> relevantPropertyTypes =
-                DataSetSearchHitModel.filterSamplePropertyTypes(propertyTypes);
+                DataSetSearchPropertiesUtil.filterSamplePropertyTypes(propertyTypes);
         return addPropertyTypes(result, relevantPropertyTypes, EntityKind.SAMPLE);
     }
 
@@ -226,7 +226,7 @@ public final class DataSetSearchFieldsSelectionWidget extends
             final List<DataSetSearchFieldComboModel> result, List<PropertyType> propertyTypes)
     {
         List<PropertyType> relevantPropertyTypes =
-                DataSetSearchHitModel.filterDataSetPropertyTypes(propertyTypes);
+                DataSetSearchPropertiesUtil.filterDataSetPropertyTypes(propertyTypes);
         return addPropertyTypes(result, relevantPropertyTypes, EntityKind.DATA_SET);
     }
 
@@ -234,7 +234,7 @@ public final class DataSetSearchFieldsSelectionWidget extends
             final List<DataSetSearchFieldComboModel> result, List<PropertyType> propertyTypes)
     {
         List<PropertyType> relevantPropertyTypes =
-                DataSetSearchHitModel.filterExperimentPropertyTypes(propertyTypes);
+                DataSetSearchPropertiesUtil.filterExperimentPropertyTypes(propertyTypes);
         return addPropertyTypes(result, relevantPropertyTypes, EntityKind.EXPERIMENT);
     }
 

@@ -1,0 +1,90 @@
+/*
+ * Copyright 2009 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+
+/**
+ * @author Tomasz Pylak
+ */
+class DataSetSearchPropertiesUtil
+{
+    /**
+     * returns property types which are relevant to datasets (dataset, experiment or sample
+     * properties)
+     */
+    public static List<PropertyType> filterRelevantToDatasetPropertyTypes(
+            List<PropertyType> propertyTypes)
+    {
+        List<PropertyType> result = new ArrayList<PropertyType>();
+        for (final PropertyType st : propertyTypes)
+        {
+            if (st.getSampleTypePropertyTypes().size() > 0
+                    || st.getExperimentTypePropertyTypes().size() > 0
+                    || st.getDataSetTypePropertyTypes().size() > 0)
+            {
+                result.add(st);
+            }
+        }
+        return result;
+    }
+
+    /** returns property types which are assigned to at least one sample type */
+    public static List<PropertyType> filterSamplePropertyTypes(List<PropertyType> propertyTypes)
+    {
+        List<PropertyType> result = new ArrayList<PropertyType>();
+        for (final PropertyType st : propertyTypes)
+        {
+            if (st.getSampleTypePropertyTypes().size() > 0)
+            {
+                result.add(st);
+            }
+        }
+        return result;
+    }
+
+    /** returns property types which are assigned to at least one experiment type */
+    public static List<PropertyType> filterExperimentPropertyTypes(List<PropertyType> propertyTypes)
+    {
+        List<PropertyType> result = new ArrayList<PropertyType>();
+        for (final PropertyType st : propertyTypes)
+        {
+            if (st.getExperimentTypePropertyTypes().size() > 0)
+            {
+                result.add(st);
+            }
+        }
+        return result;
+    }
+
+    /** returns property types which are assigned to at least one dataset type */
+    public static List<PropertyType> filterDataSetPropertyTypes(List<PropertyType> propertyTypes)
+    {
+        List<PropertyType> result = new ArrayList<PropertyType>();
+        for (final PropertyType st : propertyTypes)
+        {
+            if (st.getDataSetTypePropertyTypes().size() > 0)
+            {
+                result.add(st);
+            }
+        }
+        return result;
+    }
+}

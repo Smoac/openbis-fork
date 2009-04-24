@@ -17,8 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.KeyListener;
@@ -36,29 +39,144 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExternalDataModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.EntityGridModelFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid<ExternalData>
+public abstract class AbstractExternalDataGrid
+        extends
+        AbstractEntityBrowserGrid<ExternalData, BaseEntityModel<ExternalData>, AbstractExternalDataGrid.DatasetListCriteria>
 {
     public static final String GRID_POSTFIX = "-grid";
-    
+
+    /**
+     * We have no criteria to pre-filter the grid besides the standard paging tab controls. However
+     * to enable auto-refresh when property types change, we make a list of property types a part of
+     * display criteria.
+     */
+    protected static class DatasetListCriteria extends DefaultResultSetConfig<String, ExternalData>
+    {
+        private List<PropertyType> propertyTypesOrNull;
+
+        public List<PropertyType> tryGetPropertyTypes()
+        {
+            return propertyTypesOrNull;
+        }
+
+        public void setPropertyTypes(List<PropertyType> propertyTypes)
+        {
+            this.propertyTypesOrNull = propertyTypes;
+        }
+    }
+
+    /** The provider which is able to load and reload property types */
+    private static class DatasetListCriteriaProvider implements
+            ICriteriaProvider<DatasetListCriteria>
+    {
+        private final IViewContext<?> viewContext;
+
+        private final DatasetListCriteria criteria;
+
+        private final boolean displayOnlyDatasetProperties;
+
+        /**
+         * @param displayOnlyDatasetProperties if false the grid columns will consist of all
+         *            property types relevant anyhow to datasets, not only property types directly
+         *            connected to datasets.
+         */
+        public DatasetListCriteriaProvider(IViewContext<?> viewContext,
+                boolean displayOnlyDatasetProperties)
+        {
+            this.viewContext = viewContext;
+            this.criteria = new DatasetListCriteria();
+            this.displayOnlyDatasetProperties = displayOnlyDatasetProperties;
+        }
+
+        private void loadPropertyTypes(IDataRefreshCallback dataRefreshCallback)
+        {
+            DefaultResultSetConfig<String, PropertyType> config =
+                    DefaultResultSetConfig.createFetchAll();
+            viewContext.getCommonService().listPropertyTypes(config,
+                    new ListPropertyTypesCallback(viewContext, dataRefreshCallback));
+        }
+
+        private class ListPropertyTypesCallback extends
+                AbstractAsyncCallback<ResultSet<PropertyType>>
+        {
+            private final IDataRefreshCallback dataRefreshCallback;
+
+            public ListPropertyTypesCallback(IViewContext<?> viewContext,
+                    IDataRefreshCallback dataRefreshCallback)
+            {
+                super(viewContext);
+                this.dataRefreshCallback = dataRefreshCallback;
+            }
+
+            @Override
+            protected void process(ResultSet<PropertyType> result)
+            {
+                List<PropertyType> properties = result.getList();
+                if (displayOnlyDatasetProperties)
+                {
+                    properties =
+                            DataSetSearchPropertiesUtil
+                                    .filterDataSetPropertyTypes(result.getList());
+                } else
+                {
+                    properties =
+                            DataSetSearchPropertiesUtil.filterRelevantToDatasetPropertyTypes(result
+                                    .getList());
+                }
+                criteria.setPropertyTypes(properties);
+                dataRefreshCallback.postRefresh(true);
+            }
+        }
+
+        public DatasetListCriteria tryGetCriteria()
+        {
+            if (criteria.tryGetPropertyTypes() == null)
+            {
+                return null;
+            } else
+            {
+                return criteria;
+            }
+        }
+
+        public DatabaseModificationKind[] getRelevantModifications()
+        {
+            return DatabaseModificationKind.any(ObjectKind.PROPERTY_TYPE_ASSIGNMENT);
+        }
+
+        public void update(Set<DatabaseModificationKind> observedModifications,
+                IDataRefreshCallback dataRefreshCallback)
+        {
+            loadPropertyTypes(dataRefreshCallback);
+        }
+    }
+
     private static abstract class AbstractConfirmationDialog extends Dialog
     {
         protected final IViewContext<?> viewContext;
@@ -84,7 +202,7 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
         }
 
     }
-    
+
     static final class DeletionCallback extends AbstractAsyncCallback<Void>
     {
         private final IBrowserGridActionInvoker invoker;
@@ -94,14 +212,14 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
             super(viewContext);
             this.invoker = invoker;
         }
-        
+
         @Override
         protected void process(Void result)
         {
             invoker.refresh();
         }
     }
-    
+
     private static final class DeletionConfirmationDialog extends AbstractConfirmationDialog
     {
         private final TextField<String> reason;
@@ -126,7 +244,7 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
                 });
             add(reason);
         }
-        
+
         @Override
         protected void onButtonPressed(Button button)
         {
@@ -138,29 +256,36 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
             }
         }
     }
-    
+
     static final class UploadCallback extends AbstractAsyncCallback<Void>
     {
         private UploadCallback(IViewContext<?> viewContext)
         {
             super(viewContext);
         }
-        
+
         @Override
         protected void process(Void result)
         {
         }
     }
-    
+
     private static final class UploadConfirmationDialog extends AbstractConfirmationDialog
     {
         private static final int FIELD_WIDTH_IN_UPLOAD_DIALOG = 200;
+
         private static final int LABEL_WIDTH_IN_UPLOAD_DIALOG = 120;
+
         private final String cifexURL;
+
         private final TextField<String> passwordField;
+
         private TextField<String> fileNameField;
+
         private TextArea commentField;
+
         private TextField<String> userField;
+
         private FormPanel form;
 
         public UploadConfirmationDialog(IViewContext<?> viewContext, List<ExternalData> dataSets,
@@ -168,14 +293,16 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
         {
             super(viewContext, dataSets, invoker, Dict.CONFIRM_DATASET_UPLOAD_TITLE);
             cifexURL = viewContext.getModel().getApplicationInfo().getCIFEXURL();
-            addText(viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_MSG, dataSets.size(), cifexURL));
+            addText(viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_MSG, dataSets.size(),
+                    cifexURL));
             form = new FormPanel();
             form.setLabelWidth(LABEL_WIDTH_IN_UPLOAD_DIALOG);
             form.setFieldWidth(FIELD_WIDTH_IN_UPLOAD_DIALOG);
             form.setBodyBorder(false);
             form.setHeaderVisible(false);
             fileNameField = new TextField<String>();
-            fileNameField.setFieldLabel(viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_FILE_NAME_FIELD));
+            fileNameField.setFieldLabel(viewContext
+                    .getMessage(Dict.CONFIRM_DATASET_UPLOAD_FILE_NAME_FIELD));
             fileNameField.setSelectOnFocus(true);
             fileNameField.setMaxLength(BasicConstant.MAX_LENGTH_OF_FILE_NAME + ".zip".length());
             fileNameField.setAutoValidate(true);
@@ -191,7 +318,8 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
             form.add(fileNameField);
             commentField = new TextArea();
             commentField.setMaxLength(BasicConstant.MAX_LENGTH_OF_CIFEX_COMMENT);
-            commentField.setFieldLabel(viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_COMMENT_FIELD));
+            commentField.setFieldLabel(viewContext
+                    .getMessage(Dict.CONFIRM_DATASET_UPLOAD_COMMENT_FIELD));
             commentField.addKeyListener(keyListener);
             commentField.setAutoValidate(true);
             form.add(commentField);
@@ -204,7 +332,8 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
             form.add(userField);
             passwordField = new TextField<String>();
             passwordField.setPassword(true);
-            passwordField.setFieldLabel(viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_PASSWORD_FIELD));
+            passwordField.setFieldLabel(viewContext
+                    .getMessage(Dict.CONFIRM_DATASET_UPLOAD_PASSWORD_FIELD));
             FieldUtil.setMandatoryFlag(passwordField, true);
             passwordField.addKeyListener(keyListener);
             passwordField.setAutoValidate(true);
@@ -212,14 +341,14 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
             add(form);
             setWidth(LABEL_WIDTH_IN_UPLOAD_DIALOG + FIELD_WIDTH_IN_UPLOAD_DIALOG + 50);
         }
-        
+
         @Override
         protected void onRender(Element parent, int pos)
         {
             super.onRender(parent, pos);
             okBtn.setEnabled(false);
         }
-        
+
         @Override
         protected void onButtonPressed(Button button)
         {
@@ -237,7 +366,7 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
             }
         }
     }
-    
+
     private abstract class AbstractDataSetAction extends SelectionListener<ButtonEvent>
     {
         @Override
@@ -259,11 +388,25 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
         protected abstract Dialog createDialog(List<ExternalData> dataSets,
                 IBrowserGridActionInvoker invoker);
     }
-    
+
+    /**
+     * @param displayOnlyDatasetProperties if false the grid columns will consist of all property
+     *            types relevant anyhow to datasets, not only property types directly connected to
+     *            datasets.
+     */
     protected AbstractExternalDataGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
-            String browserId)
+            String browserId, boolean displayOnlyDatasetProperties)
     {
-        super(viewContext, browserId, browserId + GRID_POSTFIX);
+
+        super(viewContext, browserId + GRID_POSTFIX, false, false, new DatasetListCriteriaProvider(
+                viewContext, displayOnlyDatasetProperties));
+        setId(browserId);
+        setEntityKindForDisplayTypeIDGeneration(EntityKind.DATA_SET);
+        // We do not refresh the grid automatically, but we wait until all dataset property types
+        // will be fetched from the server (criteria provider will be updated), to set the available
+        // grid columns.
+        super.updateCriteria(new HashSet<DatabaseModificationKind>(), true);
+
         registerCellClickListenerFor(CommonExternalDataColDefKind.CODE.id(),
                 new ICellListener<ExternalData>()
                     {
@@ -292,7 +435,7 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
             });
         allowMultipleSelection();
     }
-    
+
     private void addButton(String labelKey, SelectionListener<ButtonEvent> action)
     {
         Button button = new Button(viewContext.getMessage(labelKey));
@@ -301,17 +444,37 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
     }
 
     @Override
+    protected BaseEntityModel<ExternalData> createModel(ExternalData entity)
+    {
+        BaseEntityModel<ExternalData> model = getColumnsFactory().createModel(entity);
+        renderCodeAsLink(model);
+        return model;
+    }
+
+    private static void renderCodeAsLink(ModelData model)
+    {
+        String columnID = CommonExternalDataColDefKind.CODE.id();
+        String originalValue = String.valueOf(model.get(columnID));
+        model.set(columnID, LinkRenderer.renderAsLink(originalValue));
+    }
+
+    @Override
+    protected ColumnDefsAndConfigs<ExternalData> createColumnsDefinition()
+    {
+        return getColumnsFactory().createColumnsSchema(viewContext, criteria.tryGetPropertyTypes());
+    }
+
+    private EntityGridModelFactory<ExternalData> getColumnsFactory()
+    {
+        return new EntityGridModelFactory<ExternalData>(getStaticColumnsDefinition());
+    }
+
+    @Override
     protected IColumnDefinitionKind<ExternalData>[] getStaticColumnsDefinition()
     {
         return CommonExternalDataColDefKind.values();
     }
 
-    @Override
-    protected BaseEntityModel<ExternalData> createModel(ExternalData entity)
-    {
-        return new ExternalDataModel(entity);
-    }
-    
     @Override
     protected List<IColumnDefinition<ExternalData>> getAvailableFilters()
     {
@@ -327,4 +490,38 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
         viewContext.getService().prepareExportDataSetSearchHits(exportCriteria, callback);
     }
 
+    @Override
+    public Set<DatabaseModificationKind> getGridRelevantModifications()
+    {
+        return getGridRelevantModifications(ObjectKind.DATA_SET);
+    }
+
+    @Override
+    protected boolean hasColumnsDefinitionChanged(DatasetListCriteria newCriteria)
+    {
+        List<PropertyType> newPropertyTypes = newCriteria.tryGetPropertyTypes();
+        List<PropertyType> prevPropertyTypes =
+                (criteria == null ? null : criteria.tryGetPropertyTypes());
+        if (newPropertyTypes == null)
+        {
+            return false; // nothing chosen
+        }
+        if (prevPropertyTypes == null)
+        {
+            return true; // first selection
+        }
+        return newPropertyTypes.equals(prevPropertyTypes);
+    }
+
+    @Override
+    protected String createHeader()
+    {
+        return null;
+    }
+
+    @Override
+    protected void showEntityViewer(BaseEntityModel<ExternalData> modelData, boolean editMode)
+    {
+        // do nothing
+    }
 }

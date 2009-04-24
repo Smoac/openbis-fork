@@ -254,24 +254,9 @@ public final class SampleBrowserGrid extends
     @Override
     protected boolean hasColumnsDefinitionChanged(ListSampleCriteria newCriteria)
     {
-        SampleType newEntityType = newCriteria.getSampleType();
-        if (newEntityType == null)
-        {
-            return false; // nothing chosen
-        }
-        if (criteria == null)
-        {
-            return true; // first selection
-        }
-        SampleType prevEntityType = criteria.getSampleType();
-        return newEntityType.equals(prevEntityType) == false
-                || propertiesEqual(newEntityType, prevEntityType) == false;
-    }
-
-    private boolean propertiesEqual(SampleType entityType1, SampleType entityType2)
-    {
-        return entityType1.getAssignedPropertyTypes()
-                .equals(entityType2.getAssignedPropertyTypes());
+        EntityType newEntityType = newCriteria.getSampleType();
+        EntityType prevEntityType = (criteria == null ? null : criteria.getSampleType());
+        return hasColumnsDefinitionChanged(newEntityType, prevEntityType);
     }
 
     @Override

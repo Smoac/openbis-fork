@@ -25,9 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * @author Franz-Josef Elmer
@@ -48,7 +46,7 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
     private SampleDataSetBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
             String sampleIdentifier, String browserId)
     {
-        super(viewContext, browserId);
+        super(viewContext, browserId, true);
         this.sampleIdentifier = sampleIdentifier;
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
         setEntityKindForDisplayTypeIDGeneration(EntityKind.DATA_SET);
@@ -60,10 +58,4 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
     {
         viewContext.getService().listSampleDataSets(sampleIdentifier, resultSetConfig, callback);
     }
-    
-    public DatabaseModificationKind[] getRelevantModifications()
-    {
-        return DatabaseModificationKind.any(ObjectKind.DATA_SET);
-    }
-
 }

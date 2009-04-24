@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
-import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
-import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -30,9 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * @author Franz-Josef Elmer
@@ -57,7 +52,7 @@ public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
     private ExperimentDataSetBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
             String experimentIdentifier)
     {
-        super(viewContext, ID_PREFIX + experimentIdentifier);
+        super(viewContext, ID_PREFIX + experimentIdentifier, true);
         this.experimentIdentifier = experimentIdentifier;
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
         setEntityKindForDisplayTypeIDGeneration(EntityKind.DATA_SET);
@@ -70,12 +65,4 @@ public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
         viewContext.getService().listExperimentDataSets(experimentIdentifier, resultSetConfig,
                 callback);
     }
-
-    public DatabaseModificationKind[] getRelevantModifications()
-    {
-        return new DatabaseModificationKind[]
-            { createOrDelete(ObjectKind.DATA_SET), edit(ObjectKind.DATA_SET),
-                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
-    }
-
 }

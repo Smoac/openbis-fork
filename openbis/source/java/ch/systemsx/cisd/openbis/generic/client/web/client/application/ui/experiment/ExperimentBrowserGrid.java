@@ -242,24 +242,9 @@ public class ExperimentBrowserGrid extends
     @Override
     protected boolean hasColumnsDefinitionChanged(ListExperimentsCriteria newCriteria)
     {
-        ExperimentType newEntityType = newCriteria.getExperimentType();
-        if (newEntityType == null)
-        {
-            return false; // nothing chosen
-        }
-        if (criteria == null)
-        {
-            return true; // first selection
-        }
-        ExperimentType prevEntityType = criteria.getExperimentType();
-        return newEntityType.equals(prevEntityType) == false
-                || propertiesEqual(newEntityType, prevEntityType) == false;
-    }
-
-    private boolean propertiesEqual(ExperimentType entityType1, ExperimentType entityType2)
-    {
-        return entityType1.getAssignedPropertyTypes()
-                .equals(entityType2.getAssignedPropertyTypes());
+        EntityType newEntityType = newCriteria.getExperimentType();
+        EntityType prevEntityType = (criteria == null ? null : criteria.getExperimentType());
+        return hasColumnsDefinitionChanged(newEntityType, prevEntityType);
     }
 
     @Override

@@ -56,12 +56,14 @@ public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
         return new BaseEntityModel<T>(entity, allColumnsDefinition);
     }
 
-    // here we create the columns definition having just one table row. We need them only to render
-    // column values (headers have been already created), so no message provider is needed.
+    /**
+     * here we create the columns definition having just one table row. We need them only to render
+     * column values (headers have been already created), so no message provider is needed.
+     */
     public List<IColumnDefinitionUI<T>> createColumnsSchemaForRendering(
             IEntityPropertiesHolder entity)
     {
-        List<IColumnDefinitionUI<T>> list = createCommonColumnsSchema(null);
+        List<IColumnDefinitionUI<T>> list = createStaticColumnDefinitions(null);
         for (EntityProperty<?, ?> prop : entity.getProperties())
         {
             PropertyType propertyType = prop.getEntityTypePropertyType().getPropertyType();
@@ -74,37 +76,66 @@ public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
     public ColumnDefsAndConfigs<T> createColumnsSchema(IMessageProvider messageProvider,
             EntityType selectedTypeOrNull)
     {
-        List<IColumnDefinitionUI<T>> commonColumnsSchema =
-                createCommonColumnsSchema(messageProvider);
-        ColumnDefsAndConfigs<T> columns = ColumnDefsAndConfigs.create(commonColumnsSchema);
+        List<PropertyType> propertyTypesOrNull = null;
         if (selectedTypeOrNull != null)
         {
+            propertyTypesOrNull = extractPropertyTypes(selectedTypeOrNull);
+        }
+        return createColumnsSchema(messageProvider, propertyTypesOrNull);
+    }
+
+    public ColumnDefsAndConfigs<T> createColumnsSchema(IMessageProvider messageProvider,
+            List<PropertyType> propertyTypesOrNull)
+    {
+        ColumnDefsAndConfigs<T> columns = createStaticColumnDefsAndConfigs(messageProvider);
+        if (propertyTypesOrNull != null)
+        {
             List<IColumnDefinitionUI<T>> propertyColumnsSchema =
-                    createPropertyColumnsSchema(selectedTypeOrNull);
+                    createPropertyColumnsSchema(propertyTypesOrNull);
             columns.addColumns(propertyColumnsSchema);
         }
         return columns;
     }
 
-    private List<IColumnDefinitionUI<T>> createPropertyColumnsSchema(EntityType selectedType)
+    private ColumnDefsAndConfigs<T> createStaticColumnDefsAndConfigs(
+            IMessageProvider messageProvider)
     {
-        List<? extends EntityTypePropertyType<?>> entityTypePropertyTypes =
-                selectedType.getAssignedPropertyTypes();
-        List<IColumnDefinitionUI<T>> list = createColDefList();
-        for (EntityTypePropertyType<?> etpt : entityTypePropertyTypes)
-        {
-            list.add(new EntityPropertyColDef<T>(etpt.getPropertyType(), true));
-        }
-        return list;
+        List<IColumnDefinitionUI<T>> commonColumnsSchema =
+                createStaticColumnDefinitions(messageProvider);
+        ColumnDefsAndConfigs<T> columns = ColumnDefsAndConfigs.create(commonColumnsSchema);
+        return columns;
     }
 
-    private List<IColumnDefinitionUI<T>> createCommonColumnsSchema(
+    private List<IColumnDefinitionUI<T>> createStaticColumnDefinitions(
             IMessageProvider msgProviderOrNull)
     {
         return BaseEntityModel.createColumnsDefinition(staticColumnDefinitions, msgProviderOrNull);
     }
 
-    private ArrayList<IColumnDefinitionUI<T>> createColDefList()
+    private static <T extends IEntityPropertiesHolder> List<IColumnDefinitionUI<T>> createPropertyColumnsSchema(
+            List<PropertyType> propertyTypes)
+    {
+        List<IColumnDefinitionUI<T>> list = createColDefList();
+        for (PropertyType propertyType : propertyTypes)
+        {
+            list.add(new EntityPropertyColDef<T>(propertyType, true));
+        }
+        return list;
+    }
+
+    private static List<PropertyType> extractPropertyTypes(EntityType selectedType)
+    {
+        List<? extends EntityTypePropertyType<?>> entityTypePropertyTypes =
+                selectedType.getAssignedPropertyTypes();
+        List<PropertyType> propertyTypes = new ArrayList<PropertyType>();
+        for (EntityTypePropertyType<?> etpt : entityTypePropertyTypes)
+        {
+            propertyTypes.add(etpt.getPropertyType());
+        }
+        return propertyTypes;
+    }
+
+    private static <T> ArrayList<IColumnDefinitionUI<T>> createColDefList()
     {
         return new ArrayList<IColumnDefinitionUI<T>>();
     }

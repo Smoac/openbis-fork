@@ -229,24 +229,9 @@ public class MaterialBrowserGrid extends
     @Override
     protected boolean hasColumnsDefinitionChanged(ListMaterialCriteria newCriteria)
     {
-        MaterialType newEntityType = newCriteria.getMaterialType();
-        if (newEntityType == null)
-        {
-            return false; // nothing chosen
-        }
-        if (criteria == null)
-        {
-            return true; // first selection
-        }
-        MaterialType prevEntityType = criteria.getMaterialType();
-        return newEntityType.equals(prevEntityType) == false
-                || propertiesEqual(newEntityType, prevEntityType) == false;
-    }
-
-    private boolean propertiesEqual(MaterialType entityType1, MaterialType entityType2)
-    {
-        return entityType1.getAssignedPropertyTypes()
-                .equals(entityType2.getAssignedPropertyTypes());
+        EntityType newEntityType = newCriteria.getMaterialType();
+        EntityType prevEntityType = (criteria == null ? null : criteria.getMaterialType());
+        return hasColumnsDefinitionChanged(newEntityType, prevEntityType);
     }
 
     @Override
