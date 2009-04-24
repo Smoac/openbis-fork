@@ -49,6 +49,8 @@ public final class SequenceNameMapper extends StandardSequenceNameMapper
         map.put(TableNames.EXPERIMENT_PROPERTIES_TABLE, SequenceNames.EXPERIMENT_PROPERTY_SEQUENCE);
         map.put(TableNames.SAMPLE_TYPE_PROPERTY_TYPE_TABLE,
                 SequenceNames.SAMPLE_TYPE_PROPERTY_TYPE_SEQUENCE);
+        map.put(TableNames.DATA_SET_TYPE_PROPERTY_TYPE_TABLE,
+                SequenceNames.DATA_SET_TYPE_PROPERTY_TYPE_SEQUENCE);
         map.put(TableNames.SAMPLE_MATERIAL_BATCHES_TABLE,
                 SequenceNames.SAMPLE_MATERIAL_BATCH_SEQUENCE);
         map.put(TableNames.SAMPLE_PROPERTIES_TABLE, SequenceNames.SAMPLE_PROPERTY_SEQUENCE);
@@ -56,6 +58,7 @@ public final class SequenceNameMapper extends StandardSequenceNameMapper
                 SequenceNames.CONTROLLED_VOCABULARY_SEQUENCE);
         map.put(TableNames.CONTROLLED_VOCABULARY_TERM_TABLE,
                 SequenceNames.CONTROLLED_VOCABULARY_TERM_SEQUENCE);
+        map.put(TableNames.DATA_SET_PROPERTIES_TABLE, SequenceNames.DATA_SET_PROPERTY_SEQUENCE);
         // legacy code to make migration tests from db version 018 work
         map.put("sample_component_materials", "SCMA_ID_SEQ");
         return Collections.unmodifiableMap(map);
