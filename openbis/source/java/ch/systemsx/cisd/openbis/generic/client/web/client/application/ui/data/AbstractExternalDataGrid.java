@@ -47,14 +47,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -67,115 +66,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  */
 public abstract class AbstractExternalDataGrid
         extends
-        AbstractEntityBrowserGrid<ExternalData, BaseEntityModel<ExternalData>, AbstractExternalDataGrid.DatasetListCriteria>
+        AbstractEntityBrowserGrid<ExternalData, BaseEntityModel<ExternalData>, PropertyTypesCriteria>
 {
     public static final String GRID_POSTFIX = "-grid";
-
-    /**
-     * We have no criteria to pre-filter the grid besides the standard paging tab controls. However
-     * to enable auto-refresh when property types change, we make a list of property types a part of
-     * display criteria.
-     */
-    protected static class DatasetListCriteria extends DefaultResultSetConfig<String, ExternalData>
-    {
-        private List<PropertyType> propertyTypesOrNull;
-
-        public List<PropertyType> tryGetPropertyTypes()
-        {
-            return propertyTypesOrNull;
-        }
-
-        public void setPropertyTypes(List<PropertyType> propertyTypes)
-        {
-            this.propertyTypesOrNull = propertyTypes;
-        }
-    }
-
-    /** The provider which is able to load and reload property types */
-    private static class DatasetListCriteriaProvider implements
-            ICriteriaProvider<DatasetListCriteria>
-    {
-        private final IViewContext<?> viewContext;
-
-        private final DatasetListCriteria criteria;
-
-        private final boolean displayOnlyDatasetProperties;
-
-        /**
-         * @param displayOnlyDatasetProperties if false the grid columns will consist of all
-         *            property types relevant anyhow to datasets, not only property types directly
-         *            connected to datasets.
-         */
-        public DatasetListCriteriaProvider(IViewContext<?> viewContext,
-                boolean displayOnlyDatasetProperties)
-        {
-            this.viewContext = viewContext;
-            this.criteria = new DatasetListCriteria();
-            this.displayOnlyDatasetProperties = displayOnlyDatasetProperties;
-        }
-
-        private void loadPropertyTypes(IDataRefreshCallback dataRefreshCallback)
-        {
-            DefaultResultSetConfig<String, PropertyType> config =
-                    DefaultResultSetConfig.createFetchAll();
-            viewContext.getCommonService().listPropertyTypes(config,
-                    new ListPropertyTypesCallback(viewContext, dataRefreshCallback));
-        }
-
-        private class ListPropertyTypesCallback extends
-                AbstractAsyncCallback<ResultSet<PropertyType>>
-        {
-            private final IDataRefreshCallback dataRefreshCallback;
-
-            public ListPropertyTypesCallback(IViewContext<?> viewContext,
-                    IDataRefreshCallback dataRefreshCallback)
-            {
-                super(viewContext);
-                this.dataRefreshCallback = dataRefreshCallback;
-            }
-
-            @Override
-            protected void process(ResultSet<PropertyType> result)
-            {
-                List<PropertyType> properties = result.getList();
-                if (displayOnlyDatasetProperties)
-                {
-                    properties =
-                            DataSetSearchPropertiesUtil
-                                    .filterDataSetPropertyTypes(result.getList());
-                } else
-                {
-                    properties =
-                            DataSetSearchPropertiesUtil.filterRelevantToDatasetPropertyTypes(result
-                                    .getList());
-                }
-                criteria.setPropertyTypes(properties);
-                dataRefreshCallback.postRefresh(true);
-            }
-        }
-
-        public DatasetListCriteria tryGetCriteria()
-        {
-            if (criteria.tryGetPropertyTypes() == null)
-            {
-                return null;
-            } else
-            {
-                return criteria;
-            }
-        }
-
-        public DatabaseModificationKind[] getRelevantModifications()
-        {
-            return DatabaseModificationKind.any(ObjectKind.PROPERTY_TYPE_ASSIGNMENT);
-        }
-
-        public void update(Set<DatabaseModificationKind> observedModifications,
-                IDataRefreshCallback dataRefreshCallback)
-        {
-            loadPropertyTypes(dataRefreshCallback);
-        }
-    }
 
     private static abstract class AbstractConfirmationDialog extends Dialog
     {
@@ -398,7 +291,7 @@ public abstract class AbstractExternalDataGrid
             String browserId, boolean displayOnlyDatasetProperties)
     {
 
-        super(viewContext, browserId + GRID_POSTFIX, false, false, new DatasetListCriteriaProvider(
+        super(viewContext, browserId + GRID_POSTFIX, false, false, createCriteriaProvider(
                 viewContext, displayOnlyDatasetProperties));
         setId(browserId);
         setEntityKindForDisplayTypeIDGeneration(EntityKind.DATA_SET);
@@ -434,6 +327,14 @@ public abstract class AbstractExternalDataGrid
                 }
             });
         allowMultipleSelection();
+    }
+
+    private static PropertyTypesCriteriaProvider createCriteriaProvider(
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            boolean displayOnlyDatasetProperties)
+    {
+        EntityKind entityKindOrNull = displayOnlyDatasetProperties ? EntityKind.DATA_SET : null;
+        return new PropertyTypesCriteriaProvider(viewContext, entityKindOrNull);
     }
 
     private void addButton(String labelKey, SelectionListener<ButtonEvent> action)
@@ -497,7 +398,7 @@ public abstract class AbstractExternalDataGrid
     }
 
     @Override
-    protected boolean hasColumnsDefinitionChanged(DatasetListCriteria newCriteria)
+    protected boolean hasColumnsDefinitionChanged(PropertyTypesCriteria newCriteria)
     {
         List<PropertyType> newPropertyTypes = newCriteria.tryGetPropertyTypes();
         List<PropertyType> prevPropertyTypes =

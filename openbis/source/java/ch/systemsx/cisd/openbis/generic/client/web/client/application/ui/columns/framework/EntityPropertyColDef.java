@@ -101,7 +101,7 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
 
     public String getIdentifier()
     {
-        return identifierPrefix + isInternalNamespace + simpleCode;
+        return identifierPrefix + (isInternalNamespace ? "INTERN" : "USER") + "-" + simpleCode;
     }
 
     public final DataTypeCode getDataTypeCode()

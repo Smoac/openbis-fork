@@ -16,18 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.material.CommonMaterialColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.RowWithProperties;
 
 /**
  * Allows to define material table row expectations.
  * 
  * @author Izabela Adamczyk
  */
-public class MaterialRow extends Row
+public class MaterialRow extends RowWithProperties
 {
 
     public MaterialRow(final String code)
@@ -35,34 +32,4 @@ public class MaterialRow extends Row
         super();
         withCell(CommonMaterialColDefKind.CODE.id(), code);
     }
-
-    public final MaterialRow userProperty(final String propertyCode, final Object value)
-    {
-        return property(propertyCode, value, false);
-    }
-
-    public final MaterialRow internalProperty(final String propertyCode, final Object value)
-    {
-        return property(propertyCode, value, true);
-    }
-
-    private final MaterialRow property(final String propertyCode, final Object value,
-            boolean internalNamespace)
-    {
-        final PropertyType propertyType = createPropertyType(propertyCode, internalNamespace);
-        final String propertyIdentifier =
-                new EntityPropertyColDef<Material>(propertyType, true).getIdentifier();
-        withCell(propertyIdentifier, value);
-        return this;
-    }
-
-    private final static PropertyType createPropertyType(final String propertyCode,
-            boolean internalNamespace)
-    {
-        final PropertyType propertyType = new PropertyType();
-        propertyType.setInternalNamespace(internalNamespace);
-        propertyType.setSimpleCode(propertyCode);
-        return propertyType;
-    }
-
 }

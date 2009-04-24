@@ -89,8 +89,8 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
                 PropertyTypeAssignmentForm.AssignPropertyTypeCallback.class));
         remoteConsole.prepare(new ListSamples(CISD, CONTROL_LAYOUT));
         CheckSampleTable table = new CheckSampleTable();
-        table.expectedRow(new SampleRow(CONTROL_LAYOUT_C1).identifier(CISD, CISD).valid().property(
-                USER_COMMENT, NO_COMMENT));
+        table.expectedRow(new SampleRow(CONTROL_LAYOUT_C1).identifier(CISD, CISD).valid()
+                .withUserPropertyCell(USER_COMMENT, NO_COMMENT));
         launchTest(20000);
     }
 }

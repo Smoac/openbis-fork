@@ -131,6 +131,41 @@ public final class SampleBrowserGrid extends
         setEntityKindForDisplayTypeIDGeneration(EntityKind.SAMPLE);
     }
 
+//    private static class ISampleCriteriaProvider implements ICriteriaProvider<ListSampleCriteria>
+//    {
+//        private final ICriteriaProvider<ListSampleCriteria> toolbarDelegator;
+//
+//        public ISampleCriteriaProvider(ICriteriaProvider<ListSampleCriteria> delegator)
+//        {
+//            this.toolbarDelegator = delegator;
+//        }
+//
+//        // provides all property types which should be used to build the grid property columns
+//        public List<PropertyType> tryGetPropertyTypes()
+//        {
+//            return toolbarDelegator.tryGetCriteria();
+//        }
+//
+//        // ----- ICriteriaProvider delegator
+//
+//        public DatabaseModificationKind[] getRelevantModifications()
+//        {
+//            return toolbarDelegator.getRelevantModifications();
+//        }
+//
+//        public ListSampleCriteria tryGetCriteria()
+//        {
+//            return toolbarDelegator.tryGetCriteria();
+//        }
+//
+//        public void update(Set<DatabaseModificationKind> observedModifications,
+//                IDataRefreshCallback dataRefreshCallback)
+//        {
+//            toolbarDelegator.update(observedModifications, dataRefreshCallback);
+//        }
+//
+//    }
+
     // adds show, show-details and invalidate buttons
     private void extendTopToolbar(SampleBrowserToolbar toolbar)
     {

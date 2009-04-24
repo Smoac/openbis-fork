@@ -14,36 +14,34 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
  * @author Tomasz Pylak
  */
-class DataSetSearchPropertiesUtil
+public class PropertyTypesFilterUtil
 {
-    /**
-     * returns property types which are relevant to datasets (dataset, experiment or sample
-     * properties)
-     */
-    public static List<PropertyType> filterRelevantToDatasetPropertyTypes(
-            List<PropertyType> propertyTypes)
+    public static List<PropertyType> filterPropertyTypesForEntityKind(List<PropertyType> list,
+            EntityKind entityKind)
     {
-        List<PropertyType> result = new ArrayList<PropertyType>();
-        for (final PropertyType st : propertyTypes)
+        switch (entityKind)
         {
-            if (st.getSampleTypePropertyTypes().size() > 0
-                    || st.getExperimentTypePropertyTypes().size() > 0
-                    || st.getDataSetTypePropertyTypes().size() > 0)
-            {
-                result.add(st);
-            }
+            case DATA_SET:
+                return filterDataSetPropertyTypes(list);
+            case EXPERIMENT:
+                return filterExperimentPropertyTypes(list);
+            case MATERIAL:
+                return filterMaterialPropertyTypes(list);
+            case SAMPLE:
+                return filterSamplePropertyTypes(list);
         }
-        return result;
+        throw new IllegalStateException("unknown enumerator " + entityKind);
     }
 
     /** returns property types which are assigned to at least one sample type */
@@ -81,6 +79,20 @@ class DataSetSearchPropertiesUtil
         for (final PropertyType st : propertyTypes)
         {
             if (st.getDataSetTypePropertyTypes().size() > 0)
+            {
+                result.add(st);
+            }
+        }
+        return result;
+    }
+
+    /** returns property types which are assigned to at least one material type */
+    public static List<PropertyType> filterMaterialPropertyTypes(List<PropertyType> propertyTypes)
+    {
+        List<PropertyType> result = new ArrayList<PropertyType>();
+        for (final PropertyType st : propertyTypes)
+        {
+            if (st.getMaterialTypePropertyTypes().size() > 0)
             {
                 result.add(st);
             }

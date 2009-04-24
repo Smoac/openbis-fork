@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetSamplePropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetSearchHitColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -145,17 +146,17 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
         if (mergedPropertyTypesOrNull != null)
         {
             List<PropertyType> datasetProperties =
-                    DataSetSearchPropertiesUtil
+                    PropertyTypesFilterUtil
                             .filterDataSetPropertyTypes(mergedPropertyTypesOrNull);
             columns.addColumns(createDatasetPropertyTypeColDefs(datasetProperties));
 
             List<PropertyType> experimentProperties =
-                    DataSetSearchPropertiesUtil
+                    PropertyTypesFilterUtil
                             .filterExperimentPropertyTypes(mergedPropertyTypesOrNull);
             columns.addColumns(createExperimentPropertyTypeColDefs(experimentProperties));
 
             List<PropertyType> sampleProperties =
-                    DataSetSearchPropertiesUtil
+                    PropertyTypesFilterUtil
                             .filterSamplePropertyTypes(mergedPropertyTypesOrNull);
             columns.addColumns(createSamplePropertyTypeColDefs(sampleProperties));
         }

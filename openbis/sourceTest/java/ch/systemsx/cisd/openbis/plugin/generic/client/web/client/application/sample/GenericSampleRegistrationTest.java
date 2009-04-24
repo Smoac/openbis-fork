@@ -143,7 +143,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_GROUP_CODE,
                 sampleTypeCode));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(SHARED_CL)
-                .identifier("CISD").property("DESCRIPTION", false, description)));
+                .identifier("CISD").withUserPropertyCell("DESCRIPTION", description)));
         launchTest(30000);
     }
 }

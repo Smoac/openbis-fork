@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ShowSample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
@@ -109,6 +110,10 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                 "TIFF"));
         dataTable.expectedRow(new DataSetRow("20081105092159188-3").invalid().withLocation(
                 "analysis/result"));
+        dataTable.expectedColumnsNumber(14);
+        final String commentColIdent = GridTestUtils.getPropertyColumnIdentifier("COMMENT", false);
+        dataTable.expectedColumnHidden(commentColIdent, true);
+
         remoteConsole.prepare(new AbstractDefaultTestCommand()
             {
                 @Override
@@ -118,6 +123,8 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                     return checkSample.validOnSucess(callbackObjects, result);
                 }
 
+                // NOTE: GridTestUtils provides a nicer way to simulate grid click, this code should
+                // be refactored
                 public void execute()
                 {
                     checkSample.execute();

@@ -25,10 +25,13 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.TestUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
  * Utility methods to test subclasses of {@link AbstractBrowserGrid}
@@ -94,4 +97,21 @@ public class GridTestUtils
         return null; // just to make the compiler happy
     }
 
+    public static String getPropertyColumnIdentifier(final String propertyCode,
+            boolean internalNamespace)
+    {
+        final PropertyType propertyType = createPropertyType(propertyCode, internalNamespace);
+        final String identifier =
+                new EntityPropertyColDef<Sample>(propertyType, true).getIdentifier();
+        return identifier;
+    }
+
+    private final static PropertyType createPropertyType(final String propertyCode,
+            final boolean internalNamespace)
+    {
+        final PropertyType propertyType = new PropertyType();
+        propertyType.setInternalNamespace(internalNamespace);
+        propertyType.setSimpleCode(propertyCode);
+        return propertyType;
+    }
 }

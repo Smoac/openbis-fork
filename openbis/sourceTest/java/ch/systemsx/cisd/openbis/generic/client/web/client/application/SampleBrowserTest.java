@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.ChangeTableColumnSettingsCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.PiggyBackCommand;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test <i>AMC</i>.
@@ -50,7 +51,8 @@ public class SampleBrowserTest extends AbstractGWTTestCase
                 new ChangeTableColumnSettingsCommand(SampleBrowserGrid.GRID_ID,
                         SampleBrowserGrid.ListEntitiesCallback.class);
         settingsCommand.hiddenChangeEvent(CommonSampleColDefKind.CODE.name(), true);
-        settingsCommand.widthChangeEvent(CommonSampleColDefKind.REGISTRATOR.name(), 2 * DEFAULT_COLUMN_WIDTH);
+        settingsCommand.widthChangeEvent(CommonSampleColDefKind.REGISTRATOR.name(),
+                2 * DEFAULT_COLUMN_WIDTH);
         remoteConsole.prepare(new PiggyBackCommand(settingsCommand, new Logout()));
         Login login = new Login("test", "a");
         login.addCallbackClass(TopMenu.LogoutCallback.class);
@@ -59,12 +61,14 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", "MASTER_PLATE"));
         CheckSampleTable checkCommand = new CheckSampleTable();
         checkCommand.expectedColumnHidden(CommonSampleColDefKind.CODE.name(), true);
-        checkCommand.expectedColumnWidth(CommonSampleColDefKind.REGISTRATOR.name(), 2 * DEFAULT_COLUMN_WIDTH);
+        checkCommand.expectedColumnWidth(CommonSampleColDefKind.REGISTRATOR.name(),
+                2 * DEFAULT_COLUMN_WIDTH);
+        checkCommand.expectedColumnsNumber(13);
         remoteConsole.prepare(checkCommand);
 
         launchTest(30000);
     }
-    
+
     public final void testListMasterPlates()
     {
         loginAndGotoListSamplesTab();
@@ -73,11 +77,11 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         table.expectedColumnHidden(CommonSampleColDefKind.CODE.name(), false);
         table.expectedColumnWidth(CommonSampleColDefKind.REGISTRATOR.name(), DEFAULT_COLUMN_WIDTH);
         table.expectedRow(new SampleRow("MP001-1").identifier("CISD", "CISD").invalid()
-                .noExperiment().property("PLATE_GEOMETRY", "384_WELLS_16X24"));
+                .noExperiment().withInternalPropertyCell("PLATE_GEOMETRY", "384_WELLS_16X24"));
         table.expectedRow(new SampleRow("MP002-1").identifier("CISD", "CISD").valid()
-                .noExperiment().property("PLATE_GEOMETRY", "384_WELLS_16X24"));
+                .noExperiment().withInternalPropertyCell("PLATE_GEOMETRY", "384_WELLS_16X24"));
         remoteConsole.prepare(table.expectedSize(5));
-        
+
         launchTest(20000);
     }
 
@@ -101,9 +105,9 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_GROUP_CODE,
                 "MASTER_PLATE"));
         CheckSampleTable table = new CheckSampleTable();
-        SampleRow expectedRow =
-                new SampleRow("MP").identifier("CISD").valid().noExperiment().property(
-                        "PLATE_GEOMETRY", "384_WELLS_16X24");
+        Row expectedRow =
+                new SampleRow("MP").identifier("CISD").valid().noExperiment()
+                        .withInternalPropertyCell("PLATE_GEOMETRY", "384_WELLS_16X24");
         table.expectedRow(expectedRow);
         remoteConsole.prepare(table.expectedSize(1));
 
@@ -132,6 +136,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         CheckSampleTable table = new CheckSampleTable();
         table.expectedRow(new SampleRow("3VCP1").identifier("CISD", "CISD").invalid().experiment(
                 "NEMO", "EXP1").derivedFromAncestor("3V-123", 1).derivedFromAncestor("MP001-1", 2));
+        table.expectedColumnsNumber(16);
         remoteConsole.prepare(table.expectedSize(15));
 
         launchTest(20000);

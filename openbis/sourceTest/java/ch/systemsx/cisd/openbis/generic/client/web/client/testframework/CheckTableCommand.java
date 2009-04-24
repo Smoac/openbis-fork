@@ -43,7 +43,7 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
         {
             this.columnID = columnID;
         }
-        
+
         protected ColumnConfig getColumn(ColumnModel columnModel)
         {
             ColumnConfig column = columnModel.getColumnById(columnID);
@@ -53,7 +53,7 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
             }
             return column;
         }
-        
+
         protected String createFailureMessage()
         {
             return "Column '" + columnID + "':";
@@ -61,7 +61,7 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
 
         public abstract void check(ColumnModel columnModel);
     }
-    
+
     private static class ColumnHiddenExpectation extends ColumnModelExpectation
     {
         private final boolean hidden;
@@ -78,27 +78,32 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
             assertEquals(createFailureMessage(), hidden, getColumn(columnModel).isHidden());
         }
     }
-    
+
     private static class ColumnWidthExpectation extends ColumnModelExpectation
     {
         private final int width;
-        
+
         ColumnWidthExpectation(String columnID, int width)
         {
             super(columnID);
             this.width = width;
         }
-        
+
         @Override
         public void check(ColumnModel columnModel)
         {
             assertEquals(createFailureMessage(), width, getColumn(columnModel).getWidth());
         }
     }
-    
+
     private final String tableID;
 
     private int expectedNumberOfRows = -1;
+
+    private int expectedTotalNumberOfColumns = -1; // including hidden columns
+
+    private List<ColumnModelExpectation> columnModelExpectations =
+            new ArrayList<ColumnModelExpectation>();
 
     private final List<Row> expectedRows = new ArrayList<Row>();
 
@@ -123,10 +128,7 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
         super(callbackClass);
         this.tableID = tableID;
     }
-    
-    private List<ColumnModelExpectation> columnModelExpectations = new ArrayList<ColumnModelExpectation>();
-    
-    
+
     public CheckTableCommand expectedColumnHidden(String columnID, boolean hidden)
     {
         columnModelExpectations.add(new ColumnHiddenExpectation(columnID, hidden));
@@ -138,13 +140,23 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
         columnModelExpectations.add(new ColumnWidthExpectation(columnID, width));
         return this;
     }
-    
+
     /**
      * Prepares this with the expectation upon the number of table rows.
      */
     public CheckTableCommand expectedSize(final int numberOfRows)
     {
         this.expectedNumberOfRows = numberOfRows;
+        return this;
+    }
+
+    /**
+     * Prepares this with the expectation upon the number of table columns, including hidden
+     * columns.
+     */
+    public CheckTableCommand expectedColumnsNumber(final int expectedNumberOfColumns)
+    {
+        this.expectedTotalNumberOfColumns = expectedNumberOfColumns;
         return this;
     }
 
@@ -206,10 +218,8 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
             }
             fail(buffer.toString());
         }
-        if (expectedNumberOfRows >= 0)
-        {
-            assertEquals(expectedNumberOfRows, store.getCount());
-        }
+        assertExpectedNumberOfRows(store);
+        assertExpectedNumberOfColumns(grid);
 
         for (final Row unexpectedRow : unexpectedRows)
         {
@@ -218,6 +228,22 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
                 final ModelData row = store.getAt(i);
                 assertFalse(match(unexpectedRow, row));
             }
+        }
+    }
+
+    private void assertExpectedNumberOfRows(final ListStore<ModelData> store)
+    {
+        if (expectedNumberOfRows >= 0)
+        {
+            assertEquals(expectedNumberOfRows, store.getCount());
+        }
+    }
+
+    private void assertExpectedNumberOfColumns(Grid<ModelData> grid)
+    {
+        if (expectedTotalNumberOfColumns >= 0)
+        {
+            assertEquals(expectedTotalNumberOfColumns, grid.getColumnModel().getColumnCount());
         }
     }
 
@@ -236,10 +262,12 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
     {
         for (final Map.Entry<String, Object> entry : expectedRow.getColumnIDValuesMap().entrySet())
         {
-            Object rowColumnValue = row.get(entry.getKey());
+            String key = entry.getKey();
+            Object rowColumnValue = row.get(key);
             Object expectedColumnValue = wrapNull(entry.getValue());
             if (TestUtil.isEqual(rowColumnValue, expectedColumnValue) == false)
             {
+                rowColumnValue = row.get(key);
                 return false;
             }
         }

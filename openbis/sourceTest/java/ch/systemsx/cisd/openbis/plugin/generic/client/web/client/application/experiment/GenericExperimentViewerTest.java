@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ListExperiments;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ShowExperiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
@@ -187,10 +188,14 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         prepareShowExperiment(NEMO, SIRNA_HCS, EXP1);
         final CheckExperiment checkExperiment = new CheckExperiment(CISD_CISD_NEMO, EXP1);
         checkExperiment.property("Experiment").asString(EXP1);
-        final CheckTableCommand sampleTable = checkExperiment.dataSetTable().expectedSize(2);
-        sampleTable.expectedRow(new DataSetRow("20080912142304152-1").invalid().notDerived());
-        sampleTable.expectedRow(new DataSetRow("20080912142304476-3").invalid().withSample(
+        final CheckTableCommand datasetTable = checkExperiment.dataSetTable().expectedSize(2);
+        datasetTable.expectedRow(new DataSetRow("20080912142304152-1").invalid().notDerived());
+        datasetTable.expectedRow(new DataSetRow("20080912142304476-3").invalid().withSample(
                 "CISD:/CISD/3VCP1").withSampleType("CELL_PLATE").derived().withIsComplete(null));
+        datasetTable.expectedColumnsNumber(14);
+        final String commentColIdent = GridTestUtils.getPropertyColumnIdentifier("COMMENT", false);
+        datasetTable.expectedColumnHidden(commentColIdent, true);
+
         remoteConsole.prepare(checkExperiment);
 
         launchTest(60000);

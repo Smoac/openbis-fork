@@ -16,18 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.ParentGeneratedFromSampleColDef;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.RowWithProperties;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class SampleRow extends Row
+public class SampleRow extends RowWithProperties
 {
 
     private final String code;
@@ -124,45 +121,6 @@ public class SampleRow extends Row
                 new ParentGeneratedFromSampleColDef(level, "dummy").getIdentifier();
         withCell(identifier, ancestorCode);
         return this;
-    }
-
-    /**
-     * Creates a {@link SampleRow} with given <var>propertyCode</var> associated to given
-     * <i>value</i>.
-     * <p>
-     * Note that we assume that computed {@link PropertyType} is from internal namespace.
-     * </p>
-     */
-    public final SampleRow property(final String propertyCode, final Object value)
-    {
-        final PropertyType propertyType = createPropertyType(propertyCode, true);
-        final String identifier =
-                new EntityPropertyColDef<Sample>(propertyType, true).getIdentifier();
-        withCell(identifier, value);
-        return this;
-    }
-
-    /**
-     * Creates a {@link SampleRow} with given <var>propertyCode</var> associated to given
-     * <i>value</i>.
-     */
-    public final SampleRow property(final String propertyCode, final boolean internalNamespace,
-            final Object value)
-    {
-        final PropertyType propertyType = createPropertyType(propertyCode, internalNamespace);
-        final String identifier =
-                new EntityPropertyColDef<Sample>(propertyType, true).getIdentifier();
-        withCell(identifier, value);
-        return this;
-    }
-
-    private final static PropertyType createPropertyType(final String propertyCode,
-            final boolean internalNamespace)
-    {
-        final PropertyType propertyType = new PropertyType();
-        propertyType.setInternalNamespace(internalNamespace);
-        propertyType.setSimpleCode(propertyCode);
-        return propertyType;
     }
 
     private final void withCell(final CommonSampleColDefKind columnKind, final String value)

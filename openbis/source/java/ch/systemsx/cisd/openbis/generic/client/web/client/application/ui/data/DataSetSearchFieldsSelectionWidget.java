@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataSetSearchFieldComboModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -218,7 +219,7 @@ public final class DataSetSearchFieldsSelectionWidget extends
             final List<DataSetSearchFieldComboModel> result, List<PropertyType> propertyTypes)
     {
         List<PropertyType> relevantPropertyTypes =
-                DataSetSearchPropertiesUtil.filterSamplePropertyTypes(propertyTypes);
+                PropertyTypesFilterUtil.filterSamplePropertyTypes(propertyTypes);
         return addPropertyTypes(result, relevantPropertyTypes, EntityKind.SAMPLE);
     }
 
@@ -226,7 +227,7 @@ public final class DataSetSearchFieldsSelectionWidget extends
             final List<DataSetSearchFieldComboModel> result, List<PropertyType> propertyTypes)
     {
         List<PropertyType> relevantPropertyTypes =
-                DataSetSearchPropertiesUtil.filterDataSetPropertyTypes(propertyTypes);
+                PropertyTypesFilterUtil.filterDataSetPropertyTypes(propertyTypes);
         return addPropertyTypes(result, relevantPropertyTypes, EntityKind.DATA_SET);
     }
 
@@ -234,7 +235,7 @@ public final class DataSetSearchFieldsSelectionWidget extends
             final List<DataSetSearchFieldComboModel> result, List<PropertyType> propertyTypes)
     {
         List<PropertyType> relevantPropertyTypes =
-                DataSetSearchPropertiesUtil.filterExperimentPropertyTypes(propertyTypes);
+                PropertyTypesFilterUtil.filterExperimentPropertyTypes(propertyTypes);
         return addPropertyTypes(result, relevantPropertyTypes, EntityKind.EXPERIMENT);
     }
 

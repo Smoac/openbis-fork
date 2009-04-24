@@ -37,6 +37,7 @@ public class ExperimentBrowserTest extends AbstractGWTTestCase
         CheckExperimentTable table = new CheckExperimentTable();
         table.expectedRow(new ExperimentRow("EXP-REUSE").valid());
         table.expectedRow(new ExperimentRow("EXP-X").invalid());
+        table.expectedColumnsNumber(13);
         remoteConsole.prepare(table.expectedSize(2));
 
         launchTest(20000);
