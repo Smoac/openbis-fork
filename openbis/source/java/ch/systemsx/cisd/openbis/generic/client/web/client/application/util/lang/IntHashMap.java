@@ -148,14 +148,12 @@ class IntHashMap
         {
             throw new IllegalArgumentException("Illegal Load: " + loadFactor);
         }
-        if (initialCapacity == 0)
-        {
-            initialCapacity = 1;
-        }
+
+        int capacity = (initialCapacity == 0) ? 1 : initialCapacity;
 
         this.loadFactor = loadFactor;
-        table = new Entry[initialCapacity];
-        threshold = (int) (initialCapacity * loadFactor);
+        table = new Entry[capacity];
+        threshold = (int) (capacity * loadFactor);
     }
 
     /**
