@@ -63,7 +63,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         checkCommand.expectedColumnHidden(CommonSampleColDefKind.CODE.name(), true);
         checkCommand.expectedColumnWidth(CommonSampleColDefKind.REGISTRATOR.name(),
                 2 * DEFAULT_COLUMN_WIDTH);
-        checkCommand.expectedColumnsNumber(13);
+        checkCommand.expectedColumnsNumber(14);
         remoteConsole.prepare(checkCommand);
 
         launchTest(30000);
@@ -136,7 +136,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         CheckSampleTable table = new CheckSampleTable();
         table.expectedRow(new SampleRow("3VCP1").identifier("CISD", "CISD").invalid().experiment(
                 "NEMO", "EXP1").derivedFromAncestor("3V-123", 1).derivedFromAncestor("MP001-1", 2));
-        table.expectedColumnsNumber(16);
+        table.expectedColumnsNumber(17);
         remoteConsole.prepare(table.expectedSize(15));
 
         launchTest(20000);
