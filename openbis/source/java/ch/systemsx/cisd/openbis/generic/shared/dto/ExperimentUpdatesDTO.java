@@ -39,7 +39,7 @@ public class ExperimentUpdatesDTO extends BasicExperimentUpdates
     private ProjectIdentifier projectIdentifier;
 
     // new attachments which will be added to the old ones
-    List<AttachmentPE> attachments;
+    private List<AttachmentPE> attachments;
 
     private SampleType sampleType;
 
