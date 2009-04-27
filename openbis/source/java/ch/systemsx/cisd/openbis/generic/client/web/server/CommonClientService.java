@@ -282,11 +282,14 @@ public final class CommonClientService extends AbstractClientService implements
             {
                 // Not directly needed but this refreshes the session.
                 getSessionToken();
+                getResultSetManager().removeResultSet(resultSetKey);
+            } catch (ch.systemsx.cisd.common.exceptions.InvalidSessionException e)
+            {
+                return; // there is no session, so nothing has to be removed from it
             } catch (InvalidSessionException e)
             {
                 return; // there is no session, so nothing has to be removed from it
             }
-            getResultSetManager().removeResultSet(resultSetKey);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
