@@ -32,10 +32,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.support.AbstractMultipartHttpServletRequest;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractCommandController;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -69,11 +70,20 @@ public final class UploadServiceServlet extends AbstractCommandController
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, UploadServiceServlet.class);
 
-    public UploadServiceServlet()
+    ISessionFilesSetter sessionFilesSetter;
+
+    @Private
+    UploadServiceServlet(ISessionFilesSetter sessionFilesSetter)
     {
         super(UploadedFilesBean.class);
         setSynchronizeOnSession(true);
         setRequireSession(true);
+        this.sessionFilesSetter = sessionFilesSetter;
+    }
+
+    public UploadServiceServlet()
+    {
+        this(new SessionFilesSetter());
     }
 
     @SuppressWarnings("unchecked")
@@ -133,14 +143,14 @@ public final class UploadServiceServlet extends AbstractCommandController
             final HttpServletResponse response, final Object command, final BindException errors)
             throws Exception
     {
-        if (request instanceof AbstractMultipartHttpServletRequest)
+        if (request instanceof MultipartHttpServletRequest)
         {
             // We must have a session reaching this point. See the constructor where we set
             // 'setRequireSession(true)'.
             final HttpSession session = request.getSession(false);
             assert session != null : "Session must be specified.";
-            final AbstractMultipartHttpServletRequest multipartRequest =
-                    (AbstractMultipartHttpServletRequest) request;
+            final MultipartHttpServletRequest multipartRequest =
+                    (MultipartHttpServletRequest) request;
             final String sessionKeysNumberParameter = request.getParameter("sessionKeysNumber");
             if (sessionKeysNumberParameter == null
                     || Integer.parseInt(sessionKeysNumberParameter) < 1)
@@ -148,36 +158,13 @@ public final class UploadServiceServlet extends AbstractCommandController
                 throw new ServletException(
                         "No form field 'sessionKeysNumber' could be found in the transmitted form.");
             }
-            List<String> sessionKeys = new ArrayList<String>();
-            for (int i = 0; i < Integer.parseInt(sessionKeysNumberParameter); i++)
-            {
-                String sessionKey = request.getParameter("sessionKey_" + i);
-                if (sessionKey == null)
-                {
-                    throw new ServletException("No field 'sessionKey_" + i
-                            + "' could be found in the transmitted form.");
-                }
-                sessionKeys.add(sessionKey);
-            }
             boolean atLeastOneFileUploaded = false;
-            for (String sessionKey : sessionKeys)
+            for (String sessionKey : extractSessionKeys(request, sessionKeysNumberParameter))
             {
-                final UploadedFilesBean uploadedFiles = new UploadedFilesBean();
-                for (final Iterator<String> iterator = cast(multipartRequest.getFileNames()); iterator
-                        .hasNext(); /**/)
-                {
-                    final String fileName = iterator.next();
-                    if (fileName.startsWith(sessionKey))
-                    {
-                        final MultipartFile multipartFile = multipartRequest.getFile(fileName);
-                        if (multipartFile.isEmpty() == false)
-                        {
-                            uploadedFiles.addMultipartFile(multipartFile);
-                            atLeastOneFileUploaded = true;
-                        }
-                    }
-                }
-                session.setAttribute(sessionKey, uploadedFiles);
+                // 
+                boolean fileExtracted =
+                        sessionFilesSetter.addFilesToSession(session, multipartRequest, sessionKey);
+                atLeastOneFileUploaded = atLeastOneFileUploaded || fileExtracted;
             }
             if (atLeastOneFileUploaded == false)
             {
@@ -187,5 +174,71 @@ public final class UploadServiceServlet extends AbstractCommandController
             sendResponse(response, null);
         }
         return null;
+    }
+
+    private static List<String> extractSessionKeys(final HttpServletRequest request,
+            final String sessionKeysNumberParameter) throws ServletException
+    {
+        List<String> sessionKeys = new ArrayList<String>();
+        for (int i = 0; i < Integer.parseInt(sessionKeysNumberParameter); i++)
+        {
+            String sessionKey = StringUtils.trim(request.getParameter("sessionKey_" + i));
+            if (StringUtils.isBlank(sessionKey))
+            {
+                throw new ServletException("No field 'sessionKey_" + i
+                        + "' could be found in the transmitted form.");
+            }
+            sessionKeys.add(sessionKey);
+        }
+        return sessionKeys;
+    }
+
+    @Private
+    interface ISessionFilesSetter
+    {
+        /**
+         * Adds extracted {@link UploadedFilesBean}s to the session.
+         * 
+         * @return <code>true</code> if at least one file has been found and added
+         */
+        public boolean addFilesToSession(final HttpSession session,
+                final MultipartHttpServletRequest multipartRequest, String sessionKey);
+    }
+
+    @Private
+    static class SessionFilesSetter implements ISessionFilesSetter
+    {
+        public boolean addFilesToSession(final HttpSession session,
+                final MultipartHttpServletRequest multipartRequest, String sessionKey)
+        {
+            return addFilesToSessionUsingBean(session, multipartRequest, sessionKey,
+                    new UploadedFilesBean());
+        }
+
+        @Private
+        boolean addFilesToSessionUsingBean(final HttpSession session,
+                final MultipartHttpServletRequest multipartRequest, String sessionKey,
+                final UploadedFilesBean uploadedFiles)
+        {
+            assert StringUtils.isBlank(sessionKey) == false;
+            boolean fileUploaded = false;
+            for (final Iterator<String> iterator = cast(multipartRequest.getFileNames()); iterator
+                    .hasNext(); /**/)
+            {
+                final String fileName = iterator.next();
+                if (fileName.startsWith(sessionKey))
+                {
+                    final MultipartFile multipartFile = multipartRequest.getFile(fileName);
+                    if (multipartFile.isEmpty() == false)
+                    {
+                        uploadedFiles.addMultipartFile(multipartFile);
+                        fileUploaded = true;
+                    }
+                }
+            }
+            session.setAttribute(sessionKey, uploadedFiles);
+            return fileUploaded;
+        }
+
     }
 }
