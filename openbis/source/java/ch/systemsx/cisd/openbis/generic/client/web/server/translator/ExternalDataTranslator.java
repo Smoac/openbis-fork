@@ -48,7 +48,8 @@ public class ExternalDataTranslator
     {
     }
 
-    public static List<ExternalData> translate(List<ExternalDataPE> list, String dedaultDataStoreBaseURL)
+    public static List<ExternalData> translate(List<ExternalDataPE> list,
+            String dedaultDataStoreBaseURL)
     {
         ArrayList<ExternalData> result = new ArrayList<ExternalData>(list.size());
         for (ExternalDataPE externalDataPE : list)
@@ -59,17 +60,19 @@ public class ExternalDataTranslator
         return result;
     }
 
-    public static ExternalData translate(ExternalDataPE externalDataPE, String defaultDataStoreBaseURL,
-            final LoadableFields... withExperimentFields)
+    public static ExternalData translate(ExternalDataPE externalDataPE,
+            String defaultDataStoreBaseURL, final LoadableFields... withExperimentFields)
     {
         return translate(externalDataPE, defaultDataStoreBaseURL, false, withExperimentFields);
     }
 
-    public static ExternalData translate(ExternalDataPE externalDataPE, String defaultDataStoreBaseURL,
-            boolean loadSampleProperties, final LoadableFields... withExperimentFields)
+    public static ExternalData translate(ExternalDataPE externalDataPE,
+            String defaultDataStoreBaseURL, boolean loadSampleProperties,
+            final LoadableFields... withExperimentFields)
     {
         SamplePE sample = tryToGetSample(externalDataPE);
         ExternalData externalData = new ExternalData();
+        externalData.setId(externalDataPE.getId());
         externalData.setCode(StringEscapeUtils.escapeHtml(externalDataPE.getCode()));
         externalData.setComplete(BooleanOrUnknown.tryToResolve(externalDataPE.getComplete()));
         externalData.setDataProducerCode(StringEscapeUtils.escapeHtml(externalDataPE
@@ -85,6 +88,7 @@ public class ExternalDataTranslator
         externalData.setParentCode(StringEscapeUtils
                 .escapeHtml(tryToGetCodeOfFirstParent(externalDataPE)));
         externalData.setProductionDate(externalDataPE.getProductionDate());
+        externalData.setModificationDate(externalDataPE.getModificationDate());
         externalData.setRegistrationDate(externalDataPE.getRegistrationDate());
         externalData.setSampleIdentifier(sample == null ? null : StringEscapeUtils
                 .escapeHtml(sample.getSampleIdentifier().toString()));
@@ -92,7 +96,8 @@ public class ExternalDataTranslator
                 .getSampleType()));
         externalData.setSampleCode(sample == null ? null : StringEscapeUtils.escapeHtml(sample
                 .getCode()));
-        externalData.setDataStore(DataStoreTranslator.translate(externalDataPE.getDataStore(), defaultDataStoreBaseURL));
+        externalData.setDataStore(DataStoreTranslator.translate(externalDataPE.getDataStore(),
+                defaultDataStoreBaseURL));
         if (loadSampleProperties && sample != null)
         {
             externalData.setSampleProperties(SamplePropertyTranslator.translate(sample
@@ -100,7 +105,8 @@ public class ExternalDataTranslator
         }
         setProperties(externalDataPE, externalData);
         ExperimentPE experiment = externalDataPE.getExperiment();
-        externalData.setExperiment(ExperimentTranslator.translate(experiment, withExperimentFields));
+        externalData
+                .setExperiment(ExperimentTranslator.translate(experiment, withExperimentFields));
         return externalData;
     }
 

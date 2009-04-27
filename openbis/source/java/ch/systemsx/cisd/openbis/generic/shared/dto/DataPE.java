@@ -38,6 +38,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -98,6 +99,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     private ExperimentPE experiment;
 
     private Date productionDate;
+
+    private Date modificationDate;
 
     private String dataProducerCode;
 
@@ -205,7 +208,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     {
         this.sampleDerivedFrom = sampleDerivedFrom;
     }
-    
+
     @Transient
     public SamplePE getAssociatedSample()
     {
@@ -261,6 +264,18 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     public void setDataProducerCode(final String dataProducerCode)
     {
         this.dataProducerCode = dataProducerCode;
+    }
+
+    @Version
+    @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date versionDate)
+    {
+        this.modificationDate = versionDate;
     }
 
     public void setId(final Long id)

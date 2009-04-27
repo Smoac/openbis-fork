@@ -32,11 +32,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ClientPluginAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableDataSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableExperiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableMaterial;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -51,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer;
@@ -106,6 +111,11 @@ public final class ClientPluginFactory extends
         {
             return (IClientPlugin<T, S, P, I, V>) new MaterialClientPlugin();
         }
+        if (EntityKind.DATA_SET.equals(entityKind))
+        {
+            return (IClientPlugin<T, S, P, I, V>) new DataSetClientPlugin();
+        }
+
         throw new UnsupportedOperationException("IClientPlugin for entity kind '" + entityKind
                 + "' not implemented yet.");
     }
@@ -303,6 +313,32 @@ public final class ClientPluginFactory extends
                     public String getId()
                     {
                         return GenericExperimentEditForm.ID_PREFIX + entity.getId();
+                    }
+                };
+        }
+    }
+
+    private final class DataSetClientPlugin
+            extends
+            ClientPluginAdapter<DataSetType, DataSetTypePropertyType, DataSetProperty, IIdentifierHolder, EditableDataSet>
+    {
+
+        @Override
+        public ITabItemFactory createEntityEditor(final EditableDataSet entity)
+        {
+            return new ITabItemFactory()
+                {
+                    public ITabItem create()
+                    {
+                        DatabaseModificationAwareComponent component =
+                                GenericDataSetEditForm.create(getViewContext(), entity, true);
+                        String title = getEditTitle(Dict.DATA_SET, entity.getIdentifier());
+                        return DefaultTabItem.create(title, component, getViewContext(), true);
+                    }
+
+                    public String getId()
+                    {
+                        return GenericDataSetEditForm.ID_PREFIX + entity.getId();
                     }
                 };
         }

@@ -40,6 +40,8 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 
     private Boolean complete;
 
+    private Long id;
+
     private Invalidation invalidation;
 
     private Experiment experiment;
@@ -47,6 +49,8 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     private DataSetType dataSetType;
 
     private Date productionDate;
+
+    private Date modificationDate;
 
     private String producerCode;
 
@@ -133,6 +137,16 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     public final void setProductionDate(Date productionDate)
     {
         this.productionDate = productionDate;
+    }
+
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date modificationDate)
+    {
+        this.modificationDate = modificationDate;
     }
 
     public final String getDataProducerCode()
@@ -254,4 +268,15 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     {
         return getCode();
     }
+
+    public Long getId()
+    {
+        return id;
+    }
+
+    public void setId(Long id)
+    {
+        this.id = id;
+    }
+
 }

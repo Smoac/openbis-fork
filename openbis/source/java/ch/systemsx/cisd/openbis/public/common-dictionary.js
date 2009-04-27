@@ -15,6 +15,7 @@ var common = {
   filter: "Filter",
   filters: "Filters",
   not_implemented: "Sorry, feature has not been implemented yet!",
+  data_set: "Data Set",
   edit: "Edit",
   material: "Material",
   load_in_progress: "Loading...",

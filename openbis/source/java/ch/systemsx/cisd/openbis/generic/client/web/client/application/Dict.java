@@ -535,6 +535,8 @@ public abstract class Dict
 
     public static final String MATERIAL = "material";
 
+    public static final String DATA_SET = "data_set";
+
     public static final String LEADER = "leader";
 
     public static final String FILTER = "filter";

@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.MaterialTra
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
@@ -488,6 +489,13 @@ public final class GenericClientService extends AbstractClientService implements
                     genericServer.editExperiment(sessionToken, updatesDTO);
                 }
             }.process(updates.getAttachmentSessionKey(), getHttpSession());
+    }
+
+    public void updateDataSet(String dataSetIdentifier, List<DataSetProperty> properties,
+            Date version)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        // TODO 2009-04-27, Piotr Buczek: call server edit method
     }
 
     private static ExperimentUpdatesDTO createExperimentUpdatesDTO(ExperimentUpdates updates,

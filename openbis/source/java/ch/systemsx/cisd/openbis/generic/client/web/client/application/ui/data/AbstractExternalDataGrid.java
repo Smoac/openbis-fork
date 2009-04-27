@@ -37,9 +37,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.EntityGridModelFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableDataSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
@@ -55,6 +60,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -322,7 +331,10 @@ public abstract class AbstractExternalDataGrid
                     return new UploadConfirmationDialog(viewContext, dataSets, invoker);
                 }
             });
+        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
+                asShowEntityInvoker(true)));
         allowMultipleSelection();
+
     }
 
     private static ICriteriaProvider<PropertyTypesCriteria> createCriteriaProvider(
@@ -337,6 +349,11 @@ public abstract class AbstractExternalDataGrid
     {
         Button button = new Button(viewContext.getMessage(labelKey));
         button.addSelectionListener(action);
+        addButton(button);
+    }
+
+    private void addButton(Button button)
+    {
         pagingToolbar.add(new AdapterToolItem(button));
     }
 
@@ -419,6 +436,29 @@ public abstract class AbstractExternalDataGrid
     @Override
     protected void showEntityViewer(BaseEntityModel<ExternalData> modelData, boolean editMode)
     {
-        // do nothing
+        final ExternalData dataSet = modelData.getBaseObject();
+        // only edition is available
+        showEntityEditor(dataSet);
     }
+
+    private void showEntityEditor(ExternalData dataSet)
+    {
+        final EntityKind entityKind = EntityKind.DATA_SET;
+        final IClientPluginFactory clientPluginFactory =
+                viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
+                        dataSet.getDataSetType());
+        final IClientPlugin<DataSetType, DataSetTypePropertyType, DataSetProperty, IIdentifierHolder, EditableDataSet> createClientPlugin =
+                clientPluginFactory.createClientPlugin(entityKind);
+        final EditableDataSet editableEntity = createEditableEntity(dataSet);
+        final ITabItemFactory tabView = createClientPlugin.createEntityEditor(editableEntity);
+        DispatcherHelper.dispatchNaviEvent(tabView);
+    }
+
+    private final EditableDataSet createEditableEntity(ExternalData dataSet)
+    {
+        return new EditableDataSet(dataSet.getDataSetType().getAssignedPropertyTypes(), dataSet
+                .getProperties(), dataSet.getDataSetType(), dataSet.getIdentifier(), dataSet
+                .getId(), dataSet.getModificationDate());
+    }
+
 }

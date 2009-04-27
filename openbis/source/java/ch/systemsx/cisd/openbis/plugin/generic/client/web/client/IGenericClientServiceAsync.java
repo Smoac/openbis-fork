@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -110,6 +111,12 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
      */
     public void updateSample(String sessionKey, final String sampleIdentifier,
             List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
+            Date version, final AsyncCallback<Void> asyncCallback) throws UserFailureException;
+
+    /**
+     * @see IGenericClientService#updateDataSet(String, List, Date)
+     */
+    public void updateDataSet(final String dataSetIdentifier, List<DataSetProperty> properties,
             Date version, final AsyncCallback<Void> asyncCallback) throws UserFailureException;
 
 }
