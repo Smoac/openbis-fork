@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentsSection;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider.ListPropertyTypesCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
@@ -47,6 +48,7 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
         addCallbackClass(ExperimentInfoCallback.class);
         addCallbackClass(SampleBrowserGrid.ListEntitiesCallback.class);
         addCallbackClass(ExperimentDataSetBrowser.ListEntitiesCallback.class);
+        addCallbackClass(ListPropertyTypesCallback.class);
     }
 
     public Property property(final String name)
@@ -74,8 +76,7 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
     public CheckTableCommand attachmentsTable()
     {
         attachmentsSection =
-                new CheckTableCommand(AttachmentsSection.ATTACHMENTS_ID_PREFIX
-                        + identifier);
+                new CheckTableCommand(AttachmentsSection.ATTACHMENTS_ID_PREFIX + identifier);
         return attachmentsSection;
     }
 

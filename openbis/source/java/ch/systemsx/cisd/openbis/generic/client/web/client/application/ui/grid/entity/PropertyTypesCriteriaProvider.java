@@ -43,7 +43,8 @@ public class PropertyTypesCriteriaProvider implements ICriteriaProvider<Property
                 new ListPropertyTypesCallback(viewContext, dataRefreshCallback));
     }
 
-    private class ListPropertyTypesCallback extends AbstractAsyncCallback<ResultSet<PropertyType>>
+    // public only for tests
+    public class ListPropertyTypesCallback extends AbstractAsyncCallback<ResultSet<PropertyType>>
     {
         private final IDataRefreshCallback dataRefreshCallback;
 

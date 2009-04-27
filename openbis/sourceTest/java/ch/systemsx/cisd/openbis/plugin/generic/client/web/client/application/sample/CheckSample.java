@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.plugin.generic.client.web.client.applicat
 import static ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.ID_PREFIX;
 import static ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.PROPERTIES_ID_PREFIX;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider.ListPropertyTypesCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IPropertyChecker;
@@ -29,17 +30,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Property
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.SampleGenerationInfoCallback;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class CheckSample extends AbstractDefaultTestCommand implements IPropertyChecker<CheckSample>
+public class CheckSample extends AbstractDefaultTestCommand implements
+        IPropertyChecker<CheckSample>
 {
 
     private final String identifier;
+
     private final PropertyCheckingManager propertyCheckingManager;
-    
+
     private CheckTableCommand componentsTableCheck;
+
     private CheckTableCommand dataTableCheck;
 
     public CheckSample(String identifierPrefix, String code)
@@ -49,19 +51,20 @@ public class CheckSample extends AbstractDefaultTestCommand implements IProperty
         addCallbackClass(SampleGenerationInfoCallback.class);
         addCallbackClass(GenericSampleViewer.ListSamplesCallback.class);
         addCallbackClass(SampleDataSetBrowser.ListEntitiesCallback.class);
+        addCallbackClass(ListPropertyTypesCallback.class);
     }
-    
+
     public Property property(String name)
     {
         return new Property(name, this);
     }
-    
+
     public CheckSample property(String name, IValueAssertion<?> valueAssertion)
     {
         propertyCheckingManager.addExcpectedProperty(name, valueAssertion);
         return this;
     }
-    
+
     public CheckTableCommand componentsTable()
     {
         componentsTableCheck = new CheckTableCommand(ID_PREFIX + identifier + COMPONENTS_POSTFIX);
