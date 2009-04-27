@@ -83,6 +83,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo.SortDir;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -549,7 +550,14 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         {
             grid.el().unmask();
             onComplete(false);
-            delegate.onFailure(caught);
+            if (caught instanceof UserFailureException)
+            {
+                MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_ERROR),
+                        caught.getMessage(), null);
+            } else
+            {
+                delegate.onFailure(caught);
+            }
         }
 
         @Override
