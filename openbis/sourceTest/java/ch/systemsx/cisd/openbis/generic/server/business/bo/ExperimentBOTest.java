@@ -353,8 +353,11 @@ public final class ExperimentBOTest extends AbstractBOTest
     @Test
     public final void testEditSamples()
     {
+        // we test if this sample will stay assigned to the experiment if it was assigned before
         SamplePE untouchedSample = createSampleWithCode("untouchedSample");
+        // we test unasignment of this sample from the experiment
         SamplePE unassignedSample = createSampleWithCode("unassignedSample");
+        // we test if this sample will be assigned to the experiment
         SamplePE assignedSample = createSampleWithCode("assignedSample");
 
         final ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
@@ -368,7 +371,7 @@ public final class ExperimentBOTest extends AbstractBOTest
 
         String[] editedSamples = new String[]
             { untouchedSample.getCode(), assignedSample.getCode() };
-        expBO.updateSamples(editedSamples, false);
+        expBO.setExperimentSamples(editedSamples);
         assertEquals(exp, untouchedSample.getExperiment());
         assertEquals(exp, assignedSample.getExperiment());
         assertNull(unassignedSample.getExperiment());
@@ -407,7 +410,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         String errorMsg = "Sample 'assignedSample' is already assigned to the experiment";
         try
         {
-            expBO.updateSamples(editedSamples, false);
+            expBO.setExperimentSamples(editedSamples);
         } catch (UserFailureException e)
         {
 
@@ -433,8 +436,8 @@ public final class ExperimentBOTest extends AbstractBOTest
                 "Samples with following codes do not exist in the group 'HOME_GROUP': '[unknownSampleCode]'.";
         try
         {
-            expBO.updateSamples(new String[]
-                { unknownSampleCode }, false);
+            expBO.setExperimentSamples(new String[]
+                { unknownSampleCode });
         } catch (UserFailureException e)
         {
 
@@ -469,7 +472,7 @@ public final class ExperimentBOTest extends AbstractBOTest
                 "Operation cannot be performed, because some datasets have been already produced for the sample 'assignedSample'.";
         try
         {
-            expBO.updateSamples(new String[] {}, false); // remove all samples
+            expBO.setExperimentSamples(new String[] {}); // remove all samples
         } catch (UserFailureException e)
         {
 

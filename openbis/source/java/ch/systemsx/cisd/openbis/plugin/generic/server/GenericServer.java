@@ -31,12 +31,10 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
@@ -50,7 +48,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
@@ -58,7 +55,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -320,71 +316,14 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     public void editExperiment(String sessionToken, ExperimentUpdatesDTO updates)
     {
-        ProjectIdentifier newProjectIdentifier = updates.getProjectIdentifier();
-        ExperimentIdentifier identifier = updates.getExperimentIdentifier();
         final Session session = getSessionManager().getSession(sessionToken);
         if (updates.isRegisterSamples())
         {
             registerSamples(sessionToken, updates.getSampleType(), updates.getNewSamples());
         }
-        if (newProjectIdentifier.equals(identifier) == false)
-        {
-            checkExternalData(identifier, session);
-            checkSampleConsistency(identifier, newProjectIdentifier, session);
-        }
-
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
         experimentBO.edit(updates);
         experimentBO.save();
-    }
-
-    private void checkExternalData(ExperimentIdentifier identifier, final Session session)
-    {
-        final IExternalDataTable externalDataTable =
-                businessObjectFactory.createExternalDataTable(session);
-        externalDataTable.loadByExperimentIdentifier(identifier);
-        if (externalDataTable.getExternalData().size() > 0)
-        {
-            throw new UserFailureException(
-                    "Changing the project of experiment containing data sets is not allowed.");
-        }
-    }
-
-    private void checkSampleConsistency(ExperimentIdentifier identifier,
-            ProjectIdentifier newProjectIdentifier, final Session session)
-    {
-        ListSampleCriteriaDTO criteria =
-                ListSampleCriteriaDTO.createExperimentIdentifier(identifier);
-        final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
-        sampleTable.loadSamplesByCriteria(criteria);
-        final List<SamplePE> samples = sampleTable.getSamples();
-        if (samples.size() > 0)
-        {
-            checkExperimentGroupMatches(samples.get(0).getSampleIdentifier(), newProjectIdentifier);
-        }
-    }
-
-    private void checkExperimentGroupMatches(SampleIdentifier sampleIdentifier,
-            ProjectIdentifier newProjectIdentifier)
-    {
-        assert sampleIdentifier != null : "Sample identifier not specified";
-        assert newProjectIdentifier != null : "Project identifier not specified";
-        final GroupIdentifier sampleGroup = sampleIdentifier.getGroupLevel();
-        if (sampleGroup == null)
-        {
-            throw new UserFailureException(
-                    "Inconsistency detected: shared sample found in experiment.");
-        }
-        if (sampleGroup.getDatabaseInstanceCode().equals(
-                newProjectIdentifier.getDatabaseInstanceCode()) == false
-                || sampleGroup.getGroupCode().equals(newProjectIdentifier.getGroupCode()) == false)
-        {
-            throw new UserFailureException(
-                    String
-                            .format(
-                                    "Project cannot be changed to '%s' because experiment containes samples from group '%s'.",
-                                    newProjectIdentifier, sampleGroup));
-        }
     }
 
     public void editMaterial(String sessionToken, MaterialIdentifier identifier,

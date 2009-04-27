@@ -318,34 +318,56 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         {
             addAttachment(a);
         }
-        String[] sampleCodes = updates.getSampleCodes();
-        if (sampleCodes != null)
-        {
-            updateSamples(sampleCodes, updates.isRegisterSamples());
-        }
+        updateSamples(updates);
+
         dataChanged = true;
     }
 
+    private void updateSamples(ExperimentUpdatesDTO updates)
+    {
+        String[] sampleCodes = updates.getSampleCodes();
+        if (sampleCodes != null)
+        {
+            if (updates.isRegisterSamples())
+            {
+                attachSamples(sampleCodes);
+            } else
+            {
+                setExperimentSamples(sampleCodes);
+            }
+        }
+    }
+
     @Private
-    void updateSamples(String[] sampleCodes, boolean append)
+    // attaches specified existing samples to the experiment
+    void attachSamples(String[] sampleCodes)
+    {
+        List<SamplePE> samplesToAdd = findUnassignedSamplesByCodes(asSet(sampleCodes));
+        addToExperiment(samplesToAdd);
+    }
+
+    @Private
+    // changes the list of samples assigned to this experiment to the specified one
+    void setExperimentSamples(String[] sampleCodes)
     {
         List<SamplePE> samples = experiment.getSamples();
         String[] currentSampleCodes = extractCodes(samples);
         Set<String> currentSampleCodesSet = asSet(currentSampleCodes);
         Set<String> codesToAdd = asSet(sampleCodes);
-        if (append == false)
-        {
-            codesToAdd.removeAll(currentSampleCodesSet);
-        }
-        GroupPE group = experiment.getProject().getGroup();
-        List<SamplePE> samplesToAdd = findUnassignedSamples(getSampleDAO(), codesToAdd, group);
+        codesToAdd.removeAll(currentSampleCodesSet);
+
+        List<SamplePE> samplesToAdd = findUnassignedSamplesByCodes(codesToAdd);
         addToExperiment(samplesToAdd);
-        if (append == false)
-        {
-            Set<String> codesToRemove = asSet(currentSampleCodes);
-            codesToRemove.removeAll(asSet(sampleCodes));
-            removeFromExperiment(filterSamples(samples, codesToRemove));
-        }
+
+        Set<String> codesToRemove = asSet(currentSampleCodes);
+        codesToRemove.removeAll(asSet(sampleCodes));
+        removeFromExperiment(filterSamples(samples, codesToRemove));
+    }
+
+    private List<SamplePE> findUnassignedSamplesByCodes(Set<String> codesToAdd)
+    {
+        GroupPE group = experiment.getProject().getGroup();
+        return findUnassignedSamples(getSampleDAO(), codesToAdd, group);
     }
 
     private static List<SamplePE> filterSamples(List<SamplePE> samples, Set<String> extractedCodes)
@@ -379,7 +401,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     }
 
     // Finds samples in the specified group. Throws exception if some samples do not exist.
-    // Throws exception if any sample is already assigned to an experiment.
+    // Throws exception if any sample code specified is already assigned to an experiment.
     private static List<SamplePE> findUnassignedSamples(ISampleDAO sampleDAO,
             Set<String> sampleCodes, GroupPE group) throws UserFailureException
     {
@@ -435,7 +457,24 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         return codes;
     }
 
-    private void updateProject(ProjectIdentifier newProjectIdentifier)
+    @Private
+    void updateProject(ProjectIdentifier newProjectIdentifier)
+    {
+        ProjectPE project = findProject(newProjectIdentifier);
+        ProjectPE previousProject = experiment.getProject();
+        if (project.equals(previousProject))
+        {
+            return; // nothing to change
+        }
+        // if the group has changes, move all samples to that group
+        if (project.getGroup().equals(previousProject.getGroup()) == false)
+        {
+            updateSamplesGroup(project.getGroup());
+        }
+        experiment.setProject(project);
+    }
+
+    private ProjectPE findProject(ProjectIdentifier newProjectIdentifier)
     {
         ProjectPE project =
                 getProjectDAO().tryFindProject(newProjectIdentifier.getDatabaseInstanceCode(),
@@ -444,7 +483,19 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         {
             throw UserFailureException.fromTemplate(ERR_PROJECT_NOT_FOUND, newProjectIdentifier);
         }
-        experiment.setProject(project);
+        return project;
+    }
+
+    // for all samples which belonged to a group the specified group will be set
+    private void updateSamplesGroup(GroupPE group)
+    {
+        for (SamplePE sample : experiment.getSamples())
+        {
+            if (sample.getGroup() != null)
+            {
+                sample.setGroup(group);
+            }
+        }
     }
 
     private void updateProperties(List<ExperimentProperty> properties)
