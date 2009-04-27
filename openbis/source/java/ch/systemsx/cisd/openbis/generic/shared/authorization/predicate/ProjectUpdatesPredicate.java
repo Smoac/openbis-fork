@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataP
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
  * An <code>IPredicate</code> implementation based on {@link ProjectUpdatesDTO}. Checks that: 1) the
@@ -58,12 +59,18 @@ public class ProjectUpdatesPredicate extends AbstractPredicate<ProjectUpdatesDTO
         assert groupPredicate.inited : "Predicate has not been initialized";
         Status status;
         status = groupPredicate.doEvaluation(person, allowedRoles, updates.getIdentifier());
-        // if (status.equals(Status.OK) == false)
-        // {
-        // return status;
-        // }
-        // status = groupPredicate.doEvaluation(person, allowedRoles,
-        // updates.getNewGroupIdentifier());
+        if (status.equals(Status.OK) == false)
+        {
+            return status;
+        }
+        String newGroupCode = updates.getGroupCode();
+        if (newGroupCode != null)
+        {
+            GroupIdentifier newGroupIdentifier =
+                    new GroupIdentifier(updates.getIdentifier().getDatabaseInstanceCode(),
+                            newGroupCode);
+            status = groupPredicate.doEvaluation(person, allowedRoles, newGroupIdentifier);
+        }
         return status;
     }
 }

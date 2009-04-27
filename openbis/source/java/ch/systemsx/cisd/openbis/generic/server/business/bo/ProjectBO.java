@@ -23,10 +23,12 @@ import java.util.Set;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -203,7 +205,34 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         {
             addAttachment(a);
         }
+        String groupCode = updates.getGroupCode();
+        if (groupCode != null && groupCode.equals(project.getGroup().getCode()) == false)
+        {
+            updateGroup(groupCode);
+        }
         dataChanged = true;
+    }
 
+    private void updateGroup(String groupCode)
+    {
+        GroupPE group = findGroup(groupCode);
+        project.setGroup(group);
+        for (ExperimentPE experiment : project.getExperiments())
+        {
+            SampleUtils.setSamplesGroup(experiment, group);
+        }
+    }
+
+    private GroupPE findGroup(String groupCode)
+    {
+        GroupPE group =
+                getGroupDAO().tryFindGroupByCodeAndDatabaseInstance(groupCode,
+                        project.getGroup().getDatabaseInstance());
+        if (group == null)
+        {
+            throw UserFailureException
+                    .fromTemplate("No group with the name '%s' found!", groupCode);
+        }
+        return group;
     }
 }

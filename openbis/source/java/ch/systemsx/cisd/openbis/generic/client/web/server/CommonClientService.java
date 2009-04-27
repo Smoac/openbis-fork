@@ -1260,6 +1260,7 @@ public final class CommonClientService extends AbstractClientService implements
         final ProjectIdentifier projectIdentifier =
                 new ProjectIdentifierFactory(updates.getIdentifier()).createIdentifier();
         updatesDTO.setIdentifier(projectIdentifier);
+        updatesDTO.setGroupCode(updates.getGroupCode());
         return updatesDTO;
     }
 

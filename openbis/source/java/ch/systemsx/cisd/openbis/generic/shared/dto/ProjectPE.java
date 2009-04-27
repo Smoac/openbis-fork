@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -41,6 +43,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
+import org.hibernate.search.annotations.ContainedIn;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -49,6 +52,9 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
+import ch.rinn.restrictions.Friend;
+import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
@@ -65,6 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 @Table(name = TableNames.PROJECTS_TABLE, uniqueConstraints =
     { @UniqueConstraint(columnNames =
         { ColumnNames.CODE_COLUMN, ColumnNames.GROUP_COLUMN }) })
+@Friend(toClasses = ExperimentPE.class)
 public final class ProjectPE extends AttachmentHolderPE implements Comparable<ProjectPE>,
         IIdAndCodeHolder, Serializable
 {
@@ -75,6 +82,8 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     private transient Long id;
 
     private GroupPE group;
+
+    private List<ExperimentPE> experiments = new ArrayList<ExperimentPE>();
 
     private String code;
 
@@ -135,11 +144,54 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
 
     @ManyToOne(fetch = FetchType.EAGER)
     @NotNull(message = ValidationMessages.GROUP_NOT_NULL_MESSAGE)
-    @JoinColumn(name = ColumnNames.GROUP_COLUMN, updatable = false)
+    @JoinColumn(name = ColumnNames.GROUP_COLUMN, updatable = true)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_GROUP)
     public final GroupPE getGroup()
     {
         return group;
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "projectInternal")
+    @JoinColumn(name = ColumnNames.PROJECT_COLUMN, updatable = true)
+    @ContainedIn
+    private List<ExperimentPE> getExperimentsInternal()
+    {
+        return experiments;
+    }
+
+    // hibernate only
+    @SuppressWarnings("unused")
+    private void setExperimentsInternal(List<ExperimentPE> experiments)
+    {
+        this.experiments = experiments;
+    }
+
+    @Transient
+    /* Note: modifications of the returned collection will result in an exception. */
+    public List<ExperimentPE> getExperiments()
+    {
+        return new UnmodifiableListDecorator<ExperimentPE>(getExperimentsInternal());
+    }
+
+    public void setExperiments(List<ExperimentPE> experiments)
+    {
+        getExperimentsInternal().clear();
+        for (ExperimentPE experiment : experiments)
+        {
+            addExperiment(experiment);
+        }
+    }
+
+    @Private
+    void addExperiment(ExperimentPE experiment)
+    {
+        ProjectPE project = experiment.getProject();
+        if (project != null)
+        {
+            project.getExperimentsInternal().remove(experiment);
+        }
+        experiment.setProjectInternal(this);
+        getExperimentsInternal().add(experiment);
     }
 
     @Transient

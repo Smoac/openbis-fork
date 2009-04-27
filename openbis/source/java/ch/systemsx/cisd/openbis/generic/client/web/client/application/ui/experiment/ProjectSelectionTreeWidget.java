@@ -189,7 +189,7 @@ public final class ProjectSelectionTreeWidget extends Tree implements IDatabaseM
         viewContext.getCommonService().listProjects(config, new ListProjectsCallback(viewContext));
     }
 
-    public void trySelectByIdentifier(String projectIdentifier)
+    private void selectByIdentifierIfPossible(String projectIdentifier)
     {
         GWTUtils
                 .setSelectedItem(this, ModelDataPropertyNames.PROJECT_IDENTIFIER, projectIdentifier);
@@ -220,9 +220,10 @@ public final class ProjectSelectionTreeWidget extends Tree implements IDatabaseM
         {
             List<Project> projects = result.getList();
             rebuildTree(getProjectsFilteredByGroup(projects));
+
             if (selectedProjectOrNull != null)
             {
-                trySelectByIdentifier(selectedProjectOrNull.getIdentifier());
+                selectByIdentifierIfPossible(selectedProjectOrNull.getIdentifier());
             }
         }
 

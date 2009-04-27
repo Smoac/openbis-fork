@@ -27,6 +27,7 @@ import org.springframework.dao.DataAccessException;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
@@ -387,7 +388,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     {
         for (SamplePE sample : samples)
         {
-            SampleBO.checkSampleWithoutDatasets(getExternalDataDAO(), sample);
+            SampleUtils.checkSampleWithoutDatasets(getExternalDataDAO(), sample);
             experiment.removeSample(sample);
         }
     }
@@ -469,7 +470,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         // if the group has changes, move all samples to that group
         if (project.getGroup().equals(previousProject.getGroup()) == false)
         {
-            updateSamplesGroup(project.getGroup());
+            SampleUtils.setSamplesGroup(experiment, project.getGroup());
         }
         experiment.setProject(project);
     }
@@ -484,18 +485,6 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
             throw UserFailureException.fromTemplate(ERR_PROJECT_NOT_FOUND, newProjectIdentifier);
         }
         return project;
-    }
-
-    // for all samples which belonged to a group the specified group will be set
-    private void updateSamplesGroup(GroupPE group)
-    {
-        for (SamplePE sample : experiment.getSamples())
-        {
-            if (sample.getGroup() != null)
-            {
-                sample.setGroup(group);
-            }
-        }
     }
 
     private void updateProperties(List<ExperimentProperty> properties)

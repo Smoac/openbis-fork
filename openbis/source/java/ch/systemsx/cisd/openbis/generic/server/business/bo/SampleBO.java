@@ -24,21 +24,19 @@ import java.util.Set;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -167,7 +165,8 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             getSampleDAO().updateSample(sample);
         } catch (final DataAccessException ex)
         {
-            throwException(ex, String.format("Couldn't update sample '%s'", sample.getSampleIdentifier()));
+            throwException(ex, String.format("Couldn't update sample '%s'", sample
+                    .getSampleIdentifier()));
         }
         dataChanged = false;
     }
@@ -183,33 +182,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
 
     private final void checkSampleWithoutDatasets()
     {
-        checkSampleWithoutDatasets(getExternalDataDAO(), sample);
-    }
-
-    public static final void checkSampleWithoutDatasets(IExternalDataDAO externalDataDAO,
-            SamplePE sample)
-    {
-        if (hasDatasets(externalDataDAO, sample))
-        {
-            throw UserFailureException
-                    .fromTemplate(
-                            "Operation cannot be performed, because some datasets have been already produced for the sample '%s'.",
-                            sample.getSampleIdentifier());
-        }
-    }
-
-    private static boolean hasDatasets(IExternalDataDAO externalDataDAO, SamplePE sample)
-    {
-        assert sample != null;
-
-        long count = 0;
-        for (final SourceType dataSourceType : SourceType.values())
-        {
-            final List<ExternalDataPE> list =
-                    externalDataDAO.listExternalData(sample, dataSourceType);
-            count += list.size();
-        }
-        return count > 0;
+        SampleUtils.checkSampleWithoutDatasets(getExternalDataDAO(), sample);
     }
 
     private final static void checkSampleUnused(final SamplePE sample)
@@ -301,7 +274,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
 
     private boolean hasDatasets()
     {
-        return hasDatasets(getExternalDataDAO(), sample);
+        return SampleUtils.hasDatasets(getExternalDataDAO(), sample);
     }
 
     private boolean isExperimentChangeUnnecessary(ExperimentPE newExperimentOrNull,

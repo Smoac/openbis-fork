@@ -63,7 +63,7 @@ public class ExperimentDAO extends AbstractDAO implements IExperimentDAO
 
         final DetachedCriteria criteria = DetachedCriteria.forClass(ENTITY_CLASS);
         criteria.add(Restrictions.eq("experimentType", experimentType));
-        criteria.add(Restrictions.eq("project", project));
+        criteria.add(Restrictions.eq("projectInternal", project));
         final List<ExperimentPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
@@ -92,7 +92,7 @@ public class ExperimentDAO extends AbstractDAO implements IExperimentDAO
 
         final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(experimentCode)));
-        criteria.add(Restrictions.eq("project", project));
+        criteria.add(Restrictions.eq("projectInternal", project));
         final ExperimentPE experiment = (ExperimentPE) criteria.uniqueResult();
         if (operationLog.isDebugEnabled())
         {

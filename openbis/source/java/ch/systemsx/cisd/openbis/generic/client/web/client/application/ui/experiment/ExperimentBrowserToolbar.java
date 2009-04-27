@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 
 import java.util.Set;
 
@@ -107,7 +108,7 @@ class ExperimentBrowserToolbar extends ToolBar implements
     {
         return new DatabaseModificationKind[]
             { createOrDelete(ObjectKind.EXPERIMENT_TYPE), createOrDelete(ObjectKind.PROJECT),
-                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
+                    edit(ObjectKind.PROJECT), createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
     public void update(Set<DatabaseModificationKind> observedModifications,
@@ -122,10 +123,10 @@ class ExperimentBrowserToolbar extends ToolBar implements
         {
             entityTypeRefreshCallback.postRefresh(true);
         }
-        if (observedModifications.contains(createOrDelete(ObjectKind.PROJECT)))
+        if (observedModifications.contains(createOrDelete(ObjectKind.PROJECT))
+                || observedModifications.contains(edit(ObjectKind.PROJECT)))
         {
             selectProjectTree.update(observedModifications);
         }
     }
-
 }

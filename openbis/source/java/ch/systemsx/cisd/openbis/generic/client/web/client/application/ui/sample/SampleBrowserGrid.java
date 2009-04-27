@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
+
 import java.util.List;
 import java.util.Set;
 
@@ -383,7 +385,9 @@ public class SampleBrowserGrid extends
     @Override
     protected Set<DatabaseModificationKind> getGridRelevantModifications()
     {
-        return getGridRelevantModifications(ObjectKind.SAMPLE);
+        Set<DatabaseModificationKind> result = getGridRelevantModifications(ObjectKind.SAMPLE);
+        result.add(edit(ObjectKind.PROJECT));
+        return result;
     }
 
     @Override

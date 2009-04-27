@@ -59,6 +59,7 @@ import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
 import ch.rinn.restrictions.Friend;
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
@@ -79,7 +80,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
     { @UniqueConstraint(columnNames =
         { ColumnNames.CODE_COLUMN, ColumnNames.PROJECT_COLUMN }) })
 @Indexed
-@Friend(toClasses = AttachmentPE.class)
+@Friend(toClasses =
+    { AttachmentPE.class, ProjectPE.class })
 public class ExperimentPE extends AttachmentHolderPE implements
         IEntityPropertiesHolder<ExperimentPropertyPE>, IIdAndCodeHolder, Comparable<ExperimentPE>,
         IMatchingEntity, Serializable
@@ -190,14 +192,26 @@ public class ExperimentPE extends AttachmentHolderPE implements
     @NotNull(message = ValidationMessages.PROJECT_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.PROJECT_COLUMN, updatable = true)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROJECT)
-    public ProjectPE getProject()
+    private ProjectPE getProjectInternal()
     {
         return project;
     }
 
-    public void setProject(final ProjectPE project)
+    @Private
+    void setProjectInternal(final ProjectPE project)
     {
         this.project = project;
+    }
+
+    @Transient
+    public ProjectPE getProject()
+    {
+        return getProjectInternal();
+    }
+
+    public void setProject(final ProjectPE project)
+    {
+        project.addExperiment(this);
     }
 
     @ManyToOne(fetch = FetchType.EAGER)

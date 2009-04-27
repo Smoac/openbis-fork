@@ -120,30 +120,35 @@ public final class GWTUtils
     public final static void setSelectedItem(final Tree tree, final String property,
             final String value)
     {
+        TreeItem item = tryFindItem(tree, property, value);
+        if (item != null)
+        {
+            tree.setSelectedItem(item);
+        }
+    }
+
+    /** @return specified item from the tree if it's found, null otherwise */
+    public final static TreeItem tryFindItem(final Tree tree, final String property,
+            final String value)
+    {
         assert tree != null : "Unspecified tree.";
         assert property != null : "Unspecified model property.";
         assert value != null : "Unspecified model property value.";
         final List<TreeItem> items = tree.getAllItems();
 
-        final List<Object> possibleValues = new ArrayList<Object>();
         for (TreeItem item : items)
         {
             ModelData model = item.getModel();
             if (model != null)
             {
-                Object val = item.getModel().get(property);
+                Object val = model.get(property);
                 if (val == value || (val != null && val.equals(value)))
                 {
-                    tree.setSelectedItem(item);
-                    return;
-                } else
-                {
-                    possibleValues.add(item.getModel().get(property));
+                    return item;
                 }
             }
         }
-        throw new IllegalArgumentException("Given value '" + value + "' for property '" + property
-                + "' not found in the tree. Possible values are '" + possibleValues + "'.");
+        return null;
     }
 
     /**
