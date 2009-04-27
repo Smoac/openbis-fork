@@ -215,7 +215,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.GROUP_COLUMN, updatable = false)
+    @JoinColumn(name = ColumnNames.GROUP_COLUMN, updatable = true)
     public GroupPE getGroup()
     {
         return group;
