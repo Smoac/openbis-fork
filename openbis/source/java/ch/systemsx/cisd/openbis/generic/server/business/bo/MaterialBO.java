@@ -116,7 +116,7 @@ public final class MaterialBO extends AbstractBusinessObject implements IMateria
                 .getMaterialType());
     }
 
-    public void edit(MaterialIdentifier identifier, List<MaterialProperty> properties, Date version)
+    public void update(MaterialIdentifier identifier, List<MaterialProperty> properties, Date version)
     {
         loadByMaterialIdentifier(identifier);
         if (material.getModificationDate().equals(version) == false)

@@ -61,5 +61,5 @@ public interface IExperimentBO extends IBusinessObject
     /**
      * Changes given experiment.
      */
-    public void edit(ExperimentUpdatesDTO updates);
+    public void update(ExperimentUpdatesDTO updates);
 }

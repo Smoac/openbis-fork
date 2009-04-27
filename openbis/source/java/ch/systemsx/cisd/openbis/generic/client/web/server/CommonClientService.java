@@ -1235,7 +1235,7 @@ public final class CommonClientService extends AbstractClientService implements
                 {
                     ProjectUpdatesDTO updatesDTO = translate(updates);
                     updatesDTO.setAttachments(attachments);
-                    Date date = commonServer.editProject(sessionToken, updatesDTO);
+                    Date date = commonServer.updateProject(sessionToken, updatesDTO);
                     modificationDate.setTime(date.getTime());
                 }
             }.process(updates.getAttachmentSessionKey(), getHttpSession());

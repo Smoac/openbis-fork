@@ -150,7 +150,7 @@ public interface IGenericServer extends IPluginCommonServer
     @RolesAllowed(RoleSet.USER)
     @DatabaseUpdateModification(value =
         { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE })
-    public void editExperiment(
+    public void updateExperiment(
             String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class) ExperimentUpdatesDTO updates);
 
@@ -160,7 +160,7 @@ public interface IGenericServer extends IPluginCommonServer
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.MATERIAL)
-    public void editMaterial(String sessionToken, MaterialIdentifier identifier,
+    public void updateMaterial(String sessionToken, MaterialIdentifier identifier,
             List<MaterialProperty> properties, Date version);
 
     /**
@@ -169,7 +169,7 @@ public interface IGenericServer extends IPluginCommonServer
     @Transactional
     @RolesAllowed(RoleSet.USER)
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
-    public void editSample(
+    public void updateSample(
             String sessionToken,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) SampleIdentifier identifier,
             List<SampleProperty> properties,

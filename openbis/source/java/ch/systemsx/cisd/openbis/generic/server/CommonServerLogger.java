@@ -428,7 +428,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public Date editProject(String sessionToken, ProjectUpdatesDTO updates)
+    public Date updateProject(String sessionToken, ProjectUpdatesDTO updates)
     {
         logTracking(sessionToken, "edit_project", "PROJECT(%s) ATTACHMENTS_ADDED(%s)", updates.getIdentifier(),
                 updates.getAttachments().size());

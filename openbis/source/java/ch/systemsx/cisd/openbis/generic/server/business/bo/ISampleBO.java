@@ -78,7 +78,7 @@ public interface ISampleBO
      * Changes given sample. Currently allowed changes: properties and experiment to which the
      * sample is connected.
      */
-    void edit(SampleIdentifier identifier, List<SampleProperty> properties,
+    void update(SampleIdentifier identifier, List<SampleProperty> properties,
             ExperimentIdentifier experimentIdentifierOrNul, List<AttachmentPE> attachments,
             Date version);
 

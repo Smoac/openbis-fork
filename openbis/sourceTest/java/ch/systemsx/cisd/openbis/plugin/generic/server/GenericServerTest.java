@@ -438,12 +438,12 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(genericBusinessObjectFactory).createMaterialBO(SESSION);
                     will(returnValue(materialBO));
 
-                    one(materialBO).edit(identifier, properties, version);
+                    one(materialBO).update(identifier, properties, version);
                     one(materialBO).save();
 
                 }
             });
-        createServer().editMaterial(SESSION_TOKEN, identifier, properties, version);
+        createServer().updateMaterial(SESSION_TOKEN, identifier, properties, version);
         context.assertIsSatisfied();
     }
 
@@ -463,13 +463,13 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(genericBusinessObjectFactory).createSampleBO(SESSION);
                     will(returnValue(sampleBO));
 
-                    one(sampleBO).edit(identifier, properties, null, attachments, version);
+                    one(sampleBO).update(identifier, properties, null, attachments, version);
                     one(sampleBO).save();
 
                 }
             });
         createServer()
-                .editSample(SESSION_TOKEN, identifier, properties, null, attachments, version);
+                .updateSample(SESSION_TOKEN, identifier, properties, null, attachments, version);
         context.assertIsSatisfied();
     }
 
@@ -490,12 +490,12 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(genericBusinessObjectFactory).createExperimentBO(SESSION);
                     will(returnValue(experimentBO));
 
-                    one(experimentBO).edit(updates);
+                    one(experimentBO).update(updates);
                     one(experimentBO).save();
 
                 }
             });
-        createServer().editExperiment(SESSION_TOKEN, updates);
+        createServer().updateExperiment(SESSION_TOKEN, updates);
         context.assertIsSatisfied();
     }
 

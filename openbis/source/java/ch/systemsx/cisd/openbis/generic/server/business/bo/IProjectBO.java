@@ -69,5 +69,5 @@ public interface IProjectBO extends IBusinessObject
     /**
      * Updates the project.
      */
-    public void edit(ProjectUpdatesDTO updates);
+    public void update(ProjectUpdatesDTO updates);
 }

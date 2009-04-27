@@ -441,7 +441,7 @@ public final class GenericClientService extends AbstractClientService implements
                                 BeanUtils.createBean(ExperimentIdentifier.class,
                                         experimentIdentifierOrNull);
                     }
-                    genericServer.editSample(sessionToken, identifier, properties,
+                    genericServer.updateSample(sessionToken, identifier, properties,
                             convExperimentIdentifierOrNull, attachments, version);
                 }
             }.process(sessionKey, getHttpSession());
@@ -456,7 +456,7 @@ public final class GenericClientService extends AbstractClientService implements
             final String sessionToken = getSessionToken();
             final MaterialIdentifier identifier =
                     MaterialIdentifier.tryParseIdentifier(materialIdentifier);
-            genericServer.editMaterial(sessionToken, identifier, properties, version);
+            genericServer.updateMaterial(sessionToken, identifier, properties, version);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -486,7 +486,7 @@ public final class GenericClientService extends AbstractClientService implements
                 {
                     ExperimentUpdatesDTO updatesDTO =
                             createExperimentUpdatesDTO(updates, attachments);
-                    genericServer.editExperiment(sessionToken, updatesDTO);
+                    genericServer.updateExperiment(sessionToken, updatesDTO);
                 }
             }.process(updates.getAttachmentSessionKey(), getHttpSession());
     }

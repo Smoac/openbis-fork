@@ -529,7 +529,7 @@ public final class SampleBOTest extends AbstractBOTest
         prepareTryToLoadOfGroupSample(identifier, sample);
         try
         {
-            createSampleBO().edit(identifier, null, null, new ArrayList<AttachmentPE>(), now);
+            createSampleBO().update(identifier, null, null, new ArrayList<AttachmentPE>(), now);
         } catch (UserFailureException e)
         {
             return;
@@ -550,7 +550,7 @@ public final class SampleBOTest extends AbstractBOTest
         prepareTryToLoadOfGroupSample(identifier, sample);
         prepareNoPropertiesToUpdate(sample);
         ExperimentIdentifier experimentIdentifier = null;
-        createSampleBO().edit(identifier, null, experimentIdentifier,
+        createSampleBO().update(identifier, null, experimentIdentifier,
                 new ArrayList<AttachmentPE>(), now);
     }
 
@@ -616,7 +616,7 @@ public final class SampleBOTest extends AbstractBOTest
                     will(returnValue(new ArrayList<ExternalDataPE>()));
                 }
             });
-        createSampleBO().edit(identifier, null, experimentIdentifier,
+        createSampleBO().update(identifier, null, experimentIdentifier,
                 new ArrayList<AttachmentPE>(), now);
 
         assertEquals(experimentToAttach, sample.getExperiment());

@@ -43,5 +43,5 @@ public interface IMaterialBO extends IBusinessObject
     /**
      * Changes given material. Currently allowed changes: properties.
      */
-    public void edit(MaterialIdentifier identifier, List<MaterialProperty> properties, Date version);
+    public void update(MaterialIdentifier identifier, List<MaterialProperty> properties, Date version);
 }

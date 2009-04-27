@@ -234,7 +234,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         }
     }
 
-    public void edit(SampleIdentifier identifier, List<SampleProperty> properties,
+    public void update(SampleIdentifier identifier, List<SampleProperty> properties,
             ExperimentIdentifier experimentIdentifierOrNull, List<AttachmentPE> newAttachments,
             Date version)
     {

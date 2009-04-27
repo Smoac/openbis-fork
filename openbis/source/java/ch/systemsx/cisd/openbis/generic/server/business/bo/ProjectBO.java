@@ -191,7 +191,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         }
     }
 
-    public void edit(ProjectUpdatesDTO updates)
+    public void update(ProjectUpdatesDTO updates)
     {
         loadByProjectIdentifier(updates.getIdentifier());
         if (updates.getVersion().equals(project.getModificationDate()) == false)

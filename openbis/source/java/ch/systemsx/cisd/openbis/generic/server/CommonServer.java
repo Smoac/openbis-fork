@@ -787,11 +787,11 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return prefix + getDAOFactory().getCodeSequenceDAO().getNextCodeSequenceId();
     }
 
-    public Date editProject(String sessionToken, ProjectUpdatesDTO updates)
+    public Date updateProject(String sessionToken, ProjectUpdatesDTO updates)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IProjectBO bo = businessObjectFactory.createProjectBO(session);
-        bo.edit(updates);
+        bo.update(updates);
         bo.save();
         return bo.getProject().getModificationDate();
     }

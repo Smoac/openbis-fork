@@ -514,7 +514,7 @@ public interface ICommonServer extends IServer
     @Transactional
     @RolesAllowed(RoleSet.USER)
     @DatabaseUpdateModification(value = ObjectKind.PROJECT)
-    public Date editProject(
+    public Date updateProject(
             String sessionToken,
             @AuthorizationGuard(guardClass = ProjectUpdatesPredicate.class) ProjectUpdatesDTO updates);
 

@@ -314,7 +314,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         return result;
     }
 
-    public void editExperiment(String sessionToken, ExperimentUpdatesDTO updates)
+    public void updateExperiment(String sessionToken, ExperimentUpdatesDTO updates)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         if (updates.isRegisterSamples())
@@ -322,27 +322,27 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             registerSamples(sessionToken, updates.getSampleType(), updates.getNewSamples());
         }
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
-        experimentBO.edit(updates);
+        experimentBO.update(updates);
         experimentBO.save();
     }
 
-    public void editMaterial(String sessionToken, MaterialIdentifier identifier,
+    public void updateMaterial(String sessionToken, MaterialIdentifier identifier,
             List<MaterialProperty> properties, Date version)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
-        materialBO.edit(identifier, properties, version);
+        materialBO.update(identifier, properties, version);
         materialBO.save();
 
     }
 
-    public void editSample(String sessionToken, SampleIdentifier identifier,
+    public void updateSample(String sessionToken, SampleIdentifier identifier,
             List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
             List<AttachmentPE> attachments, Date version)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-        sampleBO.edit(identifier, properties, experimentIdentifierOrNull, attachments, version);
+        sampleBO.update(identifier, properties, experimentIdentifierOrNull, attachments, version);
         sampleBO.save();
 
     }
