@@ -27,6 +27,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -342,9 +343,19 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logTracking(sessionToken, "register_material_type", "CODE(%s)", entityType.getCode());
     }
 
+    public void updateMaterialType(String sessionToken, EntityType entityType)
+    {
+        logTracking(sessionToken, "update_material_type", "CODE(%s)", entityType.getCode());
+    }
+
     public void registerSampleType(String sessionToken, SampleType entityType)
     {
         logTracking(sessionToken, "register_sample_type", "CODE(%s)", entityType.getCode());
+    }
+
+    public void updateSampleType(String sessionToken, EntityType entityType)
+    {
+        logTracking(sessionToken, "update_sample_type", "CODE(%s)", entityType.getCode());
     }
 
     public void registerExperimentType(String sessionToken, ExperimentType entityType)
@@ -352,9 +363,19 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logTracking(sessionToken, "register_experiment_type", "CODE(%s)", entityType.getCode());
     }
 
+    public void updateExperimentType(String sessionToken, EntityType entityType)
+    {
+        logTracking(sessionToken, "update_experiment_type", "CODE(%s)", entityType.getCode());
+    }
+
     public void registerDataSetType(String sessionToken, DataSetType entityType)
     {
         logTracking(sessionToken, "register_data_set_type", "CODE(%s)", entityType.getCode());
+    }
+
+    public void updateDataSetType(String sessionToken, EntityType entityType)
+    {
+        logTracking(sessionToken, "update_data_set_type", "CODE(%s)", entityType.getCode());
     }
 
     public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason)

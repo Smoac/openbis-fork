@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +25,10 @@ import com.extjs.gxt.ui.client.event.ToolBarEvent;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -40,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.EntityTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.AddEntityTypeDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
@@ -56,7 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
  */
 abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<EntityType>
 {
-    private static final String LABEL_REGISTER_NEW_TYPE = "New Type";
+    private IDelegatedAction postRegistrationCallback;
 
     abstract protected EntityKind getEntityKind();
 
@@ -68,7 +70,14 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
     {
         super(viewContext, browserId, gridId);
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.TYPE_BROWSER_GRID);
-        createDeleteButton(viewContext);
+        postRegistrationCallback = new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    AbstractEntityTypeGrid.this.refresh();
+                }
+            };
+            createDeleteButton(viewContext);
     }
 
     protected void deleteEntityTypes(List<String> types, AsyncCallback<Void> callback)
@@ -114,32 +123,40 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
         pagingToolbar.add(new AdapterToolItem(deleteButton));
     }
 
-    public final Component createToolbar(final String title)
+    public final Component createToolbar(final EntityKind entityKind)
     {
         ToolBar toolbar = new ToolBar();
         toolbar.add(new FillToolItem());
-        TextToolItem addTypeButton =
-                new TextToolItem(LABEL_REGISTER_NEW_TYPE, new SelectionListener<ToolBarEvent>()
+        toolbar.add(new TextToolItem(viewContext.getMessage(Dict.ADD_NEW_TYPE_BUTTON),
+                new SelectionListener<ToolBarEvent>()
                     {
                         @Override
                         public void componentSelected(ToolBarEvent ce)
                         {
-                            createRegisterEntityTypeDialog(title).show();
+                            createRegisterEntityTypeDialog(entityKind).show();
                         }
-                    });
-        toolbar.add(addTypeButton);
+                    }));
+        toolbar.add(new SeparatorToolItem());
+        Button editButton =
+                createSelectedItemButton(viewContext.getMessage(Dict.EDIT_TYPE_BUTTON),
+                        new ISelectedEntityInvoker<BaseEntityModel<EntityType>>()
+                            {
+
+                                public void invoke(BaseEntityModel<EntityType> selectedItem)
+                                {
+                                    EntityType entityType = selectedItem.getBaseObject();
+                                    createEditEntityTypeDialog(entityKind, entityType).show();
+                                }
+
+                            });
+        toolbar.add(new AdapterToolItem(editButton));
         return toolbar;
     }
 
-    private Window createRegisterEntityTypeDialog(final String title)
+    private Window createRegisterEntityTypeDialog(final EntityKind entityKind)
     {
-        IDelegatedAction postRegistrationCallback = new IDelegatedAction()
-            {
-                public void execute()
-                {
-                    AbstractEntityTypeGrid.this.refresh();
-                }
-            };
+        String title =
+                viewContext.getMessage(Dict.ADD_TYPE_TITLE_TEMPLATE, entityKind.getDescription());
         return new AddEntityTypeDialog(viewContext, title, postRegistrationCallback)
             {
                 @Override
@@ -147,6 +164,31 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
                         AsyncCallback<Void> registrationCallback)
                 {
                     registerEntityType(code, descriptionOrNull, registrationCallback);
+                }
+            };
+    }
+
+    private Window createEditEntityTypeDialog(final EntityKind entityKind, final EntityType entityType)
+    {
+        final String code = entityType.getCode();
+        String title =
+                viewContext.getMessage(Dict.EDIT_TYPE_TITLE_TEMPLATE, entityKind.getDescription(),
+                        code);
+        return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
+            {
+                private final TextField<String> descriptionField;
+                {
+                    descriptionField = createDescriptionField();
+                    descriptionField.setValue(entityType.getDescription());
+                    addField(descriptionField);
+
+                }
+
+                @Override
+                protected void register(AsyncCallback<Void> registrationCallback)
+                {
+                    entityType.setDescription(descriptionField.getValue());
+                    viewContext.getService().updateEntityType(entityKind, entityType, registrationCallback);
                 }
             };
     }
@@ -177,7 +219,7 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
         return asColumnFilters(new EntityTypeColDefKind[]
             { EntityTypeColDefKind.CODE });
     }
-
+    
     public DatabaseModificationKind[] getRelevantModifications()
     {
         // grid is refreshed manually when a new type is added, so there can be no auto-refresh

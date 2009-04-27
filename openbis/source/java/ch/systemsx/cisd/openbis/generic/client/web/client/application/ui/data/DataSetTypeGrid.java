@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractEntityTypeGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AbstractEntityTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -47,7 +47,7 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final DataSetTypeGrid grid = new DataSetTypeGrid(viewContext);
-        Component toolbar = grid.createToolbar("Register a new data set type");
+        Component toolbar = grid.createToolbar(EntityKind.DATA_SET);
         return grid.asDisposableWithToolbar(toolbar);
     }
 

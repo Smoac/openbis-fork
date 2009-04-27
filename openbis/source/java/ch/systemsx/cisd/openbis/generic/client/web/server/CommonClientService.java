@@ -1121,6 +1121,33 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public void updateEntityType(EntityKind entityKind, EntityType entityType)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            switch (entityKind)
+            {
+                case MATERIAL:
+                    commonServer.updateMaterialType(sessionToken, entityType);
+                    break;
+                case SAMPLE:
+                    commonServer.updateSampleType(sessionToken, entityType);
+                    break;
+                case EXPERIMENT:
+                    commonServer.updateExperimentType(sessionToken, entityType);
+                    break;
+                case DATA_SET:
+                    commonServer.updateDataSetType(sessionToken, entityType);
+                    break;
+            }
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
     public void uploadDataSets(List<String> dataSetCodes, DataSetUploadParameters uploadParameters)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {

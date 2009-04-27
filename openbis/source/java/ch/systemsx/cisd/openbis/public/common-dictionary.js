@@ -135,6 +135,18 @@ var common = {
   experiment_type: "Experiment Type",
   
   //
+  // Entity Type Browser
+  //
+
+  add_new_type_button: "Add New Type",
+  edit_type_button: "Edit",
+  add_type_title_template: "Add a new {0} Type",
+  edit_type_title_template: "Edit {0} Type {1}",
+  delete_confirmation_title: "Confirm Deletion",
+  delete_confirmation_message: "Are you sure you want to delete [{0}]?",
+ 
+   
+  //
   // Property Type Browser
   //
   
@@ -354,13 +366,6 @@ var common = {
  version: "Version",
  versions: "Versions",
  versions_template: "Show all versions ({0})",
- 
- //
- // Entity Types
- //
- delete_confirmation_title: "Confirm Deletion",
- delete_confirmation_message: "Are you sure you want to delete [{0}]?",
- 
  
  
  // LAST LINE: KEEP IT AT THE END

@@ -63,7 +63,7 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         assert entityKind != null : "Entity kind not defined.";
         try
         {
-            getEntityTypeDAO(entityKind).createEntityType(entityTypePE);
+            getEntityTypeDAO(entityKind).createOrUpdateEntityType(entityTypePE);
         } catch (final DataAccessException e)
         {
             throwException(e, String.format("Entity type '%s'.", entityTypePE.getCode()));

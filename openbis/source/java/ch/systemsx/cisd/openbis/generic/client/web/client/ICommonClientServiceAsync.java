@@ -345,6 +345,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void registerExperimentType(ExperimentType entityType,
             final AsyncCallback<Void> asyncCallback);
 
+    /** @see ICommonClientService#updateEntityType(EntityKind, EntityType) */
+    public void updateEntityType(EntityKind entityKind, EntityType entityType, AsyncCallback<Void> callback);
+    
     /** @see ICommonClientService#deleteDataSets(List, String) */
     public void deleteDataSets(List<String> dataSetCodes, String reason,
             AsyncCallback<Void> asyncCallback);

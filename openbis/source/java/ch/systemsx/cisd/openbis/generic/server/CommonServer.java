@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
@@ -52,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -613,6 +615,11 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
     }
 
+    public void updateSampleType(String sessionToken, EntityType entityType)
+    {
+        updateEntityType(sessionToken, EntityKind.SAMPLE, entityType);
+    }
+
     public void registerMaterialType(String sessionToken, MaterialType entityType)
     {
         final Session session = getSessionManager().getSession(sessionToken);
@@ -625,6 +632,11 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         {
             throw createUserFailureException(ex);
         }
+    }
+
+    public void updateMaterialType(String sessionToken, EntityType entityType)
+    {
+        updateEntityType(sessionToken, EntityKind.MATERIAL, entityType);
     }
 
     public void registerExperimentType(String sessionToken, ExperimentType entityType)
@@ -641,6 +653,11 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
     }
 
+    public void updateExperimentType(String sessionToken, EntityType entityType)
+    {
+        updateEntityType(sessionToken, EntityKind.EXPERIMENT, entityType);
+    }
+
     public void registerDataSetType(String sessionToken, DataSetType entityType)
     {
         final Session session = getSessionManager().getSession(sessionToken);
@@ -649,6 +666,26 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             IEntityTypeBO entityTypeBO = businessObjectFactory.createEntityTypeBO(session);
             entityTypeBO.define(entityType);
             entityTypeBO.save();
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
+    public void updateDataSetType(String sessionToken, EntityType entityType)
+    {
+        updateEntityType(sessionToken, EntityKind.DATA_SET, entityType);
+    }
+    
+    private void updateEntityType(String sessionToken, EntityKind entityKind, EntityType entityType)
+    {
+        checkSession(sessionToken);
+        try
+        {
+            IEntityTypeDAO entityTypeDAO = getDAOFactory().getEntityTypeDAO(entityKind);
+            EntityTypePE entityTypePE = entityTypeDAO.tryToFindEntityTypeByCode(entityType.getCode());
+            entityTypePE.setDescription(entityType.getDescription());
+            entityTypeDAO.createOrUpdateEntityType(entityTypePE);
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);

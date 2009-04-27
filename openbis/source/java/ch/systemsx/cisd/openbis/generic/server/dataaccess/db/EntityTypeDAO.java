@@ -87,7 +87,7 @@ final class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEnti
         return list;
     }
 
-    public final <T extends EntityTypePE> void createEntityType(T entityType)
+    public final <T extends EntityTypePE> void createOrUpdateEntityType(T entityType)
             throws DataAccessException
     {
         assert entityType != null : "entityType is null";
@@ -95,7 +95,7 @@ final class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEnti
 
         validatePE(entityType);
         entityType.setCode(CodeConverter.tryToDatabase(entityType.getCode()));
-        hibernateTemplate.save(entityType);
+        hibernateTemplate.saveOrUpdate(entityType);
         hibernateTemplate.flush();
         if (operationLog.isInfoEnabled())
         {

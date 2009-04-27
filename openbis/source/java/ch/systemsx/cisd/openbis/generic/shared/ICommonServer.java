@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.MatchingE
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -385,6 +386,14 @@ public interface ICommonServer extends IServer
     public void registerMaterialType(String sessionToken, MaterialType entityType);
 
     /**
+     * Updates a material type.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL_TYPE)
+    public void updateMaterialType(String sessionToken, EntityType entityType);
+    
+    /**
      * Creates a new sample type.
      */
     @Transactional
@@ -392,6 +401,14 @@ public interface ICommonServer extends IServer
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE_TYPE)
     public void registerSampleType(String sessionToken, SampleType entityType);
 
+    /**
+     * Updates a sample type.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE_TYPE)
+    public void updateSampleType(String sessionToken, EntityType entityType);
+    
     /**
      * Creates a new experiment type.
      */
@@ -401,6 +418,14 @@ public interface ICommonServer extends IServer
     public void registerExperimentType(String sessionToken, ExperimentType entityType);
 
     /**
+     * Updates a experiment type.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT_TYPE)
+    public void updateExperimentType(String sessionToken, EntityType entityType);
+    
+    /**
      * Creates a new data set type.
      */
     @Transactional
@@ -408,6 +433,14 @@ public interface ICommonServer extends IServer
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATASET_TYPE)
     public void registerDataSetType(String sessionToken, DataSetType entityType);
 
+    /**
+     * Updates a data set type.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.DATASET_TYPE)
+    public void updateDataSetType(String sessionToken, EntityType entityType);
+    
     /**
      * Deletes specified data sets.
      */

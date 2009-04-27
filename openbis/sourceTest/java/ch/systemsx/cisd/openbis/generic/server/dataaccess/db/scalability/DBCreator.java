@@ -237,7 +237,7 @@ public final class DBCreator extends AbstractDAOTest
         final T entityType = newEntityType;
         entityType.setCode(CodeGenerator.generateDefaultCode(createdEntityTypeKind));
         entityType.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
-        entityTypeDAO.createEntityType(entityType);
+        entityTypeDAO.createOrUpdateEntityType(entityType);
 
         return entityType;
     }

@@ -396,6 +396,11 @@ public interface ICommonClientService extends IClientService
 
     /** Registers a new experiment type */
     public void registerExperimentType(ExperimentType entityType) throws UserFailureException;
+    
+    /**
+     * Updates specified entity type of specified kind.
+     */
+    public void updateEntityType(EntityKind entityKind, EntityType entityType) throws UserFailureException;
 
     /**
      * Updates project.

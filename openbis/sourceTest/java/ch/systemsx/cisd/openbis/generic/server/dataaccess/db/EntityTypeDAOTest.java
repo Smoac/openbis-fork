@@ -111,7 +111,7 @@ public final class EntityTypeDAOTest extends AbstractDAOTest
         final IEntityTypeDAO materialTypeDAO = daoFactory.getEntityTypeDAO(EntityKind.MATERIAL);
         final int sizeBefore = materialTypeDAO.listEntityTypes().size();
         MaterialTypePE entityType = createMaterialType("material-girl");
-        materialTypeDAO.createEntityType(entityType);
+        materialTypeDAO.createOrUpdateEntityType(entityType);
         final int sizeAfter = materialTypeDAO.listEntityTypes().size();
         assertEquals(sizeBefore + 1, sizeAfter);
 
@@ -125,7 +125,7 @@ public final class EntityTypeDAOTest extends AbstractDAOTest
     {
         final IEntityTypeDAO materialTypeDAO = daoFactory.getEntityTypeDAO(EntityKind.MATERIAL);
         MaterialTypePE entityType = createMaterialType(MATERIAL_TYPE);
-        materialTypeDAO.createEntityType(entityType);
+        materialTypeDAO.createOrUpdateEntityType(entityType);
         int sizeBeforeDeletion = materialTypeDAO.listEntityTypes().size();
         materialTypeDAO.deleteEntityType(entityType);
         assertEquals(sizeBeforeDeletion - 1, materialTypeDAO.listEntityTypes().size());
@@ -136,7 +136,7 @@ public final class EntityTypeDAOTest extends AbstractDAOTest
     {
         final IEntityTypeDAO materialTypeDAO = daoFactory.getEntityTypeDAO(EntityKind.MATERIAL);
         MaterialTypePE materialType = createMaterialType(MATERIAL_TYPE);
-        materialTypeDAO.createEntityType(materialType);
+        materialTypeDAO.createOrUpdateEntityType(materialType);
         final IMaterialDAO materialDAO = daoFactory.getMaterialDAO();
         List<MaterialPE> materials = createMaterials(3, MATERIAL, materialType);
         materialDAO.createMaterials(materials);
@@ -156,7 +156,7 @@ public final class EntityTypeDAOTest extends AbstractDAOTest
     {
         final IEntityTypeDAO materialTypeDAO = daoFactory.getEntityTypeDAO(EntityKind.MATERIAL);
         MaterialTypePE materialType = createMaterialType(MATERIAL_TYPE);
-        materialTypeDAO.createEntityType(materialType);
+        materialTypeDAO.createOrUpdateEntityType(materialType);
         PropertyTypePE materialPropertyType = createMaterialPropertyType(materialType);
         daoFactory.getPropertyTypeDAO().createPropertyType(materialPropertyType);
         boolean exceptionThrown = false;
@@ -181,7 +181,7 @@ public final class EntityTypeDAOTest extends AbstractDAOTest
     {
         final IEntityTypeDAO materialTypeDAO = daoFactory.getEntityTypeDAO(EntityKind.MATERIAL);
         MaterialTypePE materialType = createMaterialType(MATERIAL_TYPE);
-        materialTypeDAO.createEntityType(materialType);
+        materialTypeDAO.createOrUpdateEntityType(materialType);
         assignPropertyType(materialType, selectFirstPropertyType());
         int sizeBeforeDeletion = materialTypeDAO.listEntityTypes().size();
         materialTypeDAO.deleteEntityType(materialType);

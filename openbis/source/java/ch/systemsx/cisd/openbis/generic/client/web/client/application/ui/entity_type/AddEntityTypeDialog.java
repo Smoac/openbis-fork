@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type;
 
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -25,11 +25,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
 /**
- * Dialog to register a new material type.
+ * Abstract super class of all dialogs adding a new entity type.
  * 
  * @author Tomasz Pylak
  */
-abstract public class AddEntityTypeDialog extends AbstractRegistrationDialog
+abstract class AddEntityTypeDialog extends AbstractRegistrationDialog
 {
     /** Registers a new property type and calls the specified callback at the end */
     abstract protected void register(String code, String descriptionOrNull,
@@ -39,7 +39,7 @@ abstract public class AddEntityTypeDialog extends AbstractRegistrationDialog
 
     private final TextField<String> descriptionField;
 
-    public AddEntityTypeDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
+    AddEntityTypeDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
             String title, final IDelegatedAction postRegistrationCallback)
     {
         super(viewContext, title, postRegistrationCallback);

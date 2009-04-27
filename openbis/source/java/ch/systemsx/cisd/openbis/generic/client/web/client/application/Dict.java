@@ -209,9 +209,21 @@ public abstract class Dict
     public static final String EXPERIMENT_TYPE = "experiment_type";
 
     //
-    // Property Type Browser
+    // Entity Type Browser
     //
 
+    public static final String ADD_NEW_TYPE_BUTTON = "add_new_type_button";
+    
+    public static final String EDIT_TYPE_BUTTON = "edit_type_button";
+    
+    public static final String ADD_TYPE_TITLE_TEMPLATE = "add_type_title_template";
+    
+    public static final String EDIT_TYPE_TITLE_TEMPLATE = "edit_type_title_template";
+    
+    //
+    // Property Type Browser
+    //
+    
     public static final String LABEL = "label";
 
     public static final String DATA_TYPE = "data_type";
