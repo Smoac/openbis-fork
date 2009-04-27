@@ -119,6 +119,19 @@ public final class EntityTypeDAOTest extends AbstractDAOTest
                 materialTypeDAO.tryToFindEntityTypeByCode(entityType.getCode());
         assertEquals(entityType, foundEntityType);
     }
+    
+    @Test
+    public void testUpdateMaterialType()
+    {
+        IEntityTypeDAO entityTypeDAO = daoFactory.getEntityTypeDAO(EntityKind.MATERIAL);
+        List<EntityTypePE> entityTypes = entityTypeDAO.listEntityTypes();
+        EntityTypePE entityType = entityTypes.get(0);
+        entityType.setDescription("hello");
+        
+        entityTypeDAO.createOrUpdateEntityType(entityType);
+        
+        assertEquals("hello", entityTypeDAO.tryToFindEntityTypeByCode(entityType.getCode()).getDescription());
+    }
 
     @Test
     public final void testDeleteUnusedMaterialType()

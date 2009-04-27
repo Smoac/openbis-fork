@@ -33,15 +33,20 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -56,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -700,6 +706,207 @@ public final class CommonServerTest extends AbstractServerTestCase
         createServer().deleteVocabularyTerms(SESSION_TOKEN, "v-code", termToBeDeleted,
                 termsToBeReplaced);
 
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testRegisterMaterialType()
+    {
+        final MaterialType type = new MaterialType();
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createEntityTypeBO(SESSION);
+                    will(returnValue(entityTypeBO));
+                    
+                    one(entityTypeBO).define(type);
+                    one(entityTypeBO).save();
+                }
+            });
+        
+        createServer().registerMaterialType(SESSION_TOKEN, type);
+        
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdateMaterialType()
+    {
+        final MaterialType type = new MaterialType();
+        type.setCode("my-type");
+        type.setDescription("my description");
+        final MaterialTypePE typePE = new MaterialTypePE();
+        typePE.setCode(type.getCode());
+        typePE.setDatabaseInstance(new DatabaseInstancePE());
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getEntityTypeDAO(EntityKind.MATERIAL);
+                    will(returnValue(entityTypeDAO));
+
+                    one(entityTypeDAO).tryToFindEntityTypeByCode(type.getCode());
+                    will(returnValue(typePE));
+
+                    one(entityTypeDAO).createOrUpdateEntityType(typePE);
+                }
+            });
+        
+        createServer().updateMaterialType(SESSION_TOKEN, type);
+        
+        assertEquals(type.getDescription(), typePE.getDescription());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testRegisterSampleType()
+    {
+        final SampleType type = new SampleType();
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createEntityTypeBO(SESSION);
+                    will(returnValue(entityTypeBO));
+
+                    one(entityTypeBO).define(type);
+                    one(entityTypeBO).save();
+                }
+            });
+
+        createServer().registerSampleType(SESSION_TOKEN, type);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdateSampleType()
+    {
+        final SampleType type = new SampleType();
+        type.setCode("my-type");
+        type.setDescription("my description");
+        final SampleTypePE typePE = new SampleTypePE();
+        typePE.setCode(type.getCode());
+        typePE.setDatabaseInstance(new DatabaseInstancePE());
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getEntityTypeDAO(EntityKind.SAMPLE);
+                    will(returnValue(entityTypeDAO));
+
+                    one(entityTypeDAO).tryToFindEntityTypeByCode(type.getCode());
+                    will(returnValue(typePE));
+
+                    one(entityTypeDAO).createOrUpdateEntityType(typePE);
+                }
+            });
+
+        createServer().updateSampleType(SESSION_TOKEN, type);
+
+        assertEquals(type.getDescription(), typePE.getDescription());
+        context.assertIsSatisfied();
+    }
+    
+
+    @Test
+    public void testRegisterExperimentType()
+    {
+        final ExperimentType type = new ExperimentType();
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createEntityTypeBO(SESSION);
+                    will(returnValue(entityTypeBO));
+
+                    one(entityTypeBO).define(type);
+                    one(entityTypeBO).save();
+                }
+            });
+
+        createServer().registerExperimentType(SESSION_TOKEN, type);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdateExperimentType()
+    {
+        final ExperimentType type = new ExperimentType();
+        type.setCode("my-type");
+        type.setDescription("my description");
+        final ExperimentTypePE typePE = new ExperimentTypePE();
+        typePE.setCode(type.getCode());
+        typePE.setDatabaseInstance(new DatabaseInstancePE());
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
+                    will(returnValue(entityTypeDAO));
+
+                    one(entityTypeDAO).tryToFindEntityTypeByCode(type.getCode());
+                    will(returnValue(typePE));
+
+                    one(entityTypeDAO).createOrUpdateEntityType(typePE);
+                }
+            });
+
+        createServer().updateExperimentType(SESSION_TOKEN, type);
+
+        assertEquals(type.getDescription(), typePE.getDescription());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testRegisterDataSetType()
+    {
+        final DataSetType type = new DataSetType();
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createEntityTypeBO(SESSION);
+                    will(returnValue(entityTypeBO));
+
+                    one(entityTypeBO).define(type);
+                    one(entityTypeBO).save();
+                }
+            });
+
+        createServer().registerDataSetType(SESSION_TOKEN, type);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdateDataSetType()
+    {
+        final DataSetType type = new DataSetType();
+        type.setCode("my-type");
+        type.setDescription("my description");
+        final DataSetTypePE typePE = new DataSetTypePE();
+        typePE.setCode(type.getCode());
+        typePE.setDatabaseInstance(new DatabaseInstancePE());
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getEntityTypeDAO(EntityKind.DATA_SET);
+                    will(returnValue(entityTypeDAO));
+
+                    one(entityTypeDAO).tryToFindEntityTypeByCode(type.getCode());
+                    will(returnValue(typePE));
+
+                    one(entityTypeDAO).createOrUpdateEntityType(typePE);
+                }
+            });
+
+        createServer().updateDataSetType(SESSION_TOKEN, type);
+
+        assertEquals(type.getDescription(), typePE.getDescription());
         context.assertIsSatisfied();
     }
 
