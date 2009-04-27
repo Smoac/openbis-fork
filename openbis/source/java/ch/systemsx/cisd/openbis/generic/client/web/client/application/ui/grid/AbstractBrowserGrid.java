@@ -244,10 +244,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         grid.getSelectionModel().setSelectionMode(SelectionMode.MULTI);
     }
-    
-    protected Grid<M> getGrid()
+
+    protected List<M> getGridModels()
     {
-        return grid;
+        return grid.getStore().getModels();
     }
 
     protected void setDisplayTypeIDGenerator(IDisplayTypeIDGenerator displayTypeIDGenerator)

@@ -71,11 +71,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplaceme
 public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTermWithStats>
 {
     private static final int FIELD_WITH_IN_REPLACEMENT_DIALOG = 200;
+
     private static final int LABEL_WIDTH_IN_REPLACEMENT_DIALOG = 200;
-    
+
     // browser consists of the grid and the paging toolbar
     private static final String BROWSER_ID = GenericConstants.ID_PREFIX + "vocabulary-term-browser";
-    
+
     final class RefreshCallback extends AbstractAsyncCallback<Void>
     {
         private RefreshCallback(IViewContext<?> viewContext)
@@ -300,8 +301,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
     private List<VocabularyTerm> getTerms()
     {
         List<VocabularyTerm> terms = new ArrayList<VocabularyTerm>();
-        List<BaseEntityModel<VocabularyTermWithStats>> models = getGrid().getStore().getModels();
-        for (BaseEntityModel<VocabularyTermWithStats> model : models)
+        for (BaseEntityModel<VocabularyTermWithStats> model : getGridModels())
         {
             terms.add(model.getBaseObject().getTerm());
         }
@@ -359,7 +359,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
             });
         dialog.show();
     }
-    
+
     private void deleteAndReplace(List<VocabularyTerm> termsToBeDeleted,
             List<VocabularyTermReplacement> termsToBeReplaced)
     {
@@ -367,6 +367,6 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         RefreshCallback callback = new RefreshCallback(viewContext);
         viewContext.getService().deleteVocabularyTerms(code, termsToBeDeleted, termsToBeReplaced,
                 callback);
-        
+
     }
 }
