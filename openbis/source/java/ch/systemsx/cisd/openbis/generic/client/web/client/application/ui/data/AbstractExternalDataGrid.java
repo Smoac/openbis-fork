@@ -437,7 +437,7 @@ public abstract class AbstractExternalDataGrid
     protected void showEntityViewer(BaseEntityModel<ExternalData> modelData, boolean editMode)
     {
         final ExternalData dataSet = modelData.getBaseObject();
-        // only edition is available
+        // TODO 2009-04-27, Piotr Buczek: add detail mode with detail view for data sets
         showEntityEditor(dataSet);
     }
 
@@ -456,9 +456,7 @@ public abstract class AbstractExternalDataGrid
 
     private final EditableDataSet createEditableEntity(ExternalData dataSet)
     {
-        return new EditableDataSet(dataSet.getDataSetType().getAssignedPropertyTypes(), dataSet
-                .getProperties(), dataSet.getDataSetType(), dataSet.getIdentifier(), dataSet
-                .getId(), dataSet.getModificationDate());
+        return new EditableDataSet(dataSet);
     }
 
 }

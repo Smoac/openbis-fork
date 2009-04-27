@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteria;
@@ -76,7 +77,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * @author Christian Ribeaud
  * @author Tomasz Pylak
  */
-public final class SampleBrowserGrid extends
+public class SampleBrowserGrid extends
         AbstractEntityBrowserGrid<Sample, BaseEntityModel<Sample>, ListSampleCriteria>
 {
     private static final String PREFIX = GenericConstants.ID_PREFIX + "sample-browser";
@@ -86,6 +87,26 @@ public final class SampleBrowserGrid extends
 
     public static final String GRID_ID = PREFIX + "_grid";
 
+    /** Creates a grid without additional toolbar buttons. It can serve as a entity chooser. */
+    public static DisposableEntityChooser<Sample> createChooser(
+            final IViewContext<ICommonClientServiceAsync> viewContext)
+    {
+        final SampleBrowserToolbar toolbar = new SampleBrowserToolbar(viewContext);
+        ISampleCriteriaProvider criteriaProvider = toolbar;
+        final SampleBrowserGrid browserGrid =
+                new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, true, false)
+                    {
+                        @Override
+                        protected void showEntityViewer(BaseEntityModel<Sample> sampleModel,
+                                boolean editMode)
+                        {
+                            // do nothing - avoid showing the details after double click
+                        }
+                    };
+        browserGrid.addGridRefreshListener(toolbar);
+        return browserGrid.asDisposableWithToolbar(toolbar);
+    }
+
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -93,6 +114,7 @@ public final class SampleBrowserGrid extends
         ISampleCriteriaProvider criteriaProvider = toolbar;
         final SampleBrowserGrid browserGrid =
                 new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, true, false);
+        browserGrid.addGridRefreshListener(toolbar);
         browserGrid.extendTopToolbar(toolbar);
         return browserGrid.asDisposableWithToolbar(toolbar);
     }
@@ -209,7 +231,6 @@ public final class SampleBrowserGrid extends
     // adds show, show-details and invalidate buttons
     private void extendTopToolbar(SampleBrowserToolbar toolbar)
     {
-        toolbar.setCriteriaChangedListener(createGridRefreshListener());
         toolbar.add(new FillToolItem());
 
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
@@ -221,6 +242,11 @@ public final class SampleBrowserGrid extends
         String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
         Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
         toolbar.add(new AdapterToolItem(editButton));
+    }
+
+    private void addGridRefreshListener(SampleBrowserToolbar topToolbar)
+    {
+        topToolbar.setCriteriaChangedListener(createGridRefreshListener());
     }
 
     @Override

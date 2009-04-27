@@ -495,7 +495,16 @@ public final class GenericClientService extends AbstractClientService implements
             Date version)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        // TODO 2009-04-27, Piotr Buczek: call server edit method
+        // TODO 2009-04-27, Piotr Buczek: call server edit method (currently none exists)
+        // try
+        // {
+        // final String sessionToken = getSessionToken();
+        // final DataSetIdentifier identifier = new DataSetIdentifier(dataSetIdentifier);
+        // genericServer.updateDataSet(sessionToken, identifier, properties, version);
+        // } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        // {
+        // throw UserFailureExceptionTranslator.translate(e);
+        // }
     }
 
     private static ExperimentUpdatesDTO createExperimentUpdatesDTO(ExperimentUpdates updates,

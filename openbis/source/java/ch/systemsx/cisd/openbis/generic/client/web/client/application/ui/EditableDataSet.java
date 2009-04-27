@@ -16,13 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import java.util.Date;
-import java.util.List;
-
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
  * @author Piotr Buczek
@@ -30,11 +27,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 public class EditableDataSet extends
         EditableEntity<DataSetType, DataSetTypePropertyType, DataSetProperty>
 {
+    private final ExternalData dataSet;
 
-    public EditableDataSet(List<DataSetTypePropertyType> etpts, List<DataSetProperty> properties,
-            DataSetType type, String identifier, Long id, Date modificationDate)
+    public EditableDataSet(ExternalData dataSet)
     {
-        super(EntityKind.DATA_SET, etpts, properties, type, identifier, id, modificationDate);
+        super(dataSet.getEntityKind(), dataSet.getDataSetType().getAssignedPropertyTypes(), dataSet
+                .getProperties(), dataSet.getDataSetType(), dataSet.getIdentifier(), dataSet
+                .getId(), dataSet.getModificationDate());
+        this.dataSet = dataSet;
     }
 
+    public ExternalData getDataSet()
+    {
+        return dataSet;
+    }
 }

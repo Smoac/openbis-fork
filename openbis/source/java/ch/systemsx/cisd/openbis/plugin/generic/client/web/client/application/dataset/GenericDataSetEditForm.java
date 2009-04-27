@@ -16,18 +16,27 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableDataSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField.SampleChooserFieldAdaptor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
@@ -46,6 +55,12 @@ public final class GenericDataSetEditForm
         AbstractGenericEntityEditForm<DataSetType, DataSetTypePropertyType, DataSetProperty, EditableDataSet>
 {
 
+    private final ExternalData originalDataSet;
+
+    private final SampleChooserFieldAdaptor sampleField;
+
+    private final PropertyGrid specificFieldsGrid;
+
     private final IViewContext<IGenericClientServiceAsync> viewContext;
 
     public static DatabaseModificationAwareComponent create(
@@ -61,6 +76,9 @@ public final class GenericDataSetEditForm
     {
         super(viewContext, entity, editMode);
         this.viewContext = viewContext;
+        this.originalDataSet = entity.getDataSet();
+        this.sampleField = createSampleField();
+        this.specificFieldsGrid = new PropertyGrid(viewContext, 1);
         super.initializeComponents(viewContext);
     }
 
@@ -95,6 +113,14 @@ public final class GenericDataSetEditForm
         }
     }
 
+    private SampleChooserFieldAdaptor createSampleField()
+    {
+        String label = viewContext.getMessage(Dict.SAMPLE);
+        String originalSample = originalDataSet.getSampleIdentifier();
+        return SampleChooserField.create(label, false, originalSample, viewContext
+                .getCommonViewContext());
+    }
+
     @Override
     protected PropertiesEditor<DataSetType, DataSetTypePropertyType, DataSetProperty> createPropertiesEditor(
             List<DataSetTypePropertyType> entityTypesPropertyTypes,
@@ -107,18 +133,33 @@ public final class GenericDataSetEditForm
     @Override
     protected List<DatabaseModificationAwareField<?>> getEntitySpecificFormFields()
     {
-        return new ArrayList<DatabaseModificationAwareField<?>>();
+        ArrayList<DatabaseModificationAwareField<?>> fields =
+                new ArrayList<DatabaseModificationAwareField<?>>();
+        fields.add(wrapUnaware(sampleField.getField()));
+        return fields;
     }
 
     @Override
     protected List<Widget> getEntitySpecificCheckPageWidgets()
     {
-        return new ArrayList<Widget>();
+        ArrayList<Widget> result = new ArrayList<Widget>();
+        updateSpecificPropertiesGrid();
+        result.add(specificFieldsGrid);
+        return result;
     }
 
     @Override
     protected void updateCheckPageWidgets()
     {
+        sampleField.updateOriginalValue();
+        updateSpecificPropertiesGrid();
+    }
+
+    private void updateSpecificPropertiesGrid()
+    {
+        Map<String, String> valueMap = new HashMap<String, String>();
+        valueMap.put(viewContext.getMessage(Dict.SAMPLE), sampleField.getValue());
+        this.specificFieldsGrid.setProperties(valueMap);
     }
 
 }
