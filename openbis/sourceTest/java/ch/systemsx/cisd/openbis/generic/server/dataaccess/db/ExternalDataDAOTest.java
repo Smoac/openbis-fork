@@ -17,10 +17,12 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -52,7 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 
 /**
  * Test cases for corresponding {@link ExternalDataDAO} class.
- *
+ * 
  * @author Christian Ribeaud
  */
 @Test(groups =
@@ -78,7 +80,8 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
     {
         testCreateDataSet();
         final IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
-        List<ExternalDataPE> list = externalDataDAO.listExternalData(pickASample(), SourceType.MEASUREMENT);
+        List<ExternalDataPE> list =
+                externalDataDAO.listExternalData(pickASample(), SourceType.MEASUREMENT);
 
         assertEquals(1, list.size());
         ExternalDataPE dataSet = list.get(0);
@@ -105,7 +108,8 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         externalData.setDataStore(pickADataStore());
         daoFactory.getExternalDataDAO().createDataSet(externalData);
 
-        ExternalDataPE dataSet = (ExternalDataPE) externalDataDAO.tryToFindDataSetByCode(dataSetCode);
+        ExternalDataPE dataSet =
+                (ExternalDataPE) externalDataDAO.tryToFindDataSetByCode(dataSetCode);
         assertEquals(externalData.getCode(), dataSet.getCode());
         assertEquals(externalData.getDataSetType(), dataSet.getDataSetType());
         assertEquals(externalData.getExperiment(), dataSet.getExperiment());
@@ -129,6 +133,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         data.setSampleDerivedFrom(pickASample());
         data.setPlaceholder(true);
         data.setDataStore(pickADataStore());
+        data.setModificationDate(new Date());
         externalDataDAO.createDataSet(data);
 
         ExternalDataPE externalData = new ExternalDataPE();
@@ -144,9 +149,12 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         externalData.setComplete(BooleanOrUnknown.U);
         externalData.setStorageFormatVocabularyTerm(pickAStorageFormatVocabularyTerm());
         externalData.setPlaceholder(true);
+        final Date modificationTimestamp = data.getModificationDate();
+        externalData.setModificationDate(modificationTimestamp);
         externalDataDAO.updateDataSet(externalData);
 
-        ExternalDataPE dataSet = (ExternalDataPE) externalDataDAO.tryToFindDataSetByCode(dataSetCode);
+        ExternalDataPE dataSet =
+                (ExternalDataPE) externalDataDAO.tryToFindDataSetByCode(dataSetCode);
         assertEquals(externalData.getCode(), dataSet.getCode());
         assertEquals(externalData.getDataSetType(), dataSet.getDataSetType());
         assertEquals(externalData.getExperiment(), dataSet.getExperiment());
@@ -156,19 +164,21 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         assertEquals(externalData.getComplete(), dataSet.getComplete());
         assertEquals(externalData.getStorageFormat(), dataSet.getStorageFormat());
         assertEquals(externalData.isPlaceholder(), dataSet.isPlaceholder());
+        assertFalse(externalData.getModificationDate().equals(modificationTimestamp));
     }
-    
-    @Test 
+
+    @Test
     public void testMarkAsDeleted()
     {
         testCreateDataSet();
         final IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
         SamplePE sample = pickASample();
-        List<ExternalDataPE> list = externalDataDAO.listExternalData(sample, SourceType.MEASUREMENT);
+        List<ExternalDataPE> list =
+                externalDataDAO.listExternalData(sample, SourceType.MEASUREMENT);
         ExternalDataPE data = list.get(0);
-        
+
         externalDataDAO.markAsDeleted(data, getTestPerson(), "description", "testing deletion");
-        
+
         assertEquals(0, externalDataDAO.listExternalData(sample, SourceType.MEASUREMENT).size());
         DataPE retrievedData = externalDataDAO.tryToFindDataSetByCode(data.getCode());
         assertEquals(true, retrievedData.isDeleted());
@@ -208,14 +218,16 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
     {
         ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         DatabaseInstancePE dbInstance = daoFactory.getHomeDatabaseInstance();
-        SamplePE sample = sampleDAO.tryFindByCodeAndDatabaseInstance("MP", dbInstance, HierarchyType.CHILD);
+        SamplePE sample =
+                sampleDAO.tryFindByCodeAndDatabaseInstance("MP", dbInstance, HierarchyType.CHILD);
         assertNotNull(sample);
         return sample;
     }
-    
+
     protected DataStorePE pickADataStore()
     {
-        return daoFactory.getExternalDataDAO().tryToFindDataSetByCode("20081105092158673-1").getDataStore();
+        return daoFactory.getExternalDataDAO().tryToFindDataSetByCode("20081105092158673-1")
+                .getDataStore();
     }
 
     protected DataSetTypePE getDataSetType(DataSetTypeCode type)
