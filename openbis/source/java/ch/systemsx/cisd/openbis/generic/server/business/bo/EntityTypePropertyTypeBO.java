@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.dao.DataAccessException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -136,7 +137,13 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         etpt.setRegistrator(findRegistrator());
         etpt.setEntityType(entityType);
         etpt.setMandatory(mandatory);
-        getEntityPropertyTypeDAO(entityKind).createEntityPropertyTypeAssignment(etpt);
+        try
+        {
+            getEntityPropertyTypeDAO(entityKind).createEntityPropertyTypeAssignment(etpt);
+        } catch (DataAccessException e)
+        {
+            throwException(e, createExceptionMessage(entityType, propertyType));
+        }
         return etpt;
     }
 
@@ -173,9 +180,14 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
     {
         if (getEntityPropertyTypeDAO(entityKind).tryFindAssignment(entityType, propertyType) != null)
         {
-            throw new UserFailureException(String.format(
-                    "Property type '%s' is already assigned to %s type '%s'.", propertyType
-                            .getCode(), entityKind.getLabel(), entityType.getCode()));
+            throw new UserFailureException(createExceptionMessage(entityType, propertyType));
         }
+    }
+
+    private String createExceptionMessage(EntityTypePE entityType, PropertyTypePE propertyType)
+    {
+        return String.format(
+                "Property type '%s' is already assigned to %s type '%s'.", propertyType
+                        .getCode(), entityKind.getLabel(), entityType.getCode());
     }
 }

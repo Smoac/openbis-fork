@@ -162,7 +162,13 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         checkSampleUnused(sample);
         checkSampleWithoutDatasets();
         sample.setExperiment(experiment);
-        getSampleDAO().updateSample(sample);
+        try
+        {
+            getSampleDAO().updateSample(sample);
+        } catch (final DataAccessException ex)
+        {
+            throwException(ex, String.format("Couldn't update sample '%s'", sample.getSampleIdentifier()));
+        }
         dataChanged = false;
     }
 

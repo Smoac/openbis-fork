@@ -140,7 +140,14 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
                 {
                     entityProperty.setVocabularyTerm(term);
                 }
-                dao.updateProperties(properties);
+                try
+                {
+                    dao.updateProperties(properties);
+                } catch (DataAccessException e)
+                {
+                    throwException(e, "Couldn't replace in " + entityKind.toString().toLowerCase()
+                            + "s vocabulary term '" + code + "' by '" + term.getCode() + "'.");
+                }
             }
         }
         for (VocabularyTerm termToBeDeleted : termsToBeDeleted)
