@@ -27,6 +27,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpSession;
 
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
@@ -277,8 +278,14 @@ public final class CommonClientService extends AbstractClientService implements
     {
         try
         {
-            // Not directly needed but this refreshes the session.
-            getSessionToken();
+            try
+            {
+                // Not directly needed but this refreshes the session.
+                getSessionToken();
+            } catch (InvalidSessionException e)
+            {
+                return; // there is no session, so nothing has to be removed from it
+            }
             getResultSetManager().removeResultSet(resultSetKey);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
