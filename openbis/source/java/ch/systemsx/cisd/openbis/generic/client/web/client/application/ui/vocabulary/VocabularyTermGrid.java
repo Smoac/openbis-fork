@@ -107,24 +107,24 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         {
             Button addButton = new Button(viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_BUTTON));
             addButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-                    {
-                @Override
-                public void componentSelected(ButtonEvent ce)
                 {
-                    askForNewTerms();
-                }
-                    });
+                    @Override
+                    public void componentSelected(ButtonEvent ce)
+                    {
+                        askForNewTerms();
+                    }
+                });
             pagingToolbar.add(new AdapterToolItem(addButton));
             Button deleteButton =
-                new Button(viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_BUTTON));
+                    new Button(viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_BUTTON));
             deleteButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-                    {
-                @Override
-                public void componentSelected(ButtonEvent ce)
                 {
-                    deleteTerms();
-                }
-                    });
+                    @Override
+                    public void componentSelected(ButtonEvent ce)
+                    {
+                        deleteTerms();
+                    }
+                });
             pagingToolbar.add(new AdapterToolItem(deleteButton));
             allowMultipleSelection();
         }
@@ -226,7 +226,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         {
             return;
         }
-        if (terms.size() == vocabulary.getTerms().size())
+        if (terms.size() == getTerms().size())
         {
             MessageBox.alert(viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_INVALID_TITLE),
                     viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_INVALID_MESSAGE), null);
@@ -286,7 +286,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         } else
         {
             List<VocabularyTerm> termsForReplacement = new ArrayList<VocabularyTerm>();
-            for (VocabularyTerm term : vocabulary.getTerms())
+            for (VocabularyTerm term : getTerms())
             {
                 if (selectedTerms.contains(term.getCode()) == false)
                 {
@@ -295,6 +295,17 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
             }
             askForReplacements(termsToBeDeleted, termsToBeReplaced, termsForReplacement);
         }
+    }
+
+    private List<VocabularyTerm> getTerms()
+    {
+        List<VocabularyTerm> terms = new ArrayList<VocabularyTerm>();
+        List<BaseEntityModel<VocabularyTermWithStats>> models = getGrid().getStore().getModels();
+        for (BaseEntityModel<VocabularyTermWithStats> model : models)
+        {
+            terms.add(model.getBaseObject().getTerm());
+        }
+        return terms;
     }
 
     private void askForReplacements(final List<VocabularyTerm> termsToBeDeleted,
