@@ -484,4 +484,36 @@ public interface ICommonServer extends IServer
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier identifier,
             List<AttachmentPE> attachments, String description, Date version);
 
+    /**
+     * Deletes specified data set types.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.DATASET_TYPE)
+    public void deleteDataSetTypes(String sessionToken, List<String> entityTypesCodes);
+
+    /**
+     * Deletes specified sample types.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE_TYPE)
+    public void deleteSampleTypes(String sessionToken, List<String> entityTypesCodes);
+
+    /**
+     * Deletes specified experiment types.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT_TYPE)
+    public void deleteExperimentTypes(String sessionToken, List<String> entityTypesCodes);
+
+    /**
+     * Deletes specified material types.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL_TYPE)
+    public void deleteMaterialTypes(String sessionToken, List<String> entityTypesCodes);
+
 }

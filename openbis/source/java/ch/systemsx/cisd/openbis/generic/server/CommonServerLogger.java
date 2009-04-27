@@ -21,6 +21,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
@@ -412,4 +414,31 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    public void deleteDataSetTypes(String sessionToken, List<String> entityTypesCodes)
+    {
+        logTracking(sessionToken, "delete_data_set_types", "CODES(%s)", StringUtils
+                .join(entityTypesCodes.toArray(new String[0])));
+
+    }
+
+    public void deleteExperimentTypes(String sessionToken, List<String> entityTypesCodes)
+    {
+        logTracking(sessionToken, "delete_experiment_types", "CODES(%s)", StringUtils
+                .join(entityTypesCodes.toArray(new String[0])));
+
+    }
+
+    public void deleteMaterialTypes(String sessionToken, List<String> entityTypesCodes)
+    {
+        logTracking(sessionToken, "delete_material_types", "CODES(%s)", StringUtils
+                .join(entityTypesCodes.toArray(new String[0])));
+
+    }
+
+    public void deleteSampleTypes(String sessionToken, List<String> entityTypesCodes)
+    {
+        logTracking(sessionToken, "delete_sample_types", "CODES(%s)", StringUtils
+                .join(entityTypesCodes.toArray(new String[0])));
+
+    }
 }

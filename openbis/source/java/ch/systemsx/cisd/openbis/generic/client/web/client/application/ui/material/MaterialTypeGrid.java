@@ -80,4 +80,10 @@ public class MaterialTypeGrid extends AbstractEntityTypeGrid
         entityType.setDescription(descriptionOrNull);
         viewContext.getService().registerMaterialType(entityType, registrationCallback);
     }
+
+    @Override
+    protected EntityKind getEntityKind()
+    {
+        return EntityKind.MATERIAL;
+    }
 }

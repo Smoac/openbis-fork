@@ -20,7 +20,11 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+
+import junit.framework.Assert;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.SessionFactory;
@@ -36,13 +40,21 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
 
@@ -251,6 +263,61 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
         result.setProject(findProject(db, group, project));
         result.setRegistrator(getTestPerson());
         result.setRegistrationDate(new Date());
+        return result;
+    }
+
+    protected MaterialPE createMaterial(MaterialTypePE type, String code)
+    {
+        final MaterialPE material = new MaterialPE();
+        material.setCode(code);
+        material.setMaterialType(type);
+        material.setRegistrationDate(new Date());
+        material.setRegistrator(getSystemPerson());
+        material.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
+        return material;
+    }
+
+    protected EntityTypePropertyTypePE createAssignment(EntityKind entityKind,
+            EntityTypePE entityType, PropertyTypePE propertyType)
+    {
+        final PersonPE registrator = getTestPerson();
+        EntityTypePropertyTypePE result =
+                EntityTypePropertyTypePE.createEntityTypePropertyType(entityKind);
+        result.setEntityType(entityType);
+        result.setPropertyType(propertyType);
+        result.setRegistrator(registrator);
+        result.setRegistrationDate(new Date());
+        return result;
+    }
+
+    protected final PropertyTypePE createPropertyType(final DataTypePE dataType, final String code,
+            final VocabularyPE vocabularyOrNull, final MaterialTypePE materialTypeOrNull)
+    {
+        final PropertyTypePE propertyTypePE = new PropertyTypePE();
+        propertyTypePE.setCode(code);
+        propertyTypePE.setLabel(code);
+        propertyTypePE.setDescription(code);
+        propertyTypePE.setRegistrator(getSystemPerson());
+        propertyTypePE.setType(dataType);
+        propertyTypePE.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
+        if (EntityDataType.CONTROLLEDVOCABULARY.equals(dataType.getCode()))
+        {
+            assertNotNull(vocabularyOrNull);
+            propertyTypePE.setVocabulary(vocabularyOrNull);
+        }
+        if (EntityDataType.MATERIAL.equals(dataType.getCode()))
+        {
+            propertyTypePE.setMaterialType(materialTypeOrNull);
+        }
+        return propertyTypePE;
+    }
+
+    protected PropertyTypePE selectFirstPropertyType()
+    {
+        List<PropertyTypePE> propertyTypes = daoFactory.getPropertyTypeDAO().listPropertyTypes();
+        Assert.assertTrue(propertyTypes.size() > 0);
+        Collections.sort(propertyTypes);
+        PropertyTypePE result = propertyTypes.get(0);
         return result;
     }
 }

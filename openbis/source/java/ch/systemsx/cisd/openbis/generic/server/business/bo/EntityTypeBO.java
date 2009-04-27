@@ -101,4 +101,27 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         this.entityKind = EntityKind.DATA_SET;
         this.entityTypePE = convertGeneric(entityType, entityKind, getHomeDatabaseInstance());
     }
+
+    public void load(EntityKind kind, String code)
+    {
+        this.entityKind = kind;
+        this.entityTypePE = getEntityTypeDAO(entityKind).tryToFindEntityTypeByCode(code);
+        if (entityTypePE == null)
+        {
+            throw new UserFailureException(String.format("'%s' not found.", code));
+        }
+    }
+
+    public void delete()
+    {
+        assert entityKind != null;
+        assert entityTypePE != null : "Type not loaded";
+        try
+        {
+            getEntityTypeDAO(entityKind).deleteEntityType(entityTypePE);
+        } catch (final DataAccessException e)
+        {
+            throwException(e, String.format("'%s'", entityTypePE.getCode()));
+        }
+    }
 }

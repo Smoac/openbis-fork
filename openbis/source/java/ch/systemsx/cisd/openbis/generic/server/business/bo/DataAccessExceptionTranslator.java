@@ -29,12 +29,12 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  * {@link UserFailureException}.
  * <p>
  * This class can only be used on the business layer side as, only there, we dispose of enough
- * information to decide whether or not a <code>DataAccessException</code> should be translated
- * into an high-level exception.
+ * information to decide whether or not a <code>DataAccessException</code> should be translated into
+ * an high-level exception.
  * </p>
  * <p>
- * Do not try to put this logic on the <i>DAO</i> level or do not try to automate this conversion
- * as we want full control on this translation and we prefer to call it manually.
+ * Do not try to put this logic on the <i>DAO</i> level or do not try to automate this conversion as
+ * we want full control on this translation and we prefer to call it manually.
  * </p>
  * 
  * @author Tomasz Pylak
@@ -45,6 +45,9 @@ public final class DataAccessExceptionTranslator
     /** Message format for unique violation. */
     public final static String UNIQUE_VIOLATION_FORMAT =
             "%s already exists in the database and needs to be unique.";
+
+    /** Message format for foreign key violation. */
+    public final static String FOREIGN_KEY_VIOLATION_FORMAT = "%s is being used.";
 
     private DataAccessExceptionTranslator()
     {
@@ -66,12 +69,11 @@ public final class DataAccessExceptionTranslator
             final String subject) throws UserFailureException
     {
         assert StringUtils.isNotBlank(subject) : "Given subject can not be blank.";
-        throwExceptionWithMsg(exception, String.format(UNIQUE_VIOLATION_FORMAT, StringUtils
-                .capitalize(subject)));
+        throwExceptionWithMsg(exception, StringUtils.capitalize(subject));
     }
 
     public final static void throwExceptionWithMsg(final DataAccessException exception,
-            final String uniqueViolationMsg) throws UserFailureException
+            final String subject) throws UserFailureException
     {
         assert exception != null : "DataAccessException not specified.";
         final SQLException sqlException =
@@ -83,7 +85,12 @@ public final class DataAccessExceptionTranslator
             assert sqlState != null : "SQL state is null";
             if (SQLStateUtils.isUniqueViolation(sqlState))
             {
-                throw new UserFailureException(uniqueViolationMsg, exception);
+                throw new UserFailureException(String.format(UNIQUE_VIOLATION_FORMAT, subject),
+                        exception);
+            } else if (SQLStateUtils.isForeignKeyViolation(sqlState))
+            {
+                throw new UserFailureException(
+                        String.format(FOREIGN_KEY_VIOLATION_FORMAT, subject), exception);
             } else
             {
                 throwable = sqlException;

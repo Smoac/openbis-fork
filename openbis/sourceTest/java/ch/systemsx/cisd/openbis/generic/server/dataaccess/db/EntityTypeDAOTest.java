@@ -19,15 +19,24 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import junit.framework.Assert;
+
+import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -39,6 +48,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
     { "db", "materialType" })
 public final class EntityTypeDAOTest extends AbstractDAOTest
 {
+
+    private static final String MATERIAL = "MATERIAL";
+
+    private static final String MATERIAL_TYPE = "material-type";
 
     static final void checkEntityType(final EntityTypePE entityType, final String entityTypeCode)
     {
@@ -97,17 +110,109 @@ public final class EntityTypeDAOTest extends AbstractDAOTest
     {
         final IEntityTypeDAO materialTypeDAO = daoFactory.getEntityTypeDAO(EntityKind.MATERIAL);
         final int sizeBefore = materialTypeDAO.listEntityTypes().size();
-        MaterialTypePE entityType = new MaterialTypePE();
-        entityType.setCode("material-girl");
-        entityType.setDescription("We are living in a material world.");
-        entityType.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
-
+        MaterialTypePE entityType = createMaterialType("material-girl");
         materialTypeDAO.createEntityType(entityType);
-
         final int sizeAfter = materialTypeDAO.listEntityTypes().size();
         assertEquals(sizeBefore + 1, sizeAfter);
+
         EntityTypePE foundEntityType =
                 materialTypeDAO.tryToFindEntityTypeByCode(entityType.getCode());
         assertEquals(entityType, foundEntityType);
+    }
+
+    @Test
+    public final void testDeleteUnusedMaterialType()
+    {
+        final IEntityTypeDAO materialTypeDAO = daoFactory.getEntityTypeDAO(EntityKind.MATERIAL);
+        MaterialTypePE entityType = createMaterialType(MATERIAL_TYPE);
+        materialTypeDAO.createEntityType(entityType);
+        int sizeBeforeDeletion = materialTypeDAO.listEntityTypes().size();
+        materialTypeDAO.deleteEntityType(entityType);
+        assertEquals(sizeBeforeDeletion - 1, materialTypeDAO.listEntityTypes().size());
+    }
+
+    @Test
+    public final void testFailDeleteMaterialTypeUsedByMaterials()
+    {
+        final IEntityTypeDAO materialTypeDAO = daoFactory.getEntityTypeDAO(EntityKind.MATERIAL);
+        MaterialTypePE materialType = createMaterialType(MATERIAL_TYPE);
+        materialTypeDAO.createEntityType(materialType);
+        final IMaterialDAO materialDAO = daoFactory.getMaterialDAO();
+        List<MaterialPE> materials = createMaterials(3, MATERIAL, materialType);
+        materialDAO.createMaterials(materials);
+        boolean exceptionThrown = false;
+        try
+        {
+            materialTypeDAO.deleteEntityType(materialType);
+        } catch (DataIntegrityViolationException e)
+        {
+            exceptionThrown = true;
+        }
+        Assert.assertTrue(exceptionThrown);
+    }
+
+    @Test
+    public final void testFailDeleteMaterialTypeUsedInPropertyType()
+    {
+        final IEntityTypeDAO materialTypeDAO = daoFactory.getEntityTypeDAO(EntityKind.MATERIAL);
+        MaterialTypePE materialType = createMaterialType(MATERIAL_TYPE);
+        materialTypeDAO.createEntityType(materialType);
+        PropertyTypePE materialPropertyType = createMaterialPropertyType(materialType);
+        daoFactory.getPropertyTypeDAO().createPropertyType(materialPropertyType);
+        boolean exceptionThrown = false;
+        try
+        {
+            materialTypeDAO.deleteEntityType(materialType);
+        } catch (DataIntegrityViolationException e)
+        {
+            exceptionThrown = true;
+        }
+        Assert.assertTrue(exceptionThrown);
+    }
+
+    private PropertyTypePE createMaterialPropertyType(MaterialTypePE materialType)
+    {
+        return createPropertyType(daoFactory.getPropertyTypeDAO().getDataTypeByCode(
+                EntityDataType.MATERIAL), "USER.MATERIAL-PROPERTY-TYPE", null, materialType);
+    }
+
+    @Test
+    public final void testDeleteMaterialTypeWithAssignedPropertyType()
+    {
+        final IEntityTypeDAO materialTypeDAO = daoFactory.getEntityTypeDAO(EntityKind.MATERIAL);
+        MaterialTypePE materialType = createMaterialType(MATERIAL_TYPE);
+        materialTypeDAO.createEntityType(materialType);
+        assignPropertyType(materialType, selectFirstPropertyType());
+        int sizeBeforeDeletion = materialTypeDAO.listEntityTypes().size();
+        materialTypeDAO.deleteEntityType(materialType);
+        assertEquals(sizeBeforeDeletion - 1, materialTypeDAO.listEntityTypes().size());
+    }
+
+    private void assignPropertyType(MaterialTypePE materialType, PropertyTypePE propertyType)
+    {
+        EntityTypePropertyTypePE assignment =
+                createAssignment(EntityKind.MATERIAL, materialType, propertyType);
+        daoFactory.getEntityPropertyTypeDAO(EntityKind.MATERIAL)
+                .createEntityPropertyTypeAssignment(assignment);
+    }
+
+    private List<MaterialPE> createMaterials(int numberOfMaterials, String codePrefix,
+            MaterialTypePE materialType)
+    {
+        ArrayList<MaterialPE> result = new ArrayList<MaterialPE>();
+        for (int i = 0; i < numberOfMaterials; i++)
+        {
+            result.add(createMaterial(materialType, codePrefix + i));
+        }
+        return result;
+    }
+
+    private MaterialTypePE createMaterialType(String code)
+    {
+        MaterialTypePE entityType = new MaterialTypePE();
+        entityType.setCode(code);
+        entityType.setDescription("We are living in a material world.");
+        entityType.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
+        return entityType;
     }
 }

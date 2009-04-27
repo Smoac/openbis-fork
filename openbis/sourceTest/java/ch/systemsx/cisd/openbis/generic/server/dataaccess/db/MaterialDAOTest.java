@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import junit.framework.Assert;
@@ -40,7 +39,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public final class MaterialDAOTest extends AbstractDAOTest
 {
     private static final String BACTERIUM = "BACTERIUM";
+
     private static final String BRAND_NEW_BACTERIUM = "BRAND_NEW_BACTERIUM";
+
     final int NUMBER_OF_BACTERIA = 4;
 
     @Test
@@ -105,17 +106,6 @@ public final class MaterialDAOTest extends AbstractDAOTest
         List<MaterialPE> newMaterials = new ArrayList<MaterialPE>();
         newMaterials.add(createMaterial(type, existingBacteriumCode));
         daoFactory.getMaterialDAO().createMaterials(newMaterials);
-    }
-
-    private MaterialPE createMaterial(MaterialTypePE type, String code)
-    {
-        final MaterialPE material = new MaterialPE();
-        material.setCode(code);
-        material.setMaterialType(type);
-        material.setRegistrationDate(new Date());
-        material.setRegistrator(getSystemPerson());
-        material.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
-        return material;
     }
 
 }

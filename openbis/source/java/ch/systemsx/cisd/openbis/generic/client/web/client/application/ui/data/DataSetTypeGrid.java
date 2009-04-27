@@ -80,4 +80,10 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid
         entityType.setDescription(descriptionOrNull);
         viewContext.getService().registerDataSetType(entityType, registrationCallback);
     }
+
+    @Override
+    protected EntityKind getEntityKind()
+    {
+        return EntityKind.DATA_SET;
+    }
 }

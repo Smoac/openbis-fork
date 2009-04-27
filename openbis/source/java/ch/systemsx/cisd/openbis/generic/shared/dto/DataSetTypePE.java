@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -31,6 +32,8 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Cascade;
+
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 
 /**
@@ -39,52 +42,64 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  * @author Izabela Adamczyk
  */
 @Entity
-@Table(name = TableNames.DATA_SET_TYPES_TABLE, uniqueConstraints = { @UniqueConstraint(columnNames = {
-		ColumnNames.CODE_COLUMN, ColumnNames.DATABASE_INSTANCE_COLUMN }) })
-public class DataSetTypePE extends EntityTypePE {
-	private static final long serialVersionUID = GenericSharedConstants.VERSION;
+@Table(name = TableNames.DATA_SET_TYPES_TABLE, uniqueConstraints =
+    { @UniqueConstraint(columnNames =
+        { ColumnNames.CODE_COLUMN, ColumnNames.DATABASE_INSTANCE_COLUMN }) })
+public class DataSetTypePE extends EntityTypePE
+{
+    private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
-	private Set<DataSetTypePropertyTypePE> dataSetTypePropertyTypes = new HashSet<DataSetTypePropertyTypePE>();
+    private Set<DataSetTypePropertyTypePE> dataSetTypePropertyTypes =
+            new HashSet<DataSetTypePropertyTypePE>();
 
-	@SequenceGenerator(name = SequenceNames.DATA_SET_TYPE_SEQUENCE, sequenceName = SequenceNames.DATA_SET_TYPE_SEQUENCE, allocationSize = 1)
-	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DATA_SET_TYPE_SEQUENCE)
-	public final Long getId() {
-		return id;
-	}
+    @SequenceGenerator(name = SequenceNames.DATA_SET_TYPE_SEQUENCE, sequenceName = SequenceNames.DATA_SET_TYPE_SEQUENCE, allocationSize = 1)
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DATA_SET_TYPE_SEQUENCE)
+    public final Long getId()
+    {
+        return id;
+    }
 
-	public void addDataSetTypePropertyType(final DataSetTypePropertyTypePE child) {
-		final DataSetTypePE parent = (DataSetTypePE) child.getEntityType();
-		if (parent != null) {
-			parent.getDataSetTypePropertyTypesInternal().remove(child);
-		}
-		child.setEntityTypeInternal(this);
-		getDataSetTypePropertyTypesInternal().add(child);
-	}
+    public void addDataSetTypePropertyType(final DataSetTypePropertyTypePE child)
+    {
+        final DataSetTypePE parent = (DataSetTypePE) child.getEntityType();
+        if (parent != null)
+        {
+            parent.getDataSetTypePropertyTypesInternal().remove(child);
+        }
+        child.setEntityTypeInternal(this);
+        getDataSetTypePropertyTypesInternal().add(child);
+    }
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "entityTypeInternal")
-	@JoinColumn(name = ColumnNames.DATA_SET_TYPE_COLUMN, updatable = false)
-	private Set<DataSetTypePropertyTypePE> getDataSetTypePropertyTypesInternal() {
-		return dataSetTypePropertyTypes;
-	}
+    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "entityTypeInternal")
+    @JoinColumn(name = ColumnNames.DATA_SET_TYPE_COLUMN, updatable = false)
+    private Set<DataSetTypePropertyTypePE> getDataSetTypePropertyTypesInternal()
+    {
+        return dataSetTypePropertyTypes;
+    }
 
-	// Required by Hibernate.
-	@SuppressWarnings("unused")
-	private void setDataSetTypePropertyTypesInternal(
-			final Set<DataSetTypePropertyTypePE> dataSetTypePropertyTypes) {
-		this.dataSetTypePropertyTypes = dataSetTypePropertyTypes;
-	}
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private void setDataSetTypePropertyTypesInternal(
+            final Set<DataSetTypePropertyTypePE> dataSetTypePropertyTypes)
+    {
+        this.dataSetTypePropertyTypes = dataSetTypePropertyTypes;
+    }
 
-	@Transient
-	public Set<DataSetTypePropertyTypePE> getDataSetTypePropertyTypes() {
-		return getDataSetTypePropertyTypesInternal();
-	}
+    @Transient
+    public Set<DataSetTypePropertyTypePE> getDataSetTypePropertyTypes()
+    {
+        return getDataSetTypePropertyTypesInternal();
+    }
 
-	public final void setDataSetTypePropertyTypes(
-			final Set<DataSetTypePropertyTypePE> dataSetTypePropertyTypes) {
-		getDataSetTypePropertyTypesInternal().clear();
-		for (final DataSetTypePropertyTypePE child : dataSetTypePropertyTypes) {
-			addDataSetTypePropertyType(child);
-		}
-	}
+    public final void setDataSetTypePropertyTypes(
+            final Set<DataSetTypePropertyTypePE> dataSetTypePropertyTypes)
+    {
+        getDataSetTypePropertyTypesInternal().clear();
+        for (final DataSetTypePropertyTypePE child : dataSetTypePropertyTypes)
+        {
+            addDataSetTypePropertyType(child);
+        }
+    }
 }

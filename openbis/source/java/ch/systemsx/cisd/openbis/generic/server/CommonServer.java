@@ -758,4 +758,43 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         bo.save();
         return bo.getProject().getModificationDate();
     }
+
+    private void deleteEntityTypes(String sessionToken, EntityKind entityKind, List<String> codes)
+            throws UserFailureException
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        for (String code : codes)
+        {
+            IEntityTypeBO bo = businessObjectFactory.createEntityTypeBO(session);
+            bo.load(entityKind, code);
+            bo.delete();
+        }
+    }
+
+    public void deleteDataSetTypes(String sessionToken, List<String> entityTypesCodes)
+            throws UserFailureException
+    {
+        deleteEntityTypes(sessionToken, EntityKind.DATA_SET, entityTypesCodes);
+    }
+
+    public void deleteExperimentTypes(String sessionToken, List<String> entityTypesCodes)
+            throws UserFailureException
+    {
+        deleteEntityTypes(sessionToken, EntityKind.EXPERIMENT, entityTypesCodes);
+
+    }
+
+    public void deleteMaterialTypes(String sessionToken, List<String> entityTypesCodes)
+            throws UserFailureException
+    {
+        deleteEntityTypes(sessionToken, EntityKind.MATERIAL, entityTypesCodes);
+
+    }
+
+    public void deleteSampleTypes(String sessionToken, List<String> entityTypesCodes)
+            throws UserFailureException
+    {
+        deleteEntityTypes(sessionToken, EntityKind.SAMPLE, entityTypesCodes);
+
+    }
 }

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -33,6 +34,7 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.annotations.Cascade;
 
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
@@ -64,7 +66,8 @@ public final class SampleTypePE extends EntityTypePE
 
     private Integer containerHierarchyDepth;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "entityTypeInternal")
+    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "entityTypeInternal")
     @JoinColumn(name = ColumnNames.SAMPLE_TYPE_COLUMN, updatable = false)
     private Set<SampleTypePropertyTypePE> getSampleTypePropertyTypesInternal()
     {

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
+import java.util.List;
+
 /**
  * Some utilities around <code>String</code>.
  * 
@@ -46,6 +48,19 @@ public final class StringUtils
     public final static String trimToNull(final String value)
     {
         return isBlank(value) ? null : value.trim();
+    }
+
+    /**
+     * Joins the elements using comma as a separator. <br>
+     * Example: "a", "b", "c" -> "a, b, c"
+     */
+    public final static String joinList(final List<String> list)
+    {
+        if (list == null)
+        {
+            return null;
+        }
+        return join(list.toArray(new String[0]), ",");
     }
 
     /**

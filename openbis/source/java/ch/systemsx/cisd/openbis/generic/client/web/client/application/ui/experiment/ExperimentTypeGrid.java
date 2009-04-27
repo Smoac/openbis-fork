@@ -80,4 +80,10 @@ public class ExperimentTypeGrid extends AbstractEntityTypeGrid
         entityType.setDescription(descriptionOrNull);
         viewContext.getService().registerExperimentType(entityType, registrationCallback);
     }
+
+    @Override
+    protected EntityKind getEntityKind()
+    {
+        return EntityKind.EXPERIMENT;
+    }
 }

@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -33,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
@@ -53,7 +51,8 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
     public final void testTryFindAssignment(EntityKind entityKind, String typeCode,
             String propertyCode)
     {
-        EntityTypePropertyTypePE assignment = tryToGetAssignment(entityKind, typeCode, propertyCode);
+        EntityTypePropertyTypePE assignment =
+                tryToGetAssignment(entityKind, typeCode, propertyCode);
         Assert.assertEquals(true, assignment.isMandatory());
     }
 
@@ -61,7 +60,8 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
     public final void testTryFindNonexistentAssignment(EntityKind entityKind, String typeCode,
             String propertyCode)
     {
-        EntityTypePropertyTypePE assignment = tryToGetAssignment(entityKind, typeCode, propertyCode);
+        EntityTypePropertyTypePE assignment =
+                tryToGetAssignment(entityKind, typeCode, propertyCode);
         Assert.assertNull(assignment);
     }
 
@@ -114,19 +114,6 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
         return result;
     }
 
-    private EntityTypePropertyTypePE createAssignment(EntityKind entityKind,
-            EntityTypePE entityType, PropertyTypePE propertyType)
-    {
-        final PersonPE registrator = getTestPerson();
-        EntityTypePropertyTypePE result =
-                EntityTypePropertyTypePE.createEntityTypePropertyType(entityKind);
-        result.setEntityType(entityType);
-        result.setPropertyType(propertyType);
-        result.setRegistrator(registrator);
-        result.setRegistrationDate(new Date());
-        return result;
-    }
-
     public final void testCountTermUsageStatistics()
     {
         IEntityPropertyTypeDAO dao = daoFactory.getEntityPropertyTypeDAO(EntityKind.EXPERIMENT);
@@ -151,29 +138,31 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
         }
         return null;
     }
-    
+
     @Test
     public void testListPropertiesByVocabularyTerm()
     {
-        IEntityPropertyTypeDAO entityPropertyTypeDAO = daoFactory.getEntityPropertyTypeDAO(EntityKind.MATERIAL);
-        List<EntityPropertyPE> properties = entityPropertyTypeDAO.listPropertiesByVocabularyTerm("FLY");
-        
+        IEntityPropertyTypeDAO entityPropertyTypeDAO =
+                daoFactory.getEntityPropertyTypeDAO(EntityKind.MATERIAL);
+        List<EntityPropertyPE> properties =
+                entityPropertyTypeDAO.listPropertiesByVocabularyTerm("FLY");
+
         assertEquals(1, properties.size());
         assertEquals("FLY", properties.get(0).getVocabularyTerm().getCode());
     }
-    
+
     @Test
     public void testDelete()
     {
         EntityTypePropertyTypePE assignment =
                 tryToGetAssignment(EntityKind.EXPERIMENT, "SIRNA_HCS", "USER.DESCRIPTION");
         assertEquals(false, assignment.getPropertyValues().isEmpty());
-        
+
         daoFactory.getEntityPropertyTypeDAO(EntityKind.EXPERIMENT).delete(assignment);
     }
 
-    private EntityTypePropertyTypePE tryToGetAssignment(EntityKind entityKind, String entityTypeCode,
-            String propertyTypeCode)
+    private EntityTypePropertyTypePE tryToGetAssignment(EntityKind entityKind,
+            String entityTypeCode, String propertyTypeCode)
     {
         EntityTypePE entityType =
                 daoFactory.getEntityTypeDAO(entityKind).tryToFindEntityTypeByCode(entityTypeCode);

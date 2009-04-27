@@ -1214,4 +1214,31 @@ public final class CommonClientService extends AbstractClientService implements
         return modificationDate;
     }
 
+    public void deleteEntityTypes(EntityKind entityKind, List<String> entityTypesCodes)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+        try
+        {
+            switch (entityKind)
+            {
+                case DATA_SET:
+                    commonServer.deleteDataSetTypes(sessionToken, entityTypesCodes);
+                    break;
+                case SAMPLE:
+                    commonServer.deleteSampleTypes(sessionToken, entityTypesCodes);
+                    break;
+                case EXPERIMENT:
+                    commonServer.deleteExperimentTypes(sessionToken, entityTypesCodes);
+                    break;
+                case MATERIAL:
+                    commonServer.deleteMaterialTypes(sessionToken, entityTypesCodes);
+                    break;
+            }
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
 }

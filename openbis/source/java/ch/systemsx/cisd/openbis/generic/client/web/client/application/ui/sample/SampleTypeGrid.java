@@ -83,4 +83,10 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid
         sampleType.setGeneratedFromHierarchyDepth(3);
         viewContext.getService().registerSampleType(sampleType, registrationCallback);
     }
+
+    @Override
+    protected EntityKind getEntityKind()
+    {
+        return EntityKind.SAMPLE;
+    }
 }

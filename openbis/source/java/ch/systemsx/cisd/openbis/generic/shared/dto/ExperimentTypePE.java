@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -30,6 +31,8 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Cascade;
 
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 
@@ -58,7 +61,8 @@ public final class ExperimentTypePE extends EntityTypePE
         return id;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "entityTypeInternal")
+    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "entityTypeInternal")
     @JoinColumn(name = ColumnNames.EXPERIMENT_TYPE_COLUMN, updatable = false)
     private Set<ExperimentTypePropertyTypePE> getExperimentTypePropertyTypesInternal()
     {

@@ -34,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 
 /**
@@ -64,24 +63,6 @@ public final class PropertyTypeDAOTest extends AbstractDAOTest
         assertNotNull(propertyTypeDTO.getDescription());
         assertNotNull(propertyTypeDTO.getLabel());
         checkDataType(propertyTypeDTO.getType(), false);
-    }
-
-    private final PropertyTypePE createPropertyType(final DataTypePE dataType, final String code,
-            final VocabularyPE vocabularyOrNull)
-    {
-        final PropertyTypePE propertyTypePE = new PropertyTypePE();
-        propertyTypePE.setCode(code);
-        propertyTypePE.setLabel(code);
-        propertyTypePE.setDescription(code);
-        propertyTypePE.setRegistrator(getSystemPerson());
-        propertyTypePE.setType(dataType);
-        propertyTypePE.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
-        if (EntityDataType.CONTROLLEDVOCABULARY.equals(dataType.getCode()))
-        {
-            assertNotNull(vocabularyOrNull);
-            propertyTypePE.setVocabulary(vocabularyOrNull);
-        }
-        return propertyTypePE;
     }
 
     @Test
@@ -159,7 +140,7 @@ public final class PropertyTypeDAOTest extends AbstractDAOTest
         try
         {
             propertyTypeDAO.createPropertyType(createPropertyType(propertyTypeDAO
-                    .getDataTypeByCode(entityDataType), "code", null));
+                    .getDataTypeByCode(entityDataType), "code", null, null));
             fail(String.format("'%s' expected.", DataIntegrityViolationException.class
                     .getSimpleName()));
         } catch (final DataIntegrityViolationException ex)
@@ -167,7 +148,7 @@ public final class PropertyTypeDAOTest extends AbstractDAOTest
             // Nothing to do here.
         }
         propertyTypeDAO.createPropertyType(createPropertyType(propertyTypeDAO
-                .getDataTypeByCode(entityDataType), "user.code", null));
+                .getDataTypeByCode(entityDataType), "user.code", null, null));
         assertNotNull(propertyTypeDAO.tryFindPropertyTypeByCode("user.code"));
         assertNull(propertyTypeDAO.tryFindPropertyTypeByCode("code"));
     }

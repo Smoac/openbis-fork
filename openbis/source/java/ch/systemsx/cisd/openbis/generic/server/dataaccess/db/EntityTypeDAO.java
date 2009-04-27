@@ -103,4 +103,17 @@ final class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEnti
         }
     }
 
+    public final <T extends EntityTypePE> void deleteEntityType(final T entityType)
+    {
+        assert entityType != null : "Entity Type unspecified";
+
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        hibernateTemplate.delete(entityType);
+        hibernateTemplate.flush();
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("DELETE: entity type '%s'.", entityType));
+        }
+    }
+
 }

@@ -16,27 +16,37 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.ToolBarEvent;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.EntityTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.AddEntityTypeDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 
 /**
@@ -48,6 +58,8 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
 {
     private static final String LABEL_REGISTER_NEW_TYPE = "New Type";
 
+    abstract protected EntityKind getEntityKind();
+
     abstract protected void registerEntityType(String code, String descriptionOrNull,
             AsyncCallback<Void> registrationCallback);
 
@@ -56,6 +68,50 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
     {
         super(viewContext, browserId, gridId);
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.TYPE_BROWSER_GRID);
+        createDeleteButton(viewContext);
+    }
+
+    protected void deleteEntityTypes(List<String> types, AsyncCallback<Void> callback)
+    {
+        viewContext.getCommonService().deleteEntityTypes(getEntityKind(), types, callback);
+    }
+
+    private void createDeleteButton(final IViewContext<ICommonClientServiceAsync> context)
+    {
+        Button deleteButton = new Button(context.getMessage(Dict.BUTTON_DELETE));
+        deleteButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public void componentSelected(ButtonEvent ce)
+                {
+                    List<BaseEntityModel<EntityType>> types = getSelectedItems();
+                    if (types.isEmpty())
+                    {
+                        return;
+                    }
+                    final List<String> selectedTypeCodes = new ArrayList<String>();
+                    for (BaseEntityModel<EntityType> model : types)
+                    {
+                        EntityType term = model.getBaseObject();
+                        selectedTypeCodes.add(term.getCode());
+                    }
+                    ConfirmationDialog confirmationDialog =
+                            new ConfirmationDialog(context
+                                    .getMessage(Dict.DELETE_CONFIRMATION_TITLE), context
+                                    .getMessage(Dict.DELETE_CONFIRMATION_MESSAGE, StringUtils
+                                            .joinList(selectedTypeCodes)))
+                                {
+                                    @Override
+                                    protected void onYes()
+                                    {
+                                        deleteEntityTypes(selectedTypeCodes, new RefreshCallback(
+                                                viewContext));
+                                    }
+                                };
+                    confirmationDialog.show();
+                }
+            });
+        pagingToolbar.add(new AdapterToolItem(deleteButton));
     }
 
     public final Component createToolbar(final String title)
@@ -95,6 +151,20 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
             };
     }
 
+    final class RefreshCallback extends AbstractAsyncCallback<Void>
+    {
+        private RefreshCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        protected void process(Void result)
+        {
+            refresh();
+        }
+    }
+
     @Override
     protected IColumnDefinitionKind<EntityType>[] getStaticColumnsDefinition()
     {
@@ -107,7 +177,7 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
         return asColumnFilters(new EntityTypeColDefKind[]
             { EntityTypeColDefKind.CODE });
     }
-    
+
     public DatabaseModificationKind[] getRelevantModifications()
     {
         // grid is refreshed manually when a new type is added, so there can be no auto-refresh

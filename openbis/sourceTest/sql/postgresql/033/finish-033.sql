@@ -301,7 +301,7 @@ ALTER TABLE ONLY data_set_relationships
 ALTER TABLE ONLY data_set_relationships
     ADD CONSTRAINT dsre_data_fk_parent FOREIGN KEY (data_id_parent) REFERENCES data(id);
 ALTER TABLE ONLY data_set_type_property_types
-    ADD CONSTRAINT dstpt_dsty_fk FOREIGN KEY (dsty_id) REFERENCES data_set_types(id);
+    ADD CONSTRAINT dstpt_dsty_fk FOREIGN KEY (dsty_id) REFERENCES data_set_types(id) ON DELETE CASCADE;
 ALTER TABLE ONLY data_set_type_property_types
     ADD CONSTRAINT dstpt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY data_set_type_property_types
@@ -309,7 +309,7 @@ ALTER TABLE ONLY data_set_type_property_types
 ALTER TABLE ONLY data_set_types
     ADD CONSTRAINT dsty_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY experiment_type_property_types
-    ADD CONSTRAINT etpt_exty_fk FOREIGN KEY (exty_id) REFERENCES experiment_types(id);
+    ADD CONSTRAINT etpt_exty_fk FOREIGN KEY (exty_id) REFERENCES experiment_types(id) ON DELETE CASCADE;
 ALTER TABLE ONLY experiment_type_property_types
     ADD CONSTRAINT etpt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY experiment_type_property_types
@@ -387,7 +387,7 @@ ALTER TABLE ONLY materials
 ALTER TABLE ONLY material_types
     ADD CONSTRAINT maty_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY material_type_property_types
-    ADD CONSTRAINT mtpt_maty_fk FOREIGN KEY (maty_id) REFERENCES material_types(id);
+    ADD CONSTRAINT mtpt_maty_fk FOREIGN KEY (maty_id) REFERENCES material_types(id) ON DELETE CASCADE;
 ALTER TABLE ONLY material_type_property_types
     ADD CONSTRAINT mtpt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY material_type_property_types
@@ -463,7 +463,7 @@ ALTER TABLE ONLY sample_type_property_types
 ALTER TABLE ONLY sample_type_property_types
     ADD CONSTRAINT stpt_prty_fk FOREIGN KEY (prty_id) REFERENCES property_types(id);
 ALTER TABLE ONLY sample_type_property_types
-    ADD CONSTRAINT stpt_saty_fk FOREIGN KEY (saty_id) REFERENCES sample_types(id);
+    ADD CONSTRAINT stpt_saty_fk FOREIGN KEY (saty_id) REFERENCES sample_types(id) ON DELETE CASCADE;
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM postgres;
 GRANT ALL ON SCHEMA public TO postgres;

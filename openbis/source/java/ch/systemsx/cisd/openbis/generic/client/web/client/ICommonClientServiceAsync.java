@@ -376,4 +376,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void updateProject(String sessionKey, String identifier, String description,
             Date version, AsyncCallback<Date> projectEditCallback);
 
+    /**
+     * @see ICommonClientService#updateProject(String, String, String, Date)
+     */
+    public void deleteEntityTypes(EntityKind entityKind, List<String> entityTypeCodes,
+            AsyncCallback<Void> callback);
+
 }

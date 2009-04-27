@@ -46,4 +46,7 @@ public interface IEntityTypeDAO
 
     /** Creates a new entity type */
     public <T extends EntityTypePE> void createEntityType(T entityType) throws DataAccessException;
+
+    /** Deletes entity type */
+    public <T extends EntityTypePE> void deleteEntityType(T entityType) throws DataAccessException;
 }

@@ -21,6 +21,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * Operations on {@link EntityTypePE} extensions. Note that you can use only one <em>define</em>
@@ -41,4 +42,10 @@ public interface IEntityTypeBO extends IBusinessObject
 
     /** defines a new data set type, it can be saved later in the database */
     public void define(final DataSetType entityType);
+
+    /** Loads entity type of given kind and code */
+    public void load(EntityKind entityKind, String code);
+
+    /** Deletes previously loaded entity type from database */
+    public void delete();
 }

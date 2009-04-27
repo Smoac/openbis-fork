@@ -24,7 +24,7 @@ CREATE DOMAIN tech_id AS bigint;
 CREATE DOMAIN time_stamp AS timestamp with time zone;
 CREATE DOMAIN time_stamp_dfl AS timestamp with time zone NOT NULL DEFAULT now();
 CREATE DOMAIN user_id AS character varying(50);
-CREATE FUNCTION controlled_vocabulary_check() RETURNS "trigger"
+CREATE FUNCTION controlled_vocabulary_check() RETURNS trigger
     AS $$
 DECLARE
    v_code  CODE;
@@ -40,7 +40,7 @@ BEGIN
 END;
 $$
     LANGUAGE plpgsql;
-CREATE FUNCTION data_set_property_with_material_data_type_check() RETURNS "trigger"
+CREATE FUNCTION data_set_property_with_material_data_type_check() RETURNS trigger
     AS $$
 DECLARE
    v_type_id  CODE;
@@ -67,7 +67,7 @@ BEGIN
 END;
 $$
     LANGUAGE plpgsql;
-CREATE FUNCTION experiment_property_with_material_data_type_check() RETURNS "trigger"
+CREATE FUNCTION experiment_property_with_material_data_type_check() RETURNS trigger
     AS $$
 DECLARE
    v_type_id  CODE;
@@ -94,7 +94,7 @@ BEGIN
 END;
 $$
     LANGUAGE plpgsql;
-CREATE FUNCTION external_data_storage_format_check() RETURNS "trigger"
+CREATE FUNCTION external_data_storage_format_check() RETURNS trigger
     AS $$
 DECLARE
    v_covo_code  CODE;
@@ -112,7 +112,7 @@ BEGIN
 END;
 $$
     LANGUAGE plpgsql;
-CREATE FUNCTION material_property_with_material_data_type_check() RETURNS "trigger"
+CREATE FUNCTION material_property_with_material_data_type_check() RETURNS trigger
     AS $$
 DECLARE
    v_type_id  CODE;
@@ -151,7 +151,7 @@ BEGIN
 END;
 $$
     LANGUAGE plpgsql;
-CREATE FUNCTION sample_code_uniqueness_check() RETURNS "trigger"
+CREATE FUNCTION sample_code_uniqueness_check() RETURNS trigger
     AS $$
 DECLARE
    counter  INTEGER;
@@ -190,7 +190,7 @@ BEGIN
 END;
 $$
     LANGUAGE plpgsql;
-CREATE FUNCTION sample_property_with_material_data_type_check() RETURNS "trigger"
+CREATE FUNCTION sample_property_with_material_data_type_check() RETURNS trigger
     AS $$
 DECLARE
    v_type_id  CODE;
@@ -496,7 +496,7 @@ CREATE TABLE experiments (
 );
 CREATE TABLE external_data (
     data_id tech_id NOT NULL,
-    "location" character varying(1024) NOT NULL,
+    location character varying(1024) NOT NULL,
     ffty_id tech_id NOT NULL,
     loty_id tech_id NOT NULL,
     cvte_id_stor_fmt tech_id NOT NULL,

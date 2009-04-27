@@ -434,4 +434,10 @@ public interface ICommonClientService extends IClientService
      */
     public String generateCode(final String prefix) throws UserFailureException;
 
+    /**
+     * Delete entity types.
+     */
+    public void deleteEntityTypes(final EntityKind entityKind, final List<String> codes)
+            throws UserFailureException;
+
 }

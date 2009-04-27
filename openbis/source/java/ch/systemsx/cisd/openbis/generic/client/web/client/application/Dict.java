@@ -538,7 +538,7 @@ public abstract class Dict
     public static final String LEADER = "leader";
 
     public static final String FILTER = "filter";
-    
+
     public static final String FILTERS = "filters";
 
     public static final String ENTITY_TYPE_ASSIGNMENTS = "entity_type_assignments";
@@ -551,6 +551,12 @@ public abstract class Dict
     public static final String EDIT_TITLE = "edit_title";
 
     public static final String BUTTON_EDIT = "edit";
+
+    public static final String BUTTON_DELETE = "button_delete";
+
+    public static final String DELETE_CONFIRMATION_TITLE = "delete_confirmation_title";
+
+    public static final String DELETE_CONFIRMATION_MESSAGE = "delete_confirmation_message";
 
     // ----- end generic ------------------
 }

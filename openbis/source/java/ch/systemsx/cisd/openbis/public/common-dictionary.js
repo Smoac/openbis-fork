@@ -53,6 +53,7 @@ var common = {
   button_add_group: "Add Group",
   button_show_details: "Show Details",
   button_browse: "Browse",
+  button_delete: "Delete",
   
   tooltip_refresh_disabled: "To activate select appropriate criteria first.",
   tooltip_refresh_enabled: "Load or update the table.",
@@ -352,6 +353,13 @@ var common = {
  version: "Version",
  versions: "Versions",
  versions_template: "Show all versions ({0})",
+ 
+ //
+ // Entity Types
+ //
+ delete_confirmation_title: "Confirm Deletion",
+ delete_confirmation_message: "Are you sure you want to delete [{0}]?",
+ 
  
  
  // LAST LINE: KEEP IT AT THE END
