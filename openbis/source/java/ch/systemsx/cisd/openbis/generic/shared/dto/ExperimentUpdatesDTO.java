@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicExperimentUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -41,10 +40,6 @@ public class ExperimentUpdatesDTO extends BasicExperimentUpdates
 
     // new attachments which will be added to the old ones
     List<AttachmentPE> attachments;
-
-    private List<NewSample> newSamples;
-
-    private boolean registerSamples;
 
     private SampleType sampleType;
 
@@ -76,26 +71,6 @@ public class ExperimentUpdatesDTO extends BasicExperimentUpdates
     public void setProjectIdentifier(ProjectIdentifier projectIdentifier)
     {
         this.projectIdentifier = projectIdentifier;
-    }
-
-    public void setNewSamples(List<NewSample> newSamples)
-    {
-        this.newSamples = newSamples;
-    }
-
-    public void setRegisterSamples(boolean registerSamples)
-    {
-        this.registerSamples = registerSamples;
-    }
-
-    public List<NewSample> getNewSamples()
-    {
-        return newSamples;
-    }
-
-    public boolean isRegisterSamples()
-    {
-        return registerSamples;
     }
 
     public void setSampleType(SampleType sampleType)

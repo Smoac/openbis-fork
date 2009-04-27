@@ -43,6 +43,12 @@ public class BasicExperimentUpdates implements IsSerializable
     // if it does not have data sets attached yet. Otherwise an exception will be thrown.
     private String[] sampleCodesOrNull;
 
+    // if true sampleCodesOrNull changes semantic - sample codes are the same as in newSamples and
+    // all of them will be attached to the experiment.
+    private boolean registerSamples;
+
+    private List<NewSample> newSamples;
+
     public Date getVersion()
     {
         return version;
@@ -74,4 +80,23 @@ public class BasicExperimentUpdates implements IsSerializable
         this.sampleCodesOrNull = sampleCodes;
     }
 
+    public void setNewSamples(List<NewSample> newSamples)
+    {
+        this.newSamples = newSamples;
+    }
+
+    public void setRegisterSamples(boolean registerSamples)
+    {
+        this.registerSamples = registerSamples;
+    }
+
+    public List<NewSample> getNewSamples()
+    {
+        return newSamples;
+    }
+
+    public boolean isRegisterSamples()
+    {
+        return registerSamples;
+    }
 }

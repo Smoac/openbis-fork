@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.util.List;
-
 /**
  * Description of the updates which should be performed on the experiment.
  * 
@@ -40,11 +38,7 @@ public class ExperimentUpdates extends BasicExperimentUpdates
 
     private boolean generateCodes;
 
-    private boolean registerSamples;
-
     private String samplesSessionKey;
-
-    private List<NewSample> newSamples;
 
     public String getAttachmentSessionKey()
     {
@@ -96,16 +90,6 @@ public class ExperimentUpdates extends BasicExperimentUpdates
         return generateCodes;
     }
 
-    public boolean isRegisterSamples()
-    {
-        return registerSamples;
-    }
-
-    public void setRegisterSamples(boolean registerSamples)
-    {
-        this.registerSamples = registerSamples;
-    }
-
     public void setSamplesSessionKey(String samplesSessionKey)
     {
         this.samplesSessionKey = samplesSessionKey;
@@ -115,15 +99,4 @@ public class ExperimentUpdates extends BasicExperimentUpdates
     {
         return samplesSessionKey;
     }
-
-    public void setNewSamples(List<NewSample> samples)
-    {
-        this.newSamples = samples;
-    }
-
-    public List<NewSample> getNewSamples()
-    {
-        return newSamples;
-    }
-
 }
