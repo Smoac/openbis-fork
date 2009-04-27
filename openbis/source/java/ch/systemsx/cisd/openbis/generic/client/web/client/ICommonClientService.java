@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -396,17 +397,17 @@ public interface ICommonClientService extends IClientService
 
     /** Registers a new experiment type */
     public void registerExperimentType(ExperimentType entityType) throws UserFailureException;
-    
+
     /**
      * Updates specified entity type of specified kind.
      */
-    public void updateEntityType(EntityKind entityKind, EntityType entityType) throws UserFailureException;
+    public void updateEntityType(EntityKind entityKind, EntityType entityType)
+            throws UserFailureException;
 
     /**
      * Updates project.
      */
-    public Date updateProject(String sessionKey, final String projectIdentifier,
-            String description, Date version) throws UserFailureException;
+    public Date updateProject(ProjectUpdates updates) throws UserFailureException;
 
     /** Deletes the specified data sets. */
     public void deleteDataSets(List<String> dataSetCodes, String reason)

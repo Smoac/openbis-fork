@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
@@ -427,11 +428,10 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public Date editProject(String sessionToken, ProjectIdentifier identifier,
-            List<AttachmentPE> attachments, String description, Date version)
+    public Date editProject(String sessionToken, ProjectUpdatesDTO updates)
     {
-        logTracking(sessionToken, "edit_project", "PROJECT(%s) ATTACHMENTS_ADDED(%s)", identifier,
-                attachments.size());
+        logTracking(sessionToken, "edit_project", "PROJECT(%s) ATTACHMENTS_ADDED(%s)", updates.getIdentifier(),
+                updates.getAttachments().size());
         return null;
     }
 

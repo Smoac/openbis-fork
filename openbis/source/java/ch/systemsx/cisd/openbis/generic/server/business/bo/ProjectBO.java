@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -31,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -191,16 +191,15 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         }
     }
 
-    public void edit(ProjectIdentifier identifier, List<AttachmentPE> newAttachments,
-            String description, Date version)
+    public void edit(ProjectUpdatesDTO updates)
     {
-        loadByProjectIdentifier(identifier);
-        if (version.equals(project.getModificationDate()) == false)
+        loadByProjectIdentifier(updates.getIdentifier());
+        if (updates.getVersion().equals(project.getModificationDate()) == false)
         {
             throw new UserFailureException("Project has been modified in the meantime.");
         }
-        project.setDescription(description);
-        for (AttachmentPE a : newAttachments)
+        project.setDescription(updates.getDescription());
+        for (AttachmentPE a : updates.getAttachments())
         {
             addAttachment(a);
         }

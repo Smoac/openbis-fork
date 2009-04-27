@@ -78,6 +78,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
@@ -786,12 +787,11 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return prefix + getDAOFactory().getCodeSequenceDAO().getNextCodeSequenceId();
     }
 
-    public Date editProject(String sessionToken, ProjectIdentifier identifier,
-            List<AttachmentPE> attachments, String description, Date version)
+    public Date editProject(String sessionToken, ProjectUpdatesDTO updates)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IProjectBO bo = businessObjectFactory.createProjectBO(session);
-        bo.edit(identifier, attachments, description, version);
+        bo.edit(updates);
         bo.save();
         return bo.getProject().getModificationDate();
     }

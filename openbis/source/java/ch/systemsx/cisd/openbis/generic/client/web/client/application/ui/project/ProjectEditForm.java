@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 
 /**
  * {@link AbstractProjectEditRegisterForm} extension for editing projects.
@@ -49,9 +50,12 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
     @Override
     protected void saveProject()
     {
-        viewContext.getCommonService().updateProject(sessionKey, project.getIdentifier(),
-                projectDescriptionField.getValue(), project.getModificationDate(),
-                new ProjectEditCallback(viewContext));
+        ProjectUpdates updates = new ProjectUpdates();
+        updates.setAttachmentSessionKey(sessionKey);
+        updates.setDescription(projectDescriptionField.getValue());
+        updates.setProjectIdentifier(project.getIdentifier());
+        updates.setVersion(project.getModificationDate());
+        viewContext.getCommonService().updateProject(updates, new ProjectEditCallback(viewContext));
     }
 
     public final class ProjectEditCallback extends

@@ -16,12 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import java.util.Date;
-import java.util.List;
-
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
@@ -71,6 +69,5 @@ public interface IProjectBO extends IBusinessObject
     /**
      * Updates the project.
      */
-    public void edit(ProjectIdentifier identifier, List<AttachmentPE> attachments,
-            String description, Date version);
+    public void edit(ProjectUpdatesDTO updates);
 }

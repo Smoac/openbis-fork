@@ -86,6 +86,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -103,6 +104,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -1221,8 +1223,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public Date updateProject(String sessionKey, final String projectIdentifier,
-            final String description, final Date version)
+    public Date updateProject(final ProjectUpdates updates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
@@ -1232,13 +1233,24 @@ public final class CommonClientService extends AbstractClientService implements
                 @Override
                 public void register(List<AttachmentPE> attachments)
                 {
-                    final ProjectIdentifier identifier =
-                            new ProjectIdentifierFactory(projectIdentifier).createIdentifier();
-                    modificationDate.setTime(commonServer.editProject(sessionToken, identifier,
-                            attachments, description, version).getTime());
+                    ProjectUpdatesDTO updatesDTO = translate(updates);
+                    updatesDTO.setAttachments(attachments);
+                    Date date = commonServer.editProject(sessionToken, updatesDTO);
+                    modificationDate.setTime(date.getTime());
                 }
-            }.process(sessionKey, getHttpSession());
+            }.process(updates.getAttachmentSessionKey(), getHttpSession());
         return modificationDate;
+    }
+
+    private static ProjectUpdatesDTO translate(ProjectUpdates updates)
+    {
+        ProjectUpdatesDTO updatesDTO = new ProjectUpdatesDTO();
+        updatesDTO.setDescription(updates.getDescription());
+        updatesDTO.setVersion(updates.getVersion());
+        final ProjectIdentifier projectIdentifier =
+                new ProjectIdentifierFactory(updates.getIdentifier()).createIdentifier();
+        updatesDTO.setIdentifier(projectIdentifier);
+        return updatesDTO;
     }
 
     public void deleteEntityTypes(EntityKind entityKind, List<String> entityTypesCodes)

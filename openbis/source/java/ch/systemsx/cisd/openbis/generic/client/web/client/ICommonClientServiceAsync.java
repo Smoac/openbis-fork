@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -346,8 +347,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#updateEntityType(EntityKind, EntityType) */
-    public void updateEntityType(EntityKind entityKind, EntityType entityType, AsyncCallback<Void> callback);
-    
+    public void updateEntityType(EntityKind entityKind, EntityType entityType,
+            AsyncCallback<Void> callback);
+
     /** @see ICommonClientService#deleteDataSets(List, String) */
     public void deleteDataSets(List<String> dataSetCodes, String reason,
             AsyncCallback<Void> asyncCallback);
@@ -374,13 +376,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void generateCode(String codePrefix, final AsyncCallback<String> callback);
 
     /**
-     * @see ICommonClientService#updateProject(String, String, String, Date)
+     * @see ICommonClientService#updateProject(ProjectUpdates)
      */
-    public void updateProject(String sessionKey, String identifier, String description,
-            Date version, AsyncCallback<Date> projectEditCallback);
+    public void updateProject(ProjectUpdates updates, AsyncCallback<Date> projectEditCallback);
 
     /**
-     * @see ICommonClientService#updateProject(String, String, String, Date)
+     * @see ICommonClientService#deleteEntityTypes(EntityKind, List)
      */
     public void deleteEntityTypes(EntityKind entityKind, List<String> entityTypeCodes,
             AsyncCallback<Void> callback);

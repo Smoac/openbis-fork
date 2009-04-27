@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExternalDataValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
@@ -58,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
@@ -392,7 +394,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL_TYPE)
     public void updateMaterialType(String sessionToken, EntityType entityType);
-    
+
     /**
      * Creates a new sample type.
      */
@@ -408,7 +410,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE_TYPE)
     public void updateSampleType(String sessionToken, EntityType entityType);
-    
+
     /**
      * Creates a new experiment type.
      */
@@ -424,7 +426,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT_TYPE)
     public void updateExperimentType(String sessionToken, EntityType entityType);
-    
+
     /**
      * Creates a new data set type.
      */
@@ -440,7 +442,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATASET_TYPE)
     public void updateDataSetType(String sessionToken, EntityType entityType);
-    
+
     /**
      * Deletes specified data sets.
      */
@@ -514,8 +516,7 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.PROJECT)
     public Date editProject(
             String sessionToken,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier identifier,
-            List<AttachmentPE> attachments, String description, Date version);
+            @AuthorizationGuard(guardClass = ProjectUpdatesPredicate.class) ProjectUpdatesDTO updates);
 
     /**
      * Deletes specified data set types.
