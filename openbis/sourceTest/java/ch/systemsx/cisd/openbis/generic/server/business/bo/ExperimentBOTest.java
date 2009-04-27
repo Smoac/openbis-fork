@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -89,21 +90,31 @@ public final class ExperimentBOTest extends AbstractBOTest
             final ExperimentPE exp)
     {
         prepareAnyDaoCreation();
+        final ProjectPE project = exp.getProject();
+        prepareTryFindProject(identifier, project);
         context.checking(new Expectations()
             {
                 {
-                    final ProjectPE project = exp.getProject();
-
-                    one(projectDAO).tryFindProject(identifier.getDatabaseInstanceCode(),
-                            identifier.getGroupCode(), identifier.getProjectCode());
-                    will(returnValue(project));
-
                     one(experimentDAO).tryFindByCodeAndProject(project,
                             identifier.getExperimentCode());
                     will(returnValue(exp));
 
                 }
             });
+    }
+
+    private void prepareTryFindProject(final ProjectIdentifier identifier,
+            final ProjectPE foundProject)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(projectDAO).tryFindProject(identifier.getDatabaseInstanceCode(),
+                            identifier.getGroupCode(), identifier.getProjectCode());
+                    will(Expectations.returnValue(foundProject));
+                }
+            });
+
     }
 
     @Test
@@ -348,6 +359,36 @@ public final class ExperimentBOTest extends AbstractBOTest
                     will(returnValue(externalDataDAO));
                 }
             });
+    }
+
+    @Test
+    public final void testEditProject()
+    {
+
+        ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
+        ExperimentPE exp = CommonTestUtils.createExperiment(identifier);
+
+        GroupPE group = CommonTestUtils.createGroup(identifier);
+        SamplePE assignedSample = createSampleWithCode("assignedSample");
+        assignedSample.setGroup(group);
+        exp.setSamples(Arrays.asList(assignedSample));
+
+        prepareLoadExperimentByIdentifier(identifier, exp);
+        ExperimentBO expBO = loadExperiment(identifier, exp);
+
+        final ProjectIdentifier newProjectIdentifier =
+                new ProjectIdentifier(identifier.getDatabaseInstanceCode(), "anotherGroup",
+                        "anotherProject");
+        final ProjectPE newProject = CommonTestUtils.createProject(newProjectIdentifier);
+        prepareTryFindProject(newProjectIdentifier, newProject);
+
+        assertFalse(newProject.equals(exp.getProject()));
+        assertFalse(newProject.getGroup().equals(assignedSample.getGroup()));
+
+        expBO.updateProject(newProjectIdentifier);
+
+        assertEquals(newProject, exp.getProject());
+        assertEquals(newProject.getGroup(), assignedSample.getGroup());
     }
 
     @Test

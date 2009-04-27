@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -84,6 +85,12 @@ public class CommonTestUtils
         group.setCode(groupCode);
         group.setDatabaseInstance(databaseInstance);
         return group;
+    }
+
+    public static GroupPE createGroup(GroupIdentifier projectIdentifier)
+    {
+        DatabaseInstancePE db = createDatabaseInstance(projectIdentifier.getDatabaseInstanceCode());
+        return createGroup(projectIdentifier.getGroupCode(), db);
     }
 
     public static final ExperimentTypePE createExperimentType()
