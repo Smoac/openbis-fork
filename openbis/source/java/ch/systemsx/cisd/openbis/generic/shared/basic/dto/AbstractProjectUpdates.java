@@ -33,17 +33,17 @@ public class AbstractProjectUpdates implements IsSerializable
 
     private String description;
 
-    // code of the group to which project should be moved
-    private String groupCode;
+    // Code of the group to which project should be moved. If null nothing happens.
+    private String groupCodeOrNull;
 
     public String getGroupCode()
     {
-        return groupCode;
+        return groupCodeOrNull;
     }
 
     public void setGroupCode(String groupCode)
     {
-        this.groupCode = groupCode;
+        this.groupCodeOrNull = groupCode;
     }
 
     public Date getVersion()

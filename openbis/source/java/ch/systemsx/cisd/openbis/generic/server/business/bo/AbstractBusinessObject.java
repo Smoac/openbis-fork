@@ -19,13 +19,13 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
@@ -41,9 +41,12 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ICodeSequenceDAO;
+import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -71,6 +74,26 @@ abstract class AbstractBusinessObject implements IDAOFactory
         final PersonPE registrator = session.tryGetPerson();
         assert registrator != null : "Missing person instance in session object.";
         return registrator;
+    }
+
+    protected void fillGroupIdentifier(final GroupIdentifier groupIdentifier)
+    {
+        if (org.apache.commons.lang.StringUtils.isBlank(groupIdentifier.getGroupCode()))
+        {
+            final GroupPE group =
+                    GroupIdentifierHelper.tryGetGroup(groupIdentifier, findRegistrator(), this);
+            checkNotNull(groupIdentifier, group);
+            groupIdentifier.setDatabaseInstanceCode(group.getDatabaseInstance().getCode());
+            groupIdentifier.setGroupCode(group.getCode());
+        }
+    }
+
+    private static void checkNotNull(final GroupIdentifier groupIdentifier, final GroupPE group)
+    {
+        if (group == null)
+        {
+            throw new UserFailureException("Unknown group '" + groupIdentifier + "'.");
+        }
     }
 
     protected final static void throwException(final DataAccessException exception,

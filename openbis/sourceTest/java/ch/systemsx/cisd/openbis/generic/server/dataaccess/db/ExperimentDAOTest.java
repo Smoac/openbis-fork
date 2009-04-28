@@ -53,15 +53,15 @@ public class ExperimentDAOTest extends AbstractDAOTest
     //
     // Experiments existing in the test database
     //
-    private static final String CISD_CISD_DEFAULT_EXP_REUSE = "CISD:/CISD/DEFAULT/EXP-REUSE";
+    private static final String CISD_CISD_DEFAULT_EXP_REUSE = "/CISD/DEFAULT/EXP-REUSE";
 
-    private static final String CISD_CISD_DEFAULT_EXP_X = "CISD:/CISD/DEFAULT/EXP-X";
+    private static final String CISD_CISD_DEFAULT_EXP_X = "/CISD/DEFAULT/EXP-X";
 
-    private static final String CISD_CISD_NEMO_EXP1 = "CISD:/CISD/NEMO/EXP1";
+    private static final String CISD_CISD_NEMO_EXP1 = "/CISD/NEMO/EXP1";
 
-    private static final String CISD_CISD_NEMO_EXP10 = "CISD:/CISD/NEMO/EXP10";
+    private static final String CISD_CISD_NEMO_EXP10 = "/CISD/NEMO/EXP10";
 
-    private static final String CISD_CISD_NEMO_EXP11 = "CISD:/CISD/NEMO/EXP11";
+    private static final String CISD_CISD_NEMO_EXP11 = "/CISD/NEMO/EXP11";
 
     @Test
     public void testListExperiments() throws Exception

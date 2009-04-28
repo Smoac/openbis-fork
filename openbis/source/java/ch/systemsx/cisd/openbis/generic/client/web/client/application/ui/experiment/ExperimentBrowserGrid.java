@@ -46,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -80,14 +79,11 @@ public class ExperimentBrowserGrid extends
 
     /**
      * Creates a grid without additional toolbar buttons. It can serve as a entity chooser.
-     * 
-     * @param groupOrNull if specified, only projects from that group will be presented
      */
     public static DisposableEntityChooser<Experiment> createChooser(
-            final IViewContext<ICommonClientServiceAsync> viewContext, Group groupOrNull)
+            final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        final ProjectSelectionTreeWidget tree =
-                new ProjectSelectionTreeWidget(viewContext, groupOrNull);
+        final ProjectSelectionTreeWidget tree = new ProjectSelectionTreeWidget(viewContext);
         final SectionPanel treeSection = new ProjectSelectionSection(tree);
         final ExperimentBrowserToolbar toolbar = new ExperimentBrowserToolbar(viewContext, tree);
         final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar)
@@ -106,7 +102,7 @@ public class ExperimentBrowserGrid extends
     public static DisposableEntityChooser<Experiment> create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        final ProjectSelectionTreeWidget tree = new ProjectSelectionTreeWidget(viewContext, null);
+        final ProjectSelectionTreeWidget tree = new ProjectSelectionTreeWidget(viewContext);
         final SectionPanel treeSection = new ProjectSelectionSection(tree);
         final ExperimentBrowserToolbar toolbar = new ExperimentBrowserToolbar(viewContext, tree);
         final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar);

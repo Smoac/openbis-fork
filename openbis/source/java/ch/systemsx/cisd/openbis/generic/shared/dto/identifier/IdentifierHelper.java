@@ -90,9 +90,10 @@ public final class IdentifierHelper
         assert project != null : "Unspecified project";
         final GroupPE group = project.getGroup();
         final DatabaseInstancePE databaseInstance = group.getDatabaseInstance();
+        String instanceCode =
+                databaseInstance.isOriginalSource() ? null : databaseInstance.getCode();
         final ProjectIdentifier identifier =
-                new ProjectIdentifier(databaseInstance.getCode(), group.getCode(), project
-                        .getCode());
+                new ProjectIdentifier(instanceCode, group.getCode(), project.getCode());
         return identifier;
     }
 

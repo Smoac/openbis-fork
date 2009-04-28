@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,16 +56,13 @@ public final class ProjectSelectionTreeWidget extends Tree implements IDatabaseM
 
     private final IViewContext<?> viewContext;
 
-    private Group groupOrNull;
-
     private Project selectedProjectOrNull;
 
     private SelectionChangedListener<?> selectionChangedListener;
 
-    public ProjectSelectionTreeWidget(final IViewContext<?> viewContext, Group groupOrNull)
+    public ProjectSelectionTreeWidget(final IViewContext<?> viewContext)
     {
         this.viewContext = viewContext;
-        this.groupOrNull = groupOrNull;
         setId(ID);
         refreshTree();
     }
@@ -219,37 +215,13 @@ public final class ProjectSelectionTreeWidget extends Tree implements IDatabaseM
         protected void process(final ResultSet<Project> result)
         {
             List<Project> projects = result.getList();
-            rebuildTree(getProjectsFilteredByGroup(projects));
+            rebuildTree(projects);
 
             if (selectedProjectOrNull != null)
             {
                 selectByIdentifierIfPossible(selectedProjectOrNull.getIdentifier());
             }
         }
-
-        private List<Project> getProjectsFilteredByGroup(List<Project> projects)
-        {
-            List<Project> result = new ArrayList<Project>(projects);
-            for (Project project : projects)
-            {
-                if (matchesTheGroup(project) == false)
-                {
-                    result.remove(project);
-                }
-            }
-            return result;
-        }
-
-        private boolean matchesTheGroup(Project project)
-        {
-            if (groupOrNull == null)
-            {
-                return true;
-            }
-            Group projectGroup = project.getGroup();
-            return projectGroup.equals(groupOrNull);
-        }
-
     }
 
     private static class BaseModelDataWithCode extends BaseModelData

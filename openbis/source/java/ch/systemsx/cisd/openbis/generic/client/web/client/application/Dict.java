@@ -213,17 +213,17 @@ public abstract class Dict
     //
 
     public static final String ADD_NEW_TYPE_BUTTON = "add_new_type_button";
-    
+
     public static final String EDIT_TYPE_BUTTON = "edit_type_button";
-    
+
     public static final String ADD_TYPE_TITLE_TEMPLATE = "add_type_title_template";
-    
+
     public static final String EDIT_TYPE_TITLE_TEMPLATE = "edit_type_title_template";
-    
+
     //
     // Property Type Browser
     //
-    
+
     public static final String LABEL = "label";
 
     public static final String DATA_TYPE = "data_type";
@@ -540,6 +540,8 @@ public abstract class Dict
     public static final String INCORRECT_MATERIAL_SYNTAX = "incorrect_material_syntax";
 
     public static final String TITLE_CHOOSE_EXPERIMENT = "TITLE_CHOOSE_EXPERIMENT";
+
+    public static final String INCORRECT_EXPERIMENT_SYNTAX = "incorrect_experiment_syntax";
 
     //
     // Unclassified

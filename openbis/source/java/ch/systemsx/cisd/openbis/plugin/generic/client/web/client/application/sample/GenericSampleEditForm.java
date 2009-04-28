@@ -148,8 +148,8 @@ public final class GenericSampleEditForm
         Experiment experiment = originalSample.getExperiment();
         ExperimentIdentifier originalExperiment =
                 experiment == null ? null : ExperimentIdentifier.createIdentifier(experiment);
-        return ExperimentChooserField.create(label, false, originalSample.getGroup(),
-                originalExperiment, viewContext.getCommonViewContext());
+        return ExperimentChooserField.create(label, false, originalExperiment, viewContext
+                .getCommonViewContext());
     }
 
     public static final String ID_PREFIX = createId(EntityKind.SAMPLE, "");
@@ -259,7 +259,7 @@ public final class GenericSampleEditForm
             return null;
         } else
         {
-            return value.print();
+            return value.getIdentifier();
         }
     }
 

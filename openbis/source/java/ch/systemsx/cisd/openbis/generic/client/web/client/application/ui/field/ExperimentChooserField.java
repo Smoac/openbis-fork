@@ -32,9 +32,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experim
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.EntityChooserDialog.ChosenEntitySetter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 
 /**
  * A field for selecting an experiment in a fixed group from a list or by specifying code and
@@ -60,12 +60,11 @@ public final class ExperimentChooserField extends TextField<String> implements
      * from the list.
      */
     public static ExperimentChooserFieldAdaptor create(final String labelField,
-            final boolean mandatory, final Group group,
-            final ExperimentIdentifier initialValueOrNull,
+            final boolean mandatory, final ExperimentIdentifier initialValueOrNull,
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final ExperimentChooserField chooserField =
-                new ExperimentChooserField(mandatory, group, initialValueOrNull, viewContext);
+                new ExperimentChooserField(mandatory, initialValueOrNull, viewContext);
 
         Button chooseButton = new Button(viewContext.getMessage(Dict.BUTTON_BROWSE));
         chooseButton.addSelectionListener(new SelectionListener<ComponentEvent>()
@@ -73,7 +72,7 @@ public final class ExperimentChooserField extends TextField<String> implements
                 @Override
                 public void componentSelected(ComponentEvent ce)
                 {
-                    browse(viewContext, chooserField, group);
+                    browse(viewContext, chooserField);
                 }
             });
         final Field<?> field =
@@ -99,31 +98,36 @@ public final class ExperimentChooserField extends TextField<String> implements
                 public void updateOriginalValue()
                 {
                     ExperimentIdentifier valueOrNull = getValue();
-                    String textValue = (valueOrNull == null ? "" : valueOrNull.print());
+                    String textValue = (valueOrNull == null ? "" : valueOrNull.getIdentifier());
                     chooserField.setOriginalValue(textValue);
                 }
             };
     }
 
     private static void browse(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final ChosenEntitySetter<Experiment> chosenMaterialField, Group group)
+            final ChosenEntitySetter<Experiment> chosenEntityField)
     {
         DisposableEntityChooser<Experiment> browser =
-                ExperimentBrowserGrid.createChooser(viewContext, group);
+                ExperimentBrowserGrid.createChooser(viewContext);
         String title = viewContext.getMessage(Dict.TITLE_CHOOSE_EXPERIMENT);
-        new EntityChooserDialog<Experiment>(browser, chosenMaterialField, title, viewContext)
-                .show();
+        new EntityChooserDialog<Experiment>(browser, chosenEntityField, title, viewContext).show();
     }
 
     // ------------------
 
-    // the pattern used to validate experiemnt pointer expression
-    private final static String CODE_AND_PROJECT_PATTERN =
-            CodeField.CODE_CHARS + " " + "\\(" + CodeField.CODE_CHARS + "\\)";
+    // the pattern used to validate experiment pointer expression
+    private final static String EXPERIMENT_IDENTIFIER_WITHOUT_GROUP_PATTERN =
+            "/" + CodeField.CODE_CHARS + "/" + CodeField.CODE_CHARS + "/" + CodeField.CODE_CHARS;
+
+    private final static String EXPERIMENT_IDENTIFIER_WITH_GROUP_PATTERN =
+            CodeField.CODE_CHARS + "/" + CodeField.CODE_CHARS;
+
+    // @Private, only for tests
+    public final static String EXPERIMENT_IDENTIFIER_PATTERN = 
+            "(" + EXPERIMENT_IDENTIFIER_WITH_GROUP_PATTERN + ")|("
+                    + EXPERIMENT_IDENTIFIER_WITHOUT_GROUP_PATTERN + ")";
 
     private final boolean mandatory;
-
-    private final Group group;
 
     public void setChosenEntity(Experiment entityOrNull)
     {
@@ -136,7 +140,14 @@ public final class ExperimentChooserField extends TextField<String> implements
 
     private ExperimentIdentifier tryGetIdentifier()
     {
-        return ExperimentIdentifier.tryParseIdentifier(getValue(), group);
+        String ident = getValue();
+        if (StringUtils.isBlank(ident))
+        {
+            return null;
+        } else
+        {
+            return new ExperimentIdentifier(ident);
+        }
     }
 
     private void setValue(ExperimentIdentifier chosenEntity)
@@ -146,21 +157,19 @@ public final class ExperimentChooserField extends TextField<String> implements
 
     private String print(ExperimentIdentifier chosenEntity)
     {
-        return chosenEntity.getExperimentCode() + " (" + chosenEntity.getProjectCode() + ")";
+        return chosenEntity.getIdentifier();
     }
 
-    private ExperimentChooserField(boolean mandatory, Group group,
-            ExperimentIdentifier initialValueOrNull,
+    private ExperimentChooserField(boolean mandatory, ExperimentIdentifier initialValueOrNull,
             IViewContext<ICommonClientServiceAsync> viewContext)
     {
         this.mandatory = mandatory;
-        this.group = group;
 
         setValidateOnBlur(true);
         setAutoValidate(true);
 
-        setRegex(CODE_AND_PROJECT_PATTERN);
-        getMessages().setRegexText(viewContext.getMessage(Dict.INCORRECT_MATERIAL_SYNTAX));
+        setRegex(EXPERIMENT_IDENTIFIER_PATTERN);
+        getMessages().setRegexText(viewContext.getMessage(Dict.INCORRECT_EXPERIMENT_SYNTAX));
         if (initialValueOrNull != null)
         {
             setValue(initialValueOrNull);

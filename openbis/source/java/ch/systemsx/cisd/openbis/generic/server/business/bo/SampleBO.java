@@ -30,8 +30,10 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -227,18 +229,62 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
 
     private void updateExperiment(ExperimentIdentifier identifierOrNull)
     {
-        ExperimentPE experimentOrNull = null;
-        if (identifierOrNull != null)
+        if (identifierOrNull == null)
         {
-            experimentOrNull = findExperiment(identifierOrNull);
+            removeFromExperiment();
+        } else
+        {
+            fillGroupIdentifier(identifierOrNull);
+            changeExperiment(identifierOrNull);
         }
-        if (isExperimentChangeUnnecessary(experimentOrNull, sample.getExperiment()))
+
+    }
+
+    private void removeFromExperiment()
+    {
+        if (hasDatasets())
+        {
+            throw UserFailureException.fromTemplate(
+                    "Cannot detach the sample '%s' from the experiment "
+                            + "because there are already datasets attached to the sample.", sample
+                            .getIdentifier());
+        }
+        sample.setExperiment(null);
+    }
+
+    private void changeExperiment(ExperimentIdentifier identifier)
+    {
+        ExperimentPE newExperiment = findExperiment(identifier);
+        if (isExperimentUnchanged(newExperiment, sample.getExperiment()))
         {
             return;
         }
-        ensureExperimentIsValid(identifierOrNull, experimentOrNull);
-        ensureNoDatasetsBeforeExperimentChange(identifierOrNull);
-        sample.setExperiment(experimentOrNull);
+        ensureExperimentIsValid(identifier, newExperiment);
+        ensureSampleAttachableToExperiment();
+
+        GroupPE experimentGroup = newExperiment.getProject().getGroup();
+        changeDatasetsExperiment(sample.getAcquiredDatasets(), newExperiment);
+        changeDatasetsExperiment(sample.getDerivedDatasets(), newExperiment);
+        sample.setGroup(experimentGroup);
+        sample.setExperiment(newExperiment);
+    }
+
+    private void changeDatasetsExperiment(Set<DataPE> datasets, ExperimentPE experiment)
+    {
+        for (DataPE dataset : datasets)
+        {
+            dataset.setExperiment(experiment);
+        }
+    }
+
+    private void ensureSampleAttachableToExperiment()
+    {
+        if (sample.getGroup() == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "It is not allowed to connect a shared sample '%s' to the experiment.", sample
+                            .getIdentifier());
+        }
     }
 
     private void ensureExperimentIsValid(ExperimentIdentifier identOrNull,
@@ -253,31 +299,12 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         }
     }
 
-    private void ensureNoDatasetsBeforeExperimentChange(ExperimentIdentifier identOrNull)
-    {
-        if (hasDatasets())
-        {
-            String actionDesc;
-            if (identOrNull != null)
-            {
-                actionDesc = "assigned to the new experiment '" + identOrNull + "'";
-            } else
-            {
-                actionDesc = "removed from the experiment";
-            }
-            throw UserFailureException
-                    .fromTemplate(
-                            "The sample '%s' cannot be %s because there are already datasets registered for this sample.",
-                            sample.getSampleIdentifier(), actionDesc);
-        }
-    }
-
     private boolean hasDatasets()
     {
         return SampleUtils.hasDatasets(getExternalDataDAO(), sample);
     }
 
-    private boolean isExperimentChangeUnnecessary(ExperimentPE newExperimentOrNull,
+    private boolean isExperimentUnchanged(ExperimentPE newExperimentOrNull,
             ExperimentPE experimentOrNull)
     {
         return experimentOrNull == null ? newExperimentOrNull == null : experimentOrNull

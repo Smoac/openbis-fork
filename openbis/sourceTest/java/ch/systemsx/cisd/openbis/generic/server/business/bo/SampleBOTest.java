@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.E
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -538,20 +539,82 @@ public final class SampleBOTest extends AbstractBOTest
     }
 
     @Test
-    // No changes should be required when the sample is not attached to an experiment and we do not
-    // want to change it.
-    public final void testEditExperimentNoChangesRequired()
+    public final void testDetachFromExperiment()
     {
         SampleIdentifier identifier = getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE);
-        Date now = new Date();
+        final SamplePE sample = createAnySample();
+        sample.setExperiment(new ExperimentPE());
+
+        prepareExperimentUpdateOnly(identifier, sample);
+        ExperimentIdentifier experimentIdentifier = null;
+
+        updateSampleExperiment(identifier, sample, experimentIdentifier);
+        assertNull(sample.getExperiment());
+    }
+
+    private static SamplePE createAnySample()
+    {
         final SamplePE sample = new SamplePE();
-        sample.setModificationDate(now);
+        sample.setCode(DEFAULT_SAMPLE_CODE);
+        sample.setModificationDate(new Date());
+        return sample;
+    }
+
+    @Test
+    public final void testDetachFromExperimentWithDatasetsFails()
+    {
+        SampleIdentifier identifier = getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE);
+        final SamplePE sample = createAnySample();
+        sample.setExperiment(new ExperimentPE());
 
         prepareTryToLoadOfGroupSample(identifier, sample);
         prepareNoPropertiesToUpdate(sample);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(externalDataDAO).listExternalData(with(sample),
+                            with(any(SourceType.class)));
+                    will(returnValue(Arrays.asList(new ExternalDataPE())));
+                }
+            });
         ExperimentIdentifier experimentIdentifier = null;
+        String errorMsg =
+                "Cannot detach the sample 'xx' from the experiment because there are already datasets attached to the sample.";
+        try
+        {
+            updateSampleExperiment(identifier, sample, experimentIdentifier);
+        } catch (UserFailureException e)
+        {
+            assertEquals(errorMsg, e.getMessage());
+            return;
+        }
+        fail("Following exception expected: " + errorMsg);
+    }
+
+    private void updateSampleExperiment(SampleIdentifier identifier, final SamplePE sample,
+            ExperimentIdentifier experimentIdentifier)
+    {
         createSampleBO().update(identifier, null, experimentIdentifier,
-                new ArrayList<AttachmentPE>(), now);
+                new ArrayList<AttachmentPE>(), sample.getModificationDate());
+    }
+
+    private void prepareExperimentUpdateOnly(SampleIdentifier identifier, final SamplePE sample)
+    {
+        prepareTryToLoadOfGroupSample(identifier, sample);
+        prepareNoPropertiesToUpdate(sample);
+        prepareNoDatasetsFound(sample);
+    }
+
+    private void prepareNoDatasetsFound(final SamplePE sample)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(externalDataDAO).listExternalData(with(sample),
+                            with(any(SourceType.class)));
+                    will(returnValue(new ArrayList<ExternalDataPE>()));
+                }
+            });
     }
 
     private void prepareNoPropertiesToUpdate(final SamplePE sample)
@@ -588,6 +651,7 @@ public final class SampleBOTest extends AbstractBOTest
         final SamplePE sample = new SamplePE();
         sample.setCode("sampleCode");
         sample.setExperiment(sampleExperiment);
+        sample.setGroup(EXAMPLE_GROUP);
 
         Date now = new Date();
         sample.setModificationDate(now);

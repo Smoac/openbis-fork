@@ -65,7 +65,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
 
     private static final String EXP_REUSE = "EXP-REUSE";
 
-    private static final String CISD_CISD_DEFAULT = "CISD:/CISD/DEFAULT";
+    private static final String CISD_CISD_DEFAULT = "/CISD/DEFAULT";
 
     private static final String EXP_X = "EXP-X";
 
@@ -73,7 +73,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
 
     private static final String DOE_JOHN = "Doe, John";
 
-    private static final String CISD_CISD_NEMO = "CISD:/CISD/NEMO";
+    private static final String CISD_CISD_NEMO = "/CISD/NEMO";
 
     private static final String SIRNA_HCS = "SIRNA_HCS";
 

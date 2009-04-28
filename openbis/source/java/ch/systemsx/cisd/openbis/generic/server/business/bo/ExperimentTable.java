@@ -20,11 +20,9 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -57,14 +55,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
                 getEntityTypeDAO(EntityKind.EXPERIMENT).tryToFindEntityTypeByCode(
                         experimentTypeCode);
         checkNotNull(experimentTypeCode, entityType);
-        if (org.apache.commons.lang.StringUtils.isBlank(projectIdentifier.getGroupCode()))
-        {
-            final GroupPE group =
-                    GroupIdentifierHelper.tryGetGroup(projectIdentifier, findRegistrator(), this);
-            checkNotNull(projectIdentifier, group);
-            projectIdentifier.setDatabaseInstanceCode(group.getDatabaseInstance().getCode());
-            projectIdentifier.setGroupCode(group.getCode());
-        }
+        fillGroupIdentifier(projectIdentifier);
         final ProjectPE project =
                 getProjectDAO().tryFindProject(projectIdentifier.getDatabaseInstanceCode(),
                         projectIdentifier.getGroupCode(), projectIdentifier.getProjectCode());
@@ -77,14 +68,6 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         if (project == null)
         {
             throw new UserFailureException("Project '" + projectIdentifier + "' unknown.");
-        }
-    }
-
-    private void checkNotNull(final ProjectIdentifier projectIdentifier, final GroupPE group)
-    {
-        if (group == null)
-        {
-            throw new UserFailureException("Unknown project '" + projectIdentifier + "'.");
         }
     }
 

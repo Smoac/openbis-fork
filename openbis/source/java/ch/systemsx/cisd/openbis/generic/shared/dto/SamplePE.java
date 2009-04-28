@@ -137,17 +137,21 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     private Date modificationDate;
 
+    private Set<DataPE> acquiredDatasets = new HashSet<DataPE>();
+
+    private Set<DataPE> derivedDatasets = new HashSet<DataPE>();
+
     // bidirectional connections SamplePE-DataPE
 
     public void removeDerivedDataSet(DataPE dataset)
     {
-        getDerivedDatasets().remove(dataset);
+        getDerivedDatasetsInternal().remove(dataset);
         dataset.setSampleDerivedFromInternal(null);
     }
 
     public void removeAcquiredDataSet(DataPE dataset)
     {
-        getAcquiredDatasets().remove(dataset);
+        getAcquiredDatasetsInternal().remove(dataset);
         dataset.setSampleAcquiredFromInternal(null);
     }
 
@@ -159,7 +163,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
             sample.getDerivedDatasets().remove(dataset);
         }
         dataset.setSampleDerivedFromInternal(this);
-        getDerivedDatasets().add(dataset);
+        getDerivedDatasetsInternal().add(dataset);
     }
 
     public void addAcquiredDataSet(DataPE dataset)
@@ -167,42 +171,51 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         SamplePE sample = dataset.getSampleAcquiredFrom();
         if (sample != null)
         {
-            sample.getAcquiredDatasets().remove(dataset);
+            sample.getAcquiredDatasetsInternal().remove(dataset);
         }
         dataset.setSampleAcquiredFromInternal(this);
-        getAcquiredDatasets().add(dataset);
+        getAcquiredDatasetsInternal().add(dataset);
     }
-
-    private Set<DataPE> acquiredDatasets = new HashSet<DataPE>();
-
-    private Set<DataPE> derivedDatasets = new HashSet<DataPE>();
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "sampleAcquiredFromInternal")
     @JoinColumn(name = ColumnNames.SAMPLE_ACQUIRED_FROM, updatable = true)
     @ContainedIn
-    private Set<DataPE> getAcquiredDatasets()
+    private Set<DataPE> getAcquiredDatasetsInternal()
     {
         return acquiredDatasets;
     }
 
+    // hibernate only
     @SuppressWarnings("unused")
-    private void setAcquiredDatasets(Set<DataPE> acquiredDatasets)
+    private void setAcquiredDatasetsInternal(Set<DataPE> acquiredDatasets)
     {
         this.acquiredDatasets = acquiredDatasets;
+    }
+
+    @Transient
+    public Set<DataPE> getAcquiredDatasets()
+    {
+        return new UnmodifiableSetDecorator<DataPE>(getAcquiredDatasetsInternal());
     }
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "sampleDerivedFromInternal")
     @JoinColumn(name = ColumnNames.SAMPLE_DERIVED_FROM, updatable = true)
     @ContainedIn
-    private Set<DataPE> getDerivedDatasets()
+    private Set<DataPE> getDerivedDatasetsInternal()
     {
         return derivedDatasets;
     }
 
     @SuppressWarnings("unused")
-    private void setDerivedDatasets(Set<DataPE> derivedDatasets)
+    private void setDerivedDatasetsInternal(Set<DataPE> derivedDatasets)
     {
         this.derivedDatasets = derivedDatasets;
+    }
+
+    @Transient
+    public Set<DataPE> getDerivedDatasets()
+    {
+        return new UnmodifiableSetDecorator<DataPE>(getDerivedDatasetsInternal());
     }
 
     // --------------------

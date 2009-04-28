@@ -58,11 +58,13 @@ public class SampleRow extends RowWithProperties
         return this;
     }
 
-    public SampleRow experiment(final String projectCode, final String experimentCode)
+    public SampleRow experiment(final String groupCode, final String projectCode,
+            final String experimentCode)
     {
         withCell(CommonSampleColDefKind.PROJECT, projectCode);
         withCell(CommonSampleColDefKind.EXPERIMENT, createLinkString(experimentCode));
-        final String experimentIdentifier = groupIdentifier + projectCode + "/" + experimentCode;
+        final String experimentIdentifier =
+                "/" + groupCode + "/" + projectCode + "/" + experimentCode;
         withCell(CommonSampleColDefKind.EXPERIMENT_IDENTIFIER, experimentIdentifier);
         return this;
     }

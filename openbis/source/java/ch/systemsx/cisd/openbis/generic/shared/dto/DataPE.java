@@ -243,11 +243,13 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         return sampleDerivedFrom;
     }
 
+    // TODO 2009-04-28, Tomasz Pylak: make @Private
     void setSampleAcquiredFromInternal(final SamplePE sampleAcquiredFrom)
     {
         this.sampleAcquiredFrom = sampleAcquiredFrom;
     }
 
+    // TODO 2009-04-28, Tomasz Pylak: make @Private
     void setSampleDerivedFromInternal(final SamplePE sampleDerivedFrom)
     {
         this.sampleDerivedFrom = sampleDerivedFrom;

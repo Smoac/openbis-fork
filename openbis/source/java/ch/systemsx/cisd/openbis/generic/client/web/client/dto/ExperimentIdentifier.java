@@ -20,116 +20,31 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 public final class ExperimentIdentifier implements IsSerializable
 {
-    private String experimentCode;
-
-    private String projectCode;
-
-    private String groupCode;
-
-    private String instanceCode;
+    private String identifier;
 
     public static ExperimentIdentifier createIdentifier(Experiment entity)
     {
-        Project project = entity.getProject();
-        Group group = project.getGroup();
-
         ExperimentIdentifier ident = new ExperimentIdentifier();
-        ident.setExperimentCode(entity.getCode());
-        ident.setProjectCode(project.getCode());
-        ident.setGroupCode(group.getCode());
-        ident.setDatabaseInstanceCode(group.getInstance().getCode());
-
+        ident.setIdentifier(entity.getIdentifier());
         return ident;
     }
 
-    public String getExperimentCode()
+    public ExperimentIdentifier(String identifier)
     {
-        return experimentCode;
+        this.identifier = identifier;
     }
 
-    public String getProjectCode()
+    private ExperimentIdentifier()
     {
-        return projectCode;
     }
 
-    public String getGroupCode()
+    public String getIdentifier()
     {
-        return groupCode;
+        return identifier;
     }
 
-    public String getDatabaseInstanceCode()
+    public void setIdentifier(String identifier)
     {
-        return instanceCode;
+        this.identifier = identifier;
     }
-
-    private void setExperimentCode(String experimentCode)
-    {
-        this.experimentCode = experimentCode;
-    }
-
-    private void setProjectCode(String projectCode)
-    {
-        this.projectCode = projectCode;
-    }
-
-    private void setGroupCode(String groupCode)
-    {
-        this.groupCode = groupCode;
-    }
-
-    private void setDatabaseInstanceCode(String instanceCode)
-    {
-        this.instanceCode = instanceCode;
-    }
-
-    // -----------------
-
-    public static final String TYPE_SEPARATOR_PREFIX = " (";
-
-    public static final String TYPE_SEPARATOR_SUFFIX = ")";
-
-    /**
-     * Parses the material code and type. Assumes the syntax: "code (type)". Returns the chosen
-     * material if parsing went ok, null otherwise.
-     */
-    public static ExperimentIdentifier tryParseIdentifier(String value, Group group)
-    {
-        if (value == null || value.length() == 0)
-        {
-            return null;
-        }
-        int typePrefix = value.indexOf(TYPE_SEPARATOR_PREFIX);
-        if (typePrefix == -1)
-        {
-            return null;
-        }
-        String code = value.substring(0, typePrefix);
-        String projectCode = value.substring(typePrefix + TYPE_SEPARATOR_PREFIX.length());
-        // we allow to omit the closing brace
-        if (projectCode.endsWith(TYPE_SEPARATOR_SUFFIX))
-        {
-            projectCode =
-                    projectCode.substring(0, projectCode.length() - TYPE_SEPARATOR_SUFFIX.length());
-        }
-        return createIdentifier(group, code, projectCode);
-    }
-
-    private static ExperimentIdentifier createIdentifier(Group group, String code,
-            String projectCode)
-    {
-        ExperimentIdentifier ident = new ExperimentIdentifier();
-        ident.setExperimentCode(code);
-        ident.setProjectCode(projectCode);
-        ident.setGroupCode(group.getCode());
-        ident.setDatabaseInstanceCode(group.getInstance().getCode());
-        return ident;
-    }
-
-    /** Prints the identifier in the canonical form */
-    public String print()
-    {
-        return getExperimentCode() + TYPE_SEPARATOR_PREFIX + getProjectCode()
-                + TYPE_SEPARATOR_SUFFIX;
-    }
-
 }

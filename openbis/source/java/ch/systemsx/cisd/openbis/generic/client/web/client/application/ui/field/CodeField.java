@@ -28,7 +28,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  */
 public class CodeField extends TriggerField<String>
 {
-    public static final String CODE_CHARS = "[a-zA-Z0-9_\\-]+";
+    public static final String CODE_CHARS_OR_EMPTY = "[a-zA-Z0-9_\\-]";
+
+    public static final String CODE_CHARS = CODE_CHARS_OR_EMPTY + "+";
 
     /**
      * The pattern for a correct code.

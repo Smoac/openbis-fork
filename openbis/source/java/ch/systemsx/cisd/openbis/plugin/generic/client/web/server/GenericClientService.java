@@ -35,7 +35,6 @@ import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
-import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
@@ -438,8 +437,8 @@ public final class GenericClientService extends AbstractClientService implements
                     if (experimentIdentifierOrNull != null)
                     {
                         convExperimentIdentifierOrNull =
-                                BeanUtils.createBean(ExperimentIdentifier.class,
-                                        experimentIdentifierOrNull);
+                                new ExperimentIdentifierFactory(experimentIdentifierOrNull
+                                        .getIdentifier()).createIdentifier();
                     }
                     genericServer.updateSample(sessionToken, identifier, properties,
                             convExperimentIdentifierOrNull, attachments, version);
