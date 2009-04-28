@@ -87,7 +87,7 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
         public void execute()
         {
             final Widget widget = GWTTestUtil.getWidgetWithID(VocabularyGrid.GRID_ID);
-            GridTestUtils.fireDoubleClick((Grid<?>) widget, VocabularyColDefKind.CODE.id(), code);
+            GridTestUtils.fireSingleClick((Grid<?>) widget, VocabularyColDefKind.CODE.id(), code);
         }
     }
 }

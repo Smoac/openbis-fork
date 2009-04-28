@@ -48,11 +48,6 @@ public final class ShowSample extends AbstractDefaultTestCommand
         final Widget widget = GWTTestUtil.getWidgetWithID(SampleBrowserGrid.GRID_ID);
         assertTrue(widget instanceof Grid);
         final Grid<BaseEntityModel<Sample>> table = (Grid<BaseEntityModel<Sample>>) widget;
-        fireDoubleClick(table);
-    }
-
-    private void fireDoubleClick(final Grid<BaseEntityModel<Sample>> table)
-    {
-        GridTestUtils.fireDoubleClick(table, CommonSampleColDefKind.CODE.id(), code);
+        GridTestUtils.fireSingleClick(table, CommonSampleColDefKind.CODE.id(), code);
     }
 }

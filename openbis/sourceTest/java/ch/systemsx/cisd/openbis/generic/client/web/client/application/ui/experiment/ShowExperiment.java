@@ -47,6 +47,6 @@ public class ShowExperiment extends AbstractDefaultTestCommand
         final Widget widget = GWTTestUtil.getWidgetWithID(ExperimentBrowserGrid.GRID_ID);
         assertTrue(widget instanceof Grid);
         final Grid<BaseEntityModel<Experiment>> table = (Grid<BaseEntityModel<Experiment>>) widget;
-        GridTestUtils.fireDoubleClick(table, CommonExperimentColDefKind.CODE.id(), code);
+        GridTestUtils.fireSingleClick(table, CommonExperimentColDefKind.CODE.id(), code);
     }
 }
