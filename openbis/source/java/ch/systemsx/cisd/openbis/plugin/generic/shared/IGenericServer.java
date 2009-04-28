@@ -28,12 +28,14 @@ import ch.systemsx.cisd.openbis.generic.shared.IPluginCommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperimentPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NullableGroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -175,4 +177,14 @@ public interface IGenericServer extends IPluginCommonServer
             List<SampleProperty> properties,
             @AuthorizationGuard(guardClass = NullableGroupIdentifierPredicate.class) ExperimentIdentifier experimentIdentifierOrNull,
             List<AttachmentPE> attachments, Date version);
+
+    /**
+     * Saves changed data set.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.GROUP_ADMIN)
+    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
+    public void updateDataSet(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String code,
+            String sampleIdentifier, List<DataSetProperty> properties, Date version);
 }

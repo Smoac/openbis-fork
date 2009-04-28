@@ -15,20 +15,18 @@
  */
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-
 /**
  * The type of source represented by given <code>Sample</code> id.
  * <p>
  * This will specify if we have to look for field <code>SAMP_ID_ACQUIRED_FROM</code> or field
- * <code>SAMP_ID_DERIVED_FROM</code> in the database. In the database only one of this field is
- * set.
+ * <code>SAMP_ID_DERIVED_FROM</code> in the database. In the database only one of this field is set.
  * </p>
  * 
  * @author Christian Ribeaud
  */
 public enum SourceType
 {
-    MEASUREMENT("sampleAcquiredFrom")
+    MEASUREMENT("sampleAcquiredFromInternal")
     {
         @Override
         public final void setSample(final DataPE data, final SamplePE sample)
@@ -36,7 +34,7 @@ public enum SourceType
             data.setSampleAcquiredFrom(sample);
         }
     },
-    DERIVED("sampleDerivedFrom")
+    DERIVED("sampleDerivedFromInternal")
     {
         @Override
         public final void setSample(final DataPE data, final SamplePE sample)

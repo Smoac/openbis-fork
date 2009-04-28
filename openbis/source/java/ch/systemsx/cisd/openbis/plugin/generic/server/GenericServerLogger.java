@@ -25,6 +25,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -165,6 +166,12 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         logTracking(sessionToken, "edit_sample",
                 "SAMPLE(%s), CHANGE_TO_EXPERIMENT(%s) ATTACHMENTS(%s)", identifier,
                 experimentIdentifierOrNull, attachments.size());
+    }
+
+    public void updateDataSet(String sessionToken, String code, String sampleIdentifier,
+            List<DataSetProperty> properties, Date version)
+    {
+        logTracking(sessionToken, "edit_data_set", "DATA_SET(%s)", code);
     }
 
 }

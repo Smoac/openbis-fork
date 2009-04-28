@@ -88,8 +88,14 @@ public final class GenericDataSetEditForm
     public final void submitValidForm()
     {
         final List<DataSetProperty> properties = extractProperties();
-        viewContext.getService().updateDataSet(entity.getIdentifier(), properties,
-                entity.getModificationDate(), new RegisterDataSetCallback(viewContext));
+        final String sampleIdentifier = extractSampleIdentifier();
+        viewContext.getService().updateDataSet(entity.getIdentifier(), sampleIdentifier,
+                properties, entity.getModificationDate(), new RegisterDataSetCallback(viewContext));
+    }
+
+    private String extractSampleIdentifier()
+    {
+        return sampleField.getValue();
     }
 
     public final class RegisterDataSetCallback extends AbstractAsyncCallback<Void>
@@ -123,7 +129,7 @@ public final class GenericDataSetEditForm
 
     @Override
     protected PropertiesEditor<DataSetType, DataSetTypePropertyType, DataSetProperty> createPropertiesEditor(
-            List<DataSetTypePropertyType> entityTypesPropertyTypes,
+            List<DataSetTypePropertyType> entityTypesPropertyTypes, // brak
             List<DataSetProperty> properties, String id,
             IViewContext<ICommonClientServiceAsync> context)
     {

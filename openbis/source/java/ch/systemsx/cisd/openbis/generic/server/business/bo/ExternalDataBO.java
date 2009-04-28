@@ -33,18 +33,21 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 
@@ -220,6 +223,36 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         }
         entityPropertiesConverter.checkMandatoryProperties(externalData.getProperties(),
                 externalData.getDataSetType());
+    }
+
+    public void update(String code, String sampleIdentifier, List<DataSetProperty> properties,
+            Date version)
+    {
+        loadByCode(code);
+        if (externalData.getModificationDate().equals(version) == false)
+        {
+            throw new UserFailureException("Data set has been modified in the meantime.");
+        }
+        // TODO 2009-04-28, Piotr Buczek: updateProperties(properties);
+        updateSample(sampleIdentifier);
+        entityPropertiesConverter.checkMandatoryProperties(externalData.getProperties(),
+                externalData.getDataSetType());
+    }
+
+    @SuppressWarnings("unused")
+    private void updateProperties(List<DataSetProperty> properties)
+    {
+        final Set<DataSetPropertyPE> existingProperties = externalData.getProperties();
+        final EntityTypePE type = externalData.getDataSetType();
+        final PersonPE registrator = findRegistrator();
+        externalData.setProperties(entityPropertiesConverter.updateProperties(existingProperties,
+                type, properties, registrator));
+    }
+
+    private void updateSample(String sampleIdentifier)
+    {
+        SamplePE sample = getSampleByIdentifier(SampleIdentifierFactory.parse(sampleIdentifier));
+        externalData.updateAssociatedSample(sample);
     }
 
     private final void defineDataSetProperties(final ExternalDataPE data,

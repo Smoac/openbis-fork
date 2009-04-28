@@ -491,20 +491,19 @@ public final class GenericClientService extends AbstractClientService implements
             }.process(updates.getAttachmentSessionKey(), getHttpSession());
     }
 
-    public void updateDataSet(String dataSetIdentifier, List<DataSetProperty> properties,
-            Date version)
+    public void updateDataSet(String dataSetIdentifier, String sampleIdentifier,
+            List<DataSetProperty> properties, Date version)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        // TODO 2009-04-27, Piotr Buczek: call server edit method (currently none exists)
-        // try
-        // {
-        // final String sessionToken = getSessionToken();
-        // final DataSetIdentifier identifier = new DataSetIdentifier(dataSetIdentifier);
-        // genericServer.updateDataSet(sessionToken, identifier, properties, version);
-        // } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        // {
-        // throw UserFailureExceptionTranslator.translate(e);
-        // }
+        try
+        {
+            final String sessionToken = getSessionToken();
+            genericServer.updateDataSet(sessionToken, dataSetIdentifier, sampleIdentifier,
+                    properties, version);
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
     }
 
     private static ExperimentUpdatesDTO createExperimentUpdatesDTO(ExperimentUpdates updates,

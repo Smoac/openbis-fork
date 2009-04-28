@@ -183,10 +183,54 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         this.deleted = deleted;
     }
 
+    // bidirectional connections SamplePE-DataPE
+
+    public void setSampleDerivedFrom(final SamplePE sampleDerivedFrom)
+    {
+        if (sampleDerivedFrom != null)
+        {
+            sampleDerivedFrom.addDerivedDataSet(this);
+        } else
+        {
+            SamplePE previousSample = getSampleDerivedFrom();
+            if (previousSample != null)
+            {
+                previousSample.removeDerivedDataSet(this);
+            }
+        }
+    }
+
+    public void setSampleAcquiredFrom(final SamplePE sampleAcquiredFrom)
+    {
+        if (sampleAcquiredFrom != null)
+        {
+            sampleAcquiredFrom.addAcquiredDataSet(this);
+        } else
+        {
+            SamplePE previousSample = getSampleAcquiredFrom();
+            if (previousSample != null)
+            {
+                previousSample.removeAcquiredDataSet(this);
+            }
+        }
+    }
+
+    @Transient
+    public SamplePE getSampleAcquiredFrom()
+    {
+        return getSampleAcquiredFromInternal();
+    }
+
+    @Transient
+    public SamplePE getSampleDerivedFrom()
+    {
+        return getSampleDerivedFromInternal();
+    }
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.SAMPLE_ACQUIRED_FROM)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SAMPLE)
-    public SamplePE getSampleAcquiredFrom()
+    private SamplePE getSampleAcquiredFromInternal()
     {
         return sampleAcquiredFrom;
     }
@@ -194,17 +238,17 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.SAMPLE_DERIVED_FROM)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SAMPLE)
-    public SamplePE getSampleDerivedFrom()
+    private SamplePE getSampleDerivedFromInternal()
     {
         return sampleDerivedFrom;
     }
 
-    public void setSampleAcquiredFrom(final SamplePE sampleAcquiredFrom)
+    void setSampleAcquiredFromInternal(final SamplePE sampleAcquiredFrom)
     {
         this.sampleAcquiredFrom = sampleAcquiredFrom;
     }
 
-    public void setSampleDerivedFrom(final SamplePE sampleDerivedFrom)
+    void setSampleDerivedFromInternal(final SamplePE sampleDerivedFrom)
     {
         this.sampleDerivedFrom = sampleDerivedFrom;
     }
@@ -215,10 +259,27 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         return sampleAcquiredFrom == null ? sampleDerivedFrom : sampleAcquiredFrom;
     }
 
+    /**
+     * Updates associated sample. If there is an associated derived from or acquired from sample the
+     * same 'sample from type' will be set. If no sample is associated acquired from sample will be
+     * set.
+     */
+    @Transient
+    public void updateAssociatedSample(SamplePE sample)
+    {
+        if (getSampleDerivedFrom() != null)
+        {
+            setSampleDerivedFrom(sample);
+        } else
+        {
+            setSampleAcquiredFrom(sample);
+        }
+    }
+
     @Transient
     public String getAssociatedSampleCode()
     {
-        final SamplePE sample = sampleAcquiredFrom != null ? sampleAcquiredFrom : sampleDerivedFrom;
+        final SamplePE sample = getAssociatedSample();
         return sample != null ? sample.getCode() : null;
     }
 

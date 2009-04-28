@@ -137,17 +137,48 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     private Date modificationDate;
 
-    // -------------
-    // These methods are here only to make the Hibernate Search working. They should not be
-    // used as they do not maintain the bidirectional connections properly
-    // -------------
+    // bidirectional connections SamplePE-DataPE
+
+    public void removeDerivedDataSet(DataPE dataset)
+    {
+        getDerivedDatasets().remove(dataset);
+        dataset.setSampleDerivedFromInternal(null);
+    }
+
+    public void removeAcquiredDataSet(DataPE dataset)
+    {
+        getAcquiredDatasets().remove(dataset);
+        dataset.setSampleAcquiredFromInternal(null);
+    }
+
+    public void addDerivedDataSet(DataPE dataset)
+    {
+        SamplePE sample = dataset.getSampleDerivedFrom();
+        if (sample != null)
+        {
+            sample.getDerivedDatasets().remove(dataset);
+        }
+        dataset.setSampleDerivedFromInternal(this);
+        getDerivedDatasets().add(dataset);
+    }
+
+    public void addAcquiredDataSet(DataPE dataset)
+    {
+        SamplePE sample = dataset.getSampleAcquiredFrom();
+        if (sample != null)
+        {
+            sample.getAcquiredDatasets().remove(dataset);
+        }
+        dataset.setSampleAcquiredFromInternal(this);
+        getAcquiredDatasets().add(dataset);
+    }
 
     private Set<DataPE> acquiredDatasets = new HashSet<DataPE>();
 
     private Set<DataPE> derivedDatasets = new HashSet<DataPE>();
 
-    @SuppressWarnings("unused")
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "sampleAcquiredFrom")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "sampleAcquiredFromInternal")
+    @JoinColumn(name = ColumnNames.SAMPLE_ACQUIRED_FROM, updatable = true)
     @ContainedIn
     private Set<DataPE> getAcquiredDatasets()
     {
@@ -160,8 +191,8 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         this.acquiredDatasets = acquiredDatasets;
     }
 
-    @SuppressWarnings("unused")
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "sampleDerivedFrom")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "sampleDerivedFromInternal")
+    @JoinColumn(name = ColumnNames.SAMPLE_DERIVED_FROM, updatable = true)
     @ContainedIn
     private Set<DataPE> getDerivedDatasets()
     {

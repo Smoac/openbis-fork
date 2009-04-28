@@ -16,14 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.Date;
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IExternalDataBO extends IBusinessObject
@@ -33,13 +35,20 @@ public interface IExternalDataBO extends IBusinessObject
      * {@link #define(ExternalData, SamplePE, SourceType)}.
      */
     public ExternalDataPE getExternalData();
-    
+
     /**
-     * Defines a new external data item. After invocation of this method {@link IExperimentBO#save()} should
-     * be invoked to store the new external data item in the Data Access Layer.
+     * Defines a new external data item. After invocation of this method
+     * {@link IExperimentBO#save()} should be invoked to store the new external data item in the
+     * Data Access Layer.
      */
     public void define(ExternalData externalData, SamplePE sample, SourceType sourceType);
-    
+
+    /**
+     * Changes given data set. Currently allowed changes: properties, sample.
+     */
+    public void update(String code, String sampleIdentifier, List<DataSetProperty> properties,
+            Date version);
+
     /**
      * Loads the external data item with specified code.
      */

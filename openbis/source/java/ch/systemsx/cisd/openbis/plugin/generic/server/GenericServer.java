@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
@@ -38,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -345,6 +347,14 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         sampleBO.update(identifier, properties, experimentIdentifierOrNull, attachments, version);
         sampleBO.save();
 
+    }
+
+    public void updateDataSet(String sessionToken, String code, String sampleIdentifier,
+            List<DataSetProperty> properties, Date version)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IExternalDataBO dataSetBO = businessObjectFactory.createExternalDataBO(session);
+        dataSetBO.update(code, sampleIdentifier, properties, version);
     }
 
 }

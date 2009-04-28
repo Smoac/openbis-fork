@@ -114,9 +114,10 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             Date version, final AsyncCallback<Void> asyncCallback) throws UserFailureException;
 
     /**
-     * @see IGenericClientService#updateDataSet(String, List, Date)
+     * @see IGenericClientService#updateDataSet(String, String, List, Date)
      */
-    public void updateDataSet(final String dataSetIdentifier, List<DataSetProperty> properties,
-            Date version, final AsyncCallback<Void> asyncCallback) throws UserFailureException;
+    public void updateDataSet(final String dataSetIdentifier, final String sampleIdentifier,
+            List<DataSetProperty> properties, Date version, final AsyncCallback<Void> asyncCallback)
+            throws UserFailureException;
 
 }

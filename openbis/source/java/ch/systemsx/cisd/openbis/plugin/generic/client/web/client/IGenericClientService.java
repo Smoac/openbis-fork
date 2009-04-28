@@ -123,6 +123,6 @@ public interface IGenericClientService extends IClientService
     /**
      * Updates data set.
      */
-    public void updateDataSet(final String dataSetIdentifier, List<DataSetProperty> properties,
-            Date version) throws UserFailureException;
+    public void updateDataSet(final String dataSetIdentifier, final String sampleIdentifier,
+            List<DataSetProperty> properties, Date version) throws UserFailureException;
 }
