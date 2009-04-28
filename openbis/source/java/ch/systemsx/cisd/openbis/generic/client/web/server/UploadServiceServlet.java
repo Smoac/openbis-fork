@@ -161,7 +161,7 @@ public final class UploadServiceServlet extends AbstractCommandController
             boolean atLeastOneFileUploaded = false;
             for (String sessionKey : extractSessionKeys(request, sessionKeysNumberParameter))
             {
-                // 
+                // Note: addFilesToSession has a side effect - adds extracted files to the session
                 boolean fileExtracted =
                         sessionFilesSetter.addFilesToSession(session, multipartRequest, sessionKey);
                 atLeastOneFileUploaded = atLeastOneFileUploaded || fileExtracted;
