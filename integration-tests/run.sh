@@ -748,7 +748,7 @@ function assert_correct_content {
     local file=`find_dataset_dir ".*-15$"`/original/3VCP1.txt
     assert_file_exists $file
     local content=`cat $file`
-    if [ $content != "hello world" ]; then
+    if [[ $content != "hello world" ]]; then
         report_error "wrong content: <$content>"
     fi
     # result set columns are
