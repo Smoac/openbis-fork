@@ -349,7 +349,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     }
 
-    public void updateDataSet(String sessionToken, String code, String sampleIdentifier,
+    public void updateDataSet(String sessionToken, String code, SampleIdentifier sampleIdentifier,
             List<DataSetProperty> properties, Date version)
     {
         final Session session = getSessionManager().getSession(sessionToken);

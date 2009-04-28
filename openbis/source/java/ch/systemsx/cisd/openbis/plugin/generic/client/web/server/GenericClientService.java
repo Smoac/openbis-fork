@@ -497,7 +497,8 @@ public final class GenericClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            genericServer.updateDataSet(sessionToken, dataSetIdentifier, sampleIdentifier,
+            SampleIdentifier convSampleIdentifier = SampleIdentifierFactory.parse(sampleIdentifier);
+            genericServer.updateDataSet(sessionToken, dataSetIdentifier, convSampleIdentifier,
                     properties, version);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {

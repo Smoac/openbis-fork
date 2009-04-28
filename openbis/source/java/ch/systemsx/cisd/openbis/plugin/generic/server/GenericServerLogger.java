@@ -168,7 +168,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
                 experimentIdentifierOrNull, attachments.size());
     }
 
-    public void updateDataSet(String sessionToken, String code, String sampleIdentifier,
+    public void updateDataSet(String sessionToken, String code, SampleIdentifier sampleIdentifier,
             List<DataSetProperty> properties, Date version)
     {
         logTracking(sessionToken, "edit_data_set", "DATA_SET(%s)", code);

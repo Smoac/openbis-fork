@@ -184,7 +184,9 @@ public interface IGenericServer extends IPluginCommonServer
     @Transactional
     @RolesAllowed(RoleSet.GROUP_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
-    public void updateDataSet(String sessionToken,
+    public void updateDataSet(
+            String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String code,
-            String sampleIdentifier, List<DataSetProperty> properties, Date version);
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) SampleIdentifier sampleIdentifier,
+            List<DataSetProperty> properties, Date version);
 }

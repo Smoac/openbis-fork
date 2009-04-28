@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * @author Franz-Josef Elmer
@@ -46,7 +47,7 @@ public interface IExternalDataBO extends IBusinessObject
     /**
      * Changes given data set. Currently allowed changes: properties, sample.
      */
-    public void update(String code, String sampleIdentifier, List<DataSetProperty> properties,
+    public void update(String code, SampleIdentifier sampleIdentifier, List<DataSetProperty> properties,
             Date version);
 
     /**

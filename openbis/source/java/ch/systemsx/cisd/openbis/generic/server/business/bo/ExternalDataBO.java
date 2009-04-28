@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 
@@ -225,8 +225,8 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
                 externalData.getDataSetType());
     }
 
-    public void update(String code, String sampleIdentifier, List<DataSetProperty> properties,
-            Date version)
+    public void update(String code, SampleIdentifier sampleIdentifier,
+            List<DataSetProperty> properties, Date version)
     {
         loadByCode(code);
         if (externalData.getModificationDate().equals(version) == false)
@@ -249,9 +249,9 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
                 type, properties, registrator));
     }
 
-    private void updateSample(String sampleIdentifier)
+    private void updateSample(SampleIdentifier sampleIdentifier)
     {
-        SamplePE sample = getSampleByIdentifier(SampleIdentifierFactory.parse(sampleIdentifier));
+        SamplePE sample = getSampleByIdentifier(sampleIdentifier);
         externalData.updateAssociatedSample(sample);
     }
 
