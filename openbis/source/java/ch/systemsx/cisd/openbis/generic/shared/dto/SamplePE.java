@@ -109,10 +109,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     private ExperimentPE experiment;
 
-    private ExternalDataPE[] measurementData = ExternalDataPE.EMPTY_ARRAY;
-
-    private ExternalDataPE[] derivedData = ExternalDataPE.EMPTY_ARRAY;
-
     /**
      * Invalidation information.
      * <p>
@@ -346,28 +342,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     private ExperimentPE getExperimentInternal()
     {
         return experiment;
-    }
-
-    @Transient
-    public ExternalDataPE[] getMeasurementData()
-    {
-        return measurementData;
-    }
-
-    public void setMeasurementData(final ExternalDataPE[] measurementData)
-    {
-        this.measurementData = measurementData;
-    }
-
-    @Transient
-    public ExternalDataPE[] getDerivedData()
-    {
-        return derivedData;
-    }
-
-    public void setDerivedData(final ExternalDataPE[] derivedData)
-    {
-        this.derivedData = derivedData;
     }
 
     //
