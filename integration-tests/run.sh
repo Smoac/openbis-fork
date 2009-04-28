@@ -577,8 +577,10 @@ function find_dataset_dir {
         report_error "$DATA/main-store/identified does not contain a directory matching $pattern: $dir"
 }
 
-function assert_correct_experiment_info {
-    echo ==== assert correct experiment info ====
+function assert_dss_registration {
+    local dss=$1
+    echo ==== assert registration of DSS $dss ====
+    assert_pattern_present $WORK/$dss/log/data_store_server_log.txt 1 get_version
 }
 
 function assert_empty_in_out_folders {
@@ -733,7 +735,8 @@ function assert_correct_dataset_content_in_database {
 }
     
 function assert_correct_content {
-    assert_correct_experiment_info
+    assert_dss_registration datastore_server1
+    assert_dss_registration datastore_server2
     assert_empty_in_out_folders
     assert_dir_exists $DATA/out-raw/microX_200801011213_3VCP1/TIFF
     assert_pattern_present $DATA/out-raw/.faulty_paths 1 ".*data/out-raw/.MARKER_is_finished_microX_200801011213_3VCP1"
@@ -746,11 +749,7 @@ function assert_correct_content {
     assert_correct_content_of_image_analysis_data 3VCP4 ".*-9.*3VCP4$"
     assert_correct_content_of_unidentified_plate_in_store UnknownPlate
     local file=`find_dataset_dir ".*-15$"`/original/3VCP1.txt
-    assert_file_exists $file
-    local content=`cat $file`
-    if [[ $content != "hello world" ]]; then
-        report_error "wrong content: <$content>"
-    fi
+    assert_equals_as_in_file "hello world" $file
     # result set columns are
     # id;experiment_code;data_store_code;code;is_placeholder;data_id_parent;is_complete;data_producer_code;production_timestamp
     assert_correct_dataset_content_in_database 1 "1;EXP1;DSS1;MICROX-3VCP1;f;;F;microX;2008-01-01.*"
