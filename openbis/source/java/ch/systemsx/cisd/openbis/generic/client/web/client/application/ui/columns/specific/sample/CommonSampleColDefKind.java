@@ -56,7 +56,7 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
             @Override
             public String tryGetValue(Sample entity)
             {
-                return entity.getCode();
+                return renderAsLink(renderAsInvalid(entity, entity.getCode()));
             }
         }),
 

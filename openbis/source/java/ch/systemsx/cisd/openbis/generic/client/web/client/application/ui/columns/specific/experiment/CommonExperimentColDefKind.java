@@ -33,7 +33,7 @@ public enum CommonExperimentColDefKind implements IColumnDefinitionKind<Experime
             @Override
             public String tryGetValue(Experiment entity)
             {
-                return entity.getCode();
+                return renderAsLink(renderAsInvalid(entity, entity.getCode()));
             }
         }),
 

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.InvalidableWithCodeRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
@@ -109,5 +111,15 @@ public abstract class AbstractColumnDefinitionKind<T>
     {
         return SimpleYesNoRenderer.render(invalidationProvider.getInvalidation() != null);
     }
+    
+    protected String renderAsLink(String value)
+    {
+        return LinkRenderer.renderAsLink(value);
+    }
 
+    protected String renderAsInvalid(IInvalidationProvider invalidationProvider, String value)
+    {
+        return InvalidableWithCodeRenderer.render(invalidationProvider, value);
+    }
+    
 }

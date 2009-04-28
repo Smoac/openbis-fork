@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetExperimentPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetPropertyColDef;
@@ -51,14 +50,6 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
     public DataSetSearchHitModel(final ExternalData entity)
     {
         super(entity, createColumnsSchema(entity));
-        renderAsLink(DataSetSearchHitColDefKind.SAMPLE, entity);
-        renderAsLink(DataSetSearchHitColDefKind.SAMPLE_IDENTIFIER, entity);
-        renderAsLink(DataSetSearchHitColDefKind.EXPERIMENT, entity);
-    }
-
-    private void renderAsLink(DataSetSearchHitColDefKind colDef, final ExternalData entity)
-    {
-        set(colDef.id(), LinkRenderer.renderAsLink(colDef.getDescriptor().tryGetValue(entity)));
     }
 
     // here we create the columns definition having just one table row. We need them only to render

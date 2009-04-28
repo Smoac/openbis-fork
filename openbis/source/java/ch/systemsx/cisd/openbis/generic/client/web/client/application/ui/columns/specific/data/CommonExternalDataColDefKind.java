@@ -33,7 +33,7 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             @Override
             public String tryGetValue(ExternalData entity)
             {
-                return entity.getCode();
+                return renderAsLink(renderAsInvalid(entity, entity.getCode()));
             }
         }),
 
