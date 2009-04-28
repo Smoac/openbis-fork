@@ -61,7 +61,7 @@ abstract public class AbstractSimpleBrowserGrid<T/* Entity */> extends
     }
 
     @Override
-    protected void showEntityViewer(BaseEntityModel<T> modelData, boolean editMode)
+    protected void showEntityViewer(T entity, boolean editMode)
     {
         // do nothing
     }

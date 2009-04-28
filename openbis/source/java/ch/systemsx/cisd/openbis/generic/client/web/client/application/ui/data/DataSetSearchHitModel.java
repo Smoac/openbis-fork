@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.ModelData;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
@@ -53,14 +51,14 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
     public DataSetSearchHitModel(final ExternalData entity)
     {
         super(entity, createColumnsSchema(entity));
-        renderCodeAsLink(this);
+        renderAsLink(DataSetSearchHitColDefKind.SAMPLE, entity);
+        renderAsLink(DataSetSearchHitColDefKind.SAMPLE_IDENTIFIER, entity);
+        renderAsLink(DataSetSearchHitColDefKind.EXPERIMENT, entity);
     }
 
-    private static void renderCodeAsLink(ModelData model)
+    private void renderAsLink(DataSetSearchHitColDefKind colDef, final ExternalData entity)
     {
-        String columnID = DataSetSearchHitColDefKind.CODE.id();
-        String originalValue = String.valueOf(model.get(columnID));
-        model.set(columnID, LinkRenderer.renderAsLink(originalValue));
+        set(colDef.id(), LinkRenderer.renderAsLink(colDef.getDescriptor().tryGetValue(entity)));
     }
 
     // here we create the columns definition having just one table row. We need them only to render

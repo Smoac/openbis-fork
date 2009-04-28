@@ -33,7 +33,6 @@ import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
@@ -97,7 +96,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     /**
      * Shows the detail view for the specified entity
      */
-    abstract protected void showEntityViewer(M modelData, boolean editMode);
+    abstract protected void showEntityViewer(T entity, boolean editMode);
 
     abstract protected void listEntities(DefaultResultSetConfig<String, T> resultSetConfig,
             AbstractAsyncCallback<ResultSet<T>> callback);
@@ -187,7 +186,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         this.refreshAutomatically = refreshAutomatically;
         this.pagingLoader = createPagingLoader();
 
-        this.grid = createGrid(pagingLoader, createEntityViewerHandler(), gridId);
+        this.grid = createGrid(pagingLoader, gridId);
         this.pagingToolbar =
                 new BrowserGridPagingToolBar(asActionInvoker(), viewContext, PAGE_SIZE);
         pagingToolbar.bind(pagingLoader);
@@ -201,6 +200,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         contentPanel.setHeaderVisible(showHeader);
         contentPanel.setAutoWidth(true);
         columnListener = new ColumnListener<T, M>(grid);
+        registerCellClickListenerFor(Dict.CODE, new ICellListener<T>()
+            {
+                public void handle(T rowItem)
+                {
+                    showEntityViewer(rowItem, false);
+                }
+            });
 
         setLayout(new FitLayout());
         add(contentPanel);
@@ -593,19 +599,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return result;
     }
 
-    private Listener<GridEvent> createEntityViewerHandler()
-    {
-        return new Listener<GridEvent>()
-            {
-                @SuppressWarnings("unchecked")
-                public final void handleEvent(final GridEvent be)
-                {
-                    ModelData modelData = be.grid.getStore().getAt(be.rowIndex);
-                    showEntityViewer((M) modelData, false);
-                }
-            };
-    }
-
     // wraps this browser into the interface appropriate for the toolbar. If this class would just
     // implement the interface it could be very confusing for the code reader.
     protected final IBrowserGridActionInvoker asActionInvoker()
@@ -638,7 +631,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 {
                     if (selectedItem != null)
                     {
-                        showEntityViewer(selectedItem, editMode);
+                        showEntityViewer(selectedItem.getBaseObject(), editMode);
                     }
                 }
             };
@@ -942,8 +935,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     private static final <T extends ModelData> Grid<T> createGrid(
-            PagingLoader<PagingLoadConfig> dataLoader, Listener<GridEvent> detailsViewer,
-            String gridId)
+            PagingLoader<PagingLoadConfig> dataLoader, String gridId)
     {
         ListStore<T> listStore = new ListStore<T>(dataLoader);
         ColumnModel columnModel = new ColumnModel(new ArrayList<ColumnConfig>());
@@ -951,7 +943,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         grid.setId(gridId);
         grid.setLoadMask(true);
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        grid.addListener(Events.CellDoubleClick, detailsViewer);
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
         return grid;
     }

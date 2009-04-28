@@ -89,7 +89,7 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                             {
                                 public void invoke(BaseEntityModel<Project> selectedItem)
                                 {
-                                    showEntityViewer(selectedItem, false);
+                                    showEntityViewer(selectedItem.getBaseObject(), false);
                                 }
                             });
         showDetailsButton.setId(SHOW_DETAILS_BUTTON_ID);
@@ -101,7 +101,7 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                             {
                                 public void invoke(BaseEntityModel<Project> selectedItem)
                                 {
-                                    showEntityViewer(selectedItem, true);
+                                    showEntityViewer(selectedItem.getBaseObject(), true);
                                 }
                             });
         editButton.setId(EDIT_BUTTON_ID);
@@ -137,10 +137,8 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
     }
 
     @Override
-    protected void showEntityViewer(BaseEntityModel<Project> modelData, boolean editMode)
+    protected void showEntityViewer(final Project project, boolean editMode)
     {
-        final Project project = modelData.getBaseObject();
-
         ITabItemFactory tabFactory;
         if (editMode == false)
         {

@@ -32,13 +32,19 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetSearchHitColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
@@ -72,6 +78,42 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
     {
         super(viewContext, BROWSER_ID, false);
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.DATA_SET_SEARCH_RESULT_GRID);
+        registerCellClickListenerFor(DataSetSearchHitColDefKind.EXPERIMENT.id(),
+                new ICellListener<ExternalData>()
+                    {
+                        public void handle(ExternalData rowItem)
+                        {
+                            final IEntityInformationHolder entity = rowItem.getExperiment();
+                            new OpenEntityDetailsTabAction(entity, viewContext).execute();
+                        }
+                    });
+        ICellListener<ExternalData> sampleClickListener = new ICellListener<ExternalData>()
+            {
+                public void handle(final ExternalData rowItem)
+                {
+                    IEntityInformationHolder entityInformationHolder =
+                            new IEntityInformationHolder()
+                                {
+                                    public String getIdentifier()
+                                    {
+                                        return rowItem.getSampleIdentifier();
+                                    }
+
+                                    public EntityType getEntityType()
+                                    {
+                                        return rowItem.getEntityType();
+                                    }
+
+                                    public EntityKind getEntityKind()
+                                    {
+                                        return EntityKind.SAMPLE;
+                                    }
+                                };
+                    new OpenEntityDetailsTabAction(entityInformationHolder, viewContext).execute();
+                }
+            };
+        registerCellClickListenerFor(DataSetSearchHitColDefKind.SAMPLE.id(), sampleClickListener);
+        registerCellClickListenerFor(DataSetSearchHitColDefKind.SAMPLE_IDENTIFIER.id(), sampleClickListener);
     }
 
     @Override

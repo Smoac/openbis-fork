@@ -137,8 +137,7 @@ public class MaterialBrowserGrid extends
             return new MaterialBrowserGrid(viewContext, true, criteriaProvider)
                 {
                     @Override
-                    protected void showEntityViewer(BaseEntityModel<Material> materialModel,
-                            boolean editMode)
+                    protected void showEntityViewer(Material material, boolean editMode)
                     {
                         // do nothing - avoid showing the details after double click
                     }
@@ -248,9 +247,8 @@ public class MaterialBrowserGrid extends
     }
 
     @Override
-    protected void showEntityViewer(BaseEntityModel<Material> modelData, boolean editMode)
+    protected void showEntityViewer(Material material, boolean editMode)
     {
-        final Material material = modelData.getBaseObject();
         final EntityKind entityKind = EntityKind.MATERIAL;
         ITabItemFactory tabView;
         final IClientPluginFactory clientPluginFactory =

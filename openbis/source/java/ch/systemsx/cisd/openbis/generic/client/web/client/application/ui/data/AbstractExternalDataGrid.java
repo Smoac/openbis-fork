@@ -434,9 +434,8 @@ public abstract class AbstractExternalDataGrid
     }
 
     @Override
-    protected void showEntityViewer(BaseEntityModel<ExternalData> modelData, boolean editMode)
+    protected void showEntityViewer(ExternalData dataSet, boolean editMode)
     {
-        final ExternalData dataSet = modelData.getBaseObject();
         // TODO 2009-04-27, Piotr Buczek: add detail mode with detail view for data sets
         showEntityEditor(dataSet);
     }

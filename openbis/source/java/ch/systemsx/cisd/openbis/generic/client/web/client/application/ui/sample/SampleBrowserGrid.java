@@ -99,8 +99,7 @@ public class SampleBrowserGrid extends
                 new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, true, false)
                     {
                         @Override
-                        protected void showEntityViewer(BaseEntityModel<Sample> sampleModel,
-                                boolean editMode)
+                        protected void showEntityViewer(Sample sample, boolean editMode)
                         {
                             // do nothing - avoid showing the details after double click
                         }
@@ -280,9 +279,8 @@ public class SampleBrowserGrid extends
     }
 
     @Override
-    protected void showEntityViewer(BaseEntityModel<Sample> sampleModel, boolean editMode)
+    protected void showEntityViewer(Sample sample, boolean editMode)
     {
-        final Sample sample = sampleModel.getBaseObject();
         final EntityKind entityKind = EntityKind.SAMPLE;
         final ITabItemFactory tabView;
         final IClientPluginFactory clientPluginFactory =

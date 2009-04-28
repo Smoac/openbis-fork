@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -83,6 +84,14 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
         setId(createId());
         updateDefaultRefreshButton();
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.SEARCH_RESULT_GRID);
+        registerCellClickListenerFor(MatchingEntityColumnKind.IDENTIFIER.id(),
+                new ICellListener<MatchingEntity>()
+                    {
+                        public void handle(MatchingEntity rowItem)
+                        {
+                            showEntityViewer(rowItem, false);
+                        }
+                    });
     }
 
     private static String createId()
@@ -110,9 +119,8 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
     }
 
     @Override
-    protected void showEntityViewer(MatchingEntityModel matchingEntityModel, boolean editMode)
+    protected void showEntityViewer(MatchingEntity matchingEntity, boolean editMode)
     {
-        final MatchingEntity matchingEntity = matchingEntityModel.getBaseObject();
         final EntityKind entityKind = matchingEntity.getEntityKind();
         final IClientPluginFactory clientPluginFactory =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,

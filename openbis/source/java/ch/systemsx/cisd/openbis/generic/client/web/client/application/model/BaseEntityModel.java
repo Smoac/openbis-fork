@@ -24,6 +24,7 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.InvalidableWithCodeRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.CommonColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
@@ -79,9 +80,13 @@ public class BaseEntityModel<T> extends BaseModelData
             {
                 Person registrator = ((AbstractRegistrationHolder) entity).getRegistrator();
                 value = PersonRenderer.createPersonAnchor(registrator, value);
-            } else if (headerMsgKey.equals(Dict.CODE) && entity instanceof IInvalidationProvider)
+            } else if (headerMsgKey.equals(Dict.CODE))
             {
-                value = InvalidableWithCodeRenderer.render((IInvalidationProvider) entity, value);
+                if (entity instanceof IInvalidationProvider)
+                {
+                    value = InvalidableWithCodeRenderer.render((IInvalidationProvider) entity, value);
+                }
+                value = LinkRenderer.renderAsLink(value);
             }
         }
         return value;

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
@@ -40,6 +41,7 @@ public final class MatchingEntityModel extends BaseEntityModel<MatchingEntity>
         // override registrator column adding a link
         set(MatchingEntityColumnKind.REGISTRATOR.id(), PersonRenderer.createPersonAnchor(entity
                 .getRegistrator()));
+        set(MatchingEntityColumnKind.IDENTIFIER.id(), LinkRenderer.renderAsLink(entity.getIdentifier()));
     }
 
     public static IColumnDefinitionKind<MatchingEntity>[] getStaticColumnsDefinition()

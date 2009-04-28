@@ -93,8 +93,7 @@ public class ExperimentBrowserGrid extends
         final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar)
             {
                 @Override
-                protected void showEntityViewer(BaseEntityModel<Experiment> experimentModel,
-                        boolean editMode)
+                protected void showEntityViewer(Experiment experiment, boolean editMode)
                 {
                     // do nothing - avoid showing the details after double click
                 }
@@ -161,9 +160,8 @@ public class ExperimentBrowserGrid extends
     }
 
     @Override
-    protected void showEntityViewer(BaseEntityModel<Experiment> experimentModel, boolean editMode)
+    protected void showEntityViewer(Experiment experiment, boolean editMode)
     {
-        final Experiment experiment = experimentModel.getBaseObject();
         final EntityKind entityKind = EntityKind.EXPERIMENT;
         final ITabItemFactory tabView;
         final IClientPluginFactory clientPluginFactory =
