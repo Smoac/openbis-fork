@@ -60,10 +60,9 @@ public final class GenericMaterialViewer extends AbstractViewer<IGenericClientSe
     private GenericMaterialViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
             final String materialIdentifier)
     {
-        super(viewContext);
+        super(viewContext, "Material " + materialIdentifier);
         setId(createId(materialIdentifier));
         this.materialIdentifier = materialIdentifier;
-        setHeading("Material " + materialIdentifier);
         reloadData();
     }
 

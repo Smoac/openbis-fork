@@ -16,9 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 
 /**
@@ -26,10 +36,27 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
  */
 public abstract class AbstractViewer<T extends IClientServiceAsync> extends ContentPanel
 {
+    private final ToolBar toolBar;
     protected final IViewContext<T> viewContext;
 
-    public AbstractViewer(final IViewContext<T> viewContext)
+    public AbstractViewer(final IViewContext<T> viewContext, String title)
     {
         this.viewContext = viewContext;
+        setHeaderVisible(false);
+        toolBar = new ToolBar();
+        setTopComponent(toolBar);
+        toolBar.add(new LabelToolItem(title));
+        toolBar.add(new FillToolItem());
+        Button button = new Button(viewContext.getMessage(Dict.BUTTON_EDIT));
+        button.addListener(Events.Select, new Listener<BaseEvent>()
+            {
+        
+                public void handleEvent(BaseEvent be)
+                {
+                    MessageBox.alert("Info", "Not yet implemented", null);
+                }
+        
+            });
+        toolBar.add(new AdapterToolItem(button));
     }
 }
