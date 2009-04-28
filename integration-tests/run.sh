@@ -745,7 +745,12 @@ function assert_correct_content {
     assert_correct_content_of_image_analysis_data 3VCP3 ".*-6.*3VCP3$"
     assert_correct_content_of_image_analysis_data 3VCP4 ".*-9.*3VCP4$"
     assert_correct_content_of_unidentified_plate_in_store UnknownPlate
-    local 
+    local file = `find_dataset_dir ".*-15$"`/original/3VCP1.txt
+    assert_file_exists $file
+    local content = `cat $file`
+    if [ $content != "hello world" ]; then
+        report_error wrong content: <$content>
+    fi
     # result set columns are
     # id;experiment_code;data_store_code;code;is_placeholder;data_id_parent;is_complete;data_producer_code;production_timestamp
     assert_correct_dataset_content_in_database 1 "1;EXP1;DSS1;MICROX-3VCP1;f;;F;microX;2008-01-01.*"
