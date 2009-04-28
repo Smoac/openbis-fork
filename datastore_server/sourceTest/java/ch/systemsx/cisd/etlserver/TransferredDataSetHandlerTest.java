@@ -271,8 +271,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         authorizedLimsService.setUsername("u");
         authorizedLimsService.setPassword("p");
         handler =
-                new TransferredDataSetHandler(null, "dss", storageProcessor, plugin,
-                        authorizedLimsService, mailClient, true, true);
+                new TransferredDataSetHandler("dss", storageProcessor, plugin, authorizedLimsService,
+                        mailClient, true, true);
 
         handler.setProcessorFactories(map);
         dataSetInformation = new DataSetInformation();

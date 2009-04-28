@@ -57,9 +57,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
  * <th>Description</th>
  * </tr>
  * <tr>
+ * <td><code>strip-file-extension</code></td>
+ * <td><code>false</code></td>
+ * <td>If <code>true</code> the file extension will be removed before extracting informations from
+ * the file name.</td>
+ * </tr>
+ * <tr>
  * <td><code>entity-separator</code></td>
  * <td><code>.</code></td>
  * <td>Character which separates entities in the file name. Whitespace characters are not allowed.</td>
+ * </tr>
+ * <tr>
+ * <td><code>group-code</code></td>
+ * <td><code>null</code></td>
+ * <td>Group code of the sample. If unspecified a shared sample is assumed.</td>
  * </tr>
  * <tr>
  * <td><code>index-of-sample-code</code></td>
@@ -226,6 +237,7 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
         dataSetInformation.setProductionDate(tryGetDataProductionDate(entitiesProvider));
         dataSetInformation.setDataSetProperties(extractDataSetProperties(incomingDataSetPath,
                 dataSetPropertiesFileName));
+        dataSetInformation.setGroupCode(getGroupCode());
         return dataSetInformation;
     }
 

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver;
 
 import java.util.Properties;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
@@ -30,12 +31,14 @@ public abstract class AbstractDataSetInfoExtractor implements IDataSetInfoExtrac
 {
 
     /** The name of the property to get the experiment separator from. */
-    protected static final String ENTITY_SEPARATOR_PROPERTY_NAME = "entity-separator";
+    @Private static final String ENTITY_SEPARATOR_PROPERTY_NAME = "entity-separator";
 
     /** The default entity separator. */
     protected static final char DEFAULT_ENTITY_SEPARATOR = '.';
 
-    protected static final String STRIP_EXTENSION = "strip-file-extension";
+    @Private static final String STRIP_EXTENSION = "strip-file-extension";
+    
+    @Private static final String GROUP_CODE = "group-code";
 
     protected final Properties properties;
 
@@ -43,7 +46,7 @@ public abstract class AbstractDataSetInfoExtractor implements IDataSetInfoExtrac
     protected final char entitySeparator;
 
     protected final boolean stripExtension;
-
+    
     protected AbstractDataSetInfoExtractor(final Properties globalProperties)
     {
         assert globalProperties != null : "Global properties can not be null.";
@@ -52,6 +55,11 @@ public abstract class AbstractDataSetInfoExtractor implements IDataSetInfoExtrac
         entitySeparator =
                 PropertyUtils.getChar(properties, ENTITY_SEPARATOR_PROPERTY_NAME,
                         DEFAULT_ENTITY_SEPARATOR);
+    }
+    
+    protected String getGroupCode()
+    {
+        return properties.getProperty(GROUP_CODE);
     }
 
 }

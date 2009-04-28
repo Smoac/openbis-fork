@@ -350,9 +350,9 @@ public final class ETLDaemon
             throw new ConfigurationFailureException("Missing service property '" + DSS_CODE_KEY + "'");
         }
         final TransferredDataSetHandler pathHandler =
-                new TransferredDataSetHandler(threadParameters.tryGetGroupCode(), dssCode, plugin,
-                        authorizedLimsService, mailProperties, highwaterMarkWatcher,
-                        notifySuccessfulRegistration, threadParameters.useIsFinishedMarkerFile());
+                new TransferredDataSetHandler(dssCode, plugin, authorizedLimsService,
+                        mailProperties, highwaterMarkWatcher, notifySuccessfulRegistration,
+                        threadParameters.useIsFinishedMarkerFile());
         pathHandler.setProcessorFactories(processorFactories);
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
                 createDirectoryScanningHandler(pathHandler, highwaterMarkWatcher,
