@@ -242,10 +242,12 @@ function install_dsss {
     local install_dss=$1
     if [ $install_dss == "true" ]; then
         unpack datastore_server
-	prepare datastore_server datastore_server-all
+	prepare datastore_server datastore_server1
+	prepare datastore_server datastore_server2
 	remove_unpacked datastore_server
     else
-	copy_templates datastore_server-all    
+	copy_templates datastore_server1
+	copy_templates datastore_server2
     fi
 }
 
@@ -538,7 +540,8 @@ function switch_dmv {
 
 function switch_processing_pipeline {
     new_state=$1
-    switch_dss $new_state datastore_server-all
+    switch_dss $new_state datastore_server1
+    switch_dss $new_state datastore_server2
     switch_dmv $new_state datamover-analysis
     switch_sth $new_state dummy-img-analyser start.sh stop.sh $TRUE
     switch_dmv $new_state datamover-raw
