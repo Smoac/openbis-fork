@@ -305,7 +305,7 @@ ALTER TABLE ONLY data_set_type_property_types
 ALTER TABLE ONLY data_set_type_property_types
     ADD CONSTRAINT dstpt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY data_set_type_property_types
-    ADD CONSTRAINT dstpt_prty_fk FOREIGN KEY (prty_id) REFERENCES property_types(id);
+    ADD CONSTRAINT dstpt_prty_fk FOREIGN KEY (prty_id) REFERENCES property_types(id) ON DELETE CASCADE;
 ALTER TABLE ONLY data_set_types
     ADD CONSTRAINT dsty_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY experiment_type_property_types
@@ -313,7 +313,7 @@ ALTER TABLE ONLY experiment_type_property_types
 ALTER TABLE ONLY experiment_type_property_types
     ADD CONSTRAINT etpt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY experiment_type_property_types
-    ADD CONSTRAINT etpt_prty_fk FOREIGN KEY (prty_id) REFERENCES property_types(id);
+    ADD CONSTRAINT etpt_prty_fk FOREIGN KEY (prty_id) REFERENCES property_types(id) ON DELETE CASCADE;
 ALTER TABLE ONLY events
     ADD CONSTRAINT evnt_data_fk FOREIGN KEY (data_id) REFERENCES data(id);
 ALTER TABLE ONLY events
@@ -391,7 +391,7 @@ ALTER TABLE ONLY material_type_property_types
 ALTER TABLE ONLY material_type_property_types
     ADD CONSTRAINT mtpt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY material_type_property_types
-    ADD CONSTRAINT mtpt_prty_fk FOREIGN KEY (prty_id) REFERENCES property_types(id);
+    ADD CONSTRAINT mtpt_prty_fk FOREIGN KEY (prty_id) REFERENCES property_types(id) ON DELETE CASCADE;
 ALTER TABLE ONLY persons
     ADD CONSTRAINT pers_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY persons
@@ -411,7 +411,7 @@ ALTER TABLE ONLY property_types
 ALTER TABLE ONLY property_types
     ADD CONSTRAINT prty_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY property_types
-    ADD CONSTRAINT prty_maty_fk FOREIGN KEY (maty_prop_id) REFERENCES material_types(id);
+    ADD CONSTRAINT prty_maty_fk FOREIGN KEY (maty_prop_id) REFERENCES material_types(id) ON DELETE CASCADE;
 ALTER TABLE ONLY property_types
     ADD CONSTRAINT prty_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY role_assignments
@@ -461,7 +461,7 @@ ALTER TABLE ONLY sample_types
 ALTER TABLE ONLY sample_type_property_types
     ADD CONSTRAINT stpt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY sample_type_property_types
-    ADD CONSTRAINT stpt_prty_fk FOREIGN KEY (prty_id) REFERENCES property_types(id);
+    ADD CONSTRAINT stpt_prty_fk FOREIGN KEY (prty_id) REFERENCES property_types(id) ON DELETE CASCADE;
 ALTER TABLE ONLY sample_type_property_types
     ADD CONSTRAINT stpt_saty_fk FOREIGN KEY (saty_id) REFERENCES sample_types(id) ON DELETE CASCADE;
 REVOKE ALL ON SCHEMA public FROM PUBLIC;

@@ -320,4 +320,23 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
         PropertyTypePE result = propertyTypes.get(0);
         return result;
     }
+
+    /**
+     * Returns the first experiment found in the database.
+     */
+    protected ExperimentPE selectFirstExperiment()
+    {
+
+        List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listExperiments();
+        Collections.sort(experiments);
+        return experiments.get(0);
+    }
+
+    /**
+     * Returns the type of first experiment found in the database.
+     */
+    protected ExperimentTypePE selectFirstExperimentType()
+    {
+        return selectFirstExperiment().getExperimentType();
+    }
 }
