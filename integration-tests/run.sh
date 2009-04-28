@@ -455,9 +455,6 @@ function generate_test_data {
     echo Generate incoming data
     local DIR=$DATA/in-raw
     
-    # drop a file
-    echo hello world > $DATA/incoming-a/3VCP1.txt
-    
     # drop an identifyable valid data set
     copy_test_data 3VCP1 $DIR
     sleep 30
@@ -483,6 +480,10 @@ function generate_test_data {
     mv $DATA/3VCP3/TIFF/blabla_3VCP1_K13_8_w460.tif  $DATA/3VCP3/TIFF/blabla_3VCP3_K13_8_w460.tif
     echo image for well M03 > $DATA/3VCP3/TIFF/blabla_3VCP3_M03_2_w350.tif
     mv $DATA/3VCP3 $DIR 
+    sleep 30
+    
+    # drop a file
+    echo hello world > $DATA/incoming-a/3VCP1.txt
 }
 
 
@@ -544,7 +545,7 @@ function switch_dmv {
 function switch_processing_pipeline {
     new_state=$1
     switch_dss $new_state datastore_server1
-    sleep 1
+    sleep 5
     switch_dss $new_state datastore_server2
     switch_dmv $new_state datamover-analysis
     switch_sth $new_state dummy-img-analyser start.sh stop.sh $TRUE
