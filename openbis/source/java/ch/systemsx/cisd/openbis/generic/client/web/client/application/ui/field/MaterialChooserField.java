@@ -61,8 +61,11 @@ public final class MaterialChooserField extends TextField<String> implements
                     browseMaterials(viewContext, chosenMaterialField, materialTypeOrNull);
                 }
             });
-        return new MultiField<Field<?>>(labelField, chosenMaterialField, new AdapterField(
-                chooseButton));
+        final Field<?> field =
+                new MultiField<Field<?>>(labelField, chosenMaterialField, new AdapterField(
+                        chooseButton));
+        FieldUtil.setMandatoryFlag(field, mandatory);
+        return field;
     }
 
     private static void browseMaterials(final IViewContext<ICommonClientServiceAsync> viewContext,
@@ -114,7 +117,6 @@ public final class MaterialChooserField extends TextField<String> implements
         {
             setValue(initialValueOrNull);
         }
-        FieldUtil.setMandatoryFlag(this, mandatory);
     }
 
     @Override

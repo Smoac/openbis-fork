@@ -57,7 +57,8 @@ public final class SampleChooserField extends TextField<String> implements
      * the list.
      */
     public static SampleChooserFieldAdaptor create(final String labelField,
-            final boolean mandatory, final String initialValueOrNull,
+            final boolean mandatory, final String initialValueOrNull, final boolean addShared,
+            final boolean excludeWithoutExperiment,
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final SampleChooserField chooserField =
@@ -69,11 +70,12 @@ public final class SampleChooserField extends TextField<String> implements
                 @Override
                 public void componentSelected(ComponentEvent ce)
                 {
-                    browse(viewContext, chooserField);
+                    browse(viewContext, chooserField, addShared, excludeWithoutExperiment);
                 }
             });
         final Field<?> field =
                 new MultiField<Field<?>>(labelField, chooserField, new AdapterField(chooseButton));
+        FieldUtil.setMandatoryFlag(field, mandatory);
         return asSampleChooserFieldAdaptor(chooserField, field);
     }
 
@@ -102,9 +104,11 @@ public final class SampleChooserField extends TextField<String> implements
     }
 
     private static void browse(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final ChosenEntitySetter<Sample> chosenSampleField)
+            final ChosenEntitySetter<Sample> chosenSampleField, final boolean addShared,
+            final boolean excludeWithoutExperiment)
     {
-        DisposableEntityChooser<Sample> browser = SampleBrowserGrid.createChooser(viewContext);
+        DisposableEntityChooser<Sample> browser =
+                SampleBrowserGrid.createChooser(viewContext, addShared, excludeWithoutExperiment);
         String title = viewContext.getMessage(Dict.TITLE_CHOOSE_EXPERIMENT);
         new EntityChooserDialog<Sample>(browser, chosenSampleField, title, viewContext).show();
     }
@@ -136,7 +140,6 @@ public final class SampleChooserField extends TextField<String> implements
         {
             setValue(initialValueOrNull);
         }
-        FieldUtil.setMandatoryFlag(this, mandatory);
     }
 
     @Override

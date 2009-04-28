@@ -91,9 +91,11 @@ public class SampleBrowserGrid extends
 
     /** Creates a grid without additional toolbar buttons. It can serve as a entity chooser. */
     public static DisposableEntityChooser<Sample> createChooser(
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+            final IViewContext<ICommonClientServiceAsync> viewContext, final boolean addShared,
+            final boolean excludeWithoutExperiment)
     {
-        final SampleBrowserToolbar toolbar = new SampleBrowserToolbar(viewContext);
+        final SampleBrowserToolbar toolbar =
+                new SampleBrowserToolbar(viewContext, addShared, excludeWithoutExperiment);
         ISampleCriteriaProvider criteriaProvider = toolbar;
         final SampleBrowserGrid browserGrid =
                 new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, true, false)
@@ -111,7 +113,7 @@ public class SampleBrowserGrid extends
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        final SampleBrowserToolbar toolbar = new SampleBrowserToolbar(viewContext);
+        final SampleBrowserToolbar toolbar = new SampleBrowserToolbar(viewContext, true, false);
         ISampleCriteriaProvider criteriaProvider = toolbar;
         final SampleBrowserGrid browserGrid =
                 new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, true, false);

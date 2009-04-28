@@ -123,13 +123,15 @@ public final class GenericDataSetEditForm
     {
         String label = viewContext.getMessage(Dict.SAMPLE);
         String originalSample = originalDataSet.getSampleIdentifier();
-        return SampleChooserField.create(label, false, originalSample, viewContext
+        // one cannot select a sample from shared group or a sample that has no experiment
+        return SampleChooserField.create(label, true, originalSample, false, true, viewContext
                 .getCommonViewContext());
     }
 
     @Override
     protected PropertiesEditor<DataSetType, DataSetTypePropertyType, DataSetProperty> createPropertiesEditor(
-            List<DataSetTypePropertyType> entityTypesPropertyTypes, // brak
+            List<DataSetTypePropertyType> entityTypesPropertyTypes,
+            // TODO 2009-04-28, Piotr Buczek: fill properties
             List<DataSetProperty> properties, String id,
             IViewContext<ICommonClientServiceAsync> context)
     {

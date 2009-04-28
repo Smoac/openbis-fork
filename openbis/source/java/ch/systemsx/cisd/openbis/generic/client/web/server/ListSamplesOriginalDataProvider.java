@@ -40,11 +40,28 @@ final class ListSamplesOriginalDataProvider extends AbstractOriginalDataProvider
         final List<SamplePE> samples =
                 commonServer.listSamples(sessionToken, ListSampleCriteriaTranslator
                         .translate(listCriteria), withExperimentAndProperties);
+        if (listCriteria.isExcludeWithoutExperiment())
+        {
+            removeWithoutExperiment(samples);
+        }
         final List<Sample> list = new ArrayList<Sample>(samples.size());
         for (final SamplePE sample : samples)
         {
             list.add(SampleTranslator.translate(sample));
         }
         return list;
+    }
+
+    private void removeWithoutExperiment(final List<SamplePE> samples)
+    {
+        List<SamplePE> samplesWithoutExperiment = new ArrayList<SamplePE>();
+        for (final SamplePE sample : samples)
+        {
+            if (sample.getExperiment() == null)
+            {
+                samplesWithoutExperiment.add(sample);
+            }
+        }
+        samples.removeAll(samplesWithoutExperiment);
     }
 }

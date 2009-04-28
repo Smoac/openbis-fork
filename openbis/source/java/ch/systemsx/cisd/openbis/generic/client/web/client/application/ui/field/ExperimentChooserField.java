@@ -77,6 +77,7 @@ public final class ExperimentChooserField extends TextField<String> implements
             });
         final Field<?> field =
                 new MultiField<Field<?>>(labelField, chooserField, new AdapterField(chooseButton));
+        FieldUtil.setMandatoryFlag(field, mandatory);
         return asExperimentChooserFieldAdaptor(chooserField, field);
     }
 
@@ -174,7 +175,6 @@ public final class ExperimentChooserField extends TextField<String> implements
         {
             setValue(initialValueOrNull);
         }
-        FieldUtil.setMandatoryFlag(this, mandatory);
     }
 
     @Override

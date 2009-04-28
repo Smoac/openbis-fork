@@ -42,6 +42,8 @@ public final class ListSampleCriteria extends DefaultResultSetConfig<String, Sam
 
     private boolean includeInstance;
 
+    private boolean excludeWithoutExperiment;
+
     // --------- filter 2 fields
     private String containerIdentifier;
 
@@ -112,6 +114,16 @@ public final class ListSampleCriteria extends DefaultResultSetConfig<String, Sam
     public void setIncludeInstance(final boolean includeInstance)
     {
         this.includeInstance = includeInstance;
+    }
+
+    public boolean isExcludeWithoutExperiment()
+    {
+        return excludeWithoutExperiment;
+    }
+
+    public void setExcludeWithoutExperiment(final boolean excludeWithoutExperiment)
+    {
+        this.excludeWithoutExperiment = excludeWithoutExperiment;
     }
 
     public String getExperimentIdentifier()
