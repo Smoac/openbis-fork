@@ -719,7 +719,7 @@ function assert_correct_dataset_content_in_database {
        -c "select d.id, e.code, ds.code, d.code, d.is_placeholder, r.data_id_parent, \
                   ed.is_complete, d.data_producer_code, d.production_timestamp \
            from data as d left join data_set_relationships as r on r.data_id_child = d.id \
-                          left join data_stores as ds on ds.id = d.dast_id \    
+                          left join data_stores as ds on ds.id = d.dast_id \
                           left join external_data as ed on ed.data_id = d.id,
                 experiments as e
            where d.id = $dataset_id and d.expe_id = e.id"  \
@@ -745,6 +745,7 @@ function assert_correct_content {
     assert_correct_content_of_image_analysis_data 3VCP3 ".*-6.*3VCP3$"
     assert_correct_content_of_image_analysis_data 3VCP4 ".*-9.*3VCP4$"
     assert_correct_content_of_unidentified_plate_in_store UnknownPlate
+    local 
     # result set columns are
     # id;experiment_code;data_store_code;code;is_placeholder;data_id_parent;is_complete;data_producer_code;production_timestamp
     assert_correct_dataset_content_in_database 1 "1;EXP1;DSS1;MICROX-3VCP1;f;;F;microX;2008-01-01.*"
