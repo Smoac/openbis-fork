@@ -72,6 +72,7 @@
 		<copy file="${lib}/activation/activation.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/mail/mail.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/log4j/log4j.jar" todir="${dist.datastore_server.lib}" />
+		<copy file="${lib}/fast-md5/fast-md5.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/commons-codec/commons-codec.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/commons-io/commons-io.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/commons-lang/commons-lang.jar" todir="${dist.datastore_server.lib}" />
