@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.parser.MandatoryPropertyMissingException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -106,12 +107,13 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
         final String parentDataSetCode = "1234-8";
         final String productionDate = "2007-09-03";
         final String barcode = "XYZ-123";
-        File incoming = new File(WORKING_DIRECTORY, barcode + separator + parentDataSetCode
-                + separator + "A" + separator + producerCode + separator + productionDate);
+        File incoming =
+                new File(WORKING_DIRECTORY, barcode + separator + parentDataSetCode + separator
+                        + "A" + separator + producerCode + separator + productionDate);
         incoming.mkdir();
-        FileUtilities.writeToFile(new File(incoming, "props.tsv"), "property\tvalue\np1\tv1\np2\tv2");
-        final DataSetInformation dsInfo =
-                extractor.getDataSetInformation(incoming);
+        FileUtilities.writeToFile(new File(incoming, "props.tsv"),
+                "property\tvalue\np1\tv1\np2\tv2");
+        final DataSetInformation dsInfo = extractor.getDataSetInformation(incoming);
         assertEquals(barcode, dsInfo.getSampleIdentifier().getSampleCode());
         assertEquals(parentDataSetCode, dsInfo.getParentDataSetCode());
         assertEquals(producerCode, dsInfo.getProducerCode());
@@ -119,6 +121,59 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
         assertEquals(productionDate, dateFormat.format(dsInfo.getProductionDate()));
         assertEquals("[NewProperty{property=p1,value=v1}, NewProperty{property=p2,value=v2}]",
                 dsInfo.getDataSetProperties().toString());
+    }
+
+    @Test
+    public void testFailWithDataSetPropertiesFileExpectedButUndefined()
+    {
+        final Properties properties = new Properties();
+        final String separator = "=";
+        properties.setProperty(DATA_SET_PROPERTIES_FILE_NAME_KEY, "props-unexistent.tsv");
+        final IDataSetInfoExtractor extractor = new DefaultDataSetInfoExtractor(properties);
+        final String producerCode = "M1";
+        final String parentDataSetCode = "1234-8";
+        final String productionDate = "2007-09-03";
+        final String barcode = "XYZ-123";
+        File incoming =
+                new File(WORKING_DIRECTORY, barcode + separator + parentDataSetCode + separator
+                        + "A" + separator + producerCode + separator + productionDate);
+        incoming.mkdir();
+        boolean exceptionThrown = false;
+        try
+        {
+            extractor.getDataSetInformation(incoming);
+        } catch (UserFailureException ex)
+        {
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
+    }
+
+    @Test
+    public void testFailWithDataSetPropertiesFileWithoutHeader()
+    {
+        final Properties properties = new Properties();
+        final String separator = "=";
+        properties.setProperty(DATA_SET_PROPERTIES_FILE_NAME_KEY, "props.tsv");
+        final IDataSetInfoExtractor extractor = new DefaultDataSetInfoExtractor(properties);
+        final String producerCode = "M1";
+        final String parentDataSetCode = "1234-8";
+        final String productionDate = "2007-09-03";
+        final String barcode = "XYZ-123";
+        File incoming =
+                new File(WORKING_DIRECTORY, barcode + separator + parentDataSetCode + separator
+                        + "A" + separator + producerCode + separator + productionDate);
+        incoming.mkdir();
+        FileUtilities.writeToFile(new File(incoming, "props.tsv"), "p1\tv1\np2\tv2");
+        boolean exceptionThrown = false;
+        try
+        {
+            extractor.getDataSetInformation(incoming);
+        } catch (MandatoryPropertyMissingException ex)
+        {
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
     }
 
     @Test
