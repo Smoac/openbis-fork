@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetSearchHitColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FillSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
@@ -45,9 +46,30 @@ public class DataSetSearchTest extends AbstractGWTTestCase
 
         final CheckTableCommand checkResultTableCmd = createCheckSearchGridCmd();
         checkResultTableCmd.expectedSize(2);
-        Row row = new Row();
+        DataSetSearchRow row = new DataSetSearchRow();
         row.withCell(DataSetSearchHitColDefKind.LOCATION.id(), "a/1");
         row.withCell(DataSetSearchHitColDefKind.LOCATION.id(), "a/3");
+        row.withPropertyCell("comment", "no comment");
+        checkResultTableCmd.expectedRow(row);
+        checkResultTableCmd.expectedColumnsNumber(24);
+        remoteConsole.prepare(checkResultTableCmd);
+
+        launchTest(20000);
+    }
+
+    public final void testSearchByDataSetProperty()
+    {
+        loginAndGotoTab();
+        FillSearchCriteria fillCriteriaCmd = new FillSearchCriteria();
+        fillCriteriaCmd.addDataSetPropertyCriterion("Comment", "no comment");
+        remoteConsole.prepare(fillCriteriaCmd);
+
+        final CheckTableCommand checkResultTableCmd = createCheckSearchGridCmd();
+        checkResultTableCmd.expectedSize(5);
+        DataSetSearchRow row = new DataSetSearchRow();
+        row.withCell(DataSetSearchHitColDefKind.LOCATION.id(), "a/1");
+        row.withCell(DataSetSearchHitColDefKind.LOCATION.id(), "a/3");
+        row.withPropertyCell("comment", "no comment");
         checkResultTableCmd.expectedRow(row);
         checkResultTableCmd.expectedColumnsNumber(24);
         remoteConsole.prepare(checkResultTableCmd);

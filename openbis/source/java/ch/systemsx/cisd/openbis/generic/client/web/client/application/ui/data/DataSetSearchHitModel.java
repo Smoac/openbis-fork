@@ -146,8 +146,7 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
         if (mergedPropertyTypesOrNull != null)
         {
             List<PropertyType> datasetProperties =
-                    PropertyTypesFilterUtil
-                            .filterDataSetPropertyTypes(mergedPropertyTypesOrNull);
+                    PropertyTypesFilterUtil.filterDataSetPropertyTypes(mergedPropertyTypesOrNull);
             columns.addColumns(createDatasetPropertyTypeColDefs(datasetProperties));
 
             List<PropertyType> experimentProperties =
@@ -156,8 +155,7 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
             columns.addColumns(createExperimentPropertyTypeColDefs(experimentProperties));
 
             List<PropertyType> sampleProperties =
-                    PropertyTypesFilterUtil
-                            .filterSamplePropertyTypes(mergedPropertyTypesOrNull);
+                    PropertyTypesFilterUtil.filterSamplePropertyTypes(mergedPropertyTypesOrNull);
             columns.addColumns(createSamplePropertyTypeColDefs(sampleProperties));
         }
         return columns;

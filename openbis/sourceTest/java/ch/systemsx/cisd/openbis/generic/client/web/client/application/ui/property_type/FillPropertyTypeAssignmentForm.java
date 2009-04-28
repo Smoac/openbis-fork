@@ -21,9 +21,11 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataSetTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -73,6 +75,9 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
         } else if (entityKind.equals(EntityKind.SAMPLE))
         {
             addCallbackClass(SampleTypeSelectionWidget.ListItemsCallback.class);
+        } else if (entityKind.equals(EntityKind.DATA_SET))
+        {
+            addCallbackClass(DataSetTypeSelectionWidget.ListItemsCallback.class);
         } else
         {
             throw new IllegalArgumentException();
@@ -148,6 +153,17 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
                     entityTypeCode);
             assertEquals(((SampleTypeSelectionWidget) sampleTypeSelector)
                     .tryGetSelectedSampleType().getCode(), entityTypeCode);
+        } else if (entityKind.equals(EntityKind.DATA_SET))
+        {
+            final ComboBox<DataSetTypeModel> sampleTypeSelector =
+                    (DataSetTypeSelectionWidget) GWTTestUtil
+                            .getWidgetWithID(DataSetTypeSelectionWidget.ID
+                                    + DataSetTypeSelectionWidget.SUFFIX
+                                    + PropertyTypeAssignmentForm.DATA_SET_TYPE_ID_SUFFIX);
+            GWTUtils.setSelectedItem(sampleTypeSelector, ModelDataPropertyNames.CODE,
+                    entityTypeCode);
+            assertEquals(((DataSetTypeSelectionWidget) sampleTypeSelector)
+                    .tryGetSelectedDataSetType().getCode(), entityTypeCode);
         } else
         {
             throw new IllegalArgumentException();

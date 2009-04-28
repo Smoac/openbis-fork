@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
@@ -106,12 +107,22 @@ public class GridTestUtils
         return identifier;
     }
 
-    private final static PropertyType createPropertyType(final String propertyCode,
+    public final static PropertyType createPropertyType(final String propertyCode,
             final boolean internalNamespace)
     {
         final PropertyType propertyType = new PropertyType();
         propertyType.setInternalNamespace(internalNamespace);
-        propertyType.setSimpleCode(propertyCode);
+        propertyType.setSimpleCode(propertyCode.toUpperCase());
         return propertyType;
+    }
+
+    public static String getDataSetPropertyColumnIdentifier(final String propertyCode,
+            boolean internalNamespace)
+    {
+        final PropertyType propertyType = createPropertyType(propertyCode, internalNamespace);
+        final String identifier =
+                new DataSetPropertyColDef(propertyType, false, 10, propertyType.getLabel())
+                        .getIdentifier();
+        return identifier;
     }
 }

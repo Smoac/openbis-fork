@@ -46,13 +46,19 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
 
     private static final String COMPOUND_HCS = "COMPOUND_HCS";
 
+    private static final String HCS_IMAGE = "HCS_IMAGE";
+
     private static final String USER_COMMENT = "USER.COMMENT";
+
+    private static final String USER_DESCRIPTION = "USER.DESCRIPTION";
 
     private static final String CONTROL_LAYOUT = "CONTROL_LAYOUT";
 
     private static final EntityKind EXPERIMENT = EntityKind.EXPERIMENT;
 
     private static final EntityKind SAMPLE = EntityKind.SAMPLE;
+
+    private static final EntityKind DATA_SET = EntityKind.DATA_SET;
 
     private final void prepareListingAfterAssignment(String propertyTypeCode,
             String entityTypeCode, EntityKind entityKind, int expectedEntries, boolean isMandatory)
@@ -77,6 +83,16 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
         remoteConsole.prepare(new FillPropertyTypeAssignmentForm(mandatory, USER_COMMENT,
                 COMPOUND_HCS, "a comment", EXPERIMENT));
         prepareListingAfterAssignment(USER_COMMENT, COMPOUND_HCS, EXPERIMENT, 30, mandatory);
+        launchTest(20000);
+    }
+
+    public final void testAssignDataSetPropertyType()
+    {
+        loginAndGotoTab(ActionMenuKind.PROPERTY_TYPES_MENU_ASSIGN_TO_DATA_SET_TYPE);
+        final boolean mandatory = false;
+        remoteConsole.prepare(new FillPropertyTypeAssignmentForm(mandatory, USER_DESCRIPTION,
+                HCS_IMAGE, null, DATA_SET));
+        prepareListingAfterAssignment(USER_DESCRIPTION, HCS_IMAGE, DATA_SET, 31, mandatory);
         launchTest(20000);
     }
 
