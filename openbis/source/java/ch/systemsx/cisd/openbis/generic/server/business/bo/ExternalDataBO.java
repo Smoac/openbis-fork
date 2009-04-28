@@ -173,7 +173,8 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         return fileFormatTypeOrNull;
     }
 
-    private final DataPE getOrCreateParentData(final String parentDataSetCode, DataStorePE dataStore, SamplePE sample)
+    private final DataPE getOrCreateParentData(final String parentDataSetCode,
+            DataStorePE dataStore, SamplePE sample)
     {
         assert parentDataSetCode != null : "Unspecified parent data set code.";
 
@@ -214,6 +215,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
             sourceType.nullifyProducerSample(externalData);
             externalData.setId(data.getId());
             externalData.setRegistrationDate(new Date());
+            externalData.setModificationDate(data.getModificationDate());
             externalDataDAO.updateDataSet(externalData);
         }
         entityPropertiesConverter.checkMandatoryProperties(externalData.getProperties(),
