@@ -1262,7 +1262,7 @@ CREATE SEQUENCE person_id_seq
 -- Name: person_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('person_id_seq', 3, true);
+SELECT pg_catalog.setval('person_id_seq', 4, true);
 
 
 --
@@ -1352,7 +1352,7 @@ CREATE SEQUENCE role_assignment_id_seq
 -- Name: role_assignment_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('role_assignment_id_seq', 4, true);
+SELECT pg_catalog.setval('role_assignment_id_seq', 6, true);
 
 
 --
@@ -1738,7 +1738,8 @@ COPY materials (id, code, maty_id, pers_id_registerer, mate_id_inhibitor_of, reg
 COPY persons (id, first_name, last_name, user_id, email, dbin_id, grou_id, registration_timestamp, pers_id_registerer) FROM stdin;
 1		System User	system		1	\N	2009-02-10 15:40:42.184979+01	\N
 2	John	Doe	test	franz-josef.elmer@systemsx.ch	1	1	2009-02-10 15:40:45.854539+01	\N
-3	John	Doe	etlserver	franz-josef.elmer@systemsx.ch	1	1	2009-02-10 15:40:51.094944+01	\N
+3	John	Etl1	etlserver1	franz-josef.elmer@systemsx.ch	1	1	2009-02-10 15:40:51.094944+01	\N
+4	John	Etl2	etlserver2	franz-josef.elmer@systemsx.ch	1	1	2009-02-10 15:40:51.094944+01	\N
 \.
 
 
@@ -1794,6 +1795,8 @@ COPY role_assignments (id, role_code, grou_id, dbin_id, pers_id_grantee, pers_id
 2	ADMIN	1	\N	2	2	2009-02-10 15:40:53.51404+01
 3	ETL_SERVER	\N	1	3	2	2009-02-10 15:40:53.51404+01
 4	ETL_SERVER	1	\N	3	2	2009-02-10 15:40:53.51404+01
+5	ETL_SERVER	\N	1	4	2	2009-02-10 15:40:53.51404+01
+6	ETL_SERVER	1	\N	4	2	2009-02-10 15:40:53.51404+01
 \.
 
 
