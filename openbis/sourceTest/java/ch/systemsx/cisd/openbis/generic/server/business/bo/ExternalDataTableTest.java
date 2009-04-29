@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -56,13 +57,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Christian Ribeaud
  */
-@Friend(toClasses=ExternalDataTable.class)
+@Friend(toClasses = ExternalDataTable.class)
 public final class ExternalDataTableTest extends AbstractBOTest
 {
     private IDataStoreServiceFactory dssFactory;
+
     private DataStorePE dss1;
+
     private DataStorePE dss2;
+
     private IDataStoreService dataStoreService1;
+
     private IDataStoreService dataStoreService2;
 
     private final ExternalDataTable createExternalDataTable()
@@ -85,7 +90,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 {
                     allowing(dssFactory).create(dss1.getRemoteUrl());
                     will(returnValue(dataStoreService1));
-                    
+
                     allowing(dssFactory).create(dss2.getRemoteUrl());
                     will(returnValue(dataStoreService2));
                 }
@@ -186,17 +191,19 @@ public final class ExternalDataTableTest extends AbstractBOTest
         externalDataTable.loadBySampleIdentifier(sampleIdentifier);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLoadByExperimentIdentifier()
     {
-        final ExperimentIdentifier identifier = new ExperimentIdentifier(
-                new ProjectIdentifier("db", "group", "project"), "exp");
+        final ExperimentIdentifier identifier =
+                new ExperimentIdentifier(new ProjectIdentifier("db", "group", "project"), "exp");
         final ExternalDataPE data1 = new ExternalDataPE();
         data1.setCode("d1");
+        data1.setDataSetType(new DataSetTypePE());
         final ExternalDataPE data2 = new ExternalDataPE();
         data2.setCode("d2");
         data2.setDeleted(true);
+        data2.setDataSetType(new DataSetTypePE());
         context.checking(new Expectations()
             {
                 {
@@ -216,21 +223,21 @@ public final class ExternalDataTableTest extends AbstractBOTest
 
                     one(experimentDAO).tryFindByCodeAndProject(projectPE, "EXP");
                     ExperimentPE experimentPE = new ExperimentPE();
-                    experimentPE.setDataSets(Arrays.<DataPE>asList(data1, data2));
+                    experimentPE.setDataSets(Arrays.<DataPE> asList(data1, data2));
                     will(returnValue(experimentPE));
                 }
             });
 
         ExternalDataTable externalDataTable = createExternalDataTable();
         externalDataTable.loadByExperimentIdentifier(identifier);
-        
+
         List<ExternalDataPE> list = externalDataTable.getExternalData();
         assertEquals(1, list.size());
         assertSame(data1, list.get(0));
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLoadByDataSetCodes()
     {
@@ -249,13 +256,13 @@ public final class ExternalDataTableTest extends AbstractBOTest
 
         ExternalDataTable externalDataTable = createExternalDataTable();
         externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()));
-        
+
         assertEquals(1, externalDataTable.getExternalData().size());
         assertSame(d1, externalDataTable.getExternalData().get(0));
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDeleteLoadedDataSetsButOneDataSetIsUnknown()
     {
@@ -279,7 +286,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     will(returnValue(Arrays.asList()));
                 }
             });
-        
+
         ExternalDataTable externalDataTable = createExternalDataTable();
         externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()));
         try
@@ -296,7 +303,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDeleteLoadedDataSets()
     {
@@ -310,7 +317,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
 
                     one(externalDataDAO).tryToFindFullDataSetByCode(d2.getCode());
                     will(returnValue(d2));
-                    
+
                     List<String> d1Locations = Arrays.asList(d1.getLocation());
                     one(dataStoreService1).getKnownDataSets(dss1.getSessionToken(), d1Locations);
                     will(returnValue(d1Locations));
@@ -322,7 +329,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     PersonPE person = EXAMPLE_SESSION.tryGetPerson();
                     one(externalDataDAO).markAsDeleted(d1, person, DELETION_DESCRIPTION, "reason");
                     one(externalDataDAO).markAsDeleted(d2, person, DELETION_DESCRIPTION, "reason");
-                    
+
                     one(dataStoreService1).deleteDataSets(dss1.getSessionToken(), d1Locations);
                     one(dataStoreService2).deleteDataSets(dss2.getSessionToken(), d2Locations);
                 }
@@ -334,7 +341,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testUploadDataSets()
     {
@@ -354,7 +361,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
 
                     one(externalDataDAO).tryToFindFullDataSetByCode(d2.getCode());
                     will(returnValue(d2));
-                    
+
                     List<String> d1Locations = Arrays.asList(d1.getLocation());
                     one(dataStoreService1).getKnownDataSets(dss1.getSessionToken(), d1Locations);
                     will(returnValue(d1Locations));
@@ -376,7 +383,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCreateUploadComment()
     {
@@ -384,15 +391,16 @@ public final class ExternalDataTableTest extends AbstractBOTest
         createAndCheckUploadComment(18, 50, 19);
         createAndCheckUploadComment(18, 50, 20);
         createAndCheckUploadComment(18, 50, 21);
-        
+
         createAndCheckUploadComment(17, 51, 29);
         createAndCheckUploadComment(17, 52, 29);
         createAndCheckUploadComment(17, 53, 29);
         createAndCheckUploadComment(17, 54, 29);
         createAndCheckUploadComment(16, 54, 129);
     }
-    
-    private void createAndCheckUploadComment(int expectedCodesShown, int codeLength, int dataSetCount)
+
+    private void createAndCheckUploadComment(int expectedCodesShown, int codeLength,
+            int dataSetCount)
     {
         List<ExternalDataPE> dataSets = new ArrayList<ExternalDataPE>(dataSetCount);
         StringBuilder builder = new StringBuilder(ExternalDataTable.UPLOAD_COMMENT_TEXT);
@@ -409,7 +417,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
             } else if (i == expectedCodesShown)
             {
                 builder.append(ExternalDataTable.NEW_LINE);
-                builder.append(String.format(ExternalDataTable.AND_MORE_TEMPLATE, dataSetCount - expectedCodesShown));
+                builder.append(String.format(ExternalDataTable.AND_MORE_TEMPLATE, dataSetCount
+                        - expectedCodesShown));
             }
         }
         String comment = ExternalDataTable.createUploadComment(dataSets);
@@ -417,14 +426,14 @@ public final class ExternalDataTableTest extends AbstractBOTest
         assertEquals(builder.toString(), comment);
         assertTrue(comment.length() <= BasicConstant.MAX_LENGTH_OF_CIFEX_COMMENT);
     }
-    
+
     private String generateDataSetCode(int codeLength, int codeIndex)
     {
         String result = "-" + (codeIndex + 1);
         String sequence = StringUtils.repeat("1234567890", (codeLength / 10) + 1);
         return sequence.substring(0, codeLength - result.length()) + result;
     }
-    
+
     private ExternalDataPE createDataSet(String code, DataStorePE dataStore)
     {
         ExternalDataPE data = new ExternalDataPE();
@@ -442,7 +451,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
         data.setExperiment(experiment);
         return data;
     }
-    
+
     private DataStorePE createDataStore(String code)
     {
         DataStorePE dataStore = new DataStorePE();

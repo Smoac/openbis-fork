@@ -87,7 +87,7 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
                         .find(
                                 String
                                         .format(
-                                                "from %s e inner join fetch e.dataSetType.dataSetTypePropertyTypesInternal pt where e.%s = ? and e.deleted = false",
+                                                "from %s e left join fetch e.dataSetType.dataSetTypePropertyTypesInternal pt where e.%s = ? and e.deleted = false",
                                                 TABLE_NAME, sourceType.getFieldName()),
                                 toArray(sample)));
         if (operationLog.isDebugEnabled())
