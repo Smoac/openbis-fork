@@ -261,23 +261,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         return sampleAcquiredFrom == null ? sampleDerivedFrom : sampleAcquiredFrom;
     }
 
-    /**
-     * Updates associated sample. If there is an associated derived from or acquired from sample the
-     * same 'sample from type' will be set. If no sample is associated acquired from sample will be
-     * set.
-     */
-    @Transient
-    public void updateAssociatedSample(SamplePE sample)
-    {
-        if (getSampleDerivedFrom() != null)
-        {
-            setSampleDerivedFrom(sample);
-        } else
-        {
-            setSampleAcquiredFrom(sample);
-        }
-    }
-
     @Transient
     public String getAssociatedSampleCode()
     {

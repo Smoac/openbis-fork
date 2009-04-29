@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatType;
@@ -252,7 +253,41 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
     private void updateSample(SampleIdentifier sampleIdentifier)
     {
         SamplePE sample = getSampleByIdentifier(sampleIdentifier);
-        externalData.updateAssociatedSample(sample);
+        ExperimentPE experiment = sample.getExperiment();
+        if (experiment == null)
+        {
+            throw createWrongSampleException(sample,
+                    "the sample is not connected to any experiment");
+        }
+        if (sample.getGroup() == null)
+        {
+            throw createWrongSampleException(sample, "the sample is shared");
+        }
+        externalData.setExperiment(experiment);
+        setAssociatedSample(sample);
+    }
+
+    private UserFailureException createWrongSampleException(SamplePE sample, String reason)
+    {
+        return UserFailureException.fromTemplate(
+                "The dataset '%s' cannot be connected to the sample '%s'" + " because %s.",
+                externalData.getCode(), sample.getIdentifier(), reason);
+    }
+
+    /**
+     * Updates associated sample. If there is an associated derived from or acquired from sample the
+     * same 'sample from type' will be set. If no sample is associated acquired from sample will be
+     * set.
+     */
+    private void setAssociatedSample(SamplePE sample)
+    {
+        if (externalData.getSampleDerivedFrom() != null)
+        {
+            externalData.setSampleDerivedFrom(sample);
+        } else
+        {
+            externalData.setSampleAcquiredFrom(sample);
+        }
     }
 
     private final void defineDataSetProperties(final ExternalDataPE data,
