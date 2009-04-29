@@ -38,9 +38,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.ProjectColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
@@ -113,6 +115,15 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
     protected IColumnDefinitionKind<Project>[] getStaticColumnsDefinition()
     {
         return ProjectColDefKind.values();
+    }
+
+    @Override
+    protected ColumnDefsAndConfigs<Project> createColumnsDefinition()
+    {
+        ColumnDefsAndConfigs<Project> schema = super.createColumnsDefinition();
+        schema.setGridCellRendererFor(ProjectColDefKind.CODE.id(), LinkRenderer
+                .createGridCellRenderer());
+        return schema;
     }
 
     @Override

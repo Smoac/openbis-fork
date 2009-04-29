@@ -22,7 +22,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 
@@ -55,6 +57,18 @@ public class ColumnDefsAndConfigs<T>
         {
             columnConfigs.add(createColumn(column));
             columnDefs.add(column);
+        }
+    }
+    
+    public void setGridCellRendererFor(String columnID,
+            GridCellRenderer<BaseEntityModel<?>> render)
+    {
+        for (ColumnConfig columnConfig : columnConfigs)
+        {
+            if (columnConfig.getDataIndex().equals(columnID))
+            {
+                columnConfig.setRenderer(render);
+            }
         }
     }
 

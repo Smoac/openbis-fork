@@ -23,12 +23,16 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 import java.util.List;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetSearchHitColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
@@ -167,7 +171,15 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
     protected ColumnDefsAndConfigs<ExternalData> createColumnsDefinition()
     {
         List<PropertyType> propertyTypes = criteria == null ? null : criteria.tryGetPropertyTypes();
-        return DataSetSearchHitModel.createColumnsSchema(viewContext, propertyTypes);
+        ColumnDefsAndConfigs<ExternalData> schema =
+                DataSetSearchHitModel.createColumnsSchema(viewContext, propertyTypes);
+        GridCellRenderer<BaseEntityModel<?>> linkRenderer = LinkRenderer.createGridCellRenderer();
+        schema.setGridCellRendererFor(DataSetSearchHitColDefKind.CODE.id(), linkRenderer);
+        schema.setGridCellRendererFor(DataSetSearchHitColDefKind.SAMPLE.id(), linkRenderer);
+        schema.setGridCellRendererFor(DataSetSearchHitColDefKind.SAMPLE_IDENTIFIER.id(),
+                linkRenderer);
+        schema.setGridCellRendererFor(DataSetSearchHitColDefKind.EXPERIMENT.id(), linkRenderer);
+        return schema;
     }
 
     @Override

@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.EntityGridModelFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableExperiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
@@ -188,7 +189,11 @@ public class ExperimentBrowserGrid extends
     @Override
     protected ColumnDefsAndConfigs<Experiment> createColumnsDefinition()
     {
-        return getColumnsFactory().createColumnsSchema(viewContext, criteria.getExperimentType());
+        ColumnDefsAndConfigs<Experiment> schema =
+                getColumnsFactory().createColumnsSchema(viewContext, criteria.getExperimentType());
+        schema.setGridCellRendererFor(CommonExperimentColDefKind.CODE.id(), LinkRenderer
+                .createGridCellRenderer());
+        return schema;
     }
 
     private EntityGridModelFactory<Experiment> getColumnsFactory()

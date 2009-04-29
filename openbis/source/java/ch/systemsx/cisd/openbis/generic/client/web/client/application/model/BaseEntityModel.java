@@ -23,6 +23,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.InvalidableWithCodeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.CommonColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
@@ -30,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IInvalidationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractRegistrationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
@@ -77,6 +79,9 @@ public class BaseEntityModel<T> extends BaseModelData
             {
                 Person registrator = ((AbstractRegistrationHolder) entity).getRegistrator();
                 value = PersonRenderer.createPersonAnchor(registrator, value);
+            } else if (headerMsgKey.equals(Dict.CODE) && entity instanceof IInvalidationProvider)
+            {
+                value = InvalidableWithCodeRenderer.render((IInvalidationProvider) entity, value);
             }
         }
         return value;

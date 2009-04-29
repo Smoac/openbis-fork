@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.EntityGridModelFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableMaterial;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
@@ -190,7 +191,11 @@ public class MaterialBrowserGrid extends
     @Override
     protected ColumnDefsAndConfigs<Material> createColumnsDefinition()
     {
-        return getColumnsFactory().createColumnsSchema(viewContext, criteria.getMaterialType());
+        ColumnDefsAndConfigs<Material> schema =
+                getColumnsFactory().createColumnsSchema(viewContext, criteria.getMaterialType());
+        schema.setGridCellRendererFor(CommonMaterialColDefKind.CODE.id(), LinkRenderer
+                .createGridCellRenderer());
+        return schema;
     }
 
     private EntityGridModelFactory<Material> getColumnsFactory()

@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Matc
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MatchingEntityModel.MatchingEntityColumnKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
@@ -135,8 +136,12 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
     @Override
     protected ColumnDefsAndConfigs<MatchingEntity> createColumnsDefinition()
     {
-        return BaseEntityModel.createColumnConfigs(
-                MatchingEntityModel.getStaticColumnsDefinition(), viewContext);
+        ColumnDefsAndConfigs<MatchingEntity> schema =
+                BaseEntityModel.createColumnConfigs(MatchingEntityModel
+                        .getStaticColumnsDefinition(), viewContext);
+        schema.setGridCellRendererFor(MatchingEntityColumnKind.IDENTIFIER.id(), LinkRenderer
+                .createGridCellRenderer());
+        return schema;
     }
 
     @Override

@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModelFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
@@ -357,8 +358,12 @@ public class SampleBrowserGrid extends
         List<PropertyType> propertyTypes = propertyTypesProvider.tryGetPropertyTypes();
         assert propertyTypes != null : "propertyTypes not set!";
 
-        return SampleModelFactory.createColumnsSchema(viewContext, propertyTypes, criteria
-                .getSampleType());
+        ColumnDefsAndConfigs<Sample> schema =
+                SampleModelFactory.createColumnsSchema(viewContext, propertyTypes, criteria
+                        .getSampleType());
+        schema.setGridCellRendererFor(CommonSampleColDefKind.CODE.id(), LinkRenderer
+                .createGridCellRenderer());
+        return schema;
     }
 
     @Override

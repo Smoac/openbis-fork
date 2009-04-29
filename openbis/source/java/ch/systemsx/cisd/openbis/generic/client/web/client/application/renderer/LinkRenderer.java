@@ -16,11 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer;
 
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Hyperlink;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InlineHyperlink;
 
 /**
@@ -29,6 +33,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
  */
 public class LinkRenderer
 {
+    public static GridCellRenderer<BaseEntityModel<?>> createGridCellRenderer()
+    {
+        return new GridCellRenderer<BaseEntityModel<?>>()
+            {
+                public String render(BaseEntityModel<?> model, String property, ColumnData config, int rowIndex,
+                        int colIndex, ListStore<BaseEntityModel<?>> store)
+                {
+                    return LinkRenderer.renderAsLink(model.get(property).toString());
+                }
+            };
+    }
 
     /** renders a div witch looks like an anchor (hand cursor is on div - block) */
     public static String renderAsLink(final String message)

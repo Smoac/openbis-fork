@@ -35,9 +35,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
@@ -96,6 +98,15 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
     protected IColumnDefinitionKind<Vocabulary>[] getStaticColumnsDefinition()
     {
         return VocabularyColDefKind.values();
+    }
+
+    @Override
+    protected ColumnDefsAndConfigs<Vocabulary> createColumnsDefinition()
+    {
+        ColumnDefsAndConfigs<Vocabulary> schema = super.createColumnsDefinition();
+        schema.setGridCellRendererFor(VocabularyColDefKind.CODE.id(), LinkRenderer
+                .createGridCellRenderer());
+        return schema;
     }
 
     @Override
