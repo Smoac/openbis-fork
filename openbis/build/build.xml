@@ -62,13 +62,14 @@
 			</classpath>
 			<jvmarg value="-ea" />
 			<sysproperty key="authentication-service" value="file-authentication-service" />
-			<sysproperty key="log4j.configuration" value="etc/log.xml" />
 			<sysproperty key="database.create-from-scratch" value="true" />
-			<sysproperty key="hibernate.search.index-base" value="sourceTest/lucene/indices" />
-			<sysproperty key="hibernate.search.index-mode" value="NO_INDEX" />
 			<sysproperty key="database.kind" value="system_test" />
 			<sysproperty key="script-folder" value="sourceTest" />
 			<sysproperty key="mass-upload-folder" value="sourceTest/sql/postgresql" />
+			<sysproperty key="log4j.configuration" value="etc/log.xml" />
+			<sysproperty key="hibernate.search.index-base" value="sourceTest/lucene/indices" />
+			<sysproperty key="hibernate.search.index-mode" value="NO_INDEX" />
+			<sysproperty key="hibernate.search.indexing_strategy" value="manual" />
 			<sysproperty key="data-store-server-base-url" value="https://localhost:8889" />
 			<formatter type="xml" />
 			<test name="ch.systemsx.cisd.openbis.generic.SystemTestSuite" todir="${output.test}" />
