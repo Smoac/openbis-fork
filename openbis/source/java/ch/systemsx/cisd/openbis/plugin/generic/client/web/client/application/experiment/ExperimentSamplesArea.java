@@ -38,8 +38,8 @@ final class ExperimentSamplesArea extends TextArea
     public ExperimentSamplesArea(IMessageProvider messageProvider, String idPrefix)
     {
         super();
-        setFieldLabel(messageProvider.getMessage(Dict.SAMPLES));
         setHeight("10em");
+        setLabelSeparator("");
         setEmptyText(messageProvider.getMessage(Dict.SAMPLES_LIST));
         setId(createId(idPrefix));
     }

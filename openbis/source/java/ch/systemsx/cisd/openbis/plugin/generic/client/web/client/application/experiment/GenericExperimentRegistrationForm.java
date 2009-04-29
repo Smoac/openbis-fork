@@ -76,16 +76,12 @@ public final class GenericExperimentRegistrationForm
 
     private final ExperimentType experimentType;
 
-    private ProjectSelectionWidget projectSelectionWidget;
-
-    private FileFieldManager attachmentManager =
+    private final FileFieldManager attachmentManager =
             new FileFieldManager(ATTACHMENTS_SESSION_KEY, DEFAULT_NUMBER_OF_ATTACHMENTS,
                     "Attachment");
 
-    private FileFieldManager importSamplesFileManager =
+    private final FileFieldManager importSamplesFileManager =
             new FileFieldManager(SAMPLES_SESSION_KEY, 1, "File");
-
-    private ExperimentSamplesArea samplesArea;
 
     private final SampleTypeSelectionWidget importSampleTypeSelection;
 
@@ -93,7 +89,11 @@ public final class GenericExperimentRegistrationForm
 
     private final Radio existingSamplesRadio;
 
-    private CheckBox autoGenerateCodes;
+    private final CheckBox autoGenerateCodes;
+
+    private ExperimentSamplesArea samplesArea;
+
+    private ProjectSelectionWidget projectSelectionWidget;
 
     public GenericExperimentRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext,
@@ -144,11 +144,11 @@ public final class GenericExperimentRegistrationForm
 
     }
 
-    RadioGroup createSamplesSourceRadio(Radio existing, Radio importFromFile)
+    private RadioGroup createSamplesSourceRadio(Radio existing, Radio importFromFile)
     {
         RadioGroup result = new RadioGroup();
         result.setSelectionRequired(true);
-        result.setFieldLabel("Add Samples");
+        result.setFieldLabel(viewContext.getMessage(Dict.SAMPLES));
         result.setOrientation(Orientation.HORIZONTAL);
         result.add(existing);
         result.add(importFromFile);
@@ -162,24 +162,24 @@ public final class GenericExperimentRegistrationForm
         return result;
     }
 
-    static Radio createImportRadio()
+    protected static Radio createImportRadio()
     {
         Radio importRadio = new Radio();
-        importRadio.setBoxLabel("from file");
+        importRadio.setBoxLabel("register from a file and attach");
         return importRadio;
     }
 
-    static CheckBox createAutoGenerateCheckbox()
+    protected static CheckBox createAutoGenerateCheckbox()
     {
         CheckBox result = new CheckBox();
         result.setFieldLabel("Create codes automatically");
         return result;
     }
 
-    static Radio cerateExistingSamplesRadio()
+    protected static Radio cerateExistingSamplesRadio()
     {
         Radio existingRadio = new Radio();
-        existingRadio.setBoxLabel("existing");
+        existingRadio.setBoxLabel("specify the list of existing samples");
         existingRadio.setValue(true);
         return existingRadio;
     }
@@ -210,7 +210,7 @@ public final class GenericExperimentRegistrationForm
         redefineSaveListeners();
     }
 
-    void redefineSaveListeners()
+    private void redefineSaveListeners()
     {
         saveButton.removeAllListeners();
         saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
