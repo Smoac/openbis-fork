@@ -85,6 +85,7 @@ public class GridTestUtils
             {
                 final GridEvent gridEvent = new GridEvent(table);
                 gridEvent.rowIndex = i;
+                gridEvent.colIndex = table.getColumnModel().findColumnIndex(columnId);
                 return gridEvent;
             }
             codes += rowCode;
