@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -146,6 +147,16 @@ public final class PropertyValueRenderers
             final IViewContext<?> viewContext)
     {
         return new EntityPropertyPropertyValueRenderer<MaterialProperty>(viewContext);
+    }
+
+    /**
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link DataSetProperty}
+     * .
+     */
+    public final static IPropertyValueRenderer<DataSetProperty> createDataSetPropertyPropertyValueRenderer(
+            final IViewContext<?> viewContext)
+    {
+        return new EntityPropertyPropertyValueRenderer<DataSetProperty>(viewContext);
     }
 
     /**

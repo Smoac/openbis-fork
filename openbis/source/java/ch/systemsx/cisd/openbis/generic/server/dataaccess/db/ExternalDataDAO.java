@@ -81,10 +81,15 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
         assert sample != null : "Unspecified sample.";
         assert sourceType != null : "Unspecified source type.";
 
+        // TODO 2009-04-29, Piotr Buczek: remove join when edit view will load all data
         final List<ExternalDataPE> list =
-                cast(getHibernateTemplate().find(
-                        String.format("from %s e where e.%s = ? and e.deleted = false", TABLE_NAME,
-                                sourceType.getFieldName()), toArray(sample)));
+                cast(getHibernateTemplate()
+                        .find(
+                                String
+                                        .format(
+                                                "from %s e inner join fetch e.dataSetType.dataSetTypePropertyTypesInternal pt where e.%s = ? and e.deleted = false",
+                                                TABLE_NAME, sourceType.getFieldName()),
+                                toArray(sample)));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(

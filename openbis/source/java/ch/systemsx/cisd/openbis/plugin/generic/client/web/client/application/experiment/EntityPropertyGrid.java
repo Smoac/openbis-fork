@@ -23,6 +23,7 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
@@ -59,6 +60,8 @@ public class EntityPropertyGrid<T extends EntityType, S extends EntityTypeProper
                 .createSamplePropertyPropertyValueRenderer(viewContext));
         grid.registerPropertyValueRenderer(MaterialProperty.class, PropertyValueRenderers
                 .createMaterialPropertyPropertyValueRenderer(viewContext));
+        grid.registerPropertyValueRenderer(DataSetProperty.class, PropertyValueRenderers
+                .createDataSetPropertyPropertyValueRenderer(viewContext));
     }
 
     private final Map<String, Object> createProperties(List<P> list)

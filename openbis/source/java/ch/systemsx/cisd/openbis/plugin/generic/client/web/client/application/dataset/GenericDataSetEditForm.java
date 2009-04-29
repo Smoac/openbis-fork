@@ -131,7 +131,6 @@ public final class GenericDataSetEditForm
     @Override
     protected PropertiesEditor<DataSetType, DataSetTypePropertyType, DataSetProperty> createPropertiesEditor(
             List<DataSetTypePropertyType> entityTypesPropertyTypes,
-            // TODO 2009-04-28, Piotr Buczek: fill properties
             List<DataSetProperty> properties, String id,
             IViewContext<ICommonClientServiceAsync> context)
     {

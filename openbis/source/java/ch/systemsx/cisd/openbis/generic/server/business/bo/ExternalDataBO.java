@@ -234,13 +234,12 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         {
             throw new UserFailureException("Data set has been modified in the meantime.");
         }
-        // TODO 2009-04-28, Piotr Buczek: updateProperties(properties);
+        updateProperties(properties);
         updateSample(sampleIdentifier);
         entityPropertiesConverter.checkMandatoryProperties(externalData.getProperties(),
                 externalData.getDataSetType());
     }
 
-    @SuppressWarnings("unused")
     private void updateProperties(List<DataSetProperty> properties)
     {
         final Set<DataSetPropertyPE> existingProperties = externalData.getProperties();
@@ -253,6 +252,11 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
     private void updateSample(SampleIdentifier sampleIdentifier)
     {
         SamplePE sample = getSampleByIdentifier(sampleIdentifier);
+        SamplePE previousSample = externalData.getAssociatedSample();
+        if (sample.equals(previousSample))
+        {
+            return; // nothing to change
+        }
         ExperimentPE experiment = sample.getExperiment();
         if (experiment == null)
         {
@@ -263,7 +267,11 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         {
             throw createWrongSampleException(sample, "the sample is shared");
         }
-        externalData.setExperiment(experiment);
+        // if experiment has changed, move dataset to the new one
+        if (experiment.equals(previousSample.getExperiment()) == false)
+        {
+            externalData.setExperiment(experiment);
+        }
         setAssociatedSample(sample);
     }
 

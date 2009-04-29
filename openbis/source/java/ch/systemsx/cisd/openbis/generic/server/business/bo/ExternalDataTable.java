@@ -166,6 +166,8 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                 ExternalDataPE externalDataPE = (ExternalDataPE) dataSet;
                 HibernateUtils.initialize(dataSet.getParents());
                 HibernateUtils.initialize(dataSet.getProperties());
+                // TODO 2009-04-29, Piotr Buczek: remove when edit view will load all data
+                HibernateUtils.initialize(dataSet.getDataSetType().getDataSetTypePropertyTypes());
                 enrichWithParentsAndExperiment(externalDataPE);
                 externalData.add(externalDataPE);
             }
