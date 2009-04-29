@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
@@ -82,7 +84,7 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
         assert sourceType != null : "Unspecified source type.";
 
         // TODO 2009-04-29, Piotr Buczek: remove join when edit view will load all data
-        final List<ExternalDataPE> list =
+        List<ExternalDataPE> list =
                 cast(getHibernateTemplate()
                         .find(
                                 String
@@ -90,6 +92,8 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
                                                 "from %s e left join fetch e.dataSetType.dataSetTypePropertyTypesInternal pt where e.%s = ? and e.deleted = false",
                                                 TABLE_NAME, sourceType.getFieldName()),
                                 toArray(sample)));
+        // distinct does not work properly in HQL for left joins
+        distinct(list);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
@@ -97,6 +101,13 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
                     sample, sourceType));
         }
         return list;
+    }
+
+    private void distinct(List<ExternalDataPE> list)
+    {
+        Set<ExternalDataPE> set = new TreeSet<ExternalDataPE>(list);
+        list.clear();
+        list.addAll(set);
     }
 
     public DataPE tryToFindDataSetByCode(String dataSetCode)
