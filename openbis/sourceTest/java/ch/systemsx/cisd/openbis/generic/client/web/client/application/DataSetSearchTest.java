@@ -47,14 +47,13 @@ public class DataSetSearchTest extends AbstractGWTTestCase
         final CheckTableCommand checkResultTableCmd = createCheckSearchGridCmd();
         checkResultTableCmd.expectedSize(2);
         DataSetSearchRow row = new DataSetSearchRow();
-        row.withCell(DataSetSearchHitColDefKind.LOCATION.id(), "a/1");
         row.withCell(DataSetSearchHitColDefKind.LOCATION.id(), "a/3");
         row.withPropertyCell("comment", "no comment");
         checkResultTableCmd.expectedRow(row);
         checkResultTableCmd.expectedColumnsNumber(24);
         remoteConsole.prepare(checkResultTableCmd);
 
-        launchTest(20000);
+        launchTest(30000);
     }
 
     public final void testSearchByDataSetProperty()
@@ -67,7 +66,6 @@ public class DataSetSearchTest extends AbstractGWTTestCase
         final CheckTableCommand checkResultTableCmd = createCheckSearchGridCmd();
         checkResultTableCmd.expectedSize(5);
         DataSetSearchRow row = new DataSetSearchRow();
-        row.withCell(DataSetSearchHitColDefKind.LOCATION.id(), "a/1");
         row.withCell(DataSetSearchHitColDefKind.LOCATION.id(), "a/3");
         row.withPropertyCell("comment", "no comment");
         checkResultTableCmd.expectedRow(row);
