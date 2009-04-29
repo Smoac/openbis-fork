@@ -35,7 +35,7 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<External
             @Override
             public String tryGetValue(ExternalData entity)
             {
-                return renderAsLink(renderAsInvalid(entity, entity.getCode()));
+                return entity.getCode();
             }
         }),
 
@@ -80,7 +80,7 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<External
             @Override
             public String tryGetValue(ExternalData entity)
             {
-                return renderAsLink(entity.getSampleCode());
+                return entity.getSampleCode();
             }
         }),
 
@@ -90,7 +90,7 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<External
             @Override
             public String tryGetValue(ExternalData entity)
             {
-                return renderAsLink(entity.getSampleIdentifier());
+                return entity.getSampleIdentifier();
             }
         }),
 
@@ -141,7 +141,7 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<External
                 {
                     return null;
                 }
-                return renderAsLink(exp.getCode());
+                return exp.getCode();
             }
         }),
 

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.IRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
@@ -44,10 +43,6 @@ public abstract class AbstractColumnDefinitionKind<T>
 
     public static final int DEFAULT_COLUMN_WIDTH = 150;
     
-    // TODO 2009-04-29 FJE, This is a workround to avoid static dependency between
-    // AbstractColumnDefinitionKind and GWT or GXT classes.
-    public static IRenderer renderer;
-
     private String headerMsgKey;
 
     private int width;
@@ -114,15 +109,4 @@ public abstract class AbstractColumnDefinitionKind<T>
     {
         return SimpleYesNoRenderer.render(invalidationProvider.getInvalidation() != null);
     }
-    
-    protected String renderAsLink(String value)
-    {
-        return renderer.renderAsLink(value);
-    }
-
-    protected String renderAsInvalid(IInvalidationProvider invalidationProvider, String value)
-    {
-        return renderer.renderAsInvalid(invalidationProvider, value);
-    }
-    
 }

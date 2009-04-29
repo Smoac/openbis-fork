@@ -31,7 +31,7 @@ public enum ProjectColDefKind implements IColumnDefinitionKind<Project>
             @Override
             public String tryGetValue(Project entity)
             {
-                return renderAsLink(entity.getCode());
+                return entity.getCode();
             }
         }),
 

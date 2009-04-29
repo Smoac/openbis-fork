@@ -30,15 +30,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LoginController;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.IRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.InvalidableWithCodeRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IInvalidationProvider;
 
 /**
  * The {@link EntryPoint} implementation.
@@ -117,23 +112,6 @@ public final class Client implements EntryPoint
     // @Private - exposed for tests
     public final void onModuleLoad(Controller openUrlController)
     {
-        // TODO 2009-04-29 FJE, This is a workround to avoid static dependency between
-        // AbstractColumnDefinitionKind and GWT or GXT classes.
-        if (AbstractColumnDefinitionKind.renderer == null)
-        {
-            AbstractColumnDefinitionKind.renderer = new IRenderer()
-                {
-                    public String renderAsLink(String text)
-                    {
-                        return LinkRenderer.renderAsLink(text);
-                    }
-            
-                    public String renderAsInvalid(IInvalidationProvider invalidationProvider, String value)
-                    {
-                        return InvalidableWithCodeRenderer.render(invalidationProvider, value);
-                    }
-                };
-        }
         if (viewContext == null)
         {
             viewContext = createViewContext(openUrlController);

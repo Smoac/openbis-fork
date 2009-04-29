@@ -33,7 +33,7 @@ public enum CommonMaterialColDefKind implements IColumnDefinitionKind<Material>
             @Override
             public String tryGetValue(Material entity)
             {
-                return renderAsLink(entity.getCode());
+                return entity.getCode();
             }
         }),
 

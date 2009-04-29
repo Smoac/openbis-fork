@@ -35,7 +35,7 @@ public enum VocabularyColDefKind implements IColumnDefinitionKind<Vocabulary>
             @Override
             public String tryGetValue(Vocabulary entity)
             {
-                return renderAsLink(entity.getCode());
+                return entity.getCode();
             }
         }),
 
