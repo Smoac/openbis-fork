@@ -43,6 +43,7 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextIndexerRunnable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion;
@@ -92,6 +93,8 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         try
         {
             FileUtils.copyDirectory(srcPath, targetPath);
+            new File(srcPath, FullTextIndexerRunnable.FULL_TEXT_INDEX_MARKER_FILENAME)
+                    .createNewFile();
         } catch (IOException ex)
         {
             throw new IOExceptionUnchecked(ex);
@@ -144,7 +147,8 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         {
             SamplePE samplePE = ((SamplePE) searchHit.getEntity());
             assertEquals(lastName, samplePE.getRegistrator().getFirstName());
-            AssertionUtil.assertContains("registrator: First Name", searchHit.getFieldDescription());
+            AssertionUtil
+                    .assertContains("registrator: First Name", searchHit.getFieldDescription());
         }
     }
 

@@ -39,7 +39,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public final class FullTextIndexerRunnable extends HibernateDaoSupport implements Runnable
 {
-    final static String FULL_TEXT_INDEX_MARKER_FILENAME = Constants.MARKER_PREFIX + "full_index";
+    public final static String FULL_TEXT_INDEX_MARKER_FILENAME = Constants.MARKER_PREFIX + "full_index";
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, FullTextIndexerRunnable.class);
