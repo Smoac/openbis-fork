@@ -103,7 +103,7 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             }
         }),
 
-    LOCATION(new AbstractColumnDefinitionKind<ExternalData>(Dict.LOCATION)
+    LOCATION(new AbstractColumnDefinitionKind<ExternalData>(Dict.LOCATION, true)
         {
             @Override
             public String tryGetValue(ExternalData entity)
