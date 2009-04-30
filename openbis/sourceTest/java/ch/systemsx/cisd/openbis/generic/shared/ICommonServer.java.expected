@@ -523,7 +523,8 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.DATASET_TYPE)
+    @DatabaseCreateOrDeleteModification(value =
+        { ObjectKind.DATASET_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
     public void deleteDataSetTypes(String sessionToken, List<String> entityTypesCodes);
 
     /**
@@ -531,7 +532,8 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE_TYPE)
+    @DatabaseCreateOrDeleteModification(value =
+        { ObjectKind.SAMPLE_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
     public void deleteSampleTypes(String sessionToken, List<String> entityTypesCodes);
 
     /**
@@ -539,7 +541,8 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT_TYPE)
+    @DatabaseCreateOrDeleteModification(value =
+        { ObjectKind.EXPERIMENT_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
     public void deleteExperimentTypes(String sessionToken, List<String> entityTypesCodes);
 
     /**
@@ -547,7 +550,8 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL_TYPE)
+    @DatabaseCreateOrDeleteModification(value =
+        { ObjectKind.MATERIAL_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
     public void deleteMaterialTypes(String sessionToken, List<String> entityTypesCodes);
 
 }
