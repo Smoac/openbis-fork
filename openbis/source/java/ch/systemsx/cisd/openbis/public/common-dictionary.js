@@ -179,7 +179,7 @@ var common = {
   unassign_button_label: "Release Assignment",
   unassignment_confirmation_dialog_title: "Unassignment Confirmation",
   unassignment_confirmation_template_without_properties: "Remove assignment between {0} type {1} and property type {2}. This can be savely done because no {0} has such a property.<br><br>Do you want to remove this assignment?",
-  unassignment_confirmation_template_with_properties: "Remove assignment between {0} type {1} and property type {2}. There are {3} {0}(s) with such a property.<br><br>Do you want to remove this assignment?",
+  unassignment_confirmation_template_with_properties: "Remove assignment between {0} type {1} and property type {2}. There are {3} {0}(s) with such a property.<br><br>Do you want to delete this values and remove this assignment?",
  
   //
   // Menu Titles
