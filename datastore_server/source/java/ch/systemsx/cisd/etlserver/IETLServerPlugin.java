@@ -38,4 +38,9 @@ public interface IETLServerPlugin
      * Returns the {@link IStorageProcessor} implementation.
      */
     public IStorageProcessor getStorageProcessor();
+    
+    /**
+     * Returns an appropriated data set handler which wraps the specified primary data set handler.
+     */
+    public IDataSetHandler getDataSetHandler(IDataSetHandler primaryDataSetHandler);
 }

@@ -69,7 +69,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
  * 
  * @author Bernd Rinn
  */
-public final class TransferredDataSetHandler implements IPathHandler, ISelfTestable
+public final class TransferredDataSetHandler implements IPathHandler, ISelfTestable, IDataSetHandler
 {
 
     private static final String TARGET_NOT_RELATIVE_TO_STORE_ROOT =
@@ -130,6 +130,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
 
     private DatabaseInstancePE homeDatabaseInstance;
 
+    private IDataSetHandler dataSetHandler;
+
     /**
      * @param useIsFinishedMarkerFile if true, file/directory is processed when a marker file for it
      *            appears. Otherwise processing starts if the file/directory is not modified for a
@@ -163,6 +165,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         this.dataSetInfoExtractor = plugin.getDataSetInfoExtractor();
         this.typeExtractor = plugin.getTypeExtractor();
         this.storageProcessor = plugin.getStorageProcessor();
+        dataSetHandler = plugin.getDataSetHandler(this);
         this.limsService = limsService;
         this.mailClient = mailClient;
         this.dataStrategyStore = new DataStrategyStore(this.limsService, mailClient);
@@ -196,7 +199,12 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         {
             return;
         }
-        final RegistrationHelper registrationHelper = createRegistrationHelper(file);
+        dataSetHandler.handleDataSet(file);
+    }
+
+    public DataSetInformation handleDataSet(final File dataSet)
+    {
+        final RegistrationHelper registrationHelper = createRegistrationHelper(dataSet);
         registrationHelper.prepare();
         if (registrationHelper.hasDataSetBeenIdentified())
         {
@@ -205,6 +213,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         {
             registrationHelper.moveDataSet();
         }
+        return registrationHelper.dataSetInformation;
     }
 
     public boolean isStopped()

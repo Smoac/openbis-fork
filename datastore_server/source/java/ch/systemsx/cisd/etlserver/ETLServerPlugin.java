@@ -64,4 +64,9 @@ public class ETLServerPlugin implements IETLServerPlugin
     {
         return storageProcessor;
     }
+
+    public IDataSetHandler getDataSetHandler(IDataSetHandler primaryDataSetHandler)
+    {
+        return primaryDataSetHandler;
+    }
 }
