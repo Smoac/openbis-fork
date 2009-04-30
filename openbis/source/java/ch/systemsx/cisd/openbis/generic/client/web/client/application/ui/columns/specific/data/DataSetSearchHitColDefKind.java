@@ -48,7 +48,7 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<External
             }
         }),
 
-    LOCATION(new AbstractColumnDefinitionKind<ExternalData>(Dict.LOCATION, 200)
+    LOCATION(new AbstractColumnDefinitionKind<ExternalData>(Dict.LOCATION, 200, true)
         {
             @Override
             public String tryGetValue(ExternalData entity)
@@ -84,8 +84,7 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<External
             }
         }),
 
-    SAMPLE_IDENTIFIER(new AbstractColumnDefinitionKind<ExternalData>(Dict.SAMPLE_IDENTIFIER,
-            true)
+    SAMPLE_IDENTIFIER(new AbstractColumnDefinitionKind<ExternalData>(Dict.SAMPLE_IDENTIFIER, true)
         {
             @Override
             public String tryGetValue(ExternalData entity)
@@ -160,8 +159,8 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<External
 
         }),
 
-    REGISTRATION_DATE(new AbstractColumnDefinitionKind<ExternalData>(Dict.REGISTRATION_DATE,
-            200, true)
+    REGISTRATION_DATE(new AbstractColumnDefinitionKind<ExternalData>(Dict.REGISTRATION_DATE, 200,
+            true)
         {
             @Override
             public String tryGetValue(ExternalData entity)
