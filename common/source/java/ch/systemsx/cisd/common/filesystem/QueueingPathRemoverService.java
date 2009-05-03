@@ -203,11 +203,12 @@ public class QueueingPathRemoverService
         {
         }
         close();
+        final boolean ok = (thread.isAlive() == false);
         thread = null;
         queue = null;
         queueCloseableOrNull = null;
         deepRemover = null;
-        return (thread.isAlive() == false);
+        return ok;
     }
 
     /**
