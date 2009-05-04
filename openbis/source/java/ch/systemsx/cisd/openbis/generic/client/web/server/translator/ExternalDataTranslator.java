@@ -173,6 +173,8 @@ public class ExternalDataTranslator
         if (sample != null)
         {
             sample.setCode(StringEscapeUtils.escapeHtml(samplePEOrNull.getCode()));
+            sample.setInvalidation(tryToGetInvalidation(samplePEOrNull));
+            sample.setSampleType(fill(new SampleType(), samplePEOrNull.getSampleType()));
         }
         return sample;
     }
