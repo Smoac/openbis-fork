@@ -27,9 +27,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -89,7 +91,13 @@ public class ExternalDataTranslator
         externalData.setProductionDate(externalDataPE.getProductionDate());
         externalData.setModificationDate(externalDataPE.getModificationDate());
         externalData.setRegistrationDate(externalDataPE.getRegistrationDate());
-        externalData.setSample(SampleTranslator.translate(sample, false));
+        externalData.setSample(sample == null ? null : fill(new Sample(), sample));
+        externalData.setSampleIdentifier(sample == null ? null : StringEscapeUtils
+                .escapeHtml(sample.getSampleIdentifier().toString()));
+        externalData.setSampleType(sample == null ? null : fill(new SampleType(), sample
+                .getSampleType()));
+        externalData.setSampleCode(sample == null ? null : StringEscapeUtils.escapeHtml(sample
+                .getCode()));
         externalData.setDataStore(DataStoreTranslator.translate(externalDataPE.getDataStore(),
                 defaultDataStoreBaseURL));
         if (loadSampleProperties && sample != null)
@@ -158,6 +166,15 @@ public class ExternalDataTranslator
             type.setDescription(StringEscapeUtils.escapeHtml(typePEOrNull.getDescription()));
         }
         return type;
+    }
+
+    private static Sample fill(Sample sample, SamplePE samplePEOrNull)
+    {
+        if (sample != null)
+        {
+            sample.setCode(StringEscapeUtils.escapeHtml(samplePEOrNull.getCode()));
+        }
+        return sample;
     }
 
 }

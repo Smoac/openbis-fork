@@ -84,9 +84,6 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     public void setSample(Sample sample)
     {
         this.sample = sample;
-        setSampleIdentifier(sample.getIdentifier());
-        setSampleCode(sample.getCode());
-        setSampleType(sample.getSampleType());
     }
 
     public final String getSampleIdentifier()
@@ -99,7 +96,7 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         return sampleCode;
     }
 
-    private final void setSampleIdentifier(String sampleIdentifier)
+    public final void setSampleIdentifier(String sampleIdentifier)
     {
         this.sampleIdentifier = sampleIdentifier;
     }
@@ -109,7 +106,7 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         return sampleType;
     }
 
-    private final void setSampleType(SampleType sampleType)
+    public final void setSampleType(SampleType sampleType)
     {
         this.sampleType = sampleType;
     }
@@ -234,7 +231,7 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         this.experiment = experiment;
     }
 
-    private void setSampleCode(String sampleCode)
+    public void setSampleCode(String sampleCode)
     {
         this.sampleCode = sampleCode;
     }
