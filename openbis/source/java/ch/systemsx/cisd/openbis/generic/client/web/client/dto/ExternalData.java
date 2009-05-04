@@ -62,6 +62,8 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 
     private LocatorType locatorType;
 
+    private Sample sample;
+
     private String sampleIdentifier;
 
     private String sampleCode;
@@ -74,6 +76,19 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 
     private DataStore dataStore;
 
+    public Sample getSample()
+    {
+        return sample;
+    }
+
+    public void setSample(Sample sample)
+    {
+        this.sample = sample;
+        setSampleIdentifier(sample.getIdentifier());
+        setSampleCode(sample.getCode());
+        setSampleType(sample.getSampleType());
+    }
+
     public final String getSampleIdentifier()
     {
         return sampleIdentifier;
@@ -84,7 +99,7 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         return sampleCode;
     }
 
-    public final void setSampleIdentifier(String sampleIdentifier)
+    private final void setSampleIdentifier(String sampleIdentifier)
     {
         this.sampleIdentifier = sampleIdentifier;
     }
@@ -94,7 +109,7 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         return sampleType;
     }
 
-    public final void setSampleType(SampleType sampleType)
+    private final void setSampleType(SampleType sampleType)
     {
         this.sampleType = sampleType;
     }
@@ -219,7 +234,7 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         this.experiment = experiment;
     }
 
-    public void setSampleCode(String sampleCode)
+    private void setSampleCode(String sampleCode)
     {
         this.sampleCode = sampleCode;
     }
