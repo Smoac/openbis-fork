@@ -31,7 +31,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LoginController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 
@@ -117,7 +119,9 @@ public final class Client implements EntryPoint
             viewContext = createViewContext(openUrlController);
             initializeControllers(openUrlController);
         }
-
+        
+        setUrlParams(viewContext);
+        
         final IClientServiceAsync service = viewContext.getService();
         service.getApplicationInfo(new AbstractAsyncCallback<ApplicationInfo>(viewContext)
             {
@@ -137,5 +141,14 @@ public final class Client implements EntryPoint
                     service.tryToGetCurrentSessionContext(sessionContextCallback);
                 }
             });
+    }
+
+    private final void setUrlParams(IViewContext<ICommonClientServiceAsync> viewContext2)
+    {
+        final String paramString = GWTUtils.getParamString();
+        if (StringUtils.isBlank(paramString) == false)
+        {
+            viewContext.getModel().setUrlParams(GWTUtils.parseParamString(paramString));
+        }
     }
 }

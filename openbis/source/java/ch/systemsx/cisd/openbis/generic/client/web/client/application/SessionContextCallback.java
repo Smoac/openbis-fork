@@ -20,7 +20,18 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 
 /**
  * Callback class which handles return value
@@ -50,6 +61,38 @@ public final class SessionContextCallback extends AbstractAsyncCallback<SessionC
         {
             viewContext.getModel().setSessionContext(sessionContext);
             dispatcher.dispatch(AppEvents.INIT);
+            openInitialTab();
         }
     }
+
+    /** parameter key used to open an initial tab */
+    private static final String INITIAL_TAB_OPEN_KEY = "show";
+
+    /** opens an initial tab if a parameter is specified in URL */
+    private final void openInitialTab()
+    {
+        String paramValueOrNull = viewContext.getModel().getUrlParams().get(INITIAL_TAB_OPEN_KEY);
+        if (paramValueOrNull != null)
+        {
+            final EntityKind entityKind = EntityKind.DATA_SET;
+            final String dataSetIdentifier = paramValueOrNull;
+            DataSetType dataSetType = new DataSetType();
+            dataSetType.setCode("");
+            ITabItemFactory tabView;
+            final IClientPluginFactory clientPluginFactory =
+                    viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
+                            dataSetType);
+            final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder, IEditableEntity<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>>> createClientPlugin =
+                    clientPluginFactory.createClientPlugin(entityKind);
+            tabView = createClientPlugin.createEntityViewer(new IIdentifierHolder()
+                {
+                    public String getIdentifier()
+                    {
+                        return dataSetIdentifier;
+                    }
+                });
+            DispatcherHelper.dispatchNaviEvent(tabView);
+        }
+    }
+
 }
