@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -77,7 +78,7 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
                     AbstractEntityTypeGrid.this.refresh();
                 }
             };
-            createDeleteButton(viewContext);
+        createDeleteButton(viewContext);
     }
 
     protected void deleteEntityTypes(List<String> types, AsyncCallback<Void> callback)
@@ -168,7 +169,8 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
             };
     }
 
-    private Window createEditEntityTypeDialog(final EntityKind entityKind, final EntityType entityType)
+    private Window createEditEntityTypeDialog(final EntityKind entityKind,
+            final EntityType entityType)
     {
         final String code = entityType.getCode();
         String title =
@@ -179,7 +181,7 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
                 private final TextField<String> descriptionField;
                 {
                     descriptionField = createDescriptionField();
-                    descriptionField.setValue(entityType.getDescription());
+                    descriptionField.setValue(StringEscapeUtils.unescapeHtml(entityType.getDescription()));
                     addField(descriptionField);
 
                 }
@@ -188,7 +190,8 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
                 protected void register(AsyncCallback<Void> registrationCallback)
                 {
                     entityType.setDescription(descriptionField.getValue());
-                    viewContext.getService().updateEntityType(entityKind, entityType, registrationCallback);
+                    viewContext.getService().updateEntityType(entityKind, entityType,
+                            registrationCallback);
                 }
             };
     }
@@ -219,7 +222,7 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
         return asColumnFilters(new EntityTypeColDefKind[]
             { EntityTypeColDefKind.CODE });
     }
-    
+
     public DatabaseModificationKind[] getRelevantModifications()
     {
         // grid is refreshed manually when a new type is added, so there can be no auto-refresh
