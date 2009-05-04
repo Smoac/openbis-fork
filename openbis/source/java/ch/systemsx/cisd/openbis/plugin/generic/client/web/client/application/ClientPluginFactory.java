@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetEditForm;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetViewer;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer;
@@ -322,6 +323,27 @@ public final class ClientPluginFactory extends
             extends
             ClientPluginAdapter<DataSetType, DataSetTypePropertyType, DataSetProperty, IIdentifierHolder, EditableDataSet>
     {
+
+        @Override
+        public final ITabItemFactory createEntityViewer(final IIdentifierHolder identifiable)
+        {
+            final String identifier = identifiable.getIdentifier();
+            return new ITabItemFactory()
+                {
+                    public ITabItem create()
+                    {
+                        final DatabaseModificationAwareComponent dataSetViewer =
+                                GenericDataSetViewer.create(getViewContext(), identifier);
+                        return DefaultTabItem.create(getDetailsTitle(Dict.DATA_SET, identifier),
+                                dataSetViewer, getViewContext(), false);
+                    }
+
+                    public String getId()
+                    {
+                        return GenericExperimentViewer.createId(identifier);
+                    }
+                };
+        }
 
         @Override
         public ITabItemFactory createEntityEditor(final EditableDataSet entity)

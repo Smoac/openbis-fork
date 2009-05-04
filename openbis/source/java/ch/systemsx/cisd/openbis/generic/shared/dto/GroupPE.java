@@ -61,7 +61,7 @@ public final class GroupPE extends HibernateAbstractRegistrationHolder implement
 
     public static final GroupPE[] EMPTY_ARRAY = new GroupPE[0];
 
-    private transient Long id;
+    private transient Long id; // TRANSIENT?
 
     private String code;
 

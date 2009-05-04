@@ -37,6 +37,7 @@ import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
@@ -44,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AttachmentRegistrationHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.MaterialTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
@@ -61,6 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -325,6 +328,21 @@ public final class GenericClientService extends AbstractClientService implements
                     MaterialIdentifier.tryParseIdentifier(materialIdentifier);
             final MaterialPE material = genericServer.getMaterialInfo(sessionToken, identifier);
             return MaterialTranslator.translate(material, true);
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public final ExternalData getDataSetInfo(final String datasetCode)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final ExternalDataPE dataset = genericServer.getDataSetInfo(sessionToken, datasetCode);
+            // TODO 2009-04-30, Piotr Buczek: no access to dataStoreBaseURL
+            return ExternalDataTranslator.translate(dataset, "", false);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

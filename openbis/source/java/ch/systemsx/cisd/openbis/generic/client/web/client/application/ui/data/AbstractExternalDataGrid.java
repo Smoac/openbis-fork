@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableDataSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
@@ -66,6 +67,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
@@ -333,6 +337,8 @@ public abstract class AbstractExternalDataGrid
             });
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
                 asShowEntityInvoker(true)));
+        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
+                asShowEntityInvoker(false)));
         allowMultipleSelection();
 
     }
@@ -436,20 +442,24 @@ public abstract class AbstractExternalDataGrid
     @Override
     protected void showEntityViewer(ExternalData dataSet, boolean editMode)
     {
-        // TODO 2009-04-27, Piotr Buczek: add detail mode with detail view for data sets
-        showEntityEditor(dataSet);
-    }
-
-    private void showEntityEditor(ExternalData dataSet)
-    {
         final EntityKind entityKind = EntityKind.DATA_SET;
+        ITabItemFactory tabView;
         final IClientPluginFactory clientPluginFactory =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
                         dataSet.getDataSetType());
-        final IClientPlugin<DataSetType, DataSetTypePropertyType, DataSetProperty, IIdentifierHolder, EditableDataSet> createClientPlugin =
-                clientPluginFactory.createClientPlugin(entityKind);
-        final EditableDataSet editableEntity = createEditableEntity(dataSet);
-        final ITabItemFactory tabView = createClientPlugin.createEntityEditor(editableEntity);
+
+        if (editMode)
+        {
+            final IClientPlugin<DataSetType, DataSetTypePropertyType, DataSetProperty, IIdentifierHolder, EditableDataSet> createClientPlugin =
+                    clientPluginFactory.createClientPlugin(entityKind);
+            final EditableDataSet editableEntity = createEditableEntity(dataSet);
+            tabView = createClientPlugin.createEntityEditor(editableEntity);
+        } else
+        {
+            final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder, IEditableEntity<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>>> createClientPlugin =
+                    clientPluginFactory.createClientPlugin(entityKind);
+            tabView = createClientPlugin.createEntityViewer(dataSet);
+        }
         DispatcherHelper.dispatchNaviEvent(tabView);
     }
 

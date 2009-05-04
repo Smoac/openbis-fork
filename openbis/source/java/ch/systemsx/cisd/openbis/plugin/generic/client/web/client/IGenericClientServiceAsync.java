@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
@@ -81,6 +82,11 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
      */
     public void getMaterialInfo(String materialIdentifier,
             final AsyncCallback<Material> materialInfoCallback);
+
+    /**
+     * @see IGenericClientService#getDataSetInfo(String)
+     */
+    public void getDataSetInfo(String code, final AsyncCallback<ExternalData> datasetInfoCallback);
 
     /**
      * @see IGenericClientService#registerExperiment(String,String,NewExperiment)

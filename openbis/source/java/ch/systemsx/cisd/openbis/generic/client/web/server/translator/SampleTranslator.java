@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * A {@link Sample} &lt;---&gt; {@link SamplePE} translator.
@@ -87,13 +88,19 @@ public final class SampleTranslator
         }
         if (containerDep > 0 && samplePE.getContainer() != null)
         {
-            result.setContainer(SampleTranslator.translate(samplePE.getContainer(),
-                    containerDep - 1, 0, false));
+            if (HibernateUtils.isInitialized(samplePE.getContainer()))
+            {
+                result.setContainer(SampleTranslator.translate(samplePE.getContainer(),
+                        containerDep - 1, 0, false));
+            }
         }
         if (generatedFromDep > 0 && samplePE.getGeneratedFrom() != null)
         {
-            result.setGeneratedFrom(SampleTranslator.translate(samplePE.getGeneratedFrom(), 0,
-                    generatedFromDep - 1, false));
+            if (HibernateUtils.isInitialized(samplePE.getGeneratedFrom()))
+            {
+                result.setGeneratedFrom(SampleTranslator.translate(samplePE.getGeneratedFrom(), 0,
+                        generatedFromDep - 1, false));
+            }
         }
         result.setInvalidation(InvalidationTranslator.translate(samplePE.getInvalidation()));
         return result;

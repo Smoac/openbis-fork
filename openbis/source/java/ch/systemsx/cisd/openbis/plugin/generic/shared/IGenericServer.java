@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -75,6 +76,13 @@ public interface IGenericServer extends IPluginCommonServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public MaterialPE getMaterialInfo(String sessionToken, MaterialIdentifier identifier);
+
+    /**
+     * For given <var>datasetCode</var> returns the corresponding {@link ExternalDataPE}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public ExternalDataPE getDataSetInfo(String sessionToken, String datasetCode);
 
     /**
      * Returns attachment described by given experiment identifier, filename and version.

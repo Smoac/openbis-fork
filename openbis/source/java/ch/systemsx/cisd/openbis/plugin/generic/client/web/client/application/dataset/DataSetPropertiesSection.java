@@ -1,0 +1,107 @@
+/*
+ * Copyright 2008 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+
+/**
+ * {@link SectionPanel} containing dataset properties.
+ * 
+ * @author Piotr Buczek
+ */
+public class DataSetPropertiesSection extends SectionPanel
+{
+    public static final String PROPERTIES_ID_PREFIX =
+            GenericConstants.ID_PREFIX + "dataset-properties-section_";
+
+    private final ExternalData dataset;
+
+    private final IViewContext<?> viewContext;
+
+    public DataSetPropertiesSection(final ExternalData dataset, final IViewContext<?> viewContext)
+    {
+        super("Data Set Properties");
+        this.dataset = dataset;
+        this.viewContext = viewContext;
+        final PropertyGrid propertyGrid = createPropertyGrid();
+        add(propertyGrid);
+    }
+
+    private final PropertyGrid createPropertyGrid()
+    {
+        final Map<String, Object> properties = createProperties(viewContext);
+        final PropertyGrid propertyGrid = new PropertyGrid(viewContext, properties.size());
+        propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + dataset.getIdentifier());
+        propertyGrid.registerPropertyValueRenderer(Person.class, PropertyValueRenderers
+                .createPersonPropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(DataSetType.class, PropertyValueRenderers
+                .createDataSetTypePropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
+                .createInvalidationPropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(DataSetProperty.class, PropertyValueRenderers
+                .createDataSetPropertyPropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(Sample.class, PropertyValueRenderers
+                .createSamplePropertyValueRenderer(viewContext, true));
+        propertyGrid.registerPropertyValueRenderer(Experiment.class, PropertyValueRenderers
+                .createExperimentPropertyValueRenderer(viewContext));
+        propertyGrid.setProperties(properties);
+        return propertyGrid;
+    }
+
+    private final Map<String, Object> createProperties(final IMessageProvider messageProvider)
+    {
+        final Map<String, Object> properties = new LinkedHashMap<String, Object>();
+        final DataSetType datasetType = dataset.getDataSetType();
+
+        properties.put(messageProvider.getMessage(Dict.DATA_SET), dataset.getCode());
+        properties.put(messageProvider.getMessage(Dict.DATA_SET_TYPE), datasetType);
+        properties.put(messageProvider.getMessage(Dict.REGISTRATOR), dataset.getRegistrator());
+        properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE), dataset
+                .getRegistrationDate());
+
+        properties.put(messageProvider.getMessage(Dict.SAMPLE), dataset.getSample());
+        properties.put(messageProvider.getMessage(Dict.EXPERIMENT), dataset.getExperiment());
+
+        final List<DataSetProperty> datasetProperties = dataset.getProperties();
+        Collections.sort(datasetProperties);
+        for (final DataSetProperty property : datasetProperties)
+        {
+            final String simpleCode =
+                    property.getEntityTypePropertyType().getPropertyType().getLabel();
+            properties.put(simpleCode, property);
+        }
+        return properties;
+    }
+}

@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
@@ -85,6 +86,11 @@ public interface IGenericClientService extends IClientService
      * For given <var>materialIdentifier</var> returns corresponding {@link Material}.
      */
     public Material getMaterialInfo(final String materialIdentifier) throws UserFailureException;
+
+    /**
+     * For given <var>datasetCode</var> returns corresponding {@link ExternalData}.
+     */
+    public ExternalData getDataSetInfo(final String datasetCode) throws UserFailureException;
 
     /**
      * Registers a new experiment.

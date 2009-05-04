@@ -47,8 +47,8 @@ public interface IExternalDataBO extends IBusinessObject
     /**
      * Changes given data set. Currently allowed changes: properties, sample.
      */
-    public void update(String code, SampleIdentifier sampleIdentifier, List<DataSetProperty> properties,
-            Date version);
+    public void update(String code, SampleIdentifier sampleIdentifier,
+            List<DataSetProperty> properties, Date version);
 
     /**
      * Loads the external data item with specified code.
@@ -60,4 +60,8 @@ public interface IExternalDataBO extends IBusinessObject
      */
     public void enrichWithParentsAndExperiment();
 
+    /** 
+     * Entich external data with properties.
+     */
+    public void enrichWithProperties();
 }

@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -90,12 +89,7 @@ public class ExternalDataTranslator
         externalData.setProductionDate(externalDataPE.getProductionDate());
         externalData.setModificationDate(externalDataPE.getModificationDate());
         externalData.setRegistrationDate(externalDataPE.getRegistrationDate());
-        externalData.setSampleIdentifier(sample == null ? null : StringEscapeUtils
-                .escapeHtml(sample.getSampleIdentifier().toString()));
-        externalData.setSampleType(sample == null ? null : fill(new SampleType(), sample
-                .getSampleType()));
-        externalData.setSampleCode(sample == null ? null : StringEscapeUtils.escapeHtml(sample
-                .getCode()));
+        externalData.setSample(SampleTranslator.translate(sample, false));
         externalData.setDataStore(DataStoreTranslator.translate(externalDataPE.getDataStore(),
                 defaultDataStoreBaseURL));
         if (loadSampleProperties && sample != null)

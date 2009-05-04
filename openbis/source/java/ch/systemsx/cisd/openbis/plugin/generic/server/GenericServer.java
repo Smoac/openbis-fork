@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
@@ -168,6 +169,17 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         materialBO.enrichWithProperties();
         final MaterialPE material = materialBO.getMaterial();
         return material;
+    }
+
+    public ExternalDataPE getDataSetInfo(final String sessionToken, final String dataSetCode)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IExternalDataBO datasetBO = businessObjectFactory.createExternalDataBO(session);
+        datasetBO.loadByCode(dataSetCode);
+        datasetBO.enrichWithParentsAndExperiment();
+        datasetBO.enrichWithProperties();
+        final ExternalDataPE dataset = datasetBO.getExternalData();
+        return dataset;
     }
 
     public AttachmentPE getExperimentFileAttachment(final String sessionToken,

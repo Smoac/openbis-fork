@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -89,6 +90,13 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     public MaterialPE getMaterialInfo(final String sessionToken, final MaterialIdentifier identifier)
     {
         logAccess(sessionToken, "get_material_info", "IDENTIFIER(%s)", identifier);
+        return null;
+    }
+
+    public ExternalDataPE getDataSetInfo(final String sessionToken, final String code)
+    {
+        logAccess(sessionToken, "get_data_set_info", "DATA_SET(%s)", code);
+
         return null;
     }
 

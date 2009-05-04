@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -90,6 +91,14 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         if (externalData != null)
         {
             enrichWithParentsAndExperiment(externalData);
+        }
+    }
+
+    public final void enrichWithProperties()
+    {
+        if (externalData != null)
+        {
+            HibernateUtils.initialize(externalData.getProperties());
         }
     }
 
