@@ -487,7 +487,8 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         return project;
     }
 
-    private void updateProperties(List<ExperimentProperty> properties)
+    @Private
+    void updateProperties(List<ExperimentProperty> properties)
     {
         final Set<ExperimentPropertyPE> existingProperties = experiment.getProperties();
         final ExperimentTypePE type = experiment.getExperimentType();

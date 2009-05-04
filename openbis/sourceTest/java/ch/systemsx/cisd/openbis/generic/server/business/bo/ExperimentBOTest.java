@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.jmock.Expectations;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -31,15 +33,19 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
@@ -84,6 +90,21 @@ public final class ExperimentBOTest extends AbstractBOTest
         prepareLoadExperimentByIdentifier(identifier, exp);
         loadExperiment(identifier, exp);
         context.assertIsSatisfied();
+    }
+
+    private void prepareUpdateProperties(final Set<ExperimentPropertyPE> oldProperties,
+            final List<ExperimentProperty> newProperties, final EntityTypePE entityType,
+            final PersonPE registrator, final List<ExperimentPropertyPE> updated)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(propertiesConverter).updateProperties(oldProperties, entityType,
+                            newProperties, registrator);
+                    will(returnValue(new HashSet<ExperimentPropertyPE>(updated)));
+
+                }
+            });
     }
 
     private void prepareLoadExperimentByIdentifier(final ExperimentIdentifier identifier,
@@ -359,6 +380,47 @@ public final class ExperimentBOTest extends AbstractBOTest
                     will(returnValue(externalDataDAO));
                 }
             });
+    }
+
+    @Test
+    public final void testEditProperties()
+    {
+        ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
+        ExperimentPE exp = CommonTestUtils.createExperiment(identifier);
+        ExperimentTypePE experimentType = CommonTestUtils.createExperimentType();
+        exp.setExperimentType(experimentType);
+
+        ExperimentPropertyPE changedProperty = CommonTestUtils.createOrganProperty(experimentType);
+        ExperimentPropertyPE deletedProperty = CommonTestUtils.createNotesProperty(experimentType);
+        ExperimentPropertyPE addedProperty = CommonTestUtils.createCategoryProperty(experimentType);
+        exp.setProperties(new HashSet<ExperimentPropertyPE>(Arrays.asList(changedProperty,
+                deletedProperty)));
+
+        prepareLoadExperimentByIdentifier(identifier, exp);
+        ExperimentBO bo =
+                new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter);
+        bo.loadByExperimentIdentifier(identifier);
+
+        assertTrue(bo.getExperiment().getProperties().contains(changedProperty));
+        assertTrue(bo.getExperiment().getProperties().contains(deletedProperty));
+        assertFalse(bo.getExperiment().getProperties().contains(addedProperty));
+
+        List<ExperimentProperty> newProperties = createDummyProperties();
+        prepareUpdateProperties(exp.getProperties(), newProperties, experimentType,
+                ManagerTestTool.EXAMPLE_SESSION.tryGetPerson(), Arrays.asList(changedProperty,
+                        addedProperty));
+        bo.updateProperties(newProperties);
+
+        assertTrue(bo.getExperiment().getProperties().contains(changedProperty));
+        assertFalse(bo.getExperiment().getProperties().contains(deletedProperty));
+        assertTrue(bo.getExperiment().getProperties().contains(addedProperty));
+
+        context.assertIsSatisfied();
+    }
+
+    private List<ExperimentProperty> createDummyProperties()
+    {
+        return new ArrayList<ExperimentProperty>();
     }
 
     @Test
