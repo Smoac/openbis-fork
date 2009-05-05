@@ -97,10 +97,4 @@ public class MaterialPropertyPE extends EntityPropertyPE
     {
         this.material = (MaterialPE) entity;
     }
-
-    @Override
-    public void setHolder(final IIdAndCodeHolder entity)
-    {
-        ((MaterialPE) entity).addProperty(this);
-    }
 }

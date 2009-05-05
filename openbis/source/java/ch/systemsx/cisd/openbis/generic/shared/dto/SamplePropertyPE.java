@@ -88,21 +88,14 @@ public class SamplePropertyPE extends EntityPropertyPE
         return getSample();
     }
 
-	/**
-	 * Sets the <var>sample</var> of this property.
-	 * <p>
-	 * <i>Do not use directly, instead, call
-	 * {@link SamplePE#addProperty(SamplePropertyPE)} with <code>this</code>
-	 * object!</i>
-	 */
+    /**
+     * Sets the <var>sample</var> of this property.
+     * <p>
+     * <i>Do not use directly, instead, call {@link SamplePE#addProperty(SamplePropertyPE)} with
+     * <code>this</code> object!</i>
+     */
     void setEntity(final IIdAndCodeHolder entity)
     {
         this.sample = (SamplePE) entity;
-    }
-
-    @Override
-    public void setHolder(final IIdAndCodeHolder entity)
-    {
-        ((SamplePE) entity).addProperty(this);
     }
 }

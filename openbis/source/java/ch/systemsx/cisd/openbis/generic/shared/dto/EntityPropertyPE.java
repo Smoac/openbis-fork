@@ -133,15 +133,6 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
         this.value = value;
     }
 
-    /**
-     * Sets the entity that holds this property. Needs to be of the correct sub-class of
-     * {@link IIdAndCodeHolder}.
-     * <p>
-     * <i>Note: Consider using the <code>addProperty()</code> method of the holder instead of using
-     * this method!</i>
-     */
-    abstract public void setHolder(final IIdAndCodeHolder entity);
-
     @Column(name = ColumnNames.VALUE_COLUMN)
     @Length(max = 1024, message = ValidationMessages.VALUE_LENGTH_MESSAGE)
     public String getValue()

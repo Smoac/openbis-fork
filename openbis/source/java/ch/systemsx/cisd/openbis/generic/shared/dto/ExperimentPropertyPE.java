@@ -98,9 +98,4 @@ public class ExperimentPropertyPE extends EntityPropertyPE
         this.experiment = (ExperimentPE) entity;
     }
 
-    @Override
-    public void setHolder(final IIdAndCodeHolder entity)
-    {
-        ((ExperimentPE) entity).addProperty(this);
-    }
 }

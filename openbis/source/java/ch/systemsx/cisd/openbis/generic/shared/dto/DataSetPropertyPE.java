@@ -40,59 +40,58 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  * @author Izabela Adamczyk
  */
 @Entity
-@Table(name = TableNames.DATA_SET_PROPERTIES_TABLE, uniqueConstraints = @UniqueConstraint(columnNames = {
-		ColumnNames.DATA_SET_COLUMN,
-		ColumnNames.DATA_SET_TYPE_PROPERTY_TYPE_COLUMN }))
+@Table(name = TableNames.DATA_SET_PROPERTIES_TABLE, uniqueConstraints = @UniqueConstraint(columnNames =
+    { ColumnNames.DATA_SET_COLUMN, ColumnNames.DATA_SET_TYPE_PROPERTY_TYPE_COLUMN }))
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class DataSetPropertyPE extends EntityPropertyPE {
-	private static final long serialVersionUID = GenericSharedConstants.VERSION;
+public class DataSetPropertyPE extends EntityPropertyPE
+{
+    private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
-	public final static DataSetPropertyPE[] EMPTY_ARRAY = new DataSetPropertyPE[0];
+    public final static DataSetPropertyPE[] EMPTY_ARRAY = new DataSetPropertyPE[0];
 
-	private DataPE dataSet;
+    private DataPE dataSet;
 
-	@Transient
-	public final DataPE getDataSet() {
-		return dataSet;
-	}
+    @Transient
+    public final DataPE getDataSet()
+    {
+        return dataSet;
+    }
 
-	//
-	// EntityPropertyPE
-	//
+    //
+    // EntityPropertyPE
+    //
 
-	@NotNull(message = ValidationMessages.DATA_SET_TYPE_NOT_NULL_MESSAGE)
-	@ManyToOne(fetch = FetchType.EAGER, targetEntity = DataSetTypePropertyTypePE.class)
-	@JoinColumn(name = ColumnNames.DATA_SET_TYPE_PROPERTY_TYPE_COLUMN, updatable = false)
-	public EntityTypePropertyTypePE getEntityTypePropertyType() {
-		return entityTypePropertyType;
-	}
+    @NotNull(message = ValidationMessages.DATA_SET_TYPE_NOT_NULL_MESSAGE)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = DataSetTypePropertyTypePE.class)
+    @JoinColumn(name = ColumnNames.DATA_SET_TYPE_PROPERTY_TYPE_COLUMN, updatable = false)
+    public EntityTypePropertyTypePE getEntityTypePropertyType()
+    {
+        return entityTypePropertyType;
+    }
 
-	@SequenceGenerator(name = SequenceNames.DATA_SET_PROPERTY_SEQUENCE, sequenceName = SequenceNames.DATA_SET_PROPERTY_SEQUENCE, allocationSize = 1)
-	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DATA_SET_PROPERTY_SEQUENCE)
-	public Long getId() {
-		return id;
-	}
+    @SequenceGenerator(name = SequenceNames.DATA_SET_PROPERTY_SEQUENCE, sequenceName = SequenceNames.DATA_SET_PROPERTY_SEQUENCE, allocationSize = 1)
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DATA_SET_PROPERTY_SEQUENCE)
+    public Long getId()
+    {
+        return id;
+    }
 
-	@ManyToOne(fetch = FetchType.LAZY, targetEntity = DataPE.class)
-	@JoinColumn(name = ColumnNames.DATA_SET_COLUMN, updatable = false)
-	public IIdAndCodeHolder getEntity() {
-		return getDataSet();
-	}
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = DataPE.class)
+    @JoinColumn(name = ColumnNames.DATA_SET_COLUMN, updatable = false)
+    public IIdAndCodeHolder getEntity()
+    {
+        return getDataSet();
+    }
 
-	/**
-	 * Sets the <var>data set</var> of this property.
-	 * <p>
-	 * <i>Do not use directly, instead, call
-	 * {@link DataPE#addProperty(DataSetPropertyPE)} with <code>this</code>
-	 * object!</i>
-	 */
-	void setEntity(final IIdAndCodeHolder entity) {
-		this.dataSet = (DataPE) entity;
-	}
-
-	@Override
-	public void setHolder(final IIdAndCodeHolder entity) {
-		((DataPE) entity).addProperty(this);
-	}
+    /**
+     * Sets the <var>data set</var> of this property.
+     * <p>
+     * <i>Do not use directly, instead, call {@link DataPE#addProperty(DataSetPropertyPE)} with
+     * <code>this</code> object!</i>
+     */
+    void setEntity(final IIdAndCodeHolder entity)
+    {
+        this.dataSet = (DataPE) entity;
+    }
 }

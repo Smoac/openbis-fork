@@ -266,7 +266,7 @@ public final class EntityTypeDAOTest extends AbstractDAOTest
         property.setEntityTypePropertyType(assignment);
         property.setMaterialValue(value);
         property.setRegistrator(getTestPerson());
-        property.setHolder(selectFirstExperiment());
+        selectFirstExperiment().addProperty(property);
         // Try to delete used material type
         boolean exceptionThrown = false;
         try
