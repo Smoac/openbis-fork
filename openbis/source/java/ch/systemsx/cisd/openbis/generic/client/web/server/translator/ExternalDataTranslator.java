@@ -24,15 +24,10 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentTranslator.LoadableFields;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -81,11 +76,11 @@ public class ExternalDataTranslator
         externalData.setDataSetType(DataSetTypeTranslator
                 .translate(externalDataPE.getDataSetType()));
         externalData.setDerived(externalDataPE.getSampleDerivedFrom() != null);
-        externalData.setFileFormatType(fill(new FileFormatType(), externalDataPE
+        externalData.setFileFormatType(TypeTranslator.translate(externalDataPE
                 .getFileFormatType()));
         externalData.setInvalidation(tryToGetInvalidation(sample));
         externalData.setLocation(StringEscapeUtils.escapeHtml(externalDataPE.getLocation()));
-        externalData.setLocatorType(fill(new LocatorType(), externalDataPE.getLocatorType()));
+        externalData.setLocatorType(TypeTranslator.translate(externalDataPE.getLocatorType()));
         externalData.setParentCode(StringEscapeUtils
                 .escapeHtml(tryToGetCodeOfFirstParent(externalDataPE)));
         externalData.setProductionDate(externalDataPE.getProductionDate());
@@ -94,7 +89,7 @@ public class ExternalDataTranslator
         externalData.setSample(sample == null ? null : fill(new Sample(), sample));
         externalData.setSampleIdentifier(sample == null ? null : StringEscapeUtils
                 .escapeHtml(sample.getSampleIdentifier().toString()));
-        externalData.setSampleType(sample == null ? null : fill(new SampleType(), sample
+        externalData.setSampleType(sample == null ? null : TypeTranslator.translate(sample
                 .getSampleType()));
         externalData.setSampleCode(sample == null ? null : StringEscapeUtils.escapeHtml(sample
                 .getCode()));
@@ -158,23 +153,13 @@ public class ExternalDataTranslator
         return externalDataPE.getSampleDerivedFrom();
     }
 
-    private static <T extends AbstractType> T fill(T type, AbstractTypePE typePEOrNull)
-    {
-        if (typePEOrNull != null)
-        {
-            type.setCode(StringEscapeUtils.escapeHtml(typePEOrNull.getCode()));
-            type.setDescription(StringEscapeUtils.escapeHtml(typePEOrNull.getDescription()));
-        }
-        return type;
-    }
-
     private static Sample fill(Sample sample, SamplePE samplePEOrNull)
     {
         if (sample != null)
         {
             sample.setCode(StringEscapeUtils.escapeHtml(samplePEOrNull.getCode()));
             sample.setInvalidation(tryToGetInvalidation(samplePEOrNull));
-            sample.setSampleType(fill(new SampleType(), samplePEOrNull.getSampleType()));
+            sample.setSampleType(TypeTranslator.translate(samplePEOrNull.getSampleType()));
         }
         return sample;
     }

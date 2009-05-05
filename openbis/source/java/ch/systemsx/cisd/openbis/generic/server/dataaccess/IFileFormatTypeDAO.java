@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 
 /**
@@ -29,5 +31,15 @@ public interface IFileFormatTypeDAO
      * Tries to find the {@link FileFormatTypePE} for the specified code.
      */
     public FileFormatTypePE tryToFindFileFormatTypeByCode(String code);
+
+    /**
+     * Returns all file format types.
+     */
+    public List<FileFormatTypePE> listFileFormatTypes();
+
+    /**
+     * Creates or updates specified file format type.
+     */
+    public void createOrUpdate(FileFormatTypePE fileFormatType);
 
 }

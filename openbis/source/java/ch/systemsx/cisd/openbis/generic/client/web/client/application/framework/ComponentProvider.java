@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.PersonsVie
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetTypeGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FileFormatTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeGrid;
@@ -510,5 +511,22 @@ public final class ComponentProvider
                     return DataSetTypeGrid.BROWSER_ID;
                 }
             };
+    }
+
+    public ITabItemFactory getFileFormatTypeBrowser()
+    {
+        return new ITabItemFactory()
+        {
+            public ITabItem create()
+            {
+                IDisposableComponent component = FileFormatTypeGrid.create(viewContext);
+                return createTab(Dict.FILE_FORMAT_TYPES, component);
+            }
+
+            public String getId()
+            {
+                return FileFormatTypeGrid.BROWSER_ID;
+            }
+        };
     }
 }

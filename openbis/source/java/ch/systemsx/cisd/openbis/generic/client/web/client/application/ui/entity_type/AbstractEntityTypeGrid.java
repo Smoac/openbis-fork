@@ -158,7 +158,7 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
     {
         String title =
                 viewContext.getMessage(Dict.ADD_TYPE_TITLE_TEMPLATE, entityKind.getDescription());
-        return new AddEntityTypeDialog(viewContext, title, postRegistrationCallback)
+        return new AddTypeDialog(viewContext, title, postRegistrationCallback)
             {
                 @Override
                 protected void register(String code, String descriptionOrNull,

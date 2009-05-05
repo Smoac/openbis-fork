@@ -40,6 +40,7 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
     PROPERTY_TYPE_ASSIGNMENT_BROWSER_GRID("property-type-assignment-browser-grid"),
     VOCABULARY_BROWSER_GRID("vocabulary-browser-grid"),
     VOCABULARY_TERMS_GRID("vocabulary-terms-grid"),
+    FILE_FORMAT_TYPE_BROWSER_GRID("file-format-type-browser-grid"),
     ;
     
     private final String genericNameOrPrefix;

@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
@@ -54,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -269,6 +271,15 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public List<DataTypePE> listDataTypes(final String sessionToken);
+    
+    /**
+     * Lists file format types.
+     * 
+     * @return a sorted list of {@link FileFormatTypePE}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<FileFormatTypePE> listFileFormatTypes(String sessionToken);
 
     /**
      * Lists vocabularies.
@@ -428,6 +439,14 @@ public interface ICommonServer extends IServer
     @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT_TYPE)
     public void updateExperimentType(String sessionToken, EntityType entityType);
 
+    /**
+     * Creates a new file format type.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.FILE_FORMAT_TYPE)
+    public void registerFileFormatType(String sessionToken, FileFormatType type);
+    
     /**
      * Creates a new data set type.
      */

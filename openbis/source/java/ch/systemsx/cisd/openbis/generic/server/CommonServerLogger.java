@@ -24,6 +24,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
@@ -45,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -252,6 +254,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    public List<FileFormatTypePE> listFileFormatTypes(String sessionToken)
+    {
+        logAccess(sessionToken, "list_file_format_types");
+        return null;
+    }
+
     public final List<VocabularyPE> listVocabularies(final String sessionToken, boolean withTerms,
             boolean excludeInternal)
     {
@@ -370,6 +378,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logTracking(sessionToken, "update_experiment_type", "CODE(%s)", entityType.getCode());
     }
 
+    public void registerFileFormatType(String sessionToken, FileFormatType type)
+    {
+        logTracking(sessionToken, "register_file_format_type", "CODE(%s)", type.getCode());
+    }
+    
     public void registerDataSetType(String sessionToken, DataSetType entityType)
     {
         logTracking(sessionToken, "register_data_set_type", "CODE(%s)", entityType.getCode());

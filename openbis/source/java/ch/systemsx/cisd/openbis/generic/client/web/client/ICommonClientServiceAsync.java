@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParam
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
@@ -40,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -237,6 +239,16 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void prepareExportDataSetTypes(final TableExportCriteria<EntityType> criteria,
             AsyncCallback<String> callback);
 
+    /** @see ICommonClientService#listFileTypes(DefaultResultSetConfig) */
+    public void listFileTypes(DefaultResultSetConfig<String, AbstractType> criteria,
+            final AsyncCallback<ResultSet<AbstractType>> asyncCallback)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+
+    /** @see ICommonClientService#prepareExportFileTypes(TableExportCriteria) */
+    public void prepareExportFileTypes(TableExportCriteria<AbstractType> criteria,
+            AsyncCallback<String> callback)
+    throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+    
     /**
      * @see ICommonClientService#getExportTable(String, String)
      */
@@ -339,6 +351,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /** @see ICommonClientService#registerDataSetType(DataSetType) */
     public void registerDataSetType(DataSetType entityType, final AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#registerFileType(FileFormatType) */
+    public void registerFileType(FileFormatType type, AsyncCallback<Void> callback);
 
     /** @see ICommonClientService#registerSampleType(SampleType) */
     public void registerSampleType(SampleType entityType, final AsyncCallback<Void> asyncCallback);

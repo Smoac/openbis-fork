@@ -16,11 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.List;
+
 import org.hibernate.SessionFactory;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 
 /**
  * Data access object for {@link FileFormatTypePE}.
@@ -43,6 +45,21 @@ public class FileFormatTypeDAO extends AbstractTypeDAO<FileFormatTypePE> impleme
     public FileFormatTypePE tryToFindFileFormatTypeByCode(String code)
     {
         return tryFindTypeByCode(code);
+    }
+
+    public List<FileFormatTypePE> listFileFormatTypes()
+    {
+        return listTypes();
+    }
+
+    public void createOrUpdate(FileFormatTypePE fileFormatType)
+    {
+        assert fileFormatType != null : "File Format Type is null";
+        if (fileFormatType.getDatabaseInstance() == null)
+        {
+            fileFormatType.setDatabaseInstance(getDatabaseInstance());
+        }
+        createOrUpdateType(fileFormatType);
     }
 
 }

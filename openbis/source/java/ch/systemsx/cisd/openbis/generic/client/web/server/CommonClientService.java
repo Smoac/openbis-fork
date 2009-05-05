@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParam
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
@@ -68,6 +69,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.RoleAssignm
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.RoleCodeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SearchableEntityTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.TypeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.VocabularyTermTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRenderer;
@@ -75,6 +77,7 @@ import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
@@ -102,6 +105,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -547,6 +551,12 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
+    public String prepareExportFileTypes(TableExportCriteria<FileFormatType> criteria)
+            throws UserFailureException
+    {
+        return prepareExportEntities(criteria);
+    }
+    
     // ---------------- methods which list entities using cache
 
     public final ResultSet<Sample> listSamples(final ListSampleCriteria listCriteria,
@@ -765,6 +775,32 @@ public final class CommonClientService extends AbstractClientService implements
                     return listDataSetTypes();
                 }
             });
+    }
+
+    public ResultSet<? extends AbstractType> listFileTypes(
+            DefaultResultSetConfig<String, AbstractType> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return listEntities(criteria, new IOriginalDataProvider<AbstractType>()
+                {
+                    public List<AbstractType> getOriginalData() throws UserFailureException
+                    {
+                        try
+                        {
+                            final String sessionToken = getSessionToken();
+                            final List<AbstractType> result = new ArrayList<AbstractType>();
+                            final List<FileFormatTypePE> types = commonServer.listFileFormatTypes(sessionToken);
+                            for (final FileFormatTypePE type : types)
+                            {
+                                result.add(TypeTranslator.translate(type));
+                            }
+                            return result;
+                        } catch (final UserFailureException e)
+                        {
+                            throw UserFailureExceptionTranslator.translate(e);
+                        }
+                    }
+                });
     }
 
     public ResultSet<ExternalData> listSampleDataSets(final String sampleIdentifier,
@@ -1128,6 +1164,19 @@ public final class CommonClientService extends AbstractClientService implements
         {
             final String sessionToken = getSessionToken();
             commonServer.registerDataSetType(sessionToken, entityType);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public void registerFileType(FileFormatType type)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.registerFileFormatType(sessionToken, type);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

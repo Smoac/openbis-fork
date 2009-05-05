@@ -31,6 +31,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
@@ -73,6 +74,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -454,6 +456,15 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return dataTypes;
     }
 
+    public List<FileFormatTypePE> listFileFormatTypes(String sessionToken)
+    {
+        assert sessionToken != null : "Unspecified session token";
+        checkSession(sessionToken);
+        List<FileFormatTypePE> fileFormatTypes = getDAOFactory().getFileFormatTypeDAO().listFileFormatTypes();
+        Collections.sort(fileFormatTypes);
+        return fileFormatTypes;
+    }
+
     public final List<VocabularyPE> listVocabularies(final String sessionToken,
             final boolean withTerms, boolean excludeInternal)
     {
@@ -661,6 +672,21 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         updateEntityType(sessionToken, EntityKind.EXPERIMENT, entityType);
     }
 
+    public void registerFileFormatType(String sessionToken, FileFormatType type)
+    {
+        checkSession(sessionToken);
+        try
+        {
+            FileFormatTypePE fileFormatType = new FileFormatTypePE();
+            fileFormatType.setCode(type.getCode());
+            fileFormatType.setDescription(type.getDescription());
+            getDAOFactory().getFileFormatTypeDAO().createOrUpdate(fileFormatType);
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+    
     public void registerDataSetType(String sessionToken, DataSetType entityType)
     {
         final Session session = getSessionManager().getSession(sessionToken);

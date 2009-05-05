@@ -238,6 +238,8 @@ public abstract class Dict
 
     public static final String DATA_SET_TYPES = "data_set_types";
 
+    public static final String FILE_FORMAT_TYPES = "file_format_types";
+    
     public static final String EXPERIMENT_TYPES = "experiment_types";
 
     public static final String IS_MANDATORY = "is_mandatory";

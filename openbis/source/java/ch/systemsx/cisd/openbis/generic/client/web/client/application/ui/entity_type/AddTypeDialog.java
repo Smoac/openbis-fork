@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
  * 
  * @author Tomasz Pylak
  */
-abstract class AddEntityTypeDialog extends AbstractRegistrationDialog
+public abstract class AddTypeDialog extends AbstractRegistrationDialog
 {
     /** Registers a new property type and calls the specified callback at the end */
     abstract protected void register(String code, String descriptionOrNull,
@@ -39,7 +39,7 @@ abstract class AddEntityTypeDialog extends AbstractRegistrationDialog
 
     private final TextField<String> descriptionField;
 
-    AddEntityTypeDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
+    public AddTypeDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
             String title, final IDelegatedAction postRegistrationCallback)
     {
         super(viewContext, title, postRegistrationCallback);

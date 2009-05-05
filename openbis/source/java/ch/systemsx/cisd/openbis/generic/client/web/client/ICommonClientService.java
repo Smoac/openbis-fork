@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParam
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
@@ -39,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -288,6 +290,12 @@ public interface ICommonClientService extends IClientService
      */
     public String prepareExportDataSetTypes(final TableExportCriteria<DataSetType> criteria)
             throws UserFailureException;
+    
+    public ResultSet<? extends AbstractType> listFileTypes(
+            DefaultResultSetConfig<String, AbstractType> criteria) throws UserFailureException;
+    
+    public String prepareExportFileTypes(TableExportCriteria<FileFormatType> criteria)
+            throws UserFailureException;
 
     /**
      * Assumes that preparation of the export ( {@link #prepareExportSamples(TableExportCriteria)}
@@ -393,6 +401,9 @@ public interface ICommonClientService extends IClientService
     /** Registers a new data set type */
     public void registerDataSetType(DataSetType entityType) throws UserFailureException;
 
+    /** Registers a new file type */
+    public void registerFileType(FileFormatType type) throws UserFailureException;
+    
     /** Registers a new sample type */
     public void registerSampleType(SampleType entityType) throws UserFailureException;
 

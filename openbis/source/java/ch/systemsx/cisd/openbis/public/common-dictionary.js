@@ -159,6 +159,7 @@ var common = {
   sample_types: "Sample Types",
   material_types: "Material Types",
   data_set_types: "Data Set Types",
+  file_format_types: "File Types",
   experiment_types: "Experiment Types",
   is_mandatory: "Mandatory?",
   property_type: "Property Type",
@@ -197,6 +198,7 @@ var common = {
   menu_data_set: "Data Set",
   DATA_SET_MENU_SEARCH: "Search",
   DATA_SET_MENU_TYPES: "Types",
+  DATA_SET_MENU_FILE_FORMATS: "File Types",
   
   menu_experiment: "Experiment",
   EXPERIMENT_MENU_BROWSE: "Browse",
