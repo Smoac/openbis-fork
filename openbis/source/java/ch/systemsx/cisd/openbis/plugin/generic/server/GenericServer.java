@@ -209,7 +209,10 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         final HashSet<NewSample> sampleSet = new HashSet<NewSample>(newSamples);
         if (sampleSet.size() != newSamples.size())
         {
-            newSamples.removeAll(sampleSet);
+            for (NewSample s : sampleSet)
+            {
+                newSamples.remove(s);
+            }
             throw UserFailureException.fromTemplate("Following samples '%s' are duplicated.",
                     CollectionUtils.abbreviate(newSamples, 20));
         }
