@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWithStats;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -385,5 +386,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void deleteEntityTypes(EntityKind entityKind, List<String> entityTypeCodes,
             AsyncCallback<Void> callback);
+
+    /**
+     * @see ICommonClientService#getEntityInformationHolder(EntityKind, String)
+     */
+    public void getEntityInformationHolder(EntityKind entityKind, String identifier,
+            AsyncCallback<IEntityInformationHolder> callback);
 
 }

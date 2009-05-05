@@ -51,6 +51,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -677,14 +679,15 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     {
         updateEntityType(sessionToken, EntityKind.DATA_SET, entityType);
     }
-    
+
     private void updateEntityType(String sessionToken, EntityKind entityKind, EntityType entityType)
     {
         checkSession(sessionToken);
         try
         {
             IEntityTypeDAO entityTypeDAO = getDAOFactory().getEntityTypeDAO(entityKind);
-            EntityTypePE entityTypePE = entityTypeDAO.tryToFindEntityTypeByCode(entityType.getCode());
+            EntityTypePE entityTypePE =
+                    entityTypeDAO.tryToFindEntityTypeByCode(entityType.getCode());
             entityTypePE.setDescription(entityType.getDescription());
             entityTypeDAO.createOrUpdateEntityType(entityTypePE);
         } catch (final DataAccessException ex)
@@ -779,6 +782,42 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         bo.enrichWithAttachments();
         final ProjectPE project = bo.getProject();
         return project;
+    }
+
+    public IEntityInformationHolder getEntityInformationHolder(String sessionToken,
+            final ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind,
+            final String identifier)
+    {
+        getSessionManager().getSession(sessionToken);
+
+        switch (entityKind)
+        {
+            case DATA_SET:
+                return getDataSetInformationHolder(entityKind, identifier);
+            case SAMPLE:
+            case EXPERIMENT:
+            case MATERIAL:
+                break; // throws declaration is outside switch because we have to return sth
+        }
+        throw UserFailureException.fromTemplate("Operation for entity kind '" + entityKind
+                + "' is not implemented yet.");
+    }
+
+    private IEntityInformationHolder getDataSetInformationHolder(
+            final ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind,
+            final String identifier)
+    {
+        ExternalDataPE entityPEOrNull =
+                getDAOFactory().getExternalDataDAO().tryToFindFullDataSetByCode(identifier);
+        if (entityPEOrNull == null)
+        {
+            throw UserFailureException.fromTemplate("There is no %s with identifier '%s'",
+                    entityKind.getDescription(), identifier);
+        }
+        EntityType entityType = new DataSetType();
+        entityType.setCode(entityPEOrNull.getDataSetType().getCode());
+
+        return new BasicEntityInformationHolder(entityKind, entityType, identifier);
     }
 
     public String generateCode(String sessionToken, String prefix)

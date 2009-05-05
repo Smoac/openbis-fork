@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -445,5 +446,12 @@ public interface ICommonClientService extends IClientService
      */
     public void deleteEntityTypes(final EntityKind entityKind, final List<String> codes)
             throws UserFailureException;
+
+    /**
+     * For given {@link EntityKind} and <var>identifier</var> returns the corresponding
+     * {@link IEntityInformationHolder}.
+     */
+    public IEntityInformationHolder getEntityInformationHolder(EntityKind entityKind,
+            String identifier) throws UserFailureException;
 
 }

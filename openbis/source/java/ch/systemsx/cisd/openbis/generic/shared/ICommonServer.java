@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
@@ -554,4 +555,13 @@ public interface ICommonServer extends IServer
         { ObjectKind.MATERIAL_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
     public void deleteMaterialTypes(String sessionToken, List<String> entityTypesCodes);
 
+    /**
+     * For given {@link EntityKind} and <var>identifier</var> returns the corresponding
+     * {@link IEntityInformationHolder}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public IEntityInformationHolder getEntityInformationHolder(String sessionToken,
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind,
+            String identifier); // TODO 2009-05-05, Piotr Buczek: add authorization?
 }

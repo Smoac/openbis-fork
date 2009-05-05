@@ -24,6 +24,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -422,6 +423,17 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    public IEntityInformationHolder getEntityInformationHolder(String sessionToken,
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind,
+            String identifier)
+    {
+
+        final String entityTypeFormat = entityKind.name() + "_TYPE(%S)";
+        logTracking(sessionToken, "get_entity_information_holder", entityTypeFormat
+                + " IDENTIFIER(%S) ", entityKind, identifier);
+        return null;
+    }
+
     public String generateCode(String sessionToken, String prefix)
     {
         logAccess(sessionToken, "generate_code", "PREFIX(%s)", prefix);
@@ -430,8 +442,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public Date updateProject(String sessionToken, ProjectUpdatesDTO updates)
     {
-        logTracking(sessionToken, "edit_project", "PROJECT(%s) ATTACHMENTS_ADDED(%s)", updates.getIdentifier(),
-                updates.getAttachments().size());
+        logTracking(sessionToken, "edit_project", "PROJECT(%s) ATTACHMENTS_ADDED(%s)", updates
+                .getIdentifier(), updates.getAttachments().size());
         return null;
     }
 
@@ -462,4 +474,5 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 .join(entityTypesCodes.toArray(new String[0])));
 
     }
+
 }
