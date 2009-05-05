@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
