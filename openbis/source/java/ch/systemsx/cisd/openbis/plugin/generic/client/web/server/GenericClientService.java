@@ -341,8 +341,7 @@ public final class GenericClientService extends AbstractClientService implements
         {
             final String sessionToken = getSessionToken();
             final ExternalDataPE dataset = genericServer.getDataSetInfo(sessionToken, datasetCode);
-            // TODO 2009-04-30, Piotr Buczek: no access to dataStoreBaseURL
-            return ExternalDataTranslator.translate(dataset, "", false);
+            return ExternalDataTranslator.translate(dataset, getDataStoreBaseURL(), false);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

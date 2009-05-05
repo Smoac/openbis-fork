@@ -55,6 +55,9 @@ public abstract class AbstractClientService implements IClientService
     @Resource(name = "request-context-provider")
     private IRequestContextProvider requestContextProvider;
 
+    @Resource(name = "common-service")
+    protected IDataStoreBaseURLProvider dataStoreBaseURLProvider;
+
     private String cifexURL;
 
     protected AbstractClientService()
@@ -64,6 +67,11 @@ public abstract class AbstractClientService implements IClientService
     protected AbstractClientService(final IRequestContextProvider requestContextProvider)
     {
         this.requestContextProvider = requestContextProvider;
+    }
+
+    protected String getDataStoreBaseURL()
+    {
+        return dataStoreBaseURLProvider.getDataStoreBaseURL();
     }
 
     public final void setCifexURL(String cifexURL)
@@ -253,5 +261,15 @@ public abstract class AbstractClientService implements IClientService
         {
             // Just ignore it because we are logging out anyway.
         }
+    }
+
+    /**
+     * Implementation of this interface provides a way to expose the data store base URL.
+     * 
+     * @author Piotr Buczek
+     */
+    public static interface IDataStoreBaseURLProvider
+    {
+        public String getDataStoreBaseURL();
     }
 }

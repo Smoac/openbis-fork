@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
+import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService.IDataStoreBaseURLProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
@@ -131,7 +132,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  * @author Franz-Josef Elmer
  */
 public final class CommonClientService extends AbstractClientService implements
-        ICommonClientService
+        ICommonClientService, IDataStoreBaseURLProvider
 {
     private final ICommonServer commonServer;
 
@@ -142,6 +143,12 @@ public final class CommonClientService extends AbstractClientService implements
     {
         super(requestContextProvider);
         this.commonServer = commonServer;
+    }
+
+    @Override
+    public String getDataStoreBaseURL()
+    {
+        return this.dataStoreBaseURL;
     }
 
     public final void setDataStoreBaseURL(String dataStoreBaseURL)
@@ -556,7 +563,7 @@ public final class CommonClientService extends AbstractClientService implements
     {
         return prepareExportEntities(criteria);
     }
-    
+
     // ---------------- methods which list entities using cache
 
     public final ResultSet<Sample> listSamples(final ListSampleCriteria listCriteria,
@@ -574,7 +581,7 @@ public final class CommonClientService extends AbstractClientService implements
     {
         final String sessionToken = getSessionToken();
         return listEntities(resultSetConfig, new ListDataSetsOriginalDataProvider(commonServer,
-                sessionToken, criteria, dataStoreBaseURL));
+                sessionToken, criteria, getDataStoreBaseURL()));
     }
 
     public final ResultSet<Experiment> listExperiments(final ListExperimentsCriteria listCriteria)
@@ -782,25 +789,26 @@ public final class CommonClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return listEntities(criteria, new IOriginalDataProvider<AbstractType>()
+            {
+                public List<AbstractType> getOriginalData() throws UserFailureException
                 {
-                    public List<AbstractType> getOriginalData() throws UserFailureException
+                    try
                     {
-                        try
+                        final String sessionToken = getSessionToken();
+                        final List<AbstractType> result = new ArrayList<AbstractType>();
+                        final List<FileFormatTypePE> types =
+                                commonServer.listFileFormatTypes(sessionToken);
+                        for (final FileFormatTypePE type : types)
                         {
-                            final String sessionToken = getSessionToken();
-                            final List<AbstractType> result = new ArrayList<AbstractType>();
-                            final List<FileFormatTypePE> types = commonServer.listFileFormatTypes(sessionToken);
-                            for (final FileFormatTypePE type : types)
-                            {
-                                result.add(TypeTranslator.translate(type));
-                            }
-                            return result;
-                        } catch (final UserFailureException e)
-                        {
-                            throw UserFailureExceptionTranslator.translate(e);
+                            result.add(TypeTranslator.translate(type));
                         }
+                        return result;
+                    } catch (final UserFailureException e)
+                    {
+                        throw UserFailureExceptionTranslator.translate(e);
                     }
-                });
+                }
+            });
     }
 
     public ResultSet<ExternalData> listSampleDataSets(final String sampleIdentifier,
@@ -816,7 +824,7 @@ public final class CommonClientService extends AbstractClientService implements
                             SampleIdentifierFactory.parse(sampleIdentifier);
                     final List<ExternalDataPE> externalData =
                             commonServer.listExternalData(sessionToken, identifier);
-                    return ExternalDataTranslator.translate(externalData, dataStoreBaseURL);
+                    return ExternalDataTranslator.translate(externalData, getDataStoreBaseURL());
                 }
             });
     }
@@ -836,7 +844,7 @@ public final class CommonClientService extends AbstractClientService implements
                                     .createIdentifier();
                     final List<ExternalDataPE> externalData =
                             commonServer.listExternalData(sessionToken, identifier);
-                    return ExternalDataTranslator.translate(externalData, dataStoreBaseURL);
+                    return ExternalDataTranslator.translate(externalData, getDataStoreBaseURL());
                 }
 
             });
