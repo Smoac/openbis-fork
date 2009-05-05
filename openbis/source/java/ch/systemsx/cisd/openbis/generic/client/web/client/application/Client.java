@@ -31,9 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LoginController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 
@@ -119,9 +117,10 @@ public final class Client implements EntryPoint
             viewContext = createViewContext(openUrlController);
             initializeControllers(openUrlController);
         }
-        
-        setUrlParams(viewContext);
-        
+
+        final UrlParamsHelper urlParamsHelper = new UrlParamsHelper(viewContext);
+        urlParamsHelper.initUrlParams();
+
         final IClientServiceAsync service = viewContext.getService();
         service.getApplicationInfo(new AbstractAsyncCallback<ApplicationInfo>(viewContext)
             {
@@ -135,20 +134,13 @@ public final class Client implements EntryPoint
                 {
                     viewContext.getModel().setApplicationInfo(info);
                     // the callback sets the SessionContext and redirects to the login page or the
-                    // initial page
+                    // initial page and may additionaly open an initial tab
                     SessionContextCallback sessionContextCallback =
-                            new SessionContextCallback((CommonViewContext) viewContext);
+                            new SessionContextCallback((CommonViewContext) viewContext,
+                                    urlParamsHelper.getOpenInitialTabAction());
                     service.tryToGetCurrentSessionContext(sessionContextCallback);
                 }
             });
     }
 
-    private final void setUrlParams(IViewContext<ICommonClientServiceAsync> viewContext2)
-    {
-        final String paramString = GWTUtils.getParamString();
-        if (StringUtils.isBlank(paramString) == false)
-        {
-            viewContext.getModel().setUrlParams(GWTUtils.parseParamString(paramString));
-        }
-    }
 }

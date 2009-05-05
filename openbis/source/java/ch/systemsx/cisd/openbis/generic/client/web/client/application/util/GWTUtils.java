@@ -17,9 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -224,12 +222,6 @@ public final class GWTUtils
         return (O) (selectedModel != null ? selectedModel.get(ModelDataPropertyNames.OBJECT) : null);
     }
 
-    // managing url parameters
-
-    private static final String KEY_VALUE_SEPARATOR = "=";
-
-    private static final String PARAMETER_SEPARATOR = "&";
-
     /**
      * Returns the <i>search</i> of a <i>Javascript</i> window location (without the starting
      * <code>?</code> if any).
@@ -237,24 +229,8 @@ public final class GWTUtils
      * @return something like <code>key1=value1&key2=value2</code>.
      */
     public final static native String getParamString() /*-{
-                                              var search = $wnd.location.search;
-                                              return search.indexOf("?") == 0 ? search.substring(1) : search;
-                                           }-*/;
+                                                       var search = $wnd.location.search;
+                                                       return search.indexOf("?") == 0 ? search.substring(1) : search;
+                                                    }-*/;
 
-    /**
-     * Parses given URL <var>string</var> and returns the key-value pairs
-     */
-    public final static Map<String, String> parseParamString(final String string)
-    {
-        assert string != null : "Given text can not be null.";
-        final String[] params = string.split(PARAMETER_SEPARATOR);
-        final Map<String, String> map = new HashMap<String, String>();
-        for (int i = 0; i < params.length; i++)
-        {
-            final String[] keyVal = params[i].split(KEY_VALUE_SEPARATOR);
-            assert keyVal.length == 2 : "Only two items should be found here.";
-            map.put(keyVal[0], keyVal[1]);
-        }
-        return map;
-    }
 }

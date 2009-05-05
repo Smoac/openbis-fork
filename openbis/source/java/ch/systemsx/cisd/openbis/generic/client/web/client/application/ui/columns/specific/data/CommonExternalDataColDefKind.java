@@ -147,7 +147,17 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
                     {
                         return entity.getDataProducerCode();
                     }
-                });
+                }),
+
+    // TODO 2009-05-05, Piotr Buczek: change to hidden after implementation of LMS-879 is finished
+    SHOW_DETAILS_LINK(new AbstractColumnDefinitionKind<ExternalData>(Dict.SHOW_DETAILS_LINK, false)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                return entity.getIdentifier();
+            }
+        });
 
     private final AbstractColumnDefinitionKind<ExternalData> columnDefinitionKind;
 

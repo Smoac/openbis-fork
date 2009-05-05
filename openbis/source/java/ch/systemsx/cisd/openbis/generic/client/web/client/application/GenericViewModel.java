@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 
@@ -32,14 +29,6 @@ public class GenericViewModel
     private ApplicationInfo applicationInfo;
 
     private SessionContext sessionContext;
-    
-    /**
-     * The URL parameters.
-     * <p>
-     * Is never <code>null</code> but could be empty.
-     * </p>
-     */
-    private Map<String, String> urlParams = new HashMap<String, String>();
 
     public final ApplicationInfo getApplicationInfo()
     {
@@ -59,17 +48,6 @@ public class GenericViewModel
     public final void setSessionContext(final SessionContext sessionContext)
     {
         this.sessionContext = sessionContext;
-    }
-
-    public final Map<String, String> getUrlParams()
-    {
-        return urlParams;
-    }
-
-    public final void setUrlParams(final Map<String, String> urlParams)
-    {
-        assert urlParams != null : "URL params can not be null.";
-        this.urlParams = urlParams;
     }
 
 }

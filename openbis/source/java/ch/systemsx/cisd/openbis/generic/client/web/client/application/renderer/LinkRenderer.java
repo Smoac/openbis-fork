@@ -37,8 +37,8 @@ public class LinkRenderer
     {
         return new GridCellRenderer<BaseEntityModel<?>>()
             {
-                public String render(BaseEntityModel<?> model, String property, ColumnData config, int rowIndex,
-                        int colIndex, ListStore<BaseEntityModel<?>> store)
+                public String render(BaseEntityModel<?> model, String property, ColumnData config,
+                        int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store)
                 {
                     return LinkRenderer.renderAsLink(model.get(property).toString());
                 }
@@ -57,11 +57,22 @@ public class LinkRenderer
     /** renders a div with an inline anchor inside (hand cursor is on anchor - inline) */
     public static String renderAsLinkWithAnchor(final String text)
     {
+        return renderAsLinkWithAnchor(text, "#", false);
+    }
+
+    /** renders a div with an inline anchor inside (hand cursor is on anchor - inline) */
+    public static String renderAsLinkWithAnchor(final String text, final String href,
+            final boolean openInNewWindow)
+    {
         final Element div = DOM.createDiv();
         final Element anchor = DOM.createAnchor();
         DOM.appendChild(div, anchor);
         DOM.setInnerText(anchor, text);
-        DOM.setElementProperty(anchor, "href", "#");
+        DOM.setElementProperty(anchor, "href", href);
+        if (openInNewWindow)
+        {
+            DOM.setElementProperty(anchor, "target", "blank");
+        }
         return DOM.toString(div);
     }
 

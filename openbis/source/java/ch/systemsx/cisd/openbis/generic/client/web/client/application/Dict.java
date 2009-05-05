@@ -574,5 +574,9 @@ public abstract class Dict
 
     public static final String DELETE_CONFIRMATION_MESSAGE = "delete_confirmation_message";
 
+    public static final String SHOW_DETAILS_LINK = "show_details_link_column_name";
+
+    public static final String SHOW_DETAILS_LINK_TEXT_VALUE = "show_details_link_text_value";
+
     // ----- end generic ------------------
 }
