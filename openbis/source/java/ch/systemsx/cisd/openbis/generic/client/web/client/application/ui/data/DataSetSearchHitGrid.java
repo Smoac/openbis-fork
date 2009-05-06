@@ -23,6 +23,8 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 import java.util.List;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -30,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.UrlParamsHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
@@ -42,8 +45,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listene
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -116,7 +119,8 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
                 }
             };
         registerCellClickListenerFor(DataSetSearchHitColDefKind.SAMPLE.id(), sampleClickListener);
-        registerCellClickListenerFor(DataSetSearchHitColDefKind.SAMPLE_IDENTIFIER.id(), sampleClickListener);
+        registerCellClickListenerFor(DataSetSearchHitColDefKind.SAMPLE_IDENTIFIER.id(),
+                sampleClickListener);
     }
 
     @Override
@@ -167,6 +171,21 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
         return new DataSetSearchHitModel(entity);
     }
 
+    public GridCellRenderer<BaseEntityModel<?>> createShowDetailsLinkCellRenderer()
+    {
+        return new GridCellRenderer<BaseEntityModel<?>>()
+            {
+                public String render(BaseEntityModel<?> model, String property, ColumnData config,
+                        int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store)
+                {
+                    String originalValue = String.valueOf(model.get(property));
+                    String url = UrlParamsHelper.createURL(EntityKind.DATA_SET, originalValue);
+                    return LinkRenderer.renderAsLinkWithAnchor(viewContext
+                            .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE), url, true);
+                }
+            };
+    }
+
     @Override
     protected ColumnDefsAndConfigs<ExternalData> createColumnsDefinition()
     {
@@ -179,6 +198,8 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
         schema.setGridCellRendererFor(DataSetSearchHitColDefKind.SAMPLE_IDENTIFIER.id(),
                 linkRenderer);
         schema.setGridCellRendererFor(DataSetSearchHitColDefKind.EXPERIMENT.id(), linkRenderer);
+        schema.setGridCellRendererFor(DataSetSearchHitColDefKind.SHOW_DETAILS_LINK.id(),
+                createShowDetailsLinkCellRenderer());
         return schema;
     }
 
