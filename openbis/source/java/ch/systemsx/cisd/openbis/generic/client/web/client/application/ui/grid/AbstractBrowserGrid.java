@@ -91,7 +91,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
  * @author Tomasz Pylak
  */
 public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityModel<T>> extends
-        LayoutContainer implements IDatabaseModificationObserver
+        LayoutContainer implements IDatabaseModificationObserver, IConfigurable
 {
     /**
      * Shows the detail view for the specified entity
@@ -188,7 +188,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
         this.grid = createGrid(pagingLoader, gridId);
         this.pagingToolbar =
-                new BrowserGridPagingToolBar(asActionInvoker(), viewContext, PAGE_SIZE);
+                new BrowserGridPagingToolBar(asActionInvoker(), this, viewContext, PAGE_SIZE);
         pagingToolbar.bind(pagingLoader);
         this.filterWidgets = createFilterWidgets();
         Component filterToolbar = createFilterToolbar(filterWidgets, viewContext);
@@ -579,6 +579,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                             .getTotalLength());
             delegate.onSuccess(loadResult);
             pagingToolbar.enableExportButton();
+            pagingToolbar.updateDefaultConfigButton(true);
             onComplete(true);
         }
 
@@ -707,8 +708,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 public void selectionChanged(SelectionChangedEvent<D> se)
                 {
                     pagingToolbar.disableExportButton();
+                    pagingToolbar.updateDefaultConfigButton(false);
                     refresh();
-                    // export button is reenabled when ListEntitiesCallback is complete
+                    // export and config buttons are enabled when ListEntitiesCallback is complete
                 }
             };
     }
@@ -765,7 +767,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     // refreshes the data, does not clear the cache
     private void reloadData()
     {
-        ColumnModel columnModel = new ColumnModel(columns.getColumnConfigs());
+        MoveableColumnModel columnModel = new MoveableColumnModel(columns.getColumnConfigs());
         grid.reconfigure(grid.getStore(), columnModel);
         viewContext.getDisplaySettingsManager().prepareGrid(getGridDisplayTypeID(), grid);
         pagingLoader.load(0, PAGE_SIZE);
@@ -802,6 +804,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     pagingToolbar.updateDefaultRefreshButton(true);
                     if (wasSuccessful)
                     {
+                        pagingToolbar.updateDefaultConfigButton(true);
                         pagingToolbar.enableExportButton();
                     }
                 }
@@ -874,6 +877,16 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         export(new ExportEntitiesCallback(viewContext));
     }
 
+    /**
+     * Shows the dialog allowing to configure visibility and order of the table columns.
+     */
+    public final void configure()
+    {
+        assert grid != null && grid.getColumnModel() != null : "Grid must be loaded";
+
+        new ColumnChooserDialog().show(grid);
+    }
+
     // @Private - for tests
     public final void export(final AbstractAsyncCallback<String> callback)
     {
@@ -888,7 +901,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         prepareExportEntities(exportCriteria, callback);
     }
 
-    // returns info about soring in current grid
+    // returns info about sorting in current grid
     private SortInfo<T> getGridSortInfo()
     {
         ListStore<M> store = grid.getStore();
@@ -938,7 +951,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             PagingLoader<PagingLoadConfig> dataLoader, String gridId)
     {
         ListStore<T> listStore = new ListStore<T>(dataLoader);
-        ColumnModel columnModel = new ColumnModel(new ArrayList<ColumnConfig>());
+        MoveableColumnModel columnModel = new MoveableColumnModel(new ArrayList<ColumnConfig>());
         Grid<T> grid = new Grid<T>(listStore, columnModel);
         grid.setId(gridId);
         grid.setLoadMask(true);

@@ -32,9 +32,9 @@ public class AppEvents
 {
 
     /**
-     * Useful links: <a
-     * href="http://google-web-toolkit.googlecode.com/svn/javadoc/1.5/index.html?overview-summary.html">GWT
-     * event constants</a>, <a href="http://extjs.com/deploy/gxtdocs/constant-values.html">GXT
+     * Useful links: <a href=
+     * "http://google-web-toolkit.googlecode.com/svn/javadoc/1.5/index.html?overview-summary.html"
+     * >GWT event constants</a>, <a href="http://extjs.com/deploy/gxtdocs/constant-values.html">GXT
      * event constants</a>
      */
     private final static int STARTING_VALUE = 1000000;
@@ -50,4 +50,6 @@ public class AppEvents
 
     // opens a new browser window with a specified URL
     public static final int OPEN_URL_EVENT = STARTING_VALUE + 50;
+
+    public static final int ColumnMove = STARTING_VALUE + 60;
 }

@@ -57,11 +57,14 @@ var common = {
   button_show_details: "Show Details",
   button_browse: "Browse",
   button_delete: "Delete",
+  button_configure: "Columns",  
   
   tooltip_refresh_disabled: "To activate select appropriate criteria first.",
   tooltip_refresh_enabled: "Load or update the table.",
   tooltip_export_enabled: "Export the table visible on the screen to an Excel file",
   tooltip_export_disabled: "Refresh the data before exporting them.",
+  tooltip_config_enabled: "Choose the columns.",
+  tooltip_config_disabled: "Load the data to activate this option.",
 
   //
   // LoginWidget

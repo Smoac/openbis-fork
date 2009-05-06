@@ -46,11 +46,17 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
 
     private final Button refreshButton;
 
-    public BrowserGridPagingToolBar(IBrowserGridActionInvoker invoker,
+    private final Button configButton;
+
+    public BrowserGridPagingToolBar(IBrowserGridActionInvoker invoker, IConfigurable configurable,
             IMessageProvider messageProvider, int pageSize)
     {
         super(pageSize);
         this.messageProvider = messageProvider;
+
+        this.configButton = createConfigButton(messageProvider, configurable);
+        add(configButton);
+        updateDefaultConfigButton(false);
 
         // NOTE: the original superclass refresh button is removed during rendering
         this.refreshButton = createRefreshButton(invoker);
@@ -61,6 +67,7 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
         this.exportButton = createExportButton(messageProvider, invoker);
         disableExportButton();
         add(exportButton);
+
     }
 
     private void add(Widget widget)
@@ -71,6 +78,27 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
     protected final void updateDefaultRefreshButton(boolean isEnabled)
     {
         updateRefreshButton(refreshButton, isEnabled, messageProvider);
+    }
+
+    protected final void updateDefaultConfigButton(boolean isEnabled)
+    {
+        updateConfigButton(configButton, isEnabled, messageProvider);
+    }
+
+    /**
+     * Refreshes the 'configure' button state.
+     */
+    public static final void updateConfigButton(Button button, boolean isEnabled,
+            IMessageProvider messageProvider)
+    {
+        button.setEnabled(isEnabled);
+        if (isEnabled)
+        {
+            button.setTitle(messageProvider.getMessage(Dict.TOOLTIP_CONFIG_ENABLED));
+        } else
+        {
+            button.setTitle(messageProvider.getMessage(Dict.TOOLTIP_CONFIG_DISABLED));
+        }
     }
 
     /**
@@ -137,6 +165,23 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
                                 public void componentSelected(ButtonEvent ce)
                                 {
                                     invoker.export();
+                                }
+                            });
+        return button;
+    }
+
+    /** creates a grid configuration button, the caller has to add it to a parent container */
+    public static Button createConfigButton(IMessageProvider messageProvider,
+            final IConfigurable configurable)
+    {
+        final Button button =
+                new Button(messageProvider.getMessage(Dict.BUTTON_CONFIGURE),
+                        new SelectionListener<ButtonEvent>()
+                            {
+                                @Override
+                                public void componentSelected(ButtonEvent ce)
+                                {
+                                    configurable.configure();
                                 }
                             });
         return button;

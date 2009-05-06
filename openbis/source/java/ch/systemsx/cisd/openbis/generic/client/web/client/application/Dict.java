@@ -86,6 +86,10 @@ public abstract class Dict
 
     public static final String TOOLTIP_EXPORT_DISABLED = "tooltip_export_disabled";
 
+    public static final String TOOLTIP_CONFIG_ENABLED = "tooltip_config_enabled";
+
+    public static final String TOOLTIP_CONFIG_DISABLED = "tooltip_config_disabled";
+
     public static final String BUTTON_SAVE = "button_save";
 
     public static final String BUTTON_CHOOSE = "button_choose";
@@ -576,7 +580,9 @@ public abstract class Dict
 
     public static final String DELETE_CONFIRMATION_MESSAGE = "delete_confirmation_message";
 
-    public static final String SHOW_DETAILS_LINK = "show_details_link_column_name";
+    public static final String BUTTON_CONFIGURE = "button_configure";
+    
+     public static final String SHOW_DETAILS_LINK = "show_details_link_column_name";
 
     public static final String SHOW_DETAILS_LINK_TEXT_VALUE = "show_details_link_text_value";
 

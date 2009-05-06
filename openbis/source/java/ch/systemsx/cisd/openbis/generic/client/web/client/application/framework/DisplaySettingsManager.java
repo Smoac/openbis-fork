@@ -30,6 +30,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.MoveableColumnModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
@@ -44,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 public class DisplaySettingsManager
 {
     private final DisplaySettings displaySettings;
+
     private final IUpdater updater;
 
     /**
@@ -58,11 +60,11 @@ public class DisplaySettingsManager
         this.displaySettings = displaySettings;
         this.updater = updater;
     }
-    
+
     /**
      * Prepares the specified grid using column settings for the specified display type ID.
-     * Preparation means synchronisation of the {@link ColumnModel} and registering a listener
-     * which updates settings after column configuration changes.
+     * Preparation means synchronisation of the {@link ColumnModel} and registering a listener which
+     * updates settings after column configuration changes.
      */
     public <M extends ModelData> void prepareGrid(final String displayTypeID, final Grid<M> grid)
     {
@@ -84,22 +86,23 @@ public class DisplaySettingsManager
                 }
             });
     }
-    
+
     public <M extends ModelData> void prepareGrid(final String displayTypeID, final IGrid<M> grid)
     {
         synchronizeColumnModel(displayTypeID, grid);
         Listener<ColumnModelEvent> listener = new Listener<ColumnModelEvent>()
+            {
+                public void handleEvent(ColumnModelEvent event)
                 {
-                    public void handleEvent(ColumnModelEvent event)
-                    {
-                        updateColumnSettings(displayTypeID, grid);
-                    }
-                };
+                    updateColumnSettings(displayTypeID, grid);
+                }
+            };
         ColumnModel columnModel = grid.getColumnModel();
         columnModel.addListener(Events.HiddenChange, listener);
         columnModel.addListener(Events.WidthChange, listener);
+        columnModel.addListener(AppEvents.ColumnMove, listener);
     }
-    
+
     private <M extends ModelData> void synchronizeColumnModel(String displayTypeID, IGrid<M> grid)
     {
         List<ColumnSetting> columnSettings = displaySettings.getColumnSettings().get(displayTypeID);
@@ -147,10 +150,10 @@ public class DisplaySettingsManager
         }
         if (refreshNeeded)
         {
-            grid.reconfigure(grid.getStore(), new ColumnModel(newColumnConfigList));
+            grid.reconfigure(grid.getStore(), new MoveableColumnModel(newColumnConfigList));
         }
     }
-    
+
     private <M extends ModelData> void updateColumnSettings(String displayTypeID, IGrid<M> grid)
     {
         ColumnModel columnModel = grid.getColumnModel();
