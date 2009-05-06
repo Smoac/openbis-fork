@@ -149,7 +149,6 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
                     }
                 }),
 
-    // TODO 2009-05-05, Piotr Buczek: change to hidden after implementation of LMS-879 is finished
     SHOW_DETAILS_LINK(new AbstractColumnDefinitionKind<ExternalData>(Dict.SHOW_DETAILS_LINK, false)
         {
             @Override

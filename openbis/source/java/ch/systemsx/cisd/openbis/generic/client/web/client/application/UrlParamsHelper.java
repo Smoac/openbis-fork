@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.core.client.GWT;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
@@ -38,10 +39,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 public final class UrlParamsHelper
 {
 
-    /** parameter key used to open an initial tab */
-    private static final String INITIAL_TAB_OPEN_PARAMETER_KEY = "show";
+    private static final String ENTITY_KIND_PARAMETER_KEY = "entity";
 
-    private static final String INITIAL_TAB_OPEN_PARAMETER_VALUE_SEPARATOR = "/";
+    private static final String ENTITY_IDENTIFIER_PARAMETER_KEY = "identifier";
 
     private static final String KEY_VALUE_SEPARATOR = "=";
 
@@ -50,7 +50,7 @@ public final class UrlParamsHelper
     /**
      * Parses given URL <var>string</var> and returns the key-value pairs
      */
-    private final static Map<String, String> parseParamString(final String string)
+    private final Map<String, String> parseParamString(final String string)
     {
         assert string != null : "Given text can not be null.";
         final String[] params = string.split(PARAMETER_SEPARATOR);
@@ -72,8 +72,8 @@ public final class UrlParamsHelper
     public final static String createURL(final EntityKind entityKind, final String identifier)
     {
         URLMethodWithParameters ulrWithParameters = new URLMethodWithParameters(getBaseIndexURL());
-        ulrWithParameters.addParameter(INITIAL_TAB_OPEN_PARAMETER_KEY, entityKind.name()
-                + INITIAL_TAB_OPEN_PARAMETER_VALUE_SEPARATOR + identifier);
+        ulrWithParameters.addParameter(ENTITY_KIND_PARAMETER_KEY, entityKind.name());
+        ulrWithParameters.addParameter(ENTITY_IDENTIFIER_PARAMETER_KEY, identifier);
         return ulrWithParameters.toString();
     }
 
@@ -92,9 +92,9 @@ public final class UrlParamsHelper
         this.viewContext = viewContext;
     }
 
-    private final Map<String, String> getUrlParams()
+    private final String tryGetUrlParamValue(String paramKey)
     {
-        return urlParams;
+        return urlParams.get(paramKey);
     }
 
     private final void setUrlParams(final Map<String, String> urlParams)
@@ -126,37 +126,31 @@ public final class UrlParamsHelper
         }
 
         /** opens an initial tab if a parameter is specified in URL */
-        private final void openInitialTab()
+        private void openInitialTab()
         {
-            String paramValueOrNull = tryGetInitialTabOpenParamValue();
-            if (paramValueOrNull != null)
+            String entityKindValueOrNull = tryGetUrlParamValue(ENTITY_KIND_PARAMETER_KEY);
+            String identifierValueOrNull = tryGetUrlParamValue(ENTITY_IDENTIFIER_PARAMETER_KEY);
+            try
             {
-                try
+                if (entityKindValueOrNull != null || identifierValueOrNull != null)
                 {
-                    String paramParts[] =
-                            paramValueOrNull.split(INITIAL_TAB_OPEN_PARAMETER_VALUE_SEPARATOR);
-                    assert paramParts.length == 2 : "There should be only two parts.";
-
-                    final String entityKindPart = paramParts[0];
-                    final String identifierPart = paramParts[1];
-
-                    final EntityKind entityKind = EntityKind.valueOf(entityKindPart);
-                    final String identifier = identifierPart;
-
-                    openEntityDetailsTab(entityKind, identifier);
-                } catch (Throwable exception)
-                {
-                    throw new UserFailureException("Invalid URL parameter.");
-                    // TODO 2009-05-05, Piotr Buczek: show InfoBox (cannot add it anywhere now)
-                    // InfoBox infoBox = new InfoBox();
-                    // infoBox.displayError("Invalid URL parameter.");
+                    checkMissingURLParameter(entityKindValueOrNull, ENTITY_KIND_PARAMETER_KEY);
+                    checkMissingURLParameter(identifierValueOrNull, ENTITY_IDENTIFIER_PARAMETER_KEY);
+                    EntityKind entityKind = getEntityKind(entityKindValueOrNull);
+                    openEntityDetailsTab(entityKind, identifierValueOrNull);
                 }
+            } catch (UserFailureException exception)
+            {
+                MessageBox.alert("Error", exception.getMessage(), null);
             }
         }
 
-        private String tryGetInitialTabOpenParamValue()
+        private void checkMissingURLParameter(String valueOrNull, String parameter)
         {
-            return getUrlParams().get(INITIAL_TAB_OPEN_PARAMETER_KEY);
+            if (valueOrNull == null)
+            {
+                throw new UserFailureException("Missing URL parameter: " + parameter);
+            }
         }
 
         private void openEntityDetailsTab(EntityKind entityKind, String identifier)
@@ -166,9 +160,21 @@ public final class UrlParamsHelper
 
         }
 
+        private EntityKind getEntityKind(String entityKindValueOrNull)
+        {
+            try
+            {
+                return EntityKind.valueOf(entityKindValueOrNull);
+            } catch (IllegalArgumentException exception)
+            {
+                throw new UserFailureException("Invalid '" + ENTITY_KIND_PARAMETER_KEY
+                        + "' URL parameter value.");
+            }
+        }
+
     }
 
-    private final class OpenEntityDetailsTabCallback extends
+    private class OpenEntityDetailsTabCallback extends
             AbstractAsyncCallback<IEntityInformationHolder>
     {
 
