@@ -25,7 +25,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cache;
@@ -50,24 +49,13 @@ public class SamplePropertyPE extends EntityPropertyPE
 
     public static final SamplePropertyPE[] EMPTY_ARRAY = new SamplePropertyPE[0];
 
-    private SamplePE sample;
-
-    /**
-     * Returns the sample that this property belongs to.
-     */
-    @Transient
-    public final SamplePE getSample()
-    {
-        return sample;
-    }
-
     //
     // EntityPropertyPE
     //
 
     @NotNull(message = ValidationMessages.SAMPLE_TYPE_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = SampleTypePropertyTypePE.class)
-    @JoinColumn(name = ColumnNames.SAMPLE_TYPE_PROPERTY_TYPE_COLUMN, updatable = false)
+    @JoinColumn(name = ColumnNames.SAMPLE_TYPE_PROPERTY_TYPE_COLUMN)
     public EntityTypePropertyTypePE getEntityTypePropertyType()
     {
         return entityTypePropertyType;
@@ -81,21 +69,14 @@ public class SamplePropertyPE extends EntityPropertyPE
         return id;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = SamplePE.class)
-    @JoinColumn(name = ColumnNames.SAMPLE_COLUMN, updatable = false)
-    public IIdAndCodeHolder getEntity()
-    {
-        return getSample();
-    }
-
     /**
-     * Sets the <var>sample</var> of this property.
-     * <p>
-     * <i>Do not use directly, instead, call {@link SamplePE#addProperty(SamplePropertyPE)} with
-     * <code>this</code> object!</i>
+     * Returns the sample that this property belongs to.
      */
-    void setEntity(final IIdAndCodeHolder entity)
+    @NotNull(message = ValidationMessages.SAMPLE_NOT_NULL_MESSAGE)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = ColumnNames.SAMPLE_COLUMN)
+    public SamplePE getEntity()
     {
-        this.sample = (SamplePE) entity;
+        return (SamplePE) entity;
     }
 }

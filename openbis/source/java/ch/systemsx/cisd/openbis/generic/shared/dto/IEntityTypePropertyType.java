@@ -38,5 +38,5 @@ public interface IEntityTypePropertyType extends IIdHolder
     /**
      * Returns the set of {@link EntityPropertyPE} associated with this entity type property type.
      */
-    public Set<EntityPropertyPE> getPropertyValues();
+    public Set<? extends EntityPropertyPE> getPropertyValues();
 }

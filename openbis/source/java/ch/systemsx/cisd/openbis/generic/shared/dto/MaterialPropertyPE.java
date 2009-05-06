@@ -25,7 +25,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cache;
@@ -49,24 +48,13 @@ public class MaterialPropertyPE extends EntityPropertyPE
 
     public final static MaterialPropertyPE[] EMPTY_ARRAY = new MaterialPropertyPE[0];
 
-    private MaterialPE material;
-
-    /**
-     * Returns the material that this property belongs to.
-     */
-    @Transient
-    public final MaterialPE getMaterial()
-    {
-        return material;
-    }
-
     //
     // EntityPropertyPE
     //
 
     @NotNull(message = ValidationMessages.MATERIAL_TYPE_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = MaterialTypePropertyTypePE.class)
-    @JoinColumn(name = ColumnNames.MATERIAL_TYPE_PROPERTY_TYPE_COLUMN, updatable = false)
+    @JoinColumn(name = ColumnNames.MATERIAL_TYPE_PROPERTY_TYPE_COLUMN)
     public EntityTypePropertyTypePE getEntityTypePropertyType()
     {
         return entityTypePropertyType;
@@ -80,21 +68,14 @@ public class MaterialPropertyPE extends EntityPropertyPE
         return id;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = MaterialPE.class)
-    @JoinColumn(name = ColumnNames.MATERIAL_COLUMN, updatable = false)
-    public IIdAndCodeHolder getEntity()
-    {
-        return getMaterial();
-    }
-
     /**
-     * Sets the <var>material</var> of this property.
-     * <p>
-     * <i>Do not use directly, instead, call {@link MaterialPE#addProperty(MaterialPropertyPE)} with
-     * <code>this</code> object!</i>
+     * Returns the material that this property belongs to.
      */
-    void setEntity(final IIdAndCodeHolder entity)
+    @NotNull(message = ValidationMessages.MATERIAL_NOT_NULL_MESSAGE)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = ColumnNames.MATERIAL_COLUMN)
+    public MaterialPE getEntity()
     {
-        this.material = (MaterialPE) entity;
+        return (MaterialPE) entity;
     }
 }

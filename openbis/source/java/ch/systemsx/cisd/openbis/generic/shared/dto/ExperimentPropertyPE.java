@@ -25,7 +25,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cache;
@@ -49,24 +48,13 @@ public class ExperimentPropertyPE extends EntityPropertyPE
 
     public final static ExperimentPropertyPE[] EMPTY_ARRAY = new ExperimentPropertyPE[0];
 
-    private ExperimentPE experiment;
-
-    /**
-     * Returns the experiment that this property belongs to.
-     */
-    @Transient
-    public final ExperimentPE getExperiment()
-    {
-        return experiment;
-    }
-
     //
     // EntityPropertyPE
     //
 
     @NotNull(message = ValidationMessages.EXPERIMENT_TYPE_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = ExperimentTypePropertyTypePE.class)
-    @JoinColumn(name = ColumnNames.EXPERIMENT_TYPE_PROPERTY_TYPE_COLUMN, updatable = false)
+    @JoinColumn(name = ColumnNames.EXPERIMENT_TYPE_PROPERTY_TYPE_COLUMN)
     public EntityTypePropertyTypePE getEntityTypePropertyType()
     {
         return entityTypePropertyType;
@@ -80,22 +68,14 @@ public class ExperimentPropertyPE extends EntityPropertyPE
         return id;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ExperimentPE.class)
-    @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = false)
-    public IIdAndCodeHolder getEntity()
-    {
-        return getExperiment();
-    }
-
     /**
-     * Sets the <var>experiment</var> of this property.
-     * <p>
-     * <i>Do not use directly, instead, call {@link MaterialPE#addProperty(MaterialPropertyPE)} with
-     * <code>this</code> object!</i>
+     * Returns the experiment that this property belongs to.
      */
-    void setEntity(final IIdAndCodeHolder entity)
+    @NotNull(message = ValidationMessages.EXPERIMENT_NOT_NULL_MESSAGE)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN)
+    public ExperimentPE getEntity()
     {
-        this.experiment = (ExperimentPE) entity;
+        return (ExperimentPE) entity;
     }
-
 }

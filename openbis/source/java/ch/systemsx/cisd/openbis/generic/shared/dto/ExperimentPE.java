@@ -82,9 +82,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 @Indexed
 @Friend(toClasses =
     { AttachmentPE.class, ProjectPE.class })
-public class ExperimentPE extends AttachmentHolderPE implements
-        IEntityPropertiesHolder<ExperimentPropertyPE>, IIdAndCodeHolder, Comparable<ExperimentPE>,
-        IMatchingEntity, Serializable
+public class ExperimentPE extends AttachmentHolderPE implements IEntityPropertiesHolder,
+        IIdAndCodeHolder, Comparable<ExperimentPE>, IMatchingEntity, Serializable
 
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
@@ -276,12 +275,13 @@ public class ExperimentPE extends AttachmentHolderPE implements
         return new UnmodifiableSetDecorator<ExperimentPropertyPE>(getExperimentProperties());
     }
 
-    public void setProperties(final Set<ExperimentPropertyPE> properties)
+    public void setProperties(final Set<? extends EntityPropertyPE> properties)
     {
         getExperimentProperties().clear();
-        for (final ExperimentPropertyPE experimentProperty : properties)
+        for (final EntityPropertyPE untypedProperty : properties)
         {
-            final ExperimentPE parent = experimentProperty.getExperiment();
+            ExperimentPropertyPE experimentProperty = (ExperimentPropertyPE) untypedProperty;
+            final ExperimentPE parent = experimentProperty.getEntity();
             if (parent != null)
             {
                 parent.getExperimentProperties().remove(experimentProperty);
@@ -290,10 +290,16 @@ public class ExperimentPE extends AttachmentHolderPE implements
         }
     }
 
-    public void addProperty(final ExperimentPropertyPE property)
+    public void addProperty(final EntityPropertyPE property)
     {
         property.setEntity(this);
-        getExperimentProperties().add(property);
+        getExperimentProperties().add((ExperimentPropertyPE) property);
+    }
+
+    public void removeProperty(final EntityPropertyPE property)
+    {
+        getExperimentProperties().remove(property);
+        property.setEntity(null);
     }
 
     @Override

@@ -60,8 +60,7 @@ public interface IEntityPropertyTypeDAO
     /**
      * Returns a list of all entities of given type.
      */
-    public List<IEntityPropertiesHolder<EntityPropertyPE>> listEntities(
-            final EntityTypePE entityType);
+    public List<IEntityPropertiesHolder> listEntities(final EntityTypePE entityType);
 
     /**
      * Counts how many times is the specified vocabulary term used as a property value for the
@@ -69,12 +68,12 @@ public interface IEntityPropertyTypeDAO
      */
     public long countTermUsageStatistics(final VocabularyTermPE vocabularyTerm)
             throws DataAccessException;
-    
+
     /**
      * Returns a list of all properties referring to the specified vocabulary term.
      */
     public List<EntityPropertyPE> listPropertiesByVocabularyTerm(String vocabularyTermCode);
-    
+
     /**
      * Updates specified properties.
      */

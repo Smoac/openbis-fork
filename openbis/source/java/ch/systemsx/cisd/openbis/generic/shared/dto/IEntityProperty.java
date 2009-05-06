@@ -36,7 +36,7 @@ public interface IEntityProperty extends IIdHolder
     /**
      * Returns the entity for this entity property.
      */
-    public IIdAndCodeHolder getEntity();
+    public IEntityPropertiesHolder getEntity();
 
     /**
      * Return untyped value or <code>null</code>.

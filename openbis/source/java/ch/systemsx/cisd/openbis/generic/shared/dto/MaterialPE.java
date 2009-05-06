@@ -73,7 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
             ColumnNames.DATABASE_INSTANCE_COLUMN }))
 @Indexed
 public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
-        IEntityPropertiesHolder<MaterialPropertyPE>, Serializable, IMatchingEntity
+        IEntityPropertiesHolder, Serializable, IMatchingEntity
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
@@ -232,12 +232,13 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         return new UnmodifiableSetDecorator<MaterialPropertyPE>(getMaterialProperties());
     }
 
-    public void setProperties(final Set<MaterialPropertyPE> properties)
+    public void setProperties(final Set<? extends EntityPropertyPE> properties)
     {
         getMaterialProperties().clear();
-        for (final MaterialPropertyPE materialProperty : properties)
+        for (final EntityPropertyPE untypedProperty : properties)
         {
-            final MaterialPE parent = materialProperty.getMaterial();
+            MaterialPropertyPE materialProperty = (MaterialPropertyPE) untypedProperty;
+            final MaterialPE parent = materialProperty.getEntity();
             if (parent != null)
             {
                 parent.getMaterialProperties().remove(materialProperty);
@@ -246,10 +247,16 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         }
     }
 
-    public void addProperty(final MaterialPropertyPE property)
+    public void addProperty(final EntityPropertyPE property)
     {
         property.setEntity(this);
-        getMaterialProperties().add(property);
+        getMaterialProperties().add((MaterialPropertyPE) property);
+    }
+
+    public void removeProperty(final EntityPropertyPE property)
+    {
+        getMaterialProperties().remove(property);
+        property.setEntity(null);
     }
 
     //

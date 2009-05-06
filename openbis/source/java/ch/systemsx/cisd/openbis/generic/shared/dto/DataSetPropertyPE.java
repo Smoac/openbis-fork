@@ -25,7 +25,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cache;
@@ -49,21 +48,13 @@ public class DataSetPropertyPE extends EntityPropertyPE
 
     public final static DataSetPropertyPE[] EMPTY_ARRAY = new DataSetPropertyPE[0];
 
-    private DataPE dataSet;
-
-    @Transient
-    public final DataPE getDataSet()
-    {
-        return dataSet;
-    }
-
     //
     // EntityPropertyPE
     //
 
     @NotNull(message = ValidationMessages.DATA_SET_TYPE_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = DataSetTypePropertyTypePE.class)
-    @JoinColumn(name = ColumnNames.DATA_SET_TYPE_PROPERTY_TYPE_COLUMN, updatable = false)
+    @JoinColumn(name = ColumnNames.DATA_SET_TYPE_PROPERTY_TYPE_COLUMN)
     public EntityTypePropertyTypePE getEntityTypePropertyType()
     {
         return entityTypePropertyType;
@@ -77,21 +68,11 @@ public class DataSetPropertyPE extends EntityPropertyPE
         return id;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = DataPE.class)
-    @JoinColumn(name = ColumnNames.DATA_SET_COLUMN, updatable = false)
-    public IIdAndCodeHolder getEntity()
+    @NotNull(message = ValidationMessages.DATA_NOT_NULL_MESSAGE)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = ColumnNames.DATA_SET_COLUMN)
+    public DataPE getEntity()
     {
-        return getDataSet();
-    }
-
-    /**
-     * Sets the <var>data set</var> of this property.
-     * <p>
-     * <i>Do not use directly, instead, call {@link DataPE#addProperty(DataSetPropertyPE)} with
-     * <code>this</code> object!</i>
-     */
-    void setEntity(final IIdAndCodeHolder entity)
-    {
-        this.dataSet = (DataPE) entity;
+        return (DataPE) entity;
     }
 }

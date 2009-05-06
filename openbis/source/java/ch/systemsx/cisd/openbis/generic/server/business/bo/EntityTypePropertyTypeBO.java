@@ -96,7 +96,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         EntityTypePE entityType = findEntityType(entityTypeCode);
         PropertyTypePE propertyType = findPropertyType(propertyTypeCode);
         assignment = createAssignment(isMandatory, entityType, propertyType);
-        List<IEntityPropertiesHolder<EntityPropertyPE>> entities =
+        List<IEntityPropertiesHolder> entities =
                 getEntityPropertyTypeDAO(entityKind).listEntities(entityType);
         final int size = entities.size();
         if (size > 0)
@@ -110,7 +110,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
                         entityKind.getLabel(), createPlural(size), entityType.getCode()));
             }
         }
-        for (IEntityPropertiesHolder<EntityPropertyPE> entity : entities)
+        for (IEntityPropertiesHolder entity : entities)
         {
             final EntityPropertyPE property =
                     propertiesConverter.createProperty(propertyType, assignment, findRegistrator(),
@@ -186,8 +186,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
 
     private String createExceptionMessage(EntityTypePE entityType, PropertyTypePE propertyType)
     {
-        return String.format(
-                "Property type '%s' is already assigned to %s type '%s'.", propertyType
-                        .getCode(), entityKind.getLabel(), entityType.getCode());
+        return String.format("Property type '%s' is already assigned to %s type '%s'.",
+                propertyType.getCode(), entityKind.getLabel(), entityType.getCode());
     }
 }

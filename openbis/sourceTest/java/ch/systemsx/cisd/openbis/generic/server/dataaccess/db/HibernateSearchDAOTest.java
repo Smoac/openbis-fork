@@ -434,7 +434,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
 
     private void changeExperimentProperty(ExperimentPE exp, String propertyCode, String newValue)
     {
-        ExperimentPropertyPE property = findProperty(exp, propertyCode);
+        EntityPropertyPE property = findProperty(exp, propertyCode);
 
         removeProperty(exp, property);
         flushSession();
@@ -447,7 +447,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
 
     private void changeSampleProperty(SamplePE sample, String propertyCode, String newValue)
     {
-        SamplePropertyPE property = findProperty(sample, propertyCode);
+        EntityPropertyPE property = findProperty(sample, propertyCode);
 
         removeProperty(sample, property);
         flushSession();
@@ -467,33 +467,33 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     }
 
     private static <T extends EntityPropertyPE> void addProperty(
-            IEntityPropertiesHolder<T> propertiesHolder, T newProperty)
+            IEntityPropertiesHolder propertiesHolder, T newProperty)
     {
-        Set<T> properties = getCopiedProperties(propertiesHolder);
+        Set<EntityPropertyPE> properties = getCopiedProperties(propertiesHolder);
         properties.add(newProperty);
         propertiesHolder.setProperties(properties);
     }
 
-    private static <T extends EntityPropertyPE> Set<T> removeProperty(
-            IEntityPropertiesHolder<T> propertiesHolder, T property)
+    private static Set<EntityPropertyPE> removeProperty(IEntityPropertiesHolder propertiesHolder,
+            EntityPropertyPE property)
     {
-        Set<T> properties = getCopiedProperties(propertiesHolder);
+        Set<EntityPropertyPE> properties = getCopiedProperties(propertiesHolder);
         boolean removed = properties.remove(property);
         assert removed : "property could not be removed";
         propertiesHolder.setProperties(properties);
         return properties;
     }
 
-    private static <T extends EntityPropertyPE> Set<T> getCopiedProperties(
-            IEntityPropertiesHolder<T> propertiesHolder)
+    private static Set<EntityPropertyPE> getCopiedProperties(
+            IEntityPropertiesHolder propertiesHolder)
     {
-        return new HashSet<T>(propertiesHolder.getProperties());
+        return new HashSet<EntityPropertyPE>(propertiesHolder.getProperties());
     }
 
-    private static <T extends EntityPropertyPE> T findProperty(
-            IEntityPropertiesHolder<T> propertiesHolder, String propertyCode)
+    private static EntityPropertyPE findProperty(IEntityPropertiesHolder propertiesHolder,
+            String propertyCode)
     {
-        for (T prop : propertiesHolder.getProperties())
+        for (EntityPropertyPE prop : propertiesHolder.getProperties())
         {
             if (prop.getEntityTypePropertyType().getPropertyType().getCode().equals(propertyCode))
             {

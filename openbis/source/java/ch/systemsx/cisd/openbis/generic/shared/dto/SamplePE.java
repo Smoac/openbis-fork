@@ -79,7 +79,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
         + " IS NULL AND " + ColumnNames.GROUP_COLUMN + " IS NOT NULL)")
 @Indexed
 public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Comparable<SamplePE>,
-        IEntityPropertiesHolder<SamplePropertyPE>, IMatchingEntity, Serializable
+        IEntityPropertiesHolder, IMatchingEntity, Serializable
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
@@ -503,12 +503,13 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         return new UnmodifiableSetDecorator<SamplePropertyPE>(getSampleProperties());
     }
 
-    public void setProperties(final Set<SamplePropertyPE> properties)
+    public void setProperties(final Set<? extends EntityPropertyPE> properties)
     {
         getSampleProperties().clear();
-        for (final SamplePropertyPE sampleProperty : properties)
+        for (final EntityPropertyPE untypedProperty : properties)
         {
-            final SamplePE parent = sampleProperty.getSample();
+            SamplePropertyPE sampleProperty = (SamplePropertyPE) untypedProperty;
+            final SamplePE parent = sampleProperty.getEntity();
             if (parent != null)
             {
                 parent.getSampleProperties().remove(sampleProperty);
@@ -517,10 +518,16 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         }
     }
 
-    public void addProperty(final SamplePropertyPE property)
+    public void addProperty(final EntityPropertyPE property)
     {
         property.setEntity(this);
-        getSampleProperties().add(property);
+        getSampleProperties().add((SamplePropertyPE) property);
+    }
+
+    public void removeProperty(final EntityPropertyPE property)
+    {
+        getSampleProperties().remove(property);
+        property.setEntity(null);
     }
 
     @Version

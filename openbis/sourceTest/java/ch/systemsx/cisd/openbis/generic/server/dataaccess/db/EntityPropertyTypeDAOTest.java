@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
@@ -157,8 +158,13 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
         EntityTypePropertyTypePE assignment =
                 tryToGetAssignment(EntityKind.EXPERIMENT, "SIRNA_HCS", "USER.DESCRIPTION");
         assertEquals(false, assignment.getPropertyValues().isEmpty());
+        ExperimentPropertyPE propertyValue =
+                (ExperimentPropertyPE) (assignment.getPropertyValues().iterator().next());
+        ExperimentPE experiment = propertyValue.getEntity();
+        int totalProps = experiment.getProperties().size();
 
         daoFactory.getEntityPropertyTypeDAO(EntityKind.EXPERIMENT).delete(assignment);
+        assertEquals(totalProps - 1, experiment.getProperties().size());
     }
 
     private EntityTypePropertyTypePE tryToGetAssignment(EntityKind entityKind,

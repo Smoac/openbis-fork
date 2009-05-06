@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
@@ -123,14 +124,14 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         }
     }
 
-    public List<IEntityPropertiesHolder<EntityPropertyPE>> listEntities(
-            final EntityTypePE entityType) throws DataAccessException
+    public List<IEntityPropertiesHolder> listEntities(final EntityTypePE entityType)
+            throws DataAccessException
     {
         assert entityType != null : "Unspecified entity type.";
 
         final DetachedCriteria criteria = DetachedCriteria.forClass(entityKind.getEntityClass());
         criteria.add(Restrictions.eq(entityKind.getEntityTypeFieldName(), entityType));
-        final List<IEntityPropertiesHolder<EntityPropertyPE>> list =
+        final List<IEntityPropertiesHolder> list =
                 cast(getHibernateTemplate().findByCriteria(criteria));
         return list;
     }
@@ -150,7 +151,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         }
         return count;
     }
-    
+
     public List<EntityPropertyPE> listPropertiesByVocabularyTerm(String vocabularyTermCode)
     {
         String query =
@@ -165,7 +166,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         }
         return properties;
     }
-    
+
     public void updateProperties(List<EntityPropertyPE> properties)
     {
         final HibernateTemplate template = getHibernateTemplate();
@@ -176,13 +177,15 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         template.flush();
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("UPDATE: " + properties.size() + " of kind " + entityKind + " updated.");
+            operationLog.info("UPDATE: " + properties.size() + " of kind " + entityKind
+                    + " updated.");
         }
     }
 
     public void delete(EntityTypePropertyTypePE assignment)
     {
         HibernateTemplate template = getHibernateTemplate();
+        unassignFromEntity(assignment.getPropertyValues());
         template.delete(assignment);
         template.flush();
         if (operationLog.isInfoEnabled())
@@ -192,5 +195,15 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                     + assignment.getPropertyType().getCode());
         }
     }
-    
+
+    // If we do not do this, we get inconsistent hibernate cache. The reason is that entities would
+    // still reference deleted property values.
+    private static void unassignFromEntity(Set<? extends EntityPropertyPE> propertyValues)
+    {
+        for (EntityPropertyPE propertyValue : propertyValues)
+        {
+            propertyValue.getEntity().removeProperty(propertyValue);
+        }
+    }
+
 }

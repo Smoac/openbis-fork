@@ -57,6 +57,8 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
+    protected IEntityPropertiesHolder entity;
+
     /**
      * The value of this entity property.
      * <p>
@@ -196,6 +198,18 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     public void setModificationDate(Date versionDate)
     {
         this.modificationDate = versionDate;
+    }
+
+    /**
+     * Sets the <var>entity</var> of this property.
+     * <p>
+     * <i>Do not use directly, instead, call
+     * {@link IEntityPropertiesHolder#addProperty(EntityPropertyPE)} with <code>this</code>
+     * object!</i>
+     */
+    void setEntity(final IEntityPropertiesHolder entity)
+    {
+        this.entity = entity;
     }
 
     //

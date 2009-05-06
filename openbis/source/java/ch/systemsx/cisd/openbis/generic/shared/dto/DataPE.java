@@ -76,8 +76,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
         + " IS NULL AND " + ColumnNames.SAMPLE_DERIVED_FROM + " IS NOT NULL)")
 @Inheritance(strategy = InheritanceType.JOINED)
 @Friend(toClasses = EventPE.class)
-public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
-        IEntityPropertiesHolder<DataSetPropertyPE>
+public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPropertiesHolder
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
@@ -464,24 +463,31 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         this.properties = properties;
     }
 
-    public void addProperty(final DataSetPropertyPE property)
-    {
-        property.setEntity(this);
-        getDataSetProperties().add(property);
-    }
-
-    public void setProperties(final Set<DataSetPropertyPE> properties)
+    public void setProperties(final Set<? extends EntityPropertyPE> properties)
     {
         getDataSetProperties().clear();
-        for (final DataSetPropertyPE property : properties)
+        for (final EntityPropertyPE untypedProperty : properties)
         {
-            final DataPE parent = property.getDataSet();
+            DataSetPropertyPE property = (DataSetPropertyPE) untypedProperty;
+            final DataPE parent = property.getEntity();
             if (parent != null)
             {
                 parent.getDataSetProperties().remove(property);
             }
             addProperty(property);
         }
+    }
+    
+    public void addProperty(final EntityPropertyPE property)
+    {
+        property.setEntity(this);
+        getDataSetProperties().add((DataSetPropertyPE) property);
+    }
+
+    public void removeProperty(final EntityPropertyPE property)
+    {
+        getDataSetProperties().remove(property);
+        property.setEntity(null);
     }
 
     @Transient

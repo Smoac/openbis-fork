@@ -23,22 +23,28 @@ import java.util.Set;
  * 
  * @author Christian Ribeaud
  */
-public interface IEntityPropertiesHolder<T extends EntityPropertyPE>
+public interface IEntityPropertiesHolder extends IIdAndCodeHolder
 {
     /**
      * Gets a copy of the entity properties. Note that this method returns an immutable collection
      * that will throw {@link UnsupportedOperationException} on any method that would change it. Use
      * {@link #setProperties(Set)} or {@link #addProperty(EntityPropertyPE)} instead.
      */
-    public Set<T> getProperties();
+    public Set<? extends EntityPropertyPE> getProperties();
 
     /**
      * Sets the entity properties.
      */
-    public void setProperties(final Set<T> properties);
+    public void setProperties(final Set<? extends EntityPropertyPE> properties);
 
     /**
      * Adds the <var>property</var> to the list of properties of this property holder.
      */
-    public void addProperty(T property);
+    public void addProperty(EntityPropertyPE property);
+
+    /**
+     * Removes the <var>property</var> from the list of properties of this property holder. Note
+     * that such a property has to be deleted or added to a different holder in the same session.
+     */
+    public void removeProperty(EntityPropertyPE property);
 }
