@@ -20,15 +20,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.google.gwt.core.client.GWT;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
@@ -38,10 +37,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
  */
 public final class UrlParamsHelper
 {
-
-    private static final String ENTITY_KIND_PARAMETER_KEY = "entity";
-
-    private static final String ENTITY_IDENTIFIER_PARAMETER_KEY = "identifier";
 
     private static final String KEY_VALUE_SEPARATOR = "=";
 
@@ -62,19 +57,6 @@ public final class UrlParamsHelper
             map.put(keyVal[0], keyVal[1]);
         }
         return map;
-    }
-
-    private final static String getBaseIndexURL()
-    {
-        return GWT.getModuleBaseURL() + "index.html";
-    }
-
-    public final static String createURL(final EntityKind entityKind, final String identifier)
-    {
-        URLMethodWithParameters ulrWithParameters = new URLMethodWithParameters(getBaseIndexURL());
-        ulrWithParameters.addParameter(ENTITY_KIND_PARAMETER_KEY, entityKind.name());
-        ulrWithParameters.addParameter(ENTITY_IDENTIFIER_PARAMETER_KEY, identifier);
-        return ulrWithParameters.toString();
     }
 
     /**
@@ -128,14 +110,18 @@ public final class UrlParamsHelper
         /** opens an initial tab if a parameter is specified in URL */
         private void openInitialTab()
         {
-            String entityKindValueOrNull = tryGetUrlParamValue(ENTITY_KIND_PARAMETER_KEY);
-            String identifierValueOrNull = tryGetUrlParamValue(ENTITY_IDENTIFIER_PARAMETER_KEY);
+            String entityKindValueOrNull =
+                    tryGetUrlParamValue(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY);
+            String identifierValueOrNull =
+                    tryGetUrlParamValue(PermlinkUtilities.ENTITY_IDENTIFIER_PARAMETER_KEY);
             try
             {
                 if (entityKindValueOrNull != null || identifierValueOrNull != null)
                 {
-                    checkMissingURLParameter(entityKindValueOrNull, ENTITY_KIND_PARAMETER_KEY);
-                    checkMissingURLParameter(identifierValueOrNull, ENTITY_IDENTIFIER_PARAMETER_KEY);
+                    checkMissingURLParameter(entityKindValueOrNull,
+                            PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY);
+                    checkMissingURLParameter(identifierValueOrNull,
+                            PermlinkUtilities.ENTITY_IDENTIFIER_PARAMETER_KEY);
                     EntityKind entityKind = getEntityKind(entityKindValueOrNull);
                     openEntityDetailsTab(entityKind, identifierValueOrNull);
                 }
@@ -167,8 +153,8 @@ public final class UrlParamsHelper
                 return EntityKind.valueOf(entityKindValueOrNull);
             } catch (IllegalArgumentException exception)
             {
-                throw new UserFailureException("Invalid '" + ENTITY_KIND_PARAMETER_KEY
-                        + "' URL parameter value.");
+                throw new UserFailureException("Invalid '"
+                        + PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY + "' URL parameter value.");
             }
         }
 

@@ -62,7 +62,7 @@ public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
     protected void listEntities(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
             AbstractAsyncCallback<ResultSet<ExternalData>> callback)
     {
-        viewContext.getService().listExperimentDataSets(experimentIdentifier, resultSetConfig,
-                callback);
+        viewContext.getService().listExperimentDataSets(experimentIdentifier, getBaseIndexURL(),
+                resultSetConfig, callback);
     }
 }

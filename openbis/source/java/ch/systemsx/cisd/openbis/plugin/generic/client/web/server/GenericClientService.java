@@ -334,14 +334,15 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
-    public final ExternalData getDataSetInfo(final String datasetCode)
+    public final ExternalData getDataSetInfo(final String datasetCode, final String baseIndexURL)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
             final ExternalDataPE dataset = genericServer.getDataSetInfo(sessionToken, datasetCode);
-            return ExternalDataTranslator.translate(dataset, getDataStoreBaseURL(), false);
+            return ExternalDataTranslator.translate(dataset, getDataStoreBaseURL(), baseIndexURL,
+                    false);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

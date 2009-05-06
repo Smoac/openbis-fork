@@ -575,13 +575,14 @@ public final class CommonClientService extends AbstractClientService implements
                 sessionToken, listCriteria, withExperimentAndProperties));
     }
 
-    public ResultSet<ExternalData> searchForDataSets(DataSetSearchCriteria criteria,
+    public ResultSet<ExternalData> searchForDataSets(final String baseIndexURL,
+            DataSetSearchCriteria criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         return listEntities(resultSetConfig, new ListDataSetsOriginalDataProvider(commonServer,
-                sessionToken, criteria, getDataStoreBaseURL()));
+                sessionToken, criteria, getDataStoreBaseURL(), baseIndexURL));
     }
 
     public final ResultSet<Experiment> listExperiments(final ListExperimentsCriteria listCriteria)
@@ -812,7 +813,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public ResultSet<ExternalData> listSampleDataSets(final String sampleIdentifier,
-            DefaultResultSetConfig<String, ExternalData> criteria)
+            final String baseIndexURL, DefaultResultSetConfig<String, ExternalData> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return listEntities(criteria, new IOriginalDataProvider<ExternalData>()
@@ -824,13 +825,14 @@ public final class CommonClientService extends AbstractClientService implements
                             SampleIdentifierFactory.parse(sampleIdentifier);
                     final List<ExternalDataPE> externalData =
                             commonServer.listExternalData(sessionToken, identifier);
-                    return ExternalDataTranslator.translate(externalData, getDataStoreBaseURL());
+                    return ExternalDataTranslator.translate(externalData, getDataStoreBaseURL(),
+                            baseIndexURL);
                 }
             });
     }
 
     public ResultSet<ExternalData> listExperimentDataSets(final String experimentIdentifier,
-            DefaultResultSetConfig<String, ExternalData> criteria)
+            final String baseIndexURL, DefaultResultSetConfig<String, ExternalData> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return listEntities(criteria, new IOriginalDataProvider<ExternalData>()
@@ -844,7 +846,8 @@ public final class CommonClientService extends AbstractClientService implements
                                     .createIdentifier();
                     final List<ExternalDataPE> externalData =
                             commonServer.listExternalData(sessionToken, identifier);
-                    return ExternalDataTranslator.translate(externalData, getDataStoreBaseURL());
+                    return ExternalDataTranslator.translate(externalData, getDataStoreBaseURL(),
+                            baseIndexURL);
                 }
 
             });

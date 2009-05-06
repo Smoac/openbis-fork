@@ -90,7 +90,8 @@ public interface IGenericClientService extends IClientService
     /**
      * For given <var>datasetCode</var> returns corresponding {@link ExternalData}.
      */
-    public ExternalData getDataSetInfo(final String datasetCode) throws UserFailureException;
+    public ExternalData getDataSetInfo(final String datasetCode, final String baseIndexURL)
+            throws UserFailureException;
 
     /**
      * Registers a new experiment.

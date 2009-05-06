@@ -78,6 +78,18 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 
     private DataStore dataStore;
 
+    private String permlink;
+
+    public String getPermlink()
+    {
+        return permlink;
+    }
+
+    public void setPermlink(String permlink)
+    {
+        this.permlink = permlink;
+    }
+
     public Sample getSample()
     {
         return sample;

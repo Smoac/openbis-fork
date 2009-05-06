@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.SetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IEntityPropertiesHolder;
@@ -241,5 +242,10 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
     {
         return entityType1.getAssignedPropertyTypes()
                 .equals(entityType2.getAssignedPropertyTypes());
+    }
+
+    protected final String getBaseIndexURL()
+    {
+        return GWTUtils.getBaseIndexURL();
     }
 }

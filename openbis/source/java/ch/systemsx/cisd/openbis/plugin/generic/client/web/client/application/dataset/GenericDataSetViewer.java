@@ -82,7 +82,7 @@ public final class GenericDataSetViewer extends AbstractViewer<IGenericClientSer
      */
     protected void reloadData()
     {
-        viewContext.getService().getDataSetInfo(datasetIdentifier,
+        viewContext.getService().getDataSetInfo(datasetIdentifier, getBaseIndexURL(),
                 new DataSetInfoCallback(viewContext, this));
     }
 

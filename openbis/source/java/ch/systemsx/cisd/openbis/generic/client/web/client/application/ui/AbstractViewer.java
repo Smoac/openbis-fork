@@ -30,6 +30,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -37,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 public abstract class AbstractViewer<T extends IClientServiceAsync> extends ContentPanel
 {
     private final ToolBar toolBar;
+
     protected final IViewContext<T> viewContext;
 
     public AbstractViewer(final IViewContext<T> viewContext, String title)
@@ -50,13 +52,18 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
         Button button = new Button(viewContext.getMessage(Dict.BUTTON_EDIT));
         button.addListener(Events.Select, new Listener<BaseEvent>()
             {
-        
+
                 public void handleEvent(BaseEvent be)
                 {
                     MessageBox.alert("Info", "Not yet implemented", null);
                 }
-        
+
             });
         toolBar.add(new AdapterToolItem(button));
+    }
+
+    protected final String getBaseIndexURL()
+    {
+        return GWTUtils.getBaseIndexURL();
     }
 }

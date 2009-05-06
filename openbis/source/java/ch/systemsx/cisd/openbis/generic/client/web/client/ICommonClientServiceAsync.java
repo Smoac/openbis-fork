@@ -247,8 +247,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#prepareExportFileTypes(TableExportCriteria) */
     public void prepareExportFileTypes(TableExportCriteria<AbstractType> criteria,
             AsyncCallback<String> callback)
-    throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
-    
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+
     /**
      * @see ICommonClientService#getExportTable(String, String)
      */
@@ -261,16 +261,16 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void removeResultSet(final String resultSetKey, final AsyncCallback<Void> asyncCallback);
 
     /**
-     * @see ICommonClientService#listSampleDataSets(String, DefaultResultSetConfig)
+     * @see ICommonClientService#listSampleDataSets(String, String, DefaultResultSetConfig)
      */
-    public void listSampleDataSets(String sampleIdentifier,
+    public void listSampleDataSets(String sampleIdentifier, String baseIndexURL,
             DefaultResultSetConfig<String, ExternalData> criteria,
             AsyncCallback<ResultSet<ExternalData>> asyncCallback);
 
     /**
-     * @see ICommonClientService#listExperimentDataSets(String, DefaultResultSetConfig)
+     * @see ICommonClientService#listExperimentDataSets(String, String, DefaultResultSetConfig)
      */
-    public void listExperimentDataSets(String experimentIdentifier,
+    public void listExperimentDataSets(String experimentIdentifier, String baseIndexURL,
             DefaultResultSetConfig<String, ExternalData> criteria,
             AsyncCallback<ResultSet<ExternalData>> asyncCallback);
 
@@ -324,9 +324,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<Void> projectRegistrationCallback);
 
     /**
-     * @see ICommonClientService#searchForDataSets(DataSetSearchCriteria, IResultSetConfig)
+     * @see ICommonClientService#searchForDataSets(String, DataSetSearchCriteria, IResultSetConfig)
      */
-    public void searchForDataSets(DataSetSearchCriteria criteria,
+    public void searchForDataSets(final String baseIndexURL, DataSetSearchCriteria criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig,
             final AsyncCallback<ResultSet<ExternalData>> callback);
 

@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.UrlParamsHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
@@ -384,9 +383,8 @@ public abstract class AbstractExternalDataGrid
     {
         String showDetailsLinkID = CommonExternalDataColDefKind.SHOW_DETAILS_LINK.id();
         String originalValue = String.valueOf(model.get(showDetailsLinkID));
-        String url = UrlParamsHelper.createURL(EntityKind.DATA_SET, originalValue);
         model.set(showDetailsLinkID, LinkRenderer.renderAsLinkWithAnchor(viewContext
-                .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE), url, true));
+                .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE), originalValue, true));
     }
 
     @Override

@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
+package ch.systemsx.cisd.openbis.generic.shared.basic;
+
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class URLMethodWithParameters
+public class URLMethodWithParameters implements IsSerializable
 {
     private final StringBuilder builder;
-    
+
     private char delim = '?';
-    
+
     public URLMethodWithParameters(String methodName)
     {
         builder = new StringBuilder(methodName);
     }
-    
+
     public void addParameter(String parameterName, Object value)
     {
         builder.append(delim).append(parameterName).append('=');
@@ -47,6 +47,5 @@ public class URLMethodWithParameters
     {
         return builder.toString();
     }
-    
-    
+
 }

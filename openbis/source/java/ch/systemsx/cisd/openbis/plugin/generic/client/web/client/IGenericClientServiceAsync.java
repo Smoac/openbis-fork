@@ -84,9 +84,10 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<Material> materialInfoCallback);
 
     /**
-     * @see IGenericClientService#getDataSetInfo(String)
+     * @see IGenericClientService#getDataSetInfo(String, String)
      */
-    public void getDataSetInfo(String code, final AsyncCallback<ExternalData> datasetInfoCallback);
+    public void getDataSetInfo(String code, String baseIndexURL,
+            final AsyncCallback<ExternalData> datasetInfoCallback);
 
     /**
      * @see IGenericClientService#registerExperiment(String,String,NewExperiment)

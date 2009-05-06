@@ -184,7 +184,7 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<External
             @Override
             public String tryGetValue(ExternalData entity)
             {
-                return entity.getIdentifier();
+                return entity.getPermlink();
             }
         }),
 

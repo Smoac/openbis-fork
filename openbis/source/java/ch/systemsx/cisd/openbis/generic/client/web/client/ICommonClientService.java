@@ -290,10 +290,10 @@ public interface ICommonClientService extends IClientService
      */
     public String prepareExportDataSetTypes(final TableExportCriteria<DataSetType> criteria)
             throws UserFailureException;
-    
+
     public ResultSet<? extends AbstractType> listFileTypes(
             DefaultResultSetConfig<String, AbstractType> criteria) throws UserFailureException;
-    
+
     public String prepareExportFileTypes(TableExportCriteria<FileFormatType> criteria)
             throws UserFailureException;
 
@@ -314,10 +314,15 @@ public interface ICommonClientService extends IClientService
      * For given <var>sampleIdentifier</var> returns corresponding list of {@link ExternalData}.
      */
     public ResultSet<ExternalData> listSampleDataSets(final String sampleIdentifier,
-            DefaultResultSetConfig<String, ExternalData> criteria) throws UserFailureException;
+            final String baseIndexURL, DefaultResultSetConfig<String, ExternalData> criteria)
+            throws UserFailureException;
 
-    public ResultSet<ExternalData> listExperimentDataSets(String experimentIdentifier,
-            DefaultResultSetConfig<String, ExternalData> criteria) throws UserFailureException;
+    /**
+     * For given <var>experimentIdentifier</var> returns corresponding list of {@link ExternalData}.
+     */
+    public ResultSet<ExternalData> listExperimentDataSets(final String experimentIdentifier,
+            final String baseIndexURL, DefaultResultSetConfig<String, ExternalData> criteria)
+            throws UserFailureException;
 
     /**
      * Lists the searchable entities.
@@ -380,7 +385,8 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns {@link ExternalData} fulfilling given {@link DataSetSearchCriteria}.
      */
-    public ResultSet<ExternalData> searchForDataSets(DataSetSearchCriteria criteria,
+    public ResultSet<ExternalData> searchForDataSets(final String baseIndexURL,
+            DataSetSearchCriteria criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig)
             throws UserFailureException;
 
@@ -403,7 +409,7 @@ public interface ICommonClientService extends IClientService
 
     /** Registers a new file type */
     public void registerFileType(FileFormatType type) throws UserFailureException;
-    
+
     /** Registers a new sample type */
     public void registerSampleType(SampleType entityType) throws UserFailureException;
 

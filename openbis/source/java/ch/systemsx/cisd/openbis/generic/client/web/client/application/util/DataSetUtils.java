@@ -18,10 +18,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataSetUtils
@@ -29,7 +28,8 @@ public class DataSetUtils
     public static void showDataSet(ExternalData dataSet, GenericViewModel model)
     {
         URLMethodWithParameters methodWithParameters =
-            new URLMethodWithParameters(dataSet.getDataStore().getDownloadUrl() + "/" + dataSet.getCode());
+                new URLMethodWithParameters(dataSet.getDataStore().getDownloadUrl() + "/"
+                        + dataSet.getCode());
         methodWithParameters.addParameter("sessionID", model.getSessionContext().getSessionID());
         WindowUtils.openWindow(methodWithParameters.toString());
     }

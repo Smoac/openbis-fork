@@ -32,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.UrlParamsHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
@@ -135,7 +134,8 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
     protected void listEntities(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
             AbstractAsyncCallback<ResultSet<ExternalData>> callback)
     {
-        viewContext.getService().searchForDataSets(chosenSearchCriteria, resultSetConfig, callback);
+        viewContext.getService().searchForDataSets(getBaseIndexURL(), chosenSearchCriteria,
+                resultSetConfig, callback);
     }
 
     public void refresh(DataSetSearchCriteria newCriteria, List<PropertyType> propertyTypes)
@@ -179,9 +179,8 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
                         int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store)
                 {
                     String originalValue = String.valueOf(model.get(property));
-                    String url = UrlParamsHelper.createURL(EntityKind.DATA_SET, originalValue);
                     return LinkRenderer.renderAsLinkWithAnchor(viewContext
-                            .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE), url, true);
+                            .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE), originalValue, true);
                 }
             };
     }

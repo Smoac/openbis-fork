@@ -154,7 +154,7 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             @Override
             public String tryGetValue(ExternalData entity)
             {
-                return entity.getIdentifier();
+                return entity.getPermlink();
             }
         });
 

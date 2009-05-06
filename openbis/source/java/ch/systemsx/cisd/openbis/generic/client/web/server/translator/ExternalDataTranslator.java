@@ -27,7 +27,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentTranslator.LoadableFields;
+import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -45,25 +47,27 @@ public class ExternalDataTranslator
     }
 
     public static List<ExternalData> translate(List<ExternalDataPE> list,
-            String dedaultDataStoreBaseURL)
+            String defaultDataStoreBaseURL, String baseIndexURL)
     {
         ArrayList<ExternalData> result = new ArrayList<ExternalData>(list.size());
         for (ExternalDataPE externalDataPE : list)
         {
-            ExternalData data = translate(externalDataPE, dedaultDataStoreBaseURL);
+            ExternalData data = translate(externalDataPE, defaultDataStoreBaseURL, baseIndexURL);
             result.add(data);
         }
         return result;
     }
 
     public static ExternalData translate(ExternalDataPE externalDataPE,
-            String defaultDataStoreBaseURL, final LoadableFields... withExperimentFields)
+            String defaultDataStoreBaseURL, String baseIndexURL,
+            final LoadableFields... withExperimentFields)
     {
-        return translate(externalDataPE, defaultDataStoreBaseURL, false, withExperimentFields);
+        return translate(externalDataPE, defaultDataStoreBaseURL, baseIndexURL, false,
+                withExperimentFields);
     }
 
     public static ExternalData translate(ExternalDataPE externalDataPE,
-            String defaultDataStoreBaseURL, boolean loadSampleProperties,
+            String defaultDataStoreBaseURL, String baseIndexURL, boolean loadSampleProperties,
             final LoadableFields... withExperimentFields)
     {
         SamplePE sample = tryToGetSample(externalDataPE);
@@ -76,8 +80,8 @@ public class ExternalDataTranslator
         externalData.setDataSetType(DataSetTypeTranslator
                 .translate(externalDataPE.getDataSetType()));
         externalData.setDerived(externalDataPE.getSampleDerivedFrom() != null);
-        externalData.setFileFormatType(TypeTranslator.translate(externalDataPE
-                .getFileFormatType()));
+        externalData
+                .setFileFormatType(TypeTranslator.translate(externalDataPE.getFileFormatType()));
         externalData.setInvalidation(tryToGetInvalidation(sample));
         externalData.setLocation(StringEscapeUtils.escapeHtml(externalDataPE.getLocation()));
         externalData.setLocatorType(TypeTranslator.translate(externalDataPE.getLocatorType()));
@@ -95,6 +99,8 @@ public class ExternalDataTranslator
                 .getCode()));
         externalData.setDataStore(DataStoreTranslator.translate(externalDataPE.getDataStore(),
                 defaultDataStoreBaseURL));
+        externalData.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL,
+                EntityKind.DATA_SET, externalData.getIdentifier()));
         if (loadSampleProperties && sample != null)
         {
             externalData.setSampleProperties(SamplePropertyTranslator.translate(sample

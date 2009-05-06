@@ -67,6 +67,8 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
 {
     private static final String DATA_STORE_BASE_URL = "baseURL";
 
+    private static final String BASE_INDEX_URL = "indexURL";
+
     private static final String CIFEX_URL = "cifexURL";
 
     private CommonClientService commonClientService;
@@ -332,7 +334,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
             });
 
         ResultSet<ExternalData> resultSet =
-                commonClientService.listExperimentDataSets("db:/group/project/exp",
+                commonClientService.listExperimentDataSets("db:/group/project/exp", BASE_INDEX_URL,
                         new DefaultResultSetConfig<String, ExternalData>());
         List<ExternalData> list = resultSet.getList();
         assertEquals(1, list.size());
@@ -344,7 +346,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testUpdateDisplaySettings()
     {
@@ -353,16 +355,16 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
             {
                 {
                     prepareGetSessionToken(this);
-                    
+
                     one(commonServer).saveDisplaySettings(SESSION_TOKEN, displaySettings);
                 }
             });
-        
+
         commonClientService.updateDisplaySettings(displaySettings);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLogout()
     {
@@ -372,26 +374,27 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                 {
                     one(requestContextProvider).getHttpServletRequest();
                     will(returnValue(servletRequest));
-                    
+
                     one(servletRequest).getSession(false);
                     will(returnValue(httpSession));
-                    
+
                     one(httpSession).getAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
                     will(returnValue(createSessionMock()));
-                    
-                    one(httpSession).removeAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
+
+                    one(httpSession)
+                            .removeAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
                     one(httpSession).removeAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY);
                     one(httpSession).removeAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
                     one(httpSession).removeAttribute(SessionConstants.OPENBIS_EXPORT_MANAGER);
                     one(httpSession).invalidate();
-                    
+
                     one(commonServer).saveDisplaySettings(SESSION_TOKEN, displaySettings);
                     one(commonServer).logout(SESSION_TOKEN);
                 }
             });
 
         commonClientService.logout(displaySettings);
-        
+
         context.assertIsSatisfied();
     }
 }

@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.tree.Tree;
 import com.extjs.gxt.ui.client.widget.tree.TreeItem;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.ListBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
@@ -229,8 +230,14 @@ public final class GWTUtils
      * @return something like <code>key1=value1&key2=value2</code>.
      */
     public final static native String getParamString() /*-{
-                                                       var search = $wnd.location.search;
-                                                       return search.indexOf("?") == 0 ? search.substring(1) : search;
-                                                    }-*/;
+                                                             var search = $wnd.location.search;
+                                                             return search.indexOf("?") == 0 ? search.substring(1) : search;
+                                                          }-*/;
+
+    /** Returns base URL to the index page of the application. */
+    public final static String getBaseIndexURL()
+    {
+        return GWT.getModuleBaseURL() + "index.html";
+    }
 
 }

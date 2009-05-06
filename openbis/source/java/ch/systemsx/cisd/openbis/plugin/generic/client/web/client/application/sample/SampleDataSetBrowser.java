@@ -56,6 +56,7 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
     protected void listEntities(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
             AbstractAsyncCallback<ResultSet<ExternalData>> callback)
     {
-        viewContext.getService().listSampleDataSets(sampleIdentifier, resultSetConfig, callback);
+        viewContext.getService().listSampleDataSets(sampleIdentifier, getBaseIndexURL(),
+                resultSetConfig, callback);
     }
 }

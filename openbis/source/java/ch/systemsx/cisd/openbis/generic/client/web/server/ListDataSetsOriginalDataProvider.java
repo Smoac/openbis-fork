@@ -20,14 +20,18 @@ final class ListDataSetsOriginalDataProvider extends AbstractOriginalDataProvide
 {
 
     private final DataSetSearchCriteria criteria;
+
     private final String dataStoreBaseURL;
 
+    private final String baseIndexURL;
+
     ListDataSetsOriginalDataProvider(final ICommonServer commonServer, final String sessionToken,
-            final DataSetSearchCriteria criteria, String dataStoreBaseURL)
+            final DataSetSearchCriteria criteria, String dataStoreBaseURL, String baseIndexURL)
     {
         super(commonServer, sessionToken);
         this.criteria = criteria;
         this.dataStoreBaseURL = dataStoreBaseURL;
+        this.baseIndexURL = baseIndexURL;
     }
 
     //
@@ -36,12 +40,11 @@ final class ListDataSetsOriginalDataProvider extends AbstractOriginalDataProvide
 
     public final List<ExternalData> getOriginalData()
     {
-        final List<ExternalDataPE> hits =
-                commonServer.searchForDataSets(sessionToken, criteria);
+        final List<ExternalDataPE> hits = commonServer.searchForDataSets(sessionToken, criteria);
         final List<ExternalData> list = new ArrayList<ExternalData>(hits.size());
         for (final ExternalDataPE hit : hits)
         {
-            list.add(ExternalDataTranslator.translate(hit, dataStoreBaseURL,true,
+            list.add(ExternalDataTranslator.translate(hit, dataStoreBaseURL, baseIndexURL, true,
                     LoadableFields.PROPERTIES));
         }
         return list;
