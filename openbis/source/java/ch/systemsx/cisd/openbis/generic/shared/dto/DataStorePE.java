@@ -79,7 +79,7 @@ public final class DataStorePE extends AbstractIdAndCodeHolder<DataStorePE>
         this.code = code;
     }
 
-    @Column(name = ColumnNames.DOWNLOAD_URL_COLUMN, updatable = false)
+    @Column(name = ColumnNames.DOWNLOAD_URL_COLUMN, updatable = true)
     @NotNull(message = ValidationMessages.DOWNLOAD_URL_NOT_NULL_MESSAGE)
     public final String getDownloadUrl()
     {
