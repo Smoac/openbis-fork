@@ -21,10 +21,13 @@ import java.util.Properties;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.etlserver.IStorageProcessor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -71,5 +74,29 @@ public class StorageProcessorWithDropboxTest
         new StorageProcessorWithDropbox(props, storageProcessor, fileOperations).storeData(null,
                 dataSetInfo, null, null, incomingDirectory, null);
         context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testCreateDelegateStorageProcessor()
+    {
+        Properties props = new Properties();
+        props.setProperty(StorageProcessorWithDropbox.DELEGATE_PROCESSOR_CLASS_PROPERTY,
+                DefaultStorageProcessor.class.getCanonicalName());
+        StorageProcessorWithDropbox.createDelegateStorageProcessor(props);
+    }
+
+    @Test
+    public final void testCreateDelegateStorageProcessorFails()
+    {
+        String expectedErrorMsg = "Given key 'default-processor' not found in properties '[]'";
+        try
+        {
+            StorageProcessorWithDropbox.createDelegateStorageProcessor(new Properties());
+        } catch (ConfigurationFailureException e)
+        {
+            AssertJUnit.assertEquals(expectedErrorMsg, e.getMessage());
+            return;
+        }
+        AssertJUnit.fail("Expected error: " + expectedErrorMsg);
     }
 }

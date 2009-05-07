@@ -19,12 +19,16 @@ package ch.systemsx.cisd.etlserver.imsb;
 import java.io.File;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
@@ -59,11 +63,16 @@ public class StorageProcessorWithDropbox implements IStorageProcessor
      */
     public final static String DROPBOX_INCOMING_DIRECTORY_PROPERTY = "dropbox-incoming-dir";
 
+    final static Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, StorageProcessorWithDropbox.class);
+
     private final IStorageProcessor delegate;
 
     private final IFileOperations fileOperations;
 
     private final File dropboxIncomingDir;
+
+    private File recentlyStoredDropboxDataset;
 
     public StorageProcessorWithDropbox(Properties properties)
     {
@@ -79,10 +88,11 @@ public class StorageProcessorWithDropbox implements IStorageProcessor
         this.dropboxIncomingDir = getDropboxIncomingDir(properties);
     }
 
-    private static IStorageProcessor createDelegateStorageProcessor(Properties properties)
+    @Private
+    static IStorageProcessor createDelegateStorageProcessor(Properties properties)
     {
-        String delegateClass = (String) properties.get(DELEGATE_PROCESSOR_CLASS_PROPERTY);
-        return createClass(IStorageProcessor.class, delegateClass);
+        String delegateClass = getMandatoryProperty(properties, DELEGATE_PROCESSOR_CLASS_PROPERTY);
+        return createClass(IStorageProcessor.class, delegateClass, properties);
     }
 
     private final File getDropboxIncomingDir(Properties properties)
@@ -92,7 +102,7 @@ public class StorageProcessorWithDropbox implements IStorageProcessor
 
     private File getDirectory(String propertyName, Properties properties)
     {
-        String filePath = getMandatoryProperty(propertyName, properties);
+        String filePath = getMandatoryProperty(properties, propertyName);
         File file = new File(filePath);
         if (fileOperations.isDirectory(file) == false)
         {
@@ -103,16 +113,17 @@ public class StorageProcessorWithDropbox implements IStorageProcessor
         return file;
     }
 
-    private static final String getMandatoryProperty(final String propertyKey, Properties properties)
+    private static final String getMandatoryProperty(Properties properties, final String propertyKey)
     {
         return PropertyUtils.getMandatoryProperty(properties, propertyKey);
     }
 
-    private final static <T> T createClass(final Class<T> superClazz, String className)
+    private final static <T> T createClass(final Class<T> superClazz, String className,
+            Object... argumentsOrNull)
     {
         try
         {
-            return ClassUtils.create(superClazz, className);
+            return ClassUtils.create(superClazz, className, argumentsOrNull);
         } catch (IllegalArgumentException ex)
         {
             throw new ConfigurationFailureException(ex.getMessage());
@@ -132,17 +143,26 @@ public class StorageProcessorWithDropbox implements IStorageProcessor
                         incomingDataSetDirectory, rootDir);
         String destinationFileName =
                 createDropboxDestinationFileName(dataSetInformation, incomingDataSetDirectory);
+        copy(storeData, destinationFileName);
+        return storeData;
+    }
+
+    private void copy(File storeData, String destinationFileName)
+    {
+        File originalData = delegate.tryGetProprietaryData(storeData);
+        File destFile = new File(dropboxIncomingDir, destinationFileName);
         try
         {
-            fileOperations.copyToDirectoryAs(incomingDataSetDirectory, dropboxIncomingDir,
-                    destinationFileName);
+            fileOperations.copyToDirectoryAs(originalData, dropboxIncomingDir, destinationFileName);
+
+            operationLog.info(String.format("Dataset '%s' copied into dropbox as '%s'.",
+                    originalData.getPath(), destFile.getPath()));
         } catch (IOExceptionUnchecked ex)
         {
-            String destPath = new File(dropboxIncomingDir, destinationFileName).getPath();
             throw EnvironmentFailureException.fromTemplate("Cannot copy '%s' to '%s': %s.",
-                    incomingDataSetDirectory.getPath(), destPath, ex.getMessage());
+                    originalData.getPath(), destFile.getPath(), ex.getMessage());
         }
-        return storeData;
+        this.recentlyStoredDropboxDataset = destFile;
     }
 
     private static String createDropboxDestinationFileName(DataSetInformation dataSetInformation,
@@ -183,6 +203,11 @@ public class StorageProcessorWithDropbox implements IStorageProcessor
     public final void unstoreData(final File incomingDataSetDirectory,
             final File storedDataDirectory)
     {
+        if (recentlyStoredDropboxDataset != null && recentlyStoredDropboxDataset.exists())
+        {
+            fileOperations.deleteRecursively(recentlyStoredDropboxDataset);
+        }
+        recentlyStoredDropboxDataset = null;
         delegate.unstoreData(incomingDataSetDirectory, storedDataDirectory);
     }
 

@@ -17,9 +17,11 @@
 package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
+import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -34,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 public class DefaultStorageProcessor extends AbstractStorageProcessor
 {
     static final String ORIGINAL_DIR = "original";
+
     static final String NO_RENAME = "Couldn't rename '%s' to '%s'.";
 
     public DefaultStorageProcessor(final Properties properties)
@@ -46,15 +49,15 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
     //
 
     public final File storeData(final ExperimentPE experiment,
-            final DataSetInformation dataSetInformation,
-            final ITypeExtractor typeExtractor, final IMailClient mailClient,
-            final File incomingDataSetDirectory, final File rootDir)
+            final DataSetInformation dataSetInformation, final ITypeExtractor typeExtractor,
+            final IMailClient mailClient, final File incomingDataSetDirectory, final File rootDir)
     {
         checkParameters(incomingDataSetDirectory, rootDir);
-        File originalDir = new File(rootDir, ORIGINAL_DIR);
+        File originalDir = getOriginalDirectory(rootDir);
         if (originalDir.mkdir() == false)
         {
-            throw new EnvironmentFailureException("Couldn't create " + originalDir.getAbsolutePath());
+            throw new EnvironmentFailureException("Couldn't create "
+                    + originalDir.getAbsolutePath());
         }
         final File targetFile = new File(originalDir, incomingDataSetDirectory.getName());
         if (FileRenamer.renameAndLog(incomingDataSetDirectory, targetFile) == false)
@@ -69,12 +72,18 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
             final File storedDataDirectory)
     {
         checkParameters(incomingDataSetDirectory, storedDataDirectory);
-        File targetFile = new File(new File(storedDataDirectory, ORIGINAL_DIR),
-                incomingDataSetDirectory.getName());
+        File targetFile =
+                new File(getOriginalDirectory(storedDataDirectory), incomingDataSetDirectory
+                        .getName());
         // Note that this will move back <code>targetFilePath</code> to its original place but the
         // directory structure will persist. Right now, we consider this is fine as these empty
         // directories will not disturb the running application.
         FileRenamer.renameAndLog(targetFile, incomingDataSetDirectory);
+    }
+
+    private static File getOriginalDirectory(final File storedDataDirectory)
+    {
+        return new File(storedDataDirectory, ORIGINAL_DIR);
     }
 
     public final StorageFormat getStorageFormat()
@@ -82,9 +91,18 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
         return StorageFormat.PROPRIETARY;
     }
 
+    /** returns the only file or directory which is expected to be found inside original directory */
     public final File tryGetProprietaryData(final File storedDataDirectory)
     {
         assert storedDataDirectory != null : "Unspecified stored data directory.";
-        return storedDataDirectory;
+        File originalDir = getOriginalDirectory(storedDataDirectory);
+        List<File> files = FileUtilities.listFilesAndDirectories(originalDir, false, null);
+        if (files.size() != 1)
+        {
+            throw EnvironmentFailureException.fromTemplate(
+                    "Exactly one file expected in '%s' directory, but %d found.", originalDir
+                            .getPath(), files.size());
+        }
+        return files.get(0);
     }
 }
