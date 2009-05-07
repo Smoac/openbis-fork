@@ -79,6 +79,17 @@ final class UserDAO extends AbstractDAO implements IUserDAO
                     .getTimestamp("expiration_timestamp")));
             registrator.setID(rs.getLong("user_id_registrator"));
             user.setRegistrator(registrator);
+            long size = rs.getLong("max_upload_size");
+            if (rs.wasNull() == false)
+            {
+                user.setMaxUploadRequestSizeInMB(size);
+            }
+            int retention = rs.getInt("file_retention");
+            if (rs.wasNull() == false)
+            {
+                user.setFileRetention(retention);
+            }
+
             return user;
         }
 
@@ -191,19 +202,23 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         {
             template.update("insert into users (id, user_id, email, full_name, "
                     + "is_externally_authenticated, is_admin,"
-                    + "is_permanent, user_id_registrator, expiration_timestamp) "
-                    + "values (?,?,?,?,?,?,?,?,?)", id, user.getUserCode(), user.getEmail(), user
-                    .getUserFullName(), user.isExternallyAuthenticated(), user.isAdmin(), user
-                    .isPermanent(), registratorIdOrNull, user.getExpirationDate());
+                    + "is_permanent, user_id_registrator, expiration_timestamp,"
+                    + "max_upload_size,file_retention) " + "values (?,?,?,?,?,?,?,?,?,?,?)", id,
+                    user.getUserCode(), user.getEmail(), user.getUserFullName(), user
+                            .isExternallyAuthenticated(), user.isAdmin(), user.isPermanent(),
+                    registratorIdOrNull, user.getExpirationDate(), user
+                            .getMaxUploadRequestSizeInMB(), user.getFileRetention());
         } else
         {
             template.update("insert into users (id, user_id, email, full_name, password_hash, "
                     + "is_externally_authenticated, is_admin,"
-                    + "is_permanent, user_id_registrator, expiration_timestamp) "
-                    + "values (?,?,?,?,?,?,?,?,?,?)", id, user.getUserCode(), user.getEmail(), user
-                    .getUserFullName(), user.getPassword().createPasswordHash(), user
-                    .isExternallyAuthenticated(), user.isAdmin(), user.isPermanent(),
-                    registratorIdOrNull, user.getExpirationDate());
+                    + "is_permanent, user_id_registrator, expiration_timestamp,"
+                    + "max_upload_size,file_retention) " + "values (?,?,?,?,?,?,?,?,?,?,?,?)", id,
+                    user.getUserCode(), user.getEmail(), user.getUserFullName(), user.getPassword()
+                            .createPasswordHash(), user.isExternallyAuthenticated(),
+                    user.isAdmin(), user.isPermanent(), registratorIdOrNull, user
+                            .getExpirationDate(), user.getMaxUploadRequestSizeInMB(), user
+                            .getFileRetention());
         }
         user.setID(id);
     }

@@ -64,6 +64,16 @@ public class UserDTO extends ID
 
     private Date expirationDate;
 
+    /** 
+     * How long (in minutes) the file registered by this user is going to stay in the system?
+     */
+    private Integer fileRetention;
+
+    /** 
+     * The maximum size (in MB) of an upload request fro this user. 
+     */
+    private Long maxUploadRequestSizeInMB;
+
     /**
      * The unique userCode of the <code>UserDTO</code>.
      */
@@ -177,6 +187,26 @@ public class UserDTO extends ID
     public void setUserCode(String userCode)
     {
         this.userCode = userCode;
+    }
+
+    public final Integer getFileRetention()
+    {
+        return fileRetention;
+    }
+
+    public final void setFileRetention(Integer fileRetention)
+    {
+        this.fileRetention = fileRetention;
+    }
+
+    public final Long getMaxUploadRequestSizeInMB()
+    {
+        return maxUploadRequestSizeInMB;
+    }
+
+    public final void setMaxUploadRequestSizeInMB(Long maxUploadRequestSizeInMB)
+    {
+        this.maxUploadRequestSizeInMB = maxUploadRequestSizeInMB;
     }
 
 }
