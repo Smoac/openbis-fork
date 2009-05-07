@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * Test cases for corresponding {@link AbstractTechIdGroupPredicate} class.
+ * Test cases for corresponding {@link AbstractTechIdPredicate} class.
  * 
  * @author Piotr Buczek
  */
@@ -41,15 +41,15 @@ public final class AbstractTechIdGroupPredicateTest extends AuthorizationTestCas
 
     private static EntityWithGroupKind ENTITY_KIND = EntityWithGroupKind.EXPERIMENT;
 
-    private AbstractTechIdGroupPredicate createPredicate()
+    private AbstractTechIdPredicate createPredicate()
     {
-        return AbstractTechIdGroupPredicate.create(ENTITY_KIND);
+        return AbstractTechIdPredicate.create(ENTITY_KIND);
     }
 
     @Test
     public final void testDoEvaluationWithoutDAOFactory()
     {
-        final AbstractTechIdGroupPredicate predicate = createPredicate();
+        final AbstractTechIdPredicate predicate = createPredicate();
         boolean fail = true;
         try
         {
@@ -65,7 +65,7 @@ public final class AbstractTechIdGroupPredicateTest extends AuthorizationTestCas
     @Test(expectedExceptions = UserFailureException.class)
     public final void testExceptionBecauseGroupDoesNotExist()
     {
-        final AbstractTechIdGroupPredicate predicate = createPredicate();
+        final AbstractTechIdPredicate predicate = createPredicate();
         prepareProvider(Collections.<GroupPE> emptyList(), createGroup(), ENTITY_KIND, TECH_ID);
         predicate.init(provider);
         predicate.doEvaluation(createPerson(), createRoles(false), TECH_ID);
@@ -75,7 +75,7 @@ public final class AbstractTechIdGroupPredicateTest extends AuthorizationTestCas
     @Test
     public final void testSuccessfulEvaluation()
     {
-        final AbstractTechIdGroupPredicate predicate = createPredicate();
+        final AbstractTechIdPredicate predicate = createPredicate();
         prepareProvider(createGroups(), createGroup(), ENTITY_KIND, TECH_ID);
         predicate.init(provider);
         final Status evaluation =
@@ -87,7 +87,7 @@ public final class AbstractTechIdGroupPredicateTest extends AuthorizationTestCas
     @Test
     public final void testSuccessfulEvaluationWithHomeGroup()
     {
-        final AbstractTechIdGroupPredicate predicate = createPredicate();
+        final AbstractTechIdPredicate predicate = createPredicate();
         final PersonPE person = createPerson();
         person.setHomeGroup(createGroup());
         final DatabaseInstancePE homeDatabaseInstance = createDatabaseInstance();
@@ -102,7 +102,7 @@ public final class AbstractTechIdGroupPredicateTest extends AuthorizationTestCas
     @Test
     public final void testFailedEvaluation()
     {
-        final AbstractTechIdGroupPredicate predicate = createPredicate();
+        final AbstractTechIdPredicate predicate = createPredicate();
         prepareProvider(createGroups(), createAnotherGroup(), ENTITY_KIND, TECH_ID);
         predicate.init(provider);
         final Status evaluation =
@@ -117,7 +117,7 @@ public final class AbstractTechIdGroupPredicateTest extends AuthorizationTestCas
     @Test
     public final void testAccessAnotherGroup()
     {
-        final AbstractTechIdGroupPredicate predicate = createPredicate();
+        final AbstractTechIdPredicate predicate = createPredicate();
         final DatabaseInstancePE homeDatabaseInstance = createDatabaseInstance();
         final List<GroupPE> groups = createGroups();
         final GroupPE anotherGroup = createGroup(ANOTHER_GROUP_CODE, homeDatabaseInstance);

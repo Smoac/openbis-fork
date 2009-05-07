@@ -34,48 +34,48 @@ import ch.systemsx.cisd.openbis.generic.shared.util.GroupCodeHelper;
  * 
  * @author Piotr Buczek
  */
-public abstract class AbstractTechIdGroupPredicate extends AbstractGroupPredicate<TechId>
+public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<TechId>
 {
     private EntityWithGroupKind entityKind;
 
-    public AbstractTechIdGroupPredicate(EntityWithGroupKind entityKind)
+    public AbstractTechIdPredicate(EntityWithGroupKind entityKind)
     {
         this.entityKind = entityKind;
     }
 
-    public static AbstractTechIdGroupPredicate create(EntityWithGroupKind entityKind)
+    public static AbstractTechIdPredicate create(EntityWithGroupKind entityKind)
     {
         switch (entityKind)
         {
             case EXPERIMENT:
-                return new ExperimentTechIdGroupPredicate();
+                return new ExperimentTechIdPredicate();
             case PROJECT:
-                return new ProjectTechIdGroupPredicate();
+                return new ProjectTechIdPredicate();
             case GROUP:
-                return new GroupTechIdGroupPredicate();
+                return new GroupTechIdPredicate();
         }
         return null;
     }
 
-    public static class ExperimentTechIdGroupPredicate extends AbstractTechIdGroupPredicate
+    public static class ExperimentTechIdPredicate extends AbstractTechIdPredicate
     {
-        ExperimentTechIdGroupPredicate()
+        ExperimentTechIdPredicate()
         {
             super(EntityWithGroupKind.EXPERIMENT);
         }
     }
 
-    public static class GroupTechIdGroupPredicate extends AbstractTechIdGroupPredicate
+    public static class GroupTechIdPredicate extends AbstractTechIdPredicate
     {
-        GroupTechIdGroupPredicate()
+        GroupTechIdPredicate()
         {
             super(EntityWithGroupKind.GROUP);
         }
     }
 
-    public static class ProjectTechIdGroupPredicate extends AbstractTechIdGroupPredicate
+    public static class ProjectTechIdPredicate extends AbstractTechIdPredicate
     {
-        ProjectTechIdGroupPredicate()
+        ProjectTechIdPredicate()
         {
             super(EntityWithGroupKind.PROJECT);
         }
