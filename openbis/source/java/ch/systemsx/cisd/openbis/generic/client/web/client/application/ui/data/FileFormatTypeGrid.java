@@ -59,6 +59,8 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "file-format-type-browser";
 
     public static final String GRID_ID = BROWSER_ID + "_grid";
+
+    public static final String ADD_NEW_TYPE_BUTTON_ID = GRID_ID + "-" + Dict.ADD_NEW_TYPE_BUTTON;
     
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
@@ -87,7 +89,7 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
     {
         ToolBar toolbar = new ToolBar();
         toolbar.add(new FillToolItem());
-        toolbar.add(new TextToolItem(viewContext.getMessage(Dict.ADD_NEW_TYPE_BUTTON),
+        TextToolItem createItem = new TextToolItem(viewContext.getMessage(Dict.ADD_NEW_TYPE_BUTTON),
                 new SelectionListener<ToolBarEvent>()
                     {
                         @Override
@@ -95,7 +97,9 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
                         {
                             createRegisterFileTypeDialog().show();
                         }
-                    }));
+                    });
+        createItem.setId(ADD_NEW_TYPE_BUTTON_ID);
+        toolbar.add(createItem);
         return toolbar;
     }
 

@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.DataSetSea
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.EntityTypeBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.EntityTypePropertyTypeAssignmentTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ExperimentBrowserTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFormatTypeGridTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.MaterialBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ProjectRegistrationTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PropertyTypeAssignmentBrowserTest;
@@ -64,6 +65,7 @@ public class SystemTestSuite extends GWTTestSuite
         // testSuite.addTestSuite(GenericExperimentRegistrationTest.class);
         testSuite.addTestSuite(GenericExperimentViewerTest.class);
         // testSuite.addTestSuite(GenericExperimentEditorTest.class);
+        testSuite.addTestSuite(FileFormatTypeGridTest.class);
         testSuite.addTestSuite(PropertyTypeBrowserTest.class);
         testSuite.addTestSuite(PropertyTypeAssignmentBrowserTest.class);
         testSuite.addTestSuite(EntityTypePropertyTypeAssignmentTest.class);

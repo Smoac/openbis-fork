@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -31,6 +32,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
  */
 public abstract class AddTypeDialog extends AbstractRegistrationDialog
 {
+    public static final String DIALOG_ID = GenericConstants.ID_PREFIX + "add-type-dialog";
+    public static final String DESCRIPTION_FIELD_ID = DIALOG_ID + "-description-field";
+    
     /** Registers a new property type and calls the specified callback at the end */
     abstract protected void register(String code, String descriptionOrNull,
             AsyncCallback<Void> registrationCallback);
@@ -43,10 +47,13 @@ public abstract class AddTypeDialog extends AbstractRegistrationDialog
             String title, final IDelegatedAction postRegistrationCallback)
     {
         super(viewContext, title, postRegistrationCallback);
-        this.codeField = createCodeField();
+        setId(DIALOG_ID);
+        
+        codeField = createCodeField();
         addField(codeField);
 
-        this.descriptionField = createDescriptionField();
+        descriptionField = createDescriptionField();
+        descriptionField.setId(DESCRIPTION_FIELD_ID);
         addField(descriptionField);
     }
 
