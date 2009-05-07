@@ -52,6 +52,7 @@ public class SystemTestSuite extends GWTTestSuite
         final TestSuite testSuite = new TestSuite("System Tests");
         testSuite.addTestSuite(AuthenticationTest.class);
         testSuite.addTestSuite(VocabularyBrowserTest.class);
+        testSuite.addTestSuite(FileFormatTypeGridTest.class);
         testSuite.addTestSuite(DataSetSearchTest.class);
         testSuite.addTestSuite(AuthorizationManagementConsolTest.class);
         testSuite.addTestSuite(SampleBrowserTest.class);
@@ -65,7 +66,6 @@ public class SystemTestSuite extends GWTTestSuite
         // testSuite.addTestSuite(GenericExperimentRegistrationTest.class);
         testSuite.addTestSuite(GenericExperimentViewerTest.class);
         // testSuite.addTestSuite(GenericExperimentEditorTest.class);
-        testSuite.addTestSuite(FileFormatTypeGridTest.class);
         testSuite.addTestSuite(PropertyTypeBrowserTest.class);
         testSuite.addTestSuite(PropertyTypeAssignmentBrowserTest.class);
         testSuite.addTestSuite(EntityTypePropertyTypeAssignmentTest.class);
