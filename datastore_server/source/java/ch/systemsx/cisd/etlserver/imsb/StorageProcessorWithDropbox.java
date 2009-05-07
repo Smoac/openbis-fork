@@ -37,16 +37,27 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 /**
  * Storage processor which is able to create a copy of incoming data for additional processing. The
  * copy has a changed name to trace back the dataset to which the original data belong.
+ * <p>
+ * The processor uses followng properties: {@link #DELEGATE_PROCESSOR_CLASS_PROPERTY} and
+ * {@link #DROPBOX_INCOMING_DIRECTORY_PROPERTY}. All the properties are also passed for the default
+ * processor.
+ * </p>
  * 
  * @author Tomasz Pylak
  */
 public class StorageProcessorWithDropbox implements IStorageProcessor
 {
-    @Private
-    final static String DELEGATE_PROCESSOR_CLASS_PROPERTY = "default-processor";
+    /**
+     * Property name which is used to specify the class of the default storage processor, to which
+     * all calls are delegated.
+     */
+    public final static String DELEGATE_PROCESSOR_CLASS_PROPERTY = "default-processor";
 
-    @Private
-    final static String DROPBOX_INCOMING_DIRECTORY_PROPERTY = "dropbox-incoming-dir";
+    /**
+     * The path to the directory where an additional copy of the original incoming data will be
+     * created for additional processing.
+     */
+    public final static String DROPBOX_INCOMING_DIRECTORY_PROPERTY = "dropbox-incoming-dir";
 
     private final IStorageProcessor delegate;
 
