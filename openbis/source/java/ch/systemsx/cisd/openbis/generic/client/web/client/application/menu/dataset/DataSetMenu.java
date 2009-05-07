@@ -43,8 +43,6 @@ public class DataSetMenu extends TopMenuItem
                 componentProvider.getDataSetSearch()));
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_TYPES, messageProvider,
                 componentProvider.getDataSetTypeBrowser()));
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_FILE_FORMATS, messageProvider,
-                componentProvider.getFileFormatTypeBrowser()));
         setMenu(menu);
     }
 }

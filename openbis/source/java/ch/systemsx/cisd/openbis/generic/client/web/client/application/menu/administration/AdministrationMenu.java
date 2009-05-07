@@ -43,6 +43,8 @@ public class AdministrationMenu extends TopMenuItem
         menu.add(new ProjectMenu(messageProvider, componentProvider));
         menu.add(new VocabularyMenu(messageProvider, componentProvider));
         menu.add(new PropertyTypesMenu(messageProvider, componentProvider));
+        menu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_FILE_FORMATS, messageProvider,
+                componentProvider.getFileFormatTypeBrowser()));
         menu.add(new AuthorizationMenu(messageProvider, componentProvider));
         setMenu(menu);
     }
