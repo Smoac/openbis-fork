@@ -300,8 +300,8 @@ public interface IFileOperations extends IFileRemover
      * Sets the file's last modification time to the current time without changing the content. If
      * the file does not exist, create it empty.
      * 
-     * @throws IOExceptionUnchecked If the file cannot be created or the last modification time cannot
-     *             be changed.
+     * @throws IOExceptionUnchecked If the file cannot be created or the last modification time
+     *             cannot be changed.
      */
     public void touch(File file) throws IOExceptionUnchecked;
 
@@ -380,6 +380,23 @@ public interface IFileOperations extends IFileRemover
      * @see #copyDirectoryToDirectory(File, File)
      */
     public void copyToDirectory(File source, File destDir) throws IOExceptionUnchecked;
+
+    /**
+     * Copies a file or a whole directory to a new location with a new specified name. File dates
+     * will be preserved.
+     * <p>
+     * 
+     * @param source an existing file or directory to copy, must not be <code>null</code>
+     * @param destDir the directory to place the copy in, must not be <code>null</code>
+     * @param newName the new name of the copy which will be created, must not be <code>null</code>
+     * @throws NullPointerException if source or destination is <code>null</code>
+     * @throws IOExceptionUnchecked if source or destination is invalid
+     * @throws IOExceptionUnchecked if an IO error occurs during copying
+     * @see #copyFileToDirectory(File, File)
+     * @see #copyDirectoryToDirectory(File, File)
+     */
+    public void copyToDirectoryAs(File source, File destDir, String newName)
+            throws IOExceptionUnchecked;
 
     /**
      * Copies a whole directory to a new location preserving the file dates.

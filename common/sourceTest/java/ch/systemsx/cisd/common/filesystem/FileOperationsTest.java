@@ -21,11 +21,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.commons.io.FileUtils;
+import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.IActivityObserver;
@@ -39,7 +42,7 @@ import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
  * @author Bernd Rinn
  */
 @Friend(toClasses = FileOperations.class)
-public class FileOperationsTest
+public class FileOperationsTest extends AbstractFileSystemTestCase
 {
 
     static class HangingIInputStream implements IInputStream
@@ -133,12 +136,11 @@ public class FileOperationsTest
     {
         final RecordingActivityObserverSensor observerSensor =
                 new RecordingActivityObserverSensor();
-        return MonitoringProxy.create(
-                IFileOperations.class,
-                new HangingFileOperations(parameters, observerSensor,
-                        hangMillis)).timing(parameters).sensor(
-                observerSensor).errorLog(new Log4jSimpleLogger(FileOperations.operationLog)).name(
-                "remote file operations").get();
+        return MonitoringProxy.create(IFileOperations.class,
+                new HangingFileOperations(parameters, observerSensor, hangMillis)).timing(
+                parameters).sensor(observerSensor).errorLog(
+                new Log4jSimpleLogger(FileOperations.operationLog)).name("remote file operations")
+                .get();
     }
 
     @Test(groups = "slow", expectedExceptions = TimeoutExceptionUnchecked.class)
@@ -157,4 +159,42 @@ public class FileOperationsTest
         is.read(); // doesn't time out
     }
 
+    @Test
+    // copies a source directory to a destination directory with a new name
+    public final void testCopyToDirectoryAsDir() throws IOException
+    {
+        File srcDir = new File(workingDirectory, "srcDir");
+        File destDir = new File(workingDirectory, "destDir");
+        // create src dir substructure
+        File srcSubDir = new File(srcDir, "a/b");
+        srcSubDir.mkdirs();
+        new File(srcSubDir, "data.txt").createNewFile();
+
+        String newName = "srcDirNew";
+        FileOperations.getInstance().copyToDirectoryAs(srcDir, destDir, newName);
+        File newDestFile = new File(destDir, newName);
+        AssertJUnit.assertTrue(newDestFile.isDirectory());
+        AssertJUnit.assertTrue(new File(newDestFile, "a/b/data.txt").isFile());
+
+        // clean up
+        FileUtils.deleteDirectory(srcDir);
+        FileUtils.deleteDirectory(destDir);
+    }
+
+    @Test
+    // copies a source file to a destination directory with a new name
+    public final void testCopyToDirectoryAsFile() throws IOException
+    {
+        File srcFile = new File(workingDirectory, "data.txt");
+        srcFile.createNewFile();
+
+        String newName = "newFileName";
+        FileOperations.getInstance().copyToDirectoryAs(srcFile, workingDirectory, newName);
+        File newDestFile = new File(workingDirectory, newName);
+        AssertJUnit.assertTrue(newDestFile.isFile());
+
+        // clean up
+        srcFile.delete();
+        newDestFile.delete();
+    }
 }

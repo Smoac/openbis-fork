@@ -490,6 +490,18 @@ public class FileOperations implements IFileOperations
         }
     }
 
+    public void copyToDirectoryAs(File source, File destDir, String newName)
+            throws IOExceptionUnchecked
+    {
+        try
+        {
+            FileCopyUtils.copyToDirectoryAs(source, destDir, newName);
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
     public byte[] getContentAsByteArray(File file) throws IOExceptionUnchecked
     {
         java.io.InputStream inputStream = null;
