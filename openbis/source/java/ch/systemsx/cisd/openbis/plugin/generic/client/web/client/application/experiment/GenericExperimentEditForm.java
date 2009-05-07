@@ -301,7 +301,7 @@ public final class GenericExperimentEditForm
     {
         RadioGroup result = new RadioGroup();
         result.setSelectionRequired(true);
-        result.setFieldLabel("Add Samples");
+        result.setFieldLabel(viewContext.getMessage(Dict.SAMPLES));
         result.setOrientation(Orientation.HORIZONTAL);
         result.add(existing);
         result.add(importFromFile);
