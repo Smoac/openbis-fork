@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.ToolBarEvent;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolItem;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.TypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FileFormatTypeGrid;
@@ -75,6 +76,8 @@ public class FileFormatTypeGridTest extends AbstractGWTTestCase
             {
                 public void execute()
                 {
+                    GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, FileFormatTypeGrid.BROWSER_ID
+                            + MainTabPanel.TAB_SUFFIX);
                     ToolItem toolItem =
                             (ToolItem) GWTTestUtil
                                     .getWidgetWithID(FileFormatTypeGrid.ADD_NEW_TYPE_BUTTON_ID);
