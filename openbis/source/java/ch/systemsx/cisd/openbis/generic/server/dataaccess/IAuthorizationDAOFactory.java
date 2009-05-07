@@ -65,4 +65,9 @@ public interface IAuthorizationDAOFactory
      * Returns the implementation of {@link IProjectDAO}.
      */
     public IProjectDAO getProjectDAO();
+
+    /**
+     * Returns the implementation of {@link ISampleDAO}.
+     */
+    public ISampleDAO getSampleDAO();
 }

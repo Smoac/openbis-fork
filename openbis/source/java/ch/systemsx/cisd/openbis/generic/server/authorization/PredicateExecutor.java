@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * A static class to execute {@link IPredicate}.
@@ -209,6 +210,11 @@ public final class PredicateExecutor
                     return project.getGroup();
             }
             return null;
+        }
+
+        public SamplePE getSample(TechId techId)
+        {
+            return daoFactory.getSampleDAO().getByTechId(techId);
         }
 
     }

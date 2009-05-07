@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
  * 
  * @author Tomasz Pylak
  */
-public interface ISampleDAO
+public interface ISampleDAO extends IAbstractGenericDAO<SamplePE>
 {
     /**
      * Lists {@link SamplePE}s of given type from the given group. Returned {@link SamplePE}s are
@@ -41,8 +41,8 @@ public interface ISampleDAO
             throws DataAccessException;
 
     /**
-     * The same as {@link #listSamplesByTypeAndGroup(SampleTypePE, GroupPE)}, but lists samples
-     * from the database instance instead of the group.
+     * The same as {@link #listSamplesByTypeAndGroup(SampleTypePE, GroupPE)}, but lists samples from
+     * the database instance instead of the group.
      */
     List<SamplePE> listSamplesByTypeAndDatabaseInstance(final SampleTypePE sampleType,
             final DatabaseInstancePE databaseInstance) throws DataAccessException;
@@ -53,7 +53,8 @@ public interface ISampleDAO
     void createSample(final SamplePE sample) throws DataAccessException;
 
     /**
-     * Returns the sample specified by given <var>sampleCode</var> and given <var>databaseInstance</var>.
+     * Returns the sample specified by given <var>sampleCode</var> and given
+     * <var>databaseInstance</var>.
      */
     SamplePE tryFindByCodeAndDatabaseInstance(final String sampleCode,
             final DatabaseInstancePE databaseInstance, final HierarchyType hierarchyType)

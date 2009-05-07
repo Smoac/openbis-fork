@@ -51,10 +51,6 @@ public class GroupIdentifierPredicate extends AbstractGroupPredicate<GroupIdenti
             final GroupIdentifier groupIdentifierOrNull)
     {
         assert inited : "Predicate has not been initialized";
-        if (groupIdentifierOrNull == null)
-        {
-            return Status.OK;
-        }
         final String groupCode = GroupCodeHelper.getGroupCode(person, groupIdentifierOrNull);
         final DatabaseInstancePE databaseInstance = getDatabaseInstance(groupIdentifierOrNull);
         final boolean matching = evaluate(allowedRoles, databaseInstance, groupCode);

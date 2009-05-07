@@ -33,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -47,8 +46,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFactory
 {
-    private final ISampleDAO sampleDAO;
-
     private final ISampleTypeDAO sampleTypeDAO;
 
     private final IHibernateSearchDAO hibernateSearchDAO;
@@ -82,7 +79,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     {
         super(context, sessionFactory);
         final DatabaseInstancePE databaseInstance = getHomeDatabaseInstance();
-        sampleDAO = new SampleDAO(sessionFactory, databaseInstance);
         sampleTypeDAO = new SampleTypeDAO(sessionFactory, databaseInstance);
         hibernateSearchDAO = new HibernateSearchDAO(sessionFactory);
         propertyTypeDAO = new PropertyTypeDAO(sessionFactory, databaseInstance);
@@ -108,11 +104,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     //
     // IDAOFactory
     //
-
-    public final ISampleDAO getSampleDAO()
-    {
-        return sampleDAO;
-    }
 
     public final ISampleTypeDAO getSampleTypeDAO()
     {

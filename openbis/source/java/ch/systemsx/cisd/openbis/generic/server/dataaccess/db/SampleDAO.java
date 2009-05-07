@@ -43,11 +43,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
  * 
  * @author Tomasz Pylak
  */
-public class SampleDAO extends AbstractDAO implements ISampleDAO
+public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISampleDAO
 {
     private final static Class<SamplePE> ENTITY_CLASS = SamplePE.class;
 
     private static final String TABLE_NAME = ENTITY_CLASS.getSimpleName();
+
+    @Override
+    Class<SamplePE> getEntityClass()
+    {
+        return ENTITY_CLASS;
+    }
 
     /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an

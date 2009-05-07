@@ -16,12 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 
-import java.util.List;
-
-import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
@@ -30,29 +24,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
  * 
  * @author Tomasz Pylak
  */
-public class NullableGroupIdentifierPredicate extends AbstractPredicate<GroupIdentifier>
+public class NullableGroupIdentifierPredicate extends
+        DelegatedNullableAbstractPredicate<GroupIdentifier>
 {
-    private final GroupIdentifierPredicate delegator;
-
-    public NullableGroupIdentifierPredicate()
+    /**
+     * @param delegate
+     */
+    public NullableGroupIdentifierPredicate(AbstractPredicate<GroupIdentifier> delegate)
     {
-        this.delegator = new GroupIdentifierPredicate();
+        super(new GroupIdentifierPredicate());
     }
 
     //
-    // AbstractDatabaseInstancePredicate
+    // AbstractPredicate
     //
-
-    public final void init(IAuthorizationDataProvider provider)
-    {
-        delegator.init(provider);
-    }
-
-    @Override
-    protected boolean isNullValueAllowed()
-    {
-        return true;
-    }
 
     @Override
     public final String getCandidateDescription()
@@ -60,16 +45,4 @@ public class NullableGroupIdentifierPredicate extends AbstractPredicate<GroupIde
         return "nullable group identifier";
     }
 
-    @Override
-    Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
-            final GroupIdentifier groupIdentifierOrNull)
-    {
-        if (groupIdentifierOrNull == null)
-        {
-            return Status.OK;
-        } else
-        {
-            return delegator.doEvaluation(person, allowedRoles, groupIdentifierOrNull);
-        }
-    }
 }

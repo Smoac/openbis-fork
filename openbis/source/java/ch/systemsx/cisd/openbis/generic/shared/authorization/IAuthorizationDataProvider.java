@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IDatabaseInstanceFinder;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * Interface of providers of data needed for authorization.
@@ -48,6 +49,11 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
      * @return <code>null</code> if entity has no group set.
      */
     public GroupPE tryToGetGroup(EntityWithGroupKind entityKind, TechId techId);
+
+    /**
+     * Returns the sample with given <var>techId</var>.
+     */
+    public SamplePE getSample(TechId techId);
 
     public enum EntityWithGroupKind
     {

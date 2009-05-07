@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
 
@@ -61,7 +62,9 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
 
     private final DatabaseInstancePE homeDatabaseInstance;
 
-    protected final IProjectDAO projectDAO;
+    private final IProjectDAO projectDAO;
+
+    private final ISampleDAO sampleDAO;
 
     public AuthorizationDAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory)
@@ -74,6 +77,7 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         externalDataDAO = new ExternalDataDAO(sessionFactory, homeDatabaseInstance);
         experimentDAO = new ExperimentDAO(sessionFactory, homeDatabaseInstance);
         projectDAO = new ProjectDAO(sessionFactory, homeDatabaseInstance);
+        sampleDAO = new SampleDAO(sessionFactory, homeDatabaseInstance);
     }
 
     private final DatabaseInstancePE getDatabaseInstanceId(final String databaseInstanceCode)
@@ -173,6 +177,11 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
     public final IProjectDAO getProjectDAO()
     {
         return projectDAO;
+    }
+
+    public final ISampleDAO getSampleDAO()
+    {
+        return sampleDAO;
     }
 
 }

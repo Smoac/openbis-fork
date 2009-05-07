@@ -88,7 +88,7 @@ public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<Tec
     @Override
     public final String getCandidateDescription()
     {
-        return "group identifier";
+        return "technical id";
     }
 
     @Override
@@ -97,10 +97,6 @@ public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<Tec
     {
         assert inited : "Predicate has not been initialized";
 
-        if (techId == null)
-        {
-            return Status.OK;
-        }
         GroupPE groupOrNull = authorizationDataProvider.tryToGetGroup(entityKind, techId);
         if (groupOrNull == null)
         {
@@ -118,5 +114,7 @@ public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<Tec
         return Status.createError(String.format(
                 "User '%s' does not have enough privileges to access data in the group '%s'.",
                 person.getUserId(), new GroupIdentifier(databaseInstance.getCode(), groupCode)));
+
     }
+
 }

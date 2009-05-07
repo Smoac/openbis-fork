@@ -31,11 +31,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * Test cases for corresponding {@link AbstractTechIdPredicate} class.
+ * Test cases for corresponding {@link AbstractTechIdPredicate} class implementation.
  * 
+ * @see GroupIdentifierPredicateTest
  * @author Piotr Buczek
  */
-public final class AbstractTechIdGroupPredicateTest extends AuthorizationTestCase
+public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
 {
     private static TechId TECH_ID = new TechId(1L);
 

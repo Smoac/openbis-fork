@@ -28,11 +28,6 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
 {
 
     /**
-     * Returns the {@link ISampleDAO} implementation.
-     */
-    public ISampleDAO getSampleDAO();
-
-    /**
      * Returns the {@link ISampleTypeDAO} implementation.
      */
     public ISampleTypeDAO getSampleTypeDAO();
