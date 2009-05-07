@@ -58,7 +58,7 @@ final class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEnti
     //
 
     @Override
-    final Class<?> getEntityClass()
+    final Class<EntityTypePE> getEntityClass()
     {
         return entityKind.getTypeClass();
     }

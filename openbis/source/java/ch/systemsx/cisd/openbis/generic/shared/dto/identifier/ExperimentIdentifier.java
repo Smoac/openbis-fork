@@ -39,8 +39,9 @@ public final class ExperimentIdentifier extends ProjectIdentifier
     {
         this(null, null, null, null);
     }
-    
-    public ExperimentIdentifier(final ProjectIdentifier projectIdentifier, final String experimentCode)
+
+    public ExperimentIdentifier(final ProjectIdentifier projectIdentifier,
+            final String experimentCode)
     {
         this(projectIdentifier.getDatabaseInstanceCode(), projectIdentifier.getGroupCode(),
                 projectIdentifier.getProjectCode(), experimentCode);
@@ -48,8 +49,7 @@ public final class ExperimentIdentifier extends ProjectIdentifier
 
     public ExperimentIdentifier(final String projectCode, final String experimentCode)
     {
-        this(DatabaseInstanceIdentifier.HOME, GroupIdentifier.HOME_GROUP, projectCode,
-                experimentCode);
+        this(DatabaseInstanceIdentifier.HOME, getHomeGroupCode(), projectCode, experimentCode);
     }
 
     public ExperimentIdentifier(final String databaseInstanceCode, final String groupCode,

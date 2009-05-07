@@ -28,7 +28,9 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider.EntityWithGroupKind;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.Role.RoleLevel;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -41,8 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses = RoleWithIdentifier.class)
@@ -72,8 +72,7 @@ public class AuthorizationTestCase extends AssertJUnit
      * Creates a role with level {@link RoleLevel#GROUP} with specified role code for specified
      * group.
      */
-    protected RoleWithIdentifier createGroupRole(RoleCode roleCode,
-            GroupIdentifier groupIdentifier)
+    protected RoleWithIdentifier createGroupRole(RoleCode roleCode, GroupIdentifier groupIdentifier)
     {
         GroupPE groupPE = new GroupPE();
         groupPE.setCode(groupIdentifier.getGroupCode());
@@ -94,8 +93,8 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a new instance of {@link DatabaseInstancePE} for the specified identifier.
-     * Shortcut for <code>createDatabaseInstance(instanceIdentifier.getDatabaseInstanceCode())</code>.
+     * Creates a new instance of {@link DatabaseInstancePE} for the specified identifier. Shortcut
+     * for <code>createDatabaseInstance(instanceIdentifier.getDatabaseInstanceCode())</code>.
      */
     protected DatabaseInstancePE createDatabaseInstancePE(
             DatabaseInstanceIdentifier instanceIdentifier)
@@ -111,10 +110,10 @@ public class AuthorizationTestCase extends AssertJUnit
     {
         return createDatabaseInstance(INSTANCE_CODE);
     }
-    
+
     /**
-     * Creates a new instance of {@link DatabaseInstancePE} for the specified code.
-     * Only code and UUID will be set.
+     * Creates a new instance of {@link DatabaseInstancePE} for the specified code. Only code and
+     * UUID will be set.
      */
     protected DatabaseInstancePE createDatabaseInstance(String code)
     {
@@ -125,8 +124,8 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a new instance of {@link DatabaseInstancePE} with code {@link #ANOTHER_INSTANCE_CODE}.
-     * Shortcut for <code>createDatabaseInstance(ANOTHER_INSTANCE_CODE)</code>.
+     * Creates a new instance of {@link DatabaseInstancePE} with code {@link #ANOTHER_INSTANCE_CODE}
+     * . Shortcut for <code>createDatabaseInstance(ANOTHER_INSTANCE_CODE)</code>.
      */
     protected DatabaseInstancePE createAnotherDatabaseInstance()
     {
@@ -187,7 +186,8 @@ public class AuthorizationTestCase extends AssertJUnit
     /**
      * Creates a group with specified group code and database instance.
      */
-    protected GroupPE createGroup(final String groupCode, final DatabaseInstancePE databaseInstancePE)
+    protected GroupPE createGroup(final String groupCode,
+            final DatabaseInstancePE databaseInstancePE)
     {
         final GroupPE group = new GroupPE();
         group.setCode(groupCode);
@@ -228,7 +228,7 @@ public class AuthorizationTestCase extends AssertJUnit
         projectPE.setGroup(group);
         return projectPE;
     }
-    
+
     /**
      * Creates an experiment in the specified group.
      */
@@ -260,10 +260,10 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a list of roles which contains a group role for a USER and group defined by
-     * code {@link #GROUP_CODE} and database instance {@link AuthorizationTestCase#INSTANCE_CODE}.
-     * If <code>withInstanceRole == true</code> the list contains in addition an instance role
-     * for a USER and database instance defined by {@link #ANOTHER_INSTANCE_CODE}.
+     * Creates a list of roles which contains a group role for a USER and group defined by code
+     * {@link #GROUP_CODE} and database instance {@link AuthorizationTestCase#INSTANCE_CODE}. If
+     * <code>withInstanceRole == true</code> the list contains in addition an instance role for a
+     * USER and database instance defined by {@link #ANOTHER_INSTANCE_CODE}.
      */
     protected List<RoleWithIdentifier> createRoles(final boolean withInstanceRole)
     {
@@ -329,6 +329,26 @@ public class AuthorizationTestCase extends AssertJUnit
                 {
                     allowing(provider).listGroups();
                     will(returnValue(groups));
+                }
+            });
+    }
+
+    /**
+     * Prepares {@link #provider} to expect a query to list groups which will return the specified
+     * list of groups and a query for the specified entity kind and technical id which will return
+     * the specifier group.
+     */
+    protected final void prepareProvider(final List<GroupPE> groups, final GroupPE groupPE,
+            final EntityWithGroupKind entityKind, final TechId techId)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(provider).listGroups();
+                    will(returnValue(groups));
+
+                    one(provider).tryToGetGroup(entityKind, techId);
+                    will(returnValue(groupPE));
                 }
             });
     }

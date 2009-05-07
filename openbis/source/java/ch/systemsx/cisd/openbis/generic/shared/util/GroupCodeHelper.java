@@ -22,8 +22,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedGroupExcep
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class GroupCodeHelper
@@ -32,11 +30,18 @@ public class GroupCodeHelper
     {
     }
 
+    public static final String HOME_GROUP_CODE = null;
+
+    public static boolean isHomeGroup(String groupCodeOrNull)
+    {
+        return groupCodeOrNull == HOME_GROUP_CODE;
+    }
+
     /**
      * Tries to find out the group.
      * <p>
-     * If not specified in given {@link GroupIdentifier} must be specified as home group in given
-     * {@link PersonPE}.
+     * If not specified in given {@link GroupIdentifier} the real group must be specified as home
+     * group in given {@link PersonPE}.
      * </p>
      * 
      * @throws UndefinedGroupException if no group could be found.
@@ -44,7 +49,37 @@ public class GroupCodeHelper
     public final static String getGroupCode(final PersonPE person,
             final GroupIdentifier groupIdentifier) throws UndefinedGroupException
     {
-        if (groupIdentifier.isHomeGroup())
+        return getGroupCode(person, groupIdentifier.getGroupCode());
+    }
+
+    /**
+     * Tries to find out the group.
+     * <p>
+     * If not specified in given {@link GroupPE} the real group must be specified as home group in
+     * given {@link PersonPE}.
+     * </p>
+     * 
+     * @throws UndefinedGroupException if no group could be found.
+     */
+    public final static String getGroupCode(final PersonPE person, final GroupPE group)
+            throws UndefinedGroupException
+    {
+        return getGroupCode(person, group.getCode());
+    }
+
+    /**
+     * Tries to find out the group.
+     * <p>
+     * If given <var>groupCode</var> is a home group the real group must be specified as home group
+     * in given {@link PersonPE}.
+     * </p>
+     * 
+     * @throws UndefinedGroupException if no group could be found.
+     */
+    private final static String getGroupCode(final PersonPE person, final String groupCode)
+            throws UndefinedGroupException
+    {
+        if (isHomeGroup(groupCode))
         {
             final GroupPE homeGroup = person.getHomeGroup();
             if (homeGroup == null)
@@ -54,8 +89,8 @@ public class GroupCodeHelper
             return homeGroup.getCode();
         } else
         {
-            return groupIdentifier.getGroupCode();
+            return groupCode;
         }
     }
-    
+
 }

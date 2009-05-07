@@ -39,15 +39,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
  * 
  * @author Christian Ribeaud
  */
-final class GroupDAO extends AbstractDAO implements IGroupDAO
+final class GroupDAO extends AbstractGenericEntityDAO<GroupPE> implements IGroupDAO
 {
 
-    private final static Class<GroupPE> ENTITY_CLASS = GroupPE.class;
+    @Override
+    Class<GroupPE> getEntityClass()
+    {
+        return GroupPE.class;
+    }
 
     /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an
-     * appropriate debugging level for class {@link JdbcAccessor}.
-     * </p>
+     * appropriate debugging level for class {@link JdbcAccessor}. </p>
      */
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, GroupDAO.class);
@@ -70,7 +73,7 @@ final class GroupDAO extends AbstractDAO implements IGroupDAO
         final List<GroupPE> list =
                 cast(getHibernateTemplate().find(
                         String.format("select g from %s g where g.code = ? "
-                                + "and g.databaseInstance = ?", ENTITY_CLASS.getSimpleName()),
+                                + "and g.databaseInstance = ?", getEntityClass().getSimpleName()),
                         toArray(CodeConverter.tryToDatabase(groupCode), databaseInstance)));
         final GroupPE entity = tryFindEntity(list, "group");
         if (operationLog.isDebugEnabled())
@@ -83,7 +86,7 @@ final class GroupDAO extends AbstractDAO implements IGroupDAO
 
     public final List<GroupPE> listGroups() throws DataAccessException
     {
-        final List<GroupPE> list = cast(getHibernateTemplate().loadAll(ENTITY_CLASS));
+        final List<GroupPE> list = cast(getHibernateTemplate().loadAll(getEntityClass()));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(): %d group(s) have been found.", MethodUtils
@@ -97,7 +100,7 @@ final class GroupDAO extends AbstractDAO implements IGroupDAO
     {
         assert databaseInstance != null : "Unspecified database instance.";
 
-        final DetachedCriteria criteria = DetachedCriteria.forClass(ENTITY_CLASS);
+        final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
         criteria.add(Restrictions.eq("databaseInstance", databaseInstance));
         final List<GroupPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
@@ -106,17 +109,6 @@ final class GroupDAO extends AbstractDAO implements IGroupDAO
                     .getCurrentMethod().getName(), databaseInstance, list.size()));
         }
         return list;
-    }
-
-    public final GroupPE getGroupById(final long groupId) throws DataAccessException
-    {
-        final GroupPE group = (GroupPE) getHibernateTemplate().load(ENTITY_CLASS, groupId);
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug(String.format("%s(%d): '%s'.", MethodUtils.getCurrentMethod()
-                    .getName(), groupId, group));
-        }
-        return group;
     }
 
     public final void createGroup(final GroupPE group) throws DataAccessException
@@ -136,4 +128,5 @@ final class GroupDAO extends AbstractDAO implements IGroupDAO
             operationLog.info(String.format("ADD: group '%s'.", group));
         }
     }
+
 }

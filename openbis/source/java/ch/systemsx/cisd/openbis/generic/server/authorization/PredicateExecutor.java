@@ -27,8 +27,10 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ArrayPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.CollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.IPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -154,7 +156,7 @@ public final class PredicateExecutor
                     argumentType.getName()));
         }
     }
-    
+
     private static final class AuthorizationDataProvider implements IAuthorizationDataProvider
     {
         private final IAuthorizationDAOFactory daoFactory;
@@ -191,5 +193,23 @@ public final class PredicateExecutor
             DataPE dataSet = daoFactory.getExternalDataDAO().tryToFindDataSetByCode(dataSetCode);
             return dataSet.getExperiment().getProject();
         }
+
+        public GroupPE tryToGetGroup(EntityWithGroupKind kind, TechId techId)
+        {
+            switch (kind)
+            {
+                case EXPERIMENT:
+                    ExperimentPE experiment = daoFactory.getExperimentDAO().getByTechId(techId);
+                    return experiment.getProject().getGroup();
+                case GROUP:
+                    GroupPE group = daoFactory.getGroupDAO().getByTechId(techId);
+                    return group;
+                case PROJECT:
+                    ProjectPE project = daoFactory.getProjectDAO().getByTechId(techId);
+                    return project.getGroup();
+            }
+            return null;
+        }
+
     }
 }

@@ -28,9 +28,11 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
@@ -52,10 +54,14 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
     private final IGroupDAO groupDAO;
 
     private final IPersonDAO personDAO;
-    
+
     private final IExternalDataDAO externalDataDAO;
 
+    private final IExperimentDAO experimentDAO;
+
     private final DatabaseInstancePE homeDatabaseInstance;
+
+    protected final IProjectDAO projectDAO;
 
     public AuthorizationDAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory)
@@ -66,6 +72,8 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         groupDAO = new GroupDAO(sessionFactory, homeDatabaseInstance);
         roleAssignmentDAO = new RoleAssignmentDAO(sessionFactory, homeDatabaseInstance);
         externalDataDAO = new ExternalDataDAO(sessionFactory, homeDatabaseInstance);
+        experimentDAO = new ExperimentDAO(sessionFactory, homeDatabaseInstance);
+        projectDAO = new ProjectDAO(sessionFactory, homeDatabaseInstance);
     }
 
     private final DatabaseInstancePE getDatabaseInstanceId(final String databaseInstanceCode)
@@ -151,10 +159,20 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
     {
         return roleAssignmentDAO;
     }
-    
+
     public final IExternalDataDAO getExternalDataDAO()
     {
         return externalDataDAO;
+    }
+
+    public final IExperimentDAO getExperimentDAO()
+    {
+        return experimentDAO;
+    }
+
+    public final IProjectDAO getProjectDAO()
+    {
+        return projectDAO;
     }
 
 }

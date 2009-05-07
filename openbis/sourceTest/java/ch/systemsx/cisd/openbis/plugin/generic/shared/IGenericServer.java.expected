@@ -82,7 +82,8 @@ public interface IGenericServer extends IPluginCommonServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public ExternalDataPE getDataSetInfo(String sessionToken, String datasetCode);
+    public ExternalDataPE getDataSetInfo(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String datasetCode);
 
     /**
      * Returns attachment described by given experiment identifier, filename and version.

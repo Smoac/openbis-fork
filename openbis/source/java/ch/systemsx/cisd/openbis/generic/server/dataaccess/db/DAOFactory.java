@@ -22,18 +22,16 @@ import java.util.Map;
 import org.hibernate.SessionFactory;
 
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
@@ -63,10 +61,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     private final Map<EntityKind, IEntityPropertyTypeDAO> entityPropertyTypeDAOs =
             new HashMap<EntityKind, IEntityPropertyTypeDAO>();
 
-    private final ExperimentDAO experimentDAO;
-
-    private final IProjectDAO projectDAO;
-
     private final IVocabularyDAO vocabularyDAO;
 
     private final IAttachmentDAO attachmentDAO;
@@ -80,7 +74,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     private final IMaterialDAO materialDAO;
 
     private final ICodeSequenceDAO codeSequenceDAO;
-    
+
     private final IDataStoreDAO dataStoreDAO;
 
     public DAOFactory(final DatabaseConfigurationContext context,
@@ -92,8 +86,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         sampleTypeDAO = new SampleTypeDAO(sessionFactory, databaseInstance);
         hibernateSearchDAO = new HibernateSearchDAO(sessionFactory);
         propertyTypeDAO = new PropertyTypeDAO(sessionFactory, databaseInstance);
-        experimentDAO = new ExperimentDAO(sessionFactory, databaseInstance);
-        projectDAO = new ProjectDAO(sessionFactory, databaseInstance);
         vocabularyDAO = new VocabularyDAO(sessionFactory, databaseInstance);
         attachmentDAO = new AttachmentDAO(sessionFactory, databaseInstance);
         dataSetTypeDAO = new DataSetTypeDAO(sessionFactory, databaseInstance);
@@ -145,16 +137,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public IPropertyTypeDAO getPropertyTypeDAO()
     {
         return propertyTypeDAO;
-    }
-
-    public IExperimentDAO getExperimentDAO()
-    {
-        return experimentDAO;
-    }
-
-    public final IProjectDAO getProjectDAO()
-    {
-        return projectDAO;
     }
 
     public final IVocabularyDAO getVocabularyDAO()

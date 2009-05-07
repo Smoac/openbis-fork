@@ -40,8 +40,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  * 
  * @author Izabela Adamczyk
  */
-public class ProjectDAO extends AbstractDAO implements IProjectDAO
+public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements IProjectDAO
 {
+    @Override
+    Class<ProjectPE> getEntityClass()
+    {
+        return ProjectPE.class;
+    }
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, ProjectDAO.class);
 

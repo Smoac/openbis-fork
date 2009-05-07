@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -29,16 +28,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
  * 
  * @author Christian Ribeaud
  */
-public interface IGroupDAO
+public interface IGroupDAO extends IAbstractGenericDAO<GroupPE>
 {
-    /**
-     * Returns the group for given group id.
-     * 
-     * @param groupId the group unique identifier.
-     * @throws EmptyResultDataAccessException if the group with code <var>groupId</var> does not
-     *             exist in the database.
-     */
-    public GroupPE getGroupById(long groupId) throws DataAccessException;
 
     /**
      * Returns a list of {@link GroupPE}s (independent of {@link DatabaseInstancePE} each group

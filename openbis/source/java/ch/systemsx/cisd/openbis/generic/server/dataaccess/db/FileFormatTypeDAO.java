@@ -26,10 +26,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 
 /**
  * Data access object for {@link FileFormatTypePE}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public class FileFormatTypeDAO extends AbstractTypeDAO<FileFormatTypePE> implements IFileFormatTypeDAO
+public class FileFormatTypeDAO extends AbstractTypeDAO<FileFormatTypePE> implements
+        IFileFormatTypeDAO
 {
     public FileFormatTypeDAO(SessionFactory sessionFactory, DatabaseInstancePE databaseInstance)
     {
@@ -37,7 +38,7 @@ public class FileFormatTypeDAO extends AbstractTypeDAO<FileFormatTypePE> impleme
     }
 
     @Override
-    Class<?> getEntityClass()
+    Class<FileFormatTypePE> getEntityClass()
     {
         return FileFormatTypePE.class;
     }

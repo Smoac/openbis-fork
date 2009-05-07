@@ -84,7 +84,7 @@ abstract class AbstractTypeDAO<T extends AbstractTypePE> extends AbstractDAO
         return entity;
     }
 
-    abstract Class<?> getEntityClass();
+    abstract Class<T> getEntityClass();
 
     final List<T> listTypes() throws DataAccessException
     {
@@ -106,7 +106,7 @@ abstract class AbstractTypeDAO<T extends AbstractTypePE> extends AbstractDAO
         }
         return list;
     }
-    
+
     protected void createOrUpdateType(T type)
     {
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();

@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  * 
  * @author Izabela Adamczyk
  */
-public interface IProjectDAO
+public interface IProjectDAO extends IAbstractGenericDAO<ProjectPE>
 {
     /**
      * Lists all projects.

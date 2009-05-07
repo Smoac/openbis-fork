@@ -41,10 +41,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  * 
  * @author Izabela Adamczyk
  */
-public class ExperimentDAO extends AbstractDAO implements IExperimentDAO
+public class ExperimentDAO extends AbstractGenericEntityDAO<ExperimentPE> implements IExperimentDAO
 {
 
-    private static final Class<ExperimentPE> ENTITY_CLASS = ExperimentPE.class;
+    @Override
+    Class<ExperimentPE> getEntityClass()
+    {
+        return ExperimentPE.class;
+    }
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, ExperimentDAO.class);
@@ -61,7 +65,7 @@ public class ExperimentDAO extends AbstractDAO implements IExperimentDAO
         assert experimentType != null : "Unspecified experiment type.";
         assert project != null : "Unspecified project.";
 
-        final DetachedCriteria criteria = DetachedCriteria.forClass(ENTITY_CLASS);
+        final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
         criteria.add(Restrictions.eq("experimentType", experimentType));
         criteria.add(Restrictions.eq("projectInternal", project));
         final List<ExperimentPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
@@ -76,7 +80,7 @@ public class ExperimentDAO extends AbstractDAO implements IExperimentDAO
 
     public List<ExperimentPE> listExperiments() throws DataAccessException
     {
-        final List<ExperimentPE> list = cast(getHibernateTemplate().loadAll(ENTITY_CLASS));
+        final List<ExperimentPE> list = cast(getHibernateTemplate().loadAll(getEntityClass()));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(): %d experiment(s) have been found.", MethodUtils
@@ -90,7 +94,7 @@ public class ExperimentDAO extends AbstractDAO implements IExperimentDAO
         assert experimentCode != null : "Unspecified experiment code.";
         assert project != null : "Unspecified project.";
 
-        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        final Criteria criteria = getSession().createCriteria(getEntityClass());
         criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(experimentCode)));
         criteria.add(Restrictions.eq("projectInternal", project));
         final ExperimentPE experiment = (ExperimentPE) criteria.uniqueResult();
@@ -113,4 +117,5 @@ public class ExperimentDAO extends AbstractDAO implements IExperimentDAO
         template.saveOrUpdate(experiment);
         template.flush();
     }
+
 }

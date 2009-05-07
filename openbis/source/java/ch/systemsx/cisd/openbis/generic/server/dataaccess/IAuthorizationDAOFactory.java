@@ -56,4 +56,13 @@ public interface IAuthorizationDAOFactory
      */
     public IExternalDataDAO getExternalDataDAO();
 
+    /**
+     * Returns the implementation of {@link IExperimentDAO}.
+     */
+    public IExperimentDAO getExperimentDAO();
+
+    /**
+     * Returns the implementation of {@link IProjectDAO}.
+     */
+    public IProjectDAO getProjectDAO();
 }

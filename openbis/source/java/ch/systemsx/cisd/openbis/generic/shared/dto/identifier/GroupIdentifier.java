@@ -22,6 +22,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import ch.systemsx.cisd.common.utilities.StringUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.util.GroupCodeHelper;
 
 /**
  * Identifies a group.
@@ -35,11 +36,9 @@ public class GroupIdentifier extends DatabaseInstanceIdentifier implements
 
     private String groupCodeOrNull;
 
-    public static final String HOME_GROUP = null;
-
     public static GroupIdentifier createHome()
     {
-        return new GroupIdentifier(HOME_GROUP, DatabaseInstanceIdentifier.HOME);
+        return new GroupIdentifier(getHomeGroupCode(), DatabaseInstanceIdentifier.HOME);
     }
 
     public GroupIdentifier(final DatabaseInstanceIdentifier databaseInstanceIdentifier,
@@ -108,9 +107,14 @@ public class GroupIdentifier extends DatabaseInstanceIdentifier implements
         }
     }
 
+    protected static String getHomeGroupCode()
+    {
+        return GroupCodeHelper.HOME_GROUP_CODE;
+    }
+
     public boolean isHomeGroup()
     {
-        return groupCodeOrNull == null;
+        return GroupCodeHelper.isHomeGroup(groupCodeOrNull);
     }
 
     /** Do not use this constructor. It exists just to make automatic bean conversion possible */
