@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
@@ -139,6 +140,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IEntityTypeBO entityTypeBO;
 
+    protected IFileFormatTypeDAO fileFormatDAO;
+
     @BeforeMethod
     @SuppressWarnings("unchecked")
     public void setUp()
@@ -161,6 +164,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         projectDAO = context.mock(IProjectDAO.class);
         sampleTypeDAO = context.mock(ISampleTypeDAO.class);
         propertyTypeDAO = context.mock(IPropertyTypeDAO.class);
+        fileFormatDAO = context.mock(IFileFormatTypeDAO.class);
         vocabularyDAO = context.mock(IVocabularyDAO.class);
         // BO
         groupBO = context.mock(IGroupBO.class);
@@ -199,6 +203,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                     will(returnValue(externalDataDAO));
                     allowing(daoFactory).getAttachmentDAO();
                     will(returnValue(experimentAttachmentDAO));
+                    allowing(daoFactory).getFileFormatTypeDAO();
+                    will(returnValue(fileFormatDAO));
                 }
             });
     }

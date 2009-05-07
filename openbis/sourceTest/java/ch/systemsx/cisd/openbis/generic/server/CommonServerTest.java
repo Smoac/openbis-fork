@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -54,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -602,6 +604,48 @@ public final class CommonServerTest extends AbstractServerTestCase
             });
         final List<DataTypePE> dataTypes = createServer().listDataTypes(SESSION_TOKEN);
         assertEquals(0, dataTypes.size());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public final void testFileFormatTypes()
+    {
+        prepareGetSession();
+        final List<FileFormatTypePE> list = Collections.<FileFormatTypePE> emptyList();
+        context.checking(new Expectations()
+            {
+                {
+
+                    one(fileFormatDAO).listFileFormatTypes();
+                    will(returnValue(list));
+                }
+            });
+        
+        List<FileFormatTypePE> types = createServer().listFileFormatTypes(SESSION_TOKEN);
+        
+        assertSame(list, types);
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testRegisterFileFormatType()
+    {
+        prepareGetSession();
+        final FileFormatTypePE fileFormatTypePE = new FileFormatTypePE();
+        fileFormatTypePE.setCode("my-type");
+        fileFormatTypePE.setDescription("my description");
+        context.checking(new Expectations()
+            {
+                {
+                    one(fileFormatDAO).createOrUpdate(fileFormatTypePE);
+                }
+            });
+        FileFormatType fileFormatType = new FileFormatType();
+        fileFormatType.setCode(fileFormatTypePE.getCode());
+        fileFormatType.setDescription(fileFormatTypePE.getDescription());
+
+        createServer().registerFileFormatType(SESSION_TOKEN, fileFormatType);
+
         context.assertIsSatisfied();
     }
 
