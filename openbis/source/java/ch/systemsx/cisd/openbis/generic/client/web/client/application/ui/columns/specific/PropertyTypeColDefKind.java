@@ -192,7 +192,7 @@ public enum PropertyTypeColDefKind implements IColumnDefinitionKind<PropertyType
         return materialType != null ? materialType.getCode() : null;
     }
 
-    private static String renderDataType(PropertyType entity)
+    static String renderDataType(PropertyType entity)
     {
         DataTypeCode dataType = entity.getDataType().getCode();
         switch (dataType)

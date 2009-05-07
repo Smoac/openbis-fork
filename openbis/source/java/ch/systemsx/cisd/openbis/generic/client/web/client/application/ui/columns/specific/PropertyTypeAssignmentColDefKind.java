@@ -38,6 +38,24 @@ public enum PropertyTypeAssignmentColDefKind implements
             }
         }),
 
+    LABEL(new AbstractColumnDefinitionKind<EntityTypePropertyType<?>>(Dict.LABEL, true)
+        {
+            @Override
+            public String tryGetValue(EntityTypePropertyType<?> entity)
+            {
+                return entity.getPropertyType().getLabel();
+            }
+        }),
+
+    DESCRIPTION(new AbstractColumnDefinitionKind<EntityTypePropertyType<?>>(Dict.DESCRIPTION, true)
+        {
+            @Override
+            public String tryGetValue(EntityTypePropertyType<?> entity)
+            {
+                return entity.getPropertyType().getDescription();
+            }
+        }),
+
     ENTITY_TYPE_CODE(new AbstractColumnDefinitionKind<EntityTypePropertyType<?>>(Dict.ASSIGNED_TO,
             200)
         {
@@ -64,7 +82,18 @@ public enum PropertyTypeAssignmentColDefKind implements
             {
                 return SimpleYesNoRenderer.render(entity.isMandatory());
             }
-        });
+        }),
+
+    DATA_TYPE(new AbstractColumnDefinitionKind<EntityTypePropertyType<?>>(Dict.DATA_TYPE, 200)
+        {
+            @Override
+            public String tryGetValue(EntityTypePropertyType<?> entity)
+            {
+                return PropertyTypeColDefKind.renderDataType(entity.getPropertyType());
+            }
+        }),
+
+    ;
 
     private final AbstractColumnDefinitionKind<EntityTypePropertyType<?>> columnDefinitionKind;
 
