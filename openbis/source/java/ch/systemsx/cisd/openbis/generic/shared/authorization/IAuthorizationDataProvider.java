@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.IDatabaseInstanceFinder;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;

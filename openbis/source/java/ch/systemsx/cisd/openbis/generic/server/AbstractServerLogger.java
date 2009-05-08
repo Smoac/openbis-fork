@@ -23,6 +23,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -136,6 +137,12 @@ public abstract class AbstractServerLogger implements IServer
     public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings)
     {
         logTracking(sessionToken, "save_display_settings", "");
+    }
+
+    public void changeUserHomeGroup(String sessionToken, TechId groupIdOrNull)
+    {
+        String groupId = groupIdOrNull == null ? "null" : groupIdOrNull.toString();
+        logTracking(sessionToken, "change_user_home_group (%s)", groupId);
     }
 
 }

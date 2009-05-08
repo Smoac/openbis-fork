@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
  * Generic interface for DAOs.

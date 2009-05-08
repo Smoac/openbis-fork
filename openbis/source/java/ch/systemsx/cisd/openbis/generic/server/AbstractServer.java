@@ -34,9 +34,11 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.SampleServerPluginRegistry;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -51,12 +53,14 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractServer<T extends IServer> extends AbstractServiceWithLogger<T> implements IServer
+public abstract class AbstractServer<T extends IServer> extends AbstractServiceWithLogger<T>
+        implements IServer
 {
     // For testing purpose.
     private ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin;
+
     private IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin;
-    
+
     @Resource(name = ComponentNames.SESSION_MANAGER)
     private ISessionManager<Session> sessionManager;
 
@@ -87,7 +91,7 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         this.sampleTypeSlaveServerPlugin = sampleTypeSlaveServerPlugin;
         this.dataSetTypeSlaveServerPlugin = dataSetTypeSlaveServerPlugin;
     }
-    
+
     public final void setSampleTypeSlaveServerPlugin(
             ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin)
     {
@@ -110,7 +114,7 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         return SampleServerPluginRegistry.getInstance().getPlugin(EntityKind.SAMPLE, sampleType)
                 .getSlaveServer();
     }
-    
+
     protected final IDataSetTypeSlaveServerPlugin getDataSetTypeSlaveServerPlugin(
             final DataSetTypePE dataSetType)
     {
@@ -118,10 +122,10 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         {
             return dataSetTypeSlaveServerPlugin;
         }
-        return DataSetServerPluginRegistry.getInstance().getPlugin(EntityKind.DATA_SET, dataSetType)
-                .getSlaveServer();
+        return DataSetServerPluginRegistry.getInstance()
+                .getPlugin(EntityKind.DATA_SET, dataSetType).getSlaveServer();
     }
-    
+
     private final RoleAssignmentPE createRoleAssigment(final PersonPE registrator,
             final PersonPE person)
     {
@@ -243,6 +247,21 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         {
             person.setDisplaySettings(displaySettings);
             getDAOFactory().getPersonDAO().updatePerson(person);
+        }
+    }
+
+    public void changeUserHomeGroup(String sessionToken, TechId groupIdOrNull)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        PersonPE person = session.tryGetPerson();
+        if (person != null)
+        {
+            System.err.println(groupIdOrNull);
+            GroupPE homeGroup =
+                    groupIdOrNull == null ? null : getDAOFactory().getGroupDAO().getByTechId(
+                            groupIdOrNull);
+            person.setHomeGroup(homeGroup);
+            // don't need to updatePerson(person) with DAO because it is attached to a session
         }
     }
 }

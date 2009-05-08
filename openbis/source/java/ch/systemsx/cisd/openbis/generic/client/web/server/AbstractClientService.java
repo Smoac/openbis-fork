@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -230,6 +231,22 @@ public abstract class AbstractClientService implements IClientService
             final String sessionToken = getSessionToken();
             IServer server = getServer();
             server.saveDisplaySettings(sessionToken, displaySettings);
+        } catch (InvalidSessionException e)
+        {
+            // ignored
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public void changeUserHomeGroup(TechId groupIdOrNull)
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            IServer server = getServer();
+            server.changeUserHomeGroup(sessionToken, groupIdOrNull);
         } catch (InvalidSessionException e)
         {
             // ignored

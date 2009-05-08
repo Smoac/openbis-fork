@@ -41,6 +41,7 @@ public final class GroupTranslator
             return null;
         }
         final Group result = new Group();
+        result.setId(group.getId());
         result.setCode(StringEscapeUtils.escapeHtml(group.getCode()));
         result.setDescription(StringEscapeUtils.escapeHtml(group.getDescription()));
         result.setInstance(DatabaseInstanceTranslator.translate(group.getDatabaseInstance()));

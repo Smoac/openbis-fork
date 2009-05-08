@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+
 /**
  * An entity property is composed of:
  * <ol>

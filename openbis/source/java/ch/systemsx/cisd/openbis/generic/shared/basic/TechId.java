@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2009 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,39 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.dto;
+package ch.systemsx.cisd.openbis.generic.shared.basic;
+
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * Read-only interface for beans with a unique technical Id.
+ * Technical identifier of an entity.
  * 
- * @author Christian Ribeaud
+ * @author Piotr Buczek
  */
-public interface IIdHolder
+public class TechId implements IIdHolder, IsSerializable
 {
+    private Long id;
 
-    /**
-     * Returns the technical ID of this instance.
-     * 
-     * @return <code>null</code> if there is no Id.
-     */
-    public Long getId();
+    private TechId()
+    {
+        // for serialization
+    }
+
+    public TechId(Long id)
+    {
+        this();
+        this.id = id;
+    }
+
+    public Long getId()
+    {
+        return id;
+    }
+
+    @Override
+    public String toString()
+    {
+        return String.valueOf(id);
+    }
+
 }

@@ -20,6 +20,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
 /**
@@ -39,7 +40,10 @@ public interface IClientServiceAsync
 
     /** @see IClientService#updateDisplaySettings(DisplaySettings) */
     public void updateDisplaySettings(DisplaySettings displaySettings, AsyncCallback<Void> callback);
-    
+
+    /** @see IClientService#changeUserHomeGroup(TechId) */
+    public void changeUserHomeGroup(TechId groupIdOrNull, AsyncCallback<Void> callback);
+
     /** @see IClientService#logout(DisplaySettings) */
     public void logout(DisplaySettings displaySettings, AsyncCallback<Void> callback);
 

@@ -21,6 +21,7 @@ import com.google.gwt.user.client.rpc.RemoteService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
 /**
@@ -45,16 +46,20 @@ public interface IClientService extends RemoteService
     public SessionContext tryToGetCurrentSessionContext();
 
     /**
-     * Tries to login with specified user ID and password. If failed <code>null</code> is
-     * returned.
+     * Tries to login with specified user ID and password. If failed <code>null</code> is returned.
      */
     public SessionContext tryToLogin(String userID, String password) throws UserFailureException;
-    
+
     /**
      * Updates display settings on the server.
      */
     public void updateDisplaySettings(DisplaySettings displaySettings);
-    
+
+    /**
+     * Changes logged user home group on the server.
+     */
+    public void changeUserHomeGroup(TechId groupIdOrNull);
+
     /**
      * Logs out.
      */

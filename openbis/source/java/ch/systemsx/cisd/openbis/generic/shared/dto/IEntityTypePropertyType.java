@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+
 /**
  * An entity type property type is composed of:
  * <ol>

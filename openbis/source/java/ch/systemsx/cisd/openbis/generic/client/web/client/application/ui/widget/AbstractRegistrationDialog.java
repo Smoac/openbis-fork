@@ -16,18 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget;
 
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
@@ -37,87 +29,21 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
  * 
  * @author Tomasz Pylak
  */
-abstract public class AbstractRegistrationDialog extends Window
+abstract public class AbstractRegistrationDialog extends AbstractSaveDialog
 {
+
     protected abstract void register(AsyncCallback<Void> registrationCallback);
 
-    public final class RegisterDialogCallback extends AbstractAsyncCallback<Void>
+    @Override
+    protected final void save(AsyncCallback<Void> saveCallback)
     {
-        private RegisterDialogCallback(IViewContext<?> viewContext)
-        {
-            super(viewContext);
-        }
-
-        @Override
-        public final void process(final Void result)
-        {
-            hide();
-            postRegistrationCallback.execute();
-        }
+        register(saveCallback);
     }
-
-    public static final String SAVE_BUTTON_ID = GenericConstants.ID_PREFIX + "dialog-save-button";
-
-    public static final String CODE_FIELD_ID = GenericConstants.ID_PREFIX + "dialog-code-field";
-
-    private final IDelegatedAction postRegistrationCallback;
-
-    private final IViewContext<?> viewContext;
-
-    private final FormPanel form;
 
     public AbstractRegistrationDialog(final IViewContext<?> viewContext, String title,
             final IDelegatedAction postRegistrationCallback)
     {
-        this.postRegistrationCallback = postRegistrationCallback;
-        this.viewContext = viewContext;
-        setHeading(title);
-        setModal(true);
-        setWidth(400);
-        this.form = new FormPanel();
-        form.setHeaderVisible(false);
-        form.setBorders(false);
-        form.setBodyBorder(false);
-        add(form);
-
-        addButton(createSaveButton());
-        addButton(createCancelButton());
-    }
-
-    protected final void addField(Widget widget)
-    {
-        form.add(widget);
-    }
-
-    private Button createCancelButton()
-    {
-        final Button button =
-                new Button(viewContext.getMessage(Dict.BUTTON_CANCEL),
-                        new SelectionListener<ComponentEvent>()
-                            {
-                                @Override
-                                public final void componentSelected(ComponentEvent ce)
-                                {
-                                    hide();
-                                }
-                            });
-        return button;
-    }
-
-    private Button createSaveButton()
-    {
-        final Button button =
-                new Button(viewContext.getMessage(Dict.BUTTON_SAVE),
-                        new SelectionListener<ComponentEvent>()
-                            {
-                                @Override
-                                public final void componentSelected(final ComponentEvent ce)
-                                {
-                                    register(new RegisterDialogCallback(viewContext));
-                                }
-                            });
-        button.setId(SAVE_BUTTON_ID);
-        return button;
+        super(viewContext, title, postRegistrationCallback);
     }
 
     public static TextField<String> createDescriptionField()

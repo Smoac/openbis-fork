@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
@@ -40,6 +39,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.datas
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.experiment.ExperimentMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.material.MaterialMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.sample.SampleMenu;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.user.ChangeUserHomeGroupDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
@@ -71,6 +72,9 @@ public class TopMenu extends LayoutContainer
 
     public static final String LOGOUT_BUTTON_ID = GenericConstants.ID_PREFIX + "logout-button";
 
+    public static final String CHANGE_USER_HOME_GROUP_BUTTON_ID =
+            GenericConstants.ID_PREFIX + "change-user-home-group-button";
+
     public static final String ICON_STYLE = "icon-menu-show";
 
     /** {@link ActionMenu} kind enum with names matching dictionary keys */
@@ -91,7 +95,7 @@ public class TopMenu extends LayoutContainer
         PROJECT_MENU_BROWSE, PROJECT_MENU_NEW,
 
         DATA_SET_MENU_FILE_FORMATS,
-        
+
         PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES, PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS,
         PROPERTY_TYPES_MENU_NEW_PROPERTY_TYPES, PROPERTY_TYPES_MENU_ASSIGN_TO_EXPERIMENT_TYPE,
         PROPERTY_TYPES_MENU_ASSIGN_TO_MATERIAL_TYPE, PROPERTY_TYPES_MENU_ASSIGN_TO_DATA_SET_TYPE,
@@ -140,7 +144,7 @@ public class TopMenu extends LayoutContainer
         toolBar.add(new FillToolItem());
         toolBar.add(new AdapterToolItem(new SearchWidget(viewContext)));
         toolBar.add(new SeparatorToolItem());
-        toolBar.add(new AdapterToolItem(userInfo()));
+        toolBar.add(new ChangeUserHomeGroupButton(viewContext));
         toolBar.add(new LogoutButton(viewContext));
     }
 
@@ -151,28 +155,75 @@ public class TopMenu extends LayoutContainer
         refresh();
     }
 
-    private final Html userInfo()
-    {
-        final SessionContext sessionContext = viewContext.getModel().getSessionContext();
-        final User user = sessionContext.getUser();
-        final String userName = user.getUserName();
-        final String homeGroup = user.getHomeGroupCode();
-        final String fullInfo;
-        if (homeGroup == null)
-        {
-            fullInfo = viewContext.getMessage(Dict.HEADER_USER_WITHOUT_HOMEGROUP, userName);
-        } else
-        {
-            fullInfo = viewContext.getMessage(Dict.HEADER_USER_WITH_HOMEGROUP, userName, homeGroup);
-        }
-        final Html html = new Html(fullInfo);
-        html.setStyleAttribute("marginRight", "7px");
-        return html;
-    }
-
     //
     // Helper classes
     //
+
+    private static final class ChangeUserHomeGroupButton extends TextToolItem
+    {
+        private final CommonViewContext viewContext;
+
+        ChangeUserHomeGroupButton(final CommonViewContext viewContext)
+        {
+            super();
+            this.viewContext = viewContext;
+            addSelectionListener();
+            setId(CHANGE_USER_HOME_GROUP_BUTTON_ID);
+            refreshButtonText();
+        }
+
+        private void addSelectionListener()
+        {
+            final ChangeUserHomeGroupButton changeUserHomeGroupButton = this;
+            final SelectionListener<ComponentEvent> listener =
+                    new SelectionListener<ComponentEvent>()
+                        {
+
+                            //
+                            // SelectionListener
+                            //
+
+                            @Override
+                            public final void componentSelected(final ComponentEvent ce)
+                            {
+                                ChangeUserHomeGroupDialog dialog =
+                                        new ChangeUserHomeGroupDialog(viewContext,
+                                                new IDelegatedAction()
+                                                    {
+                                                        public void execute()
+                                                        {
+                                                            changeUserHomeGroupButton
+                                                                    .refreshButtonText();
+                                                        }
+                                                    });
+                                dialog.show();
+                            }
+                        };
+            addSelectionListener(listener);
+        }
+
+        public void refreshButtonText()
+        {
+            setText(getUserInfo());
+        }
+
+        private final String getUserInfo()
+        {
+            final SessionContext sessionContext = viewContext.getModel().getSessionContext();
+            final User user = sessionContext.getUser();
+            final String userName = user.getUserName();
+            final String homeGroup = user.getHomeGroupCode();
+            final String info;
+            if (homeGroup == null)
+            {
+                info = viewContext.getMessage(Dict.HEADER_USER_WITHOUT_HOMEGROUP, userName);
+            } else
+            {
+                info = viewContext.getMessage(Dict.HEADER_USER_WITH_HOMEGROUP, userName, homeGroup);
+            }
+            return info;
+        }
+    }
 
     private final static class LogoutButton extends TextToolItem
     {

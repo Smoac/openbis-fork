@@ -32,6 +32,7 @@ import org.hibernate.validator.Length;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
  * Class representing invalidation.

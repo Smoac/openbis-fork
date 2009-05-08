@@ -38,6 +38,7 @@ import org.hibernate.validator.NotNull;
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
  * Persistent entity representing an event which changed some entities in the persistent layer.

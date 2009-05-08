@@ -24,6 +24,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
  * An abstract class which based equality and comparability on in its unique field <code>id</code>.

@@ -20,7 +20,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
 
 import ch.systemsx.cisd.common.collections.UnmodifiableCollectionDecorator;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
  * Some utility methods around <i>Hibernate</i>.

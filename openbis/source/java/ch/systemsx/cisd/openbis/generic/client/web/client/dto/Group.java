@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
  */
 public final class Group extends CodeWithRegistration<Group>
 {
+    private Long id;
 
     private String description;
 
@@ -87,6 +88,16 @@ public final class Group extends CodeWithRegistration<Group>
     public void setIdentifier(final String identifier)
     {
         this.identifier = identifier;
+    }
+
+    public Long getId()
+    {
+        return id;
+    }
+
+    public void setId(Long id)
+    {
+        this.id = id;
     }
 
     //

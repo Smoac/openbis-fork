@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2008 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,34 +14,20 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
-
-import ch.systemsx.cisd.openbis.generic.shared.dto.IIdHolder;
+package ch.systemsx.cisd.openbis.generic.shared.basic;
 
 /**
- * Technical identifier of an entity.
+ * Read-only interface for beans with a unique technical Id.
  * 
- * @author Piotr Buczek
+ * @author Christian Ribeaud
  */
-public class TechId implements IIdHolder
+public interface IIdHolder
 {
-    private final Long id;
 
-    public TechId(Long id)
-    {
-        super();
-        this.id = id;
-    }
-
-    public Long getId()
-    {
-        return id;
-    }
-
-    @Override
-    public String toString()
-    {
-        return String.valueOf(id);
-    }
-
+    /**
+     * Returns the technical ID of this instance.
+     * 
+     * @return <code>null</code> if there is no Id.
+     */
+    public Long getId();
 }

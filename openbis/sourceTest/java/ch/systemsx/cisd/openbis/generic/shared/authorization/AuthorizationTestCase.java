@@ -30,7 +30,7 @@ import org.testng.annotations.BeforeMethod;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider.EntityWithGroupKind;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.Role.RoleLevel;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
