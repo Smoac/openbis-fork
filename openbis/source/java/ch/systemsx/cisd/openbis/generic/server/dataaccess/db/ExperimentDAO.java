@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
@@ -59,7 +60,7 @@ public class ExperimentDAO extends AbstractGenericEntityDAO<ExperimentPE> implem
         super(sessionFactory, databaseInstance);
     }
 
-    public List<ExperimentPE> listExperiments(final ExperimentTypePE experimentType,
+    public List<ExperimentPE> listExperimentsWithProperties(final ExperimentTypePE experimentType,
             final ProjectPE project) throws DataAccessException
     {
         assert experimentType != null : "Unspecified experiment type.";
@@ -68,6 +69,8 @@ public class ExperimentDAO extends AbstractGenericEntityDAO<ExperimentPE> implem
         final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
         criteria.add(Restrictions.eq("experimentType", experimentType));
         criteria.add(Restrictions.eq("projectInternal", project));
+        criteria.setFetchMode("experimentProperties", FetchMode.JOIN);
+        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         final List<ExperimentPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {

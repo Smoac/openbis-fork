@@ -519,8 +519,6 @@ public final class CommonServerTest extends AbstractServerTestCase
 
                     one(experimentTable).load(experimentType.getCode(), projectIdentifier);
 
-                    one(experimentTable).enrichWithProperties();
-
                     one(experimentTable).getExperiments();
                     will(returnValue(new ArrayList<ExperimentPE>()));
                 }
@@ -606,7 +604,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         assertEquals(0, dataTypes.size());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public final void testFileFormatTypes()
     {
@@ -620,13 +618,13 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(list));
                 }
             });
-        
+
         List<FileFormatTypePE> types = createServer().listFileFormatTypes(SESSION_TOKEN);
-        
+
         assertSame(list, types);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRegisterFileFormatType()
     {
@@ -752,7 +750,7 @@ public final class CommonServerTest extends AbstractServerTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRegisterMaterialType()
     {
@@ -763,14 +761,14 @@ public final class CommonServerTest extends AbstractServerTestCase
                 {
                     one(commonBusinessObjectFactory).createEntityTypeBO(SESSION);
                     will(returnValue(entityTypeBO));
-                    
+
                     one(entityTypeBO).define(type);
                     one(entityTypeBO).save();
                 }
             });
-        
+
         createServer().registerMaterialType(SESSION_TOKEN, type);
-        
+
         context.assertIsSatisfied();
     }
 
@@ -796,13 +794,13 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(entityTypeDAO).createOrUpdateEntityType(typePE);
                 }
             });
-        
+
         createServer().updateMaterialType(SESSION_TOKEN, type);
-        
+
         assertEquals(type.getDescription(), typePE.getDescription());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRegisterSampleType()
     {
@@ -852,7 +850,6 @@ public final class CommonServerTest extends AbstractServerTestCase
         assertEquals(type.getDescription(), typePE.getDescription());
         context.assertIsSatisfied();
     }
-    
 
     @Test
     public void testRegisterExperimentType()
@@ -903,7 +900,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         assertEquals(type.getDescription(), typePE.getDescription());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRegisterDataSetType()
     {
@@ -1152,15 +1149,15 @@ public final class CommonServerTest extends AbstractServerTestCase
                     Session session = createSession();
                     session.setPerson(person);
                     will(returnValue(session));
-                    
+
                     one(personDAO).updatePerson(person);
                 }
             });
-        
+
         createServer().saveDisplaySettings(SESSION_TOKEN, displaySettings);
-        
+
         assertSame(displaySettings, person.getDisplaySettings());
-        
+
         context.assertIsSatisfied();
     }
 }

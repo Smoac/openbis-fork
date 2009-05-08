@@ -66,7 +66,7 @@ public final class ExperimentTableTest extends AbstractBOTest
                             projectIdentifier.getGroupCode(), projectIdentifier.getProjectCode());
                     will(returnValue(project));
 
-                    one(experimentDAO).listExperiments(experimentType, project);
+                    one(experimentDAO).listExperimentsWithProperties(experimentType, project);
                     will(returnValue(new ArrayList<ExperimentPE>()));
                 }
             });

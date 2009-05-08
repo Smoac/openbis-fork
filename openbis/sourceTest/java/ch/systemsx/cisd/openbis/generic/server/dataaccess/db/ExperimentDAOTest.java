@@ -91,7 +91,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         final ExperimentTypePE expType = expInNemo.getExperimentType();
         assertEquals(ExperimentTypeCode.SIRNA_HCS.getCode(), expType.getCode());
 
-        experiments = daoFactory.getExperimentDAO().listExperiments(expType, projectNemo);
+        experiments = daoFactory.getExperimentDAO().listExperimentsWithProperties(expType, projectNemo);
         Collections.sort(experiments);
         assertEquals(4, experiments.size());
         ExperimentPE exp1 = assertExperimentIdentifierPresent(CISD_CISD_NEMO_EXP1, experiments);
@@ -116,7 +116,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         final ExperimentTypePE expType = expInDefault.getExperimentType();
         assertEquals(ExperimentTypeCode.SIRNA_HCS.getCode(), expType.getCode());
 
-        experiments = daoFactory.getExperimentDAO().listExperiments(expType, projectDefault);
+        experiments = daoFactory.getExperimentDAO().listExperimentsWithProperties(expType, projectDefault);
         Collections.sort(experiments);
         assertEquals(2, experiments.size());
         assertEquals(CISD_CISD_DEFAULT_EXP_REUSE, experiments.get(0).getIdentifier());
@@ -142,7 +142,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         final ExperimentTypePE expType = (ExperimentTypePE) types.get(0);
         assertEquals(ExperimentTypeCode.COMPOUND_HCS.getCode(), expType.getCode());
 
-        experiments = daoFactory.getExperimentDAO().listExperiments(expType, projectDefault);
+        experiments = daoFactory.getExperimentDAO().listExperimentsWithProperties(expType, projectDefault);
         Collections.sort(experiments);
         assertEquals(0, experiments.size());
     }

@@ -422,7 +422,6 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         final IExperimentTable experimentTable =
                 businessObjectFactory.createExperimentTable(session);
         experimentTable.load(experimentType.getCode(), projectIdentifier);
-        experimentTable.enrichWithProperties();
         final List<ExperimentPE> experiments = experimentTable.getExperiments();
         Collections.sort(experiments);
         return experiments;
@@ -460,7 +459,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     {
         assert sessionToken != null : "Unspecified session token";
         checkSession(sessionToken);
-        List<FileFormatTypePE> fileFormatTypes = getDAOFactory().getFileFormatTypeDAO().listFileFormatTypes();
+        List<FileFormatTypePE> fileFormatTypes =
+                getDAOFactory().getFileFormatTypeDAO().listFileFormatTypes();
         Collections.sort(fileFormatTypes);
         return fileFormatTypes;
     }
@@ -686,7 +686,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             throw createUserFailureException(ex);
         }
     }
-    
+
     public void registerDataSetType(String sessionToken, DataSetType entityType)
     {
         final Session session = getSessionManager().getSession(sessionToken);

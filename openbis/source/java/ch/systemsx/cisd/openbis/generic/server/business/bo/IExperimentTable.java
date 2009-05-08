@@ -36,11 +36,6 @@ public interface IExperimentTable
      */
     public void load(String experimentTypeCodeOrNull, ProjectIdentifier projectIdentifier);
 
-    /**
-     * Enriches the experiments with their property type values.
-     */
-    public void enrichWithProperties();
-
     /** Returns the loaded {@link ExperimentPE}. */
     public List<ExperimentPE> getExperiments();
 

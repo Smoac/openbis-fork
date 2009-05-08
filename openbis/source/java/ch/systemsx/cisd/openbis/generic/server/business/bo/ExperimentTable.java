@@ -27,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * The only productive implementation of {@link IExperimentTable}.
@@ -60,7 +59,9 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
                 getProjectDAO().tryFindProject(projectIdentifier.getDatabaseInstanceCode(),
                         projectIdentifier.getGroupCode(), projectIdentifier.getProjectCode());
         checkNotNull(projectIdentifier, project);
-        experiments = getExperimentDAO().listExperiments((ExperimentTypePE) entityType, project);
+        experiments =
+                getExperimentDAO().listExperimentsWithProperties((ExperimentTypePE) entityType,
+                        project);
     }
 
     private void checkNotNull(final ProjectIdentifier projectIdentifier, final ProjectPE project)
@@ -89,17 +90,6 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         if (projectIdentifier == null)
         {
             throw new UserFailureException("Project not specified.");
-        }
-    }
-
-    public final void enrichWithProperties()
-    {
-        if (experiments != null)
-        {
-            for (final ExperimentPE experiment : experiments)
-            {
-                HibernateUtils.initialize(experiment.getProperties());
-            }
         }
     }
 
