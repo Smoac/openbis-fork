@@ -32,9 +32,9 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
+import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -46,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -184,8 +183,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
                             HierarchyType.CHILD);
                     will(returnValue(sample));
 
-                    one(externalDataDAO).listExternalData(sample, SourceType.DERIVED);
-                    one(externalDataDAO).listExternalData(sample, SourceType.MEASUREMENT);
+                    one(externalDataDAO).listExternalData(sample);
                 }
             });
         externalDataTable.loadBySampleIdentifier(sampleIdentifier);
@@ -197,6 +195,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
     {
         final ExperimentIdentifier identifier =
                 new ExperimentIdentifier(new ProjectIdentifier("db", "group", "project"), "exp");
+        final ExperimentPE experimentPE = CommonTestUtils.createExperiment(identifier);
         final ExternalDataPE data1 = new ExternalDataPE();
         data1.setCode("d1");
         data1.setDataSetType(new DataSetTypePE());
@@ -204,36 +203,30 @@ public final class ExternalDataTableTest extends AbstractBOTest
         data2.setCode("d2");
         data2.setDeleted(true);
         data2.setDataSetType(new DataSetTypePE());
+
         context.checking(new Expectations()
             {
                 {
                     allowing(daoFactory).getProjectDAO();
                     will(returnValue(projectDAO));
 
+                    ProjectPE projectPE = experimentPE.getProject();
                     one(projectDAO).tryFindProject("DB", "GROUP", "PROJECT");
-                    ProjectPE projectPE = new ProjectPE();
-                    projectPE.setCode("PROJECT");
-                    GroupPE groupPE = new GroupPE();
-                    groupPE.setCode("GROUP");
-                    projectPE.setGroup(groupPE);
                     will(returnValue(projectPE));
 
                     allowing(daoFactory).getExperimentDAO();
                     will(returnValue(experimentDAO));
 
                     one(experimentDAO).tryFindByCodeAndProject(projectPE, "EXP");
-                    ExperimentPE experimentPE = new ExperimentPE();
-                    experimentPE.setDataSets(Arrays.<DataPE> asList(data1, data2));
                     will(returnValue(experimentPE));
+
+                    one(externalDataDAO).listExternalData(experimentPE);
+                    // moze nie potrzebne jest eager w experymencie?
                 }
             });
 
         ExternalDataTable externalDataTable = createExternalDataTable();
         externalDataTable.loadByExperimentIdentifier(identifier);
-
-        List<ExternalDataPE> list = externalDataTable.getExternalData();
-        assertEquals(1, list.size());
-        assertSame(data1, list.get(0));
 
         context.assertIsSatisfied();
     }

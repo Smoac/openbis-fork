@@ -53,7 +53,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -572,8 +571,7 @@ public final class SampleBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(externalDataDAO).listExternalData(with(sample),
-                            with(any(SourceType.class)));
+                    allowing(externalDataDAO).listExternalData(with(sample));
                     will(returnValue(Arrays.asList(new ExternalDataPE())));
                 }
             });
@@ -610,8 +608,7 @@ public final class SampleBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(externalDataDAO).listExternalData(with(sample),
-                            with(any(SourceType.class)));
+                    allowing(externalDataDAO).listExternalData(with(sample));
                     will(returnValue(new ArrayList<ExternalDataPE>()));
                 }
             });
@@ -675,8 +672,7 @@ public final class SampleBOTest extends AbstractBOTest
                     will(returnValue(experimentToAttach));
 
                     // no datasets attached
-                    allowing(externalDataDAO).listExternalData(with(sample),
-                            with(any(SourceType.class)));
+                    allowing(externalDataDAO).listExternalData(with(sample));
                     will(returnValue(new ArrayList<ExternalDataPE>()));
                 }
             });

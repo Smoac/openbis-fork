@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -77,28 +78,54 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
     // IExternalDataDAO
     //
 
-    public final List<ExternalDataPE> listExternalData(final SamplePE sample,
-            final SourceType sourceType) throws DataAccessException
+    public final List<ExternalDataPE> listExternalData(final SamplePE sample)
+            throws DataAccessException
     {
         assert sample != null : "Unspecified sample.";
-        assert sourceType != null : "Unspecified source type.";
 
-        // TODO 2009-04-29, Piotr Buczek: remove join when edit view will load all data
-        List<ExternalDataPE> list =
-                cast(getHibernateTemplate()
-                        .find(
-                                String
-                                        .format(
-                                                "from %s e left join fetch e.dataSetType.dataSetTypePropertyTypesInternal pt where e.%s = ? and e.deleted = false",
-                                                TABLE_NAME, sourceType.getFieldName()),
-                                toArray(sample)));
+        // TODO 2009-04-29, Piotr Buczek: remove join pt when edit view will load all data
+        final String query =
+                String.format("from %s e "
+                        + "left join fetch e.dataSetType.dataSetTypePropertyTypesInternal pt "
+                        + "left join fetch e.experimentInternal " + "left join fetch e.parents "
+                        + "left join fetch e.dataSetProperties "
+                        + "where (e.%s = ? or e.%s = ?) and e.deleted = false", TABLE_NAME,
+                        SourceType.DERIVED.getFieldName(), SourceType.MEASUREMENT.getFieldName());
+        final List<ExternalDataPE> list =
+                cast(getHibernateTemplate().find(query, toArray(sample, sample)));
+
+        // distinct does not work properly in HQL for left joins
+        distinct(list);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%d external data have been found for [sample=%s].",
+                    list.size(), sample));
+        }
+        return list;
+    }
+
+    public final List<ExternalDataPE> listExternalData(final ExperimentPE experiment)
+            throws DataAccessException
+    {
+        assert experiment != null : "Unspecified experiment.";
+
+        // TODO 2009-04-29, Piotr Buczek: remove join pt when edit view will load all data
+        final String query =
+                String.format("from %s e "
+                        + "left join fetch e.dataSetType.dataSetTypePropertyTypesInternal pt "
+                        + "left join fetch e.experimentInternal " + "left join fetch e.parents "
+                        + "left join fetch e.dataSetProperties "
+                        + "where e.experimentInternal = ? and e.deleted = false", TABLE_NAME);
+        final List<ExternalDataPE> list =
+                cast(getHibernateTemplate().find(query, toArray(experiment)));
+
         // distinct does not work properly in HQL for left joins
         distinct(list);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
-                    "%d external data have been found for [sample=%s,sourceType=%s].", list.size(),
-                    sample, sourceType));
+                    "%d external data have been found for [experiment=%e].", list.size(),
+                    experiment));
         }
         return list;
     }

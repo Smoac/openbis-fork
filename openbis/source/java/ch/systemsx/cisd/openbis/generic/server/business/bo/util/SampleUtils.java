@@ -24,7 +24,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 
 /**
  * @author Tomasz Pylak
@@ -43,18 +42,14 @@ public class SampleUtils
         }
     }
 
+    // TODO 2009-05-08, Piotr Buczek: improve performance
     public static boolean hasDatasets(IExternalDataDAO externalDataDAO, SamplePE sample)
     {
         assert sample != null;
 
-        long count = 0;
-        for (final SourceType dataSourceType : SourceType.values())
-        {
-            final List<ExternalDataPE> list =
-                    externalDataDAO.listExternalData(sample, dataSourceType);
-            count += list.size();
-        }
-        return count > 0;
+        final List<ExternalDataPE> list = externalDataDAO.listExternalData(sample); 
+        
+        return list.isEmpty() == false;
     }
 
     /** for all experiment samples which belonged to a group the specified group will be set */

@@ -46,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
@@ -80,8 +79,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
     {
         testCreateDataSet();
         final IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
-        List<ExternalDataPE> list =
-                externalDataDAO.listExternalData(pickASample(), SourceType.MEASUREMENT);
+        List<ExternalDataPE> list = externalDataDAO.listExternalData(pickASample());
 
         assertEquals(1, list.size());
         ExternalDataPE dataSet = list.get(0);
@@ -173,13 +171,12 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         testCreateDataSet();
         final IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
         SamplePE sample = pickASample();
-        List<ExternalDataPE> list =
-                externalDataDAO.listExternalData(sample, SourceType.MEASUREMENT);
+        List<ExternalDataPE> list = externalDataDAO.listExternalData(sample);
         ExternalDataPE data = list.get(0);
 
         externalDataDAO.markAsDeleted(data, getTestPerson(), "description", "testing deletion");
 
-        assertEquals(0, externalDataDAO.listExternalData(sample, SourceType.MEASUREMENT).size());
+        assertEquals(0, externalDataDAO.listExternalData(sample).size());
         DataPE retrievedData = externalDataDAO.tryToFindDataSetByCode(data.getCode());
         assertEquals(true, retrievedData.isDeleted());
         Set<EventPE> events = retrievedData.getEvents();

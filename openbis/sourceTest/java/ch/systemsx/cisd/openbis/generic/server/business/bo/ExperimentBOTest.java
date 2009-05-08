@@ -48,7 +48,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -485,8 +484,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(externalDataDAO).listExternalData(with(any(SamplePE.class)),
-                            with(any(SourceType.class)));
+                    allowing(externalDataDAO).listExternalData(with(any(SamplePE.class)));
                     will(returnValue(new ArrayList<ExternalDataPE>()));
                 }
             });
@@ -564,8 +562,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(externalDataDAO).listExternalData(with(assignedSample),
-                            with(any(SourceType.class)));
+                    allowing(externalDataDAO).listExternalData(with(assignedSample));
                     // one dataset found
                     will(returnValue(Arrays.asList(new ExternalDataPE())));
                 }

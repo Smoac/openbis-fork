@@ -33,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.HibernateTransformer;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -41,7 +40,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -137,15 +135,9 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     public final void loadBySampleIdentifier(final SampleIdentifier sampleIdentifier)
     {
         assert sampleIdentifier != null : "Unspecified sample identifier";
-        externalData = new ArrayList<ExternalDataPE>();
         final SamplePE sample = getSampleByIdentifier(sampleIdentifier);
-        externalData.addAll(getExternalDataDAO().listExternalData(sample, SourceType.MEASUREMENT));
-        externalData.addAll(getExternalDataDAO().listExternalData(sample, SourceType.DERIVED));
-        for (ExternalDataPE externalDataPE : externalData)
-        {
-            enrichWithParentsAndExperiment(externalDataPE);
-            HibernateUtils.initialize(externalDataPE.getProperties());
-        }
+        externalData = new ArrayList<ExternalDataPE>();
+        externalData.addAll(getExternalDataDAO().listExternalData(sample));
     }
 
     public void loadByExperimentIdentifier(ExperimentIdentifier identifier)
@@ -158,20 +150,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         ExperimentPE experiment =
                 getExperimentDAO().tryFindByCodeAndProject(project, identifier.getExperimentCode());
         externalData = new ArrayList<ExternalDataPE>();
-        List<DataPE> dataSets = experiment.getDataSets();
-        for (DataPE dataSet : dataSets)
-        {
-            if (dataSet.isDeleted() == false && dataSet instanceof ExternalDataPE)
-            {
-                ExternalDataPE externalDataPE = (ExternalDataPE) dataSet;
-                HibernateUtils.initialize(dataSet.getParents());
-                HibernateUtils.initialize(dataSet.getProperties());
-                // TODO 2009-04-29, Piotr Buczek: remove when edit view will load all data
-                HibernateUtils.initialize(dataSet.getDataSetType().getDataSetTypePropertyTypes());
-                enrichWithParentsAndExperiment(externalDataPE);
-                externalData.add(externalDataPE);
-            }
-        }
+        externalData.addAll(getExternalDataDAO().listExternalData(experiment));
     }
 
     public void deleteLoadedDataSets(String reason)

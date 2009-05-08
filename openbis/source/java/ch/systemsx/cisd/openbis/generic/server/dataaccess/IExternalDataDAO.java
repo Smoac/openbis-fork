@@ -21,10 +21,10 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 
 /**
  * An interface that contains all data access operations on {@link ExternalDataPE}s.
@@ -36,12 +36,18 @@ public interface IExternalDataDAO
     /**
      * List the {@link ExternalDataPE} for given <var>sample</var>.
      * 
-     * @param sourceType the source type represented by given <var>sample</var>.
      * @returns list of {@link ExternalDataPE}s that are related to given {@link SamplePE}.
      */
-    public List<ExternalDataPE> listExternalData(final SamplePE sample, final SourceType sourceType)
+    public List<ExternalDataPE> listExternalData(final SamplePE sample) throws DataAccessException;
+
+    /**
+     * List the {@link ExternalDataPE} for given <var>experiment</var>.
+     * 
+     * @returns list of {@link ExternalDataPE}s that are related to given {@link ExperimentPE}.
+     */
+    public List<ExternalDataPE> listExternalData(final ExperimentPE experiment)
             throws DataAccessException;
-    
+
     /**
      * Tries to get the data set for the specified code.
      */
@@ -51,7 +57,7 @@ public interface IExternalDataDAO
      * Tries to get the full data set for the specified code.
      */
     public ExternalDataPE tryToFindFullDataSetByCode(String dataSetCode);
-    
+
     /**
      * Creates a unique data set code.
      */
@@ -70,8 +76,9 @@ public interface IExternalDataDAO
     /**
      * Marks the specified data set for the specified reason as deleted.
      * 
-     * @param description Description deletion circumstances. 
+     * @param description Description deletion circumstances.
      */
-    public void markAsDeleted(ExternalDataPE dataSet, PersonPE registrator, String description, String reason);
-    
+    public void markAsDeleted(ExternalDataPE dataSet, PersonPE registrator, String description,
+            String reason);
+
 }
