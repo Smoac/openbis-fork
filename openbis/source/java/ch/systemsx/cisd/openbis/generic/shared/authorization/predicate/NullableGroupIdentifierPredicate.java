@@ -27,17 +27,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 public class NullableGroupIdentifierPredicate extends
         DelegatedNullableAbstractPredicate<GroupIdentifier>
 {
-    /**
-     * @param delegate
-     */
-    public NullableGroupIdentifierPredicate(AbstractPredicate<GroupIdentifier> delegate)
+    public NullableGroupIdentifierPredicate()
     {
         super(new GroupIdentifierPredicate());
     }
-
-    //
-    // AbstractPredicate
-    //
 
     @Override
     public final String getCandidateDescription()
