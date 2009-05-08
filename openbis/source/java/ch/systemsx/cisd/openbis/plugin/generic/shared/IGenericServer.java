@@ -122,7 +122,7 @@ public interface IGenericServer extends IPluginCommonServer
      * Registers materials in batch.
      */
     @Transactional
-    @RolesAllowed(RoleSet.USER)
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
     public void registerMaterials(String sessionToken, String materialTypeCode,
             List<NewMaterial> newMaterials);
