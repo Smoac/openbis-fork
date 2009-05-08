@@ -121,7 +121,10 @@ public class DefaultTabItem implements ITabItem
         this.component = component;
         this.lastModificationStateUpdaterOrNull = lastModificationStateUpdaterOrNull;
         this.disposerActionOrNull = disposerActionOrNull;
-        this.isCloseConfirmationNeeded = isCloseConfirmationNeeded;
+        // TODO 2009-05-08, Tomasz Pylak: uncomment this when confirmation will be asked only in
+        // relevant moments.
+        // this.isCloseConfirmationNeeded = isCloseConfirmationNeeded;
+        this.isCloseConfirmationNeeded = false;
     }
 
     //
