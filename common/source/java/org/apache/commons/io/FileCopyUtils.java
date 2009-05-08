@@ -283,6 +283,8 @@ public class FileCopyUtils
             try
             {
                 IOUtils.copy(input, output);
+                output.close();
+                output = null;
             } finally
             {
                 IOUtils.closeQuietly(output);
