@@ -51,6 +51,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
  */
 public class StorageProcessorWithDropbox implements IStorageProcessor
 {
+    private static final String DATASET_CODE_SEPARATOR = ".";
+
     /**
      * Property name which is used to specify the class of the default storage processor, to which
      * all calls are delegated.
@@ -141,15 +143,15 @@ public class StorageProcessorWithDropbox implements IStorageProcessor
         File storeData =
                 delegate.storeData(experiment, dataSetInformation, typeExtractor, mailClient,
                         incomingDataSetDirectory, rootDir);
+        File originalData = delegate.tryGetProprietaryData(storeData);
         String destinationFileName =
-                createDropboxDestinationFileName(dataSetInformation, incomingDataSetDirectory);
-        copy(storeData, destinationFileName);
+                createDropboxDestinationFileName(dataSetInformation, originalData);
+        copy(originalData, destinationFileName);
         return storeData;
     }
 
-    private void copy(File storeData, String destinationFileName)
+    private void copy(File originalData, String destinationFileName)
     {
-        File originalData = delegate.tryGetProprietaryData(storeData);
         File destFile = new File(dropboxIncomingDir, destinationFileName);
         try
         {
@@ -171,7 +173,8 @@ public class StorageProcessorWithDropbox implements IStorageProcessor
         String dataSetCode = dataSetInformation.getDataSetCode();
         String originalName = incomingDataSetDirectory.getName();
         String newFileName =
-                stripFileName(originalName) + "_" + dataSetCode + stripFileExtension(originalName);
+                stripFileName(originalName) + DATASET_CODE_SEPARATOR + dataSetCode
+                        + stripFileExtension(originalName);
         return newFileName;
     }
 

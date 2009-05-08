@@ -45,9 +45,9 @@ public class StorageProcessorWithDropboxTest
         final IFileOperations fileOperations = context.mock(IFileOperations.class);
 
         final DataSetInformation dataSetInfo = new DataSetInformation();
-        dataSetInfo.setDataSetCode("xxx");
+        dataSetInfo.setDataSetCode("datasetCode");
 
-        final File incomingDirectory = new File("incomingData.xml");
+        final File incomingDirectory = new File("incomingData");
         final String dropboxIncomingDirName = "dropboxIncomingDir";
 
         context.checking(new Expectations()
@@ -61,8 +61,12 @@ public class StorageProcessorWithDropboxTest
                     one(fileOperations).isDirectory(dropboxIncomingDir);
                     will(returnValue(true));
 
-                    one(fileOperations).copyToDirectoryAs(incomingDirectory, dropboxIncomingDir,
-                            "incomingData_xxx.xml");
+                    one(storageProcessor).tryGetProprietaryData(incomingDirectory);
+                    final File dataset = new File("incomingData.xml");
+                    will(returnValue(dataset));
+
+                    one(fileOperations).copyToDirectoryAs(dataset, dropboxIncomingDir,
+                            "incomingData.datasetCode.xml");
 
                 }
             });
