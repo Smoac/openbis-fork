@@ -20,8 +20,6 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
-import com.extjs.gxt.ui.client.widget.menu.Menu;
-import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
@@ -169,13 +167,8 @@ public class TopMenu extends LayoutContainer
         {
             super();
             this.viewContext = viewContext;
-            Menu menu = new Menu();
-            MenuItem setHomeGroupMenuItem =
-                    new MenuItem(viewContext.getMessage(Dict.MENU_SET_HOME_GROUP),
-                            createSelectionListener());
-            menu.add(setHomeGroupMenuItem);
-            setMenu(menu);
-            setHomeGroupMenuItem.setId(CHANGE_USER_HOME_GROUP_BUTTON_ID);
+            addSelectionListener(createSelectionListener());
+            setId(CHANGE_USER_HOME_GROUP_BUTTON_ID);
             refreshButtonText();
         }
 
