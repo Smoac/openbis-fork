@@ -3,7 +3,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -23,7 +22,6 @@ class ColumnChooserDialog extends Dialog
     {
         setHeight(400);
         setLayout(new FitLayout());
-        setScrollMode(Scroll.AUTOY);
         setHeading("Configure visibility and order of the columns");
     }
 

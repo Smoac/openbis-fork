@@ -3,6 +3,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -28,14 +29,16 @@ class ColumnChooser
     public ColumnChooser(List<ColumnDataModel> list)
     {
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        CheckColumnConfig checkColumn;
-        configs.add(checkColumn = new CheckColumnConfig(ColumnDataModel.CHECKED, "Show", 45));
+        CheckColumnConfig checkColumn =
+                new CheckColumnConfig(ColumnDataModel.CHECKED, "Shown?", 45);
+        configs.add(checkColumn);
         configs.add(new ColumnConfig(ColumnDataModel.HEADER, "Column", 200));
 
         grid = new Grid<ColumnDataModel>(createStore(list), new ColumnModel(configs));
         grid.setHideHeaders(true);
         grid.addPlugin(checkColumn);
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        grid.setAutoExpandColumn(ColumnDataModel.HEADER);
 
         //
         // TODO 2009-05-06 Izabela Adamczyk: Code below can be used to allow DND after we migrate to
@@ -58,16 +61,18 @@ class ColumnChooser
     public Component getComponent()
     {
         ContentPanel cp = new ContentPanel();
+        cp.getButtonBar().setButtonWidth(110);
         cp.setHeaderVisible(false);
-        Button up = new Button("Up");
+        Button up = new Button("Move Up");
         up.setTitle("Move selected column to the left");
         up.addSelectionListener(moveSelectedItem(-1));
         cp.addButton(up);
-        Button down = new Button("Down");
+        Button down = new Button("Move Down");
         down.setTitle("Move selected column to the right");
         down.addSelectionListener(moveSelectedItem(+1));
         cp.addButton(down);
         cp.add(grid);
+        cp.setScrollMode(Scroll.AUTOY);
         return cp;
     }
 
