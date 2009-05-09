@@ -8,4 +8,6 @@ public interface IBrowserGridActionInvoker
     void export();
 
     void refresh();
+    
+    void configure();
 }

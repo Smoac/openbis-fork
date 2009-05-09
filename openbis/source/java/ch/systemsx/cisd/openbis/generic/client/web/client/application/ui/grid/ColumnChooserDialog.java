@@ -23,6 +23,12 @@ class ColumnChooserDialog extends Dialog
         setHeight(400);
         setLayout(new FitLayout());
         setHeading("Configure visibility and order of the columns");
+        a();
+    }
+
+    private void a()
+    {
+        System.out.println("xxx");
     }
 
     /**

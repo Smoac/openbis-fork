@@ -48,13 +48,13 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
 
     private final Button configButton;
 
-    public BrowserGridPagingToolBar(IBrowserGridActionInvoker invoker, IConfigurable configurable,
+    public BrowserGridPagingToolBar(IBrowserGridActionInvoker invoker,
             IMessageProvider messageProvider, int pageSize)
     {
         super(pageSize);
         this.messageProvider = messageProvider;
 
-        this.configButton = createConfigButton(messageProvider, configurable);
+        this.configButton = createConfigButton(messageProvider, invoker);
         add(configButton);
         updateDefaultConfigButton(false);
 
@@ -171,8 +171,8 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
     }
 
     /** creates a grid configuration button, the caller has to add it to a parent container */
-    public static Button createConfigButton(IMessageProvider messageProvider,
-            final IConfigurable configurable)
+    private static Button createConfigButton(IMessageProvider messageProvider,
+            final IBrowserGridActionInvoker invoker)
     {
         final Button button =
                 new Button(messageProvider.getMessage(Dict.BUTTON_CONFIGURE),
@@ -181,7 +181,7 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
                                 @Override
                                 public void componentSelected(ButtonEvent ce)
                                 {
-                                    configurable.configure();
+                                    invoker.configure();
                                 }
                             });
         return button;

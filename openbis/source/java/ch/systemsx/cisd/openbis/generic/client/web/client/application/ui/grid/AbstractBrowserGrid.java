@@ -91,7 +91,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
  * @author Tomasz Pylak
  */
 public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityModel<T>> extends
-        LayoutContainer implements IDatabaseModificationObserver, IConfigurable
+        LayoutContainer implements IDatabaseModificationObserver
 {
     /**
      * Shows the detail view for the specified entity
@@ -188,7 +188,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
         this.grid = createGrid(pagingLoader, gridId);
         this.pagingToolbar =
-                new BrowserGridPagingToolBar(asActionInvoker(), this, viewContext, PAGE_SIZE);
+                new BrowserGridPagingToolBar(asActionInvoker(), viewContext, PAGE_SIZE);
         pagingToolbar.bind(pagingLoader);
         this.filterWidgets = createFilterWidgets();
         Component filterToolbar = createFilterToolbar(filterWidgets, viewContext);
@@ -530,7 +530,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return grid.getStore().getCount();
     }
 
-    // @Private
+    // @Private - only for tests
     public final class ListEntitiesCallback extends AbstractAsyncCallback<ResultSet<T>>
     {
         private final AsyncCallback<PagingLoadResult<M>> delegate;
@@ -616,6 +616,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 {
                     delegate.refresh();
                 }
+
+                public void configure()
+                {
+                    delegate.configure();
+                }
             };
     }
 
@@ -700,7 +705,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return grid.getSelectionModel().getSelectedItems();
     }
 
-    public <D extends ModelData> SelectionChangedListener<D> createGridRefreshListener()
+    protected final <D extends ModelData> SelectionChangedListener<D> createGridRefreshListener()
     {
         return new SelectionChangedListener<D>()
             {
@@ -872,7 +877,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     /** Export always deals with data from the previous refresh operation */
-    public final void export()
+    private final void export()
     {
         export(new ExportEntitiesCallback(viewContext));
     }
@@ -880,7 +885,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     /**
      * Shows the dialog allowing to configure visibility and order of the table columns.
      */
-    public final void configure()
+    private final void configure()
     {
         assert grid != null && grid.getColumnModel() != null : "Grid must be loaded";
 
