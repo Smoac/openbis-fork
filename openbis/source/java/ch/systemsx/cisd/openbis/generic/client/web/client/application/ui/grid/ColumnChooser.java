@@ -24,7 +24,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 class ColumnChooser
 {
 
-    final Grid<ColumnDataModel> grid;
+    private final Grid<ColumnDataModel> grid;
 
     public ColumnChooser(List<ColumnDataModel> list)
     {
