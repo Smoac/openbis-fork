@@ -42,7 +42,7 @@ public class ChangeUserHomeGroupDialog extends AbstractSaveDialog
     public ChangeUserHomeGroupDialog(final CommonViewContext viewContext,
             final IDelegatedAction saveCallback)
     {
-        super(viewContext, "Change home group", saveCallback);
+        super(viewContext, viewContext.getMessage(Dict.MENU_SET_HOME_GROUP), saveCallback);
         this.viewContext = viewContext;
 
         groupField = createGroupField();

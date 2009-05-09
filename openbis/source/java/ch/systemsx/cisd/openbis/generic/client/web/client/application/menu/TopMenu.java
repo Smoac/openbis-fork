@@ -20,6 +20,8 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
@@ -144,7 +146,7 @@ public class TopMenu extends LayoutContainer
         toolBar.add(new FillToolItem());
         toolBar.add(new AdapterToolItem(new SearchWidget(viewContext)));
         toolBar.add(new SeparatorToolItem());
-        toolBar.add(new ChangeUserHomeGroupButton(viewContext));
+        toolBar.add(new UserInfoMenu(viewContext));
         toolBar.add(new LogoutButton(viewContext));
     }
 
@@ -159,22 +161,27 @@ public class TopMenu extends LayoutContainer
     // Helper classes
     //
 
-    private static final class ChangeUserHomeGroupButton extends TextToolItem
+    private static final class UserInfoMenu extends TextToolItem
     {
         private final CommonViewContext viewContext;
 
-        ChangeUserHomeGroupButton(final CommonViewContext viewContext)
+        UserInfoMenu(final CommonViewContext viewContext)
         {
             super();
             this.viewContext = viewContext;
-            addSelectionListener();
-            setId(CHANGE_USER_HOME_GROUP_BUTTON_ID);
+            Menu menu = new Menu();
+            MenuItem setHomeGroupMenuItem =
+                    new MenuItem(viewContext.getMessage(Dict.MENU_SET_HOME_GROUP),
+                            createSelectionListener());
+            menu.add(setHomeGroupMenuItem);
+            setMenu(menu);
+            setHomeGroupMenuItem.setId(CHANGE_USER_HOME_GROUP_BUTTON_ID);
             refreshButtonText();
         }
 
-        private void addSelectionListener()
+        private SelectionListener<ComponentEvent> createSelectionListener()
         {
-            final ChangeUserHomeGroupButton changeUserHomeGroupButton = this;
+            final UserInfoMenu changeUserHomeGroupButton = this;
             final SelectionListener<ComponentEvent> listener =
                     new SelectionListener<ComponentEvent>()
                         {
@@ -199,7 +206,7 @@ public class TopMenu extends LayoutContainer
                                 dialog.show();
                             }
                         };
-            addSelectionListener(listener);
+            return listener;
         }
 
         public void refreshButtonText()

@@ -243,7 +243,7 @@ public abstract class Dict
     public static final String DATA_SET_TYPES = "data_set_types";
 
     public static final String FILE_FORMAT_TYPES = "file_format_types";
-    
+
     public static final String EXPERIMENT_TYPES = "experiment_types";
 
     public static final String IS_MANDATORY = "is_mandatory";
@@ -396,6 +396,9 @@ public abstract class Dict
     public static final String MENU_MATERIAL = "menu_material";
 
     public static final String MENU_SAMPLE = "menu_sample";
+    
+    public static final String MENU_SET_HOME_GROUP = "SET_HOME_GROUP";
+
 
     //
     // Tab Titles
@@ -581,8 +584,8 @@ public abstract class Dict
     public static final String DELETE_CONFIRMATION_MESSAGE = "delete_confirmation_message";
 
     public static final String BUTTON_CONFIGURE = "button_configure";
-    
-     public static final String SHOW_DETAILS_LINK = "show_details_link_column_name";
+
+    public static final String SHOW_DETAILS_LINK = "show_details_link_column_name";
 
     public static final String SHOW_DETAILS_LINK_TEXT_VALUE = "show_details_link_text_value";
 

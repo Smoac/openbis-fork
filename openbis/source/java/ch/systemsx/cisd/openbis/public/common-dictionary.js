@@ -235,6 +235,8 @@ var common = {
   menu_vocabulary: "Vocabulary",
   VOCABULARY_MENU_BROWSE: "Browse",
   VOCABULARY_MENU_NEW: "New",
+  
+  SET_HOME_GROUP: "Set Home Group",
     
   //
   // Tab Titles
