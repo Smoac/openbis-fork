@@ -61,42 +61,34 @@ class ColumnChooser
         cp.setHeaderVisible(false);
         Button up = new Button("Up");
         up.setTitle("Move selected column to the left");
-        up.addSelectionListener(new SelectionListener<ComponentEvent>()
-            {
-                @Override
-                public void componentSelected(ComponentEvent ce)
-                {
-                    ColumnDataModel m = grid.getSelectionModel().getSelectedItem();
-                    int oldIndex = grid.getStore().indexOf(m);
-                    int newIndex = oldIndex - 1;
-                    if (newIndex >= 0)
-                    {
-                        grid.getStore().remove(m);
-                        grid.getStore().insert(m, newIndex);
-                    }
-                }
-            });
+        up.addSelectionListener(moveSelectedItem(-1));
         cp.addButton(up);
         Button down = new Button("Down");
         down.setTitle("Move selected column to the right");
-        down.addSelectionListener(new SelectionListener<ComponentEvent>()
+        down.addSelectionListener(moveSelectedItem(+1));
+        cp.addButton(down);
+        cp.add(grid);
+        return cp;
+    }
+
+    private SelectionListener<ComponentEvent> moveSelectedItem(final int delta)
+    {
+        return new SelectionListener<ComponentEvent>()
             {
                 @Override
                 public void componentSelected(ComponentEvent ce)
                 {
                     ColumnDataModel m = grid.getSelectionModel().getSelectedItem();
                     int oldIndex = grid.getStore().indexOf(m);
-                    int newIndex = oldIndex + 1;
-                    if (newIndex < grid.getStore().getCount())
+                    int newIndex = oldIndex + delta;
+                    if (newIndex >= 0 && newIndex < grid.getStore().getCount())
                     {
                         grid.getStore().remove(m);
                         grid.getStore().insert(m, newIndex);
+                        grid.getSelectionModel().select(m);
                     }
                 }
-            });
-        cp.addButton(down);
-        cp.add(grid);
-        return cp;
+            };
     }
 
     public List<ColumnDataModel> getModels()
