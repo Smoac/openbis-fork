@@ -84,6 +84,10 @@ class ColumnChooser
                 public void componentSelected(ComponentEvent ce)
                 {
                     ColumnDataModel m = grid.getSelectionModel().getSelectedItem();
+                    if (m == null)
+                    {
+                        return;
+                    }
                     int oldIndex = grid.getStore().indexOf(m);
                     int newIndex = oldIndex + delta;
                     if (newIndex >= 0 && newIndex < grid.getStore().getCount())
