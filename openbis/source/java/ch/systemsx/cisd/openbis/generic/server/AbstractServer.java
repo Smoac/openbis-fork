@@ -256,7 +256,6 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         PersonPE person = session.tryGetPerson();
         if (person != null)
         {
-            System.err.println(groupIdOrNull);
             GroupPE homeGroup =
                     groupIdOrNull == null ? null : getDAOFactory().getGroupDAO().getByTechId(
                             groupIdOrNull);

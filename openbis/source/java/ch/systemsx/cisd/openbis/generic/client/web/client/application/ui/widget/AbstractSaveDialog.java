@@ -57,8 +57,6 @@ abstract public class AbstractSaveDialog extends Window
 
     public static final String SAVE_BUTTON_ID = GenericConstants.ID_PREFIX + "dialog-save-button";
 
-    public static final String CODE_FIELD_ID = GenericConstants.ID_PREFIX + "dialog-code-field";
-
     private final IDelegatedAction postSaveCallback;
 
     private final IViewContext<?> viewContext;

@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.VocabularyT
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -359,8 +360,25 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                     one(commonServer).saveDisplaySettings(SESSION_TOKEN, displaySettings);
                 }
             });
-
         commonClientService.updateDisplaySettings(displaySettings);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testChangeUserHomeGroup()
+    {
+        final TechId groupId = new TechId(1L);
+        context.checking(new Expectations()
+            {
+                {
+                    prepareGetSessionToken(this);
+
+                    one(commonServer).changeUserHomeGroup(SESSION_TOKEN, groupId);
+                }
+            });
+
+        commonClientService.changeUserHomeGroup(groupId);
 
         context.assertIsSatisfied();
     }

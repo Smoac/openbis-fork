@@ -43,6 +43,30 @@ public class TechId implements IIdHolder, IsSerializable
         return id;
     }
 
+    //
+    // Object
+    //
+
+    @Override
+    public final boolean equals(final Object obj)
+    {
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj instanceof TechId == false)
+        {
+            return false;
+        }
+        return this.toString().equals(obj.toString());
+    }
+
+    @Override
+    public final int hashCode()
+    {
+        return this.toString().hashCode();
+    }
+
     @Override
     public String toString()
     {

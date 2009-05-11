@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -1157,6 +1158,61 @@ public final class CommonServerTest extends AbstractServerTestCase
         createServer().saveDisplaySettings(SESSION_TOKEN, displaySettings);
 
         assertSame(displaySettings, person.getDisplaySettings());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testChangeUserHomeGroup()
+    {
+        final TechId groupId = new TechId(1L);
+        final GroupPE group = new GroupPE();
+        group.setId(groupId.getId());
+        final PersonPE person = new PersonPE();
+        context.checking(new Expectations()
+            {
+                {
+                    one(sessionManager).getSession(SESSION_TOKEN);
+                    Session session = createSession();
+                    session.setPerson(person);
+                    will(returnValue(session));
+
+                    one(groupDAO).getByTechId(groupId);
+                    will(returnValue(group));
+                }
+            });
+
+        createServer().changeUserHomeGroup(SESSION_TOKEN, groupId);
+
+        assertSame(group, person.getHomeGroup());
+        assertSame(groupId.getId(), person.getHomeGroup().getId());
+        // TODO 2009-05-11, Piotr Buczek: no DAO update is executed - check value in DB after change
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testChangeUserHomeGroupToNull()
+    {
+        final TechId groupId = new TechId(1L);
+        final GroupPE group = new GroupPE();
+        group.setId(groupId.getId());
+        final PersonPE person = new PersonPE();
+        person.setHomeGroup(group);
+        context.checking(new Expectations()
+            {
+                {
+                    one(sessionManager).getSession(SESSION_TOKEN);
+                    Session session = createSession();
+                    session.setPerson(person);
+                    will(returnValue(session));
+                }
+            });
+
+        createServer().changeUserHomeGroup(SESSION_TOKEN, null);
+
+        assertNull(person.getHomeGroup());
+        // TODO 2009-05-11, Piotr Buczek: no DAO update is executed - check value in DB after change
 
         context.assertIsSatisfied();
     }

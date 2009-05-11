@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractSaveDialog;
@@ -35,6 +36,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
  */
 public class ChangeUserHomeGroupDialog extends AbstractSaveDialog
 {
+    public static final String DIALOG_ID =
+            GenericConstants.ID_PREFIX + "change-user-home-group-dialog";
+
+    public static final String GROUP_FIELD_ID = DIALOG_ID + "-group-field";
+
     private final IViewContext<?> viewContext;
 
     private final GroupSelectionWidget groupField;
@@ -52,7 +58,7 @@ public class ChangeUserHomeGroupDialog extends AbstractSaveDialog
 
     private final GroupSelectionWidget createGroupField()
     {
-        GroupSelectionWidget field = new GroupSelectionWidget(viewContext, getId(), false);
+        GroupSelectionWidget field = new GroupSelectionWidget(viewContext, GROUP_FIELD_ID, false);
         FieldUtil.setMandatoryFlag(field, false);
         field.setFieldLabel(viewContext.getMessage(Dict.GROUP));
         return field;

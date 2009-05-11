@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
@@ -31,6 +32,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
  */
 abstract public class AbstractRegistrationDialog extends AbstractSaveDialog
 {
+
+    public static final String CODE_FIELD_ID = GenericConstants.ID_PREFIX + "dialog-code-field";
 
     protected abstract void register(AsyncCallback<Void> registrationCallback);
 
