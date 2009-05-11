@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
 /**
@@ -139,17 +139,17 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
 
     // ----------
 
-    /** login default user in and open tab by {@link ActionMenu} */
-    protected final void loginAndGotoTab(ActionMenuKind actionMenuKind)
+    /** login default user in and invoke action attached to {@link ActionMenu} (e.g. open tab) */
+    protected final void loginAndInvokeAction(ActionMenuKind actionMenuKind)
     {
-        loginAndGotoTab("test", "a", actionMenuKind);
+        loginAndInvokeAction("test", "a", actionMenuKind);
     }
 
-    /** login specified user in and open tab by {@link ActionMenu} */
-    protected final void loginAndGotoTab(String userName, String passwd,
+    /** login specified user in and invoke action attached to {@link ActionMenu} (e.g. open tab) */
+    protected final void loginAndInvokeAction(String userName, String passwd,
             ActionMenuKind actionMenuKind)
     {
         remoteConsole.prepare(new Login(userName, passwd));
-        remoteConsole.prepare(new OpenTab(actionMenuKind));
+        remoteConsole.prepare(new InvokeActionMenu(actionMenuKind));
     }
 }

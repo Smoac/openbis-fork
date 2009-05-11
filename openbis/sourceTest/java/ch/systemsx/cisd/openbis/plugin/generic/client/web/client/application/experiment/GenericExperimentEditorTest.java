@@ -49,7 +49,7 @@ public class GenericExperimentEditorTest extends AbstractGWTTestCase
     private void prepareShowExperimentEditor(final String projectName,
             final String experimentTypeName, final String experimentCode)
     {
-        loginAndGotoTab(ActionMenuKind.EXPERIMENT_MENU_BROWSE);
+        loginAndInvokeAction(ActionMenuKind.EXPERIMENT_MENU_BROWSE);
         remoteConsole.prepare(new ListExperiments(projectName, experimentTypeName));
         remoteConsole.prepare(new ShowExperimentEditor(experimentCode));
     }

@@ -16,12 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
-import com.google.gwt.user.client.ui.Widget;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SessionContextCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
@@ -29,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
  * Command for logout after {@link SessionContextCallback} has finished.
  * 
  * @author Franz-Josef Elmer
+ * @author Piotr Buczek
  */
 public class Logout extends AbstractDefaultTestCommand
 {
@@ -39,11 +36,7 @@ public class Logout extends AbstractDefaultTestCommand
 
     public void execute()
     {
-        final Widget w = GWTTestUtil.getWidgetWithID(TopMenu.LOGOUT_BUTTON_ID);
-        assertTrue("Widget '" + TopMenu.LOGOUT_BUTTON_ID + "' is not a TextToolItem",
-                w instanceof TextToolItem);
-        final TextToolItem textToolItem = (TextToolItem) w;
-        textToolItem.fireEvent(Events.Select);
+        GWTTestUtil.selectTopActionMenu(ActionMenuKind.USER_MENU_LOGOUT);
     }
 
 }

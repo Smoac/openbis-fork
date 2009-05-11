@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeAssignmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.CheckPropertyTypeAssignmentTable;
@@ -63,7 +63,8 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
     private final void prepareListingAfterAssignment(String propertyTypeCode,
             String entityTypeCode, EntityKind entityKind, int expectedEntries, boolean isMandatory)
     {
-        remoteConsole.prepare(new OpenTab(ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS,
+        remoteConsole.prepare(new InvokeActionMenu(
+                ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS,
                 PropertyTypeAssignmentForm.AssignPropertyTypeCallback.class));
         CheckPropertyTypeAssignmentTable table = new CheckPropertyTypeAssignmentTable();
         table.expectedRow(new Row().withCell(
@@ -78,7 +79,7 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
 
     public final void testAssignExperimentPropertyType()
     {
-        loginAndGotoTab(ActionMenuKind.PROPERTY_TYPES_MENU_ASSIGN_TO_EXPERIMENT_TYPE);
+        loginAndInvokeAction(ActionMenuKind.PROPERTY_TYPES_MENU_ASSIGN_TO_EXPERIMENT_TYPE);
         final boolean mandatory = true;
         remoteConsole.prepare(new FillPropertyTypeAssignmentForm(mandatory, USER_COMMENT,
                 COMPOUND_HCS, "a comment", EXPERIMENT));
@@ -88,7 +89,7 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
 
     public final void testAssignDataSetPropertyType()
     {
-        loginAndGotoTab(ActionMenuKind.PROPERTY_TYPES_MENU_ASSIGN_TO_DATA_SET_TYPE);
+        loginAndInvokeAction(ActionMenuKind.PROPERTY_TYPES_MENU_ASSIGN_TO_DATA_SET_TYPE);
         final boolean mandatory = false;
         remoteConsole.prepare(new FillPropertyTypeAssignmentForm(mandatory, USER_DESCRIPTION,
                 HCS_IMAGE, null, DATA_SET));
@@ -98,10 +99,10 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
 
     public final void testGlobalValueAssignmentSamplePropertyType()
     {
-        loginAndGotoTab(ActionMenuKind.PROPERTY_TYPES_MENU_ASSIGN_TO_SAMPLE_TYPE);
+        loginAndInvokeAction(ActionMenuKind.PROPERTY_TYPES_MENU_ASSIGN_TO_SAMPLE_TYPE);
         remoteConsole.prepare(new FillPropertyTypeAssignmentForm(false, USER_COMMENT,
                 CONTROL_LAYOUT, NO_COMMENT, SAMPLE));
-        remoteConsole.prepare(new OpenTab(ActionMenuKind.SAMPLE_MENU_BROWSE,
+        remoteConsole.prepare(new InvokeActionMenu(ActionMenuKind.SAMPLE_MENU_BROWSE,
                 PropertyTypeAssignmentForm.AssignPropertyTypeCallback.class));
         remoteConsole.prepare(new ListSamples(CISD, CONTROL_LAYOUT));
         CheckSampleTable table = new CheckSampleTable();

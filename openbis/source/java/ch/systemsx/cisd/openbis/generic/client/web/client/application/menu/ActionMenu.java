@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
@@ -40,7 +41,7 @@ public class ActionMenu extends MenuItem
         setId(id);
     }
 
-    private ActionMenu(final String id, final String name, final ITabItemFactory tabToOpen)
+    private ActionMenu(final String id, final String name, final IDelegatedAction action)
     {
         this(id, name);
         addSelectionListener(new SelectionListener<ComponentEvent>()
@@ -49,15 +50,27 @@ public class ActionMenu extends MenuItem
                 @Override
                 public void componentSelected(ComponentEvent ce)
                 {
-                    DispatcherHelper.dispatchNaviEvent(tabToOpen);
+                    action.execute();
                 }
             });
     }
 
-    public ActionMenu(final ActionMenuKind action, IMessageProvider messageProvider,
+    public ActionMenu(final ActionMenuKind actionMenu, IMessageProvider messageProvider,
+            final IDelegatedAction action)
+    {
+        this(actionMenu.getMenuId(), actionMenu.getMenuText(messageProvider), action);
+    }
+
+    public ActionMenu(final ActionMenuKind actionMenu, IMessageProvider messageProvider,
             final ITabItemFactory tabToOpen)
     {
-        this(action.getMenuId(), action.getMenuText(messageProvider), tabToOpen);
+        this(actionMenu, messageProvider, new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    DispatcherHelper.dispatchNaviEvent(tabToOpen);
+                }
+            });
     }
 
 }

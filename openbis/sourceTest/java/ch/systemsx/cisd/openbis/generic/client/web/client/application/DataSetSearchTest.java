@@ -124,6 +124,6 @@ public class DataSetSearchTest extends AbstractGWTTestCase
 
     private void loginAndGotoTab()
     {
-        loginAndGotoTab(ActionMenuKind.DATA_SET_MENU_SEARCH);
+        loginAndInvokeAction(ActionMenuKind.DATA_SET_MENU_SEARCH);
     }
 }

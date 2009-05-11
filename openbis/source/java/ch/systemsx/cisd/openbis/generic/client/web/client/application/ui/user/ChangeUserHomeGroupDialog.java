@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.user;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractSaveDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
@@ -35,14 +35,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
  */
 public class ChangeUserHomeGroupDialog extends AbstractSaveDialog
 {
-    private final CommonViewContext viewContext;
+    private final IViewContext<?> viewContext;
 
     private final GroupSelectionWidget groupField;
 
-    public ChangeUserHomeGroupDialog(final CommonViewContext viewContext,
+    public ChangeUserHomeGroupDialog(final IViewContext<?> viewContext,
             final IDelegatedAction saveCallback)
     {
-        super(viewContext, viewContext.getMessage(Dict.MENU_SET_HOME_GROUP), saveCallback);
+        super(viewContext, viewContext.getMessage(Dict.CHANGE_USER_HOME_GROUP_DIALOG_TITLE),
+                saveCallback);
         this.viewContext = viewContext;
 
         groupField = createGroupField();

@@ -16,22 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu;
 
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SearchWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.administration.AdministrationMenu;
@@ -39,12 +33,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.datas
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.experiment.ExperimentMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.material.MaterialMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.sample.SampleMenu;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.user.ChangeUserHomeGroupDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.LoggedUserMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
 /**
  * Implements functionality of the top menu.
@@ -54,26 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
  */
 public class TopMenu extends LayoutContainer
 {
-    public final static class LogoutCallback extends AbstractAsyncCallback<Void>
-    {
-        LogoutCallback(IViewContext<?> viewContext)
-        {
-            super(viewContext);
-        }
-
-        @Override
-        public final void process(final Void result)
-        {
-            viewContext.getPageController().reload(true);
-        }
-    }
-
     public static final String ID = GenericConstants.ID_PREFIX + "top-menu";
-
-    public static final String LOGOUT_BUTTON_ID = GenericConstants.ID_PREFIX + "logout-button";
-
-    public static final String CHANGE_USER_HOME_GROUP_BUTTON_ID =
-            GenericConstants.ID_PREFIX + "change-user-home-group-button";
 
     public static final String ICON_STYLE = "icon-menu-show";
 
@@ -84,7 +55,7 @@ public class TopMenu extends LayoutContainer
 
         AUTHORIZATION_MENU_USERS, AUTHORIZATION_MENU_ROLES,
 
-        DATA_SET_MENU_SEARCH, DATA_SET_MENU_TYPES,
+        DATA_SET_MENU_SEARCH, DATA_SET_MENU_TYPES, DATA_SET_MENU_FILE_FORMATS,
 
         EXPERIMENT_MENU_BROWSE, EXPERIMENT_MENU_NEW, EXPERIMENT_MENU_TYPES,
 
@@ -94,12 +65,12 @@ public class TopMenu extends LayoutContainer
 
         PROJECT_MENU_BROWSE, PROJECT_MENU_NEW,
 
-        DATA_SET_MENU_FILE_FORMATS,
-
         PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES, PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS,
         PROPERTY_TYPES_MENU_NEW_PROPERTY_TYPES, PROPERTY_TYPES_MENU_ASSIGN_TO_EXPERIMENT_TYPE,
         PROPERTY_TYPES_MENU_ASSIGN_TO_MATERIAL_TYPE, PROPERTY_TYPES_MENU_ASSIGN_TO_DATA_SET_TYPE,
         PROPERTY_TYPES_MENU_ASSIGN_TO_SAMPLE_TYPE,
+
+        USER_MENU_CHANGE_HOME_GROUP, USER_MENU_LOGOUT,
 
         VOCABULARY_MENU_BROWSE, VOCABULARY_MENU_NEW;
 
@@ -144,8 +115,7 @@ public class TopMenu extends LayoutContainer
         toolBar.add(new FillToolItem());
         toolBar.add(new AdapterToolItem(new SearchWidget(viewContext)));
         toolBar.add(new SeparatorToolItem());
-        toolBar.add(new UserInfoMenu(viewContext));
-        toolBar.add(new LogoutButton(viewContext));
+        toolBar.add(new LoggedUserMenu(viewContext));
     }
 
     @Override
@@ -155,102 +125,4 @@ public class TopMenu extends LayoutContainer
         refresh();
     }
 
-    //
-    // Helper classes
-    //
-
-    private static final class UserInfoMenu extends TextToolItem
-    {
-        private final CommonViewContext viewContext;
-
-        UserInfoMenu(final CommonViewContext viewContext)
-        {
-            super();
-            this.viewContext = viewContext;
-            addSelectionListener(createSelectionListener());
-            setId(CHANGE_USER_HOME_GROUP_BUTTON_ID);
-            refreshButtonText();
-        }
-
-        private SelectionListener<ComponentEvent> createSelectionListener()
-        {
-            final UserInfoMenu changeUserHomeGroupButton = this;
-            final SelectionListener<ComponentEvent> listener =
-                    new SelectionListener<ComponentEvent>()
-                        {
-
-                            //
-                            // SelectionListener
-                            //
-
-                            @Override
-                            public final void componentSelected(final ComponentEvent ce)
-                            {
-                                ChangeUserHomeGroupDialog dialog =
-                                        new ChangeUserHomeGroupDialog(viewContext,
-                                                new IDelegatedAction()
-                                                    {
-                                                        public void execute()
-                                                        {
-                                                            changeUserHomeGroupButton
-                                                                    .refreshButtonText();
-                                                        }
-                                                    });
-                                dialog.show();
-                            }
-                        };
-            return listener;
-        }
-
-        public void refreshButtonText()
-        {
-            setText(getUserInfo());
-        }
-
-        private final String getUserInfo()
-        {
-            final SessionContext sessionContext = viewContext.getModel().getSessionContext();
-            final User user = sessionContext.getUser();
-            final String userName = user.getUserName();
-            final String homeGroup = user.getHomeGroupCode();
-            final String info;
-            if (homeGroup == null)
-            {
-                info = viewContext.getMessage(Dict.HEADER_USER_WITHOUT_HOMEGROUP, userName);
-            } else
-            {
-                info = viewContext.getMessage(Dict.HEADER_USER_WITH_HOMEGROUP, userName, homeGroup);
-            }
-            return info;
-        }
-    }
-
-    private final static class LogoutButton extends TextToolItem
-    {
-
-        LogoutButton(final CommonViewContext viewContext)
-        {
-            super(viewContext.getMessage(Dict.HEADER_LOGOUT_BUTTON_LABEL));
-            final SelectionListener<ComponentEvent> listener =
-                    new SelectionListener<ComponentEvent>()
-                        {
-
-                            //
-                            // SelectionListener
-                            //
-
-                            @Override
-                            public final void componentSelected(final ComponentEvent ce)
-                            {
-                                DisplaySettings displaySettings =
-                                        viewContext.getModel().getSessionContext()
-                                                .getDisplaySettings();
-                                viewContext.getService().logout(displaySettings,
-                                        new LogoutCallback(viewContext));
-                            }
-                        };
-            addSelectionListener(listener);
-            setId(LOGOUT_BUTTON_ID);
-        }
-    }
 }

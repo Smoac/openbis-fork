@@ -89,7 +89,6 @@ var common = {
   
   header_userWithoutHomegroup: "{0}",
   header_userWithHomegroup: "{0} ({1})",
-  header_logoutButtonLabel: "Logout",
   
   //
   // Authorization Management Console
@@ -236,7 +235,9 @@ var common = {
   VOCABULARY_MENU_BROWSE: "Browse",
   VOCABULARY_MENU_NEW: "New",
   
-  SET_HOME_GROUP: "Set Home Group",
+  // menu user
+  USER_MENU_CHANGE_HOME_GROUP: "Change Home Group",
+  USER_MENU_LOGOUT: "Logout",
     
   //
   // Tab Titles
@@ -257,6 +258,8 @@ var common = {
   list_groups: "Groups Browser",
   confirm_title: "Confirmation",
   confirm_close_msg: "All unsaved changes will be lost. Are you sure?",
+  
+  change_user_home_group_dialog_title: "Change Home Group",  
   
   //
   // Group View

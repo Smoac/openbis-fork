@@ -36,7 +36,7 @@ public class EntityTypeBrowserTest extends AbstractGWTTestCase
 
     public final void testListMaterialTypes()
     {
-        loginAndGotoTab(ActionMenuKind.MATERIAL_MENU_TYPES);
+        loginAndInvokeAction(ActionMenuKind.MATERIAL_MENU_TYPES);
         CheckTableCommand table =
                 new CheckTableCommand(MaterialTypeGrid.GRID_ID,
                         MaterialTypeGrid.ListEntitiesCallback.class);
@@ -45,7 +45,7 @@ public class EntityTypeBrowserTest extends AbstractGWTTestCase
 
     public final void testListSampleTypes()
     {
-        loginAndGotoTab(ActionMenuKind.SAMPLE_MENU_TYPES);
+        loginAndInvokeAction(ActionMenuKind.SAMPLE_MENU_TYPES);
         CheckTableCommand table =
                 new CheckTableCommand(SampleTypeGrid.GRID_ID,
                         SampleTypeGrid.ListEntitiesCallback.class);
@@ -54,7 +54,7 @@ public class EntityTypeBrowserTest extends AbstractGWTTestCase
 
     public final void testListExperimentTypes()
     {
-        loginAndGotoTab(ActionMenuKind.EXPERIMENT_MENU_TYPES);
+        loginAndInvokeAction(ActionMenuKind.EXPERIMENT_MENU_TYPES);
         CheckTableCommand table =
                 new CheckTableCommand(ExperimentTypeGrid.GRID_ID,
                         ExperimentTypeGrid.ListEntitiesCallback.class);
@@ -63,7 +63,7 @@ public class EntityTypeBrowserTest extends AbstractGWTTestCase
 
     public final void testListDataSetTypes()
     {
-        loginAndGotoTab(ActionMenuKind.DATA_SET_MENU_TYPES);
+        loginAndInvokeAction(ActionMenuKind.DATA_SET_MENU_TYPES);
         CheckTableCommand table =
                 new CheckTableCommand(DataSetTypeGrid.GRID_ID,
                         DataSetTypeGrid.ListEntitiesCallback.class);

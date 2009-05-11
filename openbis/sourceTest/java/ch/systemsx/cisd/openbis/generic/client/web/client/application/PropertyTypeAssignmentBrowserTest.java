@@ -32,7 +32,7 @@ public class PropertyTypeAssignmentBrowserTest extends AbstractGWTTestCase
 
     public final void testListAssignments()
     {
-        loginAndGotoTab(ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS);
+        loginAndInvokeAction(ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS);
         CheckPropertyTypeAssignmentTable table = new CheckPropertyTypeAssignmentTable();
         table.expectedRow(new Row().withCell(
                 PropertyTypeAssignmentColDefKind.PROPERTY_TYPE_CODE.id(), "USER.DESCRIPTION")

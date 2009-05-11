@@ -32,7 +32,7 @@ public class MaterialBrowserTest extends AbstractGWTTestCase
 
     public final void testListMaterials()
     {
-        loginAndGotoTab(ActionMenuKind.MATERIAL_MENU_BROWSE);
+        loginAndInvokeAction(ActionMenuKind.MATERIAL_MENU_BROWSE);
         
         remoteConsole.prepare(new ListMaterials("BACTERIUM"));
         CheckMaterialTable table = new CheckMaterialTable();

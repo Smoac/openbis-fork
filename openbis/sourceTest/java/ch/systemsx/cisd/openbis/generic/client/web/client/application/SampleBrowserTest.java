@@ -18,12 +18,12 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind.DEFAULT_COLUMN_WIDTH;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.action.LogoutAction.LogoutCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Logout;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.CheckSampleTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ExportSamplesTestCommand;
@@ -55,9 +55,9 @@ public class SampleBrowserTest extends AbstractGWTTestCase
                 2 * DEFAULT_COLUMN_WIDTH);
         remoteConsole.prepare(new PiggyBackCommand(settingsCommand, new Logout()));
         Login login = new Login("test", "a");
-        login.addCallbackClass(TopMenu.LogoutCallback.class);
+        login.addCallbackClass(LogoutCallback.class);
         remoteConsole.prepare(login);
-        remoteConsole.prepare(new OpenTab(ActionMenuKind.SAMPLE_MENU_BROWSE));
+        remoteConsole.prepare(new InvokeActionMenu(ActionMenuKind.SAMPLE_MENU_BROWSE));
         remoteConsole.prepare(new ListSamples("CISD", "MASTER_PLATE"));
         CheckSampleTable checkCommand = new CheckSampleTable();
         checkCommand.expectedColumnHidden(CommonSampleColDefKind.CODE.name(), true);
@@ -145,6 +145,6 @@ public class SampleBrowserTest extends AbstractGWTTestCase
 
     private void loginAndGotoListSamplesTab()
     {
-        loginAndGotoTab(ActionMenuKind.SAMPLE_MENU_BROWSE);
+        loginAndInvokeAction(ActionMenuKind.SAMPLE_MENU_BROWSE);
     }
 }

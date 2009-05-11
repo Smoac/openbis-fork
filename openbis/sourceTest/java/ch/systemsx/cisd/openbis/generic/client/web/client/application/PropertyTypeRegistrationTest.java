@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.CheckPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.FillPropertyTypeRegistrationForm;
@@ -46,10 +46,10 @@ public class PropertyTypeRegistrationTest extends AbstractGWTTestCase
 
     public final void testRegisterPropertyType()
     {
-        loginAndGotoTab(ActionMenuKind.PROPERTY_TYPES_MENU_NEW_PROPERTY_TYPES);
+        loginAndInvokeAction(ActionMenuKind.PROPERTY_TYPES_MENU_NEW_PROPERTY_TYPES);
         remoteConsole.prepare(createFillPropertyTypeRegistrationForm());
 
-        remoteConsole.prepare(new OpenTab(ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES,
+        remoteConsole.prepare(new InvokeActionMenu(ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES,
                 PropertyTypeRegistrationForm.PropertyTypeRegistrationCallback.class));
         final CheckPropertyTypeTable table = new CheckPropertyTypeTable();
         table.expectedRow(new Row().withCell(PropertyTypeColDefKind.CODE.id(),

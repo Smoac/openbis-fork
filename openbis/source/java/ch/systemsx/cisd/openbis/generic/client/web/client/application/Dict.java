@@ -142,8 +142,6 @@ public abstract class Dict
 
     public static final String HEADER_USER_WITH_HOMEGROUP = "header_userWithHomegroup";
 
-    public static final String HEADER_LOGOUT_BUTTON_LABEL = "header_logoutButtonLabel";
-
     //
     // Authorization Management Console
     // 
@@ -396,9 +394,6 @@ public abstract class Dict
     public static final String MENU_MATERIAL = "menu_material";
 
     public static final String MENU_SAMPLE = "menu_sample";
-    
-    public static final String MENU_SET_HOME_GROUP = "SET_HOME_GROUP";
-
 
     //
     // Tab Titles
@@ -588,6 +583,9 @@ public abstract class Dict
     public static final String SHOW_DETAILS_LINK = "show_details_link_column_name";
 
     public static final String SHOW_DETAILS_LINK_TEXT_VALUE = "show_details_link_text_value";
+
+    public static final String CHANGE_USER_HOME_GROUP_DIALOG_TITLE =
+            "change_user_home_group_dialog_title";
 
     // ----- end generic ------------------
 }

@@ -25,17 +25,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension for opening a tab by selecting an
- * {@link ActionMenu}.
+ * A {@link AbstractDefaultTestCommand} extension for invoking an action attached to
+ * {@link ActionMenu} (e.g. opening a tab).
  * 
  * @author Izabela Adamczyk
  * @author Piotr Buczek
  */
-public final class OpenTab extends AbstractDefaultTestCommand
+public final class InvokeActionMenu extends AbstractDefaultTestCommand
 {
     private final ActionMenuKind action;
 
-    public OpenTab(final ActionMenuKind action,
+    public InvokeActionMenu(final ActionMenuKind action,
             final Class<? extends AsyncCallback<?>> callbackClass)
     {
         if (callbackClass == null)
@@ -48,7 +48,7 @@ public final class OpenTab extends AbstractDefaultTestCommand
         this.action = action;
     }
 
-    public OpenTab(final ActionMenuKind action)
+    public InvokeActionMenu(final ActionMenuKind action)
     {
         this(action, null);
     }

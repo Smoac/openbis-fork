@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.ProjectColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.CheckProjectTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.FillProjectRegistrationForm;
@@ -38,11 +38,11 @@ public class ProjectRegistrationTest extends AbstractGWTTestCase
 
     public final void testRegisterProject()
     {
-        loginAndGotoTab(TopMenu.ActionMenuKind.PROJECT_MENU_NEW);
+        loginAndInvokeAction(TopMenu.ActionMenuKind.PROJECT_MENU_NEW);
         remoteConsole.prepare(new FillProjectRegistrationForm(PROJECT_CODE_HER_MAJESTY, "CISD",
                 DESCRIPTION_PROJECT_007));
 
-        remoteConsole.prepare(new OpenTab(TopMenu.ActionMenuKind.PROJECT_MENU_BROWSE,
+        remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.PROJECT_MENU_BROWSE,
                 ProjectRegistrationForm.ProjectRegistrationCallback.class));
         final CheckProjectTable table = new CheckProjectTable();
         table.expectedRow(new Row().withCell(ProjectColDefKind.CODE.id(), PROJECT_CODE_HER_MAJESTY)

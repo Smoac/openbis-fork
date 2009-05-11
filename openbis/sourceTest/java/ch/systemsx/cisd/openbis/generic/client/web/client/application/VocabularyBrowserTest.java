@@ -42,7 +42,7 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
 
     public final void testListVocabularies()
     {
-        loginAndGotoTab(ActionMenuKind.VOCABULARY_MENU_BROWSE);
+        loginAndInvokeAction(ActionMenuKind.VOCABULARY_MENU_BROWSE);
         CheckTableCommand table =
                 new CheckTableCommand(VocabularyGrid.GRID_ID,
                         VocabularyGrid.ListEntitiesCallback.class);
@@ -54,7 +54,7 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
 
     public final void testShowTermDetails()
     {
-        loginAndGotoTab(ActionMenuKind.VOCABULARY_MENU_BROWSE);
+        loginAndInvokeAction(ActionMenuKind.VOCABULARY_MENU_BROWSE);
         
         remoteConsole.prepare(new ClickOnVocabularyCmd(VOCABULARY_CODE));
 

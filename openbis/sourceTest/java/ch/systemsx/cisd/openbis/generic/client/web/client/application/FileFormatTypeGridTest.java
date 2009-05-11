@@ -41,7 +41,7 @@ public class FileFormatTypeGridTest extends AbstractGWTTestCase
 {
     public void testShowGrid()
     {
-        loginAndGotoTab(ActionMenuKind.DATA_SET_MENU_FILE_FORMATS);
+        loginAndInvokeAction(ActionMenuKind.DATA_SET_MENU_FILE_FORMATS);
         CheckTableCommand table =
                 new CheckTableCommand(FileFormatTypeGrid.GRID_ID,
                         FileFormatTypeGrid.ListEntitiesCallback.class);
@@ -53,7 +53,7 @@ public class FileFormatTypeGridTest extends AbstractGWTTestCase
     
     public void testCreateNewType()
     {
-        loginAndGotoTab(ActionMenuKind.DATA_SET_MENU_FILE_FORMATS);
+        loginAndInvokeAction(ActionMenuKind.DATA_SET_MENU_FILE_FORMATS);
         CheckTableCommand table =
                 new CheckTableCommand(FileFormatTypeGrid.GRID_ID,
                         FileFormatTypeGrid.ListEntitiesCallback.class);
