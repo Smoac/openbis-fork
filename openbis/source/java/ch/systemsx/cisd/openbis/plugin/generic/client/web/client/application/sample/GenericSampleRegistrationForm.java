@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.V
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
@@ -57,7 +58,9 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.exp
 public final class GenericSampleRegistrationForm extends
         AbstractGenericEntityRegistrationForm<SampleType, SampleTypePropertyType, SampleProperty>
 {
-    public static final String ID = createId(EntityKind.SAMPLE);
+    private static final IIdentifierHolder REGISTRATION_IDENTIFIER = null;
+
+    public static final String ID = createId(REGISTRATION_IDENTIFIER, EntityKind.SAMPLE);
 
     public static final String ID_SUFFIX_CONTAINER = "container";
 
@@ -65,9 +68,8 @@ public final class GenericSampleRegistrationForm extends
 
     private static final int DEFAULT_NUMBER_OF_ATTACHMENTS = 3;
 
-    public static final String SESSION_KEY = createSimpleId(EntityKind.SAMPLE);
-
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
+    public static final String SESSION_KEY =
+            createSimpleId(REGISTRATION_IDENTIFIER, EntityKind.SAMPLE);
 
     private final SampleType sampleType;
 
@@ -83,8 +85,7 @@ public final class GenericSampleRegistrationForm extends
     public GenericSampleRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
     {
-        super(viewContext, sampleType.getAssignedPropertyTypes(), EntityKind.SAMPLE);
-        this.viewContext = viewContext;
+        super(viewContext, EntityKind.SAMPLE);
         this.sampleType = sampleType;
         addUploadFeatures(SESSION_KEY);
     }
@@ -146,7 +147,7 @@ public final class GenericSampleRegistrationForm extends
     }
 
     @Override
-    protected void createEntitySpecificFields()
+    protected void createEntitySpecificFormFields()
     {
         groupSelectionWidget = new GroupSelectionWidget(viewContext, getId(), true);
         FieldUtil.markAsMandatory(groupSelectionWidget);
@@ -199,7 +200,7 @@ public final class GenericSampleRegistrationForm extends
     }
 
     @Override
-    protected List<DatabaseModificationAwareField<?>> getEntitySpecificFields()
+    protected List<DatabaseModificationAwareField<?>> getEntitySpecificFormFields()
     {
         List<DatabaseModificationAwareField<?>> fields =
                 new ArrayList<DatabaseModificationAwareField<?>>();
@@ -215,9 +216,21 @@ public final class GenericSampleRegistrationForm extends
 
     @Override
     protected PropertiesEditor<SampleType, SampleTypePropertyType, SampleProperty> createPropertiesEditor(
-            List<SampleTypePropertyType> entityTypesPropertyTypes, String string,
-            IViewContext<ICommonClientServiceAsync> context)
+            String string, IViewContext<ICommonClientServiceAsync> context)
     {
-        return new SamplePropertyEditor(entityTypesPropertyTypes, string, context);
+        SamplePropertyEditor editor = new SamplePropertyEditor(string, context);
+        return editor;
+    }
+
+    @Override
+    protected void initializeFormFields()
+    {
+        propertiesEditor.initWithoutProperties(sampleType.getAssignedPropertyTypes());
+    }
+
+    @Override
+    protected void loadForm()
+    {
+        initGUI();
     }
 }

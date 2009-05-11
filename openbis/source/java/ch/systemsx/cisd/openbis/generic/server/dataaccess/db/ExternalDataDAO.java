@@ -23,6 +23,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
+import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
@@ -160,9 +161,14 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
 
         final String mangledCode = CodeConverter.tryToDatabase(dataSetCode);
         final Criterion codeEq = Restrictions.eq("code", mangledCode);
-
         final DetachedCriteria criteria = DetachedCriteria.forClass(ENTITY_CLASS);
         criteria.add(codeEq);
+        criteria.setFetchMode("dataSetType.dataSetTypePropertyTypesInternal", FetchMode.JOIN);
+        criteria
+                .setFetchMode(
+                        "dataSetType.dataSetTypePropertyTypesInternal.propertyTypeInternal.vocabulary.vocabularyTerms",
+                        FetchMode.JOIN);
+        criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
         final List<ExternalDataPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         final ExternalDataPE entity = tryFindEntity(list, "data set");
         if (operationLog.isDebugEnabled())

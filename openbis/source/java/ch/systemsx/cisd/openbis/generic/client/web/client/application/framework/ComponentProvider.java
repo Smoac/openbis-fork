@@ -516,17 +516,17 @@ public final class ComponentProvider
     public ITabItemFactory getFileFormatTypeBrowser()
     {
         return new ITabItemFactory()
-        {
-            public ITabItem create()
             {
-                IDisposableComponent component = FileFormatTypeGrid.create(viewContext);
-                return createTab(Dict.FILE_FORMAT_TYPES, component);
-            }
+                public ITabItem create()
+                {
+                    IDisposableComponent component = FileFormatTypeGrid.create(viewContext);
+                    return createTab(Dict.FILE_FORMAT_TYPES, component);
+                }
 
-            public String getId()
-            {
-                return FileFormatTypeGrid.BROWSER_ID;
-            }
-        };
+                public String getId()
+                {
+                    return FileFormatTypeGrid.BROWSER_ID;
+                }
+            };
     }
 }

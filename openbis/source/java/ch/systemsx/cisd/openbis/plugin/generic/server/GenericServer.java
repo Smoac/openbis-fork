@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -331,7 +332,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         return result;
     }
 
-    public void updateExperiment(String sessionToken, ExperimentUpdatesDTO updates)
+    public ExperimentUpdateResult updateExperiment(String sessionToken, ExperimentUpdatesDTO updates)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         if (updates.isRegisterSamples())
@@ -341,19 +342,38 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
         experimentBO.update(updates);
         experimentBO.save();
+        ExperimentUpdateResult result = new ExperimentUpdateResult();
+        ExperimentPE experiment = experimentBO.getExperiment();
+        result.setModificationDate(experiment.getModificationDate());
+        result.setSamples(extractCodes(experiment.getSamples()));
+        return result;
     }
 
-    public void updateMaterial(String sessionToken, MaterialIdentifier identifier,
+    @Private
+    static final String[] extractCodes(List<SamplePE> samples)
+    {
+        String[] codes = new String[samples.size()];
+        int i = 0;
+        for (SamplePE sample : samples)
+        {
+            codes[i] = sample.getCode();
+            i++;
+        }
+        return codes;
+    }
+
+    public Date updateMaterial(String sessionToken, MaterialIdentifier identifier,
             List<MaterialProperty> properties, Date version)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
         materialBO.update(identifier, properties, version);
         materialBO.save();
+        return materialBO.getMaterial().getModificationDate();
 
     }
 
-    public void updateSample(String sessionToken, SampleIdentifier identifier,
+    public Date updateSample(String sessionToken, SampleIdentifier identifier,
             List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
             List<AttachmentPE> attachments, Date version)
     {
@@ -361,15 +381,17 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.update(identifier, properties, experimentIdentifierOrNull, attachments, version);
         sampleBO.save();
+        return sampleBO.getSample().getModificationDate();
 
     }
 
-    public void updateDataSet(String sessionToken, String code, SampleIdentifier sampleIdentifier,
+    public Date updateDataSet(String sessionToken, String code, SampleIdentifier sampleIdentifier,
             List<DataSetProperty> properties, Date version)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IExternalDataBO dataSetBO = businessObjectFactory.createExternalDataBO(session);
         dataSetBO.update(code, sampleIdentifier, properties, version);
+        return dataSetBO.getExternalData().getModificationDate();
     }
 
 }

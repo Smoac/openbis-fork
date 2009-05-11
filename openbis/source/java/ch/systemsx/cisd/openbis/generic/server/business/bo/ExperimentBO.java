@@ -309,7 +309,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     public void update(ExperimentUpdatesDTO updates)
     {
         loadByExperimentIdentifier(updates.getExperimentIdentifier());
-        if (experiment.getModificationDate().equals(updates.getVersion()) == false)
+        if (updates.getVersion().equals(experiment.getModificationDate()) == false)
         {
             throw new UserFailureException("Experiment has been modified in the meantime.");
         }

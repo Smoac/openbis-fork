@@ -32,28 +32,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ClientPluginAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableDataSet;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableExperiment;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableMaterial;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableSample;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetViewer;
@@ -97,24 +82,24 @@ public final class ClientPluginFactory extends
     //
 
     @SuppressWarnings("unchecked")
-    public final <T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>, I extends IIdentifierHolder, V extends IEditableEntity<T, S, P>> IClientPlugin<T, S, P, I, V> createClientPlugin(
+    public final <T extends EntityType, I extends IIdentifierHolder> IClientPlugin<T, I> createClientPlugin(
             EntityKind entityKind)
     {
         if (EntityKind.EXPERIMENT.equals(entityKind))
         {
-            return (IClientPlugin<T, S, P, I, V>) new ExperimentClientPlugin();
+            return (IClientPlugin<T, I>) new ExperimentClientPlugin();
         }
         if (EntityKind.SAMPLE.equals(entityKind))
         {
-            return (IClientPlugin<T, S, P, I, V>) new SampleClientPlugin();
+            return (IClientPlugin<T, I>) new SampleClientPlugin();
         }
         if (EntityKind.MATERIAL.equals(entityKind))
         {
-            return (IClientPlugin<T, S, P, I, V>) new MaterialClientPlugin();
+            return (IClientPlugin<T, I>) new MaterialClientPlugin();
         }
         if (EntityKind.DATA_SET.equals(entityKind))
         {
-            return (IClientPlugin<T, S, P, I, V>) new DataSetClientPlugin();
+            return (IClientPlugin<T, I>) new DataSetClientPlugin();
         }
 
         throw new UnsupportedOperationException("IClientPlugin for entity kind '" + entityKind
@@ -143,9 +128,7 @@ public final class ClientPluginFactory extends
     // Helper classes
     //
 
-    private final class SampleClientPlugin
-            implements
-            IClientPlugin<SampleType, SampleTypePropertyType, SampleProperty, IIdentifierHolder, EditableSample>
+    private final class SampleClientPlugin implements IClientPlugin<SampleType, IIdentifierHolder>
     {
 
         //
@@ -185,30 +168,29 @@ public final class ClientPluginFactory extends
             return new GenericSampleBatchRegistrationForm(getViewContext(), sampleType);
         }
 
-        public ITabItemFactory createEntityEditor(final EditableSample entity)
+        public ITabItemFactory createEntityEditor(final IIdentifierHolder identifierHolder)
         {
             return new ITabItemFactory()
                 {
                     public ITabItem create()
                     {
                         DatabaseModificationAwareComponent component =
-                                GenericSampleEditForm.create(getViewContext(), entity, true);
-                        String title = getEditTitle(Dict.SAMPLE, entity.getIdentifier());
+                                GenericSampleEditForm.create(getViewContext(), identifierHolder);
+                        String title = getEditTitle(Dict.SAMPLE, identifierHolder.getIdentifier());
                         return DefaultTabItem.create(title, component, getViewContext(), true);
                     }
 
                     public String getId()
                     {
-                        return GenericSampleEditForm.ID_PREFIX + entity.getId();
+                        return GenericSampleEditForm.createId(identifierHolder, EntityKind.SAMPLE);
                     }
                 };
         }
 
     }
 
-    private final class MaterialClientPlugin
-            extends
-            ClientPluginAdapter<MaterialType, MaterialTypePropertyType, MaterialProperty, IIdentifierHolder, EditableMaterial>
+    private final class MaterialClientPlugin extends
+            ClientPluginAdapter<MaterialType, IIdentifierHolder>
     {
 
         @Override
@@ -239,29 +221,31 @@ public final class ClientPluginFactory extends
         }
 
         @Override
-        public ITabItemFactory createEntityEditor(final EditableMaterial entity)
+        public ITabItemFactory createEntityEditor(final IIdentifierHolder identifierHolder)
         {
             return new ITabItemFactory()
                 {
                     public ITabItem create()
                     {
                         DatabaseModificationAwareComponent component =
-                                GenericMaterialEditForm.create(getViewContext(), entity, true);
-                        String title = getEditTitle(Dict.MATERIAL, entity.getIdentifier());
+                                GenericMaterialEditForm.create(getViewContext(), identifierHolder,
+                                        true);
+                        String title =
+                                getEditTitle(Dict.MATERIAL, identifierHolder.getIdentifier());
                         return DefaultTabItem.create(title, component, getViewContext(), true);
                     }
 
                     public String getId()
                     {
-                        return GenericMaterialEditForm.ID_PREFIX + entity.getId();
+                        return GenericMaterialEditForm.createId(identifierHolder,
+                                EntityKind.MATERIAL);
                     }
                 };
         }
     }
 
-    private final class ExperimentClientPlugin
-            extends
-            ClientPluginAdapter<ExperimentType, ExperimentTypePropertyType, ExperimentProperty, IIdentifierHolder, EditableExperiment>
+    private final class ExperimentClientPlugin extends
+            ClientPluginAdapter<ExperimentType, IIdentifierHolder>
     {
 
         //
@@ -299,29 +283,31 @@ public final class ClientPluginFactory extends
         }
 
         @Override
-        public ITabItemFactory createEntityEditor(final EditableExperiment entity)
+        public ITabItemFactory createEntityEditor(final IIdentifierHolder identifierHolder)
         {
             return new ITabItemFactory()
                 {
                     public ITabItem create()
                     {
                         DatabaseModificationAwareComponent component =
-                                GenericExperimentEditForm.create(getViewContext(), entity, true);
-                        String title = getEditTitle(Dict.EXPERIMENT, entity.getIdentifier());
+                                GenericExperimentEditForm
+                                        .create(getViewContext(), identifierHolder);
+                        String title =
+                                getEditTitle(Dict.EXPERIMENT, identifierHolder.getIdentifier());
                         return DefaultTabItem.create(title, component, getViewContext(), true);
                     }
 
                     public String getId()
                     {
-                        return GenericExperimentEditForm.ID_PREFIX + entity.getId();
+                        return GenericDataSetEditForm.createId(identifierHolder,
+                                EntityKind.EXPERIMENT);
                     }
                 };
         }
     }
 
-    private final class DataSetClientPlugin
-            extends
-            ClientPluginAdapter<DataSetType, DataSetTypePropertyType, DataSetProperty, IIdentifierHolder, EditableDataSet>
+    private final class DataSetClientPlugin extends
+            ClientPluginAdapter<DataSetType, IIdentifierHolder>
     {
 
         @Override
@@ -340,27 +326,29 @@ public final class ClientPluginFactory extends
 
                     public String getId()
                     {
-                        return GenericExperimentViewer.createId(identifier);
+                        return GenericDataSetViewer.createId(identifier);
                     }
                 };
         }
 
         @Override
-        public ITabItemFactory createEntityEditor(final EditableDataSet entity)
+        public ITabItemFactory createEntityEditor(final IIdentifierHolder identifierHolder)
         {
             return new ITabItemFactory()
                 {
                     public ITabItem create()
                     {
                         DatabaseModificationAwareComponent component =
-                                GenericDataSetEditForm.create(getViewContext(), entity, true);
-                        String title = getEditTitle(Dict.DATA_SET, entity.getIdentifier());
+                                GenericDataSetEditForm.create(getViewContext(), identifierHolder);
+                        String title =
+                                getEditTitle(Dict.DATA_SET, identifierHolder.getIdentifier());
                         return DefaultTabItem.create(title, component, getViewContext(), true);
                     }
 
                     public String getId()
                     {
-                        return GenericDataSetEditForm.ID_PREFIX + entity.getId();
+                        return GenericDataSetEditForm.createId(identifierHolder,
+                                EntityKind.DATA_SET);
                     }
                 };
         }

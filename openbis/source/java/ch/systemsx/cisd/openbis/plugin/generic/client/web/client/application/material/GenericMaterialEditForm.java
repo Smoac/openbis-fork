@@ -17,23 +17,23 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-
-import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableMaterial;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityEditForm;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
 
 /**
@@ -43,65 +43,69 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.exp
  */
 public final class GenericMaterialEditForm
         extends
-        AbstractGenericEntityEditForm<MaterialType, MaterialTypePropertyType, MaterialProperty, EditableMaterial>
+        AbstractGenericEntityRegistrationForm<MaterialType, MaterialTypePropertyType, MaterialProperty>
 {
-
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
+    private Material originalMaterial;
 
     public static DatabaseModificationAwareComponent create(
-            IViewContext<IGenericClientServiceAsync> viewContext, EditableMaterial entity,
-            boolean editMode)
+            IViewContext<IGenericClientServiceAsync> viewContext,
+            IIdentifierHolder identifierHolder, boolean editMode)
     {
-        GenericMaterialEditForm form = new GenericMaterialEditForm(viewContext, entity, editMode);
+        GenericMaterialEditForm form =
+                new GenericMaterialEditForm(viewContext, identifierHolder, editMode);
         return new DatabaseModificationAwareComponent(form, form);
     }
 
     private GenericMaterialEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
-            EditableMaterial entity, boolean editMode)
+            IIdentifierHolder identifierHolder, boolean editMode)
     {
-        super(viewContext, entity, editMode);
-        this.viewContext = viewContext;
-        super.initializeComponents(viewContext);
+        super(viewContext, identifierHolder, EntityKind.MATERIAL);
     }
-
-    public static final String ID_PREFIX = createId(EntityKind.MATERIAL, "");
 
     @Override
     public final void submitValidForm()
     {
-        final List<MaterialProperty> properties = extractProperties();
-        viewContext.getService().updateMaterial(entity.getIdentifier(), properties,
-                entity.getModificationDate(), new RegisterMaterialCallback(viewContext));
+        viewContext.getService().updateMaterial(identifierHolderOrNull.getIdentifier(),
+                extractProperties(), originalMaterial.getModificationDate(),
+                new UpdateMaterialCallback(viewContext));
     }
 
-    public final class RegisterMaterialCallback extends AbstractAsyncCallback<Void>
+    public final class UpdateMaterialCallback extends
+            AbstractRegistrationForm.AbstractRegistrationCallback<Date>
     {
 
-        RegisterMaterialCallback(final IViewContext<?> viewContext)
+        UpdateMaterialCallback(final IViewContext<?> viewContext)
         {
-            super(viewContext, new InfoBoxCallbackListener<Void>(infoBox));
+            super(viewContext);
         }
 
-        private final String createSuccessfullRegistrationInfo()
+        @Override
+        protected void process(final Date result)
+        {
+            originalMaterial.setModificationDate(result);
+            updateOriginalValues();
+            super.process(result);
+        }
+
+        @Override
+        protected String createSuccessfullRegistrationInfo(Date result)
         {
             return "Material successfully updated";
         }
 
-        @Override
-        protected final void process(final Void result)
-        {
-            infoBox.displayInfo(createSuccessfullRegistrationInfo());
-            showCheckPage();
-        }
+    }
+
+    public void updateOriginalValues()
+    {
+        updatePropertyFieldsOriginalValues();
     }
 
     @Override
     protected PropertiesEditor<MaterialType, MaterialTypePropertyType, MaterialProperty> createPropertiesEditor(
-            List<MaterialTypePropertyType> entityTypesPropertyTypes,
-            List<MaterialProperty> properties, String id,
-            IViewContext<ICommonClientServiceAsync> context)
+            String id, IViewContext<ICommonClientServiceAsync> context)
     {
-        return new MaterialPropertyEditor(entityTypesPropertyTypes, properties, id, context);
+        MaterialPropertyEditor editor = new MaterialPropertyEditor(id, context);
+        return editor;
     }
 
     @Override
@@ -111,14 +115,45 @@ public final class GenericMaterialEditForm
     }
 
     @Override
-    protected List<Widget> getEntitySpecificCheckPageWidgets()
+    protected void createEntitySpecificFormFields()
     {
-        return new ArrayList<Widget>();
     }
 
     @Override
-    protected void updateCheckPageWidgets()
+    protected void initializeFormFields()
     {
+        propertiesEditor.initWithProperties(originalMaterial.getMaterialType()
+                .getAssignedPropertyTypes(), originalMaterial.getProperties());
+        codeField.setValue(originalMaterial.getCode());
+    }
+
+    private void setOriginalMaterial(Material material)
+    {
+        this.originalMaterial = material;
+    }
+
+    @Override
+    protected void loadForm()
+    {
+        String materialIdentifier = identifierHolderOrNull.getIdentifier();
+        viewContext.getService().getMaterialInfo(materialIdentifier,
+                new MaterialInfoCallback(viewContext));
+    }
+
+    public final class MaterialInfoCallback extends AbstractAsyncCallback<Material>
+    {
+
+        private MaterialInfoCallback(final IViewContext<IGenericClientServiceAsync> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        protected final void process(final Material result)
+        {
+            setOriginalMaterial(result);
+            initGUI();
+        }
     }
 
 }

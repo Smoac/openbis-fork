@@ -68,7 +68,7 @@ final class ExperimentSamplesArea extends TextArea
 
     public final void setSamples(List<Sample> samples)
     {
-        setSamples(extractCodes(samples));
+        setSampleCodes(extractCodes(samples));
     }
 
     private static String[] extractCodes(List<Sample> samples)
@@ -83,7 +83,7 @@ final class ExperimentSamplesArea extends TextArea
         return codes;
     }
 
-    private final void setSamples(String[] samples)
+    public final void setSampleCodes(String[] samples)
     {
         String textValue = createTextValue(samples);
         setValue(textValue);

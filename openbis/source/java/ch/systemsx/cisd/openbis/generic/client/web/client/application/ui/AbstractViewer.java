@@ -20,7 +20,6 @@ import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
@@ -31,6 +30,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
  * @author Franz-Josef Elmer
@@ -41,6 +48,8 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
 
     protected final IViewContext<T> viewContext;
 
+    private Button button;
+
     public AbstractViewer(final IViewContext<T> viewContext, String title)
     {
         this.viewContext = viewContext;
@@ -49,21 +58,43 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
         setTopComponent(toolBar);
         toolBar.add(new LabelToolItem(title));
         toolBar.add(new FillToolItem());
-        Button button = new Button(viewContext.getMessage(Dict.BUTTON_EDIT));
+        button = new Button(viewContext.getMessage(Dict.BUTTON_EDIT));
         button.addListener(Events.Select, new Listener<BaseEvent>()
             {
-
                 public void handleEvent(BaseEvent be)
                 {
-                    MessageBox.alert("Info", "Not yet implemented", null);
+                    showEntityEditor();
                 }
-
             });
+        enableEdit(false);
         toolBar.add(new AdapterToolItem(button));
     }
+
 
     protected final String getBaseIndexURL()
     {
         return GWTUtils.getBaseIndexURL();
+    }
+
+    protected void enableEdit(boolean enable)
+    {
+        button.setEnabled(enable);
+    }
+
+    abstract protected void showEntityEditor();
+
+    protected final static <T extends IClientServiceAsync> void showEntityEditor(
+            IViewContext<T> viewContext, EntityKind entityKind, EntityType type,
+            IIdentifierHolder identifierHolder)
+    {
+        assert type != null : "entity type is not provided";
+        final ITabItemFactory tabView;
+        final IClientPluginFactory clientPluginFactory =
+                viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
+                        type);
+        final IClientPlugin<SampleType, IIdentifierHolder> createClientPlugin =
+                clientPluginFactory.createClientPlugin(entityKind);
+        tabView = createClientPlugin.createEntityEditor(identifierHolder);
+        DispatcherHelper.dispatchNaviEvent(tabView);
     }
 }

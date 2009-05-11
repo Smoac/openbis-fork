@@ -125,7 +125,7 @@ public class MainTabPanel extends TabPanel
             setId(idPrefix + TAB_SUFFIX);
             setClosable(true);
             setLayout(new FitLayout());
-            setText(tabItem.getTabTitle());
+            tabItem.getTabTitleUpdater().bind(this);
             addStyleName("pad-text");
             add(tabItem.getComponent());
             if (tabItem.isCloseConfirmationNeeded())

@@ -19,17 +19,13 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sa
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.util.Format;
-import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
-import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -37,22 +33,21 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableSample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityEditForm;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
 
 /**
@@ -60,86 +55,33 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.exp
  * 
  * @author Izabela Adamczyk
  */
-public final class GenericSampleEditForm
-        extends
-        AbstractGenericEntityEditForm<SampleType, SampleTypePropertyType, SampleProperty, EditableSample>
+public final class GenericSampleEditForm extends
+        AbstractGenericEntityRegistrationForm<SampleType, SampleTypePropertyType, SampleProperty>
 {
     private static final int DEFAULT_NUMBER_OF_ATTACHMENTS = 3;
 
-    private final FileFieldManager attachmentManager;
+    private FileFieldManager attachmentManager;
 
     private String sessionKey;
 
-    private Html attachmentsInfo;
-
-    private final Sample originalSample;
+    private Sample originalSample;
 
     // null if sample cannot be attached to an experiment
-    private final ExperimentChooserFieldAdaptor experimentFieldOrNull;
-
-    private final PropertyGrid specificFieldsGrid;
-
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
+    private ExperimentChooserFieldAdaptor experimentFieldOrNull;
 
     public static DatabaseModificationAwareComponent create(
-            IViewContext<IGenericClientServiceAsync> viewContext, EditableSample entity,
-            boolean editMode)
+            IViewContext<IGenericClientServiceAsync> viewContext, IIdentifierHolder identifier)
     {
-        GenericSampleEditForm form = new GenericSampleEditForm(viewContext, entity, editMode);
+        GenericSampleEditForm form = new GenericSampleEditForm(viewContext, identifier);
         return new DatabaseModificationAwareComponent(form, form);
     }
 
     private GenericSampleEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
-            EditableSample entity, boolean editMode)
+            IIdentifierHolder identifier)
     {
-        super(viewContext, entity, editMode);
-        this.viewContext = viewContext;
-        this.originalSample = entity.getSample();
-        this.experimentFieldOrNull =
-                canAttachToExperiment(originalSample) ? createExperimentField() : null;
-        this.specificFieldsGrid = new PropertyGrid(viewContext, 1);
-        super.initializeComponents(viewContext);
-        sessionKey = createSimpleId(EntityKind.SAMPLE, entity.getId() + "");
-        attachmentManager =
-                new FileFieldManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS, "New Attachment");
+        super(viewContext, identifier, EntityKind.SAMPLE);
+        sessionKey = createSimpleId(identifierHolderOrNull, EntityKind.SAMPLE);
         addUploadFeatures(sessionKey);
-        formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
-            {
-                @Override
-                protected void onSuccessfullUpload()
-                {
-                    save();
-                }
-
-                @Override
-                protected void setUploadEnabled()
-                {
-                    // GenericExperimentRegistrationForm.this.setUploadEnabled(true);
-                }
-            });
-        redefineSaveListeners();
-    }
-
-    void redefineSaveListeners()
-    {
-        saveButton.removeAllListeners();
-        saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-            {
-                @Override
-                public final void componentSelected(final ButtonEvent ce)
-                {
-                    if (formPanel.isValid())
-                    {
-                        if (attachmentManager.filesDefined() > 0)
-                        {
-                            formPanel.submit();
-                        } else
-                        {
-                            save();
-                        }
-                    }
-                }
-            });
     }
 
     private ExperimentChooserFieldAdaptor createExperimentField()
@@ -152,8 +94,6 @@ public final class GenericSampleEditForm
                 .getCommonViewContext());
     }
 
-    public static final String ID_PREFIX = createId(EntityKind.SAMPLE, "");
-
     @Override
     public final void submitValidForm()
     {
@@ -164,38 +104,49 @@ public final class GenericSampleEditForm
         final List<SampleProperty> properties = extractProperties();
         ExperimentIdentifier experimentIdent =
                 experimentFieldOrNull != null ? experimentFieldOrNull.getValue() : null;
-        viewContext.getService().updateSample(sessionKey, entity.getIdentifier(), properties,
-                experimentIdent, entity.getModificationDate(),
+        viewContext.getService().updateSample(sessionKey, originalSample.getIdentifier(),
+                properties, experimentIdent, originalSample.getModificationDate(),
                 new UpdateSampleCallback(viewContext));
     }
 
-    public final class UpdateSampleCallback extends AbstractAsyncCallback<Void>
+    public final class UpdateSampleCallback extends
+            AbstractRegistrationForm.AbstractRegistrationCallback<Date>
     {
 
         UpdateSampleCallback(final IViewContext<?> viewContext)
         {
-            super(viewContext, new InfoBoxCallbackListener<Void>(infoBox));
-        }
-
-        private final String createSuccessfullRegistrationInfo()
-        {
-            return "Sample successfully updated";
+            super(viewContext);
         }
 
         @Override
-        protected final void process(final Void result)
+        protected void process(final Date result)
         {
-            infoBox.displayInfo(createSuccessfullRegistrationInfo());
-            showCheckPage();
+            originalSample.setModificationDate(result);
+            updateOriginalValues();
+            super.process(result);
         }
+
+        @Override
+        protected String createSuccessfullRegistrationInfo(Date result)
+        {
+            return "Sample successfully updated";
+        }
+    }
+
+    public void updateOriginalValues()
+    {
+        updatePropertyFieldsOriginalValues();
+        if (experimentFieldOrNull != null)
+            experimentFieldOrNull.updateOriginalValue();
     }
 
     @Override
     protected PropertiesEditor<SampleType, SampleTypePropertyType, SampleProperty> createPropertiesEditor(
-            List<SampleTypePropertyType> entityTypesPropertyTypes, List<SampleProperty> properties,
-            String id, IViewContext<ICommonClientServiceAsync> context)
+
+    String id, IViewContext<ICommonClientServiceAsync> context)
     {
-        return new SamplePropertyEditor(entityTypesPropertyTypes, properties, id, context);
+        SamplePropertyEditor editor = new SamplePropertyEditor(id, context);
+        return editor;
     }
 
     @SuppressWarnings("unchecked")
@@ -215,74 +166,95 @@ public final class GenericSampleEditForm
         return fields;
     }
 
-    @Override
-    protected void updateCheckPageWidgets()
-    {
-        if (experimentFieldOrNull != null)
-        {
-            experimentFieldOrNull.updateOriginalValue();
-            updateSpecificPropertiesGrid();
-            attachmentsInfo.setHtml(getAttachmentInfoText(attachmentManager.filesDefined()));
-            updateHeader();
-        }
-    }
-
-    @Override
-    protected List<Widget> getEntitySpecificCheckPageWidgets()
-    {
-        ArrayList<Widget> result = new ArrayList<Widget>();
-        if (experimentFieldOrNull != null)
-        {
-            updateSpecificPropertiesGrid();
-            result.add(specificFieldsGrid);
-            result.add(attachmentsInfo = new Html());
-        }
-        return result;
-    }
-
-    private void updateSpecificPropertiesGrid()
-    {
-        Map<String, String> valueMap = new HashMap<String, String>();
-        valueMap.put(viewContext.getMessage(Dict.EXPERIMENT), tryPrintSelectedExperiment());
-        this.specificFieldsGrid.setProperties(valueMap);
-    }
-
-    private String tryPrintSelectedExperiment()
-    {
-        if (experimentFieldOrNull == null)
-        {
-            return null;
-        }
-        ExperimentIdentifier value = experimentFieldOrNull.getValue();
-        if (value == null)
-        {
-            return null;
-        } else
-        {
-            return value.getIdentifier();
-        }
-    }
-
     private static boolean canAttachToExperiment(Sample sample)
     {
         return sample.getGroup() != null;
     }
 
-    public String getAttachmentInfoText(int attachmentDefined)
+    @Override
+    protected void createEntitySpecificFormFields()
     {
-        if (attachmentDefined > 0)
-        {
-            return Format.substitute("Added {0} new attachment{1}.", attachmentDefined,
-                    attachmentDefined == 1 ? "" : "s");
+        experimentFieldOrNull =
+                canAttachToExperiment(originalSample) ? createExperimentField() : null;
+        attachmentManager =
+                new FileFieldManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS, "New Attachment");
+        formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
+            {
+                @Override
+                protected void onSuccessfullUpload()
+                {
+                    save();
+                }
 
-        } else
+                @Override
+                protected void setUploadEnabled()
+                {
+                    GenericSampleEditForm.this.setUploadEnabled(true);
+                }
+            });
+        redefineSaveListeners();
+
+    }
+
+    void redefineSaveListeners()
+    {
+        saveButton.removeAllListeners();
+        saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public final void componentSelected(final ButtonEvent ce)
+                {
+                    if (formPanel.isValid())
+                    {
+                        if (attachmentManager.filesDefined() > 0)
+                        {
+                            setUploadEnabled(false);
+                            formPanel.submit();
+                        } else
+                        {
+                            save();
+                        }
+                    }
+                }
+            });
+    }
+
+    private void setOriginalSample(Sample sample)
+    {
+        this.originalSample = sample;
+    }
+
+    @Override
+    protected void initializeFormFields()
+    {
+        propertiesEditor.initWithProperties(originalSample.getSampleType()
+                .getAssignedPropertyTypes(), originalSample.getProperties());
+        codeField.setValue(originalSample.getCode());
+
+    }
+
+    @Override
+    protected void loadForm()
+    {
+        String sampleIdentifier = identifierHolderOrNull.getIdentifier();
+        viewContext.getService().getSampleInfo(sampleIdentifier,
+                new SampleInfoCallback(viewContext));
+    }
+
+    public final class SampleInfoCallback extends AbstractAsyncCallback<Sample>
+    {
+
+        private SampleInfoCallback(final IViewContext<IGenericClientServiceAsync> viewContext)
         {
-            return "No new attachments added.";
+            super(viewContext);
+        }
+
+        @Override
+        protected final void process(final Sample result)
+        {
+            setOriginalSample(result);
+            initGUI();
         }
     }
 
-    private void updateHeader()
-    {
-        setHeading("Sample " + entity.getIdentifier());
-    }
 }

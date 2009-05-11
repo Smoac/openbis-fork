@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
-import java.util.List;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
@@ -29,17 +27,9 @@ public class DataSetPropertyEditor extends
         PropertiesEditor<DataSetType, DataSetTypePropertyType, DataSetProperty>
 {
 
-    public DataSetPropertyEditor(List<DataSetTypePropertyType> entityTypesPropertyTypes,
-            List<DataSetProperty> properties, String id,
-            IViewContext<ICommonClientServiceAsync> viewContext)
+    public DataSetPropertyEditor(String id, IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(id, entityTypesPropertyTypes, properties, viewContext);
-    }
-
-    public DataSetPropertyEditor(List<DataSetTypePropertyType> entityTypesPropertyTypes, String id,
-            IViewContext<ICommonClientServiceAsync> viewContext)
-    {
-        super(id, entityTypesPropertyTypes, viewContext);
+        super(id, viewContext);
     }
 
     @Override

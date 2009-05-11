@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -47,6 +48,8 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
     private final String experimentIdentifier;
 
     private final CompositeDatabaseModificationObserver modificationObserver;
+
+    private Experiment originalExperiment;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> viewContext,
@@ -111,11 +114,11 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
         return attachmentsSection;
     }
 
-    public static final class ExperimentInfoCallback extends AbstractAsyncCallback<Experiment>
+    public final class ExperimentInfoCallback extends AbstractAsyncCallback<Experiment>
     {
         private final GenericExperimentViewer genericExperimentViewer;
 
-        private final CompositeDatabaseModificationObserver modificationObserver;
+        private final CompositeDatabaseModificationObserver observer;
 
         private ExperimentInfoCallback(final IViewContext<IGenericClientServiceAsync> viewContext,
                 final GenericExperimentViewer genericSampleViewer,
@@ -123,7 +126,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
         {
             super(viewContext);
             this.genericExperimentViewer = genericSampleViewer;
-            this.modificationObserver = modificationObserver;
+            this.observer = modificationObserver;
         }
 
         //
@@ -139,31 +142,46 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
         @Override
         protected final void process(final Experiment result)
         {
+            setOriginalExperiment(result);
+            enableEdit(true);
             genericExperimentViewer.removeAll();
             genericExperimentViewer.setScrollMode(Scroll.AUTO);
 
             ExperimentPropertiesSection propertiesSection =
                     genericExperimentViewer.createExperimentPropertiesSection(result);
             addSection(genericExperimentViewer, propertiesSection);
-            modificationObserver.addObserver(propertiesSection.getDatabaseModificationObserver());
+            observer.addObserver(propertiesSection.getDatabaseModificationObserver());
 
             AttachmentsSection<Experiment> attachmentsSection =
                     genericExperimentViewer.createAttachmentsSection(result);
             addSection(genericExperimentViewer, attachmentsSection);
-            modificationObserver.addObserver(attachmentsSection.getDatabaseModificationObserver());
+            observer.addObserver(attachmentsSection.getDatabaseModificationObserver());
 
             ExperimentSamplesSection sampleSection =
                     new ExperimentSamplesSection(result, viewContext);
             addSection(genericExperimentViewer, sampleSection);
-            modificationObserver.addObserver(sampleSection.getDatabaseModificationObserver());
+            observer.addObserver(sampleSection.getDatabaseModificationObserver());
 
             ExperimentDataSetSection dataSection =
                     new ExperimentDataSetSection(result, viewContext);
             addSection(genericExperimentViewer, dataSection);
-            modificationObserver.addObserver(dataSection.getDatabaseModificationObserver());
+            observer.addObserver(dataSection.getDatabaseModificationObserver());
 
             genericExperimentViewer.layout();
         }
+    }
+
+    void setOriginalExperiment(Experiment result)
+    {
+        this.originalExperiment = result;
+    }
+
+    @Override
+    protected void showEntityEditor()
+    {
+        assert originalExperiment != null;
+        showEntityEditor(viewContext, EntityKind.EXPERIMENT,
+                originalExperiment.getExperimentType(), originalExperiment);
     }
 
 }

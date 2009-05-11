@@ -50,6 +50,8 @@ public final class GenericDataSetViewer extends AbstractViewer<IGenericClientSer
 
     private final String datasetIdentifier;
 
+    private ExternalData originalDataSet;
+
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> viewContext,
             final String datasetIdentifier)
@@ -86,7 +88,7 @@ public final class GenericDataSetViewer extends AbstractViewer<IGenericClientSer
                 new DataSetInfoCallback(viewContext, this));
     }
 
-    public static final class DataSetInfoCallback extends AbstractAsyncCallback<ExternalData>
+    public final class DataSetInfoCallback extends AbstractAsyncCallback<ExternalData>
     {
         private final GenericDataSetViewer genericDataSetViewer;
 
@@ -110,6 +112,8 @@ public final class GenericDataSetViewer extends AbstractViewer<IGenericClientSer
         @Override
         protected final void process(final ExternalData result)
         {
+            setOriginalDataSet(result);
+            enableEdit(true);
             genericDataSetViewer.removeAll();
             genericDataSetViewer.setScrollMode(Scroll.AUTO);
             addSection(genericDataSetViewer, new DataSetPropertiesSection(result, viewContext));
@@ -130,4 +134,16 @@ public final class GenericDataSetViewer extends AbstractViewer<IGenericClientSer
         reloadData(); // reloads everything
     }
 
+    void setOriginalDataSet(ExternalData result)
+    {
+        this.originalDataSet = result;
+    }
+
+    @Override
+    protected void showEntityEditor()
+    {
+        assert originalDataSet != null;
+        showEntityEditor(viewContext, EntityKind.DATA_SET, originalDataSet.getDataSetType(),
+                originalDataSet);
+    }
 }

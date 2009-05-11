@@ -214,7 +214,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             Date version)
     {
         loadBySampleIdentifier(identifier);
-        if (sample.getModificationDate().equals(version) == false)
+        if (version.equals(sample.getModificationDate()) == false)
         {
             throw new UserFailureException("Sample has been modified in the meantime.");
         }

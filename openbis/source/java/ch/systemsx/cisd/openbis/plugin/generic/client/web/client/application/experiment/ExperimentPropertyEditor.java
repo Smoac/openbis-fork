@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
-import java.util.List;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
@@ -28,17 +26,9 @@ public class ExperimentPropertyEditor extends
         PropertiesEditor<ExperimentType, ExperimentTypePropertyType, ExperimentProperty>
 {
 
-    public ExperimentPropertyEditor(List<ExperimentTypePropertyType> entityTypesPropertyTypes,
-            List<ExperimentProperty> properties, String id,
-            IViewContext<ICommonClientServiceAsync> viewContext)
+    public ExperimentPropertyEditor(String id, IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(id, entityTypesPropertyTypes, properties, viewContext);
-    }
-
-    public ExperimentPropertyEditor(List<ExperimentTypePropertyType> entityTypesPropertyTypes,
-            String id, IViewContext<ICommonClientServiceAsync>  viewContext)
-    {
-        super(id, entityTypesPropertyTypes, viewContext);
+        super(id, viewContext);
     }
 
     @Override

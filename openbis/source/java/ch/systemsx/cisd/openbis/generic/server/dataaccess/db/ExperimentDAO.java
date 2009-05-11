@@ -100,6 +100,11 @@ public class ExperimentDAO extends AbstractGenericEntityDAO<ExperimentPE> implem
         final Criteria criteria = getSession().createCriteria(getEntityClass());
         criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(experimentCode)));
         criteria.add(Restrictions.eq("projectInternal", project));
+        criteria.setFetchMode("experimentType.experimentTypePropertyTypesInternal", FetchMode.JOIN);
+        criteria
+                .setFetchMode(
+                        "experimentType.experimentTypePropertyTypesInternal.propertyTypeInternal.vocabulary.vocabularyTerms",
+                        FetchMode.JOIN);
         final ExperimentPE experiment = (ExperimentPE) criteria.uniqueResult();
         if (operationLog.isDebugEnabled())
         {

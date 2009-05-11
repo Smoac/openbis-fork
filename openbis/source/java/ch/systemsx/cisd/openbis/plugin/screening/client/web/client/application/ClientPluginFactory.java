@@ -33,20 +33,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ClientPluginAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableExperiment;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableSample;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.SampleTypeCode;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 
@@ -92,16 +83,16 @@ public final class ClientPluginFactory extends
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>, I extends IIdentifierHolder, V extends IEditableEntity<T, S, P>> IClientPlugin<T, S, P, I, V> createClientPlugin(
+    public <T extends EntityType, I extends IIdentifierHolder> IClientPlugin<T, I> createClientPlugin(
             final EntityKind entityKind)
     {
         if (EntityKind.EXPERIMENT.equals(entityKind))
         {
-            return (IClientPlugin<T, S, P, I, V>) new ExperimentClientPlugin();
+            return (IClientPlugin<T, I>) new ExperimentClientPlugin();
         }
         if (EntityKind.SAMPLE.equals(entityKind))
         {
-            return (IClientPlugin<T, S, P, I, V>) new SampleClientPlugin();
+            return (IClientPlugin<T, I>) new SampleClientPlugin();
         }
         throw new UnsupportedOperationException("IClientPlugin for entity kind '" + entityKind
                 + "' not implemented yet.");
@@ -111,9 +102,7 @@ public final class ClientPluginFactory extends
     // Helper classes
     //
 
-    private final class SampleClientPlugin
-            implements
-            IClientPlugin<SampleType, SampleTypePropertyType, SampleProperty, IIdentifierHolder, EditableSample>
+    private final class SampleClientPlugin implements IClientPlugin<SampleType, IIdentifierHolder>
     {
         //
         // IViewClientPlugin
@@ -149,13 +138,13 @@ public final class ClientPluginFactory extends
             return new DummyComponent();
         }
 
-        public ITabItemFactory createEntityEditor(final EditableSample entity)
+        public ITabItemFactory createEntityEditor(final IIdentifierHolder identifierHolder)
         {
             return new ITabItemFactory()
                 {
                     public ITabItem create()
                     {
-                        return createDummyTab(entity.getIdentifier());
+                        return createDummyTab(identifierHolder.getIdentifier());
                     }
 
                     public String getId()
@@ -167,9 +156,8 @@ public final class ClientPluginFactory extends
 
     }
 
-    private final static class ExperimentClientPlugin
-            extends
-            ClientPluginAdapter<ExperimentType, ExperimentTypePropertyType, ExperimentProperty, IIdentifierHolder, EditableExperiment>
+    private final static class ExperimentClientPlugin extends
+            ClientPluginAdapter<ExperimentType, IIdentifierHolder>
     {
 
         //

@@ -35,6 +35,7 @@ import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
+import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
@@ -51,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SampleTrans
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
@@ -435,7 +437,7 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
-    public void updateSample(
+    public Date updateSample(
             String sessionKey,
             final String sampleIdentifier,
             final List<SampleProperty> properties,
@@ -444,6 +446,7 @@ public final class GenericClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
+        final Date modificationDate = new Date();
         new AttachmentRegistrationHelper()
             {
                 @Override
@@ -458,13 +461,16 @@ public final class GenericClientService extends AbstractClientService implements
                                 new ExperimentIdentifierFactory(experimentIdentifierOrNull
                                         .getIdentifier()).createIdentifier();
                     }
-                    genericServer.updateSample(sessionToken, identifier, properties,
-                            convExperimentIdentifierOrNull, attachments, version);
+                    Date date =
+                            genericServer.updateSample(sessionToken, identifier, properties,
+                                    convExperimentIdentifierOrNull, attachments, version);
+                    modificationDate.setTime(date.getTime());
                 }
             }.process(sessionKey, getHttpSession());
+        return modificationDate;
     }
 
-    public void updateMaterial(String materialIdentifier, List<MaterialProperty> properties,
+    public Date updateMaterial(String materialIdentifier, List<MaterialProperty> properties,
             Date version)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -473,17 +479,18 @@ public final class GenericClientService extends AbstractClientService implements
             final String sessionToken = getSessionToken();
             final MaterialIdentifier identifier =
                     MaterialIdentifier.tryParseIdentifier(materialIdentifier);
-            genericServer.updateMaterial(sessionToken, identifier, properties, version);
+            return genericServer.updateMaterial(sessionToken, identifier, properties, version);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
-    public void updateExperiment(final ExperimentUpdates updates)
+    public ExperimentUpdateResult updateExperiment(final ExperimentUpdates updates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
+        final ExperimentUpdateResult result = new ExperimentUpdateResult();
         if (updates.isRegisterSamples())
         {
             final ProjectIdentifier newProject =
@@ -503,21 +510,24 @@ public final class GenericClientService extends AbstractClientService implements
                 {
                     ExperimentUpdatesDTO updatesDTO =
                             createExperimentUpdatesDTO(updates, attachments);
-                    genericServer.updateExperiment(sessionToken, updatesDTO);
+                    BeanUtils.fillBean(ExperimentUpdateResult.class, result, genericServer
+                            .updateExperiment(sessionToken, updatesDTO));
                 }
             }.process(updates.getAttachmentSessionKey(), getHttpSession());
+        return result;
     }
 
-    public void updateDataSet(String dataSetIdentifier, String sampleIdentifier,
+    public Date updateDataSet(String dataSetIdentifier, String sampleIdentifier,
             List<DataSetProperty> properties, Date version)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
+
             SampleIdentifier convSampleIdentifier = SampleIdentifierFactory.parse(sampleIdentifier);
-            genericServer.updateDataSet(sessionToken, dataSetIdentifier, convSampleIdentifier,
-                    properties, version);
+            return genericServer.updateDataSet(sessionToken, dataSetIdentifier,
+                    convSampleIdentifier, properties, version);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

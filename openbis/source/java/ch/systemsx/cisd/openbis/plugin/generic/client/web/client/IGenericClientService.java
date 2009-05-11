@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -112,24 +113,25 @@ public interface IGenericClientService extends IClientService
     /**
      * Updates experiment.
      */
-    public void updateExperiment(ExperimentUpdates experimentUpdates) throws UserFailureException;
+    public ExperimentUpdateResult updateExperiment(ExperimentUpdates experimentUpdates)
+            throws UserFailureException;
 
     /**
      * Updates material.
      */
-    public void updateMaterial(final String materialIdentifier, List<MaterialProperty> properties,
+    public Date updateMaterial(final String materialIdentifier, List<MaterialProperty> properties,
             Date version) throws UserFailureException;
 
     /**
      * Updates sample.
      */
-    public void updateSample(String sessionKey, final String sampleIdentifier,
+    public Date updateSample(String sessionKey, final String sampleIdentifier,
             List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
             Date version) throws UserFailureException;
 
     /**
      * Updates data set.
      */
-    public void updateDataSet(final String dataSetIdentifier, final String sampleIdentifier,
+    public Date updateDataSet(final String dataSetIdentifier, final String sampleIdentifier,
             List<DataSetProperty> properties, Date version) throws UserFailureException;
 }

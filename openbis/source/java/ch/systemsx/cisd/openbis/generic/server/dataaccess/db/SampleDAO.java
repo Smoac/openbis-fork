@@ -280,6 +280,11 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         criteria.add(Restrictions.eq("databaseInstance", databaseInstance));
         criteria.add(Restrictions.isNull(hierarchyType.getOppositeHierarchyType()
                 .getParentFieldName()));
+        criteria.setFetchMode("sampleType.sampleTypePropertyTypesInternal", FetchMode.JOIN);
+        criteria
+                .setFetchMode(
+                        "sampleType.sampleTypePropertyTypesInternal.propertyTypeInternal.vocabulary.vocabularyTerms",
+                        FetchMode.JOIN);
         final SamplePE sample = (SamplePE) criteria.uniqueResult();
         if (operationLog.isDebugEnabled())
         {
@@ -303,6 +308,11 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         criteria.add(Restrictions.eq("group", group));
         criteria.add(Restrictions.isNull(hierarchyType.getOppositeHierarchyType()
                 .getParentFieldName()));
+        criteria.setFetchMode("sampleType.sampleTypePropertyTypesInternal", FetchMode.JOIN);
+        criteria
+                .setFetchMode(
+                        "sampleType.sampleTypePropertyTypesInternal.propertyTypeInternal.vocabulary.vocabularyTerms",
+                        FetchMode.JOIN);
         final SamplePE sample = (SamplePE) criteria.uniqueResult();
         if (operationLog.isDebugEnabled())
         {

@@ -38,8 +38,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Enti
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableExperiment;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
@@ -54,12 +52,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
@@ -147,15 +141,6 @@ public class ExperimentBrowserGrid extends
         viewContext.getService().listExperiments(criteria, callback);
     }
 
-    private EditableExperiment createEditableEntity(Experiment experiment,
-            ExperimentType selectedType)
-    {
-        return new EditableExperiment(selectedType.getAssignedPropertyTypes(), experiment
-                .getProperties(), selectedType, experiment.getIdentifier(), experiment.getId(),
-                experiment.getModificationDate(), experiment.getProject().getIdentifier(),
-                experiment.getCode());
-    }
-
     @Override
     protected void showEntityViewer(Experiment experiment, boolean editMode)
     {
@@ -164,17 +149,13 @@ public class ExperimentBrowserGrid extends
         final IClientPluginFactory clientPluginFactory =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
                         experiment.getExperimentType());
+        final IClientPlugin<ExperimentType, IIdentifierHolder> createClientPlugin =
+                clientPluginFactory.createClientPlugin(entityKind);
         if (editMode)
         {
-            final IClientPlugin<ExperimentType, ExperimentTypePropertyType, ExperimentProperty, IIdentifierHolder, EditableExperiment> createClientPlugin =
-                    clientPluginFactory.createClientPlugin(entityKind);
-            tabView =
-                    createClientPlugin.createEntityEditor(createEditableEntity(experiment, criteria
-                            .getExperimentType()));
+            tabView = createClientPlugin.createEntityEditor(experiment);
         } else
         {
-            final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder, IEditableEntity<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>>> createClientPlugin =
-                    clientPluginFactory.createClientPlugin(entityKind);
             tabView = createClientPlugin.createEntityViewer(experiment);
         }
         DispatcherHelper.dispatchNaviEvent(tabView);

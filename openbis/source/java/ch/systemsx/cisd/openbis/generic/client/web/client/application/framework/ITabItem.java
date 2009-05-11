@@ -27,12 +27,9 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 public interface ITabItem
 {
     /**
-     * Returns the title of this tab item.
-     * <p>
-     * Is typically used in {@link TabItem#setText(String)}.
-     * </p>
+     * Returns the title updater.
      */
-    public String getTabTitle();
+    public TabTitleUpdater getTabTitleUpdater();
 
     /**
      * Returns the {@link Component} which composes this tab item.

@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -153,33 +154,37 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
-    public void updateExperiment(String sessionToken, ExperimentUpdatesDTO updates)
+    public ExperimentUpdateResult updateExperiment(String sessionToken, ExperimentUpdatesDTO updates)
     {
         logTracking(sessionToken, "edit_experiment",
                 "EXPERIMENT(%s) ATTACHMENTS_ADDED(%s) NEW_PROJECT(%s) SAMPLES(%s)", updates
                         .getExperimentIdentifier(), updates.getAttachments().size(), updates
                         .getProjectIdentifier(), StringUtils.join(updates.getSampleCodes(), ","));
+        return null;
     }
 
-    public void updateMaterial(String sessionToken, MaterialIdentifier identifier,
+    public Date updateMaterial(String sessionToken, MaterialIdentifier identifier,
             List<MaterialProperty> properties, Date version)
     {
         logTracking(sessionToken, "edit_material", "MATERIAL(%s)", identifier);
+        return null;
     }
 
-    public void updateSample(String sessionToken, SampleIdentifier identifier,
+    public Date updateSample(String sessionToken, SampleIdentifier identifier,
             List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
             List<AttachmentPE> attachments, Date version)
     {
         logTracking(sessionToken, "edit_sample",
                 "SAMPLE(%s), CHANGE_TO_EXPERIMENT(%s) ATTACHMENTS(%s)", identifier,
                 experimentIdentifierOrNull, attachments.size());
+        return null;
     }
 
-    public void updateDataSet(String sessionToken, String code, SampleIdentifier sampleIdentifier,
+    public Date updateDataSet(String sessionToken, String code, SampleIdentifier sampleIdentifier,
             List<DataSetProperty> properties, Date version)
     {
         logTracking(sessionToken, "edit_data_set", "DATA_SET(%s)", code);
+        return null;
     }
 
 }

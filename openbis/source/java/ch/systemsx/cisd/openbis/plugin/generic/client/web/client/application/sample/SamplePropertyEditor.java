@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
-import java.util.List;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
@@ -29,17 +27,9 @@ public class SamplePropertyEditor extends
         PropertiesEditor<SampleType, SampleTypePropertyType, SampleProperty>
 {
 
-    public SamplePropertyEditor(List<SampleTypePropertyType> entityTypesPropertyTypes,
-            List<SampleProperty> properties, String id,
-            IViewContext<ICommonClientServiceAsync> viewContext)
+    public SamplePropertyEditor(String id, IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(id, entityTypesPropertyTypes, properties, viewContext);
-    }
-
-    public SamplePropertyEditor(List<SampleTypePropertyType> entityTypesPropertyTypes, String id,
-            IViewContext<ICommonClientServiceAsync>  viewContext)
-    {
-        super(id, entityTypesPropertyTypes, viewContext);
+        super(id, viewContext);
     }
 
     @Override

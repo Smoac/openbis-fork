@@ -19,30 +19,27 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.da
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
-
-import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableDataSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField.SampleChooserFieldAdaptor;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityEditForm;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
 
 /**
@@ -52,45 +49,35 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.exp
  */
 public final class GenericDataSetEditForm
         extends
-        AbstractGenericEntityEditForm<DataSetType, DataSetTypePropertyType, DataSetProperty, EditableDataSet>
+        AbstractGenericEntityRegistrationForm<DataSetType, DataSetTypePropertyType, DataSetProperty>
 {
 
-    private final ExternalData originalDataSet;
+    private SampleChooserFieldAdaptor sampleField;
 
-    private final SampleChooserFieldAdaptor sampleField;
-
-    private final PropertyGrid specificFieldsGrid;
-
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
+    private ExternalData originalDataSet;
 
     public static DatabaseModificationAwareComponent create(
-            IViewContext<IGenericClientServiceAsync> viewContext, EditableDataSet entity,
-            boolean editMode)
+            IViewContext<IGenericClientServiceAsync> viewContext, IIdentifierHolder identifierHolder)
     {
-        GenericDataSetEditForm form = new GenericDataSetEditForm(viewContext, entity, editMode);
+        GenericDataSetEditForm form = new GenericDataSetEditForm(viewContext, identifierHolder);
         return new DatabaseModificationAwareComponent(form, form);
     }
 
     private GenericDataSetEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
-            EditableDataSet entity, boolean editMode)
+            IIdentifierHolder identifierHolder)
     {
-        super(viewContext, entity, editMode);
-        this.viewContext = viewContext;
-        this.originalDataSet = entity.getDataSet();
-        this.sampleField = createSampleField();
-        this.specificFieldsGrid = new PropertyGrid(viewContext, 1);
-        super.initializeComponents(viewContext);
+        super(viewContext, identifierHolder, EntityKind.DATA_SET);
     }
-
-    public static final String ID_PREFIX = createId(EntityKind.DATA_SET, "");
 
     @Override
     public final void submitValidForm()
     {
         final List<DataSetProperty> properties = extractProperties();
         final String sampleIdentifier = extractSampleIdentifier();
-        viewContext.getService().updateDataSet(entity.getIdentifier(), sampleIdentifier,
-                properties, entity.getModificationDate(), new RegisterDataSetCallback(viewContext));
+        viewContext.getService().updateDataSet(
+                // TODO 2009-05-11, IA: use code
+                identifierHolderOrNull.getIdentifier(), sampleIdentifier, properties,
+                originalDataSet.getModificationDate(), new UpdateDataSetCallback(viewContext));
     }
 
     private String extractSampleIdentifier()
@@ -98,24 +85,27 @@ public final class GenericDataSetEditForm
         return sampleField.getValue();
     }
 
-    public final class RegisterDataSetCallback extends AbstractAsyncCallback<Void>
+    public final class UpdateDataSetCallback extends
+            AbstractRegistrationForm.AbstractRegistrationCallback<Date>
     {
 
-        RegisterDataSetCallback(final IViewContext<?> viewContext)
+        UpdateDataSetCallback(final IViewContext<?> viewContext)
         {
-            super(viewContext, new InfoBoxCallbackListener<Void>(infoBox));
-        }
-
-        private final String createSuccessfullRegistrationInfo()
-        {
-            return "DataSet successfully updated";
+            super(viewContext);
         }
 
         @Override
-        protected final void process(final Void result)
+        protected void process(final Date result)
         {
-            infoBox.displayInfo(createSuccessfullRegistrationInfo());
-            showCheckPage();
+            originalDataSet.setModificationDate(result);
+            updateOriginalValues();
+            super.process(result);
+        }
+
+        @Override
+        protected String createSuccessfullRegistrationInfo(Date result)
+        {
+            return "Data set successfully updated";
         }
     }
 
@@ -128,13 +118,17 @@ public final class GenericDataSetEditForm
                 .getCommonViewContext());
     }
 
+    private void updateOriginalValues()
+    {
+        updatePropertyFieldsOriginalValues();
+    }
+
     @Override
     protected PropertiesEditor<DataSetType, DataSetTypePropertyType, DataSetProperty> createPropertiesEditor(
-            List<DataSetTypePropertyType> entityTypesPropertyTypes,
-            List<DataSetProperty> properties, String id,
-            IViewContext<ICommonClientServiceAsync> context)
+            String id, IViewContext<ICommonClientServiceAsync> context)
     {
-        return new DataSetPropertyEditor(entityTypesPropertyTypes, properties, id, context);
+        DataSetPropertyEditor editor = new DataSetPropertyEditor(id, context);
+        return editor;
     }
 
     @Override
@@ -147,26 +141,46 @@ public final class GenericDataSetEditForm
     }
 
     @Override
-    protected List<Widget> getEntitySpecificCheckPageWidgets()
+    protected void createEntitySpecificFormFields()
     {
-        ArrayList<Widget> result = new ArrayList<Widget>();
-        updateSpecificPropertiesGrid();
-        result.add(specificFieldsGrid);
-        return result;
+        this.sampleField = createSampleField();
     }
 
     @Override
-    protected void updateCheckPageWidgets()
+    protected void initializeFormFields()
     {
-        sampleField.updateOriginalValue();
-        updateSpecificPropertiesGrid();
+        propertiesEditor.initWithProperties(originalDataSet.getDataSetType()
+                .getAssignedPropertyTypes(), originalDataSet.getProperties());
+        codeField.setValue(originalDataSet.getCode());
     }
 
-    private void updateSpecificPropertiesGrid()
+    private void setOriginalData(ExternalData data)
     {
-        Map<String, String> valueMap = new HashMap<String, String>();
-        valueMap.put(viewContext.getMessage(Dict.SAMPLE), sampleField.getValue());
-        this.specificFieldsGrid.setProperties(valueMap);
+        this.originalDataSet = data;
     }
 
+    @Override
+    protected void loadForm()
+    {
+        // TODO 2009-05-11, IA: use code
+        viewContext.getService().getDataSetInfo(identifierHolderOrNull.getIdentifier(),
+                GWTUtils.getBaseIndexURL(), new DataSetInfoCallback(viewContext));
+
+    }
+
+    public final class DataSetInfoCallback extends AbstractAsyncCallback<ExternalData>
+    {
+
+        private DataSetInfoCallback(final IViewContext<IGenericClientServiceAsync> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        protected final void process(final ExternalData result)
+        {
+            setOriginalData(result);
+            initGUI();
+        }
+    }
 }

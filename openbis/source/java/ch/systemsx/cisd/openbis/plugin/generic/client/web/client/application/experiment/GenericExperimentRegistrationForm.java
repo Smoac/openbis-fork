@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experim
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -62,17 +63,18 @@ public final class GenericExperimentRegistrationForm
         extends
         AbstractGenericEntityRegistrationForm<ExperimentType, ExperimentTypePropertyType, ExperimentProperty>
 {
-    public static final String ID = createId(EntityKind.EXPERIMENT);
+
+    public static IIdentifierHolder identifier = null;
+
+    public static final String ID = createId(identifier, EntityKind.EXPERIMENT);
 
     public static final String ATTACHMENTS_SESSION_KEY =
-            createSimpleId(EntityKind.EXPERIMENT) + "_attachments";
+            createSimpleId(identifier, EntityKind.EXPERIMENT) + "_attachments";
 
     public static final String SAMPLES_SESSION_KEY =
-            createSimpleId(EntityKind.EXPERIMENT) + "_samples";
+            createSimpleId(identifier, EntityKind.EXPERIMENT) + "_samples";
 
     private static final int DEFAULT_NUMBER_OF_ATTACHMENTS = 3;
-
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
 
     private final ExperimentType experimentType;
 
@@ -99,8 +101,7 @@ public final class GenericExperimentRegistrationForm
             final IViewContext<IGenericClientServiceAsync> viewContext,
             final ExperimentType experimentType)
     {
-        super(viewContext, experimentType.getAssignedPropertyTypes(), EntityKind.EXPERIMENT);
-        this.viewContext = viewContext;
+        super(viewContext, EntityKind.EXPERIMENT);
         this.experimentType = experimentType;
         importSamplesFileManager.setMandatory();
         importSampleTypeSelection = new SampleTypeSelectionWidget(viewContext, ID, false);
@@ -185,14 +186,12 @@ public final class GenericExperimentRegistrationForm
     }
 
     @Override
-    protected void createEntitySpecificFields()
+    protected void createEntitySpecificFormFields()
     {
-
         projectSelectionWidget = new ProjectSelectionWidget(viewContext, getId());
         FieldUtil.markAsMandatory(projectSelectionWidget);
         projectSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.PROJECT));
         samplesArea = new ExperimentSamplesArea(viewContext, ID);
-        updateSamples();
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
                 @Override
@@ -241,7 +240,7 @@ public final class GenericExperimentRegistrationForm
     }
 
     @Override
-    protected List<DatabaseModificationAwareField<?>> getEntitySpecificFields()
+    protected List<DatabaseModificationAwareField<?>> getEntitySpecificFormFields()
     {
         final ArrayList<DatabaseModificationAwareField<?>> fields =
                 new ArrayList<DatabaseModificationAwareField<?>>();
@@ -312,10 +311,23 @@ public final class GenericExperimentRegistrationForm
 
     @Override
     protected PropertiesEditor<ExperimentType, ExperimentTypePropertyType, ExperimentProperty> createPropertiesEditor(
-            List<ExperimentTypePropertyType> etpt, String id,
-            IViewContext<ICommonClientServiceAsync> context)
+            String id, IViewContext<ICommonClientServiceAsync> context)
     {
-        return new ExperimentPropertyEditor(etpt, id, context);
+        ExperimentPropertyEditor editor = new ExperimentPropertyEditor(id, context);
+        return editor;
+    }
+
+    @Override
+    protected void initializeFormFields()
+    {
+        propertiesEditor.initWithoutProperties(experimentType.getAssignedPropertyTypes());
+        updateSamples();
+    }
+
+    @Override
+    protected void loadForm()
+    {
+        initGUI();
     }
 
 }

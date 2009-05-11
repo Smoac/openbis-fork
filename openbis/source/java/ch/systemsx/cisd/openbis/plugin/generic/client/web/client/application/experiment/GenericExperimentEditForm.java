@@ -27,14 +27,11 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.util.Format;
-import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
-import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -42,24 +39,26 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableExperiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityEditForm;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 
 /**
  * The <i>generic</i> experiment edit form.
@@ -68,28 +67,18 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Abs
  */
 public final class GenericExperimentEditForm
         extends
-        AbstractGenericEntityEditForm<ExperimentType, ExperimentTypePropertyType, ExperimentProperty, EditableExperiment>
+        AbstractGenericEntityRegistrationForm<ExperimentType, ExperimentTypePropertyType, ExperimentProperty>
 {
-
-    public static final String ID_PREFIX = createId(EntityKind.EXPERIMENT, "");
 
     private static final int DEFAULT_NUMBER_OF_ATTACHMENTS = 3;
 
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
-
-    private final FileFieldManager attachmentManager;
+    private FileFieldManager attachmentManager;
 
     private String attachmentsSessionKey;
-
-    private Html attachmentsInfo;
-
-    private Html samplesInfo;
 
     private ProjectSelectionWidget projectChooser;
 
     private ExperimentSamplesArea samplesArea;
-
-    private String originalProjectIdentifier;
 
     private final String samplesSessionKey;
 
@@ -103,63 +92,30 @@ public final class GenericExperimentEditForm
 
     private CheckBox autoGenerateCodes;
 
+    private Experiment originalExperiment;
+
+    private String simpleId;
+
     public static DatabaseModificationAwareComponent create(
-            IViewContext<IGenericClientServiceAsync> viewContext, EditableExperiment entity,
-            boolean editMode)
+            IViewContext<IGenericClientServiceAsync> viewContext, IIdentifierHolder identifierHolder)
     {
         GenericExperimentEditForm form =
-                new GenericExperimentEditForm(viewContext, entity, editMode);
+                new GenericExperimentEditForm(viewContext, identifierHolder);
         return new DatabaseModificationAwareComponent(form, form);
     }
 
     private GenericExperimentEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
-            EditableExperiment entity, boolean editMode)
+            IIdentifierHolder identifierHolder)
     {
-        super(viewContext, entity, editMode);
-        this.viewContext = viewContext;
-        super.initializeComponents(viewContext);
+        super(viewContext, identifierHolder, EntityKind.EXPERIMENT);
 
-        String simpleId = createSimpleId(EntityKind.EXPERIMENT, entity.getId() + "");
+        simpleId = createSimpleId(identifierHolderOrNull, EntityKind.EXPERIMENT);
         attachmentsSessionKey = simpleId + "_attachments";
         samplesSessionKey = simpleId + "_samples";
-        originalProjectIdentifier = entity.getProjectIdentifier();
-        setHeaderVisible(true);
-        updateHeader();
-        projectChooser =
-                new ProjectSelectionWidget(viewContext, attachmentsSessionKey,
-                        originalProjectIdentifier);
-        FieldUtil.markAsMandatory(projectChooser);
-        samplesArea = createSamplesArea();
-        importSamplesFileManager = new FileFieldManager(samplesSessionKey, 1, "File");
-        importSamplesFileManager.setMandatory();
-        importSampleTypeSelection = new SampleTypeSelectionWidget(viewContext, simpleId, false);
-        FieldUtil.markAsMandatory(importSampleTypeSelection);
-        existingSamplesRadio = GenericExperimentRegistrationForm.cerateExistingSamplesRadio();
-        importSamplesRadio = GenericExperimentRegistrationForm.createImportRadio();
-        autoGenerateCodes = GenericExperimentRegistrationForm.createAutoGenerateCheckbox();
-        attachmentManager =
-                new FileFieldManager(attachmentsSessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS,
-                        "New Attachment");
         List<String> sesionKeys = new ArrayList<String>();
         sesionKeys.add(attachmentsSessionKey);
         sesionKeys.add(samplesSessionKey);
         addUploadFeatures(sesionKeys);
-        updateSamples();
-        formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
-            {
-                @Override
-                protected void onSuccessfullUpload()
-                {
-                    save();
-                }
-
-                @Override
-                protected void setUploadEnabled()
-                {
-                    // GenericExperimentRegistrationForm.this.setUploadEnabled(true);
-                }
-            });
-        redefineSaveListeners();
     }
 
     // TODO 2009-04-22, IA: merge this class with GenericExperimentRegistrationForm
@@ -184,8 +140,7 @@ public final class GenericExperimentEditForm
 
     private ExperimentSamplesArea createSamplesArea()
     {
-        ExperimentSamplesArea area =
-                new ExperimentSamplesArea(viewContext, ID_PREFIX + entity.getIdentifier());
+        ExperimentSamplesArea area = new ExperimentSamplesArea(viewContext, simpleId);
         area.setEnabled(false);
         area.setValue(viewContext.getMessage(Dict.LOAD_IN_PROGRESS));
         loadSamplesInBackground();
@@ -195,7 +150,7 @@ public final class GenericExperimentEditForm
     private void loadSamplesInBackground()
     {
         final ListSampleCriteria sampleCriteria =
-                ListSampleCriteria.createForExperiment(entity.getIdentifier());
+                ListSampleCriteria.createForExperiment(identifierHolderOrNull.getIdentifier());
         viewContext.getCommonService().listSamples(sampleCriteria,
                 new ListSamplesCallback(viewContext));
     }
@@ -216,7 +171,7 @@ public final class GenericExperimentEditForm
         }
     }
 
-    void redefineSaveListeners()
+    private void redefineSaveListeners()
     {
         saveButton.removeAllListeners();
         saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
@@ -229,7 +184,7 @@ public final class GenericExperimentEditForm
                         if (attachmentManager.filesDefined() > 0
                                 || importSamplesFileManager.filesDefined() > 0)
                         {
-                            // setUploadEnabled(false);
+                            setUploadEnabled(false);
                             formPanel.submit();
                         } else
                         {
@@ -243,8 +198,8 @@ public final class GenericExperimentEditForm
     private void save()
     {
         ExperimentUpdates updates = new ExperimentUpdates();
-        updates.setExperimentIdentifier(entity.getIdentifier());
-        updates.setVersion(entity.getModificationDate());
+        updates.setExperimentIdentifier(originalExperiment.getIdentifier());
+        updates.setVersion(originalExperiment.getModificationDate());
         updates.setProperties(extractProperties());
         updates.setProjectIdentifier(extractProjectIdentifier());
         updates.setAttachmentSessionKey(attachmentsSessionKey);
@@ -254,7 +209,7 @@ public final class GenericExperimentEditForm
         updates.setRegisterSamples(existingSamplesRadio.getValue() == false);
         updates.setSamplesSessionKey(samplesSessionKey);
         viewContext.getService().updateExperiment(updates,
-                new RegisterExperimentCallback(viewContext));
+                new UpdateExperimentCallback(viewContext));
     }
 
     private String extractProjectIdentifier()
@@ -267,34 +222,44 @@ public final class GenericExperimentEditForm
     {
     }
 
-    public final class RegisterExperimentCallback extends AbstractAsyncCallback<Void>
+    public final class UpdateExperimentCallback extends
+            AbstractRegistrationForm.AbstractRegistrationCallback<ExperimentUpdateResult>
     {
 
-        RegisterExperimentCallback(final IViewContext<?> viewContext)
+        UpdateExperimentCallback(final IViewContext<?> viewContext)
         {
-            super(viewContext, new InfoBoxCallbackListener<Void>(infoBox));
+            super(viewContext);
         }
 
-        private final String createSuccessfullRegistrationInfo()
+        @Override
+        protected void process(final ExperimentUpdateResult result)
+        {
+            originalExperiment.setModificationDate(result.getModificationDate());
+            updateOriginalValues(result.getSamples());
+            super.process(result);
+        }
+
+        @Override
+        protected String createSuccessfullRegistrationInfo(ExperimentUpdateResult result)
         {
             return "Experiment successfully updated";
         }
 
-        @Override
-        protected final void process(final Void result)
-        {
-            infoBox.displayInfo(createSuccessfullRegistrationInfo());
-            showCheckPage();
-        }
     }
 
     @Override
     protected PropertiesEditor<ExperimentType, ExperimentTypePropertyType, ExperimentProperty> createPropertiesEditor(
-            List<ExperimentTypePropertyType> entityTypesPropertyTypes,
-            List<ExperimentProperty> properties, String id,
-            IViewContext<ICommonClientServiceAsync> context)
+            String id, IViewContext<ICommonClientServiceAsync> context)
     {
-        return new ExperimentPropertyEditor(entityTypesPropertyTypes, properties, id, context);
+        ExperimentPropertyEditor editor = new ExperimentPropertyEditor(id, context);
+        return editor;
+    }
+
+    public void updateOriginalValues(String[] samples)
+    {
+        updatePropertyFieldsOriginalValues();
+        updateFieldOriginalValue(projectChooser);
+        samplesArea.setSampleCodes(samples);
     }
 
     RadioGroup createSamplesSourceRadio(Radio existing, Radio importFromFile)
@@ -338,49 +303,6 @@ public final class GenericExperimentEditForm
         return fields;
     }
 
-    @Override
-    protected List<Widget> getEntitySpecificCheckPageWidgets()
-    {
-        final ArrayList<Widget> widgets = new ArrayList<Widget>();
-        widgets.add(attachmentsInfo = new Html());
-        widgets.add(samplesInfo = new Html());
-        return widgets;
-    }
-
-    @Override
-    protected void updateCheckPageWidgets()
-    {
-        projectChooser.updateOriginalValue();
-        originalProjectIdentifier = projectChooser.tryGetSelectedProject().getIdentifier();
-        entity.setIdentifier(originalProjectIdentifier + "/" + entity.getCode());
-        attachmentsInfo.setHtml(getAttachmentInfoText(attachmentManager.filesDefined()));
-        if (samplesArea.tryGetSampleCodes() != null)
-        {
-            samplesInfo.setHtml(viewContext.getMessage(Dict.SAMPLES) + ": "
-                    + samplesArea.getValue());
-        }
-        samplesArea.updateOriginalValue(samplesArea.getValue());
-        updateHeader();
-    }
-
-    public String getAttachmentInfoText(int attachmentDefined)
-    {
-        if (attachmentDefined > 0)
-        {
-            return Format.substitute("Added {0} new attachment{1}.", attachmentDefined,
-                    attachmentDefined == 1 ? "" : "s");
-
-        } else
-        {
-            return "No new attachments added.";
-        }
-    }
-
-    private void updateHeader()
-    {
-        setHeading("Experiment " + entity.getIdentifier());
-    }
-
     private String[] getSamples()
     {
         if (existingSamplesRadio.getValue())
@@ -395,5 +317,83 @@ public final class GenericExperimentEditForm
             return importSampleTypeSelection.tryGetSelectedSampleType();
         else
             return null;
+    }
+
+    private void setOriginalExperiment(Experiment experiment)
+    {
+        this.originalExperiment = experiment;
+    }
+
+    @Override
+    protected void createEntitySpecificFormFields()
+    {
+        projectChooser = new ProjectSelectionWidget(viewContext, simpleId);
+        FieldUtil.markAsMandatory(projectChooser);
+
+        samplesArea = createSamplesArea();
+
+        importSamplesFileManager = new FileFieldManager(samplesSessionKey, 1, "File");
+        importSamplesFileManager.setMandatory();
+        importSampleTypeSelection = new SampleTypeSelectionWidget(viewContext, simpleId, false);
+        FieldUtil.markAsMandatory(importSampleTypeSelection);
+
+        existingSamplesRadio = GenericExperimentRegistrationForm.cerateExistingSamplesRadio();
+        importSamplesRadio = GenericExperimentRegistrationForm.createImportRadio();
+        autoGenerateCodes = GenericExperimentRegistrationForm.createAutoGenerateCheckbox();
+
+        attachmentManager =
+                new FileFieldManager(attachmentsSessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS,
+                        "New Attachment");
+        formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
+            {
+                @Override
+                protected void onSuccessfullUpload()
+                {
+                    save();
+                }
+
+                @Override
+                protected void setUploadEnabled()
+                {
+                    GenericExperimentEditForm.this.setUploadEnabled(true);
+                }
+            });
+        redefineSaveListeners();
+
+    }
+
+    @Override
+    protected void initializeFormFields()
+    {
+        propertiesEditor.initWithProperties(originalExperiment.getExperimentType()
+                .getAssignedPropertyTypes(), originalExperiment.getProperties());
+        updateSamples();
+        codeField.setValue(originalExperiment.getCode());
+        projectChooser.selectProjectAndUpdateOriginal(originalExperiment.getProject()
+                .getIdentifier());
+    }
+
+    @Override
+    protected void loadForm()
+    {
+        String experimentIdentifier = identifierHolderOrNull.getIdentifier();
+        viewContext.getService().getExperimentInfo(experimentIdentifier,
+                new ExperimentInfoCallback(viewContext));
+    }
+
+    public final class ExperimentInfoCallback extends AbstractAsyncCallback<Experiment>
+    {
+
+        private ExperimentInfoCallback(final IViewContext<IGenericClientServiceAsync> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        protected final void process(final Experiment result)
+        {
+            setOriginalExperiment(result);
+            initGUI();
+        }
     }
 }

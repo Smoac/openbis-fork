@@ -26,7 +26,9 @@ import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.HiddenField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
@@ -74,6 +76,8 @@ public abstract class AbstractRegistrationForm extends ContentPanel
 
     private boolean sessionKeysInitiated = false;
 
+    private Html loadingInfo;
+
     protected AbstractRegistrationForm(final IMessageProvider messageProvider, final String id)
     {
         this(messageProvider, id, DEFAULT_LABEL_WIDTH, DEFAULT_FIELD_WIDTH);
@@ -91,13 +95,27 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         setScrollMode(Scroll.AUTO);
         setId(id);
         add(infoBox = createInfoBox());
+        add(loadingInfo = createLoadingInfo());
         add(formPanel = createFormPanel(messageProvider));
+    }
+
+    private Html createLoadingInfo()
+    {
+        Html result = new Html("Loading...");
+        result.setVisible(false);
+        return result;
     }
 
     private final static InfoBox createInfoBox()
     {
         final InfoBox infoBox = new InfoBox();
         return infoBox;
+    }
+
+    protected void setLoading(boolean loading)
+    {
+        formPanel.setVisible(loading == false);
+        loadingInfo.setVisible(loading);
     }
 
     protected void resetPanel()
@@ -281,6 +299,12 @@ public abstract class AbstractRegistrationForm extends ContentPanel
             formPanel.add(AbstractRegistrationForm.createHiddenSessionField(sessionKeys.get(i), i));
         }
         sessionKeysInitiated = true;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected static void updateOriginalValue(Field field)
+    {
+        field.updateOriginalValue(field.getValue());
     }
 
 }

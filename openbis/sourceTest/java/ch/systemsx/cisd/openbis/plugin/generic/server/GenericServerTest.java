@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -41,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -431,7 +433,10 @@ public final class GenericServerTest extends AbstractServerTestCase
         final MaterialIdentifier identifier = new MaterialIdentifier(MATERIAL_1, MATERIAL_TYPE_1);
         final List<MaterialProperty> properties = new ArrayList<MaterialProperty>();
         prepareGetSession();
-        final Date version = new Date();
+        final Date version = new Date(1);
+        final MaterialPE material = new MaterialPE();
+        Date newModificationDate = new Date(2);
+        material.setModificationDate(newModificationDate);
         context.checking(new Expectations()
             {
                 {
@@ -440,10 +445,12 @@ public final class GenericServerTest extends AbstractServerTestCase
 
                     one(materialBO).update(identifier, properties, version);
                     one(materialBO).save();
-
+                    one(materialBO).getMaterial();
+                    will(returnValue(material));
                 }
             });
-        createServer().updateMaterial(SESSION_TOKEN, identifier, properties, version);
+        assertEquals(newModificationDate, createServer().updateMaterial(SESSION_TOKEN, identifier,
+                properties, version));
         context.assertIsSatisfied();
     }
 
@@ -457,6 +464,9 @@ public final class GenericServerTest extends AbstractServerTestCase
         prepareGetSession();
         final Date version = new Date();
         final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
+        final SamplePE sample = new SamplePE();
+        Date newModificationDate = new Date(2);
+        sample.setModificationDate(newModificationDate);
         context.checking(new Expectations()
             {
                 {
@@ -465,11 +475,12 @@ public final class GenericServerTest extends AbstractServerTestCase
 
                     one(sampleBO).update(identifier, properties, null, attachments, version);
                     one(sampleBO).save();
-
+                    one(sampleBO).getSample();
+                    will(returnValue(sample));
                 }
             });
-        createServer()
-                .updateSample(SESSION_TOKEN, identifier, properties, null, attachments, version);
+        assertEquals(newModificationDate, createServer().updateSample(SESSION_TOKEN, identifier,
+                properties, null, attachments, version));
         context.assertIsSatisfied();
     }
 
@@ -483,6 +494,11 @@ public final class GenericServerTest extends AbstractServerTestCase
         final ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
         updates.setExperimentIdentifier(identifier);
         updates.setProjectIdentifier(newProjectIdentifier);
+        final ExperimentPE experiment = new ExperimentPE();
+        Date newModificationDate = new Date(2);
+        experiment.setModificationDate(newModificationDate);
+        ArrayList<SamplePE> newSamples = new ArrayList<SamplePE>();
+        experiment.setSamples(newSamples);
         prepareGetSession();
         context.checking(new Expectations()
             {
@@ -492,10 +508,13 @@ public final class GenericServerTest extends AbstractServerTestCase
 
                     one(experimentBO).update(updates);
                     one(experimentBO).save();
-
+                    one(experimentBO).getExperiment();
+                    will(returnValue(experiment));
                 }
             });
-        createServer().updateExperiment(SESSION_TOKEN, updates);
+        ExperimentUpdateResult result = createServer().updateExperiment(SESSION_TOKEN, updates);
+        assertEquals(newModificationDate, result.getModificationDate());
+        assertEquals(GenericServer.extractCodes(newSamples).length, result.getSamples().length);
         context.assertIsSatisfied();
     }
 

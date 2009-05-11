@@ -37,8 +37,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Enti
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EditableMaterial;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.material.CommonMaterialColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
@@ -53,12 +51,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
@@ -260,28 +254,16 @@ public class MaterialBrowserGrid extends
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
                         material.getMaterialType());
 
+        final IClientPlugin<MaterialType, IIdentifierHolder> createClientPlugin =
+                clientPluginFactory.createClientPlugin(entityKind);
         if (editMode)
         {
-            final IClientPlugin<MaterialType, MaterialTypePropertyType, MaterialProperty, IIdentifierHolder, EditableMaterial> createClientPlugin =
-                    clientPluginFactory.createClientPlugin(entityKind);
-            final EditableMaterial editableEntity =
-                    createEditableEntity(material, criteria.getMaterialType());
-            tabView = createClientPlugin.createEntityEditor(editableEntity);
+            tabView = createClientPlugin.createEntityEditor(material);
         } else
         {
-            final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder, IEditableEntity<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>>> createClientPlugin =
-                    clientPluginFactory.createClientPlugin(entityKind);
             tabView = createClientPlugin.createEntityViewer(material);
         }
         DispatcherHelper.dispatchNaviEvent(tabView);
-    }
-
-    private EditableMaterial createEditableEntity(Material entity, MaterialType selectedType)
-    {
-        return new EditableMaterial(selectedType.getAssignedPropertyTypes(),
-                entity.getProperties(), selectedType, entity.getCode() + " ("
-                        + entity.getMaterialType().getCode() + ")", entity.getId(), entity
-                        .getModificationDate());
     }
 
     @Override

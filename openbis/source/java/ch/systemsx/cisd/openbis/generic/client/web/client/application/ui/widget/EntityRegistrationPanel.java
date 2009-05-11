@@ -41,9 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 
 /**
  * The {@link LayoutContainer} extension for registering an entity.
@@ -138,7 +136,7 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Dro
     private void showRegistrationForm(final EntityType entityType)
     {
         removeAll();
-        final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder, ?> clientPlugin =
+        final IClientPlugin<EntityType, IIdentifierHolder> clientPlugin =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
                         entityType).createClientPlugin(entityKind);
         registrationWidget = clientPlugin.createRegistrationForEntityType(entityType);

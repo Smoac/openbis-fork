@@ -239,7 +239,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
             List<DataSetProperty> properties, Date version)
     {
         loadByCode(code);
-        if (externalData.getModificationDate().equals(version) == false)
+        if (version.equals(externalData.getModificationDate()) == false)
         {
             throw new UserFailureException("Data set has been modified in the meantime.");
         }

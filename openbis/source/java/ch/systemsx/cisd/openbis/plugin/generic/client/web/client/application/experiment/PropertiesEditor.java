@@ -37,38 +37,50 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
 {
     private static final String ETPT = "PROPERTY_TYPE";
 
-    private final List<S> entityTypesPropertyTypes;
-
-    private final List<DatabaseModificationAwareField<?>> propertyFields;
+    private List<DatabaseModificationAwareField<?>> propertyFields;
 
     private final String id;
 
-    private final Map<String, String> initialProperties;
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     abstract protected P createEntityProperty();
 
     /**
      * Requires initial values of properties.
      */
-    protected PropertiesEditor(String id, final List<S> entityTypesPropertyTypes,
-            final List<P> properties, IViewContext<ICommonClientServiceAsync> viewContext)
+    protected PropertiesEditor(String id, IViewContext<ICommonClientServiceAsync> viewContext)
+    {
+        this.id = id;
+        this.viewContext = viewContext;
+    }
+
+    public void initWithProperties(final List<S> entityTypesPropertyTypes, final List<P> properties)
     {
         assert properties != null : "Undefined properties.";
-        this.id = id;
-        this.entityTypesPropertyTypes = entityTypesPropertyTypes;
-        this.initialProperties = createInitialProperties(properties);
-        this.propertyFields = createPropertyFields(viewContext);
+        assert propertyFields == null : "Already initialized.";
+        this.propertyFields =
+                createPropertyFields(entityTypesPropertyTypes, createInitialProperties(properties));
+
+    }
+
+    public void initWithoutProperties(final List<S> entityTypesPropertyTypes)
+    {
+        assert propertyFields == null : "Already initialized.";
+        this.propertyFields =
+                createPropertyFields(entityTypesPropertyTypes,
+                        createInitialProperties(new ArrayList<P>()));
+
     }
 
     private List<DatabaseModificationAwareField<?>> createPropertyFields(
-            IViewContext<ICommonClientServiceAsync> viewContext)
+            List<S> entityTypesPropertyTypes, Map<String, String> initialProperties)
     {
         List<DatabaseModificationAwareField<?>> result =
                 new ArrayList<DatabaseModificationAwareField<?>>();
         for (final S stpt : entityTypesPropertyTypes)
         {
             result.add(createPropertyField(stpt, initialProperties.get(stpt.getPropertyType()
-                    .getCode()), viewContext));
+                    .getCode())));
         }
         return result;
     }
@@ -83,18 +95,9 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         return result;
     }
 
-    /**
-     * Does not require initial values of properties.
-     */
-    public PropertiesEditor(String id, final List<S> entityTypesPropertyTypes,
-            IViewContext<ICommonClientServiceAsync> viewContext)
+    private final DatabaseModificationAwareField<?> createPropertyField(final S etpt, String value)
     {
-        this(id, entityTypesPropertyTypes, new ArrayList<P>(), viewContext);
-    }
-
-    private final DatabaseModificationAwareField<?> createPropertyField(final S etpt, String value,
-            IViewContext<ICommonClientServiceAsync> viewContext)
-    {
+        assert viewContext != null;
         final DatabaseModificationAwareField<?> field;
         final boolean isMandatory = etpt.isMandatory();
         final String label = etpt.getPropertyType().getLabel();
@@ -122,6 +125,7 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
      */
     public final List<P> extractProperties()
     {
+        assert propertyFields != null : "Not initialized.";
         final List<P> properties = new ArrayList<P>();
         for (final DatabaseModificationAwareField<?> field : propertyFields)
         {
@@ -144,6 +148,7 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
      */
     public final List<DatabaseModificationAwareField<?>> getPropertyFields()
     {
+        assert propertyFields != null : "Not initialized.";
         return propertyFields;
     }
 

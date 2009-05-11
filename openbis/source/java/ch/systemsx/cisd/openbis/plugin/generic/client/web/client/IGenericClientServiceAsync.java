@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -105,26 +106,26 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
      * @see IGenericClientService#updateExperiment(ExperimentUpdates)
      */
     public void updateExperiment(ExperimentUpdates experimentUpdates,
-            final AsyncCallback<Void> asyncCallback) throws UserFailureException;
+            final AsyncCallback<ExperimentUpdateResult> asyncCallback) throws UserFailureException;
 
     /**
      * @see IGenericClientService#updateMaterial(String, List, Date)
      */
     public void updateMaterial(final String materialIdentifier, List<MaterialProperty> properties,
-            Date version, final AsyncCallback<Void> asyncCallback) throws UserFailureException;
+            Date version, final AsyncCallback<Date> asyncCallback) throws UserFailureException;
 
     /**
      * @see IGenericClientService#updateSample(String, String, List, ExperimentIdentifier, Date)
      */
     public void updateSample(String sessionKey, final String sampleIdentifier,
             List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
-            Date version, final AsyncCallback<Void> asyncCallback) throws UserFailureException;
+            Date version, final AsyncCallback<Date> asyncCallback) throws UserFailureException;
 
     /**
      * @see IGenericClientService#updateDataSet(String, String, List, Date)
      */
     public void updateDataSet(final String dataSetIdentifier, final String sampleIdentifier,
-            List<DataSetProperty> properties, Date version, final AsyncCallback<Void> asyncCallback)
+            List<DataSetProperty> properties, Date version, final AsyncCallback<Date> asyncCallback)
             throws UserFailureException;
 
 }

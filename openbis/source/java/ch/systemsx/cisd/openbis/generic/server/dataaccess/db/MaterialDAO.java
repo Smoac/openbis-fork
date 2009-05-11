@@ -108,6 +108,11 @@ public class MaterialDAO extends AbstractDAO implements IMaterialDAO
         final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("code", code));
         criteria.createCriteria("materialType").add(Restrictions.eq("code", typeCode));
+        criteria.setFetchMode("materialType.materialTypePropertyTypesInternal", FetchMode.JOIN);
+        criteria
+                .setFetchMode(
+                        "materialType.materialTypePropertyTypesInternal.propertyTypeInternal.vocabulary.vocabularyTerms",
+                        FetchMode.JOIN);
         final MaterialPE material = (MaterialPE) criteria.uniqueResult();
         if (operationLog.isDebugEnabled())
         {

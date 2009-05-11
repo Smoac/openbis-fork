@@ -33,9 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 
 /**
@@ -83,7 +81,7 @@ public final class MaterialBatchRegistrationPanel extends LayoutContainer
                         final IClientPluginFactory clientPluginFactory =
                                 viewContext.getClientPluginFactoryProvider()
                                         .getClientPluginFactory(entityKind, materialType);
-                        final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder, ?> createClientPlugin =
+                        final IClientPlugin<EntityType, IIdentifierHolder> createClientPlugin =
                                 clientPluginFactory.createClientPlugin(entityKind);
                         add(createClientPlugin.createBatchRegistrationForEntityType(materialType));
                         layout();

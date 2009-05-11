@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2009 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeFieldWithGenerator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -41,69 +42,149 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
 
 /**
- * The <i>generic</i> entity registration form.
+ * Super class for entity (sample, material, experiment, data set) registration and edition.
  * 
  * @author Izabela Adamczyk
  */
-abstract public class AbstractGenericEntityRegistrationForm<T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>>
+public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>>
         extends AbstractRegistrationForm implements IDatabaseModificationObserver
 {
-
     public static final String ID_SUFFIX_CODE = "code";
 
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
+    // ---------------------------------------------------------------------------------------------
+    // Fields
+    // ---------------------------------------------------------------------------------------------
+    protected final EntityKind entityKind;
 
-    protected TextField<String> codeField;
+    protected final IViewContext<IGenericClientServiceAsync> viewContext;
 
-    private PropertiesEditor<T, S, P> propertiesEditor;
+    protected final IIdentifierHolder identifierHolderOrNull;
 
-    private final EntityKind entityKind;
+    protected CodeFieldWithGenerator codeField;
 
-    public AbstractGenericEntityRegistrationForm(
+    protected PropertiesEditor<T, S, P> propertiesEditor;
+
+    // ---------------------------------------------------------------------------------------------
+    // Constructors
+    // ---------------------------------------------------------------------------------------------
+    /**
+     * For editing chosen entity.
+     */
+    protected AbstractGenericEntityRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext,
-            List<S> entityTypesPropertyTypes, EntityKind entityKind)
+            IIdentifierHolder identifierHolderOrNull, EntityKind entityKind)
     {
-        super(viewContext, createId(entityKind));
+        super(viewContext, createId(identifierHolderOrNull, entityKind), DEFAULT_LABEL_WIDTH + 20,
+                DEFAULT_FIELD_WIDTH);
         this.viewContext = viewContext;
+        this.identifierHolderOrNull = identifierHolderOrNull;
         this.entityKind = entityKind;
+    }
+
+    /**
+     * For registering new entity.
+     */
+    protected AbstractGenericEntityRegistrationForm(
+            final IViewContext<IGenericClientServiceAsync> viewContext, EntityKind entityKind)
+    {
+        this(viewContext, null, entityKind);
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Main Part
+    // ---------------------------------------------------------------------------------------------
+    @Override
+    protected final void onRender(final Element target, final int index)
+    {
+        super.onRender(target, index);
+        setLoading(true);
+        loadForm();
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // ID generation
+    // ---------------------------------------------------------------------------------------------
+    /**
+     * Creates unique id based on {@link #createSimpleId(IIdentifierHolder, EntityKind)} and
+     * application specific ID prefix.
+     */
+    public static final String createId(IIdentifierHolder identifier, EntityKind entityKind)
+    {
+        return GenericConstants.ID_PREFIX + createSimpleId(identifier, entityKind);
+    }
+
+    /**
+     * Creates unique form id for given entity.
+     */
+    protected static final String createSimpleId(IIdentifierHolder identifier, EntityKind entityKind)
+    {
+        // TODO 2009-05-11, IA: use technical id
+        String editOrRegister =
+                (identifier == null) ? "register" : ("edit_" + identifier.getIdentifier());
+        return "generic-" + entityKind.name().toLowerCase() + "-" + editOrRegister + "_form";
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // IDatabaseModificationObserver
+    // ---------------------------------------------------------------------------------------------
+    public final void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        createDatabaseModificationObserver().update(observedModifications);
+    }
+
+    public final DatabaseModificationKind[] getRelevantModifications()
+    {
+        return createDatabaseModificationObserver().getRelevantModifications();
+    }
+
+    // the db modification observer is composed from all the fields' observers
+    private IDatabaseModificationObserver createDatabaseModificationObserver()
+    {
+        CompositeDatabaseModificationObserver compositeObserver =
+                new CompositeDatabaseModificationObserver();
+        compositeObserver.addObservers(getAllFormFields());
+        return compositeObserver;
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Common Fields
+    // ---------------------------------------------------------------------------------------------
+
+    private final void createCommonFormFields()
+    {
         propertiesEditor =
-                createPropertiesEditor(entityTypesPropertyTypes, createId(entityKind), viewContext
+                createPropertiesEditor(createId(identifierHolderOrNull, entityKind), viewContext
                         .getCommonViewContext());
-    }
-
-    abstract protected List<DatabaseModificationAwareField<?>> getEntitySpecificFields();
-
-    abstract protected void createEntitySpecificFields();
-
-    abstract protected PropertiesEditor<T, S, P> createPropertiesEditor(
-            List<S> entityTypesPropertyTypes, String string,
-            IViewContext<ICommonClientServiceAsync> context);
-
-    protected static String createId(EntityKind entityKind)
-    {
-        return GenericConstants.ID_PREFIX + createSimpleId(entityKind);
-    }
-
-    protected static String createSimpleId(EntityKind entityKind)
-    {
-        return "generic-" + entityKind.name().toLowerCase() + "-registration_form";
-    }
-
-    private final void createFormFields()
-    {
         codeField =
                 new CodeFieldWithGenerator(viewContext, viewContext.getMessage(Dict.CODE),
                         entityKind.name().substring(0, 1));
         codeField.setId(getId() + ID_SUFFIX_CODE);
-        createEntitySpecificFields();
+        codeField.setEnabled(identifierHolderOrNull == null);
+        codeField.setHideTrigger(identifierHolderOrNull != null);
     }
 
-    private final List<DatabaseModificationAwareField<?>> getAllFields()
+    protected void updatePropertyFieldsOriginalValues()
+    {
+        for (DatabaseModificationAwareField<?> f : propertiesEditor.getPropertyFields())
+        {
+            updateFieldOriginalValue(f.get());
+        }
+    }
+
+    protected <D> void updateFieldOriginalValue(Field<D> field)
+    {
+        field.updateOriginalValue(field.getValue());
+    }
+
+    /**
+     * Returns all form fields.
+     */
+    protected final List<DatabaseModificationAwareField<?>> getAllFormFields()
     {
         List<DatabaseModificationAwareField<?>> fields =
                 new ArrayList<DatabaseModificationAwareField<?>>();
         fields.add(DatabaseModificationAwareField.wrapUnaware(codeField));
-        for (DatabaseModificationAwareField<?> specificField : getEntitySpecificFields())
+        for (DatabaseModificationAwareField<?> specificField : getEntitySpecificFormFields())
         {
             fields.add(specificField);
         }
@@ -114,43 +195,58 @@ abstract public class AbstractGenericEntityRegistrationForm<T extends EntityType
         return fields;
     }
 
-    private final void addFormFields()
+    /**
+     * Creates, initializes and adds the fields to the form. To be used by the subclasses.
+     */
+    protected void initGUI()
     {
-        for (DatabaseModificationAwareField<?> field : getAllFields())
+        createCommonFormFields();
+        createEntitySpecificFormFields();
+        initializeFormFields();
+        for (DatabaseModificationAwareField<?> field : getAllFormFields())
         {
             formPanel.add(field.get());
         }
+        layout();
+        setLoading(false);
     }
 
+    /**
+     * @see PropertiesEditor#extractProperties()
+     */
     protected final List<P> extractProperties()
     {
         return propertiesEditor.extractProperties();
     }
 
-    @Override
-    protected final void onRender(final Element target, final int index)
-    {
-        super.onRender(target, index);
-        createFormFields();
-        addFormFields();
-    }
+    // ---------------------------------------------------------------------------------------------
+    // Abstract methods
+    // ---------------------------------------------------------------------------------------------
 
-    public void update(Set<DatabaseModificationKind> observedModifications)
-    {
-        createDatabaseModificationObserver().update(observedModifications);
-    }
+    /**
+     * Creates fields specific to given entity kind.
+     */
+    abstract protected void createEntitySpecificFormFields();
 
-    public DatabaseModificationKind[] getRelevantModifications()
-    {
-        return createDatabaseModificationObserver().getRelevantModifications();
-    }
+    /**
+     * Returns previously created fields specific to given entity kind, to be added to the form.
+     */
+    abstract protected List<DatabaseModificationAwareField<?>> getEntitySpecificFormFields();
 
-    // the db modification observer is composed from all the fields' observers
-    private IDatabaseModificationObserver createDatabaseModificationObserver()
-    {
-        CompositeDatabaseModificationObserver compositeObserver =
-                new CompositeDatabaseModificationObserver();
-        compositeObserver.addObservers(getAllFields());
-        return compositeObserver;
-    }
+    /**
+     * Initializes previously created form fields, before adding them to the form.
+     */
+    abstract protected void initializeFormFields();
+
+    /**
+     * Loads necessary data from the server and creates the form.
+     */
+    abstract protected void loadForm();
+
+    /**
+     * Returns the {@link PropertiesEditor} to be used for .
+     */
+    abstract protected PropertiesEditor<T, S, P> createPropertiesEditor(String string,
+            IViewContext<ICommonClientServiceAsync> context);
+
 }

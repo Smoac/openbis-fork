@@ -26,33 +26,34 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
  * 
  * @author Izabela Adamczyk
  */
-public class DataSetTypeTranslator {
+public class DataSetTypeTranslator
+{
 
-	private DataSetTypeTranslator() {
-	}
+    private DataSetTypeTranslator()
+    {
+    }
 
-	public static DataSetType translate(DataSetTypePE entityTypeOrNull) {
-		if (entityTypeOrNull == null) {
-			return null;
-		}
-		final DataSetType result = new DataSetType();
-		result
-				.setCode(StringEscapeUtils.escapeHtml(entityTypeOrNull
-						.getCode()));
-		result.setDescription(StringEscapeUtils.escapeHtml(entityTypeOrNull
-				.getDescription()));
-		result.setDatabaseInstance(DatabaseInstanceTranslator
-				.translate(entityTypeOrNull.getDatabaseInstance()));
-		result.setDataSetTypePropertyTypes(DataSetTypePropertyTypeTranslator
-				.translate(entityTypeOrNull.getDataSetTypePropertyTypes(),
-						result));
-		return result;
-	}
+    public static DataSetType translate(DataSetTypePE entityTypeOrNull)
+    {
+        if (entityTypeOrNull == null)
+        {
+            return null;
+        }
+        final DataSetType result = new DataSetType();
+        result.setCode(StringEscapeUtils.escapeHtml(entityTypeOrNull.getCode()));
+        result.setDescription(StringEscapeUtils.escapeHtml(entityTypeOrNull.getDescription()));
+        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(entityTypeOrNull
+                .getDatabaseInstance()));
+        result.setDataSetTypePropertyTypes(DataSetTypePropertyTypeTranslator.translate(
+                entityTypeOrNull.getDataSetTypePropertyTypes(), result));
+        return result;
+    }
 
-	public static DataSetTypePE translate(DataSetType type) {
-		final DataSetTypePE result = new DataSetTypePE();
-		result.setCode(type.getCode());
-		return result;
-	}
+    public static DataSetTypePE translate(DataSetType type)
+    {
+        final DataSetTypePE result = new DataSetTypePE();
+        result.setCode(type.getCode());
+        return result;
+    }
 
 }

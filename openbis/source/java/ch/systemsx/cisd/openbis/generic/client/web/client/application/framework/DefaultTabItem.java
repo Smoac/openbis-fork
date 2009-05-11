@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
  */
 public class DefaultTabItem implements ITabItem
 {
-    private final String title;
+    private final TabTitleUpdater titleUpdater;
 
     private final Component component;
 
@@ -111,13 +111,13 @@ public class DefaultTabItem implements ITabItem
             };
     }
 
-    private DefaultTabItem(final String title, final Component component,
+    private DefaultTabItem(final String initialTitle, final Component component,
             LastModificationStateUpdater lastModificationStateUpdaterOrNull,
             IDelegatedAction disposerActionOrNull, boolean isCloseConfirmationNeeded)
     {
-        assert title != null : "Unspecified title.";
+        assert initialTitle != null : "Unspecified title.";
         assert component != null : "Unspecified component.";
-        this.title = title;
+        this.titleUpdater = new TabTitleUpdater(initialTitle);
         this.component = component;
         this.lastModificationStateUpdaterOrNull = lastModificationStateUpdaterOrNull;
         this.disposerActionOrNull = disposerActionOrNull;
@@ -136,9 +136,9 @@ public class DefaultTabItem implements ITabItem
         return component;
     }
 
-    public final String getTabTitle()
+    public final TabTitleUpdater getTabTitleUpdater()
     {
-        return title;
+        return titleUpdater;
     }
 
     public boolean isCloseConfirmationNeeded()

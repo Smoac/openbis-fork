@@ -74,7 +74,9 @@ public final class ProjectSelectionWidget extends
 
     private final Group groupOrNull;
 
-    private final String initialProjectIdentifierOrNull;
+    private String initialProjectIdentifierOrNull;
+
+    private boolean dataLoaded = false;
 
     public ProjectSelectionWidget(final IViewContext<?> viewContext, final String idSuffix)
     {
@@ -137,13 +139,20 @@ public final class ProjectSelectionWidget extends
                 setReadOnly(true);
             }
             applyEmptyText();
-            if (initialProjectIdentifierOrNull != null)
-            {
-                trySelectByIdentifier(initialProjectIdentifierOrNull);
-                updateOriginalValue();
-            }
+            dataLoaded = true;
+            selectProjectAndUpdateOriginal(initialProjectIdentifierOrNull);
         }
 
+    }
+
+    public void selectProjectAndUpdateOriginal(String newProjectIdentifier)
+    {
+        this.initialProjectIdentifierOrNull = newProjectIdentifier;
+        if (dataLoaded && initialProjectIdentifierOrNull != null)
+        {
+            trySelectByIdentifier(initialProjectIdentifierOrNull);
+            updateOriginalValue();
+        }
     }
 
     public void updateOriginalValue()

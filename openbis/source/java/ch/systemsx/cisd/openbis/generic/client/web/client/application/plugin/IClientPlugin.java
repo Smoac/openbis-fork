@@ -20,11 +20,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 
 /**
  * The client plugin.
@@ -38,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
  * 
  * @author Christian Ribeaud
  */
-public interface IClientPlugin<T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>, I extends IIdentifierHolder, V extends IEditableEntity<T, S, P>>
+public interface IClientPlugin<T extends EntityType, I extends IIdentifierHolder>
 {
     /**
      * Shows a detailed view of the entity specified by its <var>identifier</var>.
@@ -58,5 +55,5 @@ public interface IClientPlugin<T extends EntityType, S extends EntityTypePropert
     /**
      * Shows a editor of the specified entity..
      */
-    public ITabItemFactory createEntityEditor(final V editableEntity);
+    public ITabItemFactory createEntityEditor(final I identifierHolder);
 }

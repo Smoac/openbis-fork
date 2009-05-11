@@ -27,4 +27,5 @@ public interface IIdentifierHolder
      * Returns a <code>String</code> that uniquely identifies this object.
      */
     public String getIdentifier();
+
 }
