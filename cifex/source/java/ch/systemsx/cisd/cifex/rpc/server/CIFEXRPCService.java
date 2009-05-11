@@ -324,10 +324,10 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             operationLog.trace("Upload " + (lastBlock ? "last block" : "block"));
         }
         final long newFilePointer = filePointer + block.length;
-        if (newFilePointer > domainModel.getBusinessContext().getMaxUploadRequestSizeInMB() * MB)
+        int maxUploadSize = getMaxUploadSize(session);
+        if (newFilePointer > maxUploadSize * MB)
         {
-            throw new FileSizeExceededException(domainModel.getBusinessContext()
-                    .getMaxUploadRequestSizeInMB());
+            throw new FileSizeExceededException(maxUploadSize);
         }
         try
         {
@@ -459,6 +459,16 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         {
             operationLog.info("[" + sessionID + "]: " + message);
         }
+    }
+
+    private int getMaxUploadSize(final Session session)
+    {
+        Long usersMaxUploadSize = session.getUser().getMaxUploadRequestSizeInMB();
+        if (usersMaxUploadSize == null)
+        {
+            return domainModel.getBusinessContext().getMaxUploadRequestSizeInMB();
+        }
+        return usersMaxUploadSize.intValue();
     }
 
     private List<String> extractFileNames(String[] files)

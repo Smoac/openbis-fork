@@ -18,8 +18,7 @@ package ch.systemsx.cisd.cifex.server;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
 /**
  * @author Franz-Josef Elmer
@@ -39,38 +38,16 @@ public abstract class AbstractFileUploadServlet extends AbstractCIFEXServiceServ
 
     protected final static String COMMENT_FIELD_NAME = "upload-comment";
 
-    private static final String MAX_UPLOAD_SIZE = "max-upload-size";
-
-    /**
-     * The maximum allow upload size (in bytes).
-     */
-    protected long maxUploadSizeInBytes;
-
-    private final long getMaxUploadSizeInMegabytes()
+    protected static final long MB = 1024 * 1024;
+    
+    protected long getMaxUploadSize(UserDTO user)
     {
-        final String value = serviceProperties.getProperty(MAX_UPLOAD_SIZE);
-        long longValue = -1;
-        if (StringUtils.isNotBlank(value))
+        Long sizeInMB = user.getMaxUploadRequestSizeInMB();
+        if (sizeInMB == null)
         {
-            try
-            {
-                longValue = Long.parseLong(value);
-            } catch (final NumberFormatException e)
-            {
-            }
+            return domainModel.getBusinessContext().getMaxUploadRequestSizeInMB() * MB;
         }
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format(
-                    "Maximum upload size set to %d megabytes (-1 means no limit).", longValue));
-        }
-        return longValue;
-    }
-
-    @Override
-    protected final void postInitialization()
-    {
-        maxUploadSizeInBytes = getMaxUploadSizeInMegabytes() * FileUtils.ONE_MB;
+        return sizeInMB.longValue() * MB;
     }
 
     protected String getURLForEmail(final HttpServletRequest request)

@@ -67,6 +67,11 @@ final class MainPage extends AbstractMainPage
         final boolean isPermanent = model.getUser().isPermanent();
         Configuration configuration = model.getConfiguration();
         int maxUploadRequestSizeInMB = configuration.getMaxUploadRequestSizeInMB();
+        Long usersMaxUploadSize = model.getUser().getMaxUploadRequestSizeInMB();
+        if (usersMaxUploadSize != null)
+        {
+            maxUploadRequestSizeInMB = usersMaxUploadSize.intValue();
+        }
         final String maxRequestUploadSize =
                 getMaxRequestUploadSizeText(maxUploadRequestSizeInMB);
         StringBuffer notesText = new StringBuffer();

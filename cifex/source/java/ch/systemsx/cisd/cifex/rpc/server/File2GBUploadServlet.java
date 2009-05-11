@@ -128,8 +128,8 @@ public class File2GBUploadServlet extends AbstractFileUploadServlet
         template.attemptToBind("main-class", FileUploadClient.class.getName());
         template.attemptToBind("service-URL", createServiceURL(request));
         template.attemptToBind("upload-session-id", uploadSessionID);
-        int maxUploadSizeInMB = domainModel.getBusinessContext().getMaxUploadRequestSizeInMB();
-        template.attemptToBind("maxUploadSizeInMB", Integer.toString(maxUploadSizeInMB));
+        long maxUploadSizeInMB = getMaxUploadSize(user) / MB;
+        template.attemptToBind("maxUploadSizeInMB", Long.toString(maxUploadSizeInMB));
         writer.print(template.createText());
         writer.close();
     }

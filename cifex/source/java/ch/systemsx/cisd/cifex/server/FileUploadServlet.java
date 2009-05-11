@@ -104,6 +104,7 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
                         "Request of user '%s' has a content length of %s.", requestUser.getEmail(),
                         FileUtils.byteCountToDisplaySize(contentLength)));
             }
+            long maxUploadSizeInBytes = getMaxUploadSize(requestUser);
             if (contentLength > maxUploadSizeInBytes)
             {
                 final String msg =
@@ -153,7 +154,7 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
                 pathnamesToUpload));
         final IFileManager fileManager = domainModel.getFileManager();
         // Sets the maximum allowed size of a complete request in bytes.
-        upload.setSizeMax(maxUploadSizeInBytes);
+        upload.setSizeMax(getMaxUploadSize(requestUser));
         final FileItemIterator iter = upload.getItemIterator(request);
         for (int fileIndex = 0; iter.hasNext(); fileIndex++)
         {
