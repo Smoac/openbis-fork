@@ -59,12 +59,10 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         final ISampleDAO sampleDAO = getSampleDAO();
         if (owner.isGroupLevel())
         {
-            System.err.println("listSamplesWithPropertiesByTypeAndGroup");
             return sampleDAO.listSamplesWithPropertiesByTypeAndGroup(sampleType, owner
                     .tryGetGroup());
         } else
         {
-            System.err.println("listSamplesWithPropertiesByTypeAndDatabaseInstance");
             return sampleDAO.listSamplesWithPropertiesByTypeAndDatabaseInstance(sampleType, owner
                     .tryGetDatabaseInstance());
         }
