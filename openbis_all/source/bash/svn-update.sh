@@ -1,6 +1,6 @@
 #!/bin/bash
 # Author: Tomasz Pylak
-# this small script updates all scripts available in this directory from svn
+# Updates all scripts available in the current directory to the version found in SVN.
 
 SVN=http://svncisd.ethz.ch/repos/cisd/openbis_all/trunk/source/bash
 TMP=svn-update-tmp
