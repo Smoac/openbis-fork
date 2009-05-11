@@ -44,11 +44,6 @@ public interface ISampleTable
     List<SamplePE> getSamples();
 
     /**
-     * Enriches the samples loaded with experiment and their properties.
-     */
-    void enrichWithExperimentAndProperties();
-
-    /**
      * Adds given <var>newSample</var> sample to this table.
      */
     public void add(final NewSample newSample) throws UserFailureException;

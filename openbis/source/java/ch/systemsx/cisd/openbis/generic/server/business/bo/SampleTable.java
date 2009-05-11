@@ -59,10 +59,13 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         final ISampleDAO sampleDAO = getSampleDAO();
         if (owner.isGroupLevel())
         {
-            return sampleDAO.listSamplesByTypeAndGroup(sampleType, owner.tryGetGroup());
+            System.err.println("listSamplesWithPropertiesByTypeAndGroup");
+            return sampleDAO.listSamplesWithPropertiesByTypeAndGroup(sampleType, owner
+                    .tryGetGroup());
         } else
         {
-            return sampleDAO.listSamplesByTypeAndDatabaseInstance(sampleType, owner
+            System.err.println("listSamplesWithPropertiesByTypeAndDatabaseInstance");
+            return sampleDAO.listSamplesWithPropertiesByTypeAndDatabaseInstance(sampleType, owner
                     .tryGetDatabaseInstance());
         }
     }
@@ -84,12 +87,12 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             ExperimentPE experiment =
                     getExperimentDAO().tryFindByCodeAndProject(project,
                             experimentIdentifier.getExperimentCode());
-            samples = new ArrayList<SamplePE>(experiment.getSamples());
+            samples = getSampleDAO().listSamplesWithPropertiesByExperiment(experiment);
             enrichWithHierarchy();
         } else if (containerIdentifier != null)
         {
             final SamplePE container = getSampleByIdentifier(containerIdentifier);
-            samples = getSampleDAO().listSamplesByContainer(container);
+            samples = getSampleDAO().listSamplesWithPropertiesByContainer(container);
         } else
         {
             final SampleTypePE sampleType =
@@ -106,15 +109,6 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
                         getSampleOwnerFinder().figureSampleOwner(sampleOwnerIdentifier);
                 samples.addAll(listSamples(sampleType, owner));
             }
-        }
-    }
-
-    public final void enrichWithExperimentAndProperties()
-    {
-        for (final SamplePE sample : samples)
-        {
-            HibernateUtils.initialize(sample.getExperiment());
-            HibernateUtils.initialize(sample.getProperties());
         }
     }
 
@@ -154,11 +148,12 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
     {
         for (SamplePE s : samples)
         {
-            entityPropertiesConverter.checkMandatoryProperties(s.getProperties(), s
-                    .getSampleType());
+            entityPropertiesConverter
+                    .checkMandatoryProperties(s.getProperties(), s.getSampleType());
         }
     }
 
+    // this part rather cannot be optimized with one SQL query (LMS-884)
     private void enrichWithHierarchy()
     {
         assert samples != null : "Samples not loaded.";

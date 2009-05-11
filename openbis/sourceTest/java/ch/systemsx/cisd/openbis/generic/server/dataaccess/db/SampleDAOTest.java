@@ -53,8 +53,8 @@ public final class SampleDAOTest extends AbstractDAOTest
     {
         final SamplePE sample = createGroupSample();
         final List<SamplePE> samples =
-                daoFactory.getSampleDAO().listSamplesByTypeAndGroup(sample.getSampleType(),
-                        sample.getGroup());
+                daoFactory.getSampleDAO().listSamplesWithPropertiesByTypeAndGroup(
+                        sample.getSampleType(), sample.getGroup());
         assertEquals(1, samples.size());
         assertEquals(sample, samples.get(0));
     }
@@ -143,7 +143,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         boolean fail = true;
         try
         {
-            sampleDAO.listSamplesByContainer(null);
+            sampleDAO.listSamplesWithPropertiesByContainer(null);
         } catch (final AssertionError e)
         {
             fail = false;
@@ -155,7 +155,7 @@ public final class SampleDAOTest extends AbstractDAOTest
                 sampleDAO.tryFindByCodeAndDatabaseInstance(masterPlateCode, homeInstance,
                         HierarchyType.CHILD);
         assertNotNull(sample);
-        final List<SamplePE> samples = sampleDAO.listSamplesByContainer(sample);
+        final List<SamplePE> samples = sampleDAO.listSamplesWithPropertiesByContainer(sample);
         assertEquals(320, samples.size());
     }
 
@@ -184,7 +184,7 @@ public final class SampleDAOTest extends AbstractDAOTest
     private final List<SamplePE> listSamplesFromHomeDatabase(final SampleTypePE sampleType)
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-        return sampleDAO.listSamplesByTypeAndDatabaseInstance(sampleType, daoFactory
+        return sampleDAO.listSamplesWithPropertiesByTypeAndDatabaseInstance(sampleType, daoFactory
                 .getHomeDatabaseInstance());
     }
 

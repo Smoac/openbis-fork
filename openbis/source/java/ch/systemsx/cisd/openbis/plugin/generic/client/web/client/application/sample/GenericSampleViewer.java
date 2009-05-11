@@ -249,7 +249,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
                     ListSamplesCallback listCallback =
                             new ListSamplesCallback(viewContext, callback,
                                     showComponentsPanelAction);
-                    viewContext.getCommonService().listSamples(sampleCriteria, true, listCallback);
+                    viewContext.getCommonService().listSamples(sampleCriteria, listCallback);
                 }
             };
     }

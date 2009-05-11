@@ -141,7 +141,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         final ListSampleCriteria criteria = createListCriteria();
         prepareListEntities(entities, criteria);
 
-        final ResultSet<Sample> resultSet = commonClientService.listSamples(criteria, true);
+        final ResultSet<Sample> resultSet = commonClientService.listSamples(criteria);
         assertEqualEntities(entities, resultSet);
         context.assertIsSatisfied();
     }

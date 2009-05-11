@@ -340,15 +340,11 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     public final List<SamplePE> listSamples(final String sessionToken,
-            final ListSampleCriteriaDTO criteria, boolean withExperimentAndProperties)
+            final ListSampleCriteriaDTO criteria)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
         sampleTable.loadSamplesByCriteria(criteria);
-        if (withExperimentAndProperties)
-        {
-            sampleTable.enrichWithExperimentAndProperties();
-        }
         final List<SamplePE> samples = sampleTable.getSamples();
         Collections.sort(samples);
         return samples;

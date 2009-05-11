@@ -24,8 +24,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -170,13 +170,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public final List<SamplePE> listSamples(final String sessionToken,
-            final ListSampleCriteriaDTO criteria, boolean withExperimentAndProperties)
+            final ListSampleCriteriaDTO criteria)
     {
-        String detailLevel = (withExperimentAndProperties ? "with" : "without");
-        String cmd = "list_samples " + detailLevel + " properties and experiment";
-        logAccess(sessionToken, cmd, "TYPE(%s) OWNERS(%s) CONTAINER(%s) EXPERIMENT(%s)", criteria
-                .getSampleType(), criteria.getOwnerIdentifiers(),
-                criteria.getContainerIdentifier(), criteria.getExperimentIdentifier());
+        logAccess(sessionToken, "list_samples", "TYPE(%s) OWNERS(%s) CONTAINER(%s) EXPERIMENT(%s)",
+                criteria.getSampleType(), criteria.getOwnerIdentifiers(), criteria
+                        .getContainerIdentifier(), criteria.getExperimentIdentifier());
         return null;
     }
 
@@ -382,7 +380,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "register_file_format_type", "CODE(%s)", type.getCode());
     }
-    
+
     public void registerDataSetType(String sessionToken, DataSetType entityType)
     {
         logTracking(sessionToken, "register_data_set_type", "CODE(%s)", entityType.getCode());

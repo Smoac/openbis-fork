@@ -103,9 +103,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listSampleTypes(AsyncCallback<List<SampleType>> asyncCallback);
 
     /**
-     * @see ICommonClientService#listSamples(ListSampleCriteria, boolean)
+     * @see ICommonClientService#listSamples(ListSampleCriteria)
      */
-    public void listSamples(final ListSampleCriteria criteria, boolean withExperimentAndProperties,
+    public void listSamples(final ListSampleCriteria criteria,
             AsyncCallback<ResultSet<Sample>> asyncCallback);
 
     /**

@@ -21,6 +21,7 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -33,19 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
  */
 public interface ISampleDAO extends IAbstractGenericDAO<SamplePE>
 {
-    /**
-     * Lists {@link SamplePE}s of given type from the given group. Returned {@link SamplePE}s are
-     * enriched with their experiments.
-     */
-    List<SamplePE> listSamplesByTypeAndGroup(final SampleTypePE sampleType, final GroupPE group)
-            throws DataAccessException;
-
-    /**
-     * The same as {@link #listSamplesByTypeAndGroup(SampleTypePE, GroupPE)}, but lists samples from
-     * the database instance instead of the group.
-     */
-    List<SamplePE> listSamplesByTypeAndDatabaseInstance(final SampleTypePE sampleType,
-            final DatabaseInstancePE databaseInstance) throws DataAccessException;
 
     /**
      * Inserts given {@link SamplePE} into the database.
@@ -67,16 +55,6 @@ public interface ISampleDAO extends IAbstractGenericDAO<SamplePE>
             final HierarchyType hierarchyType) throws DataAccessException;
 
     /**
-     * For given <var>sample</var> returns all {@link SamplePE}s that are generated from it.
-     */
-    List<SamplePE> listSamplesByGeneratedFrom(final SamplePE sample) throws DataAccessException;
-
-    /**
-     * Lists all {@link SamplePE}s which are part of the specified <var>container</var>.
-     */
-    List<SamplePE> listSamplesByContainer(final SamplePE container) throws DataAccessException;
-
-    /**
      * Inserts given list of {@link SamplePE} into the database in one go.
      */
     void createSamples(List<SamplePE> samples) throws DataAccessException;
@@ -85,4 +63,37 @@ public interface ISampleDAO extends IAbstractGenericDAO<SamplePE>
      * Updates given <var>sample</var>.
      */
     public void updateSample(SamplePE sample) throws DataAccessException;
+
+    /**
+     * For given <var>sample</var> returns all {@link SamplePE}s that are generated from it.
+     */
+    List<SamplePE> listSamplesByGeneratedFrom(final SamplePE sample) throws DataAccessException;
+
+    /**
+     * Lists {@link SamplePE}s belonging to given <code>experiment</code>. Fetches also properties.
+     */
+    public List<SamplePE> listSamplesWithPropertiesByExperiment(final ExperimentPE experiment)
+            throws DataAccessException;
+
+    /**
+     * Lists all {@link SamplePE}s which are part of the specified <var>container</var>. Fetches
+     * also properties and experiment.
+     */
+    List<SamplePE> listSamplesWithPropertiesByContainer(final SamplePE container)
+            throws DataAccessException;
+
+    /**
+     * Lists {@link SamplePE}s of given type from the given group. Fetches also properties and
+     * experiment.
+     */
+    List<SamplePE> listSamplesWithPropertiesByTypeAndGroup(final SampleTypePE sampleType,
+            final GroupPE group) throws DataAccessException;
+
+    /**
+     * The same as {@link #listSamplesWithPropertiesByTypeAndGroup(SampleTypePE, GroupPE)}, but
+     * lists samples from the database instance instead of the group.
+     */
+    List<SamplePE> listSamplesWithPropertiesByTypeAndDatabaseInstance(
+            final SampleTypePE sampleType, final DatabaseInstancePE databaseInstance)
+            throws DataAccessException;
 }

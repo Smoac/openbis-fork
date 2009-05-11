@@ -22,7 +22,6 @@ import java.util.Set;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
@@ -35,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExternalD
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.MatchingEntityValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectValidator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -192,14 +192,12 @@ public interface ICommonServer extends IServer
     /**
      * Lists samples using given configuration.
      * 
-     * @param withExperimentAndProperties if true every sample is enriched with properties and
-     *            experiment information
      * @return a sorted list of {@link SamplePE}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public List<SamplePE> listSamples(final String sessionToken,
-            final ListSampleCriteriaDTO criteria, boolean withExperimentAndProperties);
+            final ListSampleCriteriaDTO criteria);
 
     /**
      * Lists experiments.
@@ -271,7 +269,7 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public List<DataTypePE> listDataTypes(final String sessionToken);
-    
+
     /**
      * Lists file format types.
      * 
@@ -446,7 +444,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.FILE_FORMAT_TYPE)
     public void registerFileFormatType(String sessionToken, FileFormatType type);
-    
+
     /**
      * Creates a new data set type.
      */

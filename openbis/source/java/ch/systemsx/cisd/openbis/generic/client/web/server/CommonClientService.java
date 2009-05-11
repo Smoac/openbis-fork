@@ -566,13 +566,12 @@ public final class CommonClientService extends AbstractClientService implements
 
     // ---------------- methods which list entities using cache
 
-    public final ResultSet<Sample> listSamples(final ListSampleCriteria listCriteria,
-            boolean withExperimentAndProperties)
+    public final ResultSet<Sample> listSamples(final ListSampleCriteria listCriteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         return listEntities(listCriteria, new ListSamplesOriginalDataProvider(commonServer,
-                sessionToken, listCriteria, withExperimentAndProperties));
+                sessionToken, listCriteria));
     }
 
     public ResultSet<ExternalData> searchForDataSets(final String baseIndexURL,
