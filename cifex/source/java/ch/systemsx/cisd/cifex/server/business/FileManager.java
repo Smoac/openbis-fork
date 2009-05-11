@@ -368,8 +368,8 @@ final class FileManager extends AbstractManager implements IFileManager
         fileDTO.setContentType(contentType);
         fileDTO.setPath(FileUtilities.getRelativeFile(businessContext.getFileStore(), file));
         fileDTO.setComment(comment);
-        fileDTO.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext
-                .getFileRetention()));
+        int fileRetention = getFileRetention(user);
+        fileDTO.setExpirationDate(DateUtils.addMinutes(new Date(), fileRetention));
         fileDTO.setSize(byteCount);
         daoFactory.getFileDAO().createFile(fileDTO);
         return fileDTO;
@@ -647,21 +647,14 @@ final class FileManager extends AbstractManager implements IFileManager
     }
 
     @Transactional
-    public void updateFileExpiration(final long fileId, final Date newExpirationDate)
-            throws IllegalArgumentException
+    public void updateFileExpiration(final long fileId) throws IllegalArgumentException
     {
         final FileDTO file = getFile(fileId);
         boolean success = false;
         try
         {
-            if (newExpirationDate == null)
-            {
-                file.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext
-                        .getFileRetention()));
-            } else
-            {
-                file.setExpirationDate(newExpirationDate);
-            }
+            int fileRetention = getFileRetention(file.getRegisterer());
+            file.setExpirationDate(DateUtils.addMinutes(new Date(), fileRetention));
             daoFactory.getFileDAO().updateFile(file);
             success = true;
         } finally
@@ -682,6 +675,15 @@ final class FileManager extends AbstractManager implements IFileManager
         return file;
     }
 
+    private int getFileRetention(final UserDTO user)
+    {
+        Integer usersFileRetention = user.getFileRetention();
+        int fileRetention =
+                usersFileRetention == null ? businessContext.getFileRetention()
+                        : usersFileRetention.intValue();
+        return fileRetention;
+    }
+    
     public void updateFile(final FileDTO file)
     {
         daoFactory.getFileDAO().updateFile(file);

@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.cifex.server;
 
-import java.util.Date;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -194,10 +192,10 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.listUsersRegisteredBy(userCode);
     }
 
-    public void updateFileExpiration(final String idStr, final Date newExpirationDate)
-            throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException
+    public void updateFileExpiration(final String idStr) throws InvalidSessionException,
+            InsufficientPrivilegesException, FileNotFoundException
     {
-        cifexServiceDelegate.updateFileExpiration(idStr, newExpirationDate);
+        cifexServiceDelegate.updateFileExpiration(idStr);
     }
 
     public UserInfoDTO[] listUsersFileSharedWith(final String fileId) throws InvalidSessionException

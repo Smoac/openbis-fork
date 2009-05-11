@@ -93,7 +93,7 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
             // Renew
             if (Constants.RENEW_ID.equals(targetId))
             {
-                viewContext.getCifexService().updateFileExpiration(idStr, null,
+                viewContext.getCifexService().updateFileExpiration(idStr,
                         new UpdateFileAsyncCallback((ModelBasedGrid) grid, viewContext, adminView));
             }
             // Shared

@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.cifex.server;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
@@ -25,7 +24,6 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
@@ -636,27 +634,17 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBeanArray(UserInfoDTO.class, users, null);
     }
 
-    public void updateFileExpiration(final String idStr, final Date newExpirationDate)
-            throws InvalidSessionException, FileNotFoundException
+    public void updateFileExpiration(final String idStr) throws InvalidSessionException,
+            FileNotFoundException
     {
         final IFileManager fileManager = domainModel.getFileManager();
-        Date expirationDate;
-        if (privGetCurrentUser().isAdmin() == true && newExpirationDate != null)
-        {
-            expirationDate = newExpirationDate;
-        } else
-        {
-            expirationDate =
-                    DateUtils.addMinutes(new Date(), domainModel.getBusinessContext()
-                            .getFileRetention());
-        }
         final long fileId = Long.parseLong(idStr);
         final FileInformation fileInformation = fileManager.getFileInformation(fileId);
         if (fileInformation.isFileAvailable() == false)
         {
             throw new FileNotFoundException(fileInformation.getErrorMessage());
         }
-        fileManager.updateFileExpiration(fileId, expirationDate);
+        fileManager.updateFileExpiration(fileId);
     }
 
     public UserInfoDTO[] listUsersFileSharedWith(final String idStr) throws InvalidSessionException
