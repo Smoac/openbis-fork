@@ -48,7 +48,7 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
 
     protected final IViewContext<T> viewContext;
 
-    private Button button;
+    private Button editButton;
 
     public AbstractViewer(final IViewContext<T> viewContext, String title)
     {
@@ -58,8 +58,8 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
         setTopComponent(toolBar);
         toolBar.add(new LabelToolItem(title));
         toolBar.add(new FillToolItem());
-        button = new Button(viewContext.getMessage(Dict.BUTTON_EDIT));
-        button.addListener(Events.Select, new Listener<BaseEvent>()
+        editButton = new Button(viewContext.getMessage(Dict.BUTTON_EDIT));
+        editButton.addListener(Events.Select, new Listener<BaseEvent>()
             {
                 public void handleEvent(BaseEvent be)
                 {
@@ -67,7 +67,7 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
                 }
             });
         enableEdit(false);
-        toolBar.add(new AdapterToolItem(button));
+        toolBar.add(new AdapterToolItem(editButton));
     }
 
 
@@ -78,7 +78,7 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
 
     protected void enableEdit(boolean enable)
     {
-        button.setEnabled(enable);
+        editButton.setEnabled(enable);
     }
 
     abstract protected void showEntityEditor();

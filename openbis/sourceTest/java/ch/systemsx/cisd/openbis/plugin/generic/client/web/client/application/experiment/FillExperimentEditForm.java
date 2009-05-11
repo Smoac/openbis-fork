@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.C
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
 
 /**
@@ -43,6 +44,9 @@ public final class FillExperimentEditForm extends AbstractDefaultTestCommand
     private final String projectNameOrNull;
 
     private final List<PropertyField> properties;
+
+    private static String DUMMY_ID =
+            GenericExperimentRegistrationForm.createId(null, EntityKind.EXPERIMENT);
 
     public FillExperimentEditForm(final String project)
     {
@@ -67,7 +71,7 @@ public final class FillExperimentEditForm extends AbstractDefaultTestCommand
 
         final ProjectSelectionWidget projectSelector =
                 (ProjectSelectionWidget) GWTTestUtil.getWidgetWithID(ProjectSelectionWidget.ID
-                        + ProjectSelectionWidget.SUFFIX + GenericExperimentRegistrationForm.ID);
+                        + ProjectSelectionWidget.SUFFIX + DUMMY_ID);
         if (projectNameOrNull != null)
         {
             GWTUtils.setSelectedItem(projectSelector, ModelDataPropertyNames.CODE,
@@ -89,7 +93,6 @@ public final class FillExperimentEditForm extends AbstractDefaultTestCommand
                 throw new IllegalStateException("Wrong widget type");
             }
         }
-        GWTTestUtil.clickButtonWithID(GenericExperimentRegistrationForm.ID
-                + AbstractRegistrationForm.SAVE_BUTTON);
+        GWTTestUtil.clickButtonWithID(DUMMY_ID + AbstractRegistrationForm.SAVE_BUTTON);
     }
 }

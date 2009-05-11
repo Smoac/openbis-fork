@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
 
 /**
@@ -36,6 +37,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Pro
  */
 public class GenericExperimentRegistrationTest extends AbstractGWTTestCase
 {
+    private static String DUMMY_ID =
+            GenericExperimentRegistrationForm.createId(null, EntityKind.EXPERIMENT);
 
     private final void loginAndPreprareRegistration(final String sampleType)
     {
@@ -49,13 +52,10 @@ public class GenericExperimentRegistrationTest extends AbstractGWTTestCase
         loginAndPreprareRegistration(experimentTypeCode);
         remoteConsole.prepare(new FillExperimentRegistrationForm("DEFAULT", "NEW_EXP_1", "")
                 .addProperty(
-                        new PropertyField(
-                                GenericExperimentRegistrationForm.ID + "user-description",
+                        new PropertyField(DUMMY_ID + "user-description",
                                 "New test experiment description.")).addProperty(
-                        new PropertyField(GenericExperimentRegistrationForm.ID + "user-gender",
-                                "MALE")).addProperty(
-                        new PropertyField(GenericExperimentRegistrationForm.ID
-                                + "user-purchase-date", "2008-12-17")));
+                        new PropertyField(DUMMY_ID + "user-gender", "MALE")).addProperty(
+                        new PropertyField(DUMMY_ID + "user-purchase-date", "2008-12-17")));
         remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_BROWSE,
         // CategoriesBuilder.MenuCategoryKind.EXPERIMENTS,
                 // CategoriesBuilder.MenuElementKind.BROWSE,
@@ -73,14 +73,13 @@ public class GenericExperimentRegistrationTest extends AbstractGWTTestCase
         final String sampleCode = "3VCP8";
         final String project = "DEFAULT";
         loginAndPreprareRegistration(experimentTypeCode);
+
         remoteConsole.prepare(new FillExperimentRegistrationForm(project, experimentCode,
                 sampleCode).addProperty(
-                new PropertyField(GenericExperimentRegistrationForm.ID + "user-description",
+                new PropertyField(DUMMY_ID + "user-description",
                         "New test experiment with samples.")).addProperty(
-                new PropertyField(GenericExperimentRegistrationForm.ID + "user-gender", "MALE"))
-                .addProperty(
-                        new PropertyField(GenericExperimentRegistrationForm.ID
-                                + "user-purchase-date", "2008-12-18")));
+                new PropertyField(DUMMY_ID + "user-gender", "MALE")).addProperty(
+                new PropertyField(DUMMY_ID + "user-purchase-date", "2008-12-18")));
         remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE,
         // CategoriesBuilder.MenuCategoryKind.SAMPLES,
                 // CategoriesBuilder.MenuElementKind.BROWSE,

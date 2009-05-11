@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.C
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
 
@@ -48,6 +49,9 @@ public final class FillExperimentRegistrationForm extends AbstractDefaultTestCom
     private final List<PropertyField> properties;
 
     private final String samples;
+
+    private static String DUMMY_ID =
+            GenericExperimentRegistrationForm.createId(null, EntityKind.EXPERIMENT);
 
     public FillExperimentRegistrationForm(final String project, final String code,
             final String samples)
@@ -72,17 +76,16 @@ public final class FillExperimentRegistrationForm extends AbstractDefaultTestCom
 
     public final void execute()
     {
-        GWTTestUtil.setTextFieldValue(GenericExperimentRegistrationForm.ID
+        GWTTestUtil.setTextFieldValue(DUMMY_ID
                 + AbstractGenericEntityRegistrationForm.ID_SUFFIX_CODE, code);
 
         final ProjectSelectionWidget projectSelector =
                 (ProjectSelectionWidget) GWTTestUtil.getWidgetWithID(ProjectSelectionWidget.ID
-                        + ProjectSelectionWidget.SUFFIX + GenericExperimentRegistrationForm.ID);
+                        + ProjectSelectionWidget.SUFFIX + DUMMY_ID);
         GWTUtils.setSelectedItem(projectSelector, ModelDataPropertyNames.CODE, projectNameOrNull);
 
         final TextArea samplesField =
-                (TextArea) GWTTestUtil.getWidgetWithID(ExperimentSamplesArea
-                        .createId(GenericExperimentRegistrationForm.ID));
+                (TextArea) GWTTestUtil.getWidgetWithID(ExperimentSamplesArea.createId(DUMMY_ID));
         samplesField.setRawValue(samples);
 
         for (final PropertyField property : properties)
@@ -100,7 +103,6 @@ public final class FillExperimentRegistrationForm extends AbstractDefaultTestCom
                 throw new IllegalStateException("Wrong widget type");
             }
         }
-        GWTTestUtil.clickButtonWithID(GenericExperimentRegistrationForm.ID
-                + AbstractRegistrationForm.SAVE_BUTTON);
+        GWTTestUtil.clickButtonWithID(DUMMY_ID + AbstractRegistrationForm.SAVE_BUTTON);
     }
 }

@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ListExperiments;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ShowExperimentEditor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
 
 /**
@@ -36,12 +37,14 @@ public class GenericExperimentEditorTest extends AbstractGWTTestCase
 
     private static final String EXP1 = "EXP1";
 
+    private static String DUMMY_ID =
+            GenericExperimentRegistrationForm.createId(null, EntityKind.EXPERIMENT);
+
     public final void testShowExperimentDetails()
     {
         prepareShowExperimentEditor(NEMO, SIRNA_HCS, EXP1);
         remoteConsole.prepare(new FillExperimentEditForm("NEMO").addProperty(new PropertyField(
-                GenericExperimentRegistrationForm.ID + "user-description",
-                "New test experiment description.")));
+                DUMMY_ID + "user-description", "New test experiment description.")));
 
         launchTest(60000);
     }

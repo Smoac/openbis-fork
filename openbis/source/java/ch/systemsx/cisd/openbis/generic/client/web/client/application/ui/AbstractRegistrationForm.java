@@ -28,7 +28,6 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.HiddenField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
@@ -299,12 +298,6 @@ public abstract class AbstractRegistrationForm extends ContentPanel
             formPanel.add(AbstractRegistrationForm.createHiddenSessionField(sessionKeys.get(i), i));
         }
         sessionKeysInitiated = true;
-    }
-
-    @SuppressWarnings("unchecked")
-    protected static void updateOriginalValue(Field field)
-    {
-        field.updateOriginalValue(field.getValue());
     }
 
 }
