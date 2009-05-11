@@ -11,33 +11,45 @@ VER=SNAPSHOT
 if [ $1 ]; then
     VER=$1
 fi
-cd sprint-*
-PREV_VER=${PWD#*-}
-cd -
+SERVERS_DIR_ALIAS=sprint
+SERVERS_VER=$SERVERS_DIR_ALIAS-$VER
 
-DB_SNAPSHOT=db_snapshots/sprint$PREV_VER-lims_productive.sql
+if [ -d $SERVERS_DIR_ALIAS-* ]; then
+	cd $SERVERS_DIR_ALIAS-*
+	PREV_VER=${PWD#*-}
+	SERVERS_PREV_VER=$SERVERS_DIR_ALIAS-$PREV_VER
+	cd ..
+else
+	echo Warning: no previous servers instalation found.
+	SERVERS_PREV_VER=unknown
+fi
+
 KEYSTORE=~/.keystore
 
 # Unalias rm and cp commands
 unalias rm
 unalias cp
 
-echo Stopping the components...
-./sprint/openBIS-server/apache-tomcat/bin/shutdown.sh
-./sprint/datastore_server/datastore_server.sh stop
+if [ -e $SERVERS_PREV_VER ]; then
+	echo Stopping the components...
+	./$SERVERS_PREV_VER/openBIS-server/apache-tomcat/bin/shutdown.sh
+	./$SERVERS_PREV_VER/datastore_server/datastore_server.sh stop
+fi
 
 echo Making a database dump...
-pg_dump -U postgres -O lims_productive > $DB_SNAPSHOT
-tar -cf - $DB_SNAPSHOT | bzip2 >db_snapshots/sprint$PREV_VER-lims_productive.tar.bz2
+DB_NAME=lims_productive
+DB_SNAPSHOT=db_snapshots/$SERVERS_PREV_VER-$DB_NAME.sql
+pg_dump -U postgres -O $DB_NAME > $DB_SNAPSHOT
+tar -cf - $DB_SNAPSHOT | bzip2 > $DB_SNAPSHOT.tar.bz2
 rm -f $DB_SNAPSHOT
 
 echo Installing openBIS server...
-rm -rf old/sprint-$PREV_VER
-mv sprint-$PREV_VER old
-rm -f sprint
-mkdir sprint-$VER
-ln -s sprint-$VER sprint
-cd sprint
+rm -rf old/$SERVERS_PREV_VER
+mv $SERVERS_PREV_VER old
+rm -f $SERVERS_DIR_ALIAS
+mkdir $SERVERS_VER
+ln -s $SERVERS_VER $SERVERS_DIR_ALIAS
+cd $SERVERS_DIR_ALIAS
 unzip ../openBIS-server*$VER*
 cd openBIS-server
 ./install.sh --nostartup $PWD ../../service.properties
@@ -56,7 +68,7 @@ cd datastore_server
 cp -p ~/datastore_server-service.properties etc/service.properties
 if [ -f $KEYSTORE ]; then
   cp -p $KEYSTORE etc/openBIS.keystore
-  cp -Rf ~/old/sprint-$PREV_VER/datastore_server/data/store/* data/store
+  cp -Rf ~/old/$SERVERS_PREV_VER/datastore_server/data/store/* data/store
   sed 's/-Djavax.net.ssl.trustStore=etc\/openBIS.keystore //g' datastore_server.sh > xxx
   mv -f xxx datastore_server.sh
 fi
