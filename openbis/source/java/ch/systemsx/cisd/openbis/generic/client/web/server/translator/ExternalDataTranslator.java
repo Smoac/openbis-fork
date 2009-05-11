@@ -90,22 +90,12 @@ public class ExternalDataTranslator
         externalData.setProductionDate(externalDataPE.getProductionDate());
         externalData.setModificationDate(externalDataPE.getModificationDate());
         externalData.setRegistrationDate(externalDataPE.getRegistrationDate());
-        externalData.setSample(sample == null ? null : fill(new Sample(), sample));
-        externalData.setSampleIdentifier(sample == null ? null : StringEscapeUtils
-                .escapeHtml(sample.getSampleIdentifier().toString()));
-        externalData.setSampleType(sample == null ? null : TypeTranslator.translate(sample
-                .getSampleType()));
-        externalData.setSampleCode(sample == null ? null : StringEscapeUtils.escapeHtml(sample
-                .getCode()));
+        externalData.setSample(sample == null ? null : fill(new Sample(), sample,
+                loadSampleProperties));
         externalData.setDataStore(DataStoreTranslator.translate(externalDataPE.getDataStore(),
                 defaultDataStoreBaseURL));
         externalData.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL,
                 EntityKind.DATA_SET, externalData.getIdentifier()));
-        if (loadSampleProperties && sample != null)
-        {
-            externalData.setSampleProperties(SamplePropertyTranslator.translate(sample
-                    .getProperties()));
-        }
         setProperties(externalDataPE, externalData);
         ExperimentPE experiment = externalDataPE.getExperiment();
         externalData
@@ -159,13 +149,16 @@ public class ExternalDataTranslator
         return externalDataPE.getSampleDerivedFrom();
     }
 
-    private static Sample fill(Sample sample, SamplePE samplePEOrNull)
+    private static Sample fill(Sample sample, SamplePE samplePE, boolean loadSampleProperties)
     {
-        if (sample != null)
+        sample.setCode(StringEscapeUtils.escapeHtml(samplePE.getCode()));
+        sample.setInvalidation(tryToGetInvalidation(samplePE));
+        sample.setSampleType(TypeTranslator.translate(samplePE.getSampleType()));
+        sample.setIdentifier(StringEscapeUtils
+                .escapeHtml(samplePE.getSampleIdentifier().toString()));
+        if (loadSampleProperties)
         {
-            sample.setCode(StringEscapeUtils.escapeHtml(samplePEOrNull.getCode()));
-            sample.setInvalidation(tryToGetInvalidation(samplePEOrNull));
-            sample.setSampleType(TypeTranslator.translate(samplePEOrNull.getSampleType()));
+            sample.setProperties(SamplePropertyTranslator.translate(samplePE.getProperties()));
         }
         return sample;
     }

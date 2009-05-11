@@ -98,6 +98,13 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     public void setSample(Sample sample)
     {
         this.sample = sample;
+        if (sample != null)
+        {
+            setSampleIdentifier(sample.getIdentifier());
+            setSampleType(sample.getSampleType());
+            setSampleCode(sample.getCode());
+            setSampleProperties(sample.getProperties());
+        }
     }
 
     public final String getSampleIdentifier()
@@ -105,14 +112,19 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         return sampleIdentifier;
     }
 
+    private final void setSampleIdentifier(String sampleIdentifier)
+    {
+        this.sampleIdentifier = sampleIdentifier;
+    }
+
     public final String getSampleCode()
     {
         return sampleCode;
     }
 
-    public final void setSampleIdentifier(String sampleIdentifier)
+    private void setSampleCode(String sampleCode)
     {
-        this.sampleIdentifier = sampleIdentifier;
+        this.sampleCode = sampleCode;
     }
 
     public final SampleType getSampleType()
@@ -120,9 +132,19 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         return sampleType;
     }
 
-    public final void setSampleType(SampleType sampleType)
+    private final void setSampleType(SampleType sampleType)
     {
         this.sampleType = sampleType;
+    }
+
+    public List<SampleProperty> getSampleProperties()
+    {
+        return sampleProperties;
+    }
+
+    private void setSampleProperties(List<SampleProperty> sampleProperties)
+    {
+        this.sampleProperties = sampleProperties;
     }
 
     public final boolean isDerived()
@@ -243,21 +265,6 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     public final void setExperiment(Experiment experiment)
     {
         this.experiment = experiment;
-    }
-
-    public void setSampleCode(String sampleCode)
-    {
-        this.sampleCode = sampleCode;
-    }
-
-    public List<SampleProperty> getSampleProperties()
-    {
-        return sampleProperties;
-    }
-
-    public void setSampleProperties(List<SampleProperty> sampleProperties)
-    {
-        this.sampleProperties = sampleProperties;
     }
 
     public void setDataSetProperties(List<DataSetProperty> dataSetProperties)
