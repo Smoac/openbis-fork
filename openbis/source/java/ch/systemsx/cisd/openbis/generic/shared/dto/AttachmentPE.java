@@ -50,6 +50,7 @@ import org.hibernate.validator.NotNull;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
@@ -72,7 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
                         ColumnNames.VERSION_COLUMN }) })
 @ClassBridge(impl = AttachmentPE.AttachmentSearchBridge.class, index = Index.TOKENIZED, store = Store.NO)
 public class AttachmentPE extends HibernateAbstractRegistrationHolder implements Serializable,
-        Comparable<AttachmentPE>
+        Comparable<AttachmentPE>, IIdHolder
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 

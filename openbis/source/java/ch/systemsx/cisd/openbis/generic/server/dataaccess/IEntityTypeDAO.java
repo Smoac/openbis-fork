@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Franz-Josef Elmer
  */
-public interface IEntityTypeDAO
+public interface IEntityTypeDAO extends IAbstractGenericDAO<EntityTypePE>
 {
 
     /**
@@ -45,7 +45,8 @@ public interface IEntityTypeDAO
     public <T extends EntityTypePE> List<T> listEntityTypes() throws DataAccessException;
 
     /** Creates or update specified entity type */
-    public <T extends EntityTypePE> void createOrUpdateEntityType(T entityType) throws DataAccessException;
+    public <T extends EntityTypePE> void createOrUpdateEntityType(T entityType)
+            throws DataAccessException;
 
     /** Deletes entity type */
     public <T extends EntityTypePE> void deleteEntityType(T entityType) throws DataAccessException;

@@ -49,18 +49,8 @@ final class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEnti
     EntityTypeDAO(final EntityKind entityKind, final SessionFactory sessionFactory,
             final DatabaseInstancePE databaseInstance)
     {
-        super(sessionFactory, databaseInstance);
+        super(sessionFactory, databaseInstance, entityKind.getTypeClass());
         this.entityKind = entityKind;
-    }
-
-    //
-    // AbstractTypeDAO
-    //
-
-    @Override
-    final Class<EntityTypePE> getEntityClass()
-    {
-        return entityKind.getTypeClass();
     }
 
     //

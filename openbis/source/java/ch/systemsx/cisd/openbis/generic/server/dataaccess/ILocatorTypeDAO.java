@@ -20,10 +20,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 
 /**
  * Interface to the data access layer for retrieving instances of {@link LocatorTypePE}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public interface ILocatorTypeDAO
+public interface ILocatorTypeDAO extends IAbstractGenericDAO<LocatorTypePE>
 {
     /**
      * Tries to find the {@link LocatorTypePE} for the specified code.

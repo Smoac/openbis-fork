@@ -53,7 +53,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
  * 
  * @author Christian Ribeaud
  */
-final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
+final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> implements
+        IExternalDataDAO
 {
     private static final String EXTERNAL_DATA_UPDATE_TEMPLATE =
             "insert into %s (data_id, location, loty_id, ffty_id, is_complete, cvte_id_stor_fmt) "
@@ -72,7 +73,7 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
 
     ExternalDataDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
     {
-        super(sessionFactory, databaseInstance);
+        super(sessionFactory, databaseInstance, ENTITY_CLASS);
     }
 
     //
@@ -161,6 +162,7 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
 
         final String mangledCode = CodeConverter.tryToDatabase(dataSetCode);
         final Criterion codeEq = Restrictions.eq("code", mangledCode);
+
         final DetachedCriteria criteria = DetachedCriteria.forClass(ENTITY_CLASS);
         criteria.add(codeEq);
         criteria.setFetchMode("dataSetType.dataSetTypePropertyTypesInternal", FetchMode.JOIN);

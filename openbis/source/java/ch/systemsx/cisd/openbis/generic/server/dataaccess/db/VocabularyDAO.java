@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
  * 
  * @author Christian Ribeaud
  */
-final class VocabularyDAO extends AbstractDAO implements IVocabularyDAO
+final class VocabularyDAO extends AbstractGenericEntityDAO<VocabularyPE> implements IVocabularyDAO
 {
     private static final Class<VocabularyPE> ENTITY_CLASS = VocabularyPE.class;
 
@@ -44,15 +44,14 @@ final class VocabularyDAO extends AbstractDAO implements IVocabularyDAO
 
     /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an
-     * appropriate debugging level for class {@link JdbcAccessor}.
-     * </p>
+     * appropriate debugging level for class {@link JdbcAccessor}. </p>
      */
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, VocabularyDAO.class);
 
     VocabularyDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
     {
-        super(sessionFactory, databaseInstance);
+        super(sessionFactory, databaseInstance, ENTITY_CLASS);
     }
 
     //

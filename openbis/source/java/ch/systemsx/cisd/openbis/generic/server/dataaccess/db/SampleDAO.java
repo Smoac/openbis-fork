@@ -49,12 +49,6 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
 {
     private final static Class<SamplePE> ENTITY_CLASS = SamplePE.class;
 
-    @Override
-    Class<SamplePE> getEntityClass()
-    {
-        return ENTITY_CLASS;
-    }
-
     /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an
      * appropriate debugging level for class {@link JdbcAccessor}. </p>
@@ -67,7 +61,7 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
 
     SampleDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
     {
-        super(sessionFactory, databaseInstance);
+        super(sessionFactory, databaseInstance, SamplePE.class);
     }
 
     private final Criteria createListAllSamplesCriteria()

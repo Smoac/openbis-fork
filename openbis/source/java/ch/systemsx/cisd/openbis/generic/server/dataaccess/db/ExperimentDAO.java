@@ -45,19 +45,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 public class ExperimentDAO extends AbstractGenericEntityDAO<ExperimentPE> implements IExperimentDAO
 {
 
-    @Override
-    Class<ExperimentPE> getEntityClass()
-    {
-        return ExperimentPE.class;
-    }
-
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, ExperimentDAO.class);
 
     protected ExperimentDAO(final SessionFactory sessionFactory,
             final DatabaseInstancePE databaseInstance)
     {
-        super(sessionFactory, databaseInstance);
+        super(sessionFactory, databaseInstance, ExperimentPE.class);
     }
 
     public List<ExperimentPE> listExperimentsWithProperties(final ExperimentTypePE experimentType,

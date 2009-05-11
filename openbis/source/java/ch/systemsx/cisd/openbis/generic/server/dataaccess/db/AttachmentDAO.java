@@ -36,8 +36,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
  * @author Franz-Josef Elmer
  * @author Tomasz Pylak
  */
-final class AttachmentDAO extends AbstractDAO implements IAttachmentDAO
+final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> implements IAttachmentDAO
 {
+
     private final static Class<AttachmentPE> ATTACHMENT_CLASS = AttachmentPE.class;
 
     private final static String TABLE_NAME = ATTACHMENT_CLASS.getSimpleName();
@@ -47,7 +48,7 @@ final class AttachmentDAO extends AbstractDAO implements IAttachmentDAO
 
     AttachmentDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
     {
-        super(sessionFactory, databaseInstance);
+        super(sessionFactory, databaseInstance, ATTACHMENT_CLASS);
     }
 
     private final int findLastVersion(final AttachmentPE fileAttachment,

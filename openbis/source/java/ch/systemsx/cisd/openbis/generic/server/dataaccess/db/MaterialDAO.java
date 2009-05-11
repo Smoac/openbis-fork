@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
  * 
  * @author Izabela Adamczyk
  */
-public class MaterialDAO extends AbstractDAO implements IMaterialDAO
+public class MaterialDAO extends AbstractGenericEntityDAO<MaterialPE> implements IMaterialDAO
 {
 
     private static final Class<MaterialPE> ENTITY_CLASS = MaterialPE.class;
@@ -51,7 +51,7 @@ public class MaterialDAO extends AbstractDAO implements IMaterialDAO
     protected MaterialDAO(final SessionFactory sessionFactory,
             final DatabaseInstancePE databaseInstance)
     {
-        super(sessionFactory, databaseInstance);
+        super(sessionFactory, databaseInstance, ENTITY_CLASS);
     }
 
     public List<MaterialPE> listMaterialsWithPropertiesAndInhibitor(

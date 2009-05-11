@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
  * 
  * @author Izabela Adamczyk
  */
-public interface IMaterialDAO
+public interface IMaterialDAO extends IAbstractGenericDAO<MaterialPE>
 {
 
     /**

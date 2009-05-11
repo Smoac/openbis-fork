@@ -42,12 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 final class GroupDAO extends AbstractGenericEntityDAO<GroupPE> implements IGroupDAO
 {
 
-    @Override
-    Class<GroupPE> getEntityClass()
-    {
-        return GroupPE.class;
-    }
-
     /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an
      * appropriate debugging level for class {@link JdbcAccessor}. </p>
@@ -57,7 +51,7 @@ final class GroupDAO extends AbstractGenericEntityDAO<GroupPE> implements IGroup
 
     GroupDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
     {
-        super(sessionFactory, databaseInstance);
+        super(sessionFactory, databaseInstance, GroupPE.class);
     }
 
     //

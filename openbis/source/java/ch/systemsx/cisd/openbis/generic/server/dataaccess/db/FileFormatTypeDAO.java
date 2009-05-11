@@ -34,13 +34,7 @@ public class FileFormatTypeDAO extends AbstractTypeDAO<FileFormatTypePE> impleme
 {
     public FileFormatTypeDAO(SessionFactory sessionFactory, DatabaseInstancePE databaseInstance)
     {
-        super(sessionFactory, databaseInstance);
-    }
-
-    @Override
-    Class<FileFormatTypePE> getEntityClass()
-    {
-        return FileFormatTypePE.class;
+        super(sessionFactory, databaseInstance, FileFormatTypePE.class);
     }
 
     public FileFormatTypePE tryToFindFileFormatTypeByCode(String code)

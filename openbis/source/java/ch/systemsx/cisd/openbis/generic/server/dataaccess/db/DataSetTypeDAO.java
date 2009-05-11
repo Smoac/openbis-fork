@@ -31,13 +31,7 @@ public class DataSetTypeDAO extends AbstractTypeDAO<DataSetTypePE> implements ID
 {
     public DataSetTypeDAO(SessionFactory sessionFactory, DatabaseInstancePE databaseInstance)
     {
-        super(sessionFactory, databaseInstance);
-    }
-
-    @Override
-    Class<DataSetTypePE> getEntityClass()
-    {
-        return DataSetTypePE.class;
+        super(sessionFactory, databaseInstance, DataSetTypePE.class);
     }
 
     public DataSetTypePE tryToFindDataSetTypeByCode(String code)

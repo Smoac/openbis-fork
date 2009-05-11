@@ -37,22 +37,21 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * 
  * @author Franz-Josef Elmer
  */
-public final class PersonDAO extends AbstractDAO implements IPersonDAO
+public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implements IPersonDAO
 {
 
     private final static Class<PersonPE> ENTITY_CLASS = PersonPE.class;
 
     /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an
-     * appropriate debugging level for class {@link JdbcAccessor}.
-     * </p>
+     * appropriate debugging level for class {@link JdbcAccessor}. </p>
      */
     public static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, PersonDAO.class);
 
     PersonDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
     {
-        super(sessionFactory, databaseInstance);
+        super(sessionFactory, databaseInstance, ENTITY_CLASS);
     }
 
     //

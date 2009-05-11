@@ -39,7 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
  * 
  * @author Christian Ribeaud
  */
-final class PropertyTypeDAO extends AbstractDAO implements IPropertyTypeDAO
+final class PropertyTypeDAO extends AbstractGenericEntityDAO<PropertyTypePE> implements
+        IPropertyTypeDAO
 {
 
     /**
@@ -51,7 +52,7 @@ final class PropertyTypeDAO extends AbstractDAO implements IPropertyTypeDAO
 
     PropertyTypeDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
     {
-        super(sessionFactory, databaseInstance);
+        super(sessionFactory, databaseInstance, PropertyTypePE.class);
     }
 
     //

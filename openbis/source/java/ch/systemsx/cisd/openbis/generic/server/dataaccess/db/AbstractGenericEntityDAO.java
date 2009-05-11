@@ -39,13 +39,19 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, AbstractGenericEntityDAO.class);
 
-    protected AbstractGenericEntityDAO(SessionFactory sessionFactory,
-            DatabaseInstancePE databaseInstance)
+    private final Class<T> entityClass;
+
+    protected AbstractGenericEntityDAO(final SessionFactory sessionFactory,
+            final DatabaseInstancePE databaseInstance, final Class<T> entityClass)
     {
         super(sessionFactory, databaseInstance);
+        this.entityClass = entityClass;
     }
 
-    abstract Class<T> getEntityClass();
+    protected Class<T> getEntityClass()
+    {
+        return entityClass;
+    }
 
     public final T getByTechId(final TechId techId) throws DataAccessException
     {

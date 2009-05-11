@@ -37,7 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
  * 
  * @author Christian Ribeaud
  */
-final class DatabaseInstanceDAO extends AbstractDAO implements IDatabaseInstanceDAO
+final class DatabaseInstanceDAO extends AbstractGenericEntityDAO<DatabaseInstancePE> implements
+        IDatabaseInstanceDAO
 {
 
     private final static Class<DatabaseInstancePE> ENTITY_CLASS = DatabaseInstancePE.class;
@@ -46,15 +47,14 @@ final class DatabaseInstanceDAO extends AbstractDAO implements IDatabaseInstance
 
     /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an
-     * appropriate debugging level for class {@link JdbcAccessor}.
-     * </p>
+     * appropriate debugging level for class {@link JdbcAccessor}. </p>
      */
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DatabaseInstanceDAO.class);
 
     DatabaseInstanceDAO(final SessionFactory sessionFactory)
     {
-        super(sessionFactory, null);
+        super(sessionFactory, null, ENTITY_CLASS);
     }
 
     private final DatabaseInstancePE tryFindDatabaseInstanceByCode(

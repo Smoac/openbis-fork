@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  * 
  * @author Christian Ribeaud
  */
-public interface IExternalDataDAO
+public interface IExternalDataDAO extends IAbstractGenericDAO<ExternalDataPE>
 {
     /**
      * List the {@link ExternalDataPE} for given <var>sample</var>.

@@ -47,17 +47,7 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
 
     SampleTypeDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
     {
-        super(sessionFactory, databaseInstance);
-    }
-
-    //
-    // AbstractTypeDAO
-    //
-
-    @Override
-    final Class<SampleTypePE> getEntityClass()
-    {
-        return SampleTypePE.class;
+        super(sessionFactory, databaseInstance, SampleTypePE.class);
     }
 
     //

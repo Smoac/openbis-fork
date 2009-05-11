@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
  * 
  * @author Izabela Adamczyk
  */
-abstract class AbstractTypeDAO<T extends AbstractTypePE> extends AbstractDAO
+abstract class AbstractTypeDAO<T extends AbstractTypePE> extends AbstractGenericEntityDAO<T>
 {
 
     /**
@@ -52,9 +52,9 @@ abstract class AbstractTypeDAO<T extends AbstractTypePE> extends AbstractDAO
     private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
     public AbstractTypeDAO(final SessionFactory sessionFactory,
-            final DatabaseInstancePE databaseInstance)
+            final DatabaseInstancePE databaseInstance, final Class<T> entityClass)
     {
-        super(sessionFactory, databaseInstance);
+        super(sessionFactory, databaseInstance, entityClass);
     }
 
     final T tryFindTypeByCode(final String code) throws DataAccessException
@@ -83,8 +83,6 @@ abstract class AbstractTypeDAO<T extends AbstractTypePE> extends AbstractDAO
         }
         return entity;
     }
-
-    abstract Class<T> getEntityClass();
 
     final List<T> listTypes() throws DataAccessException
     {

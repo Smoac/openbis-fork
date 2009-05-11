@@ -39,7 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
  * 
  * @author Christian Ribeaud
  */
-public final class RoleAssignmentDAO extends AbstractDAO implements IRoleAssignmentDAO
+public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssignmentPE> implements
+        IRoleAssignmentDAO
 {
     public final static Class<RoleAssignmentPE> ENTITY_CLASS = RoleAssignmentPE.class;
 
@@ -54,7 +55,7 @@ public final class RoleAssignmentDAO extends AbstractDAO implements IRoleAssignm
 
     RoleAssignmentDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
     {
-        super(sessionFactory, databaseInstance);
+        super(sessionFactory, databaseInstance, ENTITY_CLASS);
     }
 
     //

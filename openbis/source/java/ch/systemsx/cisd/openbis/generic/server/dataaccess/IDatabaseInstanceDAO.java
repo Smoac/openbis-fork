@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
  * 
  * @author Christian Ribeaud
  */
-public interface IDatabaseInstanceDAO
+public interface IDatabaseInstanceDAO extends IAbstractGenericDAO<DatabaseInstancePE>
 {
 
     /**

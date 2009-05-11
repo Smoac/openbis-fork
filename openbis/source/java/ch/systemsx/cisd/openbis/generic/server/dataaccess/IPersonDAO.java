@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * 
  * @author Franz-Josef Elmer
  */
-public interface IPersonDAO
+public interface IPersonDAO extends IAbstractGenericDAO<PersonPE>
 {
     /**
      * Finds the technical id of the person with the specified user id.
