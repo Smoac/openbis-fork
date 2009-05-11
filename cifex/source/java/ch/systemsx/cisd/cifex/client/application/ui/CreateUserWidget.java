@@ -55,23 +55,11 @@ public class CreateUserWidget extends UserWidget
             {
                 buttonOrNull.disable();
             }
-            final UserInfoDTO user = new UserInfoDTO();
-            user.setEmail(emailField.getText());
-            user.setUserFullName(usernameField.getText());
-            user.setUserCode(userCodeField.getText());
+            final UserInfoDTO user = createFromFields();
             String comment = null;
             if (commentArea != null)
             {
                 comment = commentArea.getText();
-            }
-            if (addStatusField)
-            {
-                user.setAdmin(isAdminStatus());
-                user.setPermanent(isAdminStatus() || isPermanentStatus());
-            } else
-            {
-                user.setAdmin(false);
-                user.setPermanent(false);
             }
             final ICIFEXServiceAsync cifexService = context.getCifexService();
             cifexService.createUser(user, StringUtils.nullIfBlank(passwordField.getText()), context

@@ -35,10 +35,13 @@ import com.gwtext.client.widgets.form.TextAreaConfig;
 import com.gwtext.client.widgets.form.TextField;
 import com.gwtext.client.widgets.form.TextFieldConfig;
 import com.gwtext.client.widgets.form.VType;
+import com.gwtext.client.widgets.form.ValidationException;
+import com.gwtext.client.widgets.form.Validator;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
+import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
 import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 
@@ -87,7 +90,11 @@ public abstract class UserWidget extends Form
     protected TextArea commentArea;
 
     protected Checkbox sendUpdateInformation;
+    
+    protected TextField maxUploadSizeField;
 
+    protected TextField fileRetentionField;
+    
     /**
      * Status of the user.
      * <p>
@@ -116,7 +123,7 @@ public abstract class UserWidget extends Form
      * The fields to the user are already filled out, which the user can change.
      * </p>
      */
-    public UserWidget(final ViewContext context, final boolean addStatusField, final UserInfoDTO user,
+    UserWidget(final ViewContext context, final boolean addStatusField, final UserInfoDTO user,
             final boolean withButton)
     {
         super(Ext.generateId(ID_PREFIX), createFormConfig());
@@ -125,6 +132,46 @@ public abstract class UserWidget extends Form
         this.editUser = user;
         this.withButton = withButton;
         createCreateUserForm();
+    }
+    
+    protected UserInfoDTO createFromFields()
+    {
+        final UserInfoDTO user = new UserInfoDTO();
+        if (editUser != null)
+        {
+            user.setAdmin(editUser.isAdmin());
+            user.setExpirationDate(editUser.getExpirationDate());
+            user.setExternallyAuthenticated(editUser.isExternallyAuthenticated());
+            user.setFileRetention(editUser.getFileRetention());
+            user.setMaxUploadRequestSizeInMB(editUser.getMaxUploadRequestSizeInMB());
+            user.setPermanent(editUser.isPermanent());
+            user.setRegistrator(editUser.getRegistrator());
+        }
+        user.setEmail(emailField.getText());
+        user.setUserFullName(usernameField.getText());
+        user.setUserCode(userCodeField.getText());
+        if (addStatusField)
+        {
+            user.setAdmin(isAdminStatus());
+            user.setPermanent(isAdminStatus() || isPermanentStatus());
+        }
+        if (maxUploadSizeField != null)
+        {
+            String text = maxUploadSizeField.getText();
+            user.setMaxUploadRequestSizeInMB(text.length() == 0 ? null : new Long(text));
+        }
+        if (fileRetentionField != null)
+        {
+            String text = fileRetentionField.getText();
+            if (text.length() > 0)
+            {
+                user.setFileRetention(new Integer(DateTimeUtils.parseDurationInMinutes(text)));
+            } else
+            {
+                user.setFileRetention(null);
+            }
+        }
+        return user;
     }
 
     protected final void createCreateUserForm()
@@ -151,6 +198,11 @@ public abstract class UserWidget extends Form
             sendUpdateInformation = createSendUserInformationCheckbox();
             add(sendUpdateInformation);
         }
+        if (context.getModel().getUser().isAdmin())
+        {
+            maxUploadSizeField = createMaxUploadSizeField();
+            add(maxUploadSizeField);
+        }
 
         end();
 
@@ -159,6 +211,11 @@ public abstract class UserWidget extends Form
         rightColumn.setLabelWidth(LABEL_WIDTH);
         column(rightColumn);
 
+        if (context.getModel().getUser().isAdmin())
+        {
+            fileRetentionField = createFileRentention();
+            add(fileRetentionField);
+        }
         emailField = createEmailField();
         add(emailField);
 
@@ -247,10 +304,7 @@ public abstract class UserWidget extends Form
 
     private final TextField createUserCodeField()
     {
-        final TextFieldConfig fieldConfig = new TextFieldConfig();
-        fieldConfig.setFieldLabel(getMessageResources().getUserCodeLabel());
-        fieldConfig.setWidth(FIELD_WIDTH);
-        fieldConfig.setName(getMessageResources().getUserCodeLabel());
+        final TextFieldConfig fieldConfig = createTextField(getMessageResources().getUserCodeLabel());
         fieldConfig.setAllowBlank(false);
         fieldConfig.setValidator(CifexValidator.getUserCodeFieldValidator());
         fieldConfig.setInvalidText(Constants.VALID_USER_CODE_DESCRIPTION);
@@ -265,6 +319,15 @@ public abstract class UserWidget extends Form
         return textField;
     }
 
+    private TextFieldConfig createTextField(String label)
+    {
+        final TextFieldConfig fieldConfig = new TextFieldConfig();
+        fieldConfig.setFieldLabel(label);
+        fieldConfig.setWidth(FIELD_WIDTH);
+        fieldConfig.setName(label);
+        return fieldConfig;
+    }
+
     private static FormConfig createFormConfig()
     {
         final FormConfig formConfig = new FormConfig();
@@ -277,11 +340,8 @@ public abstract class UserWidget extends Form
 
     private final TextField createEmailField()
     {
-        final TextFieldConfig fieldConfig = new TextFieldConfig();
-        fieldConfig.setFieldLabel(getMessageResources().getUserEmailLabel());
-        fieldConfig.setWidth(FIELD_WIDTH);
+        final TextFieldConfig fieldConfig = createTextField(getMessageResources().getUserEmailLabel());
         fieldConfig.setVtype(VType.EMAIL);
-        fieldConfig.setName(getMessageResources().getUserEmailLabel());
         fieldConfig.setAllowBlank(false);
         fieldConfig.setValidateOnBlur(false);
         final TextField textField = new TextField(fieldConfig);
@@ -303,10 +363,7 @@ public abstract class UserWidget extends Form
 
     private final TextField createUsernameField()
     {
-        final TextFieldConfig fieldConfig = new TextFieldConfig();
-        fieldConfig.setFieldLabel(getMessageResources().getUserFullNameLabel());
-        fieldConfig.setWidth(FIELD_WIDTH);
-        fieldConfig.setName(getMessageResources().getUserFullNameLabel());
+        final TextFieldConfig fieldConfig = createTextField(getMessageResources().getUserFullNameLabel());
         fieldConfig.setAllowBlank(true);
         fieldConfig.setValidateOnBlur(false);
         final TextField textField = new TextField(fieldConfig);
@@ -319,10 +376,7 @@ public abstract class UserWidget extends Form
 
     private final TextField createPasswordField()
     {
-        final TextFieldConfig fieldConfig = new TextFieldConfig();
-        fieldConfig.setFieldLabel(getMessageResources().getPasswordLabel());
-        fieldConfig.setWidth(FIELD_WIDTH);
-        fieldConfig.setName(getMessageResources().getPasswordLabel());
+        final TextFieldConfig fieldConfig = createTextField(getMessageResources().getPasswordLabel());
         fieldConfig.setPassword(true);
         fieldConfig.setAllowBlank(true);
         fieldConfig.setValidateOnBlur(false);
@@ -333,10 +387,7 @@ public abstract class UserWidget extends Form
 
     private final TextField createValidatePasswordField()
     {
-        final TextFieldConfig fieldConfig = new TextFieldConfig();
-        fieldConfig.setFieldLabel(getMessageResources().getValidatePasswordLabel());
-        fieldConfig.setWidth(FIELD_WIDTH);
-        fieldConfig.setName(getMessageResources().getValidatePasswordLabel());
+        final TextFieldConfig fieldConfig = createTextField(getMessageResources().getValidatePasswordLabel());
         fieldConfig.setPassword(true);
         fieldConfig.setAllowBlank(true);
         fieldConfig.setValidateOnBlur(false);
@@ -355,7 +406,73 @@ public abstract class UserWidget extends Form
         textAreaConfig.setPreventScrollbars(true);
         textAreaConfig.setWidth(FIELD_WIDTH);
         return new TextArea(textAreaConfig);
-
+    }
+    
+    private TextField createMaxUploadSizeField()
+    {
+        final TextFieldConfig fieldConfig = createTextField(getMessageResources().getMaxUploadSizeLabel());
+        fieldConfig.setValidator(new Validator()
+            {
+                public boolean validate(String value) throws ValidationException
+                {
+                    if (value == null)
+                    {
+                        return false;
+                    }
+                    if (value.length() == 0)
+                    {
+                        return true;
+                    }
+                    try
+                    {
+                        int size = Integer.parseInt(value);
+                        return size > 0;
+                    } catch (NumberFormatException ex)
+                    {
+                        return false;
+                    }
+                }
+            });
+        TextField textField = new TextField(fieldConfig);
+        if (editUser != null && editUser.getMaxUploadRequestSizeInMB() != null)
+        {
+            textField.setValue(editUser.getMaxUploadRequestSizeInMB().toString());
+        }
+        return textField;
+    }
+    
+    private TextField createFileRentention()
+    {
+        final TextFieldConfig fieldConfig = createTextField(getMessageResources().getFileRetention());
+        fieldConfig.setValidator(new Validator()
+            {
+                public boolean validate(String value) throws ValidationException
+                {
+                    if (value == null)
+                    {
+                        return false;
+                    }
+                    if (value.length() == 0)
+                    {
+                        return true;
+                    }
+                    try
+                    {
+                        int duration = DateTimeUtils.parseDurationInMinutes(value);
+                        return duration > 0;
+                    } catch (NumberFormatException ex)
+                    {
+                        return false;
+                    }
+                }
+            });
+        TextField textField = new TextField(fieldConfig);
+        if (editUser != null && editUser.getFileRetention() != null)
+        {
+            int fileRetentionTime = editUser.getFileRetention().intValue();
+            textField.setValue(DateTimeUtils.formatDurationInMinutes(fileRetentionTime));
+        }
+        return textField;
     }
 
     private final Checkbox createSendUserInformationCheckbox()

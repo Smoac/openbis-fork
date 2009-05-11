@@ -70,7 +70,7 @@ public class UserDTO extends ID
     private Integer fileRetention;
 
     /** 
-     * The maximum size (in MB) of an upload request fro this user. 
+     * The maximum size (in MB) of an upload request for this user. 
      */
     private Long maxUploadRequestSizeInMB;
 

@@ -116,4 +116,38 @@ public final class DateTimeUtils
         buffer.append(padWithZerosIfNeeded(Integer.toString(seconds)));
         return buffer.toString();
     }
+    
+    /**
+     * Parses specified duration and return it in minutes. In case of a ':' everything left of ':'
+     * will be interpreted as hours. Examples:
+     * <code>42</code> and <code>0:42</code> will return 42. 
+     * <code>6002</code> and <code>100:2</code> will return 6002.
+     * 
+     * @throw NumberFormatException if left or right of ':' not a number appears.
+     */
+    public static int parseDurationInMinutes(String duration)
+    {
+        int indexOfColon = duration.indexOf(':');
+        if (indexOfColon < 0)
+        {
+            return Integer.parseInt(duration);
+        }
+        return Integer.parseInt(duration.substring(0, indexOfColon)) * 60
+                + Integer.parseInt(duration.substring(indexOfColon + 1));
+    }
+    
+    /**
+     * Formats the specified duration into the form <code>&lt;hours&gt;:&lt;minutes&gt;</code>.
+     */
+    public static String formatDurationInMinutes(int duration)
+    {
+        if (duration < 60)
+        {
+            return Integer.toString(duration);
+        }
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(duration / 60).append(':');
+        buffer.append(padWithZerosIfNeeded(Integer.toString(duration % 60)));
+        return buffer.toString();
+    }
 }

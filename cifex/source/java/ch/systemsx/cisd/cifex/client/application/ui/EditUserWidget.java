@@ -68,23 +68,7 @@ public class EditUserWidget extends UserWidget
             {
                 buttonOrNull.disable();
             }
-            final UserInfoDTO user = new UserInfoDTO();
-            user.setEmail(emailField.getText());
-            user.setUserFullName(usernameField.getText());
-            user.setUserCode(userCodeField.getText());
-            if (editUser != null)
-            {
-                user.setExternallyAuthenticated(editUser.isExternallyAuthenticated());
-            }
-            if (addStatusField)
-            {
-                user.setAdmin(isAdminStatus());
-                user.setPermanent(isAdminStatus() || isPermanentStatus());
-            } else
-            {
-                user.setAdmin(editUser.isAdmin());
-                user.setPermanent(editUser.isPermanent());
-            }
+            final UserInfoDTO user = createFromFields();
             cifexService.updateUser(user, StringUtils.nullIfBlank(passwordField.getText()),
                     (sendUpdateInformation != null && sendUpdateInformation.getValue()),
                     new UpdateUserAsyncCallBack());

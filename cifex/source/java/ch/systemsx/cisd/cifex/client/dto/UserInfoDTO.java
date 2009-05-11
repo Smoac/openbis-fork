@@ -51,6 +51,10 @@ public final class UserInfoDTO extends BasicUserInfoDTO
 
     private boolean externallyAuthenticated;
 
+    private Integer fileRetention;
+
+    private Long maxUploadRequestSizeInMB;
+    
     public final boolean isAdmin()
     {
         return admin;
@@ -100,6 +104,26 @@ public final class UserInfoDTO extends BasicUserInfoDTO
     public final void setExternallyAuthenticated(final boolean externallyAuthenticated)
     {
         this.externallyAuthenticated = externallyAuthenticated;
+    }
+
+    public final Integer getFileRetention()
+    {
+        return fileRetention;
+    }
+
+    public final void setFileRetention(Integer fileRetention)
+    {
+        this.fileRetention = fileRetention;
+    }
+
+    public final Long getMaxUploadRequestSizeInMB()
+    {
+        return maxUploadRequestSizeInMB;
+    }
+
+    public final void setMaxUploadRequestSizeInMB(Long maxUploadRequestSizeInMB)
+    {
+        this.maxUploadRequestSizeInMB = maxUploadRequestSizeInMB;
     }
 
 }

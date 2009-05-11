@@ -828,6 +828,20 @@ public interface IMessageResources extends Messages
     public String getUserCodeLabel();
 
     /**
+     * Returns the label of the field for the maximum upload file size in MB
+     * 
+     * @gwt.key usercreation.max.upload.size.label
+     */
+    public String getMaxUploadSizeLabel();
+    
+    /**
+     * Returns the label of the field for file retention time
+     * 
+     * @gwt.key usercreation.file.retention
+     */
+    public String getFileRetention();
+    
+    /**
      * Returns the label the User Create Button
      * 
      * @gwt.key usercreation.button.label
@@ -889,4 +903,5 @@ public interface IMessageResources extends Messages
      * @gwt.key fileupload.validate.button.label
      */
     public String getValidateUsersButtonLabel();
+
 }
