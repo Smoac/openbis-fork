@@ -236,7 +236,7 @@ var common = {
   VOCABULARY_MENU_NEW: "New",
   
   // menu user
-  USER_MENU_CHANGE_HOME_GROUP: "Change Home Group",
+  USER_MENU_CHANGE_HOME_GROUP: "Home Group",
   USER_MENU_LOGOUT: "Logout",
     
   //
