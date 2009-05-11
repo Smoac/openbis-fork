@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.JdbcAccessor;
@@ -48,8 +48,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISampleDAO
 {
     private final static Class<SamplePE> ENTITY_CLASS = SamplePE.class;
-
-    private static final String TABLE_NAME = ENTITY_CLASS.getSimpleName();
 
     @Override
     Class<SamplePE> getEntityClass()
@@ -98,6 +96,36 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
             criteria.setFetchMode(relationPath, FetchMode.JOIN);
             relationPath += "." + relationName;
         }
+    }
+
+    private List<SamplePE> listSamplesByCriteria(final Criteria basicCriteria,
+            boolean withExperimentAndProperties, Criterion... additionalCriterions)
+            throws DataAccessException
+    {
+        for (Criterion criterion : additionalCriterions)
+        {
+            basicCriteria.add(criterion);
+        }
+        if (withExperimentAndProperties)
+        {
+            basicCriteria.setFetchMode("experimentInternal", FetchMode.JOIN);
+            basicCriteria.setFetchMode("sampleProperties", FetchMode.JOIN);
+        }
+        basicCriteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+        return cast(basicCriteria.list());
+    }
+
+    private List<SamplePE> listSamplesByCriteria(boolean withExperimentAndProperties,
+            Criterion... criterions) throws DataAccessException
+    {
+        return listSamplesByCriteria(createListAllSamplesCriteria(), withExperimentAndProperties,
+                criterions);
+    }
+
+    private List<SamplePE> listSamplesWithPropertiesByCriteria(Criterion... criterions)
+            throws DataAccessException
+    {
+        return listSamplesByCriteria(true, criterions);
     }
 
     /**
@@ -149,13 +177,8 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
     {
         assert experiment != null : "Unspecified experiment.";
 
-        final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
-        criteria.add(Restrictions.eq("experimentInternal", experiment));
-        criteria.setFetchMode("experimentInternal", FetchMode.JOIN);
-        criteria.setFetchMode("sampleProperties", FetchMode.JOIN);
-        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-        final List<SamplePE> list = cast(getHibernateTemplate().findByCriteria(criteria));
-
+        final Criterion criterion = Restrictions.eq("experimentInternal", experiment);
+        final List<SamplePE> list = listSamplesWithPropertiesByCriteria(criterion);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%d samples have been found for experiment '%s'.",
@@ -169,12 +192,8 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
     {
         assert container != null : "Unspecified container.";
 
-        final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
-        criteria.add(Restrictions.eq("container", container));
-        criteria.setFetchMode("experimentInternal", FetchMode.JOIN);
-        criteria.setFetchMode("sampleProperties", FetchMode.JOIN);
-        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-        final List<SamplePE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        final Criterion criterion = Restrictions.eq("container", container);
+        final List<SamplePE> list = listSamplesWithPropertiesByCriteria(criterion);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%d samples have been found for \"partOf\" sample.",
@@ -187,12 +206,8 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
     {
         assert sample != null : "Unspecified sample.";
 
-        final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
-        criteria.add(Restrictions.eq("generatedFrom", sample));
-        criteria.setFetchMode("experimentInternal", FetchMode.JOIN);
-        criteria.setFetchMode("sampleProperties", FetchMode.JOIN);
-        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-        final List<SamplePE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        final Criterion criterion = Restrictions.eq("generatedFrom", sample);
+        final List<SamplePE> list = listSamplesWithPropertiesByCriteria(criterion);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String
@@ -209,11 +224,8 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         assert group != null : "Unspecified group.";
 
         final Criteria criteria = createListSampleForTypeCriteria(sampleType);
-        criteria.add(Restrictions.eq("group", group));
-        criteria.setFetchMode("experimentInternal", FetchMode.JOIN);
-        criteria.setFetchMode("sampleProperties", FetchMode.JOIN);
-        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-        final List<SamplePE> list = cast(criteria.list());
+        final Criterion criterion = Restrictions.eq("group", group);
+        final List<SamplePE> list = listSamplesByCriteria(criteria, true, criterion);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
@@ -230,11 +242,8 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         assert databaseInstance != null : "Unspecified database instance.";
 
         final Criteria criteria = createListSampleForTypeCriteria(sampleType);
-        criteria.add(Restrictions.eq("databaseInstance", databaseInstance));
-        criteria.setFetchMode("experimentInternal", FetchMode.JOIN);
-        criteria.setFetchMode("sampleProperties", FetchMode.JOIN);
-        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-        final List<SamplePE> list = cast(criteria.list());
+        final Criterion criterion = Restrictions.eq("databaseInstance", databaseInstance);
+        final List<SamplePE> list = listSamplesByCriteria(criteria, true, criterion);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
@@ -244,14 +253,12 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         return list;
     }
 
-    // TODO 2009-05-11, Piotr Buczek: use common implementation
     public final List<SamplePE> listSamplesByGeneratedFrom(final SamplePE sample)
     {
         assert sample != null : "Unspecified sample.";
 
-        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
-        final String hql = String.format("from %s s where s.generatedFrom = ?", TABLE_NAME);
-        final List<SamplePE> list = cast(hibernateTemplate.find(hql, toArray(sample)));
+        final Criterion criterion = Restrictions.eq("generatedFrom", sample);
+        final List<SamplePE> list = listSamplesByCriteria(false, criterion);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
