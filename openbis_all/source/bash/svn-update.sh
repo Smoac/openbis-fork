@@ -14,4 +14,5 @@ for f in *.sh; do
   fi
 done
 chmod 700 *.sh
+rm -fr $TMP
 echo SVN update done.
