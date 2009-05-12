@@ -345,7 +345,7 @@
 	-->
 	<target name="dump-and-index" 
 	        description="Dumps developer database and creates a Lucene index files">
-		<java classpath="${eclipse.cp}" failonerror="true" fork="true" dir="."
+		<java classpath="${eclipse.cp}" failonerror="true" fork="true" dir="." maxmemory="512m"
 		      classname="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IndexCreationUtil">
 			<sysproperty key="log4j.configuration" file="etc/log.xml"/>
 			<arg value="-d"/>
