@@ -364,8 +364,6 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         criteria.setFetchMode("parents", FetchMode.JOIN);
         criteria.setFetchMode("experimentInternal", FetchMode.JOIN);
         criteria.setFetchMode("experimentInternal.experimentProperties", FetchMode.JOIN);
-        // TODO 2009-04-29, Piotr Buczek: remove join when edit view will load all data
-        criteria.setFetchMode("dataSetType.dataSetTypePropertyTypesInternal", FetchMode.JOIN);
         hibernateQuery.setCriteriaQuery(criteria);
 
         List<ExternalDataPE> datasets = AbstractDAO.cast(hibernateQuery.list());

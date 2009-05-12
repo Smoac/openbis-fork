@@ -85,10 +85,8 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
     {
         assert sample != null : "Unspecified sample.";
 
-        // TODO 2009-04-29, Piotr Buczek: remove join pt when edit view will load all data
         final String query =
                 String.format("from %s e "
-                        + "left join fetch e.dataSetType.dataSetTypePropertyTypesInternal pt "
                         + "left join fetch e.experimentInternal " + "left join fetch e.parents "
                         + "left join fetch e.dataSetProperties "
                         + "where (e.%s = ? or e.%s = ?) and e.deleted = false", TABLE_NAME,
@@ -111,10 +109,8 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
     {
         assert experiment != null : "Unspecified experiment.";
 
-        // TODO 2009-04-29, Piotr Buczek: remove join pt when edit view will load all data
         final String query =
                 String.format("from %s e "
-                        + "left join fetch e.dataSetType.dataSetTypePropertyTypesInternal pt "
                         + "left join fetch e.experimentInternal " + "left join fetch e.parents "
                         + "left join fetch e.dataSetProperties "
                         + "where e.experimentInternal = ? and e.deleted = false", TABLE_NAME);
