@@ -19,12 +19,14 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.projec
 import java.util.Date;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 
 /**
@@ -34,19 +36,22 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
  */
 public class ProjectEditForm extends AbstractProjectEditRegisterForm
 {
-    private final Project project;
+
+    private Project originalProject;
+
+    private final Long projectId;
 
     public static DatabaseModificationAwareComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext, Project project)
+            final IViewContext<ICommonClientServiceAsync> viewContext, Long projectId)
     {
-        ProjectEditForm form = new ProjectEditForm(viewContext, project);
+        ProjectEditForm form = new ProjectEditForm(viewContext, projectId);
         return new DatabaseModificationAwareComponent(form, form.getGroupField());
     }
 
-    protected ProjectEditForm(IViewContext<ICommonClientServiceAsync> viewContext, Project project)
+    protected ProjectEditForm(IViewContext<ICommonClientServiceAsync> viewContext, Long projectId)
     {
-        super(viewContext, project.getId(), project.getGroup().getCode());
-        this.project = project;
+        super(viewContext, projectId);
+        this.projectId = projectId;
     }
 
     @Override
@@ -55,8 +60,8 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
         ProjectUpdates updates = new ProjectUpdates();
         updates.setAttachmentSessionKey(sessionKey);
         updates.setDescription(projectDescriptionField.getValue());
-        updates.setProjectIdentifier(project.getIdentifier());
-        updates.setVersion(project.getModificationDate());
+        updates.setProjectIdentifier(originalProject.getIdentifier());
+        updates.setVersion(originalProject.getModificationDate());
         Group group = groupField.tryGetSelected();
         updates.setGroupCode(group == null ? null : group.getCode());
         viewContext.getCommonService().updateProject(updates, new ProjectEditCallback(viewContext));
@@ -74,7 +79,7 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
         @Override
         protected void process(final Date result)
         {
-            project.setModificationDate(result);
+            originalProject.setModificationDate(result);
             updateOriginalValues();
             super.process(result);
         }
@@ -82,7 +87,7 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
         @Override
         protected String createSuccessfullRegistrationInfo(Date result)
         {
-            return "Project <b>" + project.getIdentifier().toUpperCase()
+            return "Project <b>" + originalProject.getIdentifier().toUpperCase()
                     + "</b> successfully updated.";
         }
     }
@@ -90,9 +95,11 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
     @Override
     protected void setValues()
     {
-        projectDescriptionField.setValue(StringEscapeUtils.unescapeHtml(project.getDescription()));
-        projectCodeField.setValue(project.getCode());
+        projectDescriptionField.setValue(StringEscapeUtils.unescapeHtml(originalProject
+                .getDescription()));
+        projectCodeField.setValue(originalProject.getCode());
         projectCodeField.setEnabled(false);
+        groupField.selectGroupAndUpdateOriginal(originalProject.getGroup().getCode());
     }
 
     public void updateOriginalValues()
@@ -100,6 +107,34 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
         projectDescriptionField.setOriginalValue(projectDescriptionField.getValue());
         projectCodeField.setOriginalValue(projectCodeField.getValue());
         groupField.setOriginalValue(groupField.getValue());
+    }
+
+    void setOriginalProject(Project project)
+    {
+        this.originalProject = project;
+    }
+
+    @Override
+    protected void loadForm()
+    {
+        viewContext.getService().getProjectInfo(new TechId(projectId),
+                new ProjectInfoCallback(viewContext));
+    }
+
+    public final class ProjectInfoCallback extends AbstractAsyncCallback<Project>
+    {
+
+        private ProjectInfoCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        protected final void process(final Project result)
+        {
+            setOriginalProject(result);
+            initGUI();
+        }
     }
 
 }

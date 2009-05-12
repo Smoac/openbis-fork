@@ -182,7 +182,7 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                     public ITabItem create()
                     {
                         DatabaseModificationAwareComponent component =
-                                ProjectEditForm.create(viewContext, project);
+                                ProjectEditForm.create(viewContext, project.getId());
                         return DefaultTabItem.create("Edit Project " + project.getIdentifier(),
                                 component, viewContext, true);
                     }

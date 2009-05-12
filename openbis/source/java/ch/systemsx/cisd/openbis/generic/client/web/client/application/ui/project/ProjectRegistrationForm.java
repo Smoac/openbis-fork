@@ -88,4 +88,10 @@ public class ProjectRegistrationForm extends AbstractProjectEditRegisterForm
     {
     }
 
+    @Override
+    protected void loadForm()
+    {
+        initGUI();
+    }
+
 }

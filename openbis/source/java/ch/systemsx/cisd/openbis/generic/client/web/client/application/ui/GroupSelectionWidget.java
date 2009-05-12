@@ -49,7 +49,7 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
 
     private final IViewContext<?> viewContext;
 
-    private final String initialGroupOrNull;
+    private String initialGroupOrNull;
 
     public static final boolean isSharedGroup(Group g)
     {
@@ -59,6 +59,8 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
     public static final String SHARED_GROUP_CODE = "(Shared)";
 
     private final boolean addShared;
+
+    public boolean dataLoaded = false;
 
     public GroupSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
             boolean addShared)
@@ -116,25 +118,19 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
             {
                 setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, CHOOSE_SUFFIX));
                 setReadOnly(false);
-                if (initialGroupOrNull != null)
+                final int homeGroupIndex = getHomeGroupIndex(groupStore);
+                if (homeGroupIndex > -1)
                 {
-                    GWTUtils.setSelectedItem(GroupSelectionWidget.this,
-                            ModelDataPropertyNames.CODE, initialGroupOrNull);
+                    setValue(groupStore.getAt(homeGroupIndex));
                     setOriginalValue(getValue());
-                } else
-                {
-                    final int homeGroupIndex = getHomeGroupIndex(groupStore);
-                    if (homeGroupIndex > -1)
-                    {
-                        setValue(groupStore.getAt(homeGroupIndex));
-                        setOriginalValue(getValue());
-                    }
                 }
             } else
             {
                 setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, EMPTY_RESULT_SUFFIX));
                 setReadOnly(true);
             }
+            dataLoaded = true;
+            selectGroupAndUpdateOriginal(initialGroupOrNull);
         }
 
         int getHomeGroupIndex(ListStore<GroupModel> groupStore)
@@ -153,6 +149,17 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
                 }
             }
             return -1;
+        }
+    }
+
+    public void selectGroupAndUpdateOriginal(String group)
+    {
+        initialGroupOrNull = group;
+        if (dataLoaded && initialGroupOrNull != null)
+        {
+            GWTUtils.setSelectedItem(GroupSelectionWidget.this, ModelDataPropertyNames.CODE,
+                    initialGroupOrNull);
+            setOriginalValue(getValue());
         }
     }
 

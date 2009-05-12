@@ -27,8 +27,8 @@ import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -50,13 +50,13 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
 
     final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    protected final CodeField projectCodeField;
+    protected CodeField projectCodeField;
 
-    protected final VarcharField projectDescriptionField;
+    protected VarcharField projectDescriptionField;
 
-    protected final GroupSelectionWidget groupField;
+    protected GroupSelectionWidget groupField;
 
-    private final FileFieldManager attachmentManager;
+    private FileFieldManager attachmentManager;
 
     protected final String sessionKey;
 
@@ -67,20 +67,19 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
     protected AbstractProjectEditRegisterForm(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        this(viewContext, null, null);
+        this(viewContext, null);
     }
 
     protected AbstractProjectEditRegisterForm(
-            final IViewContext<ICommonClientServiceAsync> viewContext, Long projectIdOrNull,
-            String groupCodeOrNull)
+            final IViewContext<ICommonClientServiceAsync> viewContext, Long projectIdOrNull)
     {
         super(viewContext, createId(projectIdOrNull), DEFAULT_LABEL_WIDTH + 20, DEFAULT_FIELD_WIDTH);
+        this.viewContext = viewContext;
         sessionKey = createId(projectIdOrNull);
         attachmentManager =
                 new FileFieldManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS, "Attachment");
-        this.viewContext = viewContext;
         projectCodeField = createProjectCodeField();
-        groupField = createGroupField(groupCodeOrNull);
+        groupField = createGroupField();
         projectDescriptionField = createProjectDescriptionField();
         addUploadFeatures(sessionKey);
     }
@@ -114,9 +113,9 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
         return varcharField;
     }
 
-    private final GroupSelectionWidget createGroupField(String code)
+    private final GroupSelectionWidget createGroupField()
     {
-        GroupSelectionWidget field = new GroupSelectionWidget(viewContext, getId(), false, code);
+        GroupSelectionWidget field = new GroupSelectionWidget(viewContext, getId(), false);
         FieldUtil.markAsMandatory(field);
         field.setFieldLabel(viewContext.getMessage(Dict.GROUP));
         return field;
@@ -148,9 +147,6 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
         redefineSaveListeners();
     }
 
-    //
-    // AbstractRegistrationForm
-    //
     void redefineSaveListeners()
     {
         saveButton.removeAllListeners();
@@ -183,8 +179,18 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
     protected final void onRender(final Element target, final int index)
     {
         super.onRender(target, index);
+        setLoading(true);
+        loadForm();
+    }
+
+    protected abstract void loadForm();
+
+    protected void initGUI()
+    {
         addFormFields();
         setValues();
+        setLoading(false);
+        layout();
     }
 
 }
