@@ -33,6 +33,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.IsInstanceOf;
 import org.jmock.Expectations;
@@ -54,6 +56,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 
 /**
@@ -63,6 +66,8 @@ import ch.systemsx.cisd.common.utilities.PasswordGenerator;
  */
 public class FileManagerTest extends AbstractFileSystemTestCase
 {
+
+    private static final int DEFAULT_FILE_RETENTION = 5;
 
     private static final long DEFAULT_FILE_ID = 1L;
 
@@ -90,6 +95,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
 
     private BusinessContext businessContext;
 
+    private ITimeProvider timeProvider;
+
     @Override
     @BeforeMethod
     public final void setUp() throws IOException
@@ -104,7 +111,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         boFactory = context.mock(IBusinessObjectFactory.class);
         fileStore = workingDirectory;
         businessContext = new BusinessContext();
-        businessContext.setFileRetention(5);
+        businessContext.setFileRetention(DEFAULT_FILE_RETENTION);
         businessContext.setFileStore(fileStore);
         businessContext.setPasswordGenerator(new PasswordGenerator()
             {
@@ -123,7 +130,15 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         businessContext.setUserActionLog(new DummyUserActionLog());
         mailClient = context.mock(IMailClient.class);
         businessContext.setMailClient(mailClient);
-        fileManager = new FileManager(daoFactory, boFactory, businessContext);
+        timeProvider = context.mock(ITimeProvider.class);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getFileDAO();
+                    will(returnValue(fileDAO));
+                }
+            });
+        fileManager = new FileManager(daoFactory, boFactory, businessContext, timeProvider);
 
     }
 
@@ -157,8 +172,6 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getFileDAO();
-                    will(returnValue(fileDAO));
                     one(fileDAO).getExpiredFiles();
                     will(returnValue(fileDTOs));
                     one(fileDAO).deleteFile(imageFile.getID());
@@ -230,8 +243,6 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getFileDAO();
-                    will(returnValue(fileDAO));
                     one(fileDAO).deleteFile(fileId);
                     will(returnValue(true));
                 }
@@ -247,18 +258,15 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getFileDAO();
-                    will(returnValue(fileDAO));
-
                     one(fileDAO).tryGetFile(DEFAULT_FILE_ID);
                     will(returnValue(null));
                 }
             });
 
         final FileInformation fileInformation = fileManager.getFileInformation(DEFAULT_FILE_ID);
-        assertEquals(fileInformation.isFileAvailable(), false);
-        assertEquals(fileInformation.getErrorMessage(), "File [id=" + DEFAULT_FILE_ID
-                + "] not found in CIFEX database.");
+        assertEquals(false, fileInformation.isFileAvailable());
+        assertEquals("File [id=" + DEFAULT_FILE_ID + "] not found in CIFEX database.",
+                fileInformation.getErrorMessage());
 
         context.assertIsSatisfied();
     }
@@ -272,21 +280,18 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getFileDAO();
-                    will(returnValue(fileDAO));
-
                     one(fileDAO).tryGetFile(DEFAULT_FILE_ID);
                     will(returnValue(fileDTO));
-
                 }
             });
 
         final FileInformation fileInformation = fileManager.getFileInformation(DEFAULT_FILE_ID);
-        assertEquals(fileInformation.isFileAvailable(), false);
-        assertEquals(fileInformation.getErrorMessage(),
+        assertEquals(false, fileInformation.isFileAvailable());
+        assertEquals(
                 "Unexpected: File 'targets/unit-test-wd/ch.systemsx.cisd.cifex.server.business.FileManagerTest/"
                         + NONEXISTENT_PATH + "' [id=" + DEFAULT_FILE_ID
-                        + "] is missing in CIFEX file store.");
+                        + "] is missing in CIFEX file store.", fileInformation.getErrorMessage()
+                        .replace('\\', '/'));
         context.assertIsSatisfied();
     }
 
@@ -299,19 +304,15 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getFileDAO();
-                    will(returnValue(fileDAO));
-
                     one(fileDAO).tryGetFile(DEFAULT_FILE_ID);
                     will(returnValue(fileDTO));
-
                 }
             });
 
         final FileInformation fileInformation =
                 fileManager.getFileInformationFilestoreUnimportant(DEFAULT_FILE_ID);
-        assertEquals(fileInformation.isFileAvailable(), true);
-        assertEquals(fileInformation.getFileDTO(), fileDTO);
+        assertEquals(true, fileInformation.isFileAvailable());
+        assertEquals(fileDTO, fileInformation.getFileDTO());
         context.assertIsSatisfied();
     }
 
@@ -322,20 +323,16 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getFileDAO();
-                    will(returnValue(fileDAO));
-
                     one(fileDAO).tryGetFile(DEFAULT_FILE_ID);
                     will(returnValue(null));
-
                 }
             });
 
         final FileInformation fileInformation =
                 fileManager.getFileInformationFilestoreUnimportant(DEFAULT_FILE_ID);
-        assertEquals(fileInformation.isFileAvailable(), false);
-        assertEquals(fileInformation.getErrorMessage(), "File [id=" + DEFAULT_FILE_ID
-                + "] not found in CIFEX database.");
+        assertEquals(false, fileInformation.isFileAvailable());
+        assertEquals("File [id=" + DEFAULT_FILE_ID + "] not found in CIFEX database.",
+                fileInformation.getErrorMessage());
         context.assertIsSatisfied();
     }
 
@@ -373,8 +370,6 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(userDAO));
                     allowing(userDAO).listUsers();
                     will(returnValue(Arrays.asList(requestUser, receivingUser)));
-                    allowing(daoFactory).getFileDAO();
-                    will(returnValue(fileDAO));
                     one(fileDAO).createSharingLink(fileId, receivingUserId);
                     one(mailClient).sendMessage(
                             with(Matchers.containsString(requestUserCode)),
@@ -427,8 +422,6 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(userDAO));
                     allowing(userDAO).listUsers();
                     will(returnValue(Arrays.asList(requestUser, receivingUser)));
-                    allowing(daoFactory).getFileDAO();
-                    will(returnValue(fileDAO));
                     one(fileDAO).createSharingLink(fileId, receivingUserId);
                     one(mailClient).sendMessage(
                             with(Matchers.containsString(requestUserCode)),
@@ -491,8 +484,6 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     allowing(userDAO).listUsers();
                     will(returnValue(Arrays.asList(requestUser, firstReceivingUser,
                             secondReceivingUser)));
-                    allowing(daoFactory).getFileDAO();
-                    will(returnValue(fileDAO));
                     one(fileDAO).createSharingLink(fileId, firstReceivingUserId);
                     final String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
                     one(mailClient).sendMessage(
@@ -558,8 +549,6 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(userDAO));
                     allowing(userDAO).listUsers();
                     will(returnValue(Arrays.asList(requestUser, receivingUser)));
-                    allowing(daoFactory).getFileDAO();
-                    will(returnValue(fileDAO));
                     one(fileDAO).createSharingLink(fileId, receivingUserId);
                     String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
                     one(mailClient).sendMessage(
@@ -596,9 +585,6 @@ public class FileManagerTest extends AbstractFileSystemTestCase
 
                     allowing(userDAO).listUsers();
                     will(returnValue(Arrays.asList(requestUser)));
-
-                    allowing(daoFactory).getFileDAO();
-                    will(returnValue(fileDAO));
                 }
             });
         
@@ -622,6 +608,16 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
+    @SuppressWarnings("unused")
+    @DataProvider(name = "booleans")
+    private Object[][] provideAllBooleans()
+    {
+        return new Object[][]
+            {
+                { true },
+                { false } };
+    }
+
     @Test(dataProvider = "booleans")
     public final void testListFiles(final boolean listOfSharedFilesEmpty)
     {
@@ -634,8 +630,6 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getFileDAO();
-                    will(returnValue(fileDAO));
                     one(fileDAO).listDownloadFiles(userId);
                     will(returnValue(files));
                     one(fileDAO).listFiles();
@@ -654,20 +648,21 @@ public class FileManagerTest extends AbstractFileSystemTestCase
     }
 
     @SuppressWarnings("unused")
-    @DataProvider(name = "booleans")
-    private Object[][] provideAllBooleans()
+    @DataProvider(name = "saveFileTestData")
+    private Object[][] provideAllSaveFileTestData()
     {
         return new Object[][]
             {
-                { true },
-                { false } };
+                { true, null },
+                { false, 123 } };
     }
 
     @Transactional
-    @Test(dataProvider = "booleans")
-    public final void testSaveFile(final boolean fileAlreadyExists) throws FileNotFoundException
+    @Test(dataProvider = "saveFileTestData")
+    public final void testSaveFile(final boolean fileAlreadyExists, final Integer fileRetention) throws FileNotFoundException
     {
         final UserDTO user = userAlice;
+        user.setFileRetention(fileRetention);
         final String filePath = imageFile.getPath();
         final String comment = "This is a test comment for a test file";
         final File inputFile = createRealFile(filePath + "_user");
@@ -692,9 +687,10 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getFileDAO();
-                    will(returnValue(fileDAO));
                     one(fileDAO).createFile((FileDTO) this.with(new IsInstanceOf(FileDTO.class)));
+                    
+                    one(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(4711L));
                 }
             });
         final FileDTO createdFileDTO =
@@ -709,6 +705,59 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         assertEquals(imageFile.getName(), createdFileDTO.getName());
         assertEquals(comment, createdFileDTO.getComment());
         assertEquals(inputFile.length(), createdFileDTO.getSize().longValue());
+        int expectedExpirationDate = calculateFileRetention(fileRetention) * 60000 + 4711;
+        assertEquals(expectedExpirationDate, createdFileDTO.getExpirationDate().getTime());
+        context.assertIsSatisfied();
+    }
+    
+    @SuppressWarnings("unused")
+    @DataProvider(name = "fileRetentions")
+    private Object[][] provideAllFileRetentions()
+    {
+        return new Object[][]
+            {
+                { null },
+                { 99 } };
+    }
+
+    @Test(dataProvider = "fileRetentions")
+    public void testUpdateFileExpiration(final Integer fileRetention)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(fileDAO).tryGetFile(DEFAULT_FILE_ID);
+                    FileDTO file = new FileDTO(42L);
+                    UserDTO userDTO = new UserDTO();
+                    userDTO.setID(file.getRegistratorId());
+                    userDTO.setFileRetention(fileRetention);
+                    file.setRegisterer(userDTO);
+                    will(returnValue(file));
+                    
+                    one(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(4711L));
+                    
+                    one(fileDAO).updateFile(with(new BaseMatcher<FileDTO>()
+                        {
+                            public void describeTo(Description description)
+                            {
+                            }
+                            public boolean matches(Object item)
+                            {
+                                if (item instanceof FileDTO == false)
+                                {
+                                    return false;
+                                }
+                                FileDTO fileDTO = (FileDTO) item;
+                                int r = calculateFileRetention(fileRetention);
+                                return fileDTO.getExpirationDate().getTime() == r * 60000 + 4711;
+                            }
+                        }));
+                }
+            });
+        
+        fileManager.updateFileExpiration(DEFAULT_FILE_ID);
+        
         context.assertIsSatisfied();
     }
 
@@ -738,6 +787,12 @@ public class FileManagerTest extends AbstractFileSystemTestCase
             assertFalse(fileCannotBeCreated);
         }
         return realFile;
+    }
+
+    private int calculateFileRetention(final Integer fileRetention)
+    {
+        return fileRetention == null ? DEFAULT_FILE_RETENTION
+                : fileRetention.intValue();
     }
 
     final static UserDTO createSampleUserDTO(final long id, final String email)

@@ -66,6 +66,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 
 /**
  * The only <code>IFileManager</code> implementation.
@@ -87,12 +89,21 @@ final class FileManager extends AbstractManager implements IFileManager
 
     public final static String USER_ID_PREFIX = Constants.USER_ID_PREFIX;
 
+    private final ITimeProvider timeProvider;
+
     FileManager(final IDAOFactory daoFactory, final IBusinessObjectFactory boFactory,
             final IBusinessContext businessContext)
     {
-        super(daoFactory, boFactory, businessContext);
+        this(daoFactory, boFactory, businessContext, SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
 
+    FileManager(final IDAOFactory daoFactory, final IBusinessObjectFactory boFactory,
+            final IBusinessContext businessContext, ITimeProvider timeProvider)
+    {
+        super(daoFactory, boFactory, businessContext);
+        this.timeProvider = timeProvider;
+    }
+    
     /**
      * Whether given <var>userDTO</var> could be found in list of sharing users.
      */
@@ -368,8 +379,7 @@ final class FileManager extends AbstractManager implements IFileManager
         fileDTO.setContentType(contentType);
         fileDTO.setPath(FileUtilities.getRelativeFile(businessContext.getFileStore(), file));
         fileDTO.setComment(comment);
-        int fileRetention = getFileRetention(user);
-        fileDTO.setExpirationDate(DateUtils.addMinutes(new Date(), fileRetention));
+        fileDTO.setExpirationDate(caluclateExpirationDate(user));
         fileDTO.setSize(byteCount);
         daoFactory.getFileDAO().createFile(fileDTO);
         return fileDTO;
@@ -653,8 +663,7 @@ final class FileManager extends AbstractManager implements IFileManager
         boolean success = false;
         try
         {
-            int fileRetention = getFileRetention(file.getRegisterer());
-            file.setExpirationDate(DateUtils.addMinutes(new Date(), fileRetention));
+            file.setExpirationDate(caluclateExpirationDate(file.getRegisterer()));
             daoFactory.getFileDAO().updateFile(file);
             success = true;
         } finally
@@ -675,13 +684,13 @@ final class FileManager extends AbstractManager implements IFileManager
         return file;
     }
 
-    private int getFileRetention(final UserDTO user)
+    private Date caluclateExpirationDate(UserDTO user)
     {
         Integer usersFileRetention = user.getFileRetention();
         int fileRetention =
                 usersFileRetention == null ? businessContext.getFileRetention()
                         : usersFileRetention.intValue();
-        return fileRetention;
+        return DateUtils.addMinutes(new Date(timeProvider.getTimeInMilliseconds()), fileRetention);
     }
     
     public void updateFile(final FileDTO file)
