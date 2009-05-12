@@ -1,6 +1,7 @@
 <project name="openbis" default="dist" basedir="..">
 	<import file="../../server-common/build/build-common.xml" />
 	<project-classpath name="ecp" classes="${classes}" />
+	<project-classpath name="eclipse.cp" classes="${targets}/classes" />
 
 	<property name="mainfolder" value="openbis" />
 
@@ -338,4 +339,35 @@
 		<delete file="${jar.file}" failonerror="true" />
 		<delete dir="${webapp.dist}" failonerror="true" />
 	</target>
+
+	<!--
+	// Duplicate developer database and creates dump file and index files
+	-->
+	<target name="dump-and-index" 
+	        description="Dumps developer database and creates a Lucene index files">
+		<java classpath="${eclipse.cp}" failonerror="true" fork="true" dir="."
+		      classname="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IndexCreationUtil">
+			<sysproperty key="log4j.configuration" file="etc/log.xml"/>
+			<arg value="-d"/>
+			<arg value="dev_indexed"/>
+			<arg value="${targets}/dev_indexed.sql"/>
+			<arg value="dev"/>
+			<arg value="${targets}/dev_indexed-index"/>
+		</java>
+	</target>
+
+        <!--
+        // Replace developer database and index
+        -->
+        <target name="replace-database-and-index" 
+                description="Replaces developer database and index">
+                <java classpath="${eclipse.cp}" failonerror="true" fork="true" dir="."
+                      classname="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DatabaseAndIndexReplacer">
+                        <sysproperty key="log4j.configuration" file="etc/log.xml"/>
+                        <arg value="dev"/>
+                        <arg value="${targets}/indices"/>
+                        <arg value="dev_indexed"/>
+                        <arg value="${targets}/dev_indexed-index"/>
+                </java>
+        </target>
 </project>
