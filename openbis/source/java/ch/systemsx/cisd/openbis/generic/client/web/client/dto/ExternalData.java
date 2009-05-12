@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -36,7 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
  * @author Christian Ribeaud
  */
 public class ExternalData extends CodeWithRegistration<ExternalData> implements
-        IInvalidationProvider, IEntityInformationHolder, IEntityPropertiesHolder
+        IInvalidationProvider, IEntityInformationHolder, IEntityPropertiesHolder,
+        IIdAndIdentifierHolder
 {
     private boolean derived;
 

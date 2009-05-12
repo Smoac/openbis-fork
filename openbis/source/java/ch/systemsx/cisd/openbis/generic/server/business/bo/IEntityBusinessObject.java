@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2007 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic;
+package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
- * An entity with identifier, {@link EntityType} and {@link EntityKind} .
+ * Common method(s) all Business Objects that hold entity data have to implement.
  * 
  * @author Piotr Buczek
  */
-public interface IEntityInformationHolder extends IIdentifierHolder
+public interface IEntityBusinessObject extends IBusinessObject
 {
     /**
-     * Returns the entity type of this matching entity.
+     * Loads data of an entity given by its technical identifier.
+     * 
+     * @throws UserFailureException if entity is not found.
      */
-    public EntityType getEntityType();
-
-    /**
-     * Return the entity kind of this matching entity.
-     */
-    public EntityKind getEntityKind();
+    public void loadDataByTechId(TechId id);
 }

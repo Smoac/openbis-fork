@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -162,11 +163,11 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         return experiment;
     }
 
-    public MaterialPE getMaterialInfo(final String sessionToken, final MaterialIdentifier identifier)
+    public MaterialPE getMaterialInfo(final String sessionToken, final TechId materialId)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
-        materialBO.loadByMaterialIdentifier(identifier);
+        materialBO.loadDataByTechId(materialId);
         materialBO.enrichWithProperties();
         final MaterialPE material = materialBO.getMaterial();
         return material;

@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -40,23 +40,23 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
     private Experiment originalExperiment;
 
     public static DatabaseModificationAwareComponent create(
-            IViewContext<IGenericClientServiceAsync> viewContext, IIdentifierHolder identifierHolder)
+            IViewContext<IGenericClientServiceAsync> viewContext,
+            IIdAndIdentifierHolder identifiable)
     {
-        GenericExperimentEditForm form =
-                new GenericExperimentEditForm(viewContext, identifierHolder);
+        GenericExperimentEditForm form = new GenericExperimentEditForm(viewContext, identifiable);
         return new DatabaseModificationAwareComponent(form, form);
     }
 
     private GenericExperimentEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdentifierHolder identifierHolder)
+            IIdAndIdentifierHolder identifiable)
     {
-        super(viewContext, identifierHolder);
+        super(viewContext, identifiable);
     }
 
     private void loadSamplesInBackground()
     {
         final ListSampleCriteria sampleCriteria =
-                ListSampleCriteria.createForExperiment(identifierHolderOrNull.getIdentifier());
+                ListSampleCriteria.createForExperiment(identifiableOrNull.getIdentifier());
         viewContext.getCommonService().listSamples(sampleCriteria,
                 new ListSamplesCallback(viewContext));
     }
@@ -149,7 +149,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
     @Override
     protected void loadForm()
     {
-        String experimentIdentifier = identifierHolderOrNull.getIdentifier();
+        String experimentIdentifier = identifiableOrNull.getIdentifier();
         viewContext.getService().getExperimentInfo(experimentIdentifier,
                 new ExperimentInfoCallback(viewContext));
     }

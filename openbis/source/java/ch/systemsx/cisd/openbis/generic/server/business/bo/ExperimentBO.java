@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.orm.ObjectRetrievalFailureException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
@@ -31,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
@@ -125,6 +127,19 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         {
             throw new IllegalStateException("Unloaded experiment.");
         }
+    }
+
+    public void loadDataByTechId(TechId experimentId)
+    {
+        try
+        {
+            experiment = getExperimentDAO().getByTechId(experimentId);
+        } catch (ObjectRetrievalFailureException exception)
+        {
+            throw new UserFailureException(String.format("Experiment with ID '%s' does not exist.",
+                    experimentId));
+        }
+        dataChanged = false;
     }
 
     public final void loadByExperimentIdentifier(final ExperimentIdentifier identifier)

@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperi
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NullableGroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -72,11 +73,11 @@ public interface IGenericServer extends IPluginCommonServer
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ExperimentIdentifier identifier);
 
     /**
-     * For given {@link MaterialIdentifier} returns the corresponding {@link MaterialPE}.
+     * For given {@link TechId} returns the corresponding {@link MaterialPE}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public MaterialPE getMaterialInfo(String sessionToken, MaterialIdentifier identifier);
+    public MaterialPE getMaterialInfo(String sessionToken, TechId materialId);
 
     /**
      * For given <var>datasetCode</var> returns the corresponding {@link ExternalDataPE}.

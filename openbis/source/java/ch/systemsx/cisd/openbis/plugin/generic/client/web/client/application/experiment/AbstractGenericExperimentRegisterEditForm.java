@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -92,11 +92,12 @@ abstract public class AbstractGenericExperimentRegisterEditForm
     }
 
     protected AbstractGenericExperimentRegisterEditForm(
-            IViewContext<IGenericClientServiceAsync> viewContext, IIdentifierHolder identifierHolder)
+            IViewContext<IGenericClientServiceAsync> viewContext,
+            IIdAndIdentifierHolder identifiable)
     {
-        super(viewContext, identifierHolder, EntityKind.EXPERIMENT);
+        super(viewContext, identifiable, EntityKind.EXPERIMENT);
 
-        simpleId = createSimpleId(identifierHolderOrNull, EntityKind.EXPERIMENT);
+        simpleId = createSimpleId(identifiable, EntityKind.EXPERIMENT);
         attachmentsSessionKey = simpleId + "_attachments";
         samplesSessionKey = simpleId + "_samples";
         List<String> sesionKeys = new ArrayList<String>();

@@ -801,7 +801,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IProjectBO bo = businessObjectFactory.createProjectBO(session);
-        bo.loadByProjectTechId(projectId);
+        bo.loadDataByTechId(projectId);
         bo.enrichWithAttachments();
         final ProjectPE project = bo.getProject();
         return project;

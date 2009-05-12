@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
@@ -151,6 +152,7 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
     protected void showEntityViewer(final Project project, boolean editMode)
     {
         ITabItemFactory tabFactory;
+        final TechId projectId = new TechId(project);
         if (editMode == false)
         {
             tabFactory = new ITabItemFactory()
@@ -158,13 +160,13 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent viewer =
-                                ProjectViewer.create(viewContext, project);
+                                ProjectViewer.create(viewContext, projectId);
                         return DefaultTabItem.create(getDetailsTitle(), viewer, viewContext, false);
                     }
 
                     public String getId()
                     {
-                        return ProjectViewer.createId(project);
+                        return ProjectViewer.createId(projectId);
                     }
 
                     private String getDetailsTitle()

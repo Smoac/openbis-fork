@@ -25,12 +25,14 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -48,29 +50,28 @@ public final class GenericMaterialViewer extends AbstractViewer<IGenericClientSe
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final String materialIdentifier;
+    private final TechId materialId;
 
     private Material originalMaterial;
 
     public static DatabaseModificationAwareComponent create(
-            final IViewContext<IGenericClientServiceAsync> viewContext,
-            final String materialIdentifier)
+            final IViewContext<IGenericClientServiceAsync> viewContext, final TechId materialId)
     {
-        GenericMaterialViewer viewer = new GenericMaterialViewer(viewContext, materialIdentifier);
+        GenericMaterialViewer viewer = new GenericMaterialViewer(viewContext, materialId);
         return new DatabaseModificationAwareComponent(viewer, viewer);
     }
 
     private GenericMaterialViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
-            final String materialIdentifier)
+            final TechId materialId)
     {
-        super(viewContext, "Material " + materialIdentifier, createId(materialIdentifier));
-        this.materialIdentifier = materialIdentifier;
+        super(viewContext, createId(materialId));
+        this.materialId = materialId;
         reloadData();
     }
 
-    public static String createId(String materialIdentifier)
+    public static String createId(final TechId materialId)
     {
-        return ID_PREFIX + materialIdentifier;
+        return ID_PREFIX + materialId;
     }
 
     private static void addSection(final LayoutContainer lc, final Widget w)
@@ -83,7 +84,7 @@ public final class GenericMaterialViewer extends AbstractViewer<IGenericClientSe
      */
     protected void reloadData()
     {
-        viewContext.getService().getMaterialInfo(materialIdentifier,
+        viewContext.getService().getMaterialInfo(materialId,
                 new MaterialInfoCallback(viewContext, this));
     }
 
@@ -111,13 +112,14 @@ public final class GenericMaterialViewer extends AbstractViewer<IGenericClientSe
         @Override
         protected final void process(final Material result)
         {
-            genericMaterialViewer.setOriginalMaterial(result);
+            genericMaterialViewer.updateOriginalMaterial(result);
             genericMaterialViewer.enableEdit(true);
             genericMaterialViewer.removeAll();
             genericMaterialViewer.setScrollMode(Scroll.AUTO);
             addSection(genericMaterialViewer, new MaterialPropertiesSection(result, viewContext));
             genericMaterialViewer.layout();
         }
+
     }
 
     public DatabaseModificationKind[] getRelevantModifications()
@@ -133,9 +135,15 @@ public final class GenericMaterialViewer extends AbstractViewer<IGenericClientSe
         reloadData(); // reloads everything
     }
 
-    void setOriginalMaterial(Material result)
+    private void updateOriginalMaterial(Material result)
     {
         this.originalMaterial = result;
+        updateTitle();
+    }
+
+    private void updateTitle()
+    {
+        updateTitle(viewContext.getMessage(Dict.MATERIAL) + " " + originalMaterial.getIdentifier());
     }
 
     @Override

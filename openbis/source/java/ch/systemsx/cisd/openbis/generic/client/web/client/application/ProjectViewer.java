@@ -28,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
@@ -42,21 +41,21 @@ public final class ProjectViewer extends ContentPanel
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final IIdHolder projectId;
+    private final TechId projectId;
 
     private final CompositeDatabaseModificationObserver modificationObserver;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     public static DatabaseModificationAwareComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext, final IIdHolder projectId)
+            final IViewContext<ICommonClientServiceAsync> viewContext, final TechId projectId)
     {
         ProjectViewer viewer = new ProjectViewer(viewContext, projectId);
         return new DatabaseModificationAwareComponent(viewer, viewer.modificationObserver);
     }
 
     private ProjectViewer(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final IIdHolder projectId)
+            final TechId projectId)
     {
         this.viewContext = viewContext;
         setId(createId(projectId));
@@ -70,9 +69,9 @@ public final class ProjectViewer extends ContentPanel
         reloadData(new ProjectInfoCallback(viewContext, this, modificationObserver));
     }
 
-    public static String createId(final IIdHolder projectId)
+    public static String createId(final TechId projectId)
     {
-        return ID_PREFIX + projectId.getId();
+        return ID_PREFIX + projectId;
     }
 
     private static void addSection(final LayoutContainer lc, final Widget w)
@@ -85,7 +84,7 @@ public final class ProjectViewer extends ContentPanel
      */
     protected void reloadData(AbstractAsyncCallback<Project> callback)
     {
-        viewContext.getService().getProjectInfo(new TechId(projectId), callback);
+        viewContext.getService().getProjectInfo(projectId, callback);
     }
 
     private AttachmentsSection<Project> createAttachmentsSection(final Project project)

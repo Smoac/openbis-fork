@@ -22,10 +22,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.orm.ObjectRetrievalFailureException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -61,6 +63,20 @@ public final class MaterialBO extends AbstractBusinessObject implements IMateria
     {
         super(daoFactory, session);
         propertiesConverter = entityPropertiesConverter;
+    }
+
+    public void loadDataByTechId(TechId materialId)
+    {
+        try
+        {
+            // TODO 2009-05-12, Piotr Buczek: initialize connections like in loadByIdentifier
+            material = getMaterialDAO().getByTechId(materialId);
+        } catch (ObjectRetrievalFailureException exception)
+        {
+            throw new UserFailureException(String.format("Material with ID '%s' does not exist.",
+                    materialId));
+        }
+        dataChanged = false;
     }
 
     public final void loadByMaterialIdentifier(final MaterialIdentifier identifier)
@@ -116,7 +132,8 @@ public final class MaterialBO extends AbstractBusinessObject implements IMateria
                 .getMaterialType());
     }
 
-    public void update(MaterialIdentifier identifier, List<MaterialProperty> properties, Date version)
+    public void update(MaterialIdentifier identifier, List<MaterialProperty> properties,
+            Date version)
     {
         loadByMaterialIdentifier(identifier);
         if (material.getModificationDate().equals(version) == false)

@@ -27,7 +27,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -49,25 +50,24 @@ public final class GenericMaterialEditForm
 
     public static DatabaseModificationAwareComponent create(
             IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdentifierHolder identifierHolder, boolean editMode)
+            IIdAndIdentifierHolder identifiable, boolean editMode)
     {
         GenericMaterialEditForm form =
-                new GenericMaterialEditForm(viewContext, identifierHolder, editMode);
+                new GenericMaterialEditForm(viewContext, identifiable, editMode);
         return new DatabaseModificationAwareComponent(form, form);
     }
 
     private GenericMaterialEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdentifierHolder identifierHolder, boolean editMode)
+            IIdAndIdentifierHolder identifiable, boolean editMode)
     {
-        super(viewContext, identifierHolder, EntityKind.MATERIAL);
+        super(viewContext, identifiable, EntityKind.MATERIAL);
     }
 
     @Override
     public final void submitValidForm()
     {
-        viewContext.getService().updateMaterial(identifierHolderOrNull.getIdentifier(),
-                extractProperties(), originalMaterial.getModificationDate(),
-                new UpdateMaterialCallback(viewContext));
+        viewContext.getService().updateMaterial(identifiableOrNull.getIdentifier(), extractProperties(),
+                originalMaterial.getModificationDate(), new UpdateMaterialCallback(viewContext));
     }
 
     public final class UpdateMaterialCallback extends
@@ -135,9 +135,8 @@ public final class GenericMaterialEditForm
     @Override
     protected void loadForm()
     {
-        String materialIdentifier = identifierHolderOrNull.getIdentifier();
-        viewContext.getService().getMaterialInfo(materialIdentifier,
-                new MaterialInfoCallback(viewContext));
+        TechId materialId = new TechId(identifiableOrNull);
+        viewContext.getService().getMaterialInfo(materialId, new MaterialInfoCallback(viewContext));
     }
 
     public final class MaterialInfoCallback extends AbstractAsyncCallback<Material>

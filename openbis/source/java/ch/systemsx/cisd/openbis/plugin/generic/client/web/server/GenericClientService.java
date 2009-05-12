@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.MaterialTra
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
@@ -320,15 +321,13 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
-    public final Material getMaterialInfo(final String materialIdentifier)
+    public final Material getMaterialInfo(final TechId materialId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
-            final MaterialIdentifier identifier =
-                    MaterialIdentifier.tryParseIdentifier(materialIdentifier);
-            final MaterialPE material = genericServer.getMaterialInfo(sessionToken, identifier);
+            final MaterialPE material = genericServer.getMaterialInfo(sessionToken, materialId);
             return MaterialTranslator.translate(material, true);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {

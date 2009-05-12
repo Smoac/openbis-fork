@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.orm.ObjectRetrievalFailureException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
@@ -145,10 +146,12 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         dataChanged = false;
     }
 
-    public void loadByProjectTechId(TechId projectId)
+    public void loadDataByTechId(TechId projectId)
     {
-        project = getProjectDAO().getByTechId(projectId);
-        if (project == null)
+        try
+        {
+            project = getProjectDAO().getByTechId(projectId);
+        } catch (ObjectRetrievalFailureException exception)
         {
             throw new UserFailureException(String.format("Project with ID '%s' does not exist.",
                     projectId));

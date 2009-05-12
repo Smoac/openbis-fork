@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
@@ -28,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
  * 
  * @author Christian Ribeaud
  */
-public interface IProjectBO extends IBusinessObject
+public interface IProjectBO extends IEntityBusinessObject
 {
 
     /**
@@ -46,13 +45,6 @@ public interface IProjectBO extends IBusinessObject
      * Returns the loaded project.
      */
     public ProjectPE getProject();
-
-    /**
-     * Loads a project given by its technical identifier.
-     * 
-     * @throws UserFailureException if no project found.
-     */
-    public void loadByProjectTechId(TechId projectId);
 
     /**
      * Loads a project given by its identifier.

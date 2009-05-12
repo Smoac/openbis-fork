@@ -16,23 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-
 /**
- * An entity with identifier, {@link EntityType} and {@link EntityKind} .
+ * Read-only interface for beans with a business identifier as a string and a unique technical ID.
  * 
+ * @see IIdentifierHolder
+ * @see IIdHolder
  * @author Piotr Buczek
  */
-public interface IEntityInformationHolder extends IIdentifierHolder
+public interface IIdAndIdentifierHolder extends IIdentifierHolder, IIdHolder
 {
-    /**
-     * Returns the entity type of this matching entity.
-     */
-    public EntityType getEntityType();
-
-    /**
-     * Return the entity kind of this matching entity.
-     */
-    public EntityKind getEntityKind();
 }

@@ -51,16 +51,24 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
 
     protected final IViewContext<T> viewContext;
 
-    private Button editButton;
+    private final Button editButton;
+
+    private final LabelToolItem titleLabel;
+
+    public AbstractViewer(final IViewContext<T> viewContext, String id)
+    {
+        this(viewContext, null, id); // title is set later with updateTitle method
+    }
 
     public AbstractViewer(final IViewContext<T> viewContext, String title, String id)
     {
         this.viewContext = viewContext;
         setId(id);
         setHeaderVisible(false);
+        titleLabel = new LabelToolItem(title);
         toolBar = new ToolBar();
         setTopComponent(toolBar);
-        toolBar.add(new LabelToolItem(title));
+        toolBar.add(titleLabel);
         toolBar.add(new FillToolItem());
         editButton = new Button(viewContext.getMessage(Dict.BUTTON_EDIT));
         editButton.setId(getId() + ID_EDIT_SUFFIX);
@@ -73,6 +81,11 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
             });
         enableEdit(false);
         toolBar.add(new AdapterToolItem(editButton));
+    }
+
+    protected final void updateTitle(String title)
+    {
+        titleLabel.setTitle(title);
     }
 
     protected final String getBaseIndexURL()
@@ -101,5 +114,4 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
         tabView = createClientPlugin.createEntityEditor(identifierHolder);
         DispatcherHelper.dispatchNaviEvent(tabView);
     }
-
 }

@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.S
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField.SampleChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
@@ -57,16 +57,17 @@ public final class GenericDataSetEditForm
     private ExternalData originalDataSet;
 
     public static DatabaseModificationAwareComponent create(
-            IViewContext<IGenericClientServiceAsync> viewContext, IIdentifierHolder identifierHolder)
+            IViewContext<IGenericClientServiceAsync> viewContext,
+            IIdAndIdentifierHolder identifiable)
     {
-        GenericDataSetEditForm form = new GenericDataSetEditForm(viewContext, identifierHolder);
+        GenericDataSetEditForm form = new GenericDataSetEditForm(viewContext, identifiable);
         return new DatabaseModificationAwareComponent(form, form);
     }
 
     private GenericDataSetEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdentifierHolder identifierHolder)
+            IIdAndIdentifierHolder identifiable)
     {
-        super(viewContext, identifierHolder, EntityKind.DATA_SET);
+        super(viewContext, identifiable, EntityKind.DATA_SET);
     }
 
     @Override
@@ -76,7 +77,7 @@ public final class GenericDataSetEditForm
         final String sampleIdentifier = extractSampleIdentifier();
         viewContext.getService().updateDataSet(
                 // TODO 2009-05-11, IA: use code
-                identifierHolderOrNull.getIdentifier(), sampleIdentifier, properties,
+                identifiableOrNull.getIdentifier(), sampleIdentifier, properties,
                 originalDataSet.getModificationDate(), new UpdateDataSetCallback(viewContext));
     }
 
@@ -163,7 +164,7 @@ public final class GenericDataSetEditForm
     protected void loadForm()
     {
         // TODO 2009-05-11, IA: use code
-        viewContext.getService().getDataSetInfo(identifierHolderOrNull.getIdentifier(),
+        viewContext.getService().getDataSetInfo(identifiableOrNull.getIdentifier(),
                 GWTUtils.getBaseIndexURL(), new DataSetInfoCallback(viewContext));
 
     }

@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.E
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -70,17 +70,18 @@ public final class GenericSampleEditForm extends
     private ExperimentChooserFieldAdaptor experimentFieldOrNull;
 
     public static DatabaseModificationAwareComponent create(
-            IViewContext<IGenericClientServiceAsync> viewContext, IIdentifierHolder identifier)
+            IViewContext<IGenericClientServiceAsync> viewContext,
+            IIdAndIdentifierHolder identifiable)
     {
-        GenericSampleEditForm form = new GenericSampleEditForm(viewContext, identifier);
+        GenericSampleEditForm form = new GenericSampleEditForm(viewContext, identifiable);
         return new DatabaseModificationAwareComponent(form, form);
     }
 
     private GenericSampleEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdentifierHolder identifier)
+            IIdAndIdentifierHolder identifiable)
     {
-        super(viewContext, identifier, EntityKind.SAMPLE);
-        sessionKey = createSimpleId(identifierHolderOrNull, EntityKind.SAMPLE);
+        super(viewContext, identifiable, EntityKind.SAMPLE);
+        sessionKey = createSimpleId(identifiable, EntityKind.SAMPLE);
         addUploadFeatures(sessionKey);
     }
 
@@ -236,7 +237,7 @@ public final class GenericSampleEditForm extends
     @Override
     protected void loadForm()
     {
-        String sampleIdentifier = identifierHolderOrNull.getIdentifier();
+        String sampleIdentifier = identifiableOrNull.getIdentifier();
         viewContext.getService().getSampleInfo(sampleIdentifier,
                 new SampleInfoCallback(viewContext));
     }

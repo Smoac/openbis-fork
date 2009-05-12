@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  * 
  * @author Izabela Adamczyk
  */
-public interface IExperimentBO extends IBusinessObject
+public interface IExperimentBO extends IEntityBusinessObject
 {
 
     /** Loads a experiment given by its identifier. */

@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
  * 
  * @author Izabela Adamczyk
  */
-public interface IMaterialBO extends IBusinessObject
+public interface IMaterialBO extends IEntityBusinessObject
 {
 
     /** Loads a material given by its identifier. */
@@ -43,5 +43,6 @@ public interface IMaterialBO extends IBusinessObject
     /**
      * Changes given material. Currently allowed changes: properties.
      */
-    public void update(MaterialIdentifier identifier, List<MaterialProperty> properties, Date version);
+    public void update(MaterialIdentifier identifier, List<MaterialProperty> properties,
+            Date version);
 }

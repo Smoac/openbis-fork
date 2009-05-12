@@ -55,6 +55,7 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
 
     public final T getByTechId(final TechId techId) throws DataAccessException
     {
+        assert techId != null : "Technical identifier unspecified.";
         final Object object = getHibernateTemplate().load(getEntityClass(), techId.getId());
         if (operationLog.isDebugEnabled())
         {

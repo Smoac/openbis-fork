@@ -22,11 +22,13 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.orm.ObjectRetrievalFailureException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -92,6 +94,20 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             throw new IllegalStateException("Unloaded sample.");
         }
         return sample;
+    }
+
+    public void loadDataByTechId(TechId sampleId)
+    {
+        try
+        {
+            sample = getSampleDAO().getByTechId(sampleId);
+            HibernateUtils.initialize(sample.getExperiment());
+        } catch (ObjectRetrievalFailureException exception)
+        {
+            throw new UserFailureException(String.format("Material with ID '%s' does not exist.",
+                    sampleId));
+        }
+        dataChanged = false;
     }
 
     public final void loadBySampleIdentifier(final SampleIdentifier identifier)

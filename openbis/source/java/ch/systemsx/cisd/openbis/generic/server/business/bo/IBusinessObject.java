@@ -26,10 +26,11 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 public interface IBusinessObject
 {
     /**
-     * Writes changed are added data to the Data Access Layers.
+     * Writes changed or added data to the Data Access Layers.
      * 
      * @throws UnsupportedOperationException if saving isn't supported because it is a read-only
      *             object.
      */
     public void save() throws UserFailureException;
+
 }

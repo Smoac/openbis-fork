@@ -25,6 +25,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -88,9 +89,9 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
-    public MaterialPE getMaterialInfo(final String sessionToken, final MaterialIdentifier identifier)
+    public MaterialPE getMaterialInfo(final String sessionToken, final TechId materialId)
     {
-        logAccess(sessionToken, "get_material_info", "IDENTIFIER(%s)", identifier);
+        logAccess(sessionToken, "get_material_info", "ID(%s)", materialId);
         return null;
     }
 

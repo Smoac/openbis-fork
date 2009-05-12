@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
@@ -84,9 +85,9 @@ public interface IGenericClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * For given <var>materialIdentifier</var> returns corresponding {@link Material}.
+     * For given {@link TechId} returns corresponding {@link Material}.
      */
-    public Material getMaterialInfo(final String materialIdentifier) throws UserFailureException;
+    public Material getMaterialInfo(final TechId materialId) throws UserFailureException;
 
     /**
      * For given <var>datasetCode</var> returns corresponding {@link ExternalData}.

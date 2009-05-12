@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -35,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
  * @author Izabela Adamczyk
  */
 public class Material extends CodeWithRegistration<Material> implements IEntityInformationHolder,
-        IEntityPropertiesHolder
+        IEntityPropertiesHolder, IIdAndIdentifierHolder
 {
     private DatabaseInstance databaseInstance;
 

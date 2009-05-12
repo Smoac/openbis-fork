@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeFieldWithGenerator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -60,7 +61,7 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
 
     protected final IViewContext<IGenericClientServiceAsync> viewContext;
 
-    protected final IIdentifierHolder identifierHolderOrNull;
+    protected final IIdAndIdentifierHolder identifiableOrNull;
 
     protected CodeFieldWithGenerator codeField;
 
@@ -74,12 +75,12 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
      */
     protected AbstractGenericEntityRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdentifierHolder identifierHolderOrNull, EntityKind entityKind)
+            IIdAndIdentifierHolder identifiable, EntityKind entityKind)
     {
-        super(viewContext, createId(identifierHolderOrNull, entityKind), DEFAULT_LABEL_WIDTH + 20,
+        super(viewContext, createId(identifiable, entityKind), DEFAULT_LABEL_WIDTH + 20,
                 DEFAULT_FIELD_WIDTH);
         this.viewContext = viewContext;
-        this.identifierHolderOrNull = identifierHolderOrNull;
+        this.identifiableOrNull = identifiable;
         this.entityKind = entityKind;
     }
 
@@ -155,14 +156,14 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
     private final void createCommonFormFields()
     {
         propertiesEditor =
-                createPropertiesEditor(createId(identifierHolderOrNull, entityKind), viewContext
+                createPropertiesEditor(createId(identifiableOrNull, entityKind), viewContext
                         .getCommonViewContext());
         codeField =
                 new CodeFieldWithGenerator(viewContext, viewContext.getMessage(Dict.CODE),
                         entityKind.name().substring(0, 1));
         codeField.setId(getId() + ID_SUFFIX_CODE);
-        codeField.setEnabled(identifierHolderOrNull == null);
-        codeField.setHideTrigger(identifierHolderOrNull != null);
+        codeField.setEnabled(identifiableOrNull == null);
+        codeField.setHideTrigger(identifiableOrNull != null);
     }
 
     protected void updatePropertyFieldsOriginalValues()
