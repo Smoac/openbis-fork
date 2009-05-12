@@ -61,7 +61,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
                 new ListSamplesCallback(viewContext));
     }
 
-    private class ListSamplesCallback extends AbstractAsyncCallback<ResultSet<Sample>>
+    public class ListSamplesCallback extends AbstractAsyncCallback<ResultSet<Sample>>
     {
 
         public ListSamplesCallback(IViewContext<?> viewContext)

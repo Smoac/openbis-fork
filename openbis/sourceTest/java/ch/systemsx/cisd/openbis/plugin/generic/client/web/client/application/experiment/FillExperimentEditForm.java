@@ -23,14 +23,13 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ControlledVocabullaryField.VocabularyList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
 
 /**
@@ -41,18 +40,18 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Pro
 public final class FillExperimentEditForm extends AbstractDefaultTestCommand
 {
 
-    private final String projectNameOrNull;
-
     private final List<PropertyField> properties;
 
-    private static String DUMMY_ID =
-            GenericExperimentRegistrationForm.createId(null, EntityKind.EXPERIMENT);
+    private String identifier;
 
-    public FillExperimentEditForm(final String project)
+    public FillExperimentEditForm(String identifier)
     {
-        this.projectNameOrNull = project;
+        this.identifier = identifier;
         this.properties = new ArrayList<PropertyField>();
+        addCallbackClass(GenericExperimentEditForm.ExperimentInfoCallback.class);
+        addCallbackClass(GenericExperimentEditForm.ListSamplesCallback.class);
         addCallbackClass(ProjectSelectionWidget.ListProjectsCallback.class);
+        addCallbackClass(ExperimentTypeSelectionWidget.ListItemsCallback.class);
     }
 
     public final FillExperimentEditForm addProperty(final PropertyField property)
@@ -62,25 +61,14 @@ public final class FillExperimentEditForm extends AbstractDefaultTestCommand
         return this;
     }
 
-    //
-    // AbstractDefaultTestCommand
-    //
-
     public final void execute()
     {
-
-        final ProjectSelectionWidget projectSelector =
-                (ProjectSelectionWidget) GWTTestUtil.getWidgetWithID(ProjectSelectionWidget.ID
-                        + ProjectSelectionWidget.SUFFIX + DUMMY_ID);
-        if (projectNameOrNull != null)
-        {
-            GWTUtils.setSelectedItem(projectSelector, ModelDataPropertyNames.CODE,
-                    projectNameOrNull);
-        }
-
+        String id =
+                GenericExperimentEditForm.ID_PREFIX + "generic-experiment-edit_" + identifier
+                        + "_form";
         for (final PropertyField property : properties)
         {
-            final Widget widget = GWTTestUtil.getWidgetWithID(property.getPropertyFieldId());
+            final Widget widget = GWTTestUtil.getWidgetWithID(id + property.getPropertyFieldId());
             if (widget instanceof Field)
             {
                 ((Field<?>) widget).setRawValue(property.getPropertyFieldValue());
@@ -93,6 +81,6 @@ public final class FillExperimentEditForm extends AbstractDefaultTestCommand
                 throw new IllegalStateException("Wrong widget type");
             }
         }
-        GWTTestUtil.clickButtonWithID(DUMMY_ID + AbstractRegistrationForm.SAVE_BUTTON);
+        GWTTestUtil.clickButtonWithID(id + AbstractRegistrationForm.SAVE_BUTTON);
     }
 }

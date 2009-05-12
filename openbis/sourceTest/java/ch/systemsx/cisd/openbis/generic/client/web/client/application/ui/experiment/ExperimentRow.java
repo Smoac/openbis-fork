@@ -18,14 +18,14 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experi
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.RowWithProperties;
 
 /**
  * Allows to define experiment table row expectations.
  * 
  * @author Izabela Adamczyk
  */
-public class ExperimentRow extends Row
+public class ExperimentRow extends RowWithProperties
 {
     public ExperimentRow(final String code)
     {

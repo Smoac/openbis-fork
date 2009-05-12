@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
  */
 public class GridTestUtils
 {
+
     /** simulates pressing the refresh button for the currently opened grid */
     public static final void pressRefreshGridButton()
     {

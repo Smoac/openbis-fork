@@ -63,8 +63,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
     private GenericExperimentViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
             final String experimentIdentifier)
     {
-        super(viewContext, "Experiment " + experimentIdentifier);
-        setId(createId(experimentIdentifier));
+        super(viewContext, "Experiment " + experimentIdentifier, createId(experimentIdentifier));
         this.experimentIdentifier = experimentIdentifier;
         this.modificationObserver = new CompositeDatabaseModificationObserver();
         reloadAllData();

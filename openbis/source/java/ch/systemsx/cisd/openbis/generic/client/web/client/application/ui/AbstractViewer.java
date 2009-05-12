@@ -29,11 +29,11 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -44,21 +44,26 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  */
 public abstract class AbstractViewer<T extends IClientServiceAsync> extends ContentPanel
 {
+
+    public static final String ID_EDIT_SUFFIX = "_edit";
+
     private final ToolBar toolBar;
 
     protected final IViewContext<T> viewContext;
 
     private Button editButton;
 
-    public AbstractViewer(final IViewContext<T> viewContext, String title)
+    public AbstractViewer(final IViewContext<T> viewContext, String title, String id)
     {
         this.viewContext = viewContext;
+        setId(id);
         setHeaderVisible(false);
         toolBar = new ToolBar();
         setTopComponent(toolBar);
         toolBar.add(new LabelToolItem(title));
         toolBar.add(new FillToolItem());
         editButton = new Button(viewContext.getMessage(Dict.BUTTON_EDIT));
+        editButton.setId(getId() + ID_EDIT_SUFFIX);
         editButton.addListener(Events.Select, new Listener<BaseEvent>()
             {
                 public void handleEvent(BaseEvent be)
@@ -69,7 +74,6 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
         enableEdit(false);
         toolBar.add(new AdapterToolItem(editButton));
     }
-
 
     protected final String getBaseIndexURL()
     {
@@ -97,4 +101,5 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
         tabView = createClientPlugin.createEntityEditor(identifierHolder);
         DispatcherHelper.dispatchNaviEvent(tabView);
     }
+
 }

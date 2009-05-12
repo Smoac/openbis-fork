@@ -46,8 +46,7 @@ public final class ScreeningSampleViewer extends AbstractViewer<IScreeningClient
     public ScreeningSampleViewer(final IViewContext<IScreeningClientServiceAsync> viewContext,
             final String sampleIdentifier)
     {
-        super(viewContext, "Sample " + sampleIdentifier);
-        setId(createId(sampleIdentifier));
+        super(viewContext, "Sample " + sampleIdentifier, createId(sampleIdentifier));
         this.sampleIdentifier = sampleIdentifier;
         reloadData();
     }

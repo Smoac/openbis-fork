@@ -63,8 +63,8 @@ public final class GenericDataSetViewer extends AbstractViewer<IGenericClientSer
     private GenericDataSetViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
             final String datasetIdentifier)
     {
-        super(viewContext, EntityKind.DATA_SET.getDescription() + " " + datasetIdentifier);
-        setId(createId(datasetIdentifier));
+        super(viewContext, EntityKind.DATA_SET.getDescription() + " " + datasetIdentifier,
+                createId(datasetIdentifier));
         this.datasetIdentifier = datasetIdentifier;
         reloadData();
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2009 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,39 +16,35 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
-import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.google.gwt.user.client.ui.Widget;
+import junit.framework.Assert;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.widget.button.Button;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension for showing a experiment editor.
- * 
  * @author Izabela Adamczyk
  */
 public class ShowExperimentEditor extends AbstractDefaultTestCommand
 {
-    private final String code;
+    private final String identifier;
 
-    public ShowExperimentEditor(final String code)
+    public ShowExperimentEditor(String identifier)
     {
-        this.code = code;
+        this.identifier = identifier;
+        addCallbackClass(GenericExperimentViewer.ExperimentInfoCallback.class);
     }
 
-    @SuppressWarnings("unchecked")
     public void execute()
     {
-        final Widget widget = GWTTestUtil.getWidgetWithID(ExperimentBrowserGrid.GRID_ID);
-        assertTrue(widget instanceof Grid);
-        final Grid<BaseEntityModel<Experiment>> table = (Grid<BaseEntityModel<Experiment>>) widget;
-        GridTestUtils.fireSingleClick(table, CommonExperimentColDefKind.CODE.id(), code);
-        GWTTestUtil.clickButtonWithID(ExperimentBrowserGrid.GRID_ID
-                + ExperimentBrowserGrid.ID_SUFFIX_EDIT_BUTTON);
-
+        final Button edit =
+                (Button) GWTTestUtil.getWidgetWithID(GenericExperimentViewer.createId(identifier)
+                        + GenericExperimentViewer.ID_EDIT_SUFFIX);
+        Assert.assertTrue(edit.isEnabled());
+        edit.fireEvent(Events.Select);
     }
+
 }

@@ -122,8 +122,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     private GenericSampleViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
             final String sampleIdentifier)
     {
-        super(viewContext, "Sample " + sampleIdentifier);
-        setId(createId(sampleIdentifier));
+        super(viewContext, "Sample " + sampleIdentifier, createId(sampleIdentifier));
         this.sampleIdentifier = sampleIdentifier;
         reloadAllData();
     }

@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.SearchTest
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VocabularyBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VocabularyRegistrationTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentAttachmentDownloadTest;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentEditorTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewerTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewerTest;
@@ -65,7 +66,7 @@ public class SystemTestSuite extends GWTTestSuite
         // (NS_ERROR_DOM_SECURITY_ERR): Security error on CC
         // testSuite.addTestSuite(GenericExperimentRegistrationTest.class);
         testSuite.addTestSuite(GenericExperimentViewerTest.class);
-        // testSuite.addTestSuite(GenericExperimentEditorTest.class);
+        testSuite.addTestSuite(GenericExperimentEditorTest.class);
         testSuite.addTestSuite(PropertyTypeBrowserTest.class);
         testSuite.addTestSuite(PropertyTypeAssignmentBrowserTest.class);
         testSuite.addTestSuite(EntityTypePropertyTypeAssignmentTest.class);

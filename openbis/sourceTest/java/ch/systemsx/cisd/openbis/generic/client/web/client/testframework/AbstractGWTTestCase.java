@@ -30,8 +30,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Client;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
 /**
@@ -41,6 +41,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
  */
 public abstract class AbstractGWTTestCase extends GWTTestCase
 {
+    protected static final int SECOND = 1000;
+
     protected RemoteConsole remoteConsole;
 
     protected Client client;

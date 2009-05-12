@@ -49,6 +49,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.exp
 public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>>
         extends AbstractRegistrationForm implements IDatabaseModificationObserver
 {
+    public static final String ID_PREFIX = GenericConstants.ID_PREFIX;
+
     public static final String ID_SUFFIX_CODE = "code";
 
     // ---------------------------------------------------------------------------------------------
@@ -110,7 +112,7 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
      */
     public static final String createId(IIdentifierHolder identifier, EntityKind entityKind)
     {
-        return GenericConstants.ID_PREFIX + createSimpleId(identifier, entityKind);
+        return ID_PREFIX + createSimpleId(identifier, entityKind);
     }
 
     /**
