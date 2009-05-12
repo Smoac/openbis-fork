@@ -61,6 +61,8 @@ public class DumpPreparator
     private static final String MAC_POSTGRESQL_PATH = "/opt/local/lib/postgresql83/bin/";
 
     private static final String DUMP_EXEC = "pg_dump";
+    
+    private static final String PSQL_EXEC = "psql";
 
     private static final Set<String> FILTERED_SCHEMA_LINES =
             new LinkedHashSet<String>(Arrays.asList("SET client_encoding = 'UTF8';",
@@ -131,14 +133,30 @@ public class DumpPreparator
         return ok;
     }
 
-    private final static String getDumpExecutable()
+    /**
+     * Returns the <code>pg_dump</code> executable.
+     */
+    public final static String getDumpExecutable()
+    {
+        return getExecutable(DUMP_EXEC);
+    }
+
+    /**
+     * Returns the <code>psql</code> executable.
+     */
+    public final static String getPSQLExecutable()
+    {
+        return getExecutable(PSQL_EXEC);
+    }
+    
+    private static String getExecutable(String executable)
     {
         final Set<String> paths = OSUtilities.getSafeOSPath();
         paths.add(MAC_POSTGRESQL_PATH);
-        final File dumbExec = OSUtilities.findExecutable(DUMP_EXEC, paths);
+        final File dumbExec = OSUtilities.findExecutable(executable, paths);
         if (dumbExec == null)
         {
-            throw new EnvironmentFailureException("Cannot locate executable file: " + DUMP_EXEC);
+            throw new EnvironmentFailureException("Cannot locate executable file: " + executable);
         }
         return dumbExec.getAbsolutePath();
     }
