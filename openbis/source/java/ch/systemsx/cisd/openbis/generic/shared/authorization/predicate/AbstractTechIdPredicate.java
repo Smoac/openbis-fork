@@ -60,7 +60,7 @@ public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<Tec
 
     public static class ExperimentTechIdPredicate extends AbstractTechIdPredicate
     {
-        ExperimentTechIdPredicate()
+        public ExperimentTechIdPredicate()
         {
             super(EntityWithGroupKind.EXPERIMENT);
         }
@@ -68,7 +68,7 @@ public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<Tec
 
     public static class GroupTechIdPredicate extends AbstractTechIdPredicate
     {
-        GroupTechIdPredicate()
+        public GroupTechIdPredicate()
         {
             super(EntityWithGroupKind.GROUP);
         }
@@ -76,7 +76,7 @@ public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<Tec
 
     public static class ProjectTechIdPredicate extends AbstractTechIdPredicate
     {
-        ProjectTechIdPredicate()
+        public ProjectTechIdPredicate()
         {
             super(EntityWithGroupKind.PROJECT);
         }

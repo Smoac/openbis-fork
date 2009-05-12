@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -381,15 +382,14 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void getLastModificationState(AsyncCallback<LastModificationState> asyncCallback);
 
     /**
-     * @see ICommonClientService#getProjectInfo(String)
+     * @see ICommonClientService#getProjectInfo(TechId)
      */
-    public void getProjectInfo(String projectIdentifier,
-            final AsyncCallback<Project> projectInfoCallback);
+    public void getProjectInfo(TechId projectId, AsyncCallback<Project> projectInfoCallback);
 
     /**
      * @see ICommonClientService#generateCode(String)
      */
-    public void generateCode(String codePrefix, final AsyncCallback<String> callback);
+    public void generateCode(String codePrefix, AsyncCallback<String> callback);
 
     /**
      * @see ICommonClientService#updateProject(ProjectUpdates)

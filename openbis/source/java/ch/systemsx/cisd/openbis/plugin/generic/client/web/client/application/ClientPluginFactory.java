@@ -333,6 +333,7 @@ public final class ClientPluginFactory extends
 
         @Override
         public ITabItemFactory createEntityEditor(final IIdentifierHolder identifierHolder)
+        // TODO IIdentifierHolderWithTechId - but Identifier is not permanent
         {
             return new ITabItemFactory()
                 {

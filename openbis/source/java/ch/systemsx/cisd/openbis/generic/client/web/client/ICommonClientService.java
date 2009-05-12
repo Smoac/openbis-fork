@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -449,9 +450,9 @@ public interface ICommonClientService extends IClientService
     public LastModificationState getLastModificationState() throws UserFailureException;
 
     /**
-     * For given <var>projectIdentifier</var> returns corresponding {@link Project}.
+     * For given {@link TechId} returns corresponding {@link Project}.
      */
-    public Project getProjectInfo(final String projectIdentifier) throws UserFailureException;
+    public Project getProjectInfo(final TechId projectId) throws UserFailureException;
 
     /**
      * Generates unique code.

@@ -114,7 +114,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
         return attachmentsSection;
     }
 
-    public final class ExperimentInfoCallback extends AbstractAsyncCallback<Experiment>
+    public static final class ExperimentInfoCallback extends AbstractAsyncCallback<Experiment>
     {
         private final GenericExperimentViewer genericExperimentViewer;
 
@@ -142,8 +142,8 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
         @Override
         protected final void process(final Experiment result)
         {
-            setOriginalExperiment(result);
-            enableEdit(true);
+            genericExperimentViewer.setOriginalExperiment(result);
+            genericExperimentViewer.enableEdit(true);
             genericExperimentViewer.removeAll();
             genericExperimentViewer.setScrollMode(Scroll.AUTO);
 

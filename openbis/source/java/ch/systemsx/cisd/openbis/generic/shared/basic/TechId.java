@@ -38,6 +38,11 @@ public class TechId implements IIdHolder, IsSerializable
         this.id = id;
     }
 
+    public TechId(IIdHolder idHolder)
+    {
+        this(idHolder == null ? null : idHolder.getId());
+    }
+
     public Long getId()
     {
         return id;

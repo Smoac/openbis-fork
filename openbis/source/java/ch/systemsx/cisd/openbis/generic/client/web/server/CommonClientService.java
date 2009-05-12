@@ -77,6 +77,7 @@ import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -1263,16 +1264,17 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public Project getProjectInfo(String projectIdentifier)
+    public Project getProjectInfo(TechId projectId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
 
         try
         {
             final String sessionToken = getSessionToken();
-            final ProjectIdentifier identifier =
-                    new ProjectIdentifierFactory(projectIdentifier).createIdentifier();
-            final ProjectPE project = commonServer.getProjectInfo(sessionToken, identifier);
+            // TODO moze nie byc jakichs wyjatkow
+            // final ProjectIdentifier identifier =
+            // new ProjectIdentifierFactory(projectIdentifier).createIdentifier();
+            final ProjectPE project = commonServer.getProjectInfo(sessionToken, projectId);
             return ProjectTranslator.translate(project);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {

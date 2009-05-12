@@ -88,7 +88,7 @@ public final class GenericMaterialViewer extends AbstractViewer<IGenericClientSe
                 new MaterialInfoCallback(viewContext, this));
     }
 
-    public final class MaterialInfoCallback extends AbstractAsyncCallback<Material>
+    public static final class MaterialInfoCallback extends AbstractAsyncCallback<Material>
     {
         private final GenericMaterialViewer genericMaterialViewer;
 
@@ -112,8 +112,8 @@ public final class GenericMaterialViewer extends AbstractViewer<IGenericClientSe
         @Override
         protected final void process(final Material result)
         {
-            setOriginalMaterial(result);
-            enableEdit(true);
+            genericMaterialViewer.setOriginalMaterial(result);
+            genericMaterialViewer.enableEdit(true);
             genericMaterialViewer.removeAll();
             genericMaterialViewer.setScrollMode(Scroll.AUTO);
             addSection(genericMaterialViewer, new MaterialPropertiesSection(result, viewContext));

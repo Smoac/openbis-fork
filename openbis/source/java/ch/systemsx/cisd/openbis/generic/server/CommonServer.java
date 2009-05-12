@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -796,11 +797,11 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return lastModificationState;
     }
 
-    public ProjectPE getProjectInfo(String sessionToken, ProjectIdentifier identifier)
+    public ProjectPE getProjectInfo(String sessionToken, TechId projectId)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IProjectBO bo = businessObjectFactory.createProjectBO(session);
-        bo.loadByProjectIdentifier(identifier);
+        bo.loadByProjectTechId(projectId);
         bo.enrichWithAttachments();
         final ProjectPE project = bo.getProject();
         return project;

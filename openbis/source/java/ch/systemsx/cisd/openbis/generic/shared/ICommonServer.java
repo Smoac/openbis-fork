@@ -30,11 +30,13 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCo
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExternalDataValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.MatchingEntityValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -511,13 +513,12 @@ public interface ICommonServer extends IServer
     public LastModificationState getLastModificationState(String sessionToken);
 
     /**
-     * For given {@link ProjectIdentifier} returns the corresponding {@link ProjectPE}.
+     * For given {@link TechId} returns the corresponding {@link ProjectPE}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public ProjectPE getProjectInfo(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier identifier);
+    public ProjectPE getProjectInfo(String sessionToken,
+            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId);
 
     /**
      * Returns unique code.

@@ -28,6 +28,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
  * Presents details of the project.
@@ -40,27 +42,25 @@ public final class ProjectViewer extends ContentPanel
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final String projectIdentifier;
+    private final IIdHolder projectId;
 
     private final CompositeDatabaseModificationObserver modificationObserver;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     public static DatabaseModificationAwareComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext,
-            final String projectIdentifier)
+            final IViewContext<ICommonClientServiceAsync> viewContext, final IIdHolder projectId)
     {
-        ProjectViewer viewer = new ProjectViewer(viewContext, projectIdentifier);
+        ProjectViewer viewer = new ProjectViewer(viewContext, projectId);
         return new DatabaseModificationAwareComponent(viewer, viewer.modificationObserver);
     }
 
     private ProjectViewer(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final String projectIdentifier)
+            final IIdHolder projectId)
     {
         this.viewContext = viewContext;
-        setHeading(viewContext.getMessage(Dict.PROJECT) + " " + projectIdentifier);
-        setId(createId(projectIdentifier));
-        this.projectIdentifier = projectIdentifier;
+        setId(createId(projectId));
+        this.projectId = projectId;
         this.modificationObserver = new CompositeDatabaseModificationObserver();
         reloadAllData();
     }
@@ -70,9 +70,9 @@ public final class ProjectViewer extends ContentPanel
         reloadData(new ProjectInfoCallback(viewContext, this, modificationObserver));
     }
 
-    public static String createId(String projectIdentifier)
+    public static String createId(final IIdHolder projectId)
     {
-        return ID_PREFIX + projectIdentifier;
+        return ID_PREFIX + projectId.getId();
     }
 
     private static void addSection(final LayoutContainer lc, final Widget w)
@@ -85,7 +85,7 @@ public final class ProjectViewer extends ContentPanel
      */
     protected void reloadData(AbstractAsyncCallback<Project> callback)
     {
-        viewContext.getService().getProjectInfo(projectIdentifier, callback);
+        viewContext.getService().getProjectInfo(new TechId(projectId), callback);
     }
 
     private AttachmentsSection<Project> createAttachmentsSection(final Project project)
@@ -120,6 +120,8 @@ public final class ProjectViewer extends ContentPanel
         @Override
         protected final void process(final Project result)
         {
+            viewer.setHeading(viewContext.getMessage(Dict.PROJECT) + " " + result.getIdentifier());
+
             viewer.removeAll();
             viewer.setScrollMode(Scroll.AUTO);
             AttachmentsSection<Project> attachmentsSection =

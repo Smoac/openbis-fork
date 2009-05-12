@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -140,6 +141,17 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         {
             throw new UserFailureException(String
                     .format("Project '%s' does not exist.", identifier));
+        }
+        dataChanged = false;
+    }
+
+    public void loadByProjectTechId(TechId projectId)
+    {
+        project = getProjectDAO().getByTechId(projectId);
+        if (project == null)
+        {
+            throw new UserFailureException(String.format("Project with ID '%s' does not exist.",
+                    projectId));
         }
         dataChanged = false;
     }

@@ -63,6 +63,7 @@ public class AttachmentDownloadServlet extends AbstractFileDownloadServlet
         this.server = server;
     }
 
+    // TODO 2009-05-12, Piotr Buczek, use TechId instead of identifier
     @Override
     protected FileContent getFileContent(final HttpServletRequest request) throws Exception
     {

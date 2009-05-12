@@ -88,7 +88,7 @@ public final class GenericDataSetViewer extends AbstractViewer<IGenericClientSer
                 new DataSetInfoCallback(viewContext, this));
     }
 
-    public final class DataSetInfoCallback extends AbstractAsyncCallback<ExternalData>
+    public static final class DataSetInfoCallback extends AbstractAsyncCallback<ExternalData>
     {
         private final GenericDataSetViewer genericDataSetViewer;
 
@@ -112,8 +112,8 @@ public final class GenericDataSetViewer extends AbstractViewer<IGenericClientSer
         @Override
         protected final void process(final ExternalData result)
         {
-            setOriginalDataSet(result);
-            enableEdit(true);
+            genericDataSetViewer.setOriginalDataSet(result);
+            genericDataSetViewer.enableEdit(true);
             genericDataSetViewer.removeAll();
             genericDataSetViewer.setScrollMode(Scroll.AUTO);
             addSection(genericDataSetViewer, new DataSetPropertiesSection(result, viewContext));

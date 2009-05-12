@@ -454,7 +454,8 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         }
     }
 
-    public final class SampleGenerationInfoCallback extends AbstractAsyncCallback<SampleGeneration>
+    public static final class SampleGenerationInfoCallback extends
+            AbstractAsyncCallback<SampleGeneration>
     {
         private final GenericSampleViewer genericSampleViewer;
 
@@ -479,8 +480,8 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         @Override
         protected final void process(final SampleGeneration result)
         {
-            setOriginalSample(result.getGenerator());
-            enableEdit(true);
+            genericSampleViewer.setOriginalSample(result.getGenerator());
+            genericSampleViewer.enableEdit(true);
             genericSampleViewer.removeAll();
             genericSampleViewer.setLayout(new BorderLayout());
             // Left panel
@@ -516,7 +517,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         protected final void process(final SampleGeneration result)
         {
             genericSampleViewer.updateProperties(result);
-
         }
     }
 

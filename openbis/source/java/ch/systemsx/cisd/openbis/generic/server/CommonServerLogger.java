@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -428,9 +429,9 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public ProjectPE getProjectInfo(String sessionToken, ProjectIdentifier identifier)
+    public ProjectPE getProjectInfo(String sessionToken, TechId projectId)
     {
-        logAccess(sessionToken, "get_project_info", "IDENTIFIER(%s)", identifier);
+        logAccess(sessionToken, "get_project_info", "ID(%s)", projectId);
         return null;
     }
 
