@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -47,6 +48,8 @@ public final class FillExperimentEditForm extends AbstractDefaultTestCommand
 
     private String newProjectOrNull;
 
+    private String samplesOrNull;
+
     public FillExperimentEditForm(String identifier)
     {
         this.identifier = identifier;
@@ -61,6 +64,12 @@ public final class FillExperimentEditForm extends AbstractDefaultTestCommand
     {
         assert property != null : "Unspecified property";
         properties.add(property);
+        return this;
+    }
+
+    public final FillExperimentEditForm withSamples(final String allSamples)
+    {
+        this.samplesOrNull = allSamples;
         return this;
     }
 
@@ -90,6 +99,13 @@ public final class FillExperimentEditForm extends AbstractDefaultTestCommand
                             + ProjectSelectionWidget.SUFFIX + simpleId);
             GWTUtils.setSelectedItem(projectSelector, ModelDataPropertyNames.PROJECT_IDENTIFIER,
                     newProjectOrNull);
+        }
+        if (samplesOrNull != null)
+        {
+            final TextArea samplesField =
+                    (TextArea) GWTTestUtil
+                            .getWidgetWithID(ExperimentSamplesArea.createId(simpleId));
+            samplesField.setRawValue(samplesOrNull);
         }
         GWTTestUtil.clickButtonWithID(id + AbstractRegistrationForm.SAVE_BUTTON);
     }

@@ -35,62 +35,71 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Pro
 public class GenericExperimentEditorTest extends AbstractGWTTestCase
 {
 
-    private static final String EXP_TYPE_SIRNA_HCS = "SIRNA_HCS";
+    private static final String SIRNA_HCS = "SIRNA_HCS";
 
-    private static final String GROUP_CISD = "CISD";
+    private static final String CISD = "CISD";
 
-    private static final String PROJ_CODE_NEMO = "NEMO";
+    private static final String NEMO = "NEMO";
 
-    private static final String PROJ_CODE_DEFAULT = "DEFAULT";
+    private static final String DEFAULT = "DEFAULT";
 
-    private static final String PROJ_ID_CISD_DEFAULT = "/" + GROUP_CISD + "/" + PROJ_CODE_DEFAULT;
+    private static final String EXP1 = "EXP1";
 
-    private static final String PROJ_WITH_GROUP_DEFAULT_CISD =
-            PROJ_CODE_DEFAULT + " (" + GROUP_CISD + ")";
+    private static final String EXP11 = "EXP11";
 
-    private static final String PROJ_WITH_GROUP_NEMO_CISD =
-            PROJ_CODE_NEMO + " (" + GROUP_CISD + ")";
+    private static final String withGroup(String group, String project)
+    {
+        return project + " (" + group + ")";
+    }
 
-    private static final String EXP_CODE_EXP1 = "EXP1";
-
-    private static final String EXP_ID_CISD_NEMO_EXP1 =
-            "/" + GROUP_CISD + "/" + PROJ_CODE_NEMO + "/" + EXP_CODE_EXP1;
+    private static final String identifier(String... elements)
+    {
+        StringBuilder sb = new StringBuilder();
+        for (String s : elements)
+        {
+            sb.append("/");
+            sb.append(s);
+        }
+        return sb.toString();
+    }
 
     public final void testEditExperimentDescription()
     {
-        prepareShowExperimentEditor(PROJ_WITH_GROUP_NEMO_CISD, EXP_TYPE_SIRNA_HCS, EXP_CODE_EXP1);
+        prepareShowExperimentEditor(CISD, NEMO, SIRNA_HCS, EXP1);
         String description = "description from " + new Date();
-        remoteConsole.prepare(new FillExperimentEditForm(EXP_ID_CISD_NEMO_EXP1)
+        remoteConsole.prepare(new FillExperimentEditForm(identifier(CISD, NEMO, EXP1))
                 .addProperty(new PropertyField("user-description", description)));
-        remoteConsole.prepare(new ListExperiments(PROJ_WITH_GROUP_NEMO_CISD, EXP_TYPE_SIRNA_HCS,
+        remoteConsole.prepare(new ListExperiments(withGroup(CISD, NEMO), SIRNA_HCS,
                 GenericExperimentEditForm.UpdateExperimentCallback.class));
         CheckExperimentTable table = new CheckExperimentTable();
-        table.expectedRow(new ExperimentRow(EXP_CODE_EXP1).withUserPropertyCell("description",
-                description));
-        remoteConsole.prepare(table);
-        launchTest(25 * SECOND);
-    }
-
-    public final void testEditExperimentProject()
-    {
-        prepareShowExperimentEditor(PROJ_WITH_GROUP_NEMO_CISD, EXP_TYPE_SIRNA_HCS, EXP_CODE_EXP1);
-        remoteConsole.prepare(new FillExperimentEditForm(EXP_ID_CISD_NEMO_EXP1)
-                .changeProject(PROJ_ID_CISD_DEFAULT));
-        remoteConsole.prepare(new ListExperiments(PROJ_WITH_GROUP_DEFAULT_CISD, EXP_TYPE_SIRNA_HCS,
-                GenericExperimentEditForm.UpdateExperimentCallback.class));
-        CheckExperimentTable table = new CheckExperimentTable();
-        table.expectedRow(new ExperimentRow(EXP_CODE_EXP1));
+        table.expectedRow(new ExperimentRow(EXP1).withUserPropertyCell("description", description));
         remoteConsole.prepare(table);
         launchTest(20 * SECOND);
     }
 
-    private void prepareShowExperimentEditor(final String projectNameWithGroup,
+    public final void testEditExperimentProject()
+    {
+        String oldProject = NEMO;
+        String newProject = DEFAULT;
+        String experiment = EXP11;
+        prepareShowExperimentEditor(CISD, oldProject, SIRNA_HCS, experiment);
+        remoteConsole.prepare(new FillExperimentEditForm(identifier(CISD, oldProject, experiment))
+                .changeProject(identifier(CISD, newProject)));
+        remoteConsole.prepare(new ListExperiments(withGroup(CISD, newProject), SIRNA_HCS,
+                GenericExperimentEditForm.UpdateExperimentCallback.class));
+        CheckExperimentTable table = new CheckExperimentTable();
+        table.expectedRow(new ExperimentRow(experiment));
+        remoteConsole.prepare(table);
+        launchTest(20 * SECOND);
+    }
+
+    private void prepareShowExperimentEditor(String group, final String project,
             final String experimentTypeName, final String code)
     {
         loginAndInvokeAction(ActionMenuKind.EXPERIMENT_MENU_BROWSE);
-        remoteConsole.prepare(new ListExperiments(projectNameWithGroup, experimentTypeName));
+        remoteConsole.prepare(new ListExperiments(withGroup(group, project), experimentTypeName));
         remoteConsole.prepare(new ShowExperiment(code));
-        remoteConsole.prepare(new ShowExperimentEditor(EXP_ID_CISD_NEMO_EXP1));
+        remoteConsole.prepare(new ShowExperimentEditor(identifier(group, project, code)));
     }
 
 }
