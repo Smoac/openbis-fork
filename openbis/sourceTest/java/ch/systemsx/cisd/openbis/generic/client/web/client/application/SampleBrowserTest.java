@@ -32,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.ChangeTableColumnSettingsCommand;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.PiggyBackCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 
 /**
@@ -52,7 +51,8 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         settingsCommand.hiddenChangeEvent(CommonSampleColDefKind.CODE.name(), true);
         settingsCommand.widthChangeEvent(CommonSampleColDefKind.REGISTRATOR.name(),
                 2 * DEFAULT_COLUMN_WIDTH);
-        remoteConsole.prepare(new PiggyBackCommand(settingsCommand, new Logout()));
+        remoteConsole.prepare(settingsCommand);
+        remoteConsole.prepare(new Logout(SampleBrowserGrid.GRID_ID));
         Login login = new Login("test", "a");
         login.addCallbackClass(LogoutCallback.class);
         remoteConsole.prepare(login);
