@@ -47,14 +47,17 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
 public final class IndexCreationUtil
 {
     static final String DATABASE_NAME_PREFIX = "lims_";
-    
-    private static final Template DUPLICATE_DATABASE_TEMPLATE =
-            new Template("drop database if exists ${duplicated-database};"
-                    + "create database ${duplicated-database} with owner ${owner} template ${database}");
-    
+
+    private static final Template DROP_DATABASE_TEMPLATE =
+            new Template("drop database if exists ${duplicated-database}");
+
+    private static final Template CREATE_DATABASE_TEMPLATE =
+            new Template(
+                    "create database ${duplicated-database} with owner ${owner} template ${database}");
+
     private static final Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, IndexCreationUtil.class);
-    
+            LogFactory.getLogger(LogCategory.OPERATION, IndexCreationUtil.class);
+
     private static HibernateSearchContext hibernateSearchContext;
 
     private static BeanFactory beanFactory;
@@ -89,7 +92,8 @@ public final class IndexCreationUtil
     }
 
     /**
-     * Creates a freshly new {@link HibernateSearchContext} overriding the one loaded by <i>Spring</i>.
+     * Creates a freshly new {@link HibernateSearchContext} overriding the one loaded by
+     * <i>Spring</i>.
      */
     private final static HibernateSearchContext createHibernateSearchContext(String indexFolder)
     {
@@ -121,7 +125,7 @@ public final class IndexCreationUtil
         String indexFolder = parameters.getIndexFolder();
         if (duplicatedDatabaseKind != null)
         {
-            
+
             String databaseName = DATABASE_NAME_PREFIX + databaseKind;
             String duplicatedDatabaseName = DATABASE_NAME_PREFIX + duplicatedDatabaseKind;
             boolean ok = duplicateDatabase(duplicatedDatabaseName, databaseName);
@@ -136,9 +140,10 @@ public final class IndexCreationUtil
             FileUtilities.deleteRecursively(new File(indexFolder));
         }
         System.setProperty("database.kind", databaseKind);
-        // Deactivate the indexing in the application context loaded by Spring. 
+        // Deactivate the indexing in the application context loaded by Spring.
         System.setProperty("hibernate.search.index-mode", "NO_INDEX");
         System.setProperty("hibernate.search.index-base", indexFolder);
+        System.setProperty("database.create-from-scratch", "false");
         hibernateSearchContext = createHibernateSearchContext(indexFolder);
         hibernateSearchContext.afterPropertiesSet();
         operationLog.info("=========== Start indexing ===========");
@@ -154,19 +159,32 @@ public final class IndexCreationUtil
 
     static boolean duplicateDatabase(String destinationDatabase, String sourceDatabase)
     {
-        Template template = DUPLICATE_DATABASE_TEMPLATE.createFreshCopy();
-        template.bind("database", sourceDatabase);
-        template.bind("duplicated-database", destinationDatabase);
-        template.bind("owner", System.getProperty("user.name"));
+        operationLog.info("Duplicate database '" + sourceDatabase + "' as '" + destinationDatabase
+                + "'.");
+        Template dropCmd = DROP_DATABASE_TEMPLATE.createFreshCopy();
+        dropCmd.bind("duplicated-database", destinationDatabase);
+
+        boolean ok = execute(dropCmd);
+        if (ok == false)
+        {
+            return false;
+        }
+        Template createCmd = CREATE_DATABASE_TEMPLATE.createFreshCopy();
+        createCmd.bind("database", sourceDatabase);
+        createCmd.bind("duplicated-database", destinationDatabase);
+        createCmd.bind("owner", System.getProperty("user.name"));
+        return execute(createCmd);
+    }
+
+    private static boolean execute(Template template)
+    {
         String sql = template.createText();
         String psql = DumpPreparator.getPSQLExecutable();
         List<String> cmd = Arrays.asList(psql, "-U", "postgres", "-c", sql);
-        operationLog.info("Duplicate database '" + sourceDatabase + "' as '"
-                + destinationDatabase + "'.");
         boolean ok = ProcessExecutionHelper.runAndLog(cmd, operationLog, operationLog);
         if (ok == false)
         {
-            operationLog.error("Duplication failed");
+            operationLog.error("Sql command execution failed: " + template.createText());
         }
         return ok;
     }
@@ -175,15 +193,19 @@ public final class IndexCreationUtil
     {
         static String getUsage()
         {
-            return "Usage: java " + IndexCreationUtil.class.getName()
-            + " [-d <duplicated database kind> <dump file>] <database kind> [<index folder>]";
+            return "Usage: java "
+                    + IndexCreationUtil.class.getName()
+                    + " [-d <duplicated database kind> <dump file>] <database kind> [<index folder>]";
         }
-        
+
         private String duplicatedDatabaseKind;
+
         private File dumpFile;
+
         private String databaseKind;
+
         private String indexFolder = "sourceTest/lucene/indices";
-        
+
         Parameters(String[] args)
         {
             List<String> arguments = new ArrayList<String>(Arrays.asList(args));
@@ -210,12 +232,12 @@ public final class IndexCreationUtil
                 throw new IllegalArgumentException("Missing argument <" + entityType + ">.");
             }
         }
-        
+
         final File getDumpFile()
         {
             return dumpFile;
         }
-        
+
         final String getDuplicatedDatabaseKind()
         {
             return duplicatedDatabaseKind;
@@ -230,6 +252,6 @@ public final class IndexCreationUtil
         {
             return indexFolder;
         }
-        
+
     }
 }
