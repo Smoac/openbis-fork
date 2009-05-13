@@ -762,6 +762,7 @@ function assert_correct_content {
     assert_correct_dataset_content_in_database 14 "14;EXP1;DSS1;20[0-9]*-13;f;7;U;;"
     assert_correct_dataset_content_in_database 16 "16;EXP1;DSS2;20[0-9]*-15;f;;U;;"
     assert_equals "Content of file in drop box1" "hello world" "`cat $DATA/drop-box1/3VCP1_*-15.txt`"
+    assert_equals "Content of file in drop box2" "hello world" "`cat $DATA/drop-box2/3VCP1.*-15.txt`"
 }
 
 function integration_tests {
