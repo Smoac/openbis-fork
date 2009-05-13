@@ -113,6 +113,7 @@ public final class IndexCreationUtil
         {
             System.out.println(Parameters.getUsage());
             System.exit(1);
+            return; // for Eclipse
         }
         LogInitializer.init();
         String databaseKind = parameters.getDatabaseKind();
