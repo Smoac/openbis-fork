@@ -18,20 +18,21 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 
 /**
- * A {@link ITestCommand} which wraps two other test command. All validation calls are
- * delegated to the first command. The method {@link #execute()} executes the second command
- * right after the first one. Thus, a piggy-back command behaves like the first command with
- * an additional execution of a carried-on command (i.e. the second command).
- *
+ * A {@link ITestCommand} which wraps two other test command. All validation calls are delegated to
+ * the first command. The method {@link #execute()} executes the second command right after the
+ * first one. Thus, a piggy-back command behaves like the first command with an additional execution
+ * of a carried-on command (i.e. the second command).
+ * 
  * @author Franz-Josef Elmer
  */
 public class PiggyBackCommand extends AbstractDefaultTestCommand
 {
 
     private final ITestCommand firstCommand;
+
     private final ITestCommand secondCommand;
 
     public PiggyBackCommand(AbstractDefaultTestCommand firstCommand, ITestCommand secondCommand)
@@ -41,19 +42,20 @@ public class PiggyBackCommand extends AbstractDefaultTestCommand
     }
 
     @Override
-    public boolean validOnFailure(List<AsyncCallback<Object>> callbackObjects,
-            String failureMessage, Throwable throwable)
+    public List<AbstractAsyncCallback<Object>> tryValidOnFailure(
+            List<AbstractAsyncCallback<Object>> callbackObjects, String failureMessage,
+            Throwable throwable)
     {
-        return firstCommand.validOnFailure(callbackObjects, failureMessage, throwable);
+        return firstCommand.tryValidOnFailure(callbackObjects, failureMessage, throwable);
     }
 
     @Override
-    public boolean validOnSucess(List<AsyncCallback<Object>> callbackObjects,
-            Object result)
+    public List<AbstractAsyncCallback<Object>> tryValidOnSucess(
+            List<AbstractAsyncCallback<Object>> callbackObjects, Object result)
     {
-        return firstCommand.validOnSucess(callbackObjects, result);
+        return firstCommand.tryValidOnSucess(callbackObjects, result);
     }
-    
+
     public void execute()
     {
         System.out.println("EXECUTE: " + firstCommand);

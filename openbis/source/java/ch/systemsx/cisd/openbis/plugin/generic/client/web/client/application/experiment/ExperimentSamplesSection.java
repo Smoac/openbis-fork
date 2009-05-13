@@ -45,7 +45,7 @@ public class ExperimentSamplesSection extends SectionPanel
         sampleDisposableGrid =
                 SampleBrowserGrid.createGridForExperimentSamples(
                         viewContext.getCommonViewContext(), experimentIdentifier,
-                        createId(experimentIdentifier), experiment.getExperimentType());
+                        createGridId(experimentIdentifier), experiment.getExperimentType());
         add(sampleDisposableGrid.getComponent(), new RowData(-1, 200));
     }
 
@@ -55,7 +55,7 @@ public class ExperimentSamplesSection extends SectionPanel
     }
 
     // @Private
-    static String createId(String experimentIdentifier)
+    static String createGridId(String experimentIdentifier)
     {
         return SampleBrowserGrid.GRID_ID + PREFIX + experimentIdentifier;
     }

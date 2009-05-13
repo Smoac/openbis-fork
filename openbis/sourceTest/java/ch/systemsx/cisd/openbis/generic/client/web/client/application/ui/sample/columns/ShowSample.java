@@ -39,7 +39,7 @@ public final class ShowSample extends AbstractDefaultTestCommand
     public ShowSample(final String code)
     {
         this.code = code;
-        addCallbackClass(SampleBrowserGrid.ListEntitiesCallback.class);
+        addCallbackClass(SampleBrowserGrid.GRID_ID);
     }
 
     @SuppressWarnings("unchecked")

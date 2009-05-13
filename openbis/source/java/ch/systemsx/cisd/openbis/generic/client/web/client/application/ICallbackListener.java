@@ -30,7 +30,7 @@ public interface ICallbackListener<T>
      * object with the specified failure message and throwable. This method will be invoked before
      * the callback object is showing the failure message in a popup dialog.
      */
-    public void onFailureOf(final AsyncCallback<T> callback, final String failureMessage,
+    public void onFailureOf(final AbstractAsyncCallback<T> callback, final String failureMessage,
             final Throwable throwable);
 
     /**
@@ -38,5 +38,5 @@ public interface ICallbackListener<T>
      * object with the specified result object. This method will be invoked after the callback
      * object is actually processing the result object.
      */
-    public void finishOnSuccessOf(final AsyncCallback<T> callback, final T result);
+    public void finishOnSuccessOf(final AbstractAsyncCallback<T> callback, final T result);
 }

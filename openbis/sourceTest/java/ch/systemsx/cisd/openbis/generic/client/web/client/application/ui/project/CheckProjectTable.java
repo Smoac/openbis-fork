@@ -29,7 +29,7 @@ public class CheckProjectTable extends CheckTableCommand
 {
     public CheckProjectTable()
     {
-        super(ProjectGrid.GRID_ID, ProjectGrid.ListEntitiesCallback.class);
+        super(ProjectGrid.GRID_ID);
     }
 
 }

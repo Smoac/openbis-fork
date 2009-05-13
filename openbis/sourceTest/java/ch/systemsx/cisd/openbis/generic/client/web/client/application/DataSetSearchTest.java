@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetSearchHitColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FillSearchCriteria;
@@ -118,8 +117,7 @@ public class DataSetSearchTest extends AbstractGWTTestCase
 
     private static CheckTableCommand createCheckSearchGridCmd()
     {
-        String gridID = DataSetSearchHitGrid.BROWSER_ID + AbstractExternalDataGrid.GRID_POSTFIX;
-        return new CheckTableCommand(gridID, DataSetSearchHitGrid.ListEntitiesCallback.class);
+        return new CheckTableCommand(DataSetSearchHitGrid.GRID_ID);
     }
 
     private void loginAndGotoTab()

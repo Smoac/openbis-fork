@@ -32,8 +32,7 @@ public class SearchTest extends AbstractGWTTestCase
     private final static CheckTableCommand createCheckTableCommandForAll()
     {
         final CheckTableCommand checkTableCommand =
-                new CheckTableCommand(MatchingEntitiesPanel.GRID_ID,
-                        MatchingEntitiesPanel.ListEntitiesCallback.class).expectedSize(2);
+                new CheckTableCommand(MatchingEntitiesPanel.GRID_ID).expectedSize(2);
         checkTableCommand.expectedRow(createRow("CISD:/MP"));
         checkTableCommand.expectedRow(createRow("CISD:/CISD/EMPTY-MP"));
         return checkTableCommand;
@@ -47,8 +46,7 @@ public class SearchTest extends AbstractGWTTestCase
     private final static CheckTableCommand createCheckTableCommandForExperiment()
     {
         final CheckTableCommand checkTableCommand =
-                new CheckTableCommand(MatchingEntitiesPanel.GRID_ID,
-                        MatchingEntitiesPanel.ListEntitiesCallback.class).expectedSize(8);
+                new CheckTableCommand(MatchingEntitiesPanel.GRID_ID).expectedSize(8);
         checkTableCommand.expectedRow(createRow("/CISD/NEMO/EXP10"));
         checkTableCommand.expectedRow(createRow("/CISD/NEMO/EXP11"));
         checkTableCommand.expectedRow(createRow("/CISD/NEMO/EXP1"));

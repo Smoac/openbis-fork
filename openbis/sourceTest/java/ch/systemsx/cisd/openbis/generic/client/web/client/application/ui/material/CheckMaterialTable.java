@@ -29,7 +29,7 @@ public class CheckMaterialTable extends CheckTableCommand
 {
     public CheckMaterialTable()
     {
-        super(MaterialBrowserGrid.GRID_ID, MaterialBrowserGrid.ListEntitiesCallback.class);
+        super(MaterialBrowserGrid.GRID_ID);
     }
 
 }

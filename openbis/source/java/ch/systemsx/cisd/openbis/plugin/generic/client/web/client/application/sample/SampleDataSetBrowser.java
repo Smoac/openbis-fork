@@ -32,21 +32,30 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
  */
 class SampleDataSetBrowser extends AbstractExternalDataGrid
 {
-    static IDisposableComponent create(IViewContext<?> viewContext, String sampleIdentifier,
-            String browserID)
+    static IDisposableComponent create(IViewContext<?> viewContext, String sampleIdentifier)
     {
         IViewContext<ICommonClientServiceAsync> commonViewContext =
                 viewContext.getCommonViewContext();
-        return new SampleDataSetBrowser(commonViewContext, sampleIdentifier, browserID)
+        return new SampleDataSetBrowser(commonViewContext, sampleIdentifier)
                 .asDisposableWithoutToolbar();
     }
 
     private final String sampleIdentifier;
 
-    private SampleDataSetBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
-            String sampleIdentifier, String browserId)
+    public static final String createBrowserId(String sampleIdentifier)
     {
-        super(viewContext, browserId, true);
+        return GenericSampleViewer.ID_PREFIX + sampleIdentifier + "-SampleDataSetBrowser";
+    }
+
+    public static final String createGridId(String sampleIdentifier)
+    {
+        return createBrowserId(sampleIdentifier) + "-grid";
+    }
+
+    private SampleDataSetBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
+            String sampleIdentifier)
+    {
+        super(viewContext, createBrowserId(sampleIdentifier), createGridId(sampleIdentifier), true);
         this.sampleIdentifier = sampleIdentifier;
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
         setEntityKindForDisplayTypeIDGeneration(EntityKind.DATA_SET);

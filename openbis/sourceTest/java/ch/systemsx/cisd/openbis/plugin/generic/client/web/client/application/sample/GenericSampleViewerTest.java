@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
-import static ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.DATA_POSTFIX;
-import static ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.ID_PREFIX;
 
 import java.util.List;
 
@@ -28,9 +26,9 @@ import com.extjs.gxt.ui.client.event.MvcEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.DispatcherListener;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetRow;
@@ -117,10 +115,10 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         remoteConsole.prepare(new AbstractDefaultTestCommand()
             {
                 @Override
-                public boolean validOnSucess(List<AsyncCallback<Object>> callbackObjects,
-                        Object result)
+                public List<AbstractAsyncCallback<Object>> tryValidOnSucess(
+                        List<AbstractAsyncCallback<Object>> callbackObjects, Object result)
                 {
-                    return checkSample.validOnSucess(callbackObjects, result);
+                    return checkSample.tryValidOnSucess(callbackObjects, result);
                 }
 
                 // NOTE: GridTestUtils provides a nicer way to simulate grid click, this code should
@@ -133,10 +131,10 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                     DispatcherListener dispatcherListener = createDispatcherListener();
                     Dispatcher dispatcher = Dispatcher.get();
                     dispatcher.addDispatcherListener(dispatcherListener);
+                    String sampleIdentifier = GROUP_IDENTIFIER + "/" + CELL_PLATE_EXAMPLE;
                     final Widget widget =
-                            GWTTestUtil.getWidgetWithID(ID_PREFIX + GROUP_IDENTIFIER + "/"
-                                    + CELL_PLATE_EXAMPLE + DATA_POSTFIX
-                                    + SampleDataSetBrowser.GRID_POSTFIX);
+                            GWTTestUtil.getWidgetWithID(SampleDataSetBrowser
+                                    .createGridId(sampleIdentifier));
                     assertTrue(widget instanceof Grid);
                     final Grid<?> table = (Grid<?>) widget;
                     final GridEvent gridEvent = new GridEvent(table);

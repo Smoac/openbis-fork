@@ -169,8 +169,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         // External data
         final ContentPanel externalDataPanel =
                 createContentPanel(viewContext.getMessage(Dict.EXTERNAL_DATA_HEADING));
-        disposableBrowser =
-                SampleDataSetBrowser.create(viewContext, sampleIdentifier, getId() + DATA_POSTFIX);
+        disposableBrowser = SampleDataSetBrowser.create(viewContext, sampleIdentifier);
         // external data panel has the height doubled when components panel is not visible
         externalDataPanel.add(disposableBrowser.getComponent());
         final RowData externalDataRow = new RowData(1, 2 * defaultHeight, new Margins(5, 5, 0, 0));

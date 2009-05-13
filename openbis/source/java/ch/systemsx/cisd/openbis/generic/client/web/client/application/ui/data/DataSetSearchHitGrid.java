@@ -65,6 +65,8 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
     public static final String BROWSER_ID =
             GenericConstants.ID_PREFIX + "data-set-search-hit-browser";
 
+    public static final String GRID_ID = BROWSER_ID + "-grid";
+
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -81,7 +83,7 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
 
     private DataSetSearchHitGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, BROWSER_ID, false);
+        super(viewContext, BROWSER_ID, GRID_ID, false);
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.DATA_SET_SEARCH_RESULT_GRID);
         registerCellClickListenerFor(DataSetSearchHitColDefKind.EXPERIMENT.id(),
                 new ICellListener<ExternalData>()

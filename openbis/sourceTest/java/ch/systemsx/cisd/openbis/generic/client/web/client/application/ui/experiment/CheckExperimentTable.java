@@ -29,7 +29,7 @@ public class CheckExperimentTable extends CheckTableCommand
 {
     public CheckExperimentTable()
     {
-        super(ExperimentBrowserGrid.GRID_ID, ExperimentBrowserGrid.ListEntitiesCallback.class);
+        super(ExperimentBrowserGrid.GRID_ID);
     }
 
 }

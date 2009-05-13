@@ -16,13 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * A {@link ICallbackListener} implementation with an empty body for each method implemented.
  * <p>
  * Usually the only method that gets overridden is
- * {@link #onFailureOf(AsyncCallback, String, Throwable)}.
+ * {@link #onFailureOf(AbstractAsyncCallback, String, Throwable)}.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -34,12 +33,12 @@ public class CallbackListenerAdapter<T> implements ICallbackListener<T>
     // ICallbackListener
     //
 
-    public void finishOnSuccessOf(final AsyncCallback<T> callback, final T result)
+    public void finishOnSuccessOf(final AbstractAsyncCallback<T> callback, final T result)
     {
 
     }
 
-    public void onFailureOf(final AsyncCallback<T> callback, final String failureMessage,
+    public void onFailureOf(final AbstractAsyncCallback<T> callback, final String failureMessage,
             final Throwable throwable)
     {
 

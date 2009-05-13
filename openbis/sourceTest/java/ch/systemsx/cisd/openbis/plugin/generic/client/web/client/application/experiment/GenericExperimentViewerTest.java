@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ListExperiments;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ShowExperiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
@@ -164,8 +165,6 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         launchTest(60000);
     }
 
-    // TODO 2009-04-29, Tomasz Pylak: uncomment this test when LMS-877 will be fixed 
-    /*
     public final void testListOfSamples()
     {
         prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_REUSE);
@@ -183,8 +182,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
 
         launchTest(60000);
     }
-    */
-    
+
     public final void testListOfDataSets()
     {
         prepareShowExperiment(NEMO, SIRNA_HCS, EXP1);

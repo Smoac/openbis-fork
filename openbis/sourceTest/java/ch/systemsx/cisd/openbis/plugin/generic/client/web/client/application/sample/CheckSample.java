@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import static ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.COMPONENTS_POSTFIX;
-import static ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.DATA_POSTFIX;
 import static ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.ID_PREFIX;
 import static ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.PROPERTIES_ID_PREFIX;
 
@@ -50,7 +49,7 @@ public class CheckSample extends AbstractDefaultTestCommand implements
         propertyCheckingManager = new PropertyCheckingManager();
         addCallbackClass(SampleGenerationInfoCallback.class);
         addCallbackClass(GenericSampleViewer.ListSamplesCallback.class);
-        addCallbackClass(SampleDataSetBrowser.ListEntitiesCallback.class);
+        addCallbackClass(SampleDataSetBrowser.createGridId(identifier));
         addCallbackClass(ListPropertyTypesCallback.class);
     }
 
@@ -67,15 +66,16 @@ public class CheckSample extends AbstractDefaultTestCommand implements
 
     public CheckTableCommand componentsTable()
     {
-        componentsTableCheck = new CheckTableCommand(ID_PREFIX + identifier + COMPONENTS_POSTFIX);
+        componentsTableCheck =
+                CheckTableCommand
+                        .createWithoutCallback(ID_PREFIX + identifier + COMPONENTS_POSTFIX);
         return componentsTableCheck;
     }
 
     public CheckTableCommand dataTable()
     {
-        dataTableCheck =
-                new CheckTableCommand(ID_PREFIX + identifier + DATA_POSTFIX
-                        + SampleDataSetBrowser.GRID_POSTFIX);
+        String gridId = SampleDataSetBrowser.createGridId(identifier);
+        dataTableCheck = CheckTableCommand.createWithoutCallback(gridId);
         return dataTableCheck;
     }
 

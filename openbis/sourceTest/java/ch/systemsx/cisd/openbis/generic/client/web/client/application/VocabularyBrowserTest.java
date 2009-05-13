@@ -43,9 +43,7 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
     public final void testListVocabularies()
     {
         loginAndInvokeAction(ActionMenuKind.VOCABULARY_MENU_BROWSE);
-        CheckTableCommand table =
-                new CheckTableCommand(VocabularyGrid.GRID_ID,
-                        VocabularyGrid.ListEntitiesCallback.class);
+        CheckTableCommand table = new CheckTableCommand(VocabularyGrid.GRID_ID);
         table.expectedColumn(VocabularyColDefKind.CODE.id(), VOCABULARY_CODE);
         remoteConsole.prepare(table.expectedSize(5));
 
@@ -55,12 +53,11 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
     public final void testShowTermDetails()
     {
         loginAndInvokeAction(ActionMenuKind.VOCABULARY_MENU_BROWSE);
-        
+
         remoteConsole.prepare(new ClickOnVocabularyCmd(VOCABULARY_CODE));
 
         CheckTableCommand termsTable =
-                new CheckTableCommand(VocabularyTermGrid.createGridId(VOCABULARY_CODE),
-                        VocabularyTermGrid.ListEntitiesCallback.class);
+                new CheckTableCommand(VocabularyTermGrid.createGridId(VOCABULARY_CODE));
         expectTermWithCode(termsTable, "FLY");
         expectTermWithCode(termsTable, "GORILLA");
         expectTermWithCode(termsTable, "HUMAN");
@@ -80,7 +77,7 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
 
         public ClickOnVocabularyCmd(final String code)
         {
-            addCallbackClass(VocabularyGrid.ListEntitiesCallback.class);
+            addCallbackClass(VocabularyGrid.GRID_ID);
             this.code = code;
         }
 

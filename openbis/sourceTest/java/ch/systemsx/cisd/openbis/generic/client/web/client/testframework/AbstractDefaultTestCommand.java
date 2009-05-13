@@ -16,13 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import junit.framework.Assert;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 
 /**
  * Abstract super class of all test commands which are executed if the set of classes of recent
@@ -32,8 +33,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public abstract class AbstractDefaultTestCommand extends Assert implements ITestCommand
 {
-    protected final Set<Class<? extends AsyncCallback<?>>> callbackClasses =
-            new HashSet<Class<? extends AsyncCallback<?>>>();
+    protected final List<String> expectedCallbackIds = new ArrayList<String>();
 
     /**
      * Creates an instance with initially no expected callback class.
@@ -55,40 +55,59 @@ public abstract class AbstractDefaultTestCommand extends Assert implements ITest
      */
     public void addCallbackClass(final Class<? extends AsyncCallback<?>> callbackClass)
     {
-        callbackClasses.add(callbackClass);
-    }
-
-    public boolean validOnFailure(final List<AsyncCallback<Object>> callbackObjects,
-            final String failureMessage, final Throwable throwable)
-    {
-        return false;
-    }
-
-    public boolean validOnSucess(final List<AsyncCallback<Object>> callbackObjects,
-            final Object result)
-    {
-        return containsExpectedCallbacks(callbackObjects);
+        addCallbackClass(callbackClass.getName());
     }
 
     /**
-     * Returns <code>true</code> if the specified list of callback objects contain all of expected
-     * types.
+     * Adds the callback with the specified id.
      */
-    protected boolean containsExpectedCallbacks(final List<AsyncCallback<Object>> callbackObjects)
+    public void addCallbackClass(final String callbackId)
     {
-        final Set<Class<?>> classesOfCallbackObjects = new HashSet<Class<?>>();
-        for (final AsyncCallback<Object> asyncCallback : callbackObjects)
-        {
-            classesOfCallbackObjects.add(asyncCallback.getClass());
-        }
-        for (final Class<?> clazz : callbackClasses)
-        {
-            if (classesOfCallbackObjects.contains(clazz) == false)
-            {
-                return false;
-            }
-        }
-        return true;
+        System.out.println("The command " + getClass().getName() + " is waiting for callback "
+                + callbackId);
+        expectedCallbackIds.add(callbackId);
     }
 
+    public List<AbstractAsyncCallback<Object>> tryValidOnFailure(
+            final List<AbstractAsyncCallback<Object>> callbackObjects, final String failureMessage,
+            final Throwable throwable)
+    {
+        return null;
+    }
+
+    public List<AbstractAsyncCallback<Object>> tryValidOnSucess(
+            final List<AbstractAsyncCallback<Object>> callbackObjects, final Object result)
+    {
+        return tryGetUnmatchedCallbacks(callbackObjects);
+    }
+
+    /**
+     * If all expected callbacks can be found among specified callbacks, returns the list of
+     * callbacks which were not expected. Otherwise returns null;
+     */
+    protected List<AbstractAsyncCallback<Object>> tryGetUnmatchedCallbacks(
+            final List<AbstractAsyncCallback<Object>> callbackObjects)
+    {
+        List<String> expectedIds = new ArrayList<String>(expectedCallbackIds);
+        List<AbstractAsyncCallback<Object>> unmatched =
+                new ArrayList<AbstractAsyncCallback<Object>>();
+        for (final AbstractAsyncCallback<Object> asyncCallback : callbackObjects)
+        {
+            String id = asyncCallback.getCallbackId();
+            if (expectedIds.contains(id))
+            {
+                expectedIds.remove(id);
+            } else
+            {
+                unmatched.add(asyncCallback);
+            }
+        }
+        if (expectedIds.size() == 0)
+        {
+            return unmatched; // all expected callbacks are present
+        } else
+        {
+            return null;
+        }
+    }
 }

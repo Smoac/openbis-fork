@@ -43,7 +43,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
                     //
 
                     @Override
-                    public final void onFailureOf(final AsyncCallback<Object> callback,
+                    public final void onFailureOf(final AbstractAsyncCallback<Object> callback,
                             final String failureMessage, final Throwable throwable)
                     {
                         MessageBox.alert("Error", failureMessage, null);
@@ -147,6 +147,19 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
      * Processes the specified result of an asynchronous method invocation.
      */
     protected abstract void process(final T result);
+
+    /**
+     * Returns the callback id which can be used in tests.
+     * <p>
+     * This method should be subclassed if differentiation between callbacks of the same class is
+     * needed in the tests.
+     * </p>
+     */
+    public String getCallbackId()
+    {
+        String id = getClass().getName();
+        return id;
+    }
 
     //
     // AsyncCallback

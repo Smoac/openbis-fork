@@ -29,7 +29,7 @@ public class CheckPropertyTypeTable extends CheckTableCommand
 {
     public CheckPropertyTypeTable()
     {
-        super(PropertyTypeGrid.GRID_ID, PropertyTypeGrid.ListEntitiesCallback.class);
+        super(PropertyTypeGrid.GRID_ID);
     }
 
 }

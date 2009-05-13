@@ -186,7 +186,7 @@ public final class VocabularyBOTest extends AbstractBOTest
         }
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLoad()
     {
@@ -198,14 +198,14 @@ public final class VocabularyBOTest extends AbstractBOTest
                     will(returnValue(vocabulary));
                 }
             });
-        
+
         VocabularyBO vocabularyBO = createVocabularyBO();
         vocabularyBO.load("voc-code");
-        
+
         assertSame(vocabulary, vocabularyBO.getVocabulary());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testAddNewTerms()
     {
@@ -217,12 +217,12 @@ public final class VocabularyBOTest extends AbstractBOTest
                     will(returnValue(vocabulary));
                 }
             });
-        
+
         VocabularyBO vocabularyBO = createVocabularyBO();
         vocabularyBO.load("voc-code");
         List<String> newTerms = Arrays.asList("a");
         vocabularyBO.addNewTerms(newTerms);
-        
+
         Set<VocabularyTermPE> terms = vocabularyBO.getVocabulary().getTerms();
         assertEquals(1, terms.size());
         VocabularyTermPE term = terms.iterator().next();
@@ -230,7 +230,7 @@ public final class VocabularyBOTest extends AbstractBOTest
         assertSame(EXAMPLE_SESSION.tryGetPerson(), term.getRegistrator());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testAddNewTermsToAnInternallyManaggedVocabulary()
     {
@@ -243,7 +243,7 @@ public final class VocabularyBOTest extends AbstractBOTest
                     will(returnValue(vocabulary));
                 }
             });
-        
+
         VocabularyBO vocabularyBO = createVocabularyBO();
         vocabularyBO.load("voc-code");
         List<String> newTerms = Arrays.asList("a");
@@ -252,24 +252,25 @@ public final class VocabularyBOTest extends AbstractBOTest
             vocabularyBO.addNewTerms(newTerms);
         } catch (UserFailureException e)
         {
-            assertEquals("Not allowed to add terms to an internally managed vocabulary.", e.getMessage());
+            assertEquals("Not allowed to add terms to an internally managed vocabulary.", e
+                    .getMessage());
         }
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDeleteTermsFromAnInternallyManaggedVocabulary()
     {
         final VocabularyPE vocabulary = new VocabularyPE();
         vocabulary.setManagedInternally(true);
         context.checking(new Expectations()
-        {
             {
-                one(vocabularyDAO).tryFindVocabularyByCode("voc-code");
-                will(returnValue(vocabulary));
-            }
-        });
-        
+                {
+                    one(vocabularyDAO).tryFindVocabularyByCode("voc-code");
+                    will(returnValue(vocabulary));
+                }
+            });
+
         VocabularyBO vocabularyBO = createVocabularyBO();
         vocabularyBO.load("voc-code");
         try
@@ -278,11 +279,12 @@ public final class VocabularyBOTest extends AbstractBOTest
                     .<VocabularyTermReplacement> emptyList());
         } catch (UserFailureException e)
         {
-            assertEquals("Not allowed to delete terms from an internally managed vocabulary.", e.getMessage());
+            assertEquals("Not allowed to delete terms from an internally managed vocabulary.", e
+                    .getMessage());
         }
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDeleteAllTerms()
     {
@@ -296,21 +298,22 @@ public final class VocabularyBOTest extends AbstractBOTest
                     will(returnValue(vocabulary));
                 }
             });
-        
+
         VocabularyBO vocabularyBO = createVocabularyBO();
         vocabularyBO.load("voc-code");
         try
         {
-            vocabularyBO.delete(Arrays.asList(term1), Collections.<VocabularyTermReplacement>emptyList());
+            vocabularyBO.delete(Arrays.asList(term1), Collections
+                    .<VocabularyTermReplacement> emptyList());
         } catch (IllegalArgumentException e)
         {
             assertEquals("Deletion of all 1 terms are not allowed.", e.getMessage());
         }
-        
+
         assertEquals(1, vocabulary.getTerms().size());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDeleteTermsWithDeletedReplacement()
     {
@@ -333,8 +336,8 @@ public final class VocabularyBOTest extends AbstractBOTest
         vocabularyBO.load("voc-code");
         try
         {
-            vocabularyBO.delete(Arrays.asList(term1), Arrays.asList(createTermWithReplacement(term2,
-                    term1)));
+            vocabularyBO.delete(Arrays.asList(term1), Arrays.asList(createTermWithReplacement(
+                    term2, term1)));
             fail("IllegalArgumentException expected.");
         } catch (IllegalArgumentException e)
         {
@@ -343,7 +346,7 @@ public final class VocabularyBOTest extends AbstractBOTest
         }
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDeleteTermsWithUnkownReplacement()
     {
@@ -375,7 +378,7 @@ public final class VocabularyBOTest extends AbstractBOTest
         }
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDeleteTerms()
     {
@@ -385,21 +388,22 @@ public final class VocabularyBOTest extends AbstractBOTest
         vocabulary.addTerm(translate(term1));
         vocabulary.addTerm(translate(term2));
         context.checking(new Expectations()
-        {
             {
-                one(vocabularyDAO).tryFindVocabularyByCode("voc-code");
-                will(returnValue(vocabulary));
-            }
-        });
-        
+                {
+                    one(vocabularyDAO).tryFindVocabularyByCode("voc-code");
+                    will(returnValue(vocabulary));
+                }
+            });
+
         VocabularyBO vocabularyBO = createVocabularyBO();
         vocabularyBO.load("voc-code");
-        vocabularyBO.delete(Arrays.asList(term1), Collections.<VocabularyTermReplacement>emptyList());
-        
+        vocabularyBO.delete(Arrays.asList(term1), Collections
+                .<VocabularyTermReplacement> emptyList());
+
         assertEquals(1, vocabulary.getTerms().size());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDeleteAndReplaceTerms()
     {
@@ -412,51 +416,53 @@ public final class VocabularyBOTest extends AbstractBOTest
         vocabulary.addTerm(translate(term3));
         final MaterialPropertyPE entityPropertyPE = new MaterialPropertyPE();
         context.checking(new Expectations()
-        {
             {
-                one(vocabularyDAO).tryFindVocabularyByCode("voc-code");
-                will(returnValue(vocabulary));
-                
-                for (EntityKind entityKind : EntityKind.values())
                 {
-                    one(daoFactory).getEntityPropertyTypeDAO(entityKind);
-                    will(returnValue(entityPropertyTypeDAO));
-                    
-                    one(entityPropertyTypeDAO).listPropertiesByVocabularyTerm(term2.getCode());
-                    List<EntityPropertyPE> properties = Arrays.<EntityPropertyPE>asList(entityPropertyPE);
-                    will(returnValue(properties));
-                    
-                    one(entityPropertyTypeDAO).updateProperties(properties);
+                    one(vocabularyDAO).tryFindVocabularyByCode("voc-code");
+                    will(returnValue(vocabulary));
+
+                    for (EntityKind entityKind : EntityKind.values())
+                    {
+                        one(daoFactory).getEntityPropertyTypeDAO(entityKind);
+                        will(returnValue(entityPropertyTypeDAO));
+
+                        one(entityPropertyTypeDAO).listPropertiesByVocabularyTerm(term2.getCode());
+                        List<EntityPropertyPE> properties =
+                                Arrays.<EntityPropertyPE> asList(entityPropertyPE);
+                        will(returnValue(properties));
+
+                        one(entityPropertyTypeDAO).updateProperties(properties);
+                    }
                 }
-            }
-        });
-        
+            });
+
         VocabularyBO vocabularyBO = createVocabularyBO();
         vocabularyBO.load("voc-code");
         vocabularyBO.delete(Arrays.asList(term1), Arrays.asList(createTermWithReplacement(term2,
                 term3)));
-        
+
         assertEquals(term3.getCode(), entityPropertyPE.getVocabularyTerm().getCode());
         assertEquals(1, vocabulary.getTerms().size());
         assertEquals(term3.getCode(), vocabulary.getTerms().iterator().next().getCode());
         context.assertIsSatisfied();
     }
-    
+
     private VocabularyTerm createTerm(String code)
     {
         VocabularyTerm vocabularyTerm = new VocabularyTerm();
         vocabularyTerm.setCode(code);
         return vocabularyTerm;
     }
-    
-    private VocabularyTermReplacement createTermWithReplacement(VocabularyTerm term, VocabularyTerm replacement)
+
+    private VocabularyTermReplacement createTermWithReplacement(VocabularyTerm term,
+            VocabularyTerm replacement)
     {
         VocabularyTermReplacement vocabularyTermReplacement = new VocabularyTermReplacement();
         vocabularyTermReplacement.setTerm(term);
         vocabularyTermReplacement.setReplacement(replacement.getCode());
         return vocabularyTermReplacement;
     }
-    
+
     private VocabularyTermPE translate(VocabularyTerm term)
     {
         VocabularyTermPE vocabularyTermPE = new VocabularyTermPE();

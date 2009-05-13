@@ -37,7 +37,7 @@ public class WaitFor extends AbstractDefaultTestCommand
     @Override
     public String toString()
     {
-        return "Wait for " + callbackClasses;
+        return "Wait for " + expectedCallbackIds;
     }
 
     

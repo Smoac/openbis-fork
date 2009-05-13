@@ -178,6 +178,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
      *            error.
      * @param refreshAutomatically should the data be automatically loaded when the grid is rendered
      *            for the first time?
+     * @param gridId unique id of the grid which will can used by testframework to identify the grid
+     *            and identify the callback which fills it in.
      */
     protected AbstractBrowserGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             String gridId, boolean showHeader, boolean refreshAutomatically)
@@ -530,8 +532,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return grid.getStore().getCount();
     }
 
-    // @Private - only for tests
-    public final class ListEntitiesCallback extends AbstractAsyncCallback<ResultSet<T>>
+    private final class ListEntitiesCallback extends AbstractAsyncCallback<ResultSet<T>>
     {
         private final AsyncCallback<PagingLoadResult<M>> delegate;
 
@@ -587,6 +588,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         private void onComplete(boolean wasSuccessful)
         {
             refreshCallback.postRefresh(wasSuccessful);
+        }
+
+        @Override
+        /* Note: we want to differentiate between callbacks in different subclasses of this grid. */
+        public String getCallbackId()
+        {
+            return grid.getId();
         }
     }
 

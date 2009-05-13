@@ -33,8 +33,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.PiggyBac
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class FileFormatTypeGridTest extends AbstractGWTTestCase
@@ -42,28 +40,22 @@ public class FileFormatTypeGridTest extends AbstractGWTTestCase
     public void testShowGrid()
     {
         loginAndInvokeAction(ActionMenuKind.DATA_SET_MENU_FILE_FORMATS);
-        CheckTableCommand table =
-                new CheckTableCommand(FileFormatTypeGrid.GRID_ID,
-                        FileFormatTypeGrid.ListEntitiesCallback.class);
+        CheckTableCommand table = new CheckTableCommand(FileFormatTypeGrid.GRID_ID);
         table.expectedRow(new Row().withCell(TypeColDefKind.CODE.id(), "XML"));
         remoteConsole.prepare(table.expectedSize(8));
 
         launchTest(20000);
     }
-    
+
     public void testCreateNewType()
     {
         loginAndInvokeAction(ActionMenuKind.DATA_SET_MENU_FILE_FORMATS);
-        CheckTableCommand table =
-                new CheckTableCommand(FileFormatTypeGrid.GRID_ID,
-                        FileFormatTypeGrid.ListEntitiesCallback.class);
+        CheckTableCommand table = new CheckTableCommand(FileFormatTypeGrid.GRID_ID);
         table.expectedSize(8);
         remoteConsole.prepare(new PiggyBackCommand(table, addNewTypeCommand()));
-        table =
-                new CheckTableCommand(FileFormatTypeGrid.GRID_ID,
-                        FileFormatTypeGrid.ListEntitiesCallback.class);
-        table.expectedRow(new Row().withCell(TypeColDefKind.CODE.id(), "MY-TYPE")
-                                   .withCell(TypeColDefKind.DESCRIPTION.id(), "hello"));
+        table = new CheckTableCommand(FileFormatTypeGrid.GRID_ID);
+        table.expectedRow(new Row().withCell(TypeColDefKind.CODE.id(), "MY-TYPE").withCell(
+                TypeColDefKind.DESCRIPTION.id(), "hello"));
         table.expectedSize(9);
         remoteConsole.prepare(table);
 

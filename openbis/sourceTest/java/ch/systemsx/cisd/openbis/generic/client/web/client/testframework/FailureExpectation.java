@@ -20,9 +20,11 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+
 /**
  * Failure expectation.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class FailureExpectation extends AbstractDefaultTestCommand
@@ -34,7 +36,7 @@ public class FailureExpectation extends AbstractDefaultTestCommand
             {
             }
         };
-        
+
     private Class<? extends Throwable> expectedThrowableClassOrNull;
 
     public FailureExpectation(Class<? extends AsyncCallback<?>> callbackClass)
@@ -52,39 +54,46 @@ public class FailureExpectation extends AbstractDefaultTestCommand
                 }
             });
     }
-    
+
     public FailureExpectation with(IMessageValidator validator)
     {
         messageValidator = validator;
         return this;
     }
-    
+
     public FailureExpectation ofType(Class<? extends Throwable> throwableClass)
     {
         expectedThrowableClassOrNull = throwableClass;
         return this;
     }
-    
+
     @Override
-    public boolean validOnFailure(List<AsyncCallback<Object>> callbackObjects,
-            String failureMessage, Throwable throwable)
+    public List<AbstractAsyncCallback<Object>> tryValidOnFailure(
+            List<AbstractAsyncCallback<Object>> callbackObjects, String failureMessage,
+            Throwable throwable)
     {
-        if (containsExpectedCallbacks(callbackObjects) == false)
+        List<AbstractAsyncCallback<Object>> unmatchedCallbacks =
+                tryGetUnmatchedCallbacks(callbackObjects);
+        if (unmatchedCallbacks == null)
         {
-            return false;
+            return null;
         }
         messageValidator.assertValid(failureMessage);
-        if (expectedThrowableClassOrNull == null)
+        if (expectedThrowableClassOrNull == null
+                || expectedThrowableClassOrNull.equals(throwable.getClass()))
         {
-            return true;
+            return unmatchedCallbacks;
+        } else
+        {
+            return null;
         }
-        return expectedThrowableClassOrNull.equals(throwable.getClass());
     }
 
     @Override
-    public boolean validOnSucess(List<AsyncCallback<Object>> callbackObjects, Object result)
+    public List<AbstractAsyncCallback<Object>> tryValidOnSucess(
+            List<AbstractAsyncCallback<Object>> callbackObjects, Object result)
     {
-        return false;
+        return null;
     }
 
     public void execute()

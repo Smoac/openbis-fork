@@ -47,7 +47,7 @@ public class ExportSamplesTestCommand extends AbstractDefaultTestCommand
     {
         this.client = client;
         this.receivedExportedFileContent = null;
-        addCallbackClass(SampleBrowserGrid.ListEntitiesCallback.class);
+        addCallbackClass(SampleBrowserGrid.GRID_ID);
     }
 
     public void execute()

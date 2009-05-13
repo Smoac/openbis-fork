@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 
 /**
@@ -39,8 +37,8 @@ public class InfoBoxCallbackListener<T> extends CallbackListenerAdapter<T>
     //
 
     @Override
-    public final void onFailureOf(final AsyncCallback<T> callback, final String failureMessage,
-            final Throwable throwable)
+    public final void onFailureOf(final AbstractAsyncCallback<T> callback,
+            final String failureMessage, final Throwable throwable)
     {
         infoBox.displayError(failureMessage);
     }

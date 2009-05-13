@@ -25,7 +25,6 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * Command for checking the content (i.e. <code>ListStore</code>) of a table (i.e. <code>Grid</code>
@@ -96,7 +95,7 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
         }
     }
 
-    private final String tableID;
+    private final String gridID;
 
     private int expectedNumberOfRows = -1;
 
@@ -110,23 +109,32 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
     private final List<Row> unexpectedRows = new ArrayList<Row>();
 
     /**
-     * Creates an instance for the specified table or grid ID.
+     * Creates an instance for the specified table or grid ID which does not wait for any callbacks.
      */
-    public CheckTableCommand(final String tableID)
+    public static CheckTableCommand createWithoutCallback(final String gridId)
     {
-        super();
-        this.tableID = tableID;
+        return new CheckTableCommand(gridId, false);
     }
 
     /**
-     * Creates an instance for the specified table or grid ID and the specified class of the
-     * triggering call-back object.
+     * Creates an instance for the specified table or grid ID and using the appropriate call-back
+     * object responsible for grid refresh.
      */
-    public CheckTableCommand(final String tableID,
-            final Class<? extends AsyncCallback<?>> callbackClass)
+    public CheckTableCommand(final String gridId)
     {
-        super(callbackClass);
-        this.tableID = tableID;
+        this(gridId, true);
+    }
+
+    private CheckTableCommand(final String gridId, boolean withCallback)
+    {
+        if (withCallback)
+        {
+            // NOTE: here we use the knowledge that AbstractBrowserGrid.ListEntitiesCallback uses
+            // grid
+            // id as a callback identifier.
+            addCallbackClass(gridId);
+        }
+        this.gridID = gridId;
     }
 
     public CheckTableCommand expectedColumnHidden(String columnID, boolean hidden)
@@ -249,7 +257,7 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
 
     private Grid<ModelData> checkColumnModelExpectations()
     {
-        Grid<ModelData> grid = GWTTestUtil.getGridWithID(tableID);
+        Grid<ModelData> grid = GWTTestUtil.getGridWithID(gridID);
         ColumnModel columnModel = grid.getColumnModel();
         for (ColumnModelExpectation expectation : columnModelExpectations)
         {

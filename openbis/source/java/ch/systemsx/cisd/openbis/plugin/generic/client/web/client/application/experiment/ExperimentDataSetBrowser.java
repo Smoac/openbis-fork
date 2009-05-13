@@ -52,10 +52,21 @@ public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
     private ExperimentDataSetBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
             String experimentIdentifier)
     {
-        super(viewContext, ID_PREFIX + experimentIdentifier, true);
+        super(viewContext, createBrowserId(experimentIdentifier),
+                createGridId(experimentIdentifier), true);
         this.experimentIdentifier = experimentIdentifier;
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
         setEntityKindForDisplayTypeIDGeneration(EntityKind.DATA_SET);
+    }
+
+    public static String createGridId(String experimentIdentifier)
+    {
+        return createBrowserId(experimentIdentifier) + "-grid";
+    }
+
+    public static String createBrowserId(String experimentIdentifier)
+    {
+        return ID_PREFIX + experimentIdentifier;
     }
 
     @Override

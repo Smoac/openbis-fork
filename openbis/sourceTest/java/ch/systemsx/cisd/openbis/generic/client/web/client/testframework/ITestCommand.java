@@ -20,6 +20,8 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+
 /**
  * A command which will be executed after a successful invocation of
  * {@link AsyncCallback#onSuccess(Object)}.
@@ -29,24 +31,28 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface ITestCommand
 {
     /**
-     * Returns <code>true</code> if the specified callback objects, failureMessage, and throwable
-     * should trigger this command in case if an invocation of
-     * {@link AsyncCallback#onFailure(Throwable)}.
+     * If the specified callback objects, failureMessage, and throwable should trigger this command
+     * in case if an invocation of {@link AsyncCallback#onFailure(Throwable)} then the result is the
+     * list of callbacks which were not expected by the command. Otherwise <code>null</code> is
+     * returned.
      * 
      * @param callbackObjects List of callback objects since the last successful match of a test
      *            command. Contains at least one element.
      */
-    public boolean validOnFailure(List<AsyncCallback<Object>> callbackObjects,
-            String failureMessage, Throwable throwable);
-    
+    public List<AbstractAsyncCallback<Object>> tryValidOnFailure(
+            List<AbstractAsyncCallback<Object>> callbackObjects, String failureMessage,
+            Throwable throwable);
+
     /**
-     * Returns <code>true</code> if the specified callback objects and result should trigger this
-     * command in case if an invocation of {@link AsyncCallback#onSuccess(Object)}.
+     * If the specified callback objects and result should trigger this command in case of an
+     * invocation of {@link AsyncCallback#onSuccess(Object)} then the result is the list of
+     * callbacks which were not expected by the command. Otherwise <code>null</code> is returned.
      * 
      * @param callbackObjects List of callback objects since the last successful match of a test
      *            command. Contains at least one element.
      */
-    public boolean validOnSucess(List<AsyncCallback<Object>> callbackObjects, Object result);
+    public List<AbstractAsyncCallback<Object>> tryValidOnSucess(
+            List<AbstractAsyncCallback<Object>> callbackObjects, Object result);
 
     /**
      * Executes this command.

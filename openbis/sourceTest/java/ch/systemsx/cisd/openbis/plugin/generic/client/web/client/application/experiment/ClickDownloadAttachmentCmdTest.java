@@ -25,7 +25,6 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentsSection;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.AttachmentModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -49,7 +48,6 @@ public class ClickDownloadAttachmentCmdTest extends AbstractDefaultTestCommand
         this.fileName = fileName;
         this.experimentId = experimentId;
         addCallbackClass(ExperimentInfoCallback.class);
-        addCallbackClass(SampleBrowserGrid.ListEntitiesCallback.class);
     }
 
     @SuppressWarnings("unchecked")

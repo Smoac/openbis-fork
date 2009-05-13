@@ -37,36 +37,28 @@ public class EntityTypeBrowserTest extends AbstractGWTTestCase
     public final void testListMaterialTypes()
     {
         loginAndInvokeAction(ActionMenuKind.MATERIAL_MENU_TYPES);
-        CheckTableCommand table =
-                new CheckTableCommand(MaterialTypeGrid.GRID_ID,
-                        MaterialTypeGrid.ListEntitiesCallback.class);
+        CheckTableCommand table = new CheckTableCommand(MaterialTypeGrid.GRID_ID);
         checkGridRows(table, "BACTERIUM", 7);
     }
 
     public final void testListSampleTypes()
     {
         loginAndInvokeAction(ActionMenuKind.SAMPLE_MENU_TYPES);
-        CheckTableCommand table =
-                new CheckTableCommand(SampleTypeGrid.GRID_ID,
-                        SampleTypeGrid.ListEntitiesCallback.class);
+        CheckTableCommand table = new CheckTableCommand(SampleTypeGrid.GRID_ID);
         checkGridRows(table, "WELL", 6);
     }
 
     public final void testListExperimentTypes()
     {
         loginAndInvokeAction(ActionMenuKind.EXPERIMENT_MENU_TYPES);
-        CheckTableCommand table =
-                new CheckTableCommand(ExperimentTypeGrid.GRID_ID,
-                        ExperimentTypeGrid.ListEntitiesCallback.class);
+        CheckTableCommand table = new CheckTableCommand(ExperimentTypeGrid.GRID_ID);
         checkGridRows(table, "SIRNA_HCS", 2);
     }
 
     public final void testListDataSetTypes()
     {
         loginAndInvokeAction(ActionMenuKind.DATA_SET_MENU_TYPES);
-        CheckTableCommand table =
-                new CheckTableCommand(DataSetTypeGrid.GRID_ID,
-                        DataSetTypeGrid.ListEntitiesCallback.class);
+        CheckTableCommand table = new CheckTableCommand(DataSetTypeGrid.GRID_ID);
         checkGridRows(table, "HCS_IMAGE_ANALYSIS_DATA", 3);
     }
 

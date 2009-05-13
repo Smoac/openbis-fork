@@ -43,8 +43,8 @@ public class RemoteConsole
 
     private final List<ITestCommand> commands;
 
-    private final List<AsyncCallback<Object>> lastCallbackObjects =
-            new ArrayList<AsyncCallback<Object>>();
+    private List<AbstractAsyncCallback<Object>> lastCallbackObjects =
+            new ArrayList<AbstractAsyncCallback<Object>>();
 
     private int entryIndex;
 
@@ -97,9 +97,12 @@ public class RemoteConsole
                         } else
                         {
                             buffer.append("Unmatched callback objects:");
-                            for (final AsyncCallback<?> callback : lastCallbackObjects)
+                            for (final AbstractAsyncCallback<?> callback : lastCallbackObjects)
                             {
-                                buffer.append('\n').append(callback);
+                                buffer.append('\n');
+                                buffer.append(callback.getClass().getName());
+                                buffer.append(" with id ");
+                                buffer.append(callback.getCallbackId());
                             }
                         }
                         Assert.fail(buffer.toString());
@@ -133,7 +136,6 @@ public class RemoteConsole
 
         private final void executeCommand()
         {
-            lastCallbackObjects.clear();
             final ITestCommand testCommand = commands.get(entryIndex++);
             System.out.println("EXECUTE: " + testCommand);
             testCommand.execute();
@@ -147,31 +149,47 @@ public class RemoteConsole
         // ICallbackListener
         //
 
-        public final void onFailureOf(final AsyncCallback<Object> callback,
+        public final void onFailureOf(final AbstractAsyncCallback<Object> callback,
                 final String failureMessage, final Throwable throwable)
         {
-            lastCallbackObjects.add(callback);
-            if (entryIndex < commands.size()
-                    && commands.get(entryIndex).validOnFailure(lastCallbackObjects, failureMessage,
-                            throwable))
+            registerCallback(callback);
+            if (entryIndex < commands.size())
             {
-                executeCommand();
-            } else
+                ITestCommand cmd = commands.get(entryIndex);
+                List<AbstractAsyncCallback<Object>> unmatchedCallbacks =
+                        cmd.tryValidOnFailure(lastCallbackObjects, failureMessage, throwable);
+                if (unmatchedCallbacks != null)
+                {
+                    lastCallbackObjects = unmatchedCallbacks;
+                    executeCommand();
+                    return;
+                }
+            }
+            Assert.fail("Failed callback " + callback + ": " + failureMessage + "["
+                    + throwable.getClass() + "]");
+        }
+
+        public final void finishOnSuccessOf(final AbstractAsyncCallback<Object> callback,
+                final Object result)
+        {
+            registerCallback(callback);
+            if (entryIndex < commands.size())
             {
-                Assert.fail("Failed callback " + callback + ": " + failureMessage + "["
-                        + throwable.getClass() + "]");
+                ITestCommand cmd = commands.get(entryIndex);
+                List<AbstractAsyncCallback<Object>> unmatchedCallbacks =
+                        cmd.tryValidOnSucess(lastCallbackObjects, result);
+                if (unmatchedCallbacks != null)
+                {
+                    lastCallbackObjects = unmatchedCallbacks;
+                    executeCommand();
+                }
             }
         }
 
-        public final void finishOnSuccessOf(final AsyncCallback<Object> callback,
-                final Object result)
+        private void registerCallback(final AbstractAsyncCallback<Object> callback)
         {
+            System.out.println("Detected callback '" + callback.getCallbackId() + "'");
             lastCallbackObjects.add(callback);
-            if (entryIndex < commands.size()
-                    && commands.get(entryIndex).validOnSucess(lastCallbackObjects, result))
-            {
-                executeCommand();
-            }
         }
     }
 }

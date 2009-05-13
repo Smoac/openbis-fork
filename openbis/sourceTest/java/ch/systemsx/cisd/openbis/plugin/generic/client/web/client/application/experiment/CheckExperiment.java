@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ex
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentsSection;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider.ListPropertyTypesCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IPropertyChecker;
@@ -46,8 +45,8 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
         this.identifier = identifierPrefix + "/" + code;
         propertyCheckingManager = new PropertyCheckingManager();
         addCallbackClass(ExperimentInfoCallback.class);
-        addCallbackClass(SampleBrowserGrid.ListEntitiesCallback.class);
-        addCallbackClass(ExperimentDataSetBrowser.ListEntitiesCallback.class);
+        addCallbackClass(ExperimentSamplesSection.createGridId(identifier));
+        addCallbackClass(ExperimentDataSetBrowser.createGridId(identifier));
         addCallbackClass(ListPropertyTypesCallback.class);
     }
 
@@ -82,14 +81,14 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
 
     public CheckTableCommand sampleTable()
     {
-        sampleSection = new CheckTableCommand(ExperimentSamplesSection.createId(identifier));
+        sampleSection = new CheckTableCommand(ExperimentSamplesSection.createGridId(identifier));
         return sampleSection;
     }
 
     public CheckTableCommand dataSetTable()
     {
-        return new CheckTableCommand(ExperimentDataSetBrowser.ID_PREFIX + identifier
-                + ExperimentDataSetBrowser.GRID_POSTFIX);
+        // FIXME this command is never executed!!!
+        return new CheckTableCommand(ExperimentDataSetBrowser.createGridId(identifier));
     }
 
 }

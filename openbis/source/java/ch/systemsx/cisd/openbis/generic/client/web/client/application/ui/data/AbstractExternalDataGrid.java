@@ -74,8 +74,6 @@ public abstract class AbstractExternalDataGrid
         extends
         AbstractEntityBrowserGrid<ExternalData, BaseEntityModel<ExternalData>, PropertyTypesCriteria>
 {
-    public static final String GRID_POSTFIX = "-grid";
-
     private static abstract class AbstractConfirmationDialog extends Dialog
     {
         protected final IViewContext<?> viewContext;
@@ -298,11 +296,11 @@ public abstract class AbstractExternalDataGrid
      *            datasets.
      */
     protected AbstractExternalDataGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
-            String browserId, boolean displayOnlyDatasetProperties)
+            String browserId, String gridId, boolean displayOnlyDatasetProperties)
     {
 
-        super(viewContext, browserId + GRID_POSTFIX, false, false, createCriteriaProvider(
-                viewContext, displayOnlyDatasetProperties));
+        super(viewContext, gridId, false, false, createCriteriaProvider(viewContext,
+                displayOnlyDatasetProperties));
         setId(browserId);
         setEntityKindForDisplayTypeIDGeneration(EntityKind.DATA_SET);
         super.updateCriteriaProviderAndRefresh();
