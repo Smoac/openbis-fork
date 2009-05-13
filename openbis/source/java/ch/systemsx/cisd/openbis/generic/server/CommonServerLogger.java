@@ -397,11 +397,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logTracking(sessionToken, "delete_data_sets", "CODES(%s) REASON(%s)", dataSetCodes, reason);
     }
 
-    public void uploadDataSets(String sessionToken, List<String> dataSetCodes,
+    public String uploadDataSets(String sessionToken, List<String> dataSetCodes,
             DataSetUploadContext uploadContext)
     {
         logTracking(sessionToken, "upload_data_sets", "CODES(%s) CIFEX-URL(%s) FILE(%s)",
                 dataSetCodes, uploadContext.getCifexURL(), uploadContext.getFileName());
+        return null;
     }
 
     public List<VocabularyTermWithStats> listVocabularyTermsWithStatistics(String sessionToken,

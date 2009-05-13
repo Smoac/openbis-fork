@@ -439,8 +439,10 @@ public interface ICommonClientService extends IClientService
 
     /**
      * Uploads the specified data sets to the specified CIFEX server using the specified parameters.
+     * 
+     * @return a message or an empty string.
      */
-    public void uploadDataSets(List<String> dataSetCodes, DataSetUploadParameters uploadParameters)
+    public String uploadDataSets(List<String> dataSetCodes, DataSetUploadParameters uploadParameters)
             throws UserFailureException;
 
     /**

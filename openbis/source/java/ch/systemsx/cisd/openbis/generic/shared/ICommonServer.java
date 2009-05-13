@@ -475,10 +475,12 @@ public interface ICommonServer extends IServer
 
     /**
      * Uploads specified data sets to CIFEX server of specified URL with specified password.
+     * 
+     * @return a message or an empty string
      */
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
-    public void uploadDataSets(String sessionToken, List<String> dataSetCodes,
+    public String uploadDataSets(String sessionToken, List<String> dataSetCodes,
             DataSetUploadContext uploadContext);
 
     /**

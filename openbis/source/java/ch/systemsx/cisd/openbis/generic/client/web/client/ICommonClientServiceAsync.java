@@ -376,7 +376,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /** @see ICommonClientService#uploadDataSets(List, DataSetUploadParameters) */
     public void uploadDataSets(List<String> dataSetCodes, DataSetUploadParameters uploadParameters,
-            AsyncCallback<Void> callback);
+            AsyncCallback<String> callback);
 
     /** @see ICommonClientService#getLastModificationState() */
     public void getLastModificationState(AsyncCallback<LastModificationState> asyncCallback);

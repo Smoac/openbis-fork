@@ -63,7 +63,9 @@ public interface IExternalDataTable
     
     /**
      * Uploads loaded data sets to CIFEX server as specified in the upload context.
+     * 
+     * @return a message or an empty string.
      */
-    void uploadLoadedDataSetsToCIFEX(DataSetUploadContext uploadContext);
+    String uploadLoadedDataSetsToCIFEX(DataSetUploadContext uploadContext);
 
 }

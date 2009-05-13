@@ -1221,7 +1221,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void uploadDataSets(List<String> dataSetCodes, DataSetUploadParameters uploadParameters)
+    public String uploadDataSets(List<String> dataSetCodes, DataSetUploadParameters uploadParameters)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -1233,7 +1233,7 @@ public final class CommonClientService extends AbstractClientService implements
             uploadContext.setFileName(uploadParameters.getFileName());
             uploadContext.setUserID(uploadParameters.getUserID());
             uploadContext.setPassword(uploadParameters.getPassword());
-            commonServer.uploadDataSets(sessionToken, dataSetCodes, uploadContext);
+            return commonServer.uploadDataSets(sessionToken, dataSetCodes, uploadContext);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

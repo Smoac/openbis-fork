@@ -80,8 +80,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
     {
         super.beforeMethod();
         dssFactory = context.mock(IDataStoreServiceFactory.class);
-        dss1 = createDataStore("dss1");
-        dss2 = createDataStore("dss2");
+        dss1 = createDataStore("dss1", false);
+        dss2 = createDataStore("dss2", true);
         dataStoreService1 = context.mock(IDataStoreService.class, "dataStoreService1");
         dataStoreService2 = context.mock(IDataStoreService.class, "dataStoreService2");
         context.checking(new Expectations()
@@ -270,10 +270,6 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     one(externalDataDAO).tryToFindFullDataSetByCode(d2.getCode());
                     will(returnValue(d2));
 
-                    one(dataStoreService1).getKnownDataSets(dss1.getSessionToken(),
-                            Arrays.asList(d1.getLocation()));
-                    will(returnValue(Arrays.asList(d1.getLocation())));
-
                     one(dataStoreService2).getKnownDataSets(dss2.getSessionToken(),
                             Arrays.asList(d2.getLocation()));
                     will(returnValue(Arrays.asList()));
@@ -311,10 +307,6 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     one(externalDataDAO).tryToFindFullDataSetByCode(d2.getCode());
                     will(returnValue(d2));
 
-                    List<String> d1Locations = Arrays.asList(d1.getLocation());
-                    one(dataStoreService1).getKnownDataSets(dss1.getSessionToken(), d1Locations);
-                    will(returnValue(d1Locations));
-
                     List<String> d2Locations = Arrays.asList(d2.getLocation());
                     one(dataStoreService2).getKnownDataSets(dss2.getSessionToken(), d2Locations);
                     will(returnValue(d2Locations));
@@ -323,7 +315,6 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     one(externalDataDAO).markAsDeleted(d1, person, DELETION_DESCRIPTION, "reason");
                     one(externalDataDAO).markAsDeleted(d2, person, DELETION_DESCRIPTION, "reason");
 
-                    one(dataStoreService1).deleteDataSets(dss1.getSessionToken(), d1Locations);
                     one(dataStoreService2).deleteDataSets(dss2.getSessionToken(), d2Locations);
                 }
             });
@@ -355,16 +346,10 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     one(externalDataDAO).tryToFindFullDataSetByCode(d2.getCode());
                     will(returnValue(d2));
 
-                    List<String> d1Locations = Arrays.asList(d1.getLocation());
-                    one(dataStoreService1).getKnownDataSets(dss1.getSessionToken(), d1Locations);
-                    will(returnValue(d1Locations));
-
                     List<String> d2Locations = Arrays.asList(d2.getLocation());
                     one(dataStoreService2).getKnownDataSets(dss2.getSessionToken(), d2Locations);
                     will(returnValue(d2Locations));
 
-                    one(dataStoreService1).uploadDataSetsToCIFEX(dss1.getSessionToken(),
-                            Arrays.asList(d1), uploadContext);
                     one(dataStoreService2).uploadDataSetsToCIFEX(dss2.getSessionToken(),
                             Arrays.asList(d2), uploadContext);
                 }
@@ -372,8 +357,11 @@ public final class ExternalDataTableTest extends AbstractBOTest
 
         ExternalDataTable externalDataTable = createExternalDataTable();
         externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()));
-        externalDataTable.uploadLoadedDataSetsToCIFEX(uploadContext);
-
+        String message = externalDataTable.uploadLoadedDataSetsToCIFEX(uploadContext);
+        
+        assertEquals(
+                "The following data sets couldn't been uploaded because of unkown data store: d1",
+                message);
         context.assertIsSatisfied();
     }
 
@@ -445,11 +433,14 @@ public final class ExternalDataTableTest extends AbstractBOTest
         return data;
     }
 
-    private DataStorePE createDataStore(String code)
+    private DataStorePE createDataStore(String code, boolean withRemoteURL)
     {
         DataStorePE dataStore = new DataStorePE();
         dataStore.setCode(code);
-        dataStore.setRemoteUrl("http://" + code);
+        if (withRemoteURL)
+        {
+            dataStore.setRemoteUrl("http://" + code);
+        }
         dataStore.setSessionToken("session-" + code);
         return dataStore;
     }

@@ -753,7 +753,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
     }
 
-    public void uploadDataSets(String sessionToken, List<String> dataSetCodes,
+    public String uploadDataSets(String sessionToken, List<String> dataSetCodes,
             DataSetUploadContext uploadContext)
     {
         Session session = getSessionManager().getSession(sessionToken);
@@ -762,7 +762,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             IExternalDataTable externalDataTable =
                     businessObjectFactory.createExternalDataTable(session);
             externalDataTable.loadByDataSetCodes(dataSetCodes);
-            externalDataTable.uploadLoadedDataSetsToCIFEX(uploadContext);
+            return externalDataTable.uploadLoadedDataSetsToCIFEX(uploadContext);
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);

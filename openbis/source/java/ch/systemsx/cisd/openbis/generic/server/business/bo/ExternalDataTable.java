@@ -171,7 +171,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         }
     }
 
-    public void uploadLoadedDataSetsToCIFEX(DataSetUploadContext uploadContext)
+    public String uploadLoadedDataSetsToCIFEX(DataSetUploadContext uploadContext)
     {
         Map<DataStorePE, List<ExternalDataPE>> map = groupDataSetsByDataStores();
         assertDataSetsAreKnown(map);
@@ -180,6 +180,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         {
             uploadContext.setComment(createUploadComment(externalData));
         }
+        List<ExternalDataPE> dataSetsWithUnknownDSS = new ArrayList<ExternalDataPE>();
         for (Map.Entry<DataStorePE, List<ExternalDataPE>> entry : map.entrySet())
         {
             DataStorePE dataStore = entry.getKey();
@@ -198,8 +199,24 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                 }
                 HibernateUtils.initialize(experiment.getProject().getGroup());
             }
-            uploadDataSetsToCIFEX(dataStore, dataSets, uploadContext);
+            if (StringUtils.isBlank(dataStore.getRemoteUrl()))
+            {
+                dataSetsWithUnknownDSS.addAll(dataSets);
+            } else
+            {
+                uploadDataSetsToCIFEX(dataStore, dataSets, uploadContext);
+            }
         }
+        StringBuilder builder = new StringBuilder();
+        if (dataSetsWithUnknownDSS.isEmpty() == false)
+        {
+            builder.append("The following data sets couldn't been uploaded because of unkown data store:");
+            for (ExternalDataPE externalDataPE : dataSetsWithUnknownDSS)
+            {
+                builder.append(' ').append(externalDataPE.getCode());
+            }
+        }
+        return builder.toString();
     }
 
     private void assertDataSetsAreKnown(Map<DataStorePE, List<ExternalDataPE>> map)
@@ -268,14 +285,26 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
 
     private void deleteDataSets(DataStorePE dataStore, List<String> locations)
     {
-        IDataStoreService service = dssFactory.create(dataStore.getRemoteUrl());
+        String remoteURL = dataStore.getRemoteUrl();
+        if (StringUtils.isBlank(remoteURL))
+        {
+            // Nothing to delete on dummy data store
+            return;
+        }
+        IDataStoreService service = dssFactory.create(remoteURL);
         String sessionToken = dataStore.getSessionToken();
         service.deleteDataSets(sessionToken, locations);
     }
 
     private List<String> getKnownDataSets(DataStorePE dataStore, List<String> locations)
     {
-        IDataStoreService service = dssFactory.create(dataStore.getRemoteUrl());
+        String remoteURL = dataStore.getRemoteUrl();
+        if (StringUtils.isBlank(remoteURL))
+        {
+            // Assuming dummy data store "knows" all locations  
+            return locations;
+        }
+        IDataStoreService service = dssFactory.create(remoteURL);
         String sessionToken = dataStore.getSessionToken();
         return service.getKnownDataSets(sessionToken, locations);
     }

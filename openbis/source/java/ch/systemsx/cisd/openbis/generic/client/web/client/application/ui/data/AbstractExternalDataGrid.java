@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
@@ -155,7 +156,7 @@ public abstract class AbstractExternalDataGrid
         }
     }
 
-    static final class UploadCallback extends AbstractAsyncCallback<Void>
+    static final class UploadCallback extends AbstractAsyncCallback<String>
     {
         private UploadCallback(IViewContext<?> viewContext)
         {
@@ -163,8 +164,12 @@ public abstract class AbstractExternalDataGrid
         }
 
         @Override
-        protected void process(Void result)
+        protected void process(String message)
         {
+            if (message.length() > 0)
+            {
+                MessageBox.alert("Warning", message, null);
+            }
         }
     }
 
