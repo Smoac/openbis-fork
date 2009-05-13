@@ -1271,9 +1271,6 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            // TODO moze nie byc jakichs wyjatkow
-            // final ProjectIdentifier identifier =
-            // new ProjectIdentifierFactory(projectIdentifier).createIdentifier();
             final ProjectPE project = commonServer.getProjectInfo(sessionToken, projectId);
             return ProjectTranslator.translate(project);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
