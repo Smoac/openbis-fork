@@ -42,16 +42,22 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
  * Storage processor which is able to create a copy of incoming data for additional processing. The
  * copy has a changed name to trace back the dataset to which the original data belong.
  * <p>
- * The processor uses followng properties: {@link #DELEGATE_PROCESSOR_CLASS_PROPERTY} and
- * {@link #DROPBOX_INCOMING_DIRECTORY_PROPERTY}. All the properties are also passed for the default
- * processor.
+ * The processor uses followng properties: {@link #DELEGATE_PROCESSOR_CLASS_PROPERTY},
+ * {@link #DROPBOX_INCOMING_DIRECTORY_PROPERTY} and {@link #DATASET_CODE_SEPARATOR_PROPERTY}. All
+ * the properties are also passed for the default processor.
  * </p>
  * 
  * @author Tomasz Pylak
  */
 public class StorageProcessorWithDropbox implements IStorageProcessor
 {
-    private static final String DATASET_CODE_SEPARATOR = ".";
+    private static final String DEFAULT_DATASET_CODE_SEPARATOR = ".";
+
+    /**
+     * Property name which is used to specify the text which will be used to separate the sample
+     * code and dataset code in the name of the file which will be created in the dropbox.
+     */
+    public final static String DATASET_CODE_SEPARATOR_PROPERTY = "entity-separator";
 
     /**
      * Property name which is used to specify the class of the default storage processor, to which
@@ -74,6 +80,8 @@ public class StorageProcessorWithDropbox implements IStorageProcessor
 
     private final File dropboxIncomingDir;
 
+    private final String datasetCodeSeparator;
+
     private File recentlyStoredDropboxDataset;
 
     public StorageProcessorWithDropbox(Properties properties)
@@ -87,6 +95,9 @@ public class StorageProcessorWithDropbox implements IStorageProcessor
     {
         this.delegate = delegateStorageProcessor;
         this.fileOperations = fileOperations;
+        this.datasetCodeSeparator =
+                PropertyUtils.getProperty(properties, DATASET_CODE_SEPARATOR_PROPERTY,
+                        DEFAULT_DATASET_CODE_SEPARATOR);
         this.dropboxIncomingDir = getDropboxIncomingDir(properties);
     }
 
@@ -145,7 +156,8 @@ public class StorageProcessorWithDropbox implements IStorageProcessor
                         incomingDataSetDirectory, rootDir);
         File originalData = delegate.tryGetProprietaryData(storeData);
         String destinationFileName =
-                createDropboxDestinationFileName(dataSetInformation, originalData);
+                createDropboxDestinationFileName(dataSetInformation, originalData,
+                        datasetCodeSeparator);
         copy(originalData, destinationFileName);
         return storeData;
     }
@@ -168,12 +180,12 @@ public class StorageProcessorWithDropbox implements IStorageProcessor
     }
 
     private static String createDropboxDestinationFileName(DataSetInformation dataSetInformation,
-            File incomingDataSetDirectory)
+            File incomingDataSetDirectory, String datasetCodeSeparator)
     {
         String dataSetCode = dataSetInformation.getDataSetCode();
         String originalName = incomingDataSetDirectory.getName();
         String newFileName =
-                stripFileName(originalName) + DATASET_CODE_SEPARATOR + dataSetCode
+                stripFileName(originalName) + datasetCodeSeparator + dataSetCode
                         + stripFileExtension(originalName);
         return newFileName;
     }
