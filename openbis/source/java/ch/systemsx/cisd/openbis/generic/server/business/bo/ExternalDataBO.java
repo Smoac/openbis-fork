@@ -241,7 +241,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         loadByCode(code);
         if (version.equals(externalData.getModificationDate()) == false)
         {
-            throw new UserFailureException("Data set has been modified in the meantime.");
+            throwModifiedEntityException("Data set");
         }
         updateProperties(properties);
         updateSample(sampleIdentifier);

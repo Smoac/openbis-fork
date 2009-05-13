@@ -141,7 +141,7 @@ public final class MaterialBO extends AbstractBusinessObject implements IMateria
         loadByMaterialIdentifier(identifier);
         if (material.getModificationDate().equals(version) == false)
         {
-            throw new UserFailureException("Material has been modified in the meantime.");
+            throwModifiedEntityException("Material");
         }
         updateProperties(properties);
         dataChanged = true;

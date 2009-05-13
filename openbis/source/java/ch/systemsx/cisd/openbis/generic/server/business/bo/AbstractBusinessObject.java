@@ -102,6 +102,14 @@ abstract class AbstractBusinessObject implements IDAOFactory
         DataAccessExceptionTranslator.throwException(exception, subject);
     }
 
+    private static final String ERR_MODIFIED_ENTITY =
+            "%s has been modified in the meantime. Reopen tab to be able to continue with refreshed data.";
+
+    protected final static void throwModifiedEntityException(String entityName)
+    {
+        throw UserFailureException.fromTemplate(ERR_MODIFIED_ENTITY, entityName);
+    }
+
     /**
      * @return Generated code for given <var>entityKind</var>. The code has a prefix that depends on
      *         <var>entityKind</var> and a sufix witch is a unique number.

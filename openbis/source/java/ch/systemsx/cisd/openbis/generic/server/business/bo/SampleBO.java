@@ -235,7 +235,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         loadBySampleIdentifier(identifier);
         if (version.equals(sample.getModificationDate()) == false)
         {
-            throw new UserFailureException("Sample has been modified in the meantime.");
+            throwModifiedEntityException("Sample");
         }
         updateProperties(properties);
         updateExperiment(experimentIdentifierOrNull);
