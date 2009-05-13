@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.IStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
@@ -105,7 +106,10 @@ public class StorageProcessorWithDropbox implements IStorageProcessor
     static IStorageProcessor createDelegateStorageProcessor(Properties properties)
     {
         String delegateClass = getMandatoryProperty(properties, DELEGATE_PROCESSOR_CLASS_PROPERTY);
-        return createClass(IStorageProcessor.class, delegateClass, properties);
+        Properties p =
+                ExtendedProperties.getSubset(properties, DELEGATE_PROCESSOR_CLASS_PROPERTY + ".",
+                        true);
+        return createClass(IStorageProcessor.class, delegateClass, p);
     }
 
     private final File getDropboxIncomingDir(Properties properties)
