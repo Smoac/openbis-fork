@@ -142,7 +142,6 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
         protected final void process(final Experiment result)
         {
             genericExperimentViewer.setOriginalExperiment(result);
-            genericExperimentViewer.enableEdit(true);
             genericExperimentViewer.removeAll();
             genericExperimentViewer.setScrollMode(Scroll.AUTO);
 

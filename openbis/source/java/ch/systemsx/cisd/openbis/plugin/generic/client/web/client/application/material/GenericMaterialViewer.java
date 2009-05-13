@@ -113,7 +113,6 @@ public final class GenericMaterialViewer extends AbstractViewer<IGenericClientSe
         protected final void process(final Material result)
         {
             genericMaterialViewer.updateOriginalMaterial(result);
-            genericMaterialViewer.enableEdit(true);
             genericMaterialViewer.removeAll();
             genericMaterialViewer.setScrollMode(Scroll.AUTO);
             addSection(genericMaterialViewer, new MaterialPropertiesSection(result, viewContext));

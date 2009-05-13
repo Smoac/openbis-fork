@@ -79,7 +79,6 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
                     showEntityEditor();
                 }
             });
-        enableEdit(false);
         toolBar.add(new AdapterToolItem(editButton));
     }
 
@@ -91,11 +90,6 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
     protected final String getBaseIndexURL()
     {
         return GWTUtils.getBaseIndexURL();
-    }
-
-    protected void enableEdit(boolean enable)
-    {
-        editButton.setEnabled(enable);
     }
 
     abstract protected void showEntityEditor();

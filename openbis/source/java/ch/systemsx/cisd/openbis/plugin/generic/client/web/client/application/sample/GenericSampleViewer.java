@@ -479,7 +479,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         protected final void process(final SampleGeneration result)
         {
             genericSampleViewer.setOriginalSample(result.getGenerator());
-            genericSampleViewer.enableEdit(true);
             genericSampleViewer.removeAll();
             genericSampleViewer.setLayout(new BorderLayout());
             // Left panel

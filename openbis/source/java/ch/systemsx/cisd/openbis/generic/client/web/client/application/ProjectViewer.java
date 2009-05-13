@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.google.gwt.user.client.ui.Widget;
@@ -26,6 +25,8 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -35,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
  * 
  * @author Izabela Adamczyk
  */
-public final class ProjectViewer extends ContentPanel
+public final class ProjectViewer extends AbstractViewer<ICommonClientServiceAsync>
 {
     private static final String PREFIX = "project-viewer_";
 
@@ -43,9 +44,9 @@ public final class ProjectViewer extends ContentPanel
 
     private final TechId projectId;
 
-    private final CompositeDatabaseModificationObserver modificationObserver;
+    private Project originalProject;
 
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
+    private final CompositeDatabaseModificationObserver modificationObserver;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext, final TechId projectId)
@@ -57,8 +58,7 @@ public final class ProjectViewer extends ContentPanel
     private ProjectViewer(final IViewContext<ICommonClientServiceAsync> viewContext,
             final TechId projectId)
     {
-        this.viewContext = viewContext;
-        setId(createId(projectId));
+        super(viewContext, createId(projectId));
         this.projectId = projectId;
         this.modificationObserver = new CompositeDatabaseModificationObserver();
         reloadAllData();
@@ -119,8 +119,7 @@ public final class ProjectViewer extends ContentPanel
         @Override
         protected final void process(final Project result)
         {
-            viewer.setHeading(viewContext.getMessage(Dict.PROJECT) + " " + result.getIdentifier());
-
+            viewer.updateOriginalProject(result);
             viewer.removeAll();
             viewer.setScrollMode(Scroll.AUTO);
             AttachmentsSection<Project> attachmentsSection =
@@ -129,5 +128,23 @@ public final class ProjectViewer extends ContentPanel
             modificationObserver.addObserver(attachmentsSection.getDatabaseModificationObserver());
             viewer.layout();
         }
+    }
+
+    private void updateOriginalProject(Project result)
+    {
+        this.originalProject = result;
+        updateTitle();
+    }
+
+    private void updateTitle()
+    {
+        updateTitle(viewContext.getMessage(Dict.PROJECT) + " " + originalProject.getIdentifier());
+    }
+
+    @Override
+    protected void showEntityEditor()
+    {
+        assert originalProject != null;
+        ProjectGrid.showEntityViewer(originalProject, true, viewContext);
     }
 }

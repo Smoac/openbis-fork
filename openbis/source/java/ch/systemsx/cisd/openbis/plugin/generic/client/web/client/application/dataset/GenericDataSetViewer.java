@@ -113,7 +113,6 @@ public final class GenericDataSetViewer extends AbstractViewer<IGenericClientSer
         protected final void process(final ExternalData result)
         {
             genericDataSetViewer.setOriginalDataSet(result);
-            genericDataSetViewer.enableEdit(true);
             genericDataSetViewer.removeAll();
             genericDataSetViewer.setScrollMode(Scroll.AUTO);
             addSection(genericDataSetViewer, new DataSetPropertiesSection(result, viewContext));

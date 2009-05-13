@@ -151,6 +151,12 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
     @Override
     protected void showEntityViewer(final Project project, boolean editMode)
     {
+        showEntityViewer(project, editMode, viewContext);
+    }
+
+    public static void showEntityViewer(final Project project, boolean editMode,
+            final IViewContext<ICommonClientServiceAsync> viewContext)
+    {
         ITabItemFactory tabFactory;
         final TechId projectId = new TechId(project);
         if (editMode == false)

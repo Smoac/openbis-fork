@@ -100,7 +100,6 @@ public final class ScreeningSampleViewer extends AbstractViewer<IScreeningClient
         protected final void process(final SampleGeneration result)
         {
             setOriginalSample(result.getGenerator());
-            enableEdit(true);
             screeningSampleViewer.removeAll();
             screeningSampleViewer.add(screeningSampleViewer.createUI(result));
             screeningSampleViewer.layout();
