@@ -80,8 +80,8 @@ var common = {
   // AbstractAsyncCallback
   //
   
-  exception_invocationMessage: "Failed to contact service.", 
-  exception_withoutMessage: "Unknown failure has occurred (ask administrator):<br>{0}",
+  exception_invocationMessage: "Failed to contact the server. Please try again later or contact your administrator.", 
+  exception_withoutMessage: "Unexpected error has occurred, please contact your administrator:<br>{0}",
   
   //
   // Header
@@ -258,7 +258,7 @@ var common = {
   list_groups: "Groups Browser",
   confirm_title: "Confirmation",
   confirm_close_msg: "All unsaved changes will be lost. Are you sure?",
-  
+
   change_user_home_group_dialog_title: "Change Home Group",  
   
   //
