@@ -29,6 +29,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
  */
 public class Logout extends AbstractDefaultTestCommand
 {
+    public Logout(String callbackClassId)
+    {
+        super();
+        addCallbackClass(callbackClassId);
+    }
+
     public Logout()
     {
         super(SessionContextCallback.class);
