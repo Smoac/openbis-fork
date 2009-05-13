@@ -213,7 +213,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         loadByProjectIdentifier(updates.getIdentifier());
         if (updates.getVersion().equals(project.getModificationDate()) == false)
         {
-            throw new UserFailureException("Project has been modified in the meantime.");
+            throwModifiedEntityException("Project");
         }
         project.setDescription(updates.getDescription());
         for (AttachmentPE a : updates.getAttachments())
