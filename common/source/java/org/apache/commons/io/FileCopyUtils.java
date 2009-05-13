@@ -132,34 +132,6 @@ public class FileCopyUtils
     }
 
     /**
-     * Copies a file or directory to a directory preserving the file or directory date. The copy of
-     * the source file or directory has a name changed to the specified one.
-     * <p>
-     * This method copies the contents of the specified source file to a file of the specified name
-     * in the specified destination directory. The destination directory is created if it does not
-     * exist. If the destination file exists, then this method will overwrite it.
-     * 
-     * @param source an existing file to copy, must not be <code>null</code>
-     * @param destDir the directory to place the copy in, must not be <code>null</code>
-     * @param newName the new name of the copy which will be created, must not be <code>null</code>
-     * @throws NullPointerException if source or destination is <code>null</code>
-     * @throws IOException if source or destination is invalid
-     * @throws IOException if an IO error occurs during copying
-     */
-    public static void copyToDirectoryAs(File source, File destDir, String newName)
-            throws IOException
-    {
-        File destLocation = new File(destDir, newName);
-        if (source.isDirectory())
-        {
-            copyDirectory(source, destLocation);
-        } else
-        {
-            copyFile(source, destLocation);
-        }
-    }
-
-    /**
      * Copies a file or directory to a directory preserving the file or directory date.
      * <p>
      * This method copies the contents of the specified source file to a file of the same name in

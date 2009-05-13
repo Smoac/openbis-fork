@@ -493,12 +493,13 @@ public class FileOperations implements IFileOperations
     public void copyToDirectoryAs(File source, File destDir, String newName)
             throws IOExceptionUnchecked
     {
-        try
+        File destLocation = new File(destDir, newName);
+        if (source.isDirectory())
         {
-            FileCopyUtils.copyToDirectoryAs(source, destDir, newName);
-        } catch (IOException ex)
+            copyDirectory(source, destLocation);
+        } else
         {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            copyFile(source, destLocation);
         }
     }
 
