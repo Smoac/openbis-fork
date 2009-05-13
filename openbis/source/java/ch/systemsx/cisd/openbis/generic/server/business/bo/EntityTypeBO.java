@@ -66,7 +66,7 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
             getEntityTypeDAO(entityKind).createOrUpdateEntityType(entityTypePE);
         } catch (final DataAccessException e)
         {
-            throwException(e, String.format("Entity type '%s'.", entityTypePE.getCode()));
+            throwException(e, String.format("Entity type '%s' ", entityTypePE.getCode()));
         }
     }
 

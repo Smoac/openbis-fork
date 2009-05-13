@@ -31,6 +31,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
@@ -672,15 +673,16 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public void registerFileFormatType(String sessionToken, FileFormatType type)
     {
         checkSession(sessionToken);
+        FileFormatTypePE fileFormatType = new FileFormatTypePE();
         try
         {
-            FileFormatTypePE fileFormatType = new FileFormatTypePE();
             fileFormatType.setCode(type.getCode());
             fileFormatType.setDescription(type.getDescription());
             getDAOFactory().getFileFormatTypeDAO().createOrUpdate(fileFormatType);
         } catch (final DataAccessException ex)
         {
-            throw createUserFailureException(ex);
+            DataAccessExceptionTranslator.throwException(ex, String.format(
+                    "File format type '%s' ", fileFormatType.getCode()));
         }
     }
 
