@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
@@ -44,6 +45,8 @@ public final class FillExperimentEditForm extends AbstractDefaultTestCommand
 
     private String identifier;
 
+    private String newProjectOrNull;
+
     public FillExperimentEditForm(String identifier)
     {
         this.identifier = identifier;
@@ -63,9 +66,8 @@ public final class FillExperimentEditForm extends AbstractDefaultTestCommand
 
     public final void execute()
     {
-        String id =
-                GenericExperimentEditForm.ID_PREFIX + "generic-experiment-edit_" + identifier
-                        + "_form";
+        String simpleId = "generic-experiment-edit_" + identifier + "_form";
+        String id = GenericExperimentEditForm.ID_PREFIX + simpleId;
         for (final PropertyField property : properties)
         {
             final Widget widget = GWTTestUtil.getWidgetWithID(id + property.getPropertyFieldId());
@@ -81,6 +83,20 @@ public final class FillExperimentEditForm extends AbstractDefaultTestCommand
                 throw new IllegalStateException("Wrong widget type");
             }
         }
+        if (newProjectOrNull != null)
+        {
+            final ProjectSelectionWidget projectSelector =
+                    (ProjectSelectionWidget) GWTTestUtil.getWidgetWithID(ProjectSelectionWidget.ID
+                            + ProjectSelectionWidget.SUFFIX + simpleId);
+            GWTUtils.setSelectedItem(projectSelector, ModelDataPropertyNames.PROJECT_IDENTIFIER,
+                    newProjectOrNull);
+        }
         GWTTestUtil.clickButtonWithID(id + AbstractRegistrationForm.SAVE_BUTTON);
+    }
+
+    public FillExperimentEditForm changeProject(String newProject)
+    {
+        this.newProjectOrNull = newProject;
+        return this;
     }
 }
