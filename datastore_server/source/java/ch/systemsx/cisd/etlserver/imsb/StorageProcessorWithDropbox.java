@@ -63,13 +63,13 @@ public class StorageProcessorWithDropbox implements IStorageProcessor
      * Property name which is used to specify the class of the default storage processor, to which
      * all calls are delegated.
      */
-    public final static String DELEGATE_PROCESSOR_CLASS_PROPERTY = "default-processor";
+    public final static String DELEGATE_PROCESSOR_CLASS_PROPERTY = "processor";
 
     /**
      * The path to the directory where an additional copy of the original incoming data will be
      * created for additional processing.
      */
-    public final static String DROPBOX_INCOMING_DIRECTORY_PROPERTY = "dropbox-incoming-dir";
+    public final static String DROPBOX_INCOMING_DIRECTORY_PROPERTY = "dropbox-dir";
 
     final static Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, StorageProcessorWithDropbox.class);

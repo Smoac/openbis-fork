@@ -92,7 +92,7 @@ public class StorageProcessorWithDropboxTest
     @Test
     public final void testCreateDelegateStorageProcessorFails()
     {
-        String expectedErrorMsg = "Given key 'default-processor' not found in properties '[]'";
+        String expectedErrorMsg = "Given key 'processor' not found in properties '[]'";
         try
         {
             StorageProcessorWithDropbox.createDelegateStorageProcessor(new Properties());
