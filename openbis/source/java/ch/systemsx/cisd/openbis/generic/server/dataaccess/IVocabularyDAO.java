@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
  * 
  * @author Christian Ribeaud
  */
-public interface IVocabularyDAO extends IAbstractGenericDAO<VocabularyPE>
+public interface IVocabularyDAO extends IGenericDAO<VocabularyPE>
 {
 
     /**

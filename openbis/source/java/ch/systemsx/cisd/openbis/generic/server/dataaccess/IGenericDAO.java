@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
  * 
  * @author Piotr Buczek
  */
-public interface IAbstractGenericDAO<T extends IIdHolder>
+public interface IGenericDAO<T extends IIdHolder>
 {
     /**
      * Returns the entity for given technical id with no lazy connections initialized.

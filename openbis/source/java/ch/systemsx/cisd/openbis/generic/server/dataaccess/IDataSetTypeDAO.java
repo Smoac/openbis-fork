@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
  * 
  * @author Franz-Josef Elmer
  */
-public interface IDataSetTypeDAO extends IAbstractGenericDAO<DataSetTypePE>
+public interface IDataSetTypeDAO extends IGenericDAO<DataSetTypePE>
 {
     /**
      * Tries to find the {@link DataSetTypePE} for the specified code.

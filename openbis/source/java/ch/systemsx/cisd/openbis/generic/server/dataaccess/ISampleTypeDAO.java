@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
  * 
  * @author Christian Ribeaud
  */
-public interface ISampleTypeDAO extends IAbstractGenericDAO<SampleTypePE>
+public interface ISampleTypeDAO extends IGenericDAO<SampleTypePE>
 {
     /**
      * Returns a list of {@link SampleTypePE} which have their property types and corresponding

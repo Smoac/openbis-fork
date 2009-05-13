@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
  * 
  * @author Franz-Josef Elmer
  */
-public interface ILocatorTypeDAO extends IAbstractGenericDAO<LocatorTypePE>
+public interface ILocatorTypeDAO extends IGenericDAO<LocatorTypePE>
 {
     /**
      * Tries to find the {@link LocatorTypePE} for the specified code.

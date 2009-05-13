@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Franz-Josef Elmer
  */
-public interface IEntityTypeDAO extends IAbstractGenericDAO<EntityTypePE>
+public interface IEntityTypeDAO extends IGenericDAO<EntityTypePE>
 {
 
     /**

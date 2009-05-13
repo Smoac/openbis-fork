@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
  * 
  * @author Franz-Josef Elmer
  */
-public interface IFileFormatTypeDAO extends IAbstractGenericDAO<FileFormatTypePE>
+public interface IFileFormatTypeDAO extends IGenericDAO<FileFormatTypePE>
 {
     /**
      * Tries to find the {@link FileFormatTypePE} for the specified code.

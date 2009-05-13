@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
  * 
  * @author Izabela Adamczyk
  */
-public interface IRoleAssignmentDAO extends IAbstractGenericDAO<RoleAssignmentPE>
+public interface IRoleAssignmentDAO extends IGenericDAO<RoleAssignmentPE>
 {
     /**
      * Lists all role assignments found in the database.

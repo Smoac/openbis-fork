@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
  * 
  * @author Franz-Josef Elmer
  */
-public interface IAttachmentDAO extends IAbstractGenericDAO<AttachmentPE>
+public interface IAttachmentDAO extends IGenericDAO<AttachmentPE>
 {
     /**
      * Returns a list of the descriptions of all {@link AttachmentPE} object associated with the

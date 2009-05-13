@@ -26,7 +26,7 @@ import org.springframework.dao.DataAccessException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAbstractGenericDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGenericDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
  * @author Piotr Buczek
  */
 public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends AbstractDAO implements
-        IAbstractGenericDAO<T>
+        IGenericDAO<T>
 {
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, AbstractGenericEntityDAO.class);

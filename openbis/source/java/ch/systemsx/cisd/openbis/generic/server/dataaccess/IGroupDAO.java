@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
  * 
  * @author Christian Ribeaud
  */
-public interface IGroupDAO extends IAbstractGenericDAO<GroupPE>
+public interface IGroupDAO extends IGenericDAO<GroupPE>
 {
 
     /**

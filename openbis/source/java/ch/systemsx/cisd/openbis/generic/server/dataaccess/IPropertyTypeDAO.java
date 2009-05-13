@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
  * 
  * @author Christian Ribeaud
  */
-public interface IPropertyTypeDAO extends IAbstractGenericDAO<PropertyTypePE>
+public interface IPropertyTypeDAO extends IGenericDAO<PropertyTypePE>
 {
 
     /**

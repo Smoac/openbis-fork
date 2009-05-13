@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  * 
  * @author Franz-Josef Elmer
  */
-public interface IExperimentDAO extends IAbstractGenericDAO<ExperimentPE>
+public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
 {
     /**
      * Lists all of given <code>type</code> belonging to given <code>project</code>. Fetches also

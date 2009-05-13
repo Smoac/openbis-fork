@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
  * 
  * @author Tomasz Pylak
  */
-public interface ISampleDAO extends IAbstractGenericDAO<SamplePE>
+public interface ISampleDAO extends IGenericDAO<SamplePE>
 {
 
     /**
