@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.ObjectRetrievalFailureException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
@@ -129,12 +128,18 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         }
     }
 
+    private static final String PROPERTY_TYPES =
+            "experimentType.experimentTypePropertyTypesInternal";
+
+    private static final String VOCABULARY_TERMS =
+            PROPERTY_TYPES + ".propertyTypeInternal.vocabulary.vocabularyTerms";
+
     public void loadDataByTechId(TechId experimentId)
     {
-        try
-        {
-            experiment = getExperimentDAO().getByTechId(experimentId);
-        } catch (ObjectRetrievalFailureException exception)
+        String[] connections =
+            { PROPERTY_TYPES, VOCABULARY_TERMS };
+        experiment = getExperimentDAO().tryGetByTechId(experimentId, connections);
+        if (experiment == null)
         {
             throw new UserFailureException(String.format("Experiment with ID '%s' does not exist.",
                     experimentId));

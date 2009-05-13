@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
  * A {@link LayoutContainer} extension for registering and editing projects.
@@ -71,7 +72,7 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
     }
 
     protected AbstractProjectEditRegisterForm(
-            final IViewContext<ICommonClientServiceAsync> viewContext, Long projectIdOrNull)
+            final IViewContext<ICommonClientServiceAsync> viewContext, TechId projectIdOrNull)
     {
         super(viewContext, createId(projectIdOrNull), DEFAULT_LABEL_WIDTH + 20, DEFAULT_FIELD_WIDTH);
         this.viewContext = viewContext;
@@ -84,7 +85,7 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
         addUploadFeatures(sessionKey);
     }
 
-    public static String createId(Long id)
+    public static String createId(TechId id)
     {
         String editOrRegister = (id == null) ? "register" : ("edit_" + id);
         return GenericConstants.ID_PREFIX + "project-" + editOrRegister + "_form";

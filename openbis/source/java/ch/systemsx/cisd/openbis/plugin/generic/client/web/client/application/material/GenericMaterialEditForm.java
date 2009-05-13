@@ -66,8 +66,10 @@ public final class GenericMaterialEditForm
     @Override
     public final void submitValidForm()
     {
-        viewContext.getService().updateMaterial(identifiableOrNull.getIdentifier(), extractProperties(),
-                originalMaterial.getModificationDate(), new UpdateMaterialCallback(viewContext));
+        // TODO 2009-05-13, PB: use techId
+        viewContext.getService().updateMaterial(identifiableOrNull.getIdentifier(),
+                extractProperties(), originalMaterial.getModificationDate(),
+                new UpdateMaterialCallback(viewContext));
     }
 
     public final class UpdateMaterialCallback extends

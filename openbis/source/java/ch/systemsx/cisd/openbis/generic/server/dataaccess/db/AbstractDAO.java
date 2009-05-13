@@ -147,6 +147,15 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     }
 
     /**
+     * Casts given <var>entityOrNull</var> to specified type or returns null for null input.
+     */
+    @SuppressWarnings("unchecked")
+    protected final static <T> T tryGetEntity(final Object entityOrNull)
+    {
+        return entityOrNull == null ? null : (T) entityOrNull;
+    }
+
+    /**
      * Checks given <var>entities</var> and throws a {@link IncorrectResultSizeDataAccessException}
      * if it contains more than one item.
      * 

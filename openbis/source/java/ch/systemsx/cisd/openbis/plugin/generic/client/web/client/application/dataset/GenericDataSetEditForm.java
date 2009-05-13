@@ -76,7 +76,7 @@ public final class GenericDataSetEditForm
         final List<DataSetProperty> properties = extractProperties();
         final String sampleIdentifier = extractSampleIdentifier();
         viewContext.getService().updateDataSet(
-                // TODO 2009-05-11, IA: use code
+                // TODO 2009-05-13, PB: this identifier is permanent but we could techId instead
                 identifiableOrNull.getIdentifier(), sampleIdentifier, properties,
                 originalDataSet.getModificationDate(), new UpdateDataSetCallback(viewContext));
     }

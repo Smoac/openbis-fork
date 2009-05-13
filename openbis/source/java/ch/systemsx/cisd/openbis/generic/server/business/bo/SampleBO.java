@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.ObjectRetrievalFailureException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
@@ -96,15 +95,19 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         return sample;
     }
 
+    private static final String PROPERTY_TYPES = "sampleType.sampleTypePropertyTypesInternal";
+
+    private static final String VOCABULARY_TERMS =
+            PROPERTY_TYPES + ".propertyTypeInternal.vocabulary.vocabularyTerms";
+
     public void loadDataByTechId(TechId sampleId)
     {
-        try
+        String[] connections =
+            { PROPERTY_TYPES, VOCABULARY_TERMS };
+        sample = getSampleDAO().tryGetByTechId(sampleId, connections);
+        if (sampleId == null)
         {
-            sample = getSampleDAO().getByTechId(sampleId);
-            HibernateUtils.initialize(sample.getExperiment());
-        } catch (ObjectRetrievalFailureException exception)
-        {
-            throw new UserFailureException(String.format("Material with ID '%s' does not exist.",
+            throw new UserFailureException(String.format("Sample with ID '%s' does not exist.",
                     sampleId));
         }
         dataChanged = false;

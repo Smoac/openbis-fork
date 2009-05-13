@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.ObjectRetrievalFailureException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -65,13 +64,17 @@ public final class MaterialBO extends AbstractBusinessObject implements IMateria
         propertiesConverter = entityPropertiesConverter;
     }
 
+    private static final String PROPERTY_TYPES = "materialType.materialTypePropertyTypesInternal";
+
+    private static final String VOCABULARY_TERMS =
+            PROPERTY_TYPES + ".propertyTypeInternal.vocabulary.vocabularyTerms";
+
     public void loadDataByTechId(TechId materialId)
     {
-        try
-        {
-            // TODO 2009-05-12, Piotr Buczek: initialize connections like in loadByIdentifier
-            material = getMaterialDAO().getByTechId(materialId);
-        } catch (ObjectRetrievalFailureException exception)
+        String[] connections =
+            { PROPERTY_TYPES, VOCABULARY_TERMS };
+        material = getMaterialDAO().tryGetByTechId(materialId, connections);
+        if (material == null)
         {
             throw new UserFailureException(String.format("Material with ID '%s' does not exist.",
                     materialId));

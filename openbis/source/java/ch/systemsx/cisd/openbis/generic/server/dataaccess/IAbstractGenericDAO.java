@@ -29,11 +29,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 public interface IAbstractGenericDAO<T extends IIdHolder>
 {
     /**
-     * Returns the entity for given technical id.
+     * Returns the entity for given technical id with no lazy connections initialized.
      * 
      * @param techId the entity technical identifier.
      * @throws EmptyResultDataAccessException if the entity with given identifier does not exist in
      *             the database.
      */
     public T getByTechId(final TechId techId);
+
+    
+    /**
+     * @param techId the entity technical identifier
+     * @param connections the (lazy) connections to additionally initialize
+     * @return entity with the given technical identifier or null if it is not found
+     */
+    public T tryGetByTechId(final TechId techId, String... connections);
 }

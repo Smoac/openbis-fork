@@ -39,16 +39,16 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
 
     private Project originalProject;
 
-    private final Long projectId;
+    private final TechId projectId;
 
     public static DatabaseModificationAwareComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext, Long projectId)
+            final IViewContext<ICommonClientServiceAsync> viewContext, TechId projectId)
     {
         ProjectEditForm form = new ProjectEditForm(viewContext, projectId);
         return new DatabaseModificationAwareComponent(form, form.getGroupField());
     }
 
-    protected ProjectEditForm(IViewContext<ICommonClientServiceAsync> viewContext, Long projectId)
+    protected ProjectEditForm(IViewContext<ICommonClientServiceAsync> viewContext, TechId projectId)
     {
         super(viewContext, projectId);
         this.projectId = projectId;

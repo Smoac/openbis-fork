@@ -17,7 +17,10 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -56,13 +59,31 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
     public final T getByTechId(final TechId techId) throws DataAccessException
     {
         assert techId != null : "Technical identifier unspecified.";
-        final Object object = getHibernateTemplate().load(getEntityClass(), techId.getId());
+        final T result = getEntity(getHibernateTemplate().load(getEntityClass(), techId.getId()));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(%d): '%s'.", MethodUtils.getCurrentMethod()
-                    .getName(), techId, object));
+                    .getName(), techId, result));
         }
-        return getEntity(object);
+        return result;
     }
 
+    public final T tryGetByTechId(final TechId techId, String... connections)
+            throws DataAccessException
+    {
+        assert techId != null : "Technical identifier unspecified.";
+        final Criteria criteria = getSession().createCriteria(getEntityClass());
+        criteria.add(Restrictions.eq("id", techId.getId()));
+        for (String connection : connections)
+        {
+            criteria.setFetchMode(connection, FetchMode.JOIN);
+        }
+        final T result = tryGetEntity(criteria.uniqueResult());
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s(%d): '%s'.", MethodUtils.getCurrentMethod()
+                    .getName(), techId, result));
+        }
+        return result;
+    }
 }
