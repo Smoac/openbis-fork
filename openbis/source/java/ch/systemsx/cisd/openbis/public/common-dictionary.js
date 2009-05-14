@@ -336,7 +336,7 @@ var common = {
  button_delete_datasets: "Delete",
  confirm_dataset_deletion_title: "Data Sets Deletion Confirmation",
  confirm_dataset_deletion_msg: "You are deleting {0} data set(s). Please enter a reason:",
- button_upload_datasets: "Upload to CIFEX",
+ button_upload_datasets: "Export Data",
  confirm_dataset_upload_title: "Uploading Confirmation and Authentication",
  confirm_dataset_upload_msg: "You are uploading {0} data set(s) to CIFEX ({1}) in a single ZIP file.<br/><br/>Please, enter additional information:", 
  confirm_dataset_upload_file_name_field: "File name",
