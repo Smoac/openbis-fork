@@ -16,11 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
  * Enumeration of the various ways to get the {@link GroupPE} of an entity knowing its
@@ -31,32 +28,5 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  */
 public enum EntityWithGroupKind
 {
-    EXPERIMENT()
-    {
-        @Override
-        public GroupPE tryToGetGroup(IAuthorizationDAOFactory daoFactory, TechId techId)
-        {
-            ExperimentPE experiment = daoFactory.getExperimentDAO().getByTechId(techId);
-            return experiment.getProject().getGroup();
-        }
-    },
-    GROUP()
-    {
-        @Override
-        public GroupPE tryToGetGroup(IAuthorizationDAOFactory daoFactory, TechId techId)
-        {
-            return daoFactory.getGroupDAO().getByTechId(techId);
-        }
-    },
-    PROJECT()
-    {
-        @Override
-        public GroupPE tryToGetGroup(IAuthorizationDAOFactory daoFactory, TechId techId)
-        {
-            ProjectPE project = daoFactory.getProjectDAO().getByTechId(techId);
-            return project.getGroup();
-        }
-    };
-
-    public abstract GroupPE tryToGetGroup(IAuthorizationDAOFactory daoFactory, TechId techId);
+    EXPERIMENT, GROUP, PROJECT;
 }
