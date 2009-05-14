@@ -18,12 +18,14 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.Role.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
@@ -43,7 +45,7 @@ abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstancePredica
         groups = provider.listGroups();
     }
 
-    protected boolean evaluate(final List<RoleWithIdentifier> allowedRoles,
+    protected Status evaluate(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final DatabaseInstancePE databaseInstance, final String groupCode)
     {
         final String databaseInstanceUUID = databaseInstance.getUuid();
@@ -51,9 +53,15 @@ abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstancePredica
                 new GroupIdentifier(databaseInstance.getCode(), groupCode);
         ensureGroupExists(fullGroupIdentifier, databaseInstanceUUID, groupCode);
         final boolean matching = isMatching(allowedRoles, databaseInstanceUUID, groupCode);
-        return matching;
+        if (matching)
+        {
+            return Status.OK;
+        }
+        return Status.createError(String.format(
+                "User '%s' does not have enough privileges to access data in the group '%s'.",
+                person.getUserId(), new GroupIdentifier(databaseInstance.getCode(), groupCode)));
     }
-
+    
     private void ensureGroupExists(final GroupIdentifier groupIdentifier,
             final String databaseInstanceUUID, final String groupCode)
     {

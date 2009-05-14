@@ -24,7 +24,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
  * A {@link IPredicate} based on a list of data set codes.
@@ -51,12 +50,7 @@ public class DataSetCodePredicate extends AbstractGroupPredicate<String>
             GroupPE group = project.getGroup();
             DatabaseInstancePE databaseInstance = group.getDatabaseInstance();
             String code = group.getCode();
-            if (evaluate(allowedRoles, databaseInstance, code) == false)
-            {
-                return Status.createError(String.format(
-                        "User '%s' does not have enough privileges to access data in the group '%s'.",
-                        person.getUserId(), new GroupIdentifier(databaseInstance.getCode(), code)));
-            }
+            return evaluate(person, allowedRoles, databaseInstance, code);
         }
         return Status.OK;
     }

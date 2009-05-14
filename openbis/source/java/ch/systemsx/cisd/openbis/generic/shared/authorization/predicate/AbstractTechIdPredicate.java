@@ -26,7 +26,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedGroupException;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.GroupCodeHelper;
 
 /**
@@ -106,16 +105,8 @@ public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<Tec
 
         final String groupCode = GroupCodeHelper.getGroupCode(person, groupOrNull);
         final DatabaseInstancePE databaseInstance = groupOrNull.getDatabaseInstance();
-
-        final boolean matching = evaluate(allowedRoles, databaseInstance, groupCode);
-        if (matching)
-        {
-            return Status.OK;
-        }
-        return Status.createError(String.format(
-                "User '%s' does not have enough privileges to access data in the group '%s'.",
-                person.getUserId(), new GroupIdentifier(databaseInstance.getCode(), groupCode)));
-
+        return evaluate(person, allowedRoles, databaseInstance, groupCode);
     }
+
 
 }

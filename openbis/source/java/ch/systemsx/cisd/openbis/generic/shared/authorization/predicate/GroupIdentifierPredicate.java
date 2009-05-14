@@ -53,13 +53,6 @@ public class GroupIdentifierPredicate extends AbstractGroupPredicate<GroupIdenti
         assert inited : "Predicate has not been initialized";
         final String groupCode = GroupCodeHelper.getGroupCode(person, groupIdentifierOrNull);
         final DatabaseInstancePE databaseInstance = getDatabaseInstance(groupIdentifierOrNull);
-        final boolean matching = evaluate(allowedRoles, databaseInstance, groupCode);
-        if (matching)
-        {
-            return Status.OK;
-        }
-        return Status.createError(String.format(
-                "User '%s' does not have enough privileges to access data in the group '%s'.",
-                person.getUserId(), new GroupIdentifier(databaseInstance.getCode(), groupCode)));
+        return evaluate(person, allowedRoles, databaseInstance, groupCode);
     }
 }
