@@ -12,7 +12,7 @@ var generic = {
   
   sample_properties_heading: "Sample Properties",
   part_of_heading: "Components",
-  external_data_heading: "External Data",
+  external_data_heading: "Data Sets",
   
   //
   // Sample Registration
