@@ -55,9 +55,4 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
      */
     public SamplePE getSample(TechId techId);
 
-    public enum EntityWithGroupKind
-    {
-        EXPERIMENT, GROUP, PROJECT
-    }
-
 }

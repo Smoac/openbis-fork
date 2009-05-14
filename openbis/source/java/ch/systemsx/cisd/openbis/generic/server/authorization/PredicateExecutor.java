@@ -22,6 +22,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.EntityWithGroupKind;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ArrayPredicate;
@@ -30,7 +31,6 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.IPredicat
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -197,19 +197,7 @@ public final class PredicateExecutor
 
         public GroupPE tryToGetGroup(EntityWithGroupKind kind, TechId techId)
         {
-            switch (kind)
-            {
-                case EXPERIMENT:
-                    ExperimentPE experiment = daoFactory.getExperimentDAO().getByTechId(techId);
-                    return experiment.getProject().getGroup();
-                case GROUP:
-                    GroupPE group = daoFactory.getGroupDAO().getByTechId(techId);
-                    return group;
-                case PROJECT:
-                    ProjectPE project = daoFactory.getProjectDAO().getByTechId(techId);
-                    return project.getGroup();
-            }
-            return null;
+            return kind.tryToGetGroup(daoFactory, techId);
         }
 
         public SamplePE getSample(TechId techId)
