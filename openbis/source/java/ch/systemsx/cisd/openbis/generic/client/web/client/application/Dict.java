@@ -548,6 +548,18 @@ public abstract class Dict
     public static final String INCORRECT_EXPERIMENT_SYNTAX = "incorrect_experiment_syntax";
 
     //
+    // Grid Column Chooser
+    //
+
+    public static final String GRID_COLUMN_CHOOSER_TITLE = "GRID_COLUMN_CHOOSER_TITLE";
+
+    public static final String GRID_COLUMN_NAME_HEADER = "GRID_COLUMN_NAME_HEADER";
+
+    public static final String GRID_IS_COLUMN_VISIBLE_HEADER = "GRID_IS_COLUMN_VISIBLE_HEADER";
+
+    public static final String GRID_COLUMN_HAS_FILTER_HEADER = "GRID_COLUMN_HAS_FILTER_HEADER";
+
+    //
     // Unclassified
     //
 

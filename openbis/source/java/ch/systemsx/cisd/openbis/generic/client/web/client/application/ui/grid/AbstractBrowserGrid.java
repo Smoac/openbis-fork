@@ -897,7 +897,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         assert grid != null && grid.getColumnModel() != null : "Grid must be loaded";
 
-        new ColumnChooserDialog().show(grid);
+        new ColumnChooserDialog(viewContext).show(grid);
     }
 
     // @Private - for tests

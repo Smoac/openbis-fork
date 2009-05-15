@@ -14,28 +14,36 @@ class ColumnDataModel extends BaseModelData
 
     private static final String COLUMN_ID = "column_id";
 
-    static final String CHECKED = "hidden";
+    static final String HAS_FILTER = "HAS_FILTER";
+
+    static final String IS_VISIBLE = "IS_VISIBLE";
 
     static final String HEADER = "header";
 
-    public ColumnDataModel(String header, boolean isChecked, String columnID)
+    public ColumnDataModel(String header, boolean isVisible, boolean hasFilter, String columnID)
     {
         setHeader(header);
-        setChecked(isChecked);
+        setIsVisible(isVisible);
+        setHasFilter(hasFilter);
         setColumnID(columnID);
     }
 
-    public void setColumnID(String columnID)
+    private void setColumnID(String columnID)
     {
         set(COLUMN_ID, columnID);
     }
 
-    public void setChecked(boolean isChecked)
+    private void setIsVisible(boolean isVisible)
     {
-        set(CHECKED, isChecked);
+        set(IS_VISIBLE, isVisible);
     }
 
-    public void setHeader(String header)
+    private void setHasFilter(boolean hasFilter)
+    {
+        set(HAS_FILTER, hasFilter);
+    }
+
+    private void setHeader(String header)
     {
         set(HEADER, header);
     }
@@ -50,9 +58,13 @@ class ColumnDataModel extends BaseModelData
         return get(HEADER);
     }
 
-    public boolean isChecked()
+    public boolean isVisible()
     {
-        return get(CHECKED);
+        return get(IS_VISIBLE);
     }
 
+    public boolean hasFilter()
+    {
+        return get(HAS_FILTER);
+    }
 }

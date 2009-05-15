@@ -11,6 +11,9 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+
 /**
  * {@link Dialog} displaying {@link GridColumnChooser}.
  * 
@@ -18,11 +21,15 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
  */
 class ColumnChooserDialog extends Dialog
 {
-    public ColumnChooserDialog()
+    private final IMessageProvider messageProvider;
+
+    public ColumnChooserDialog(IMessageProvider messageProvider)
     {
+        this.messageProvider = messageProvider;
         setHeight(400);
+        setWidth(450);
         setLayout(new FitLayout());
-        setHeading("Configure visibility and order of the columns");
+        setHeading(messageProvider.getMessage(Dict.GRID_COLUMN_CHOOSER_TITLE));
     }
 
     /**
@@ -33,7 +40,8 @@ class ColumnChooserDialog extends Dialog
         assert grid != null : "Grid must be loaded";
         final MoveableColumnModel cm = (MoveableColumnModel) grid.getColumnModel();
         removeAll();
-        final GridColumnChooser columnChooser = new GridColumnChooser(createModels(cm));
+        final GridColumnChooser columnChooser =
+                new GridColumnChooser(createModels(cm), messageProvider);
         add(columnChooser.getComponent());
         super.show();
         getButtonBar().getButtonById("ok").addSelectionListener(
@@ -46,7 +54,7 @@ class ColumnChooserDialog extends Dialog
                             for (ColumnDataModel m : columnChooser.getModels())
                             {
                                 int oldIndex = cm.getIndexById(m.getColumnID());
-                                cm.setHidden(oldIndex, m.isChecked() == false);
+                                cm.setHidden(oldIndex, m.isVisible() == false);
                                 cm.move(oldIndex, newIndex++);
                             }
                             grid.setLoadMask(false);
@@ -67,7 +75,9 @@ class ColumnChooserDialog extends Dialog
             {
                 continue;
             }
-            list.add(new ColumnDataModel(cm.getColumnHeader(i), cm.isHidden(i) == false, cm
+            boolean isVisible = cm.isHidden(i) == false;
+            boolean hasFilter = false; // TODO 2009-05-15, Tomasz Pylak: implement this
+            list.add(new ColumnDataModel(cm.getColumnHeader(i), isVisible, hasFilter, cm
                     .getColumnId(i)));
         }
         return list;

@@ -380,6 +380,15 @@ incorrect_experiment_syntax: "Incorrect experiment specification. Please provide
  versions: "Versions",
  versions_template: "Show all versions ({0})",
  
+//
+// Grid Column Chooser
+//
+
+GRID_COLUMN_CHOOSER_TITLE: "Configure grid columns",
+GRID_COLUMN_NAME_HEADER: "Column",
+GRID_IS_COLUMN_VISIBLE_HEADER: "Visible?",
+GRID_COLUMN_HAS_FILTER_HEADER: "Has Filter?",
+    
  
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

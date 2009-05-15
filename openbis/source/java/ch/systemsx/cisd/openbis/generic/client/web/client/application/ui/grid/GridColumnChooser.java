@@ -16,6 +16,9 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+
 /**
  * Allows to change visibility and order of the grid columns.
  * 
@@ -26,19 +29,33 @@ class GridColumnChooser
 
     private final Grid<ColumnDataModel> grid;
 
-    public GridColumnChooser(List<ColumnDataModel> list)
+    public GridColumnChooser(List<ColumnDataModel> list, IMessageProvider messageProvider)
     {
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        CheckColumnConfig checkColumn =
-                new CheckColumnConfig(ColumnDataModel.CHECKED, "Shown?", 45);
-        configs.add(checkColumn);
-        configs.add(new ColumnConfig(ColumnDataModel.HEADER, "Column", 200));
+        CheckColumnConfig isVisibleColumn =
+                new CheckColumnConfig(ColumnDataModel.IS_VISIBLE, messageProvider
+                        .getMessage(Dict.GRID_IS_COLUMN_VISIBLE_HEADER), 55);
+        CheckColumnConfig hasFilterColumn =
+                new CheckColumnConfig(ColumnDataModel.HAS_FILTER, messageProvider
+                        .getMessage(Dict.GRID_COLUMN_HAS_FILTER_HEADER), 75);
+        ColumnConfig nameColumn =
+                new ColumnConfig(ColumnDataModel.HEADER, messageProvider
+                        .getMessage(Dict.GRID_COLUMN_NAME_HEADER), 300);
+        configs.add(isVisibleColumn);
+        configs.add(hasFilterColumn);
+        configs.add(nameColumn);
+        for (ColumnConfig column : configs)
+        {
+            column.setSortable(false);
+            column.setMenuDisabled(true);
+        }
 
         grid = new Grid<ColumnDataModel>(createStore(list), new ColumnModel(configs));
-        grid.setHideHeaders(true);
-        grid.addPlugin(checkColumn);
+        grid.setHideHeaders(false);
+        grid.addPlugin(isVisibleColumn);
+        grid.addPlugin(hasFilterColumn);
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        grid.setAutoExpandColumn(ColumnDataModel.HEADER);
+        // grid.setAutoExpandColumn(ColumnDataModel.HEADER);
 
         //
         // TODO 2009-05-06 Izabela Adamczyk: Code below can be used to allow DND after we migrate to
@@ -71,6 +88,8 @@ class GridColumnChooser
         down.setTitle("Move selected column to the right");
         down.addSelectionListener(moveSelectedItem(+1));
         cp.addButton(down);
+        grid.setAutoWidth(true);
+        grid.setAutoHeight(true);
         cp.add(grid);
         cp.setScrollMode(Scroll.AUTOY);
         return cp;
