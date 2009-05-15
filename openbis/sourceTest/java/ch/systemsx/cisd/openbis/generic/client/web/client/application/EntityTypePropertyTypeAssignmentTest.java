@@ -48,9 +48,9 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
 
     private static final String HCS_IMAGE = "HCS_IMAGE";
 
-    private static final String USER_COMMENT = "USER.COMMENT";
+    private static final String USER_COMMENT = "Comment";
 
-    private static final String USER_DESCRIPTION = "USER.DESCRIPTION";
+    private static final String USER_DESCRIPTION = "Description";
 
     private static final String CONTROL_LAYOUT = "CONTROL_LAYOUT";
 
@@ -60,7 +60,7 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
 
     private static final EntityKind DATA_SET = EntityKind.DATA_SET;
 
-    private final void prepareListingAfterAssignment(String propertyTypeCode,
+    private final void prepareListingAfterAssignment(String propertyTypeLabel,
             String entityTypeCode, EntityKind entityKind, int expectedEntries, boolean isMandatory)
     {
         remoteConsole.prepare(new InvokeActionMenu(
@@ -68,7 +68,7 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
                 PropertyTypeAssignmentForm.AssignPropertyTypeCallback.class));
         CheckPropertyTypeAssignmentTable table = new CheckPropertyTypeAssignmentTable();
         table.expectedRow(new Row().withCell(
-                PropertyTypeAssignmentColDefKind.PROPERTY_TYPE_CODE.id(), propertyTypeCode)
+                PropertyTypeAssignmentColDefKind.LABEL.id(), propertyTypeLabel)
                 .withCell(PropertyTypeAssignmentColDefKind.ENTITY_TYPE_CODE.id(), entityTypeCode)
                 .withCell(PropertyTypeAssignmentColDefKind.ENTITY_KIND.id(),
                         entityKind.getDescription()).withCell(
