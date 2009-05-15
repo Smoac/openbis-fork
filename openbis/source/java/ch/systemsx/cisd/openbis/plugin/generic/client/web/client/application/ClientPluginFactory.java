@@ -82,8 +82,11 @@ public final class ClientPluginFactory extends
     //
     // IClientPluginFactory
     //
-
+    
     @SuppressWarnings("unchecked")
+    // FIXME Tomasz Pylak: the generics should be <EntityType, IIdAndIdentifierHolder>.
+    // Now the implementation can require a more specific parameter that the intrface because we
+    // have casting to a more generic class here.
     public final <T extends EntityType, I extends IIdentifierHolder> IClientPlugin<T, I> createClientPlugin(
             EntityKind entityKind)
     {
@@ -195,6 +198,7 @@ public final class ClientPluginFactory extends
     private final class MaterialClientPlugin extends
             ClientPluginAdapter<MaterialType, IIdAndIdentifierHolder> // TODO 2009-05-12, Piotr Buczek: use IIdHolder instead
     {
+
 
         @Override
         public final Widget createBatchRegistrationForEntityType(final MaterialType materialType)
