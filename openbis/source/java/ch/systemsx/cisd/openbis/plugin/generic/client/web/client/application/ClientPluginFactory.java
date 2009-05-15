@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -89,7 +88,7 @@ public final class ClientPluginFactory extends
     // FIXME Tomasz Pylak: the generics should be <EntityType, IIdAndIdentifierHolder>.
     // Now the implementation can require a more specific parameter that the intrface because we
     // have casting to a more generic class here.
-    public final <T extends EntityType, I extends IIdentifierHolder> IClientPlugin<T, I> createClientPlugin(
+    public final <T extends EntityType, I extends IIdentifiable> IClientPlugin<T, I> createClientPlugin(
             EntityKind entityKind)
     {
         if (EntityKind.EXPERIMENT.equals(entityKind))

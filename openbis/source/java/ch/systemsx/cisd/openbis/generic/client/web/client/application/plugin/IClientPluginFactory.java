@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 
@@ -39,6 +39,6 @@ public interface IClientPluginFactory
      * Creates and returns a {@link IClientPlugin} implementation specific to given
      * <var>entityKind</var> and given <var>entityType</var> each time this method is called.
      */
-    public <T extends EntityType, I extends IIdentifierHolder> IClientPlugin<T, I> createClientPlugin(
-            final EntityKind entityKind); // FIXME 2009-05-15, Piotr Buczek: use IIdentifialbe
+    public <T extends EntityType, I extends IIdentifiable> IClientPlugin<T, I> createClientPlugin(
+            final EntityKind entityKind);
 }

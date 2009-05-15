@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -80,7 +80,7 @@ public final class SampleBatchRegistrationPanel extends LayoutContainer
                         removeAll();
                         final EntityKind entityKind = EntityKind.SAMPLE;
                         add(toolBar);
-                        final IClientPlugin<EntityType, IIdentifierHolder> createClientPlugin =
+                        final IClientPlugin<EntityType, IIdentifiable> createClientPlugin =
                                 viewContext.getClientPluginFactoryProvider()
                                         .getClientPluginFactory(entityKind, sampleType)
                                         .createClientPlugin(entityKind);

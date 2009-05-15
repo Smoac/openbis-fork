@@ -839,10 +839,12 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             throw UserFailureException.fromTemplate("There is no %s with identifier '%s'",
                     entityKind.getDescription(), identifier);
         }
-        EntityType entityType = new DataSetType();
+        final EntityType entityType = new DataSetType();
         entityType.setCode(entityPEOrNull.getDataSetType().getCode());
+        final String code = entityPEOrNull.getCode();
+        final Long id = entityPEOrNull.getId();
 
-        return new BasicEntityInformationHolder(entityKind, entityType, identifier);
+        return new BasicEntityInformationHolder(entityKind, entityType, identifier, code, id);
     }
 
     public String generateCode(String sessionToken, String prefix)

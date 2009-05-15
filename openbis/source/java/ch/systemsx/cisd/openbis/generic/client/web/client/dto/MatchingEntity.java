@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -32,6 +32,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
  */
 public final class MatchingEntity implements IsSerializable
 {
+    private Long id;
+
+    private String code;
+
     private String identifier;
 
     private Person registrator;
@@ -52,11 +56,6 @@ public final class MatchingEntity implements IsSerializable
     public final void setEntityKind(final EntityKind entityKind)
     {
         this.entityKind = entityKind;
-    }
-
-    public final void setIdentifier(final String identifier)
-    {
-        this.identifier = identifier;
     }
 
     public final Person getRegistrator()
@@ -104,20 +103,56 @@ public final class MatchingEntity implements IsSerializable
         return identifier;
     }
 
-    public IIdentifierHolder asIdentifierHolder()
+    public final void setIdentifier(final String identifier)
     {
-        final String ident = getIdentifier();
-        return new IIdentifierHolder()
+        this.identifier = identifier;
+    }
+
+    public Long getId()
+    {
+        return id;
+    }
+
+    public void setId(Long id)
+    {
+        this.id = id;
+    }
+
+    public String getCode()
+    {
+        return code;
+    }
+
+    public void setCode(String code)
+    {
+        this.code = code;
+    }
+
+    public IIdentifiable asIdentifiable()
+    {
+        final MatchingEntity entity = this;
+        return new IIdentifiable()
             {
                 public String getIdentifier()
                 {
-                    if (getEntityKind() == EntityKind.MATERIAL)
+                    if (entity.getEntityKind() == EntityKind.MATERIAL)
                     {
-                        return new MaterialIdentifier(ident, getEntityType().getCode()).print();
+                        return new MaterialIdentifier(entity.getIdentifier(), entity
+                                .getEntityType().getCode()).print();
                     } else
                     {
-                        return ident;
+                        return entity.getIdentifier();
                     }
+                }
+
+                public Long getId()
+                {
+                    return entity.getId();
+                }
+
+                public String getCode()
+                {
+                    return entity.getCode();
                 }
             };
     }

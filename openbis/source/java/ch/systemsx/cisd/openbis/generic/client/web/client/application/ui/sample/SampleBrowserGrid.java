@@ -59,7 +59,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -283,7 +283,7 @@ public class SampleBrowserGrid extends
         final IClientPluginFactory clientPluginFactory =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
                         sample.getSampleType());
-        final IClientPlugin<SampleType, IIdentifierHolder> createClientPlugin =
+        final IClientPlugin<SampleType, IIdentifiable> createClientPlugin =
                 clientPluginFactory.createClientPlugin(entityKind);
         if (editMode)
         {

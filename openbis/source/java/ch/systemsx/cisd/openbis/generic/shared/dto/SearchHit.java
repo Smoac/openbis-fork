@@ -63,6 +63,16 @@ public class SearchHit
         return entity.getIdentifier();
     }
 
+    public Long getId()
+    {
+        return entity.getId();
+    }
+
+    public String getCode()
+    {
+        return entity.getCode();
+    }
+
     public PersonPE getRegistrator()
     {
         return entity.getRegistrator();

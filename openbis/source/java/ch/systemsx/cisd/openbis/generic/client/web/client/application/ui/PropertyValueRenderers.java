@@ -35,9 +35,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -396,6 +396,17 @@ public final class PropertyValueRenderers
                     public String getIdentifier()
                     {
                         return identifier;
+                    }
+
+					// FIXME 2009-05-15, PB: no id or code to use here yet
+                    public Long getId()
+                    {
+                        return null;
+                    }
+
+                    public String getCode()
+                    {
+                        return null;
                     }
 
                 };

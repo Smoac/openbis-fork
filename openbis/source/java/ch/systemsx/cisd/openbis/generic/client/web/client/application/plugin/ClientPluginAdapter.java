@@ -20,7 +20,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 
 /**
@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
  * 
  * @author Christian Ribeaud
  */
-public class ClientPluginAdapter<E extends EntityType, I extends IIdentifierHolder> implements
+public class ClientPluginAdapter<E extends EntityType, I extends IIdentifiable> implements
         IClientPlugin<E, I>
 {
 
@@ -42,7 +42,7 @@ public class ClientPluginAdapter<E extends EntityType, I extends IIdentifierHold
         throw new UnsupportedOperationException("Not yet implemented.");
     }
 
-    public ITabItemFactory createEntityViewer(final I identifier)
+    public ITabItemFactory createEntityViewer(final I identifiable)
     {
         throw new UnsupportedOperationException("Not yet implemented.");
     }
@@ -52,7 +52,7 @@ public class ClientPluginAdapter<E extends EntityType, I extends IIdentifierHold
         throw new UnsupportedOperationException("Not yet implemented.");
     }
 
-    public ITabItemFactory createEntityEditor(I identifierHolder)
+    public ITabItemFactory createEntityEditor(I identifiable)
     {
         throw new UnsupportedOperationException("Not yet implemented.");
     }

@@ -33,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeFieldWithGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -74,8 +73,8 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
      * For editing chosen entity.
      */
     protected AbstractGenericEntityRegistrationForm(
-            final IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdentifiable identifiable, EntityKind entityKind)
+            final IViewContext<IGenericClientServiceAsync> viewContext, IIdentifiable identifiable,
+            EntityKind entityKind)
     {
         super(viewContext, createId(identifiable, entityKind), DEFAULT_LABEL_WIDTH + 20,
                 DEFAULT_FIELD_WIDTH);
@@ -108,22 +107,22 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
     // ID generation
     // ---------------------------------------------------------------------------------------------
     /**
-     * Creates unique id based on {@link #createSimpleId(IIdentifierHolder, EntityKind)} and
-     * application specific ID prefix.
+     * Creates unique id based on {@link #createSimpleId(IIdentifiable, EntityKind)} and application
+     * specific ID prefix.
      */
-    public static final String createId(IIdentifierHolder identifier, EntityKind entityKind)
+    public static final String createId(IIdentifiable identifiable, EntityKind entityKind)
     {
-        return ID_PREFIX + createSimpleId(identifier, entityKind);
+        return ID_PREFIX + createSimpleId(identifiable, entityKind);
     }
 
     /**
      * Creates unique form id for given entity.
      */
-    protected static final String createSimpleId(IIdentifierHolder identifier, EntityKind entityKind)
+    protected static final String createSimpleId(IIdentifiable identifiable, EntityKind entityKind)
     {
         // TODO 2009-05-11, IA: use technical id
         String editOrRegister =
-                (identifier == null) ? "register" : ("edit_" + identifier.getIdentifier());
+                (identifiable == null) ? "register" : ("edit_" + identifiable.getIdentifier());
         return "generic-" + entityKind.name().toLowerCase() + "-" + editOrRegister + "_form";
     }
 

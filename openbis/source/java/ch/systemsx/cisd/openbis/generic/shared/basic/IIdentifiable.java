@@ -27,4 +27,5 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
  */
 public interface IIdentifiable extends IIdentifierHolder, IIdHolder, ICodeProvider
 {
+    // TODO 2009-05-15, Piotr Buczek: remove implements IIdentifierHolder when [LMS-870] is finished
 }

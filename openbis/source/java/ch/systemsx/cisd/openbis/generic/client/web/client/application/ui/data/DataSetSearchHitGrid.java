@@ -115,6 +115,16 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
                                     {
                                         return EntityKind.SAMPLE;
                                     }
+
+                                    public String getCode()
+                                    {
+                                        return rowItem.getSampleCode();
+                                    }
+
+                                    public Long getId()
+                                    {
+                                        return rowItem.getSample().getId();
+                                    }
                                 };
                     new OpenEntityDetailsTabAction(entityInformationHolder, viewContext).execute();
                 }

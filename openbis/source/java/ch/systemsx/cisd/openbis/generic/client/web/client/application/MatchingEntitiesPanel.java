@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -123,10 +123,10 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
         final IClientPluginFactory clientPluginFactory =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
                         matchingEntity.getEntityType());
-        final IClientPlugin<EntityType, IIdentifierHolder> createClientPlugin =
+        final IClientPlugin<EntityType, IIdentifiable> createClientPlugin =
                 clientPluginFactory.createClientPlugin(entityKind);
         final ITabItemFactory tabView =
-                createClientPlugin.createEntityViewer(matchingEntity.asIdentifierHolder());
+                createClientPlugin.createEntityViewer(matchingEntity.asIdentifiable());
         DispatcherHelper.dispatchNaviEvent(tabView);
     }
 

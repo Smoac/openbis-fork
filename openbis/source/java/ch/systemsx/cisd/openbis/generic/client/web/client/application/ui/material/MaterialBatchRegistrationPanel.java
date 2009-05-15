@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -81,7 +81,7 @@ public final class MaterialBatchRegistrationPanel extends LayoutContainer
                         final IClientPluginFactory clientPluginFactory =
                                 viewContext.getClientPluginFactoryProvider()
                                         .getClientPluginFactory(entityKind, materialType);
-                        final IClientPlugin<EntityType, IIdentifierHolder> createClientPlugin =
+                        final IClientPlugin<EntityType, IIdentifiable> createClientPlugin =
                                 clientPluginFactory.createClientPlugin(entityKind);
                         add(createClientPlugin.createBatchRegistrationForEntityType(materialType));
                         layout();

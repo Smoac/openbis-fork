@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriter
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -254,7 +254,7 @@ public class MaterialBrowserGrid extends
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
                         material.getMaterialType());
 
-        final IClientPlugin<MaterialType, IIdentifierHolder> createClientPlugin =
+        final IClientPlugin<MaterialType, IIdentifiable> createClientPlugin =
                 clientPluginFactory.createClientPlugin(entityKind);
         if (editMode)
         {

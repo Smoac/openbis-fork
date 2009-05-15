@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -149,7 +149,7 @@ public class ExperimentBrowserGrid extends
         final IClientPluginFactory clientPluginFactory =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
                         experiment.getExperimentType());
-        final IClientPlugin<ExperimentType, IIdentifierHolder> createClientPlugin =
+        final IClientPlugin<ExperimentType, IIdentifiable> createClientPlugin =
                 clientPluginFactory.createClientPlugin(entityKind);
         if (editMode)
         {

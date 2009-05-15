@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -98,16 +97,16 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
 
     protected final static <T extends IClientServiceAsync> void showEntityEditor(
             IViewContext<T> viewContext, EntityKind entityKind, EntityType type,
-            IIdentifierHolder identifierHolder)
+            IIdentifiable identifiable)
     {
         assert type != null : "entity type is not provided";
         final ITabItemFactory tabView;
         final IClientPluginFactory clientPluginFactory =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
                         type);
-        final IClientPlugin<SampleType, IIdentifierHolder> createClientPlugin =
+        final IClientPlugin<SampleType, IIdentifiable> createClientPlugin =
                 clientPluginFactory.createClientPlugin(entityKind);
-        tabView = createClientPlugin.createEntityEditor(identifierHolder);
+        tabView = createClientPlugin.createEntityEditor(identifiable);
         DispatcherHelper.dispatchNaviEvent(tabView);
     }
 

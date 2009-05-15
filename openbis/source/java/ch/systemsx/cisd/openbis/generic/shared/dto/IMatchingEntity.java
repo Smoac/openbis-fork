@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -23,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Christian Ribeaud
  */
-public interface IMatchingEntity extends IIdentifierHolder
+public interface IMatchingEntity extends IIdentifiable
 {
     /**
      * Returns the registrator of the entity.

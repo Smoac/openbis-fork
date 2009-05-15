@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.V
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
@@ -58,7 +58,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.exp
 public final class GenericSampleRegistrationForm extends
         AbstractGenericEntityRegistrationForm<SampleType, SampleTypePropertyType, SampleProperty>
 {
-    private static final IIdentifierHolder REGISTRATION_IDENTIFIER = null;
+    private static final IIdentifiable REGISTRATION_IDENTIFIER = null;
 
     public static final String ID = createId(REGISTRATION_IDENTIFIER, EntityKind.SAMPLE);
 

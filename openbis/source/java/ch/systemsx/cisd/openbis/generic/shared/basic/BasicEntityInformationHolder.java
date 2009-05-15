@@ -34,6 +34,10 @@ public class BasicEntityInformationHolder implements IEntityInformationHolder, I
 
     private String identifier;
 
+    private String code;
+
+    private Long id;
+
     @SuppressWarnings("unused")
     private BasicEntityInformationHolder()
     {
@@ -41,11 +45,13 @@ public class BasicEntityInformationHolder implements IEntityInformationHolder, I
     }
 
     public BasicEntityInformationHolder(EntityKind entityKind, EntityType entityType,
-            String identifier)
+            String identifier, String code, Long id)
     {
         this.entityKind = entityKind;
         this.entityType = entityType;
         this.identifier = identifier;
+        this.code = code;
+        this.id = id;
     }
 
     public EntityKind getEntityKind()
@@ -63,4 +69,13 @@ public class BasicEntityInformationHolder implements IEntityInformationHolder, I
         return identifier;
     }
 
+    public String getCode()
+    {
+        return code;
+    }
+
+    public Long getId()
+    {
+        return id;
+    }
 }

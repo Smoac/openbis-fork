@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ClientPluginAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -83,7 +83,7 @@ public final class ClientPluginFactory extends
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends EntityType, I extends IIdentifierHolder> IClientPlugin<T, I> createClientPlugin(
+    public <T extends EntityType, I extends IIdentifiable> IClientPlugin<T, I> createClientPlugin(
             final EntityKind entityKind)
     {
         if (EntityKind.EXPERIMENT.equals(entityKind))
@@ -102,15 +102,15 @@ public final class ClientPluginFactory extends
     // Helper classes
     //
 
-    private final class SampleClientPlugin implements IClientPlugin<SampleType, IIdentifierHolder>
+    private final class SampleClientPlugin implements IClientPlugin<SampleType, IIdentifiable>
     {
         //
         // IViewClientPlugin
         //
 
-        public final ITabItemFactory createEntityViewer(final IIdentifierHolder sample)
+        public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
         {
-            final String sampleIdentifier = sample.getIdentifier();
+            final String sampleIdentifier = identifiable.getIdentifier();
             return new ITabItemFactory()
                 {
                     public ITabItem create()
@@ -138,13 +138,13 @@ public final class ClientPluginFactory extends
             return new DummyComponent();
         }
 
-        public ITabItemFactory createEntityEditor(final IIdentifierHolder identifierHolder)
+        public ITabItemFactory createEntityEditor(final IIdentifiable identifiable)
         {
             return new ITabItemFactory()
                 {
                     public ITabItem create()
                     {
-                        return createDummyTab(identifierHolder.getIdentifier());
+                        return createDummyTab(identifiable.getIdentifier());
                     }
 
                     public String getId()
@@ -157,7 +157,7 @@ public final class ClientPluginFactory extends
     }
 
     private final static class ExperimentClientPlugin extends
-            ClientPluginAdapter<ExperimentType, IIdentifierHolder>
+            ClientPluginAdapter<ExperimentType, IIdentifiable>
     {
 
         //
@@ -165,13 +165,13 @@ public final class ClientPluginFactory extends
         //
 
         @Override
-        public final ITabItemFactory createEntityViewer(final IIdentifierHolder identifier)
+        public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
         {
             return new ITabItemFactory()
                 {
                     public ITabItem create()
                     {
-                        return createDummyTab(identifier.getIdentifier());
+                        return createDummyTab(identifiable.getIdentifier());
                     }
 
                     public String getId()
