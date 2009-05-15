@@ -110,7 +110,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
     }
 
     @Override
-    protected List<IColumnDefinition<Vocabulary>> getAvailableFilters()
+    protected List<IColumnDefinition<Vocabulary>> getInitialFilters()
     {
         return asColumnFilters(new VocabularyColDefKind[]
             { VocabularyColDefKind.CODE });

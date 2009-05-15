@@ -24,12 +24,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  * 
  * @author Izabela Adamczyk
  */
-class GridColumnChooser
+class ColumnSettingsChooser
 {
 
     private final Grid<ColumnDataModel> grid;
 
-    public GridColumnChooser(List<ColumnDataModel> list, IMessageProvider messageProvider)
+    public ColumnSettingsChooser(List<ColumnDataModel> list, IMessageProvider messageProvider)
     {
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
         CheckColumnConfig isVisibleColumn =

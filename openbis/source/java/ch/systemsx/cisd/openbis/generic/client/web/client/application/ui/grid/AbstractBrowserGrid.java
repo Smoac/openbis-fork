@@ -127,7 +127,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     abstract protected boolean isRefreshEnabled();
 
     /** @return on which fields user can set filters? */
-    abstract protected List<IColumnDefinition<T>> getAvailableFilters();
+    abstract protected List<IColumnDefinition<T>> getInitialFilters();
 
     // --------
 
@@ -276,7 +276,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private List<PagingColumnFilter<T>> createFilterWidgets()
     {
-        return createFilterWidgets(getAvailableFilters(), createApplyFiltersDelagator());
+        return createFilterWidgets(getInitialFilters(), createApplyFiltersDelagator());
     }
 
     private IDelegatedAction createApplyFiltersDelagator()
@@ -897,7 +897,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         assert grid != null && grid.getColumnModel() != null : "Grid must be loaded";
 
-        new ColumnChooserDialog(viewContext).show(grid);
+        new ColumnSettingsDialog(viewContext).show(grid);
     }
 
     // @Private - for tests

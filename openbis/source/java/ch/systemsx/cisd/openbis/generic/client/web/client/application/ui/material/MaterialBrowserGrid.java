@@ -239,7 +239,7 @@ public class MaterialBrowserGrid extends
     }
 
     @Override
-    protected List<IColumnDefinition<Material>> getAvailableFilters()
+    protected List<IColumnDefinition<Material>> getInitialFilters()
     {
         return asColumnFilters(new CommonMaterialColDefKind[]
             { CommonMaterialColDefKind.CODE });

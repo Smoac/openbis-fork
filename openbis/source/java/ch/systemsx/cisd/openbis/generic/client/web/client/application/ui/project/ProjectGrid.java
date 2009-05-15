@@ -144,7 +144,7 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
     }
 
     @Override
-    protected List<IColumnDefinition<Project>> getAvailableFilters()
+    protected List<IColumnDefinition<Project>> getInitialFilters()
     {
         return asColumnFilters(new ProjectColDefKind[]
             { ProjectColDefKind.CODE, ProjectColDefKind.GROUP });

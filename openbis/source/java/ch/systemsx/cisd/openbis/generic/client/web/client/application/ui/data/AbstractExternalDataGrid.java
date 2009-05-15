@@ -401,7 +401,7 @@ public abstract class AbstractExternalDataGrid
     }
 
     @Override
-    protected List<IColumnDefinition<ExternalData>> getAvailableFilters()
+    protected List<IColumnDefinition<ExternalData>> getInitialFilters()
     {
         return asColumnFilters(new CommonExternalDataColDefKind[]
             { CommonExternalDataColDefKind.CODE, CommonExternalDataColDefKind.LOCATION,

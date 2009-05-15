@@ -217,7 +217,7 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
     }
 
     @Override
-    protected List<IColumnDefinition<EntityType>> getAvailableFilters()
+    protected List<IColumnDefinition<EntityType>> getInitialFilters()
     {
         return asColumnFilters(new EntityTypeColDefKind[]
             { EntityTypeColDefKind.CODE });

@@ -268,7 +268,7 @@ public class SampleBrowserGrid extends
     }
 
     @Override
-    protected List<IColumnDefinition<Sample>> getAvailableFilters()
+    protected List<IColumnDefinition<Sample>> getInitialFilters()
     {
         return asColumnFilters(new CommonSampleColDefKind[]
             { CommonSampleColDefKind.CODE, CommonSampleColDefKind.EXPERIMENT,

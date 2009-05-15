@@ -69,7 +69,7 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
     }
 
     @Override
-    protected List<IColumnDefinition<PropertyType>> getAvailableFilters()
+    protected List<IColumnDefinition<PropertyType>> getInitialFilters()
     {
         return asColumnFilters(new PropertyTypeColDefKind[]
             { PropertyTypeColDefKind.LABEL, PropertyTypeColDefKind.CODE,

@@ -127,7 +127,7 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
     }
 
     @Override
-    protected List<IColumnDefinition<AbstractType>> getAvailableFilters()
+    protected List<IColumnDefinition<AbstractType>> getInitialFilters()
     {
         return Collections.emptyList();
     }

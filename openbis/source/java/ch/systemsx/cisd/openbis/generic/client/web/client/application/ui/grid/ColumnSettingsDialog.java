@@ -15,15 +15,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * {@link Dialog} displaying {@link GridColumnChooser}.
+ * {@link Dialog} displaying {@link ColumnSettingsChooser}.
  * 
  * @author Izabela Adamczyk
  */
-class ColumnChooserDialog extends Dialog
+class ColumnSettingsDialog extends Dialog
 {
     private final IMessageProvider messageProvider;
 
-    public ColumnChooserDialog(IMessageProvider messageProvider)
+    public ColumnSettingsDialog(IMessageProvider messageProvider)
     {
         this.messageProvider = messageProvider;
         setHeight(400);
@@ -33,15 +33,15 @@ class ColumnChooserDialog extends Dialog
     }
 
     /**
-     * Shows window containing {@link GridColumnChooser} based on given {@link ColumnModel}.
+     * Shows window containing {@link ColumnSettingsChooser} based on given {@link ColumnModel}.
      */
     public <M extends ModelData> void show(final Grid<M> grid)
     {
         assert grid != null : "Grid must be loaded";
         final MoveableColumnModel cm = (MoveableColumnModel) grid.getColumnModel();
         removeAll();
-        final GridColumnChooser columnChooser =
-                new GridColumnChooser(createModels(cm), messageProvider);
+        final ColumnSettingsChooser columnChooser =
+                new ColumnSettingsChooser(createModels(cm), messageProvider);
         add(columnChooser.getComponent());
         super.show();
         getButtonBar().getButtonById("ok").addSelectionListener(

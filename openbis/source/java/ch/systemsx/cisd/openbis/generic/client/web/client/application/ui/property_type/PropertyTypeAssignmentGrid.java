@@ -192,7 +192,7 @@ public class PropertyTypeAssignmentGrid extends
     }
 
     @Override
-    protected List<IColumnDefinition<EntityTypePropertyType<?>>> getAvailableFilters()
+    protected List<IColumnDefinition<EntityTypePropertyType<?>>> getInitialFilters()
     {
         return asColumnFilters(new PropertyTypeAssignmentColDefKind[]
             { PropertyTypeAssignmentColDefKind.PROPERTY_TYPE_CODE,

@@ -228,7 +228,7 @@ public class ExperimentBrowserGrid extends
     }
 
     @Override
-    protected List<IColumnDefinition<Experiment>> getAvailableFilters()
+    protected List<IColumnDefinition<Experiment>> getInitialFilters()
     {
         return asColumnFilters(new CommonExperimentColDefKind[]
             { CommonExperimentColDefKind.CODE });

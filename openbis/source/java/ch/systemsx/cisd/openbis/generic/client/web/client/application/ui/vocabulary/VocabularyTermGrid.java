@@ -154,7 +154,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
     }
 
     @Override
-    protected List<IColumnDefinition<VocabularyTermWithStats>> getAvailableFilters()
+    protected List<IColumnDefinition<VocabularyTermWithStats>> getInitialFilters()
     {
         return asColumnFilters(new VocabularyTermColDefKind[]
             { VocabularyTermColDefKind.CODE });
