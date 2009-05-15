@@ -55,7 +55,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -469,16 +468,13 @@ public final class GenericClientService extends AbstractClientService implements
         return modificationDate;
     }
 
-    public Date updateMaterial(String materialIdentifier, List<MaterialProperty> properties,
-            Date version)
+    public Date updateMaterial(TechId materialId, List<MaterialProperty> properties, Date version)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
-            final MaterialIdentifier identifier =
-                    MaterialIdentifier.tryParseIdentifier(materialIdentifier);
-            return genericServer.updateMaterial(sessionToken, identifier, properties, version);
+            return genericServer.updateMaterial(sessionToken, materialId, properties, version);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeFieldWithGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -62,6 +63,8 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
 
     protected final IIdentifiable identifiableOrNull;
 
+    protected final TechId techIdOrNull;
+
     protected CodeFieldWithGenerator codeField;
 
     protected PropertiesEditor<T, S, P> propertiesEditor;
@@ -81,6 +84,7 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
         this.viewContext = viewContext;
         this.identifiableOrNull = identifiable;
         this.entityKind = entityKind;
+        this.techIdOrNull = new TechId(identifiable);
     }
 
     /**
@@ -120,7 +124,7 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
      */
     protected static final String createSimpleId(IIdentifiable identifiable, EntityKind entityKind)
     {
-        // TODO 2009-05-11, IA: use technical id
+        // TODO 2009-05-15, Piotr Buczek: use technical id
         String editOrRegister =
                 (identifiable == null) ? "register" : ("edit_" + identifiable.getIdentifier());
         return "generic-" + entityKind.name().toLowerCase() + "-" + editOrRegister + "_form";

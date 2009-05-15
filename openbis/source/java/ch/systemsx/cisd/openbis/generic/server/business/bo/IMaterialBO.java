@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.Date;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -43,6 +44,5 @@ public interface IMaterialBO extends IEntityBusinessObject
     /**
      * Changes given material. Currently allowed changes: properties.
      */
-    public void update(MaterialIdentifier identifier, List<MaterialProperty> properties,
-            Date version);
+    public void update(TechId techId, List<MaterialProperty> properties, Date version);
 }

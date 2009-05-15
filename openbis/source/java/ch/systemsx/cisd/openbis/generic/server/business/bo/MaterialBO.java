@@ -64,32 +64,34 @@ public final class MaterialBO extends AbstractBusinessObject implements IMateria
         propertiesConverter = entityPropertiesConverter;
     }
 
+    public void loadDataByTechId(TechId materialId)
+    {
+        material = getMaterialById(materialId);
+        dataChanged = false;
+    }
+
     private static final String PROPERTY_TYPES = "materialType.materialTypePropertyTypesInternal";
 
     private static final String VOCABULARY_TERMS =
             PROPERTY_TYPES + ".propertyTypeInternal.vocabulary.vocabularyTerms";
 
-    public void loadDataByTechId(TechId materialId)
+    private MaterialPE getMaterialById(final TechId materialId)
     {
+        assert materialId != null : "Material technical id unspecified.";
         String[] connections =
             { PROPERTY_TYPES, VOCABULARY_TERMS };
-        material = getMaterialDAO().tryGetByTechId(materialId, connections);
+        final MaterialPE result = getMaterialDAO().tryGetByTechId(materialId, connections);
         if (material == null)
         {
             throw new UserFailureException(String.format("Material with ID '%s' does not exist.",
                     materialId));
         }
-        dataChanged = false;
+        return result;
     }
 
     public final void loadByMaterialIdentifier(final MaterialIdentifier identifier)
     {
         material = getMaterialByIdentifier(identifier);
-        if (material == null)
-        {
-            throw UserFailureException.fromTemplate(
-                    "No material could be found with given identifier '%s'.", identifier);
-        }
         dataChanged = false;
     }
 
@@ -135,10 +137,9 @@ public final class MaterialBO extends AbstractBusinessObject implements IMateria
                 .getMaterialType());
     }
 
-    public void update(MaterialIdentifier identifier, List<MaterialProperty> properties,
-            Date version)
+    public void update(TechId materialId, List<MaterialProperty> properties, Date version)
     {
-        loadByMaterialIdentifier(identifier);
+        loadDataByTechId(materialId);
         if (material.getModificationDate().equals(version) == false)
         {
             throwModifiedEntityException("Material");

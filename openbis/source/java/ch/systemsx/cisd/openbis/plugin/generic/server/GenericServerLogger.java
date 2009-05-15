@@ -28,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -164,10 +163,10 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
-    public Date updateMaterial(String sessionToken, MaterialIdentifier identifier,
+    public Date updateMaterial(String sessionToken, TechId materialId,
             List<MaterialProperty> properties, Date version)
     {
-        logTracking(sessionToken, "edit_material", "MATERIAL(%s)", identifier);
+        logTracking(sessionToken, "edit_material", "MATERIAL(%s)", materialId);
         return null;
     }
 

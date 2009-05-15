@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -363,12 +362,12 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         return codes;
     }
 
-    public Date updateMaterial(String sessionToken, MaterialIdentifier identifier,
+    public Date updateMaterial(String sessionToken, TechId materialId,
             List<MaterialProperty> properties, Date version)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
-        materialBO.update(identifier, properties, version);
+        materialBO.update(materialId, properties, version);
         materialBO.save();
         return materialBO.getMaterial().getModificationDate();
 

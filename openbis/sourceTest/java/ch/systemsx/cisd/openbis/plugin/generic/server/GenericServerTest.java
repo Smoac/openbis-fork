@@ -31,8 +31,8 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -64,10 +64,6 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 @Friend(toClasses = GenericServer.class)
 public final class GenericServerTest extends AbstractServerTestCase
 {
-    private static final String MATERIAL_TYPE_1 = "MATERIAL-TYPE-1";
-
-    private static final String MATERIAL_1 = "MATERIAL-1";
-
     private static final String SAMPLE_1 = "SAMPLE-1";
 
     private static final String EXP_1 = "EXP-1";
@@ -430,7 +426,7 @@ public final class GenericServerTest extends AbstractServerTestCase
     @Test
     public void testEditMaterialNothingChanged() throws Exception
     {
-        final MaterialIdentifier identifier = new MaterialIdentifier(MATERIAL_1, MATERIAL_TYPE_1);
+        final TechId materialId = DUMMY_TECH_ID;
         final List<MaterialProperty> properties = new ArrayList<MaterialProperty>();
         prepareGetSession();
         final Date version = new Date(1);
@@ -443,13 +439,13 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(genericBusinessObjectFactory).createMaterialBO(SESSION);
                     will(returnValue(materialBO));
 
-                    one(materialBO).update(identifier, properties, version);
+                    one(materialBO).update(materialId, properties, version);
                     one(materialBO).save();
                     one(materialBO).getMaterial();
                     will(returnValue(material));
                 }
             });
-        assertEquals(newModificationDate, createServer().updateMaterial(SESSION_TOKEN, identifier,
+        assertEquals(newModificationDate, createServer().updateMaterial(SESSION_TOKEN, materialId,
                 properties, version));
         context.assertIsSatisfied();
     }

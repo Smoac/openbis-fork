@@ -49,8 +49,8 @@ public final class GenericMaterialEditForm
     private Material originalMaterial;
 
     public static DatabaseModificationAwareComponent create(
-            IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdentifiable identifiable, boolean editMode)
+            IViewContext<IGenericClientServiceAsync> viewContext, IIdentifiable identifiable,
+            boolean editMode)
     {
         GenericMaterialEditForm form =
                 new GenericMaterialEditForm(viewContext, identifiable, editMode);
@@ -66,10 +66,8 @@ public final class GenericMaterialEditForm
     @Override
     public final void submitValidForm()
     {
-        // TODO 2009-05-13, PB: use techId
-        viewContext.getService().updateMaterial(identifiableOrNull.getIdentifier(),
-                extractProperties(), originalMaterial.getModificationDate(),
-                new UpdateMaterialCallback(viewContext));
+        viewContext.getService().updateMaterial(techIdOrNull, extractProperties(),
+                originalMaterial.getModificationDate(), new UpdateMaterialCallback(viewContext));
     }
 
     public final class UpdateMaterialCallback extends

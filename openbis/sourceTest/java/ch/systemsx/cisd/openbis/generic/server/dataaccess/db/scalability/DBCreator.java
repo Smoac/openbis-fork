@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DatabaseVersionHolder;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -346,6 +347,7 @@ public final class DBCreator extends AbstractDAOTest
         String location = CodeGenerator.generateCode(CreatedEntityKind.DATA_SET);
         externalData.setLocation(location);
         externalData.setStorageFormatVocabularyTerm(pickAStorageFormatVocabularyTerm());
+        externalData.setDataStore(new DataStorePE());
 
         return externalData;
     }

@@ -120,8 +120,8 @@ public interface IGenericClientService extends IClientService
     /**
      * Updates material.
      */
-    public Date updateMaterial(final String materialIdentifier, List<MaterialProperty> properties,
-            Date version) throws UserFailureException;
+    public Date updateMaterial(final TechId techId, List<MaterialProperty> properties, Date version)
+            throws UserFailureException;
 
     /**
      * Updates sample.
