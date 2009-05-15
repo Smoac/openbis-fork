@@ -111,6 +111,11 @@ body,div,td {
     width: 0%;
 }
 
+/* Change toolbar button text decoration into underline. */
+.x-toolbar .x-btn-center .x-btn-text {
+	text-decoration: underline;
+}
+
 /*****************************
  * Form
  *****************************/
