@@ -105,7 +105,7 @@ public class GridTestUtils
     {
         final PropertyType propertyType = createPropertyType(propertyCode, internalNamespace);
         final String identifier =
-                new EntityPropertyColDef<Sample>(propertyType, true).getIdentifier();
+                new EntityPropertyColDef<Sample>(propertyType, true, null).getIdentifier();
         return identifier;
     }
 

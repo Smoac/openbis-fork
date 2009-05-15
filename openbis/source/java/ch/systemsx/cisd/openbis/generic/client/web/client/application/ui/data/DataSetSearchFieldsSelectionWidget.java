@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataSetSearchFieldComboModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -263,32 +264,18 @@ public final class DataSetSearchFieldsSelectionWidget extends
                 default:
                     throw new IllegalArgumentException("Unsupported entity kind.");
             }
-            DataSetSearchFieldComboModel comboModel =
-                    createPropertyComboModel(st, field, isLabelDuplicated(st, types));
+            DataSetSearchFieldComboModel comboModel = createPropertyComboModel(st, field, types);
             result.add(comboModel);
         }
         return allProps;
     }
 
-    private static boolean isLabelDuplicated(PropertyType propertyType,
-            List<PropertyType> propertyTypes)
-    {
-        for (PropertyType prop : propertyTypes)
-        {
-            // NOTE: equality by reference
-            if (prop != propertyType && prop.getLabel().equals(propertyType.getLabel()))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private static DataSetSearchFieldComboModel createPropertyComboModel(
-            final PropertyType propertyType, DataSetSearchField searchField, boolean useCode)
+            final PropertyType propertyType, DataSetSearchField searchField,
+            List<PropertyType> types)
     {
         String prefix = getDisplayName(searchField.getKind());
-        String property = useCode ? propertyType.getCode() : propertyType.getLabel();
+        String property = PropertyTypeRenderer.getDisplayName(propertyType, types);
         String code = prefix + " \'" + property + "\'";
         return new DataSetSearchFieldComboModel(code, searchField);
     }

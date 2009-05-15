@@ -67,7 +67,7 @@ public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
         for (EntityProperty<?, ?> prop : entity.getProperties())
         {
             PropertyType propertyType = prop.getEntityTypePropertyType().getPropertyType();
-            EntityPropertyColDef<T> colDef = new EntityPropertyColDef<T>(propertyType, true);
+            EntityPropertyColDef<T> colDef = new EntityPropertyColDef<T>(propertyType, true, null);
             list.add(AbstractPropertyColRenderer.getPropertyColRenderer(colDef));
         }
         return list;
@@ -118,7 +118,7 @@ public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
         List<IColumnDefinitionUI<T>> list = createColDefList();
         for (PropertyType propertyType : propertyTypes)
         {
-            list.add(new EntityPropertyColDef<T>(propertyType, true));
+            list.add(new EntityPropertyColDef<T>(propertyType, true, propertyTypes));
         }
         return list;
     }

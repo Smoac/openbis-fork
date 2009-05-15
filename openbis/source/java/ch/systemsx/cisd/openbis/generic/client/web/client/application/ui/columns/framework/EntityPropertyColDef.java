@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -50,16 +51,35 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
     {
     }
 
-    public EntityPropertyColDef(PropertyType propertyType, boolean isDisplayedByDefault)
+    /**
+     * @param propertyType the property type for which this column definition is created.
+     * @param propertyTypesOrNull list of all properties which are displayed with this property. It
+     *            is used to set a unique display name for the specified property.
+     */
+    public EntityPropertyColDef(PropertyType propertyType, boolean isDisplayedByDefault,
+            List<PropertyType> propertyTypesOrNull)
     {
-        this(propertyType, isDisplayedByDefault, PROPERTY_COLUMN_WIDTH, propertyType.getLabel(), "");
+        this(propertyType, isDisplayedByDefault, PROPERTY_COLUMN_WIDTH, getDisplayName(
+                propertyType, propertyTypesOrNull), "");
+    }
+
+    private static String getDisplayName(PropertyType propertyType,
+            List<PropertyType> propertyTypesOrNull)
+    {
+        if (propertyTypesOrNull == null)
+        {
+            return null;
+        } else
+        {
+            return PropertyTypeRenderer.getDisplayName(propertyType, propertyTypesOrNull);
+        }
     }
 
     public EntityPropertyColDef(PropertyType propertyType, boolean isDisplayedByDefault, int width,
-            String propertyTypeLabel, String identifierPrefix)
+            String displayName, String identifierPrefix)
     {
         this(propertyType.getSimpleCode(), isDisplayedByDefault, width, propertyType
-                .isInternalNamespace(), propertyTypeLabel, PROPERTY_PREFIX + identifierPrefix,
+                .isInternalNamespace(), displayName, PROPERTY_PREFIX + identifierPrefix,
                 propertyType);
     }
 

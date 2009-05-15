@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetExperimentPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetPropertyColDef;
@@ -80,7 +81,7 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
         List<IColumnDefinitionUI<ExternalData>> list = createEmptyList();
         for (PropertyType prop : propertyTypes)
         {
-            list.add(createDatasetPropertyTypeColDef(prop));
+            list.add(createDatasetPropertyTypeColDef(prop, propertyTypes));
         }
         return list;
     }
@@ -91,7 +92,7 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
         List<IColumnDefinitionUI<ExternalData>> list = createEmptyList();
         for (PropertyType prop : propertyTypes)
         {
-            list.add(createExperimentPropertyTypeColDef(prop));
+            list.add(createExperimentPropertyTypeColDef(prop, propertyTypes));
         }
         return list;
     }
@@ -102,7 +103,7 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
         List<IColumnDefinitionUI<ExternalData>> list = createEmptyList();
         for (PropertyType prop : propertyTypes)
         {
-            list.add(createSamplePropertyTypeColDef(prop));
+            list.add(createSamplePropertyTypeColDef(prop, propertyTypes));
         }
         return list;
     }
@@ -151,23 +152,29 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
     }
 
     private static IColumnDefinitionUI<ExternalData> createDatasetPropertyTypeColDef(
-            PropertyType propertyType)
+            PropertyType propertyType, List<PropertyType> propertyTypes)
     {
-        String label = LABEL_DATA_SET_PROPERTY_PREFIX + propertyType.getLabel();
+        String label =
+                LABEL_DATA_SET_PROPERTY_PREFIX
+                        + PropertyTypeRenderer.getDisplayName(propertyType, propertyTypes);
         return new DataSetPropertyColDef(propertyType, true, PROPERTY_COLUMN_WIDTH, label);
     }
 
     private static IColumnDefinitionUI<ExternalData> createSamplePropertyTypeColDef(
-            PropertyType propertyType)
+            PropertyType propertyType, List<PropertyType> propertyTypes)
     {
-        String label = LABEL_SAMPLE_PROPERTY_PREFIX + propertyType.getLabel();
+        String label =
+                LABEL_SAMPLE_PROPERTY_PREFIX
+                        + PropertyTypeRenderer.getDisplayName(propertyType, propertyTypes);
         return new DataSetSamplePropertyColDef(propertyType, true, PROPERTY_COLUMN_WIDTH, label);
     }
 
     private static IColumnDefinitionUI<ExternalData> createExperimentPropertyTypeColDef(
-            PropertyType propertyType)
+            PropertyType propertyType, List<PropertyType> propertyTypes)
     {
-        String label = LABEL_EXPERIMENT_PROPERTY_PREFIX + propertyType.getLabel();
+        String label =
+                LABEL_EXPERIMENT_PROPERTY_PREFIX
+                        + PropertyTypeRenderer.getDisplayName(propertyType, propertyTypes);
         return new DataSetExperimentPropertyColDef(propertyType, true, PROPERTY_COLUMN_WIDTH, label);
     }
 

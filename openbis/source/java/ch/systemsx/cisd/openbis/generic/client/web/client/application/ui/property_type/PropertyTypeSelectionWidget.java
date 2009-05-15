@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -51,9 +52,9 @@ public final class PropertyTypeSelectionWidget extends
     {
         private static final long serialVersionUID = 1L;
 
-        public PropertyTypeComboModel(PropertyType entity)
+        public PropertyTypeComboModel(PropertyType entity, List<PropertyType> types)
         {
-            set(ModelDataPropertyNames.CODE, entity.getCode());
+            set(ModelDataPropertyNames.CODE, PropertyTypeRenderer.getDisplayName(entity, types));
             set(ModelDataPropertyNames.OBJECT, entity);
         }
     }
@@ -119,7 +120,7 @@ public final class PropertyTypeSelectionWidget extends
         final List<PropertyTypeComboModel> result = new ArrayList<PropertyTypeComboModel>();
         for (final PropertyType st : types)
         {
-            result.add(new PropertyTypeComboModel(st));
+            result.add(new PropertyTypeComboModel(st, types));
         }
         return result;
     }
