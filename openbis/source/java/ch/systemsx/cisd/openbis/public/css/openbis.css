@@ -112,7 +112,6 @@ body,div,td {
 }
 
 /* Show background image for button even if mouse is not over it. */
-/*
 .x-toolbar .x-btn-left{
 	background:url(../images/default/toolbar/tb-btn-sprite.gif) no-repeat 0 0;
 }
@@ -129,7 +128,7 @@ body,div,td {
 }
 
 /* Change toolbar button text color when mouse is over it. */
-.x-toolbar .x-btn-center .x-btn-text {
+.x-toolbar .x-btn-center .x-btn-over .x-btn-text {
 	color: grey;
 }
 
