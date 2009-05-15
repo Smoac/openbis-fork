@@ -81,7 +81,7 @@ public final class MaterialBO extends AbstractBusinessObject implements IMateria
         String[] connections =
             { PROPERTY_TYPES, VOCABULARY_TERMS };
         final MaterialPE result = getMaterialDAO().tryGetByTechId(materialId, connections);
-        if (material == null)
+        if (result == null)
         {
             throw new UserFailureException(String.format("Material with ID '%s' does not exist.",
                     materialId));
