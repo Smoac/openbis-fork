@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
@@ -56,6 +57,8 @@ public class CommonTestUtils
     private static final VocabularyTermPE LEG = createVocabularyTerm("LEG");
 
     private static final VocabularyTermPE HEAD = createVocabularyTerm("HEAD");
+
+    public static final TechId DUMMY_TECH_ID = new TechId(1L);
 
     public final static String ATTACHMENT_CONTENT_TEXT = "Lorem ipsum...";
 

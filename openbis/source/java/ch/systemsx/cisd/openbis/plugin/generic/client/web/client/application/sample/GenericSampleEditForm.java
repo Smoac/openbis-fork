@@ -70,8 +70,7 @@ public final class GenericSampleEditForm extends
     private ExperimentChooserFieldAdaptor experimentFieldOrNull;
 
     public static DatabaseModificationAwareComponent create(
-            IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdentifiable identifiable)
+            IViewContext<IGenericClientServiceAsync> viewContext, IIdentifiable identifiable)
     {
         GenericSampleEditForm form = new GenericSampleEditForm(viewContext, identifiable);
         return new DatabaseModificationAwareComponent(form, form);
@@ -237,9 +236,7 @@ public final class GenericSampleEditForm extends
     @Override
     protected void loadForm()
     {
-        String sampleIdentifier = identifiableOrNull.getIdentifier();
-        viewContext.getService().getSampleInfo(sampleIdentifier,
-                new SampleInfoCallback(viewContext));
+        viewContext.getService().getSampleInfo(techIdOrNull, new SampleInfoCallback(viewContext));
     }
 
     public final class SampleInfoCallback extends AbstractAsyncCallback<Sample>

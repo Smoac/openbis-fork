@@ -26,6 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -53,6 +55,19 @@ public interface IPluginCommonServer extends IServer
     public SampleGenerationDTO getSampleInfo(
             final String sessionToken,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) final SampleIdentifier sampleIdentifier)
+            throws UserFailureException;
+
+    /**
+     * For given {@link TechId} returns the {@link SamplePE} and its children.
+     * 
+     * @return never <code>null</code>.
+     * @throws UserFailureException if given <var>sessionToken</var> is invalid or whether sample
+     *             uniquely identified by given <var>sampleId</var> does not exist.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public SampleGenerationDTO getSampleInfo(final String sessionToken,
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId)
             throws UserFailureException;
 
     /**

@@ -74,6 +74,6 @@ public final class GenericConstants
 
     public static final String LABEL_SEPARATOR = ":";
 
-    /** The HTTP URL parameter used to specify the identifier. */
-    public static final String IDENTIFIER_PARAMETER = "identifier";
+    /** The HTTP URL parameter used to specify the technical id. */
+    public static final String TECH_ID_PARAMETER = "id";
 }

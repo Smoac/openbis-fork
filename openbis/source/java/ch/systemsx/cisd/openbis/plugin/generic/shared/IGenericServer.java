@@ -35,6 +35,9 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperi
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NullableGroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
@@ -51,7 +54,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -70,6 +72,14 @@ public interface IGenericServer extends IPluginCommonServer
     public ExperimentPE getExperimentInfo(
             String sessionToken,
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ExperimentIdentifier identifier);
+
+    /**
+     * For given {@link TechId} returns the corresponding {@link ExperimentPE}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public ExperimentPE getExperimentInfo(String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId);
 
     /**
      * For given {@link TechId} returns the corresponding {@link MaterialPE}.
@@ -91,9 +101,8 @@ public interface IGenericServer extends IPluginCommonServer
      */
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
-    public AttachmentPE getExperimentFileAttachment(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ExperimentIdentifier experimentIdentifier,
+    public AttachmentPE getExperimentFileAttachment(String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId,
             String filename, int version) throws UserFailureException;
 
     /**
@@ -133,9 +142,8 @@ public interface IGenericServer extends IPluginCommonServer
      */
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
-    public AttachmentPE getSampleFileAttachment(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) SampleIdentifier sample,
+    public AttachmentPE getSampleFileAttachment(String sessionToken,
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId,
             String fileName, int version);
 
     /**
@@ -143,9 +151,8 @@ public interface IGenericServer extends IPluginCommonServer
      */
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
-    public AttachmentPE getProjectFileAttachment(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier project,
+    public AttachmentPE getProjectFileAttachment(String sessionToken,
+            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId,
             String fileName, int version);
 
     /**

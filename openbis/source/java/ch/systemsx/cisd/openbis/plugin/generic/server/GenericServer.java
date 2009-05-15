@@ -60,7 +60,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
@@ -133,6 +132,20 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 .getSampleInfo(session, sample);
     }
 
+    public final SampleGenerationDTO getSampleInfo(final String sessionToken, final TechId sampleId)
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        assert sampleId != null : "Unspecified sample techId.";
+
+        final Session session = getSessionManager().getSession(sessionToken);
+        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        sampleBO.loadDataByTechId(sampleId);
+        sampleBO.enrichWithAttachments();
+        final SamplePE sample = sampleBO.getSample();
+        return getSampleTypeSlaveServerPlugin(sample.getSampleType())
+                .getSampleInfo(session, sample);
+    }
+
     public final void registerSample(final String sessionToken, final NewSample newSample,
             List<AttachmentPE> attachments)
     {
@@ -162,6 +175,17 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         return experiment;
     }
 
+    public ExperimentPE getExperimentInfo(final String sessionToken, final TechId experimentId)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+        experimentBO.loadDataByTechId(experimentId);
+        experimentBO.enrichWithProperties();
+        experimentBO.enrichWithAttachments();
+        final ExperimentPE experiment = experimentBO.getExperiment();
+        return experiment;
+    }
+
     public MaterialPE getMaterialInfo(final String sessionToken, final TechId materialId)
     {
         final Session session = getSessionManager().getSession(sessionToken);
@@ -184,12 +208,12 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     public AttachmentPE getExperimentFileAttachment(final String sessionToken,
-            final ExperimentIdentifier experimentIdentifier, final String filename,
-            final int version) throws UserFailureException
+            final TechId experimentId, final String filename, final int version)
+            throws UserFailureException
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
-        experimentBO.loadByExperimentIdentifier(experimentIdentifier);
+        experimentBO.loadDataByTechId(experimentId);
         return experimentBO.getExperimentFileAttachment(filename, version);
     }
 
@@ -303,21 +327,21 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         materialTable.save();
     }
 
-    public AttachmentPE getProjectFileAttachment(String sessionToken, ProjectIdentifier project,
+    public AttachmentPE getProjectFileAttachment(String sessionToken, TechId projectId,
             String fileName, int version)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IProjectBO bo = businessObjectFactory.createProjectBO(session);
-        bo.loadByProjectIdentifier(project);
+        bo.loadDataByTechId(projectId);
         return bo.getProjectFileAttachment(fileName, version);
     }
 
-    public AttachmentPE getSampleFileAttachment(String sessionToken, SampleIdentifier sample,
+    public AttachmentPE getSampleFileAttachment(String sessionToken, TechId sampleId,
             String fileName, int version)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final ISampleBO bo = businessObjectFactory.createSampleBO(session);
-        bo.loadBySampleIdentifier(sample);
+        bo.loadDataByTechId(sampleId);
         return bo.getSampleFileAttachment(fileName, version);
     }
 

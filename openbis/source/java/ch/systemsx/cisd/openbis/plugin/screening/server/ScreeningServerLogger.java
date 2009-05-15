@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
@@ -48,6 +49,12 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
             final SampleIdentifier identifier)
     {
         logAccess(sessionToken, "get_plate_info", "CODE(%s)", identifier);
+        return null;
+    }
+
+    public final SampleGenerationDTO getSampleInfo(final String sessionToken, final TechId sampleId)
+    {
+        logAccess(sessionToken, "get_plate_info", "ID(%s)", sampleId);
         return null;
     }
 

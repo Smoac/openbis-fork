@@ -64,6 +64,11 @@ public interface IGenericClientService extends IClientService
     public Sample getSampleInfo(final String sampleIdentifier) throws UserFailureException;
 
     /**
+     * For given {@link TechId} returns corresponding {@link Sample}.
+     */
+    public Sample getSampleInfo(final TechId sampleId) throws UserFailureException;
+
+    /**
      * Registers a new sample.
      */
     public void registerSample(final String sessionKey, final NewSample sample)
@@ -83,6 +88,11 @@ public interface IGenericClientService extends IClientService
      */
     public Experiment getExperimentInfo(final String experimentIdentifier)
             throws UserFailureException;
+
+    /**
+     * For given {@link TechId} returns corresponding {@link Experiment}.
+     */
+    public Experiment getExperimentInfo(final TechId experimentId) throws UserFailureException;
 
     /**
      * For given {@link TechId} returns corresponding {@link Material}.

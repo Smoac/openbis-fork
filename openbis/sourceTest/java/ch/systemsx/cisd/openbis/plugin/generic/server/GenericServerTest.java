@@ -197,8 +197,7 @@ public final class GenericServerTest extends AbstractServerTestCase
     public void testGetExperimentFileAttachment() throws Exception
     {
         prepareGetSession();
-        final ExperimentIdentifier experimentIdentifier =
-                CommonTestUtils.createExperimentIdentifier();
+        final TechId experimentId = CommonTestUtils.DUMMY_TECH_ID;
         final AttachmentPE attachmentPE = CommonTestUtils.createAttachment();
         context.checking(new Expectations()
             {
@@ -206,7 +205,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(genericBusinessObjectFactory).createExperimentBO(SESSION);
                     will(returnValue(experimentBO));
 
-                    one(experimentBO).loadByExperimentIdentifier(experimentIdentifier);
+                    one(experimentBO).loadDataByTechId(experimentId);
 
                     one(experimentBO).getExperimentFileAttachment(attachmentPE.getFileName(),
                             attachmentPE.getVersion());
@@ -215,7 +214,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                 }
             });
         assertEquals(attachmentPE, createServer().getExperimentFileAttachment(SESSION_TOKEN,
-                experimentIdentifier, attachmentPE.getFileName(), attachmentPE.getVersion()));
+                experimentId, attachmentPE.getFileName(), attachmentPE.getVersion()));
         context.assertIsSatisfied();
     }
 
@@ -426,7 +425,7 @@ public final class GenericServerTest extends AbstractServerTestCase
     @Test
     public void testEditMaterialNothingChanged() throws Exception
     {
-        final TechId materialId = DUMMY_TECH_ID;
+        final TechId materialId = CommonTestUtils.DUMMY_TECH_ID;
         final List<MaterialProperty> properties = new ArrayList<MaterialProperty>();
         prepareGetSession();
         final Date version = new Date(1);

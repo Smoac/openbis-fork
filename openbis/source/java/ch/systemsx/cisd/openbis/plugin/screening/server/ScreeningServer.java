@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
@@ -97,6 +98,16 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         final Session session = getSessionManager().getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(identifier);
+        final SamplePE sample = sampleBO.getSample();
+        return getSampleTypeSlaveServerPlugin(sample.getSampleType())
+                .getSampleInfo(session, sample);
+    }
+
+    public final SampleGenerationDTO getSampleInfo(final String sessionToken, final TechId sampleId)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        sampleBO.loadDataByTechId(sampleId);
         final SamplePE sample = sampleBO.getSample();
         return getSampleTypeSlaveServerPlugin(sample.getSampleType())
                 .getSampleInfo(session, sample);

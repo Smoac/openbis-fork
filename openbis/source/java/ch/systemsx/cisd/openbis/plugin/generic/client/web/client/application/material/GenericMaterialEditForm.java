@@ -28,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -135,8 +134,8 @@ public final class GenericMaterialEditForm
     @Override
     protected void loadForm()
     {
-        TechId materialId = new TechId(identifiableOrNull);
-        viewContext.getService().getMaterialInfo(materialId, new MaterialInfoCallback(viewContext));
+        viewContext.getService().getMaterialInfo(techIdOrNull,
+                new MaterialInfoCallback(viewContext));
     }
 
     public final class MaterialInfoCallback extends AbstractAsyncCallback<Material>

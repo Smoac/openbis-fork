@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Windo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IAttachmentHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -138,7 +139,8 @@ public class AttachmentsSection<T extends IAttachmentHolder> extends SectionPane
                 private void showVersionsPanel(final String fileName,
                         final List<Attachment> allFiles)
                 {
-                    final String tabTitle = attachmentHolder.getIdentifier() + ">" + fileName;
+                    final String tabTitle =
+                            "Attachment " + attachmentHolder.getCode() + "/" + fileName;
                     final ITabItemFactory tabFactory = new ITabItemFactory()
                         {
                             public ITabItem create()
@@ -149,8 +151,7 @@ public class AttachmentsSection<T extends IAttachmentHolder> extends SectionPane
 
                             public String getId()
                             {
-                                return createAttachmentVersionTabId(fileName, attachmentHolder
-                                        .getIdentifier());
+                                return createAttachmentVersionTabId(fileName, attachmentHolder);
                             }
                         };
                     DispatcherHelper.dispatchNaviEvent(tabFactory);
@@ -189,7 +190,7 @@ public class AttachmentsSection<T extends IAttachmentHolder> extends SectionPane
         ContentPanel panel = new ContentPanel();
         panel.setHeading("Versions of file '" + fileName + "' from "
                 + attachmentHolder.getAttachmentHolderKind().name().toLowerCase() + " '"
-                + attachmentHolder.getIdentifier() + "'");
+                + attachmentHolder.getCode() + "'");
         final ListStore<AttachmentVersionModel> attachmentStore =
                 new ListStore<AttachmentVersionModel>();
         attachmentStore.add(AttachmentVersionModel.convert(oldVersions));
@@ -217,15 +218,16 @@ public class AttachmentsSection<T extends IAttachmentHolder> extends SectionPane
                     attachmentGrid.getSelectionModel().deselectAll();
                 }
             });
-        panel.setId(createAttachmentVersionTabId(fileName, attachmentHolder.getIdentifier()));
+        panel.setId(createAttachmentVersionTabId(fileName, attachmentHolder));
         panel.add(attachmentGrid);
         return panel;
     }
 
     // @Private
-    static String createAttachmentVersionTabId(final String fileName, String experimentIdentifier)
+    static String createAttachmentVersionTabId(final String fileName,
+            final IIdentifiable identifiable)
     {
-        return GenericConstants.ID_PREFIX + "attachment-versions-" + experimentIdentifier + "_"
+        return GenericConstants.ID_PREFIX + "attachment-versions-" + identifiable.getId() + "_"
                 + fileName;
     }
 
@@ -243,8 +245,7 @@ public class AttachmentsSection<T extends IAttachmentHolder> extends SectionPane
         methodWithParameters.addParameter(GenericConstants.FILE_NAME_PARAMETER, fileName);
         methodWithParameters.addParameter(GenericConstants.ATTACHMENT_HOLDER_PARAMETER, exp
                 .getAttachmentHolderKind().name());
-        methodWithParameters.addParameter(GenericConstants.IDENTIFIER_PARAMETER, exp
-                .getIdentifier());
+        methodWithParameters.addParameter(GenericConstants.TECH_ID_PARAMETER, exp.getId());
         return methodWithParameters.toString();
     }
 

@@ -28,13 +28,8 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractFileDownloadServlet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
@@ -70,56 +65,53 @@ public class AttachmentDownloadServlet extends AbstractFileDownloadServlet
         final int version =
                 Integer.parseInt(request.getParameter(GenericConstants.VERSION_PARAMETER));
         final String fileName = request.getParameter(GenericConstants.FILE_NAME_PARAMETER);
-        final String identifier = request.getParameter(GenericConstants.IDENTIFIER_PARAMETER);
+        final String techIdString = request.getParameter(GenericConstants.TECH_ID_PARAMETER);
         final String attachmentHolderKind =
                 request.getParameter(GenericConstants.ATTACHMENT_HOLDER_PARAMETER);
 
-        if (StringUtils.isNotBlank(fileName) && StringUtils.isNotBlank(identifier)
+        if (StringUtils.isNotBlank(fileName) && StringUtils.isNotBlank(techIdString)
                 && StringUtils.isNotBlank(attachmentHolderKind))
         {
+            final TechId techId = new TechId(Long.parseLong(techIdString));
             if (attachmentHolderKind.equals(AttachmentHolderKind.EXPERIMENT.name()))
             {
-                return getExperimentFile(request, version, fileName, identifier);
+                return getExperimentFile(request, version, fileName, techId);
             } else if (attachmentHolderKind.equals(AttachmentHolderKind.SAMPLE.name()))
             {
-                return getSampleFile(request, version, fileName, identifier);
+                return getSampleFile(request, version, fileName, techId);
             } else if (attachmentHolderKind.equals(AttachmentHolderKind.PROJECT.name()))
             {
-                return getProjectFile(request, version, fileName, identifier);
+                return getProjectFile(request, version, fileName, techId);
             }
         }
         return null;
     }
 
     private FileContent getExperimentFile(final HttpServletRequest request, final int version,
-            final String fileName, final String identifier)
+            final String fileName, final TechId experimentId)
     {
-        final ExperimentIdentifier experiment =
-                new ExperimentIdentifierFactory(identifier).createIdentifier();
         final AttachmentPE attachment =
-                server.getExperimentFileAttachment(getSessionToken(request), experiment, fileName,
-                        version);
+                server.getExperimentFileAttachment(getSessionToken(request), experimentId,
+                        fileName, version);
         return new FileContent(attachment.getAttachmentContent().getValue(), attachment
                 .getFileName());
     }
 
     private FileContent getSampleFile(final HttpServletRequest request, final int version,
-            final String fileName, final String identifier)
+            final String fileName, final TechId sampleId)
     {
-        final SampleIdentifier sample = new SampleIdentifierFactory(identifier).createIdentifier();
         final AttachmentPE attachment =
-                server.getSampleFileAttachment(getSessionToken(request), sample, fileName, version);
+                server.getSampleFileAttachment(getSessionToken(request), sampleId, fileName,
+                        version);
         return new FileContent(attachment.getAttachmentContent().getValue(), attachment
                 .getFileName());
     }
 
     private FileContent getProjectFile(final HttpServletRequest request, final int version,
-            final String fileName, final String identifier)
+            final String fileName, final TechId projectId)
     {
-        final ProjectIdentifier project =
-                new ProjectIdentifierFactory(identifier).createIdentifier();
         final AttachmentPE attachment =
-                server.getProjectFileAttachment(getSessionToken(request), project, fileName,
+                server.getProjectFileAttachment(getSessionToken(request), projectId, fileName,
                         version);
         return new FileContent(attachment.getAttachmentContent().getValue(), attachment
                 .getFileName());

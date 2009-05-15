@@ -140,6 +140,27 @@ public final class GenericClientService extends AbstractClientService implements
         return getSampleGenerationInfo(sampleIdentifier).getGenerator();
     }
 
+    public final SampleGeneration getSampleGenerationInfo(final TechId sampleId)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final SampleGenerationDTO sampleGenerationDTO =
+                    genericServer.getSampleInfo(sessionToken, sampleId);
+            return SampleTranslator.translate(sampleGenerationDTO);
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public final Sample getSampleInfo(final TechId sampleId)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return getSampleGenerationInfo(sampleId).getGenerator();
+    }
+
     public final void registerSample(final String sessionKey, final NewSample newSample)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -311,6 +332,23 @@ public final class GenericClientService extends AbstractClientService implements
                     new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
             final ExperimentPE experiment =
                     genericServer.getExperimentInfo(sessionToken, identifier);
+            return ExperimentTranslator.translate(experiment,
+                    ExperimentTranslator.LoadableFields.PROPERTIES,
+                    ExperimentTranslator.LoadableFields.ATTACHMENTS);
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public final Experiment getExperimentInfo(final TechId experimentId)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final ExperimentPE experiment =
+                    genericServer.getExperimentInfo(sessionToken, experimentId);
             return ExperimentTranslator.translate(experiment,
                     ExperimentTranslator.LoadableFields.PROPERTIES,
                     ExperimentTranslator.LoadableFields.ATTACHMENTS);

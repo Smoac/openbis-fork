@@ -18,16 +18,14 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+
 /**
  * @author Izabela Adamczyk
  */
-public interface IAttachmentHolder
+public interface IAttachmentHolder extends IIdentifiable
 {
     public AttachmentHolderKind getAttachmentHolderKind();
-
-    public String getIdentifier();
-
-    public Long getId();
 
     public List<Attachment> getAttachments();
 }

@@ -60,6 +60,11 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
     public void getSampleInfo(final String sampleIdentifier, AsyncCallback<Sample> asyncCallback);
 
     /**
+     * @see IGenericClientService#getSampleInfo(TechId)
+     */
+    public void getSampleInfo(final TechId sampleId, AsyncCallback<Sample> asyncCallback);
+
+    /**
      * @see IGenericClientService#registerSample(String, NewSample)
      */
     public void registerSample(final String sessionKey, final NewSample sample,
@@ -77,6 +82,12 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
      * @see IGenericClientService#getExperimentInfo(String)
      */
     public void getExperimentInfo(String experimentIdentifier,
+            final AsyncCallback<Experiment> experimentInfoCallback);
+
+    /**
+     * @see IGenericClientService#getExperimentInfo(TechId)
+     */
+    public void getExperimentInfo(TechId experimentId,
             final AsyncCallback<Experiment> experimentInfoCallback);
 
     /**

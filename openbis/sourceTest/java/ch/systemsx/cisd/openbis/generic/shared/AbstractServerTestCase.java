@@ -55,7 +55,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -78,8 +77,6 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected static final Session SESSION =
             new Session(CommonTestUtils.USER_ID, SESSION_TOKEN, PRINCIPAL, "remote-host", 1);
-
-    protected static final TechId DUMMY_TECH_ID = new TechId(1L);
 
     protected BufferedAppender logRecorder;
 

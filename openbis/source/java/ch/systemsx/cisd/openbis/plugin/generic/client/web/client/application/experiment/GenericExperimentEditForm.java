@@ -40,8 +40,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
     private Experiment originalExperiment;
 
     public static DatabaseModificationAwareComponent create(
-            IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdentifiable identifiable)
+            IViewContext<IGenericClientServiceAsync> viewContext, IIdentifiable identifiable)
     {
         GenericExperimentEditForm form = new GenericExperimentEditForm(viewContext, identifiable);
         return new DatabaseModificationAwareComponent(form, form);
@@ -149,8 +148,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
     @Override
     protected void loadForm()
     {
-        String experimentIdentifier = identifiableOrNull.getIdentifier();
-        viewContext.getService().getExperimentInfo(experimentIdentifier,
+        viewContext.getService().getExperimentInfo(techIdOrNull,
                 new ExperimentInfoCallback(viewContext));
     }
 
