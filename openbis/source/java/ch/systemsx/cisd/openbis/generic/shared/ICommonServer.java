@@ -576,12 +576,12 @@ public interface ICommonServer extends IServer
     public void deleteMaterialTypes(String sessionToken, List<String> entityTypesCodes);
 
     /**
-     * For given {@link EntityKind} and <var>identifier</var> returns the corresponding
+     * For given {@link EntityKind} and permanent <var>identifier</var> returns the corresponding
      * {@link IEntityInformationHolder}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public IEntityInformationHolder getEntityInformationHolder(String sessionToken,
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind,
-            String identifier); // TODO 2009-05-05, Piotr Buczek: add authorization?
+            String identifier);
 }

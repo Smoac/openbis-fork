@@ -39,6 +39,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.ProjectColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
@@ -167,7 +169,7 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                     {
                         final DatabaseModificationAwareComponent viewer =
                                 ProjectViewer.create(viewContext, projectId);
-                        return DefaultTabItem.create(getDetailsTitle(), viewer, viewContext, false);
+                        return DefaultTabItem.create(getViewerTitle(), viewer, viewContext, false);
                     }
 
                     public String getId()
@@ -175,10 +177,9 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                         return ProjectViewer.createId(projectId);
                     }
 
-                    private String getDetailsTitle()
+                    private String getViewerTitle()
                     {
-                        return viewContext.getMessage(Dict.DETAILS_TITLE, viewContext
-                                .getMessage(Dict.PROJECT), project.getIdentifier());
+                        return AbstractViewer.getTitle(viewContext, Dict.PROJECT, project);
                     }
                 };
         } else
@@ -189,13 +190,18 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                     {
                         DatabaseModificationAwareComponent component =
                                 ProjectEditForm.create(viewContext, projectId);
-                        return DefaultTabItem.create("Edit Project " + project.getIdentifier(),
-                                component, viewContext, true);
+                        return DefaultTabItem.create(getEditTitle(), component, viewContext, true);
                     }
 
                     public String getId()
                     {
                         return ProjectEditForm.createId(projectId);
+                    }
+
+                    private String getEditTitle()
+                    {
+                        return AbstractRegistrationForm.getEditTitle(viewContext, Dict.PROJECT,
+                                project);
                     }
                 };
         }

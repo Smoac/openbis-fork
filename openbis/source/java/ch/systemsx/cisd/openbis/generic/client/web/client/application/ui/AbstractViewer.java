@@ -34,6 +34,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -107,5 +109,12 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
                 clientPluginFactory.createClientPlugin(entityKind);
         tabView = createClientPlugin.createEntityEditor(identifierHolder);
         DispatcherHelper.dispatchNaviEvent(tabView);
+    }
+
+    public static String getTitle(final IMessageProvider messageProvider,
+            final String entityKindDictKey, final IIdentifiable identifiable)
+    {
+        return messageProvider.getMessage(Dict.DETAILS_TITLE, messageProvider
+                .getMessage(entityKindDictKey), identifiable.getCode());
     }
 }

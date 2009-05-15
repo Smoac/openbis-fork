@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -41,14 +41,14 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
 
     public static DatabaseModificationAwareComponent create(
             IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdAndIdentifierHolder identifiable)
+            IIdentifiable identifiable)
     {
         GenericExperimentEditForm form = new GenericExperimentEditForm(viewContext, identifiable);
         return new DatabaseModificationAwareComponent(form, form);
     }
 
     private GenericExperimentEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdAndIdentifierHolder identifiable)
+            IIdentifiable identifiable)
     {
         super(viewContext, identifiable);
     }

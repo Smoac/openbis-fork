@@ -29,6 +29,7 @@ public class TopMenuItem extends TextToolItem
     public TopMenuItem(String name)
     {
         super(name);
+        button.addStyleName("x-btn-top-menu");
     }
 
 }

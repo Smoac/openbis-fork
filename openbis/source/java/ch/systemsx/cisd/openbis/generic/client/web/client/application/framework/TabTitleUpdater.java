@@ -3,7 +3,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 import com.extjs.gxt.ui.client.widget.TabItem;
 
 /**
- * Allows to update the tab title.
+ * Allows to update the tab title. The update feature is not yet used anywhere!
  * 
  * @author Izabela Adamczyk
  */

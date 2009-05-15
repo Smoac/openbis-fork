@@ -20,7 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
  */
 public class Experiment extends CodeWithRegistration<Experiment> implements IInvalidationProvider,
         IEntityInformationHolder, IAttachmentHolder, IEntityPropertiesHolder,
-        IIdAndIdentifierHolder
+        IIdentifiable
 {
     private Project project;
 

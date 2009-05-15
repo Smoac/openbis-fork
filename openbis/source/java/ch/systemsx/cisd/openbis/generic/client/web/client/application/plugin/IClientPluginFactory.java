@@ -40,5 +40,5 @@ public interface IClientPluginFactory
      * <var>entityKind</var> and given <var>entityType</var> each time this method is called.
      */
     public <T extends EntityType, I extends IIdentifierHolder> IClientPlugin<T, I> createClientPlugin(
-            final EntityKind entityKind);
+            final EntityKind entityKind); // FIXME 2009-05-15, Piotr Buczek: use IIdentifialbe
 }

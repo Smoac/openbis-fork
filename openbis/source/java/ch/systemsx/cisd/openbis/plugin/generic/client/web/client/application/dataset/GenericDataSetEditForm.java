@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.S
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField.SampleChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
@@ -58,14 +58,14 @@ public final class GenericDataSetEditForm
 
     public static DatabaseModificationAwareComponent create(
             IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdAndIdentifierHolder identifiable)
+            IIdentifiable identifiable)
     {
         GenericDataSetEditForm form = new GenericDataSetEditForm(viewContext, identifiable);
         return new DatabaseModificationAwareComponent(form, form);
     }
 
     private GenericDataSetEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdAndIdentifierHolder identifiable)
+            IIdentifiable identifiable)
     {
         super(viewContext, identifiable, EntityKind.DATA_SET);
     }

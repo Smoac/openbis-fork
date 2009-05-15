@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeFieldWithGenerator;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -61,7 +61,7 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
 
     protected final IViewContext<IGenericClientServiceAsync> viewContext;
 
-    protected final IIdAndIdentifierHolder identifiableOrNull;
+    protected final IIdentifiable identifiableOrNull;
 
     protected CodeFieldWithGenerator codeField;
 
@@ -75,7 +75,7 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
      */
     protected AbstractGenericEntityRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdAndIdentifierHolder identifiable, EntityKind entityKind)
+            IIdentifiable identifiable, EntityKind entityKind)
     {
         super(viewContext, createId(identifiable, entityKind), DEFAULT_LABEL_WIDTH + 20,
                 DEFAULT_FIELD_WIDTH);

@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -93,7 +93,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm
 
     protected AbstractGenericExperimentRegisterEditForm(
             IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdAndIdentifierHolder identifiable)
+            IIdentifiable identifiable)
     {
         super(viewContext, identifiable, EntityKind.EXPERIMENT);
 

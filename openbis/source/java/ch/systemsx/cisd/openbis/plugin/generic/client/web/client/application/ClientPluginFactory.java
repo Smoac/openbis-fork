@@ -32,7 +32,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ClientPluginAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -82,7 +84,7 @@ public final class ClientPluginFactory extends
     //
     // IClientPluginFactory
     //
-    
+
     @SuppressWarnings("unchecked")
     // FIXME Tomasz Pylak: the generics should be <EntityType, IIdAndIdentifierHolder>.
     // Now the implementation can require a more specific parameter that the intrface because we
@@ -117,31 +119,29 @@ public final class ClientPluginFactory extends
                 "Generic plugin factory supports every sample type.");
     }
 
-    private String getDetailsTitle(final String entityKindDictKey, final String identifier)
+    private String getViewerTitle(final String entityKindDictKey, final IIdentifiable identifiable)
     {
-        return getViewContext().getMessage(Dict.DETAILS_TITLE,
-                getViewContext().getMessage(entityKindDictKey), identifier);
+        return AbstractViewer.getTitle(getViewContext(), entityKindDictKey, identifiable);
     }
 
-    private String getEditTitle(final String entityKindDictKey, final String identifier)
+    private String getEditorTitle(final String entityKindDictKey, final IIdentifiable identifiable)
     {
-        return getViewContext().getMessage(Dict.EDIT_TITLE,
-                getViewContext().getMessage(entityKindDictKey), identifier);
+        return AbstractRegistrationForm.getEditTitle(getViewContext(), entityKindDictKey,
+                identifiable);
     }
 
     //
     // Helper classes
     //
 
-    private final class SampleClientPlugin implements
-            IClientPlugin<SampleType, IIdAndIdentifierHolder>
+    private final class SampleClientPlugin implements IClientPlugin<SampleType, IIdentifiable>
     {
 
         //
         // IViewClientPlugin
         //
 
-        public ITabItemFactory createEntityViewer(final IIdAndIdentifierHolder identifiable)
+        public ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
         {
             final String identifier = identifiable.getIdentifier();
             return new ITabItemFactory()
@@ -150,7 +150,7 @@ public final class ClientPluginFactory extends
                     {
                         final DatabaseModificationAwareComponent sampleViewer =
                                 GenericSampleViewer.create(getViewContext(), identifier);
-                        return DefaultTabItem.create(getDetailsTitle(Dict.SAMPLE, identifier),
+                        return DefaultTabItem.create(getViewerTitle(Dict.SAMPLE, identifiable),
                                 sampleViewer, getViewContext(), false);
                     }
 
@@ -174,7 +174,7 @@ public final class ClientPluginFactory extends
             return new GenericSampleBatchRegistrationForm(getViewContext(), sampleType);
         }
 
-        public ITabItemFactory createEntityEditor(final IIdAndIdentifierHolder identifiable)
+        public ITabItemFactory createEntityEditor(final IIdentifiable identifiable)
         {
             return new ITabItemFactory()
                 {
@@ -182,7 +182,7 @@ public final class ClientPluginFactory extends
                     {
                         DatabaseModificationAwareComponent component =
                                 GenericSampleEditForm.create(getViewContext(), identifiable);
-                        String title = getEditTitle(Dict.SAMPLE, identifiable.getIdentifier());
+                        String title = getEditorTitle(Dict.SAMPLE, identifiable);
                         return DefaultTabItem.create(title, component, getViewContext(), true);
                     }
 
@@ -196,9 +196,8 @@ public final class ClientPluginFactory extends
     }
 
     private final class MaterialClientPlugin extends
-            ClientPluginAdapter<MaterialType, IIdAndIdentifierHolder> // TODO 2009-05-12, Piotr Buczek: use IIdHolder instead
+            ClientPluginAdapter<MaterialType, IIdentifiable>
     {
-
 
         @Override
         public final Widget createBatchRegistrationForEntityType(final MaterialType materialType)
@@ -207,9 +206,8 @@ public final class ClientPluginFactory extends
         }
 
         @Override
-        public final ITabItemFactory createEntityViewer(final IIdAndIdentifierHolder identifiable)
+        public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
         {
-            final String identifier = identifiable.getIdentifier();
             final TechId techId = new TechId(identifiable);
             return new ITabItemFactory()
                 {
@@ -217,7 +215,7 @@ public final class ClientPluginFactory extends
                     {
                         final DatabaseModificationAwareComponent materialViewer =
                                 GenericMaterialViewer.create(getViewContext(), techId);
-                        return DefaultTabItem.create(getDetailsTitle(Dict.MATERIAL, identifier),
+                        return DefaultTabItem.create(getViewerTitle(Dict.MATERIAL, identifiable),
                                 materialViewer, getViewContext(), false);
                     }
 
@@ -229,7 +227,7 @@ public final class ClientPluginFactory extends
         }
 
         @Override
-        public ITabItemFactory createEntityEditor(final IIdAndIdentifierHolder identifiable)
+        public ITabItemFactory createEntityEditor(final IIdentifiable identifiable)
         {
             return new ITabItemFactory()
                 {
@@ -238,7 +236,7 @@ public final class ClientPluginFactory extends
                         DatabaseModificationAwareComponent component =
                                 GenericMaterialEditForm
                                         .create(getViewContext(), identifiable, true);
-                        String title = getEditTitle(Dict.MATERIAL, identifiable.getIdentifier());
+                        String title = getEditorTitle(Dict.MATERIAL, identifiable);
                         return DefaultTabItem.create(title, component, getViewContext(), true);
                     }
 
@@ -251,7 +249,7 @@ public final class ClientPluginFactory extends
     }
 
     private final class ExperimentClientPlugin extends
-            ClientPluginAdapter<ExperimentType, IIdAndIdentifierHolder>
+            ClientPluginAdapter<ExperimentType, IIdentifiable>
     {
 
         //
@@ -259,7 +257,7 @@ public final class ClientPluginFactory extends
         //
 
         @Override
-        public final ITabItemFactory createEntityViewer(final IIdAndIdentifierHolder identifiable)
+        public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
         {
             final String identifier = identifiable.getIdentifier();
             return new ITabItemFactory()
@@ -268,7 +266,7 @@ public final class ClientPluginFactory extends
                     {
                         final DatabaseModificationAwareComponent experimentViewer =
                                 GenericExperimentViewer.create(getViewContext(), identifier);
-                        return DefaultTabItem.create(getDetailsTitle(Dict.EXPERIMENT, identifier),
+                        return DefaultTabItem.create(getViewerTitle(Dict.EXPERIMENT, identifiable),
                                 experimentViewer, getViewContext(), false);
                     }
 
@@ -289,7 +287,7 @@ public final class ClientPluginFactory extends
         }
 
         @Override
-        public ITabItemFactory createEntityEditor(final IIdAndIdentifierHolder identifiable)
+        public ITabItemFactory createEntityEditor(final IIdentifiable identifiable)
         {
             return new ITabItemFactory()
                 {
@@ -297,7 +295,7 @@ public final class ClientPluginFactory extends
                     {
                         DatabaseModificationAwareComponent component =
                                 GenericExperimentEditForm.create(getViewContext(), identifiable);
-                        String title = getEditTitle(Dict.EXPERIMENT, identifiable.getIdentifier());
+                        String title = getEditorTitle(Dict.EXPERIMENT, identifiable);
                         return DefaultTabItem.create(title, component, getViewContext(), true);
                     }
 
@@ -309,12 +307,11 @@ public final class ClientPluginFactory extends
         }
     }
 
-    private final class DataSetClientPlugin extends
-            ClientPluginAdapter<DataSetType, IIdAndIdentifierHolder>
+    private final class DataSetClientPlugin extends ClientPluginAdapter<DataSetType, IIdentifiable>
     {
 
         @Override
-        public final ITabItemFactory createEntityViewer(final IIdAndIdentifierHolder identifiable)
+        public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
         {
             final String identifier = identifiable.getIdentifier();
             return new ITabItemFactory()
@@ -323,7 +320,7 @@ public final class ClientPluginFactory extends
                     {
                         final DatabaseModificationAwareComponent dataSetViewer =
                                 GenericDataSetViewer.create(getViewContext(), identifier);
-                        return DefaultTabItem.create(getDetailsTitle(Dict.DATA_SET, identifier),
+                        return DefaultTabItem.create(getViewerTitle(Dict.DATA_SET, identifiable),
                                 dataSetViewer, getViewContext(), false);
                     }
 
@@ -335,7 +332,7 @@ public final class ClientPluginFactory extends
         }
 
         @Override
-        public ITabItemFactory createEntityEditor(final IIdAndIdentifierHolder identifiable)
+        public ITabItemFactory createEntityEditor(final IIdentifiable identifiable)
         {
             return new ITabItemFactory()
                 {
@@ -343,7 +340,7 @@ public final class ClientPluginFactory extends
                     {
                         DatabaseModificationAwareComponent component =
                                 GenericDataSetEditForm.create(getViewContext(), identifiable);
-                        String title = getEditTitle(Dict.DATA_SET, identifiable.getIdentifier());
+                        String title = getEditorTitle(Dict.DATA_SET, identifiable);
                         return DefaultTabItem.create(title, component, getViewContext(), true);
                     }
 
@@ -354,4 +351,5 @@ public final class ClientPluginFactory extends
                 };
         }
     }
+
 }

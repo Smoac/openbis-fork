@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.E
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -71,14 +71,14 @@ public final class GenericSampleEditForm extends
 
     public static DatabaseModificationAwareComponent create(
             IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdAndIdentifierHolder identifiable)
+            IIdentifiable identifiable)
     {
         GenericSampleEditForm form = new GenericSampleEditForm(viewContext, identifiable);
         return new DatabaseModificationAwareComponent(form, form);
     }
 
     private GenericSampleEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdAndIdentifierHolder identifiable)
+            IIdentifiable identifiable)
     {
         super(viewContext, identifiable, EntityKind.SAMPLE);
         sessionKey = createSimpleId(identifiable, EntityKind.SAMPLE);

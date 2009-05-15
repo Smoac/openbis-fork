@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import java.util.Date;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  * @author Tomasz Pylak
  */
 public class Project extends CodeWithRegistration<Project> implements IAttachmentHolder,
-        IIdAndIdentifierHolder
+        IIdentifiable
 {
     private Group group;
 
