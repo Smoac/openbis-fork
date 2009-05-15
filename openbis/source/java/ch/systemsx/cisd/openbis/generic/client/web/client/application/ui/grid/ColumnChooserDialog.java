@@ -12,7 +12,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 /**
- * {@link Dialog} displaying {@link ColumnChooser}.
+ * {@link Dialog} displaying {@link GridColumnChooser}.
  * 
  * @author Izabela Adamczyk
  */
@@ -26,14 +26,14 @@ class ColumnChooserDialog extends Dialog
     }
 
     /**
-     * Shows window containing {@link ColumnChooser} based on given {@link ColumnModel}.
+     * Shows window containing {@link GridColumnChooser} based on given {@link ColumnModel}.
      */
     public <M extends ModelData> void show(final Grid<M> grid)
     {
         assert grid != null : "Grid must be loaded";
         final MoveableColumnModel cm = (MoveableColumnModel) grid.getColumnModel();
         removeAll();
-        final ColumnChooser columnChooser = new ColumnChooser(createModels(cm));
+        final GridColumnChooser columnChooser = new GridColumnChooser(createModels(cm));
         add(columnChooser.getComponent());
         super.show();
         getButtonBar().getButtonById("ok").addSelectionListener(

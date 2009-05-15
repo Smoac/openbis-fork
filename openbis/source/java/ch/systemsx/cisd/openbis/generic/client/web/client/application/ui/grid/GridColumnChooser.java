@@ -17,16 +17,16 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 
 /**
- * Allows to change visibility and order of the columns.
+ * Allows to change visibility and order of the grid columns.
  * 
  * @author Izabela Adamczyk
  */
-class ColumnChooser
+class GridColumnChooser
 {
 
     private final Grid<ColumnDataModel> grid;
 
-    public ColumnChooser(List<ColumnDataModel> list)
+    public GridColumnChooser(List<ColumnDataModel> list)
     {
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
         CheckColumnConfig checkColumn =
