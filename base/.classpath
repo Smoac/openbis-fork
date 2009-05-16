@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-lang/commons-lang.jar" sourcepath="/libraries/commons-lang/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/unix"/>
+	<classpathentry kind="lib" path="/libraries/nativedata"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

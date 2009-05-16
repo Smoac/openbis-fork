@@ -15,7 +15,8 @@
 	<property name="src.zip.file" value="${dist}/cisd-base-src.zip" />
 	<property name="javadoc.zip.file" value="${dist}/cisd-base-javadoc.zip" />
 	<property name="original.dist" value="../${ant.project.name}/dist" />
-	<property name="nativesrc" value="${lib}/unix/native" />
+	<property name="nativesrc1" value="${lib}/unix/native" />
+	<property name="nativesrc2" value="${lib}/nativedata/native" />
 	<property name="nativeroot" value="${targets}/ant" />
 	<property name="native" value="${nativeroot}/native" />
 
@@ -30,9 +31,16 @@
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
 		<copy todir="${native}">
-			<fileset dir="${nativesrc}">
+			<fileset dir="${nativesrc1}">
 				<include name="**/libunix.so" />
 				<include name="**/libunix.jnilib" />
+			</fileset>
+		</copy>
+		<copy todir="${native}">
+			<fileset dir="${nativesrc2}">
+				<include name="**/libnativedata.so" />
+				<include name="**/libnativedata.jnilib" />
+				<include name="**/nativedata.dll" />
 			</fileset>
 		</copy>
 		<recursive-jar destfile="${jar.file}">
@@ -41,8 +49,9 @@
 				<include name="${build.info.filename}" />
 			</fileset>
 			<fileset dir="${nativeroot}">
-				<include name="**/libunix.so" />
-				<include name="**/libunix.jnilib" />
+				<include name="native/**/*.so" />
+				<include name="native/**/*.jnilib" />
+				<include name="native/**/*.dll" />
 			</fileset>
 			<manifest>
 				<attribute name="Main-Class"
@@ -58,13 +67,34 @@
 		<mkdir dir="${dist.common.lib}" />
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+		<copy todir="${native}">
+			<fileset dir="${nativesrc1}">
+				<include name="**/libunix.so" />
+				<include name="**/libunix.jnilib" />
+			</fileset>
+		</copy>
+		<copy todir="${native}">
+			<fileset dir="${nativesrc2}">
+				<include name="**/libnativedata.so" />
+				<include name="**/libnativedata.jnilib" />
+				<include name="**/nativedata.dll" />
+			</fileset>
+		</copy>
 		<recursive-jar destfile="${jar.test.file}">
 			<fileset dir="${classes}">
-				<include name="ch/systemsx/cisd/base/tests/**/*.class" />
+				<include name="**/*.class" />
 				<include name="${build.info.filename}" />
 			</fileset>
+			<fileset dir="${nativeroot}">
+				<include name="native/**/*.so" />
+				<include name="native/**/*.jnilib" />
+				<include name="native/**/*.dll" />
+			</fileset>
+			<zipfileset src="${lib}/testng/testng-jdk15.jar" />
+			<zipfileset src="${lib}/commons-lang/commons-lang.jar" />
+			<zipfileset src="${lib}/commons-io/commons-io.jar" />
 			<manifest>
-				<attribute name="Main-Class" value="ch.systemsx.cisd.base.unix.UnixTests" />
+				<attribute name="Main-Class" value="ch.systemsx.cisd.base.convert.NativeDataTests" />
 				<attribute name="Version" value="${version.number}" />
 				<attribute name="Build-Number"
 				           value="${version.number} (r${revision.number},${clean.flag})" />
@@ -77,9 +107,16 @@
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
 		<copy todir="${native}">
-			<fileset dir="${nativesrc}">
+			<fileset dir="${nativesrc1}">
 				<include name="**/libunix.so" />
 				<include name="**/libunix.jnilib" />
+			</fileset>
+		</copy>
+		<copy todir="${native}">
+			<fileset dir="${nativesrc2}">
+				<include name="**/libnativedata.so" />
+				<include name="**/libnativedata.jnilib" />
+				<include name="**/nativedata.dll" />
 			</fileset>
 		</copy>
 		<recursive-jar destfile="${jar.test.complete.file}">
@@ -90,6 +127,9 @@
 			<fileset dir="${nativeroot}">
 				<include name="**/libunix.so" />
 				<include name="**/libunix.jnilib" />
+				<include name="**/libnativedata.so" />
+				<include name="**/libnativedata.jnilib" />
+				<include name="**/nativedata.dll" />
 			</fileset>
 			<zipfileset src="${lib}/testng/testng-jdk15.jar" />
 			<zipfileset src="${lib}/commons-lang/commons-lang.jar" />
