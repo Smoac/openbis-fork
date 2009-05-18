@@ -104,6 +104,17 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         }
         return (UserDTO) session.getAttribute(SESSION_ATTRIBUTE_USER_NAME);
     }
+    
+    private void updateCurrentUser(String userID) throws InvalidSessionException
+    {
+        if (userID.equals(privGetCurrentUser().getUserCode()) == false)
+        {
+            return;
+        }
+        UserDTO user = domainModel.getUserManager().tryFindUserByCode(userID);
+        assert user != null : "Just updated user '" + userID + "' does not exist in database.";
+        getSession(false).setAttribute(SESSION_ATTRIBUTE_USER_NAME, user);
+    }
 
     private static String describeUser(final UserDTO user)
     {
@@ -469,6 +480,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         checkUpdateOfUserIsAllowed(userDTO);
 
         userManager.updateUser(userDTO, new Password(plainPassword));
+        updateCurrentUser(userDTO.getUserCode());
         if (sendUpdateInformationToUser)
         {
             if (StringUtils.isEmpty(user.getEmail()))

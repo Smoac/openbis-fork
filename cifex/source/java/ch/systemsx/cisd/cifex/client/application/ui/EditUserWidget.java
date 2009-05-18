@@ -113,14 +113,23 @@ public class EditUserWidget extends UserWidget
             }
             final UserInfoDTO user = context.getModel().getUser();
             // Update current user, if it was the one who has been changed.
-            if (user.getUserCode().equals(userCodeField.getText())
-                    && user.isExternallyAuthenticated() == false)
+            if (user.getUserCode().equals(userCodeField.getText()))
             {
-                user.setEmail(emailField.getText());
-                user.setUserFullName(usernameField.getValueAsString());
-                context.getModel().setUser(user);
+                context.getCifexService().getCurrentUser(new AbstractAsyncCallback(context)
+                    {
+                        public void onSuccess(Object u)
+                        {
+                            if (u instanceof UserInfoDTO)
+                            {
+                                context.getModel().setUser((UserInfoDTO) u);
+                            }
+                            finishEditing();
+                        }
+                    });
+            } else
+            {
+                finishEditing();
             }
-            finishEditing();
         }
     }
 }
