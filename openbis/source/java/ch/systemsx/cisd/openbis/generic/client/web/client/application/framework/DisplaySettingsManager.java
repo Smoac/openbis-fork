@@ -110,6 +110,13 @@ public class DisplaySettingsManager
         {
             return;
         }
+        synchronizeColumnModel(columnSettings, grid);
+    }
+
+    // Update grid columns by applying the specified settings.
+    private static <M extends ModelData> void synchronizeColumnModel(
+            List<ColumnSetting> columnSettings, IGrid<M> grid)
+    {
         boolean refreshNeeded = false;
         ColumnModel columnModel = grid.getColumnModel();
         List<ColumnConfig> newColumnConfigList = new ArrayList<ColumnConfig>();
@@ -117,6 +124,7 @@ public class DisplaySettingsManager
         for (int i = 0; i < columnSettings.size(); i++)
         {
             ColumnSetting columnSetting = columnSettings.get(i);
+            // update column using the settings stored for it
             int index = columnModel.getIndexById(columnSetting.getColumnID());
             if (index >= 0)
             {
@@ -126,7 +134,6 @@ public class DisplaySettingsManager
                 }
                 indices.add(index);
                 ColumnConfig columnConfig = columnModel.getColumn(index);
-                newColumnConfigList.add(columnConfig);
                 boolean hidden = columnSetting.isHidden();
                 if (columnConfig.isHidden() != hidden)
                 {
@@ -139,8 +146,10 @@ public class DisplaySettingsManager
                     columnConfig.setWidth(width);
                     refreshNeeded = true;
                 }
+                newColumnConfigList.add(columnConfig);
             }
         }
+        // add columns for which no settings were stored at the end
         for (int i = 0; i < columnModel.getColumnCount(); i++)
         {
             if (indices.contains(i) == false)
@@ -156,7 +165,13 @@ public class DisplaySettingsManager
 
     private <M extends ModelData> void updateColumnSettings(String displayTypeID, IGrid<M> grid)
     {
-        ColumnModel columnModel = grid.getColumnModel();
+        List<ColumnSetting> columnSettings = createColumnsSettings(grid.getColumnModel());
+        displaySettings.getColumnSettings().put(displayTypeID, columnSettings);
+        updater.update();
+    }
+
+    private static List<ColumnSetting> createColumnsSettings(ColumnModel columnModel)
+    {
         List<ColumnSetting> columnSettings = new ArrayList<ColumnSetting>();
         for (int i = 0; i < columnModel.getColumnCount(); i++)
         {
@@ -167,7 +182,6 @@ public class DisplaySettingsManager
             columnSetting.setWidth(columnConfig.getWidth());
             columnSettings.add(columnSetting);
         }
-        displaySettings.getColumnSettings().put(displayTypeID, columnSettings);
-        updater.update();
+        return columnSettings;
     }
 }
