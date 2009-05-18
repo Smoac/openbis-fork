@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
+import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -368,7 +369,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     @Test
     public void testChangeUserHomeGroup()
     {
-        final TechId groupId = new TechId(1L);
+        final TechId groupId = CommonTestUtils.TECH_ID;
         context.checking(new Expectations()
             {
                 {

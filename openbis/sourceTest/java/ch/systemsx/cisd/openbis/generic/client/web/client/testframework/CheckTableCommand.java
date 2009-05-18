@@ -130,8 +130,7 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
         if (withCallback)
         {
             // NOTE: here we use the knowledge that AbstractBrowserGrid.ListEntitiesCallback uses
-            // grid
-            // id as a callback identifier.
+            // grid id as a callback identifier.
             addCallbackClass(gridId);
         }
         this.gridID = gridId;

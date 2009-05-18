@@ -262,9 +262,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void removeResultSet(final String resultSetKey, final AsyncCallback<Void> asyncCallback);
 
     /**
-     * @see ICommonClientService#listSampleDataSets(String, String, DefaultResultSetConfig)
+     * @see ICommonClientService#listSampleDataSets(TechId, String, DefaultResultSetConfig)
      */
-    public void listSampleDataSets(String sampleIdentifier, String baseIndexURL,
+    public void listSampleDataSets(TechId sampleId, String baseIndexURL,
             DefaultResultSetConfig<String, ExternalData> criteria,
             AsyncCallback<ResultSet<ExternalData>> asyncCallback);
 

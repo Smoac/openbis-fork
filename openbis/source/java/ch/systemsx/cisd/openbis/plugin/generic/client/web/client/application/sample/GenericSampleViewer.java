@@ -71,6 +71,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -102,7 +104,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
     private IDelegatedAction showComponentsPanelAction;
 
-    private final String sampleIdentifier;
+    private final TechId sampleId;
 
     private IDisposableComponent disposableBrowser;
 
@@ -113,17 +115,17 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     private Sample originalSample;
 
     public static DatabaseModificationAwareComponent create(
-            IViewContext<IGenericClientServiceAsync> viewContext, String sampleIdentifier)
+            IViewContext<IGenericClientServiceAsync> viewContext, final IIdentifiable identifiable)
     {
-        GenericSampleViewer viewer = new GenericSampleViewer(viewContext, sampleIdentifier);
+        GenericSampleViewer viewer = new GenericSampleViewer(viewContext, identifiable);
         return new DatabaseModificationAwareComponent(viewer, viewer);
     }
 
     private GenericSampleViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
-            final String sampleIdentifier)
+            final IIdentifiable identifiable)
     {
-        super(viewContext, "Sample " + sampleIdentifier, createId(sampleIdentifier));
-        this.sampleIdentifier = sampleIdentifier;
+        super(viewContext, createId(identifiable));
+        this.sampleId = new TechId(identifiable);
         reloadAllData();
     }
 
@@ -132,9 +134,14 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         reloadSampleGenerationData(new SampleGenerationInfoCallback(viewContext, this));
     }
 
-    public static final String createId(String sampleIdentifier)
+    public static final String createId(final IIdentifiable identifiable)
     {
-        return ID_PREFIX + sampleIdentifier;
+        return createId(new TechId(identifiable));
+    }
+
+    public static final String createId(final TechId sampleId)
+    {
+        return ID_PREFIX + sampleId;
     }
 
     private final static BorderLayoutData createRightBorderLayoutData()
@@ -169,7 +176,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         // External data
         final ContentPanel externalDataPanel =
                 createContentPanel(viewContext.getMessage(Dict.EXTERNAL_DATA_HEADING));
-        disposableBrowser = SampleDataSetBrowser.create(viewContext, sampleIdentifier);
+        disposableBrowser = SampleDataSetBrowser.create(viewContext, sampleId);
         // external data panel has the height doubled when components panel is not visible
         externalDataPanel.add(disposableBrowser.getComponent());
         final RowData externalDataRow = new RowData(1, 2 * defaultHeight, new Margins(5, 5, 0, 0));
@@ -245,7 +252,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
                         final AsyncCallback<BaseListLoadResult<ModelData>> callback)
                 {
                     final ListSampleCriteria sampleCriteria =
-                            ListSampleCriteria.createForContainer(sampleIdentifier);
+                            ListSampleCriteria.createForContainer(sampleId);
                     ListSamplesCallback listCallback =
                             new ListSamplesCallback(viewContext, callback,
                                     showComponentsPanelAction);
@@ -331,17 +338,17 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         final ContentPanel panel = new ContentPanel();
         panel.setScrollMode(Scroll.AUTOY);
         panel.setHeading(viewContext.getMessage(Dict.SAMPLE_PROPERTIES_HEADING));
-        propertyGrid = createPropertyGrid(sampleIdentifier, sampleGeneration, viewContext);
+        propertyGrid = createPropertyGrid(sampleId, sampleGeneration, viewContext);
         panel.add(propertyGrid);
         return panel;
     }
 
-    public static PropertyGrid createPropertyGrid(String sampleIdentifier,
+    public static PropertyGrid createPropertyGrid(final TechId sampleId,
             final SampleGeneration sampleGeneration, final IViewContext<?> viewContext)
     {
         final Map<String, Object> properties = createProperties(viewContext, sampleGeneration);
         final PropertyGrid propertyGrid = new PropertyGrid(viewContext, properties.size());
-        propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + sampleIdentifier);
+        propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + sampleId);
         propertyGrid.registerPropertyValueRenderer(Person.class, PropertyValueRenderers
                 .createPersonPropertyValueRenderer(viewContext));
         propertyGrid.registerPropertyValueRenderer(SampleType.class, PropertyValueRenderers
@@ -381,7 +388,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
      */
     protected void reloadSampleGenerationData(AbstractAsyncCallback<SampleGeneration> callback)
     {
-        viewContext.getService().getSampleGenerationInfo(sampleIdentifier, callback);
+        viewContext.getService().getSampleGenerationInfo(sampleId, callback);
     }
 
     /**
@@ -389,7 +396,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
      */
     protected void reloadSampleData(AbstractAsyncCallback<Sample> callback)
     {
-        viewContext.getService().getSampleInfo(sampleIdentifier, callback);
+        viewContext.getService().getSampleInfo(sampleId, callback);
     }
 
     /**

@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.EntityWithGroupKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -39,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  */
 public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
 {
-    private static TechId TECH_ID = new TechId(1L);
+    private static TechId TECH_ID = CommonTestUtils.TECH_ID;
 
     private static EntityWithGroupKind ENTITY_KIND = EntityWithGroupKind.EXPERIMENT;
 

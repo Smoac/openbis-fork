@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
@@ -45,17 +46,17 @@ public final class ListSampleCriteria extends DefaultResultSetConfig<String, Sam
     private boolean excludeWithoutExperiment;
 
     // --------- filter 2 fields
-    private String containerIdentifier;
+    private TechId containerSampleId;
 
     // --------- filter 3 fields
-    private String experimentIdentifier;
+    private String experimentIdentifier; // TODO 2009-05-18, Piotr Buczek: techId
 
     // ----
 
-    public static ListSampleCriteria createForContainer(String containerIdentifier)
+    public static ListSampleCriteria createForContainer(final TechId containerSampleId)
     {
         final ListSampleCriteria criteria = new ListSampleCriteria();
-        criteria.setContainerIdentifier(containerIdentifier);
+        criteria.setContainerIdentifier(containerSampleId);
         return criteria;
     }
 
@@ -66,14 +67,14 @@ public final class ListSampleCriteria extends DefaultResultSetConfig<String, Sam
         return criteria;
     }
 
-    public final String getContainerIdentifier()
+    public final TechId getContainerSampleId()
     {
-        return containerIdentifier;
+        return containerSampleId;
     }
 
-    private final void setContainerIdentifier(final String containerIdentifier)
+    private final void setContainerIdentifier(final TechId containerSampleId)
     {
-        this.containerIdentifier = containerIdentifier;
+        this.containerSampleId = containerSampleId;
     }
 
     public SampleType getSampleType()

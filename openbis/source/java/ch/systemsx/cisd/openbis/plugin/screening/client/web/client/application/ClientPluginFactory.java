@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.Cli
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -110,19 +111,20 @@ public final class ClientPluginFactory extends
 
         public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
         {
-            final String sampleIdentifier = identifiable.getIdentifier();
+            final TechId sampleId = new TechId(identifiable);
             return new ITabItemFactory()
                 {
                     public ITabItem create()
                     {
                         final ScreeningSampleViewer sampleViewer =
-                                new ScreeningSampleViewer(getViewContext(), sampleIdentifier);
-                        return DefaultTabItem.createUnaware(sampleIdentifier, sampleViewer, false);
+                                new ScreeningSampleViewer(getViewContext(), sampleId);
+                        return DefaultTabItem.createUnaware(identifiable.getCode(), sampleViewer,
+                                false);
                     }
 
                     public String getId()
                     {
-                        return ScreeningSampleViewer.createId(sampleIdentifier);
+                        return ScreeningSampleViewer.createId(sampleId);
                     }
                 };
         }

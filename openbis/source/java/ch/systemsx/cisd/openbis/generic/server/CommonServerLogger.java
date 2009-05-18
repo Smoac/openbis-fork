@@ -175,7 +175,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logAccess(sessionToken, "list_samples", "TYPE(%s) OWNERS(%s) CONTAINER(%s) EXPERIMENT(%s)",
                 criteria.getSampleType(), criteria.getOwnerIdentifiers(), criteria
-                        .getContainerIdentifier(), criteria.getExperimentIdentifier());
+                        .getContainerSampleId(), criteria.getExperimentIdentifier());
         return null;
     }
 
@@ -194,10 +194,10 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public final List<ExternalDataPE> listExternalData(final String sessionToken,
-            final SampleIdentifier identifier)
+    public final List<ExternalDataPE> listSampleExternalData(final String sessionToken,
+            final TechId sampleId)
     {
-        logAccess(sessionToken, "list_external_data", "IDENTIFIER(%s)", identifier);
+        logAccess(sessionToken, "list_external_data", "ID(%s)", sampleId);
         return null;
     }
 

@@ -117,8 +117,8 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
                 GenericSampleRegistrationForm.RegisterSampleCallback.class));
         remoteConsole.prepare(new ListSamples("CISD", SampleTypeCode.CELL_PLATE.getCode()));
         remoteConsole.prepare(new ShowSample(containerCode));
-        final CheckSample checkSample =
-                new CheckSample(GenericSampleViewerTest.GROUP_IDENTIFIER, containerCode);
+        final CheckSample checkSample = new CheckSample();
+        checkSample.property("Sample").asString(containerCode);
         final CheckTableCommand componentsTable = checkSample.componentsTable().expectedSize(1);
         final String sampleCodeFieldIdent = CommonSampleColDefKind.CODE.id();
         componentsTable.expectedRow(new Row().withCell(sampleCodeFieldIdent, sampleCode));

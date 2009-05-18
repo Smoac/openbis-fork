@@ -124,8 +124,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
  * The {@link ICommonClientService} implementation.
@@ -812,7 +810,7 @@ public final class CommonClientService extends AbstractClientService implements
             });
     }
 
-    public ResultSet<ExternalData> listSampleDataSets(final String sampleIdentifier,
+    public ResultSet<ExternalData> listSampleDataSets(final TechId sampleId,
             final String baseIndexURL, DefaultResultSetConfig<String, ExternalData> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -821,10 +819,8 @@ public final class CommonClientService extends AbstractClientService implements
                 public List<ExternalData> getOriginalData() throws UserFailureException
                 {
                     final String sessionToken = getSessionToken();
-                    final SampleIdentifier identifier =
-                            SampleIdentifierFactory.parse(sampleIdentifier);
                     final List<ExternalDataPE> externalData =
-                            commonServer.listExternalData(sessionToken, identifier);
+                            commonServer.listSampleExternalData(sessionToken, sampleId);
                     return ExternalDataTranslator.translate(externalData, getDataStoreBaseURL(),
                             baseIndexURL);
                 }

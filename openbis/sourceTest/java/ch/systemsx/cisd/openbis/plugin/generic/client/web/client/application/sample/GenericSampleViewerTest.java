@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTab
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAssertion;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test {@link GenericSampleViewer}.
@@ -61,7 +62,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         loginAndInvokeAction(ActionMenuKind.SAMPLE_MENU_BROWSE);
         remoteConsole.prepare(new ListSamples("CISD", "CONTROL_LAYOUT"));
         remoteConsole.prepare(new ShowSample(CONTROL_LAYOUT_EXAMPLE));
-        final CheckSample checkSample = new CheckSample(GROUP_IDENTIFIER, CONTROL_LAYOUT_EXAMPLE);
+        final CheckSample checkSample = new CheckSample();
         checkSample.property("Sample").asString(CONTROL_LAYOUT_EXAMPLE);
         checkSample.property("Sample Type").asCode("CONTROL_LAYOUT");
         checkSample.property("Registrator").asPerson("Doe, John");
@@ -84,7 +85,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         loginAndInvokeAction(ActionMenuKind.SAMPLE_MENU_BROWSE);
         remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
         remoteConsole.prepare(new ShowSample(CELL_PLATE_EXAMPLE));
-        final CheckSample checkSample = new CheckSample(GROUP_IDENTIFIER, CELL_PLATE_EXAMPLE);
+        final CheckSample checkSample = new CheckSample();
         checkSample.property("Sample").asString(CELL_PLATE_EXAMPLE);
         checkSample.property("Sample Type").asCode("CELL_PLATE");
         checkSample.property("Generated Samples").asGeneratedSamples("3VRP1A [REINFECT_PLATE]",
@@ -131,10 +132,9 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                     DispatcherListener dispatcherListener = createDispatcherListener();
                     Dispatcher dispatcher = Dispatcher.get();
                     dispatcher.addDispatcherListener(dispatcherListener);
-                    String sampleIdentifier = GROUP_IDENTIFIER + "/" + CELL_PLATE_EXAMPLE;
                     final Widget widget =
-                            GWTTestUtil.getWidgetWithID(SampleDataSetBrowser
-                                    .createGridId(sampleIdentifier));
+                            GWTTestUtil.getWidgetWithID(SampleDataSetBrowser.createGridId(TechId
+                                    .createWildcardTechId()));
                     assertTrue(widget instanceof Grid);
                     final Grid<?> table = (Grid<?>) widget;
                     final GridEvent gridEvent = new GridEvent(table);

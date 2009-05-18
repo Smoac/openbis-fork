@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
@@ -39,27 +40,26 @@ public final class ScreeningSampleViewer extends AbstractViewer<IScreeningClient
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final String sampleIdentifier;
+    private final TechId sampleId;
 
     private Sample originalSample;
 
     public ScreeningSampleViewer(final IViewContext<IScreeningClientServiceAsync> viewContext,
-            final String sampleIdentifier)
+            final TechId sampleId)
     {
-        super(viewContext, "Sample " + sampleIdentifier, createId(sampleIdentifier));
-        this.sampleIdentifier = sampleIdentifier;
+        super(viewContext, createId(sampleId));
+        this.sampleId = sampleId;
         reloadData();
     }
 
-    public static final String createId(String sampleIdentifier)
+    public static final String createId(final TechId sampleId)
     {
-        return ID_PREFIX + sampleIdentifier;
+        return ID_PREFIX + sampleId;
     }
 
     private final Widget createUI(final SampleGeneration sampleGeneration)
     {
-        return GenericSampleViewer.createPropertyGrid(sampleIdentifier, sampleGeneration,
-                viewContext);
+        return GenericSampleViewer.createPropertyGrid(sampleId, sampleGeneration, viewContext);
     }
 
     /**
@@ -68,7 +68,7 @@ public final class ScreeningSampleViewer extends AbstractViewer<IScreeningClient
     protected void reloadData()
     {
         SampleInfoCallback callback = new SampleInfoCallback(viewContext, this);
-        viewContext.getService().getSampleInfo(sampleIdentifier, callback);
+        viewContext.getService().getSampleGenerationInfo(sampleId, callback);
     }
 
     //

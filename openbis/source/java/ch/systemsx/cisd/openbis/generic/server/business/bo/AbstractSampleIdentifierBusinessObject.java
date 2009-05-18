@@ -21,6 +21,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwnerFinder;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -28,8 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
- * An <i>abstract</i> {@link AbstractBusinessObject} extension for <i>Business Object</i> which
- * uses {@link SampleIdentifier}.
+ * An <i>abstract</i> {@link AbstractBusinessObject} extension for <i>Business Object</i> which uses
+ * {@link SampleIdentifier}.
  * 
  * @author Christian Ribeaud
  */
@@ -49,6 +50,7 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
         return sampleOwnerFinder;
     }
 
+    // TODO 2009-05-18, PB: remove after [LMS-870] is finished
     /**
      * Finds a sample with the given identifier.<br>
      * Note: this method will never return samples which are contained (part-of relation) in another
@@ -68,6 +70,7 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
         return sample;
     }
 
+    // TODO 2009-05-18, PB: remove after [LMS-870] is finished
     protected SamplePE tryToGetSampleByIdentifier(final SampleIdentifier sampleIdentifier)
     {
         assert sampleIdentifier != null : "Sample identifier unspecified.";
@@ -94,4 +97,35 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
         return sample;
     }
 
+    /**
+     * Finds a sample with the given technical identifier.<br>
+     * Note: this method will never return samples which are contained (part-of relation) in another
+     * sample.
+     * 
+     * @return never <code>null</code> and prefers to throw an exception.
+     */
+    final SamplePE getSampleByTechId(final TechId sampleId) throws UserFailureException
+    {
+        final SamplePE sample = tryToGetSampleByTechId(sampleId);
+        if (sample == null)
+        {
+            throw UserFailureException.fromTemplate("No sample could be found for ID '%s'.",
+                    sampleId);
+        }
+        return sample;
+    }
+
+    private static final String PROPERTY_TYPES = "sampleType.sampleTypePropertyTypesInternal";
+
+    private static final String VOCABULARY_TERMS =
+            PROPERTY_TYPES + ".propertyTypeInternal.vocabulary.vocabularyTerms";
+
+    private static final String EXPERIMENT = "experimentInternal";
+
+    protected SamplePE tryToGetSampleByTechId(final TechId sampleId)
+    {
+        String[] connections =
+            { PROPERTY_TYPES, VOCABULARY_TERMS, EXPERIMENT };
+        return getSampleDAO().tryGetByTechId(sampleId, connections);
+    }
 }

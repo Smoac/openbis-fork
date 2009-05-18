@@ -35,21 +35,18 @@ import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * Test cases for corresponding {@link ExternalDataTable} class.
@@ -97,13 +94,13 @@ public final class ExternalDataTableTest extends AbstractBOTest
     }
 
     @Test
-    public final void testLoadBySampleIdentifierWithNullSampleIdentifier()
+    public final void testLoadBySampleTechIdWithNullSampleId()
     {
         final ExternalDataTable externalDataTable = createExternalDataTable();
         boolean fail = true;
         try
         {
-            externalDataTable.loadBySampleIdentifier(null);
+            externalDataTable.loadBySampleTechId(null);
         } catch (final AssertionError ex)
         {
             fail = false;
@@ -122,46 +119,11 @@ public final class ExternalDataTableTest extends AbstractBOTest
     }
 
     @Test
-    public final void testLoadBySampleIdentifierFailed()
-    {
-        final ExternalDataTable externalDataTable = createExternalDataTable();
-        final String sampleCode = "CP-01";
-        final String dbCode = "DB-1";
-        final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier(dbCode), sampleCode);
-        final DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
-        databaseInstancePE.setCode(dbCode);
-        context.checking(new Expectations()
-            {
-                {
-                    one(databaseInstanceDAO).tryFindDatabaseInstanceByCode(dbCode);
-                    will(returnValue(databaseInstancePE));
-
-                    one(sampleDAO).tryFindByCodeAndDatabaseInstance(sampleCode, databaseInstancePE,
-                            HierarchyType.CHILD);
-                }
-            });
-        try
-        {
-            externalDataTable.loadBySampleIdentifier(sampleIdentifier);
-            fail("'" + UserFailureException.class.getName() + "' expected.");
-        } catch (final UserFailureException ex)
-        {
-            // Nothing to do here.
-        }
-        context.assertIsSatisfied();
-    }
-
-    @Test
     public final void testLoadBySampleIdentifier()
     {
         final ExternalDataTable externalDataTable = createExternalDataTable();
+        final TechId sampleId = CommonTestUtils.TECH_ID;
         final String sampleCode = "CP-01";
-        final String dbCode = "DB-1";
-        final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier(dbCode), sampleCode);
-        final DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
-        databaseInstancePE.setCode(dbCode);
         final SamplePE sample = new SamplePE();
         sample.setCode(sampleCode);
         context.checking(new Expectations()
@@ -170,23 +132,13 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     allowing(daoFactory).getSampleDAO();
                     will(returnValue(sampleDAO));
 
-                    allowing(daoFactory).getExternalDataDAO();
-                    will(returnValue(externalDataDAO));
-
-                    allowing(daoFactory).getDatabaseInstanceDAO();
-                    will(returnValue(databaseInstanceDAO));
-
-                    one(databaseInstanceDAO).tryFindDatabaseInstanceByCode(dbCode);
-                    will(returnValue(databaseInstancePE));
-
-                    one(sampleDAO).tryFindByCodeAndDatabaseInstance(sampleCode, databaseInstancePE,
-                            HierarchyType.CHILD);
+                    one(sampleDAO).getByTechId(sampleId);
                     will(returnValue(sample));
 
                     one(externalDataDAO).listExternalData(sample);
                 }
             });
-        externalDataTable.loadBySampleIdentifier(sampleIdentifier);
+        externalDataTable.loadBySampleTechId(sampleId);
         context.assertIsSatisfied();
     }
 
@@ -221,7 +173,6 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     will(returnValue(experimentPE));
 
                     one(externalDataDAO).listExternalData(experimentPE);
-                    // moze nie potrzebne jest eager w experymencie?
                 }
             });
 
@@ -358,7 +309,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
         ExternalDataTable externalDataTable = createExternalDataTable();
         externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()));
         String message = externalDataTable.uploadLoadedDataSetsToCIFEX(uploadContext);
-        
+
         assertEquals(
                 "The following data sets couldn't been uploaded because of unkown data store: d1",
                 message);

@@ -21,6 +21,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 
@@ -32,8 +33,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
 public interface IScreeningClientServiceAsync extends IClientServiceAsync
 {
 
-    /** @see IScreeningClientService#getSampleInfo(String) */
-    public void getSampleInfo(final String sampleIdentifier,
+    /** @see IScreeningClientService#getSampleGenerationInfo(TechId) */
+    public void getSampleGenerationInfo(final TechId sampleId,
             final AsyncCallback<SampleGeneration> callback);
 
     /**

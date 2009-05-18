@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAll
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectUpdatesPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExternalDataValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
@@ -79,7 +79,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -214,15 +213,14 @@ public interface ICommonServer extends IServer
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier project);
 
     /**
-     * For given {@link SampleIdentifier} returns the corresponding list of {@link ExternalDataPE}.
+     * For given sample {@link TechId} returns the corresponding list of {@link ExternalDataPE}.
      * 
      * @return a sorted list of {@link ExternalDataPE}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<ExternalDataPE> listExternalData(
-            final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) final SampleIdentifier identifier);
+    public List<ExternalDataPE> listSampleExternalData(final String sessionToken,
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId);
 
     /**
      * For given {@link ExperimentIdentifier} returns the corresponding list of

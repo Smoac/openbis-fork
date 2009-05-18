@@ -65,7 +65,13 @@ public abstract class AbstractDefaultTestCommand extends Assert implements ITest
     {
         System.out.println("The command " + getClass().getName() + " is waiting for callback "
                 + callbackId);
-        expectedCallbackIds.add(callbackId);
+        // escaping is needed because we use callbackId as a regular expression
+        expectedCallbackIds.add(escape(callbackId));
+    }
+
+    private String escape(String string)
+    {
+        return string.replace("$", "\\$");
     }
 
     public List<AbstractAsyncCallback<Object>> tryValidOnFailure(
@@ -94,9 +100,10 @@ public abstract class AbstractDefaultTestCommand extends Assert implements ITest
         for (final AbstractAsyncCallback<Object> asyncCallback : callbackObjects)
         {
             String id = asyncCallback.getCallbackId();
-            if (expectedIds.contains(id))
+            String matched = getMatchedRegexp(expectedIds, id);
+            if (matched != null)
             {
-                expectedIds.remove(id);
+                expectedIds.remove(matched);
             } else
             {
                 unmatched.add(asyncCallback);
@@ -109,5 +116,18 @@ public abstract class AbstractDefaultTestCommand extends Assert implements ITest
         {
             return null;
         }
+    }
+
+    /** @return regular expression from <var>regexps</var> list that given <var>id</var> matches */
+    private String getMatchedRegexp(List<String> regexps, String id)
+    {
+        for (String regexp : regexps)
+        {
+            if (id.matches(regexp))
+            {
+                return regexp;
+            }
+        }
+        return null;
     }
 }

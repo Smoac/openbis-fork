@@ -27,7 +27,7 @@ public class TechId implements IIdHolder, IsSerializable
 {
     private Long id;
 
-    private TechId()
+    protected TechId()
     {
         // for serialization
     }
@@ -76,6 +76,31 @@ public class TechId implements IIdHolder, IsSerializable
     public String toString()
     {
         return String.valueOf(id);
+    }
+
+    //
+    // Helper for tests framework
+    //
+
+    /** Creates a {@link TechId} which string representation matches all technical identifiers. */
+    public static TechId createWildcardTechId()
+    {
+        return new WildcardTechId();
+    }
+
+    /** {@link TechId} which string representation matches all technical identifiers. */
+    private static class WildcardTechId extends TechId
+    {
+        public WildcardTechId()
+        {
+            super();
+        }
+
+        @Override
+        public String toString()
+        {
+            return ".*";
+        }
     }
 
 }

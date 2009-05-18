@@ -19,9 +19,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
- * Widget handler which picks the first widget having a specified ID.
+ * Widget handler which picks the first widget having a specified ID. Allows to use regular
+ * expression wildcards.
  * 
  * @author Franz-Josef Elmer
+ * @author Piotr Buczek
  */
 public class WidgetPicker implements IWidgetHandler<Widget>
 {
@@ -30,7 +32,8 @@ public class WidgetPicker implements IWidgetHandler<Widget>
     private Widget pickedWidget;
 
     /**
-     * Creates an instance for the specified widget ID.
+     * Creates an instance for the specified widget ID. Given <var>id</var> may contain regular
+     * expression wildcards.
      */
     public WidgetPicker(final String id)
     {
@@ -48,7 +51,7 @@ public class WidgetPicker implements IWidgetHandler<Widget>
 
     protected boolean acceptWidgetId(final String widgetIdOrNull)
     {
-        return id.equals(widgetIdOrNull);
+        return widgetIdOrNull == null ? false : widgetIdOrNull.matches(id);
     }
 
     //

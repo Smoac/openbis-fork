@@ -58,7 +58,7 @@ public class CommonTestUtils
 
     private static final VocabularyTermPE HEAD = createVocabularyTerm("HEAD");
 
-    public static final TechId DUMMY_TECH_ID = new TechId(1L);
+    public static final TechId TECH_ID = new TechId(1L);
 
     public final static String ATTACHMENT_CONTENT_TEXT = "Lorem ipsum...";
 

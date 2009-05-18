@@ -49,15 +49,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 public interface IGenericClientServiceAsync extends IClientServiceAsync
 {
     /**
-     * @see IGenericClientService#getSampleGenerationInfo(String)
+     * @see IGenericClientService#getSampleGenerationInfo(TechId)
      */
-    public void getSampleGenerationInfo(final String sampleIdentifier,
+    public void getSampleGenerationInfo(final TechId sampleId,
             AsyncCallback<SampleGeneration> asyncCallback);
-
-    /**
-     * @see IGenericClientService#getSampleInfo(String)
-     */
-    public void getSampleInfo(final String sampleIdentifier, AsyncCallback<Sample> asyncCallback);
 
     /**
      * @see IGenericClientService#getSampleInfo(TechId)

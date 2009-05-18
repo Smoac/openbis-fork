@@ -85,7 +85,7 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
 
     protected final void updateTitle(String title)
     {
-        titleLabel.setTitle(title);
+        titleLabel.setLabel(title);
     }
 
     protected final String getBaseIndexURL()

@@ -101,7 +101,7 @@ public final class AttachmentDownloadServletTest
                     one(servletRequest).getParameter(GenericConstants.ATTACHMENT_HOLDER_PARAMETER);
                     will(returnValue(AttachmentHolderKind.EXPERIMENT.name()));
                     one(servletRequest).getParameter(GenericConstants.TECH_ID_PARAMETER);
-                    will(returnValue(CommonTestUtils.DUMMY_TECH_ID.toString()));
+                    will(returnValue(CommonTestUtils.TECH_ID.toString()));
 
                     one(servletRequest).getSession(false);
                     will(Expectations.returnValue(httpSession));
@@ -110,7 +110,7 @@ public final class AttachmentDownloadServletTest
                     will(Expectations.returnValue(session));
 
                     one(genericServer).getExperimentFileAttachment(session.getSessionToken(),
-                            CommonTestUtils.DUMMY_TECH_ID, CommonTestUtils.FILENAME,
+                            CommonTestUtils.TECH_ID, CommonTestUtils.FILENAME,
                             CommonTestUtils.VERSION_22);
                     will(returnValue(attachment));
 

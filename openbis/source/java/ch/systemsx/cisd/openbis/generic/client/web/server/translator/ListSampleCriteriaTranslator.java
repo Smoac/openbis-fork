@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -27,8 +28,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
@@ -45,17 +44,16 @@ public final class ListSampleCriteriaTranslator
 
     public final static ListSampleCriteriaDTO translate(final ListSampleCriteria listCriteria)
     {
-        final String containerIdentifier = listCriteria.getContainerIdentifier();
+        final TechId containerSampleId = listCriteria.getContainerSampleId();
         final String experimentIdentifier = listCriteria.getExperimentIdentifier();
         if (experimentIdentifier != null)
         {
             ExperimentIdentifier expIdent =
                     new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
             return ListSampleCriteriaDTO.createExperimentIdentifier(expIdent);
-        } else if (containerIdentifier != null)
+        } else if (containerSampleId != null)
         {
-            SampleIdentifier containerIdent = SampleIdentifierFactory.parse(containerIdentifier);
-            return ListSampleCriteriaDTO.createContainerIdentifier(containerIdent);
+            return ListSampleCriteriaDTO.createContainerSampleId(containerSampleId);
         } else
         {
             List<SampleOwnerIdentifier> ownerIdentifiers =

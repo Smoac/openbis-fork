@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
@@ -32,31 +33,30 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
  */
 class SampleDataSetBrowser extends AbstractExternalDataGrid
 {
-    static IDisposableComponent create(IViewContext<?> viewContext, String sampleIdentifier)
+    static IDisposableComponent create(IViewContext<?> viewContext, TechId sampleId)
     {
         IViewContext<ICommonClientServiceAsync> commonViewContext =
                 viewContext.getCommonViewContext();
-        return new SampleDataSetBrowser(commonViewContext, sampleIdentifier)
-                .asDisposableWithoutToolbar();
+        return new SampleDataSetBrowser(commonViewContext, sampleId).asDisposableWithoutToolbar();
     }
 
-    private final String sampleIdentifier;
+    private final TechId sampleId;
 
-    public static final String createBrowserId(String sampleIdentifier)
+    public static final String createBrowserId(TechId sampleId)
     {
-        return GenericSampleViewer.ID_PREFIX + sampleIdentifier + "-SampleDataSetBrowser";
+        return GenericSampleViewer.ID_PREFIX + sampleId + "-SampleDataSetBrowser";
     }
 
-    public static final String createGridId(String sampleIdentifier)
+    public static final String createGridId(TechId sampleId)
     {
-        return createBrowserId(sampleIdentifier) + "-grid";
+        return createBrowserId(sampleId) + "-grid";
     }
 
     private SampleDataSetBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
-            String sampleIdentifier)
+            TechId sampleId)
     {
-        super(viewContext, createBrowserId(sampleIdentifier), createGridId(sampleIdentifier), true);
-        this.sampleIdentifier = sampleIdentifier;
+        super(viewContext, createBrowserId(sampleId), createGridId(sampleId), true);
+        this.sampleId = sampleId;
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
         setEntityKindForDisplayTypeIDGeneration(EntityKind.DATA_SET);
     }
@@ -65,7 +65,7 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
     protected void listEntities(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
             AbstractAsyncCallback<ResultSet<ExternalData>> callback)
     {
-        viewContext.getService().listSampleDataSets(sampleIdentifier, getBaseIndexURL(),
-                resultSetConfig, callback);
+        viewContext.getService().listSampleDataSets(sampleId, getBaseIndexURL(), resultSetConfig,
+                callback);
     }
 }

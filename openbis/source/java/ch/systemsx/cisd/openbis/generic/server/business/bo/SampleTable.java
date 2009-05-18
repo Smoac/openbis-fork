@@ -25,6 +25,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
@@ -33,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -74,7 +74,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
 
     public final void loadSamplesByCriteria(final ListSampleCriteriaDTO criteria)
     {
-        final SampleIdentifier containerIdentifier = criteria.getContainerIdentifier();
+        final TechId containerSampleId = criteria.getContainerSampleId();
         final ExperimentIdentifier experimentIdentifier = criteria.getExperimentIdentifier();
         if (experimentIdentifier != null)
         {
@@ -87,9 +87,9 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
                             experimentIdentifier.getExperimentCode());
             samples = getSampleDAO().listSamplesWithPropertiesByExperiment(experiment);
             enrichWithHierarchy();
-        } else if (containerIdentifier != null)
+        } else if (containerSampleId != null)
         {
-            final SamplePE container = getSampleByIdentifier(containerIdentifier);
+            final SamplePE container = getSampleByTechId(containerSampleId);
             samples = getSampleDAO().listSamplesWithPropertiesByContainer(container);
         } else
         {

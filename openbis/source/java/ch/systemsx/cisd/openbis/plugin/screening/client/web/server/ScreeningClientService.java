@@ -31,11 +31,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.AttachmentRegistration
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
@@ -79,16 +78,15 @@ public final class ScreeningClientService extends AbstractClientService implemen
     // IScreeningClientService
     //
 
-    public final SampleGeneration getSampleInfo(final String sampleIdentifier)
-            throws UserFailureException
+    public final SampleGeneration getSampleGenerationInfo(final TechId sampleId)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
-            final SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
-            final SampleGenerationDTO sampleGeneration =
-                    screeningServer.getSampleInfo(sessionToken, identifier);
-            return SampleTranslator.translate(sampleGeneration);
+            final SampleGenerationDTO sampleGenerationDTO =
+                    screeningServer.getSampleInfo(sessionToken, sampleId);
+            return SampleTranslator.translate(sampleGenerationDTO);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

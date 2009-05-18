@@ -70,7 +70,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -453,9 +452,9 @@ public final class CommonServerTest extends AbstractServerTestCase
     }
 
     @Test
-    public final void testListExternalData()
+    public final void testListSampleExternalData()
     {
-        final SampleIdentifier sampleIdentifier = CommonTestUtils.createSampleIdentifier();
+        final TechId sampleId = CommonTestUtils.TECH_ID;
         final ExternalDataPE externalDataPE = new ExternalDataPE();
         prepareGetSession();
         context.checking(new Expectations()
@@ -464,15 +463,14 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(commonBusinessObjectFactory).createExternalDataTable(SESSION);
                     will(returnValue(externalDataTable));
 
-                    one(externalDataTable).loadBySampleIdentifier(sampleIdentifier);
+                    one(externalDataTable).loadBySampleTechId(sampleId);
 
                     one(externalDataTable).getExternalData();
                     will(returnValue(Arrays.asList(externalDataPE)));
                 }
             });
 
-        List<ExternalDataPE> list =
-                createServer().listExternalData(SESSION_TOKEN, sampleIdentifier);
+        List<ExternalDataPE> list = createServer().listSampleExternalData(SESSION_TOKEN, sampleId);
 
         assertEquals(1, list.size());
         assertSame(externalDataPE, list.get(0));
@@ -1165,7 +1163,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public void testChangeUserHomeGroup()
     {
-        final TechId groupId = new TechId(1L);
+        final TechId groupId = CommonTestUtils.TECH_ID;
         final GroupPE group = new GroupPE();
         group.setId(groupId.getId());
         final PersonPE person = new PersonPE();
@@ -1194,7 +1192,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public void testChangeUserHomeGroupToNull()
     {
-        final TechId groupId = new TechId(1L);
+        final TechId groupId = CommonTestUtils.TECH_ID;
         final GroupPE group = new GroupPE();
         group.setId(groupId.getId());
         final PersonPE person = new PersonPE();

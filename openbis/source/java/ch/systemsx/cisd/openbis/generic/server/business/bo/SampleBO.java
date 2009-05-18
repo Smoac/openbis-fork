@@ -86,6 +86,13 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         sample = tryToGetSampleByIdentifier(identifier);
     }
 
+    public void tryToLoadBySampleTechId(final TechId sampleId)
+    {
+        assert sampleId != null : "Unspecified id.";
+
+        sample = tryToGetSampleByTechId(sampleId);
+    }
+
     public final SamplePE getSample() throws IllegalStateException
     {
         if (sample == null)
@@ -95,16 +102,9 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         return sample;
     }
 
-    private static final String PROPERTY_TYPES = "sampleType.sampleTypePropertyTypesInternal";
-
-    private static final String VOCABULARY_TERMS =
-            PROPERTY_TYPES + ".propertyTypeInternal.vocabulary.vocabularyTerms";
-
     public void loadDataByTechId(TechId sampleId)
     {
-        String[] connections =
-            { PROPERTY_TYPES, VOCABULARY_TERMS };
-        sample = getSampleDAO().tryGetByTechId(sampleId, connections);
+        tryToLoadBySampleTechId(sampleId);
         if (sampleId == null)
         {
             throw new UserFailureException(String.format("Sample with ID '%s' does not exist.",

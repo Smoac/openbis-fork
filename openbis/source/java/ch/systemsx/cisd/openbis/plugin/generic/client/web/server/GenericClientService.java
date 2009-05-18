@@ -118,28 +118,6 @@ public final class GenericClientService extends AbstractClientService implements
     // IGenericClientService
     //
 
-    public final SampleGeneration getSampleGenerationInfo(final String sampleIdentifier)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
-            final SampleGenerationDTO sampleGenerationDTO =
-                    genericServer.getSampleInfo(sessionToken, identifier);
-            return SampleTranslator.translate(sampleGenerationDTO);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-    }
-
-    public final Sample getSampleInfo(final String sampleIdentifier)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        return getSampleGenerationInfo(sampleIdentifier).getGenerator();
-    }
-
     public final SampleGeneration getSampleGenerationInfo(final TechId sampleId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {

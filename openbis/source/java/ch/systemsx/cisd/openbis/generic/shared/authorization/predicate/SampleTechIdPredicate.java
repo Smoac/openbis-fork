@@ -35,12 +35,12 @@ public class SampleTechIdPredicate extends AbstractDatabaseInstancePredicate<Tec
 
     private final SampleOwnerIdentifierPredicate sampleOwnerIdentifierPredicate;
 
-    SampleTechIdPredicate()
+    public SampleTechIdPredicate()
     {
         this(true);
     }
 
-    SampleTechIdPredicate(boolean isReadAccess)
+    public SampleTechIdPredicate(boolean isReadAccess)
     {
         sampleOwnerIdentifierPredicate = new SampleOwnerIdentifierPredicate(isReadAccess);
     }

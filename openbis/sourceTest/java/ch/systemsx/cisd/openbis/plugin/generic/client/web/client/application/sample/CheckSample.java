@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTab
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IPropertyChecker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAssertion;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.PropertyCheckingManager;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.SampleGenerationInfoCallback;
 
 /**
@@ -34,8 +35,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sam
 public class CheckSample extends AbstractDefaultTestCommand implements
         IPropertyChecker<CheckSample>
 {
-
-    private final String identifier;
+    private final TechId sampleId;
 
     private final PropertyCheckingManager propertyCheckingManager;
 
@@ -43,13 +43,18 @@ public class CheckSample extends AbstractDefaultTestCommand implements
 
     private CheckTableCommand dataTableCheck;
 
-    public CheckSample(String identifierPrefix, String code)
+    public CheckSample()
     {
-        this.identifier = identifierPrefix + "/" + code;
+        this(TechId.createWildcardTechId());
+    }
+
+    private CheckSample(final TechId sampleId)
+    {
+        this.sampleId = sampleId;
         propertyCheckingManager = new PropertyCheckingManager();
         addCallbackClass(SampleGenerationInfoCallback.class);
         addCallbackClass(GenericSampleViewer.ListSamplesCallback.class);
-        addCallbackClass(SampleDataSetBrowser.createGridId(identifier));
+        addCallbackClass(SampleDataSetBrowser.createGridId(sampleId));
         addCallbackClass(ListPropertyTypesCallback.class);
     }
 
@@ -67,21 +72,20 @@ public class CheckSample extends AbstractDefaultTestCommand implements
     public CheckTableCommand componentsTable()
     {
         componentsTableCheck =
-                CheckTableCommand
-                        .createWithoutCallback(ID_PREFIX + identifier + COMPONENTS_POSTFIX);
+                CheckTableCommand.createWithoutCallback(ID_PREFIX + sampleId + COMPONENTS_POSTFIX);
         return componentsTableCheck;
     }
 
     public CheckTableCommand dataTable()
     {
-        String gridId = SampleDataSetBrowser.createGridId(identifier);
+        String gridId = SampleDataSetBrowser.createGridId(sampleId);
         dataTableCheck = CheckTableCommand.createWithoutCallback(gridId);
         return dataTableCheck;
     }
 
     public void execute()
     {
-        propertyCheckingManager.assertPropertiesOf(PROPERTIES_ID_PREFIX + identifier);
+        propertyCheckingManager.assertPropertiesOf(PROPERTIES_ID_PREFIX + sampleId);
         if (componentsTableCheck != null)
         {
             componentsTableCheck.execute();

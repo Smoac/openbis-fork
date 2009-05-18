@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -37,14 +38,16 @@ public interface ISampleBO extends IEntityBusinessObject
 {
 
     /**
-     * Loads a sample given by its identifier.
+     * Loads a sample given by its identifier. Use {@link #loadDataByTechId(TechId)} instead if
+     * possible.
      * 
      * @throws UserFailureException if no sample found.
      */
     void loadBySampleIdentifier(final SampleIdentifier identifier) throws UserFailureException;
 
     /**
-     * Tries to load the sample with specified identifier.
+     * Tries to load the sample with specified identifier. Use {@link #loadDataByTechId(TechId)}
+     * instead if possible.
      */
     void tryToLoadBySampleIdentifier(SampleIdentifier identifier);
 

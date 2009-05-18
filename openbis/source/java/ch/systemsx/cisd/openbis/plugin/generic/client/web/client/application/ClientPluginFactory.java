@@ -142,20 +142,19 @@ public final class ClientPluginFactory extends
 
         public ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
         {
-            final String identifier = identifiable.getIdentifier();
             return new ITabItemFactory()
                 {
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent sampleViewer =
-                                GenericSampleViewer.create(getViewContext(), identifier);
+                                GenericSampleViewer.create(getViewContext(), identifiable);
                         return DefaultTabItem.create(getViewerTitle(Dict.SAMPLE, identifiable),
                                 sampleViewer, getViewContext(), false);
                     }
 
                     public String getId()
                     {
-                        return GenericSampleViewer.createId(identifier);
+                        return GenericSampleViewer.createId(identifiable);
                     }
                 };
         }

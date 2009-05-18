@@ -197,7 +197,7 @@ public final class GenericServerTest extends AbstractServerTestCase
     public void testGetExperimentFileAttachment() throws Exception
     {
         prepareGetSession();
-        final TechId experimentId = CommonTestUtils.DUMMY_TECH_ID;
+        final TechId experimentId = CommonTestUtils.TECH_ID;
         final AttachmentPE attachmentPE = CommonTestUtils.createAttachment();
         context.checking(new Expectations()
             {
@@ -425,7 +425,7 @@ public final class GenericServerTest extends AbstractServerTestCase
     @Test
     public void testEditMaterialNothingChanged() throws Exception
     {
-        final TechId materialId = CommonTestUtils.DUMMY_TECH_ID;
+        final TechId materialId = CommonTestUtils.TECH_ID;
         final List<MaterialProperty> properties = new ArrayList<MaterialProperty>();
         prepareGetSession();
         final Date version = new Date(1);

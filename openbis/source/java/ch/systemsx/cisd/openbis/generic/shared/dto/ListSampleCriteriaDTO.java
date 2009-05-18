@@ -21,8 +21,8 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
@@ -40,7 +40,7 @@ public class ListSampleCriteriaDTO extends AbstractHashable implements Serializa
     // list samples of particular type
     private SampleTypePE sampleType;
 
-    private SampleIdentifier containerIdentifier;
+    private TechId containerSampleId;
 
     private ExperimentIdentifier experimentIdentifier;
 
@@ -48,11 +48,10 @@ public class ListSampleCriteriaDTO extends AbstractHashable implements Serializa
     {
     }
 
-    public final static ListSampleCriteriaDTO createContainerIdentifier(
-            final SampleIdentifier container)
+    public final static ListSampleCriteriaDTO createContainerSampleId(final TechId containerSampleId)
     {
         ListSampleCriteriaDTO result = new ListSampleCriteriaDTO();
-        result.containerIdentifier = container;
+        result.containerSampleId = containerSampleId;
         return result;
     }
 
@@ -73,9 +72,9 @@ public class ListSampleCriteriaDTO extends AbstractHashable implements Serializa
         return result;
     }
 
-    public final SampleIdentifier getContainerIdentifier()
+    public final TechId getContainerSampleId()
     {
-        return containerIdentifier;
+        return containerSampleId;
     }
 
     public List<SampleOwnerIdentifier> getOwnerIdentifiers()

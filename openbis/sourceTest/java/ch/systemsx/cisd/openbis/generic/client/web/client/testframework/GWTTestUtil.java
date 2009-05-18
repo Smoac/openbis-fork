@@ -190,7 +190,8 @@ public final class GWTTestUtil
     {
         final Widget widget = GWTTestUtil.getWidgetWithID(id);
         assertWidgetFound("Grid", id, widget);
-        Assert.assertTrue("Widget '" + id + "' isn't a Grid: " + widget.getClass(), widget instanceof Grid);
+        Assert.assertTrue("Widget '" + id + "' isn't a Grid: " + widget.getClass(),
+                widget instanceof Grid);
         return (Grid<ModelData>) widget;
     }
 
@@ -260,8 +261,10 @@ public final class GWTTestUtil
     }
 
     /**
-     * Tries to find the widget with specified id.
+     * Tries to find the widget with id that matches given <var>id</var>.
      * 
+     * @param id a regular expression of an id (usually exactly an id string but it may contain some
+     *            regular expression wildcards inside)
      * @return <code>null</code> if not found.
      */
     public static Widget tryToFindByID(final String id)

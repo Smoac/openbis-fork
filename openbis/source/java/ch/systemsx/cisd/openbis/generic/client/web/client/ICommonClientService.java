@@ -312,9 +312,9 @@ public interface ICommonClientService extends IClientService
     public void removeResultSet(final String resultSetKey) throws UserFailureException;
 
     /**
-     * For given <var>sampleIdentifier</var> returns corresponding list of {@link ExternalData}.
+     * For given <var>sampleId</var> returns corresponding list of {@link ExternalData}.
      */
-    public ResultSet<ExternalData> listSampleDataSets(final String sampleIdentifier,
+    public ResultSet<ExternalData> listSampleDataSets(final TechId sampleId,
             final String baseIndexURL, DefaultResultSetConfig<String, ExternalData> criteria)
             throws UserFailureException;
 

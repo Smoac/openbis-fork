@@ -100,7 +100,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -352,13 +351,13 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return samples;
     }
 
-    public final List<ExternalDataPE> listExternalData(final String sessionToken,
-            final SampleIdentifier identifier)
+    public final List<ExternalDataPE> listSampleExternalData(final String sessionToken,
+            final TechId sampleId)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
-        externalDataTable.loadBySampleIdentifier(identifier);
+        externalDataTable.loadBySampleTechId(sampleId);
         return getSortedExternalDataFrom(externalDataTable);
     }
 

@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.HibernateTransformer;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -41,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -132,10 +132,18 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         }
     }
 
-    public final void loadBySampleIdentifier(final SampleIdentifier sampleIdentifier)
+    // public final void loadBySampleIdentifier(final SampleIdentifier sampleIdentifier)
+    // {
+    // assert sampleIdentifier != null : "Unspecified sample identifier";
+    // final SamplePE sample = getSampleByIdentifier(sampleIdentifier);
+    // externalData = new ArrayList<ExternalDataPE>();
+    // externalData.addAll(getExternalDataDAO().listExternalData(sample));
+    // }
+
+    public final void loadBySampleTechId(final TechId sampleId)
     {
-        assert sampleIdentifier != null : "Unspecified sample identifier";
-        final SamplePE sample = getSampleByIdentifier(sampleIdentifier);
+        assert sampleId != null : "Unspecified sample identifier";
+        final SamplePE sample = getSampleDAO().getByTechId(sampleId);
         externalData = new ArrayList<ExternalDataPE>();
         externalData.addAll(getExternalDataDAO().listExternalData(sample));
     }
@@ -210,7 +218,8 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         StringBuilder builder = new StringBuilder();
         if (dataSetsWithUnknownDSS.isEmpty() == false)
         {
-            builder.append("The following data sets couldn't been uploaded because of unkown data store:");
+            builder
+                    .append("The following data sets couldn't been uploaded because of unkown data store:");
             for (ExternalDataPE externalDataPE : dataSetsWithUnknownDSS)
             {
                 builder.append(' ').append(externalDataPE.getCode());
@@ -301,7 +310,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         String remoteURL = dataStore.getRemoteUrl();
         if (StringUtils.isBlank(remoteURL))
         {
-            // Assuming dummy data store "knows" all locations  
+            // Assuming dummy data store "knows" all locations
             return locations;
         }
         IDataStoreService service = dssFactory.create(remoteURL);

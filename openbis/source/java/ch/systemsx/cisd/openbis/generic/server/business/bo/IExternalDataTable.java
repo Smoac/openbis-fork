@@ -18,10 +18,10 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * A <i>Business Object</i> to load a list of {@link ExternalDataPE}.
@@ -31,36 +31,36 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 public interface IExternalDataTable
 {
     /**
-     * Loads data sets specified by their codes. Data set codes will be ignored if no 
+     * Loads data sets specified by their codes. Data set codes will be ignored if no
      * {@link ExternalDataPE} could be found.
      */
     void loadByDataSetCodes(List<String> dataSetCodes);
-    
+
     /**
-     * Loads the internal {@link ExternalDataPE} for given <var>identifier</var>.
+     * Loads the internal {@link ExternalDataPE} for given <var>sampleId</var>.
      */
-    void loadBySampleIdentifier(final SampleIdentifier sampleIdentifier);
+    void loadBySampleTechId(final TechId sampleId);
 
     /**
      * Loads data sets which are linked to the specified experiment.
      */
     void loadByExperimentIdentifier(ExperimentIdentifier identifier);
-    
+
     /**
      * Returns the loaded {@link ExternalDataPE}.
      */
     List<ExternalDataPE> getExternalData();
-    
+
     /**
      * Sets the specified external data as they were loaded.
      */
     void setExternalData(List<ExternalDataPE> externalData);
-    
+
     /**
      * Deletes loaded data sets for specified reason.
      */
     void deleteLoadedDataSets(String reason);
-    
+
     /**
      * Uploads loaded data sets to CIFEX server as specified in the upload context.
      * 
