@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -55,6 +56,8 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
     private final Button editButton;
 
     private final LabelToolItem titleLabel;
+
+    private IEntityInformationHolder originalData;
 
     public AbstractViewer(final IViewContext<T> viewContext, String id)
     {
@@ -93,10 +96,13 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
         return GWTUtils.getBaseIndexURL();
     }
 
-    abstract protected void showEntityEditor();
+    protected void showEntityEditor()
+    {
+        assert originalData != null;
+        showEntityEditor(originalData.getEntityKind(), originalData.getEntityType(), originalData);
+    }
 
-    protected final static <T extends IClientServiceAsync> void showEntityEditor(
-            IViewContext<T> viewContext, EntityKind entityKind, EntityType type,
+    private final void showEntityEditor(EntityKind entityKind, EntityType type,
             IIdentifiable identifiable)
     {
         assert type != null : "entity type is not provided";
@@ -116,4 +122,18 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
         return messageProvider.getMessage(Dict.DETAILS_TITLE, messageProvider
                 .getMessage(entityKindDictKey), identifiable.getCode());
     }
+
+    /** Updates data displayed in the browser (needed to open editor view). */
+    protected void updateOriginalData(IEntityInformationHolder newData)
+    {
+        this.originalData = newData;
+        updateTitle();
+    }
+
+    private void updateTitle()
+    {
+        updateTitle(originalData.getEntityKind().getDescription() + " "
+                + originalData.getIdentifier());
+    }
+
 }

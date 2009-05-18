@@ -31,7 +31,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -48,8 +47,6 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
     private final String experimentIdentifier;
 
     private final CompositeDatabaseModificationObserver modificationObserver;
-
-    private Experiment originalExperiment;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> viewContext,
@@ -141,7 +138,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
         @Override
         protected final void process(final Experiment result)
         {
-            genericExperimentViewer.setOriginalExperiment(result);
+            genericExperimentViewer.updateOriginalData(result);
             genericExperimentViewer.removeAll();
             genericExperimentViewer.setScrollMode(Scroll.AUTO);
 
@@ -167,19 +164,6 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
 
             genericExperimentViewer.layout();
         }
-    }
-
-    void setOriginalExperiment(Experiment result)
-    {
-        this.originalExperiment = result;
-    }
-
-    @Override
-    protected void showEntityEditor()
-    {
-        assert originalExperiment != null;
-        showEntityEditor(viewContext, EntityKind.EXPERIMENT,
-                originalExperiment.getExperimentType(), originalExperiment);
     }
 
 }

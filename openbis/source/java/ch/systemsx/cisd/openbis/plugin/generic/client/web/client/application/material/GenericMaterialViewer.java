@@ -25,7 +25,6 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
@@ -34,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
@@ -51,8 +49,6 @@ public final class GenericMaterialViewer extends AbstractViewer<IGenericClientSe
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
     private final TechId materialId;
-
-    private Material originalMaterial;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> viewContext, final TechId materialId)
@@ -112,7 +108,7 @@ public final class GenericMaterialViewer extends AbstractViewer<IGenericClientSe
         @Override
         protected final void process(final Material result)
         {
-            genericMaterialViewer.updateOriginalMaterial(result);
+            genericMaterialViewer.updateOriginalData(result);
             genericMaterialViewer.removeAll();
             genericMaterialViewer.setScrollMode(Scroll.AUTO);
             addSection(genericMaterialViewer, new MaterialPropertiesSection(result, viewContext));
@@ -132,25 +128,6 @@ public final class GenericMaterialViewer extends AbstractViewer<IGenericClientSe
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         reloadData(); // reloads everything
-    }
-
-    private void updateOriginalMaterial(Material result)
-    {
-        this.originalMaterial = result;
-        updateTitle();
-    }
-
-    private void updateTitle()
-    {
-        updateTitle(viewContext.getMessage(Dict.MATERIAL) + " " + originalMaterial.getIdentifier());
-    }
-
-    @Override
-    protected void showEntityEditor()
-    {
-        assert originalMaterial != null;
-        showEntityEditor(viewContext, EntityKind.MATERIAL, originalMaterial.getMaterialType(),
-                originalMaterial);
     }
 
 }

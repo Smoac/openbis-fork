@@ -22,10 +22,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 
@@ -41,8 +39,6 @@ public final class ScreeningSampleViewer extends AbstractViewer<IScreeningClient
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
     private final TechId sampleId;
-
-    private Sample originalSample;
 
     public ScreeningSampleViewer(final IViewContext<IScreeningClientServiceAsync> viewContext,
             final TechId sampleId)
@@ -99,23 +95,11 @@ public final class ScreeningSampleViewer extends AbstractViewer<IScreeningClient
         @Override
         protected final void process(final SampleGeneration result)
         {
-            setOriginalSample(result.getGenerator());
+            screeningSampleViewer.updateOriginalData(result.getGenerator());
             screeningSampleViewer.removeAll();
             screeningSampleViewer.add(screeningSampleViewer.createUI(result));
             screeningSampleViewer.layout();
         }
     }
 
-    void setOriginalSample(Sample result)
-    {
-        this.originalSample = result;
-    }
-
-    @Override
-    protected void showEntityEditor()
-    {
-        assert originalSample != null;
-        showEntityEditor(viewContext, EntityKind.SAMPLE, originalSample.getSampleType(),
-                originalSample);
-    }
 }

@@ -44,6 +44,7 @@ public final class ProjectViewer extends AbstractViewer<ICommonClientServiceAsyn
 
     private final TechId projectId;
 
+    // cannot use 'originalData' because Project does not implement IEntityInformationHolder
     private Project originalProject;
 
     private final CompositeDatabaseModificationObserver modificationObserver;

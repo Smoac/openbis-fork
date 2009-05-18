@@ -112,8 +112,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
     private AttachmentsSection<Sample> attachmentsPanel;
 
-    private Sample originalSample;
-
     public static DatabaseModificationAwareComponent create(
             IViewContext<IGenericClientServiceAsync> viewContext, final IIdentifiable identifiable)
     {
@@ -485,7 +483,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         @Override
         protected final void process(final SampleGeneration result)
         {
-            genericSampleViewer.setOriginalSample(result.getGenerator());
+            genericSampleViewer.updateOriginalData(result.getGenerator());
             genericSampleViewer.removeAll();
             genericSampleViewer.setLayout(new BorderLayout());
             // Left panel
@@ -592,16 +590,4 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         }
     }
 
-    void setOriginalSample(Sample result)
-    {
-        this.originalSample = result;
-    }
-
-    @Override
-    protected void showEntityEditor()
-    {
-        assert originalSample != null;
-        showEntityEditor(viewContext, EntityKind.SAMPLE, originalSample.getSampleType(),
-                originalSample);
-    }
 }
