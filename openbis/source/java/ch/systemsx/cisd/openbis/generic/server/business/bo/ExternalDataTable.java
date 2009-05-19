@@ -38,10 +38,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -132,31 +130,19 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         }
     }
 
-    // public final void loadBySampleIdentifier(final SampleIdentifier sampleIdentifier)
-    // {
-    // assert sampleIdentifier != null : "Unspecified sample identifier";
-    // final SamplePE sample = getSampleByIdentifier(sampleIdentifier);
-    // externalData = new ArrayList<ExternalDataPE>();
-    // externalData.addAll(getExternalDataDAO().listExternalData(sample));
-    // }
-
     public final void loadBySampleTechId(final TechId sampleId)
     {
-        assert sampleId != null : "Unspecified sample identifier";
+        assert sampleId != null : "Unspecified sample id";
         final SamplePE sample = getSampleDAO().getByTechId(sampleId);
         externalData = new ArrayList<ExternalDataPE>();
         externalData.addAll(getExternalDataDAO().listExternalData(sample));
     }
 
-    public void loadByExperimentIdentifier(ExperimentIdentifier identifier)
+    public void loadByExperimentTechId(final TechId experimentId)
     {
-        assert identifier != null : "Unspecified experiment identifier";
+        assert experimentId != null : "Unspecified experiment id";
 
-        ProjectPE project =
-                getProjectDAO().tryFindProject(identifier.getDatabaseInstanceCode(),
-                        identifier.getGroupCode(), identifier.getProjectCode());
-        ExperimentPE experiment =
-                getExperimentDAO().tryFindByCodeAndProject(project, identifier.getExperimentCode());
+        ExperimentPE experiment = getExperimentDAO().getByTechId(experimentId);
         externalData = new ArrayList<ExternalDataPE>();
         externalData.addAll(getExternalDataDAO().listExternalData(experiment));
     }

@@ -29,11 +29,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -75,20 +73,16 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
     public final void loadSamplesByCriteria(final ListSampleCriteriaDTO criteria)
     {
         final TechId containerSampleId = criteria.getContainerSampleId();
-        final ExperimentIdentifier experimentIdentifier = criteria.getExperimentIdentifier();
-        if (experimentIdentifier != null)
+        final TechId experimentId = criteria.getExperimentId();
+        if (experimentId != null)
         {
-            ProjectPE project =
-                    getProjectDAO().tryFindProject(experimentIdentifier.getDatabaseInstanceCode(),
-                            experimentIdentifier.getGroupCode(),
-                            experimentIdentifier.getProjectCode());
-            ExperimentPE experiment =
-                    getExperimentDAO().tryFindByCodeAndProject(project,
-                            experimentIdentifier.getExperimentCode());
+            // TODO 2009-05-19, Piotr Buczek: this could be done by one DAO method call with one SQL question
+            ExperimentPE experiment = getExperimentDAO().getByTechId(experimentId);
             samples = getSampleDAO().listSamplesWithPropertiesByExperiment(experiment);
             enrichWithHierarchy();
         } else if (containerSampleId != null)
         {
+            // TODO 2009-05-19, Piotr Buczek: this could be done by one DAO method call with one SQL question
             final SamplePE container = getSampleByTechId(containerSampleId);
             samples = getSampleDAO().listSamplesWithPropertiesByContainer(container);
         } else

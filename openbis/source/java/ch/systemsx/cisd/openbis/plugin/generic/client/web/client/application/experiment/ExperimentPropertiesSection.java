@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -50,6 +51,8 @@ public class ExperimentPropertiesSection extends SectionPanel
     public static final String PROPERTIES_ID_PREFIX =
             GenericConstants.ID_PREFIX + "experiment-properties-section_";
 
+    private final TechId experimentId;
+
     private Experiment experiment;
 
     private PropertyGrid grid;
@@ -60,6 +63,7 @@ public class ExperimentPropertiesSection extends SectionPanel
             final IViewContext<IGenericClientServiceAsync> viewContext)
     {
         super("Experiment Properties");
+        this.experimentId = new TechId(experiment);
         this.experiment = experiment;
         this.viewContext = viewContext;
         this.grid = createPropertyGrid();
@@ -71,7 +75,7 @@ public class ExperimentPropertiesSection extends SectionPanel
         IMessageProvider messageProvider = viewContext;
         final Map<String, Object> properties = createProperties(messageProvider);
         final PropertyGrid propertyGrid = new PropertyGrid(messageProvider, properties.size());
-        propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + experiment.getIdentifier());
+        propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + experimentId);
         propertyGrid.registerPropertyValueRenderer(Person.class, PropertyValueRenderers
                 .createPersonPropertyValueRenderer(messageProvider));
         propertyGrid.registerPropertyValueRenderer(ExperimentType.class, PropertyValueRenderers
@@ -134,7 +138,7 @@ public class ExperimentPropertiesSection extends SectionPanel
 
     private void reloadData()
     {
-        viewContext.getService().getExperimentInfo(experiment.getIdentifier(),
+        viewContext.getService().getExperimentInfo(experimentId,
                 new ExperimentInfoCallback(viewContext, this));
     }
 

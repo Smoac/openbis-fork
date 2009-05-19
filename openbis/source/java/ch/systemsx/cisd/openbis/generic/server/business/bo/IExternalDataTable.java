@@ -21,7 +21,6 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
  * A <i>Business Object</i> to load a list of {@link ExternalDataPE}.
@@ -37,14 +36,14 @@ public interface IExternalDataTable
     void loadByDataSetCodes(List<String> dataSetCodes);
 
     /**
-     * Loads the internal {@link ExternalDataPE} for given <var>sampleId</var>.
+     * Loads data sets which are linked to the sample with given <var>sampleId</var>.
      */
     void loadBySampleTechId(final TechId sampleId);
 
     /**
-     * Loads data sets which are linked to the specified experiment.
+     * Loads data sets which are linked to the experiment with given <var>experimentId</var>.
      */
-    void loadByExperimentIdentifier(ExperimentIdentifier identifier);
+    void loadByExperimentTechId(final TechId experimentId);
 
     /**
      * Returns the loaded {@link ExternalDataPE}.

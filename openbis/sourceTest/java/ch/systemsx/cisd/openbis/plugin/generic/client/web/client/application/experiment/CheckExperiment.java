@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTab
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IPropertyChecker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAssertion;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.PropertyCheckingManager;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer.ExperimentInfoCallback;
 
 /**
@@ -32,7 +33,7 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
         IPropertyChecker<CheckExperiment>
 {
 
-    private final String identifier;
+    private final TechId experimentId;
 
     private final PropertyCheckingManager propertyCheckingManager;
 
@@ -40,13 +41,18 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
 
     private CheckTableCommand sampleSection;
 
-    public CheckExperiment(final String identifierPrefix, final String code)
+    public CheckExperiment()
     {
-        this.identifier = identifierPrefix + "/" + code;
+        this(TechId.createWildcardTechId());
+    }
+
+    private CheckExperiment(final TechId experimentId)
+    {
+        this.experimentId = experimentId;
         propertyCheckingManager = new PropertyCheckingManager();
         addCallbackClass(ExperimentInfoCallback.class);
-        addCallbackClass(ExperimentSamplesSection.createGridId(identifier));
-        addCallbackClass(ExperimentDataSetBrowser.createGridId(identifier));
+        addCallbackClass(ExperimentSamplesSection.createGridId(experimentId));
+        addCallbackClass(ExperimentDataSetBrowser.createGridId(experimentId));
         addCallbackClass(ListPropertyTypesCallback.class);
     }
 
@@ -64,7 +70,7 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
     public void execute()
     {
         propertyCheckingManager.assertPropertiesOf(ExperimentPropertiesSection.PROPERTIES_ID_PREFIX
-                + identifier);
+                + experimentId);
 
         if (sampleSection != null)
         {
@@ -75,20 +81,20 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
     public CheckTableCommand attachmentsTable()
     {
         attachmentsSection =
-                new CheckTableCommand(AttachmentsSection.ATTACHMENTS_ID_PREFIX + identifier);
+                new CheckTableCommand(AttachmentsSection.ATTACHMENTS_ID_PREFIX + experimentId);
         return attachmentsSection;
     }
 
     public CheckTableCommand sampleTable()
     {
-        sampleSection = new CheckTableCommand(ExperimentSamplesSection.createGridId(identifier));
+        sampleSection = new CheckTableCommand(ExperimentSamplesSection.createGridId(experimentId));
         return sampleSection;
     }
 
     public CheckTableCommand dataSetTable()
     {
         // FIXME this command is never executed!!!
-        return new CheckTableCommand(ExperimentDataSetBrowser.createGridId(identifier));
+        return new CheckTableCommand(ExperimentDataSetBrowser.createGridId(experimentId));
     }
 
 }

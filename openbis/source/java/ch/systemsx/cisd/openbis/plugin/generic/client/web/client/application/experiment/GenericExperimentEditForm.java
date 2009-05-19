@@ -55,7 +55,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
     private void loadSamplesInBackground()
     {
         final ListSampleCriteria sampleCriteria =
-                ListSampleCriteria.createForExperiment(identifiableOrNull.getIdentifier());
+                ListSampleCriteria.createForExperiment(techIdOrNull);
         viewContext.getCommonService().listSamples(sampleCriteria,
                 new ListSamplesCallback(viewContext));
     }

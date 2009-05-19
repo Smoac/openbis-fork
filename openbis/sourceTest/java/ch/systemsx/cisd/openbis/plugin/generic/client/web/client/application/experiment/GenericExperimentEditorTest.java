@@ -99,7 +99,7 @@ public class GenericExperimentEditorTest extends AbstractGWTTestCase
         loginAndInvokeAction(ActionMenuKind.EXPERIMENT_MENU_BROWSE);
         remoteConsole.prepare(new ListExperiments(withGroup(group, project), experimentTypeName));
         remoteConsole.prepare(new ShowExperiment(code));
-        remoteConsole.prepare(new ShowExperimentEditor(identifier(group, project, code)));
+        remoteConsole.prepare(new ShowExperimentEditor());
     }
 
 }

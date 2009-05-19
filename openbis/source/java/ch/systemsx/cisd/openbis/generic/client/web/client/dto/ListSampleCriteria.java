@@ -25,11 +25,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * Criteria for listing <i>samples</i>. This class offers 3 kinds of filters, but only one can be
  * used at the same time: <br>
  * filter 1: samples of particular type in a specified group and/or shared <br>
- * filter 2: samples belonging to a container <br>
+ * filter 2: samples belonging to a container sample<br>
  * filter 3: samples from the experiment
  * 
  * @author Izabela Adamczyk
  * @author Tomasz Pylak
+ * @author Piotr Buczek
  */
 public final class ListSampleCriteria extends DefaultResultSetConfig<String, Sample> implements
         IsSerializable
@@ -49,7 +50,7 @@ public final class ListSampleCriteria extends DefaultResultSetConfig<String, Sam
     private TechId containerSampleId;
 
     // --------- filter 3 fields
-    private String experimentIdentifier; // TODO 2009-05-18, Piotr Buczek: techId
+    private TechId experimentId;
 
     // ----
 
@@ -60,10 +61,10 @@ public final class ListSampleCriteria extends DefaultResultSetConfig<String, Sam
         return criteria;
     }
 
-    public static ListSampleCriteria createForExperiment(String experimentIdentifier)
+    public static ListSampleCriteria createForExperiment(final TechId experimentId)
     {
         final ListSampleCriteria criteria = new ListSampleCriteria();
-        criteria.setExperimentIdentifier(experimentIdentifier);
+        criteria.setExperimentId(experimentId);
         return criteria;
     }
 
@@ -127,13 +128,13 @@ public final class ListSampleCriteria extends DefaultResultSetConfig<String, Sam
         this.excludeWithoutExperiment = excludeWithoutExperiment;
     }
 
-    public String getExperimentIdentifier()
+    public TechId getExperimentId()
     {
-        return experimentIdentifier;
+        return experimentId;
     }
 
-    private void setExperimentIdentifier(final String experimentIdentifier)
+    private void setExperimentId(final TechId experimentId)
     {
-        this.experimentIdentifier = experimentIdentifier;
+        this.experimentId = experimentId;
     }
 }

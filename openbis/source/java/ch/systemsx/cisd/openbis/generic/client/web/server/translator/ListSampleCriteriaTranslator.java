@@ -25,8 +25,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
@@ -45,12 +43,10 @@ public final class ListSampleCriteriaTranslator
     public final static ListSampleCriteriaDTO translate(final ListSampleCriteria listCriteria)
     {
         final TechId containerSampleId = listCriteria.getContainerSampleId();
-        final String experimentIdentifier = listCriteria.getExperimentIdentifier();
-        if (experimentIdentifier != null)
+        final TechId experimentId = listCriteria.getExperimentId();
+        if (experimentId != null)
         {
-            ExperimentIdentifier expIdent =
-                    new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
-            return ListSampleCriteriaDTO.createExperimentIdentifier(expIdent);
+            return ListSampleCriteriaDTO.createExperimentId(experimentId);
         } else if (containerSampleId != null)
         {
             return ListSampleCriteriaDTO.createContainerSampleId(containerSampleId);

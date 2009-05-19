@@ -56,8 +56,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 
 /**
@@ -313,6 +311,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     @Test
     public void testListExternalDataForExperiment()
     {
+        final TechId experimentId = CommonTestUtils.TECH_ID;
         final ExternalDataPE externalDataPE = new ExternalDataPE();
         externalDataPE.setDataStore(new DataStorePE());
         FileFormatTypePE fileFormatTypePE = new FileFormatTypePE();
@@ -327,16 +326,13 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                     will(returnValue(new CachedResultSetManager<String>(
                             new TokenBasedResultSetKeyGenerator())));
 
-                    one(commonServer).listExternalData(
-                            SESSION_TOKEN,
-                            new ExperimentIdentifier(
-                                    new ProjectIdentifier("db", "group", "project"), "exp"));
+                    one(commonServer).listExperimentExternalData(SESSION_TOKEN, experimentId);
                     will(returnValue(Collections.singletonList(externalDataPE)));
                 }
             });
 
         ResultSet<ExternalData> resultSet =
-                commonClientService.listExperimentDataSets("db:/group/project/exp", BASE_INDEX_URL,
+                commonClientService.listExperimentDataSets(experimentId, BASE_INDEX_URL,
                         new DefaultResultSetConfig<String, ExternalData>());
         List<ExternalData> list = resultSet.getList();
         assertEquals(1, list.size());

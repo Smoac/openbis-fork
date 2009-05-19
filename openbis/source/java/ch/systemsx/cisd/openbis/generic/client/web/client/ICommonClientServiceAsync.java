@@ -269,9 +269,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<ResultSet<ExternalData>> asyncCallback);
 
     /**
-     * @see ICommonClientService#listExperimentDataSets(String, String, DefaultResultSetConfig)
+     * @see ICommonClientService#listExperimentDataSets(TechId, String, DefaultResultSetConfig)
      */
-    public void listExperimentDataSets(String experimentIdentifier, String baseIndexURL,
+    public void listExperimentDataSets(TechId experimentId, String baseIndexURL,
             DefaultResultSetConfig<String, ExternalData> criteria,
             AsyncCallback<ResultSet<ExternalData>> asyncCallback);
 

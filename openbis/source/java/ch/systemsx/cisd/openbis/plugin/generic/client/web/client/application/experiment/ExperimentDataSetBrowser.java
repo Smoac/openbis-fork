@@ -24,9 +24,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
@@ -38,42 +38,40 @@ public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    static IDisposableComponent create(IViewContext<?> viewContext, Experiment experiment)
+    static IDisposableComponent create(IViewContext<?> viewContext, TechId experimentId)
     {
         IViewContext<ICommonClientServiceAsync> commonViewContext =
                 viewContext.getCommonViewContext();
-        String identifier = experiment.getIdentifier();
-        return new ExperimentDataSetBrowser(commonViewContext, identifier)
+        return new ExperimentDataSetBrowser(commonViewContext, experimentId)
                 .asDisposableWithoutToolbar();
     }
 
-    private final String experimentIdentifier;
+    private final TechId experimentId;
 
     private ExperimentDataSetBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
-            String experimentIdentifier)
+            TechId experimentId)
     {
-        super(viewContext, createBrowserId(experimentIdentifier),
-                createGridId(experimentIdentifier), true);
-        this.experimentIdentifier = experimentIdentifier;
+        super(viewContext, createBrowserId(experimentId), createGridId(experimentId), true);
+        this.experimentId = experimentId;
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
         setEntityKindForDisplayTypeIDGeneration(EntityKind.DATA_SET);
     }
 
-    public static String createGridId(String experimentIdentifier)
+    public static String createGridId(TechId experimentId)
     {
-        return createBrowserId(experimentIdentifier) + "-grid";
+        return createBrowserId(experimentId) + "-grid";
     }
 
-    public static String createBrowserId(String experimentIdentifier)
+    public static String createBrowserId(TechId experimentId)
     {
-        return ID_PREFIX + experimentIdentifier;
+        return ID_PREFIX + experimentId;
     }
 
     @Override
     protected void listEntities(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
             AbstractAsyncCallback<ResultSet<ExternalData>> callback)
     {
-        viewContext.getService().listExperimentDataSets(experimentIdentifier, getBaseIndexURL(),
+        viewContext.getService().listExperimentDataSets(experimentId, getBaseIndexURL(),
                 resultSetConfig, callback);
     }
 }

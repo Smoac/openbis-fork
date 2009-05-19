@@ -65,8 +65,6 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
 
     private static final String EXP_REUSE = "EXP-REUSE";
 
-    private static final String CISD_CISD_DEFAULT = "/CISD/DEFAULT";
-
     private static final String EXP_X = "EXP-X";
 
     private static final String A_SIMPLE_EXPERIMENT = "A simple experiment";
@@ -113,7 +111,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
     public final void testShowExperimentDetails()
     {
         prepareShowExperiment(NEMO, SIRNA_HCS, EXP1);
-        final CheckExperiment checkExperiment = new CheckExperiment(CISD_CISD_NEMO, EXP1);
+        final CheckExperiment checkExperiment = new CheckExperiment();
         checkExperiment.property("Experiment").asString(EXP1);
         checkExperiment.property("Experiment Type").asCode(SIRNA_HCS);
         checkExperiment.property("Registrator").asPerson(DOE_JOHN);
@@ -131,7 +129,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
     public final void testShowInvalidExperimentDetails()
     {
         prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_X);
-        final CheckExperiment checkExperiment = new CheckExperiment(CISD_CISD_DEFAULT, EXP_X);
+        final CheckExperiment checkExperiment = new CheckExperiment();
         checkExperiment.property("Experiment").asString(EXP_X);
         checkExperiment.property("Experiment Type").asCode(SIRNA_HCS);
         checkExperiment.property("Registrator").asPerson(DOE_JOHN);
@@ -152,7 +150,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
     public final void testListOfAttachments()
     {
         prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_REUSE);
-        final CheckExperiment checkExperiment = new CheckExperiment(CISD_CISD_DEFAULT, EXP_REUSE);
+        final CheckExperiment checkExperiment = new CheckExperiment();
         checkExperiment.property("Experiment").asString(EXP_REUSE);
         final CheckTableCommand attachmentsTable =
                 checkExperiment.attachmentsTable().expectedSize(2);
@@ -168,7 +166,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
     public final void testListOfSamples()
     {
         prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_REUSE);
-        final CheckExperiment checkExperiment = new CheckExperiment(CISD_CISD_DEFAULT, EXP_REUSE);
+        final CheckExperiment checkExperiment = new CheckExperiment();
         checkExperiment.property("Experiment").asString(EXP_REUSE);
         final CheckTableCommand sampleTable = checkExperiment.sampleTable().expectedSize(7);
         sampleTable.expectedRow(new SampleRow("RP1-A2X"));
@@ -186,7 +184,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
     public final void testListOfDataSets()
     {
         prepareShowExperiment(NEMO, SIRNA_HCS, EXP1);
-        final CheckExperiment checkExperiment = new CheckExperiment(CISD_CISD_NEMO, EXP1);
+        final CheckExperiment checkExperiment = new CheckExperiment();
         checkExperiment.property("Experiment").asString(EXP1);
         final CheckTableCommand datasetTable = checkExperiment.dataSetTable().expectedSize(2);
         datasetTable.expectedRow(new DataSetRow("20080912142304152-1").invalid().notDerived());

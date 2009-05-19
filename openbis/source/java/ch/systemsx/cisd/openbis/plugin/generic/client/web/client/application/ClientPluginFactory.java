@@ -257,20 +257,19 @@ public final class ClientPluginFactory extends
         @Override
         public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
         {
-            final String identifier = identifiable.getIdentifier();
             return new ITabItemFactory()
                 {
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent experimentViewer =
-                                GenericExperimentViewer.create(getViewContext(), identifier);
+                                GenericExperimentViewer.create(getViewContext(), identifiable);
                         return DefaultTabItem.create(getViewerTitle(Dict.EXPERIMENT, identifiable),
                                 experimentViewer, getViewContext(), false);
                     }
 
                     public String getId()
                     {
-                        return GenericExperimentViewer.createId(identifier);
+                        return GenericExperimentViewer.createId(identifiable);
                     }
                 };
         }

@@ -319,9 +319,9 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * For given <var>experimentIdentifier</var> returns corresponding list of {@link ExternalData}.
+     * For given <var>experimentId</var> returns corresponding list of {@link ExternalData}.
      */
-    public ResultSet<ExternalData> listExperimentDataSets(final String experimentIdentifier,
+    public ResultSet<ExternalData> listExperimentDataSets(final TechId experimentId,
             final String baseIndexURL, DefaultResultSetConfig<String, ExternalData> criteria)
             throws UserFailureException;
 

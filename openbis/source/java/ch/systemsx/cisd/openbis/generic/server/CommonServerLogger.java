@@ -69,7 +69,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -175,7 +174,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logAccess(sessionToken, "list_samples", "TYPE(%s) OWNERS(%s) CONTAINER(%s) EXPERIMENT(%s)",
                 criteria.getSampleType(), criteria.getOwnerIdentifiers(), criteria
-                        .getContainerSampleId(), criteria.getExperimentIdentifier());
+                        .getContainerSampleId(), criteria.getExperimentId());
         return null;
     }
 
@@ -201,10 +200,10 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public List<ExternalDataPE> listExternalData(String sessionToken,
-            ExperimentIdentifier identifier)
+    public List<ExternalDataPE> listExperimentExternalData(final String sessionToken,
+            final TechId experimentId)
     {
-        logAccess(sessionToken, "list_external_data", "IDENTIFIER(%s)", identifier);
+        logAccess(sessionToken, "list_external_data", "ID(%s)", experimentId);
         return null;
     }
 

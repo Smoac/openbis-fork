@@ -119,12 +119,13 @@ public final class ExternalDataTableTest extends AbstractBOTest
     }
 
     @Test
-    public final void testLoadBySampleIdentifier()
+    public final void testLoadBySampleTechId()
     {
         final ExternalDataTable externalDataTable = createExternalDataTable();
         final TechId sampleId = CommonTestUtils.TECH_ID;
         final String sampleCode = "CP-01";
         final SamplePE sample = new SamplePE();
+        sample.setId(sampleId.getId());
         sample.setCode(sampleCode);
         context.checking(new Expectations()
             {
@@ -143,11 +144,13 @@ public final class ExternalDataTableTest extends AbstractBOTest
     }
 
     @Test
-    public void testLoadByExperimentIdentifier()
+    public void testLoadByExperimentTechId()
     {
+        final TechId experimentId = CommonTestUtils.TECH_ID;
         final ExperimentIdentifier identifier =
                 new ExperimentIdentifier(new ProjectIdentifier("db", "group", "project"), "exp");
         final ExperimentPE experimentPE = CommonTestUtils.createExperiment(identifier);
+        experimentPE.setId(experimentId.getId());
         final ExternalDataPE data1 = new ExternalDataPE();
         data1.setCode("d1");
         data1.setDataSetType(new DataSetTypePE());
@@ -159,17 +162,10 @@ public final class ExternalDataTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getProjectDAO();
-                    will(returnValue(projectDAO));
-
-                    ProjectPE projectPE = experimentPE.getProject();
-                    one(projectDAO).tryFindProject("DB", "GROUP", "PROJECT");
-                    will(returnValue(projectPE));
-
                     allowing(daoFactory).getExperimentDAO();
                     will(returnValue(experimentDAO));
 
-                    one(experimentDAO).tryFindByCodeAndProject(projectPE, "EXP");
+                    one(experimentDAO).getByTechId(experimentId);
                     will(returnValue(experimentPE));
 
                     one(externalDataDAO).listExternalData(experimentPE);
@@ -177,7 +173,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
             });
 
         ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByExperimentIdentifier(identifier);
+        externalDataTable.loadByExperimentTechId(experimentId);
 
         context.assertIsSatisfied();
     }

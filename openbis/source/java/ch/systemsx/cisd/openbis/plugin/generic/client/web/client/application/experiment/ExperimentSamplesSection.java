@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
  * {@link SectionPanel} containing experiment samples.
@@ -41,11 +42,11 @@ public class ExperimentSamplesSection extends SectionPanel
     {
         super("Samples");
         setLayout(new RowLayout());
-        String experimentIdentifier = experiment.getIdentifier();
+        TechId experimentId = new TechId(experiment);
         sampleDisposableGrid =
                 SampleBrowserGrid.createGridForExperimentSamples(
-                        viewContext.getCommonViewContext(), experimentIdentifier,
-                        createGridId(experimentIdentifier), experiment.getExperimentType());
+                        viewContext.getCommonViewContext(), experimentId,
+                        createGridId(experimentId), experiment.getExperimentType());
         add(sampleDisposableGrid.getComponent(), new RowData(-1, 200));
     }
 
@@ -55,9 +56,9 @@ public class ExperimentSamplesSection extends SectionPanel
     }
 
     // @Private
-    static String createGridId(String experimentIdentifier)
+    static String createGridId(TechId experimentId)
     {
-        return SampleBrowserGrid.GRID_ID + PREFIX + experimentIdentifier;
+        return SampleBrowserGrid.GRID_ID + PREFIX + experimentId;
     }
 
     @Override

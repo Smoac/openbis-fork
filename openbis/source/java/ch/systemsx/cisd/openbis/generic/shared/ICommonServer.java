@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCo
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExternalDataValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
@@ -76,7 +77,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -223,16 +223,15 @@ public interface ICommonServer extends IServer
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId);
 
     /**
-     * For given {@link ExperimentIdentifier} returns the corresponding list of
-     * {@link ExternalDataPE}.
+     * For given experiment {@link TechId} returns the corresponding list of {@link ExternalDataPE}.
      * 
      * @return a sorted list of {@link ExternalDataPE}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<ExternalDataPE> listExternalData(
+    public List<ExternalDataPE> listExperimentExternalData(
             final String sessionToken,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) final ExperimentIdentifier identifier);
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) final TechId experimentId);
 
     /**
      * Performs an <i>Hibernate Search</i> based on given parameters.

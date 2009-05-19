@@ -31,6 +31,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -44,24 +46,23 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final String experimentIdentifier;
+    private final TechId experimentId;
 
     private final CompositeDatabaseModificationObserver modificationObserver;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> viewContext,
-            final String experimentIdentifier)
+            final IIdentifiable identifiable)
     {
-        GenericExperimentViewer viewer =
-                new GenericExperimentViewer(viewContext, experimentIdentifier);
+        GenericExperimentViewer viewer = new GenericExperimentViewer(viewContext, identifiable);
         return new DatabaseModificationAwareComponent(viewer, viewer.modificationObserver);
     }
 
     private GenericExperimentViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
-            final String experimentIdentifier)
+            final IIdentifiable identifiable)
     {
-        super(viewContext, "Experiment " + experimentIdentifier, createId(experimentIdentifier));
-        this.experimentIdentifier = experimentIdentifier;
+        super(viewContext, createId(identifiable));
+        this.experimentId = new TechId(identifiable);
         this.modificationObserver = new CompositeDatabaseModificationObserver();
         reloadAllData();
     }
@@ -71,9 +72,14 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
         reloadData(new ExperimentInfoCallback(viewContext, this, modificationObserver));
     }
 
-    public static String createId(String experimentIdentifier)
+    public static final String createId(final IIdentifiable identifiable)
     {
-        return ID_PREFIX + experimentIdentifier;
+        return createId(new TechId(identifiable));
+    }
+
+    public static final String createId(final TechId experimentId)
+    {
+        return ID_PREFIX + experimentId;
     }
 
     private static void addSection(final LayoutContainer lc, final Widget w)
@@ -86,7 +92,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
      */
     protected void reloadData(AbstractAsyncCallback<Experiment> callback)
     {
-        viewContext.getService().getExperimentInfo(experimentIdentifier, callback);
+        viewContext.getService().getExperimentInfo(experimentId, callback);
     }
 
     private ExperimentPropertiesSection createExperimentPropertiesSection(
@@ -101,7 +107,6 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
                 new AttachmentsSection<Experiment>(experiment, viewContext);
         attachmentsSection.setReloadDataAction(new IDelegatedAction()
             {
-
                 public void execute()
                 {
                     reloadData(attachmentsSection.getReloadDataCallback());

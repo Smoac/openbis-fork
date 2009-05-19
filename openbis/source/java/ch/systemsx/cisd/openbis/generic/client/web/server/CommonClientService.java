@@ -119,8 +119,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
@@ -827,7 +825,7 @@ public final class CommonClientService extends AbstractClientService implements
             });
     }
 
-    public ResultSet<ExternalData> listExperimentDataSets(final String experimentIdentifier,
+    public ResultSet<ExternalData> listExperimentDataSets(final TechId experimentId,
             final String baseIndexURL, DefaultResultSetConfig<String, ExternalData> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -837,11 +835,8 @@ public final class CommonClientService extends AbstractClientService implements
                 public List<ExternalData> getOriginalData() throws UserFailureException
                 {
                     final String sessionToken = getSessionToken();
-                    final ExperimentIdentifier identifier =
-                            new ExperimentIdentifierFactory(experimentIdentifier)
-                                    .createIdentifier();
                     final List<ExternalDataPE> externalData =
-                            commonServer.listExternalData(sessionToken, identifier);
+                            commonServer.listExperimentExternalData(sessionToken, experimentId);
                     return ExternalDataTranslator.translate(externalData, getDataStoreBaseURL(),
                             baseIndexURL);
                 }

@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPan
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
  * @author Franz-Josef Elmer
@@ -36,7 +37,8 @@ class ExperimentDataSetSection extends SectionPanel
     {
         super("Data Sets");
         setLayout(new RowLayout());
-        disposableBrowser = ExperimentDataSetBrowser.create(viewContext, experiment);
+        TechId experimentId = new TechId(experiment);
+        disposableBrowser = ExperimentDataSetBrowser.create(viewContext, experimentId);
         add(disposableBrowser.getComponent(), new RowData(-1, 200));
     }
 

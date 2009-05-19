@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -118,11 +119,10 @@ public class SampleBrowserGrid extends
     }
 
     public static IDisposableComponent createGridForExperimentSamples(
-            final IViewContext<ICommonClientServiceAsync> viewContext,
-            final String experimentIdentifier, String gridId, ExperimentType experimentType)
+            final IViewContext<ICommonClientServiceAsync> viewContext, final TechId experimentId,
+            String gridId, ExperimentType experimentType)
     {
-        final ListSampleCriteria criteria =
-                ListSampleCriteria.createForExperiment(experimentIdentifier);
+        final ListSampleCriteria criteria = ListSampleCriteria.createForExperiment(experimentId);
         ISampleCriteriaProvider criteriaProvider =
                 new SampleCriteriaProvider(viewContext, criteria);
         // we do not refresh the grid, the criteria provider will do this when property types will
@@ -327,7 +327,7 @@ public class SampleBrowserGrid extends
                 builder.append(" which are shared among all the groups");
             }
         }
-        if (criteria.getExperimentIdentifier() != null)
+        if (criteria.getExperimentId() != null)
         {
             return null;
         }
