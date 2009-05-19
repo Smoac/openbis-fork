@@ -61,8 +61,6 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
 
     protected final IViewContext<IGenericClientServiceAsync> viewContext;
 
-    protected final IIdentifiable identifiableOrNull;
-
     protected final TechId techIdOrNull;
 
     protected CodeFieldWithGenerator codeField;
@@ -82,7 +80,6 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
         super(viewContext, createId(identifiable, entityKind), DEFAULT_LABEL_WIDTH + 20,
                 DEFAULT_FIELD_WIDTH);
         this.viewContext = viewContext;
-        this.identifiableOrNull = identifiable;
         this.entityKind = entityKind;
         this.techIdOrNull = new TechId(identifiable);
     }
@@ -120,13 +117,28 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
     }
 
     /**
+     * Creates unique id based on {@link #createSimpleId(TechId, EntityKind)} and application
+     * specific ID prefix.
+     */
+    protected static final String createId(TechId techId, EntityKind entityKind)
+    {
+        return ID_PREFIX + createSimpleId(techId, entityKind);
+    }
+
+    /**
      * Creates unique form id for given entity.
      */
     protected static final String createSimpleId(IIdentifiable identifiable, EntityKind entityKind)
     {
-        // TODO 2009-05-15, Piotr Buczek: use technical id
-        String editOrRegister =
-                (identifiable == null) ? "register" : ("edit_" + identifiable.getIdentifier());
+        return createSimpleId(new TechId(identifiable), entityKind);
+    }
+
+    /**
+     * Creates unique form id for given entity.
+     */
+    protected static final String createSimpleId(TechId techId, EntityKind entityKind)
+    {
+        String editOrRegister = (techId == null) ? "register" : ("edit_" + techId);
         return "generic-" + entityKind.name().toLowerCase() + "-" + editOrRegister + "_form";
     }
 
@@ -159,14 +171,14 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
     private final void createCommonFormFields()
     {
         propertiesEditor =
-                createPropertiesEditor(createId(identifiableOrNull, entityKind), viewContext
+                createPropertiesEditor(createId(techIdOrNull, entityKind), viewContext
                         .getCommonViewContext());
         codeField =
                 new CodeFieldWithGenerator(viewContext, viewContext.getMessage(Dict.CODE),
                         entityKind.name().substring(0, 1));
         codeField.setId(getId() + ID_SUFFIX_CODE);
-        codeField.setEnabled(identifiableOrNull == null);
-        codeField.setHideTrigger(identifiableOrNull != null);
+        codeField.setEnabled(techIdOrNull == null);
+        codeField.setHideTrigger(techIdOrNull != null);
     }
 
     protected void updatePropertyFieldsOriginalValues()

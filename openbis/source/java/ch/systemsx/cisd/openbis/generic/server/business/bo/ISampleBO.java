@@ -81,7 +81,7 @@ public interface ISampleBO extends IEntityBusinessObject
      * Changes given sample. Currently allowed changes: properties and experiment to which the
      * sample is connected.
      */
-    void update(SampleIdentifier identifier, List<SampleProperty> properties,
+    void update(TechId sampleId, List<SampleProperty> properties,
             ExperimentIdentifier experimentIdentifierOrNul, List<AttachmentPE> attachments,
             Date version);
 

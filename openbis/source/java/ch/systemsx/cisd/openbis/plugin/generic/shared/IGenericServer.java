@@ -190,7 +190,7 @@ public interface IGenericServer extends IPluginCommonServer
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     public Date updateSample(
             String sessionToken,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) SampleIdentifier identifier,
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId,
             List<SampleProperty> properties,
             @AuthorizationGuard(guardClass = NullableGroupIdentifierPredicate.class) ExperimentIdentifier experimentIdentifierOrNull,
             List<AttachmentPE> attachments, Date version);

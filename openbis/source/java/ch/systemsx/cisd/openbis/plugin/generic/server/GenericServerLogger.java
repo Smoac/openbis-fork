@@ -168,7 +168,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     {
         logTracking(sessionToken, "edit_experiment",
                 "EXPERIMENT(%s) ATTACHMENTS_ADDED(%s) NEW_PROJECT(%s) SAMPLES(%s)", updates
-                        .getExperimentIdentifier(), updates.getAttachments().size(), updates
+                        .getExperimentId(), updates.getAttachments().size(), updates
                         .getProjectIdentifier(), StringUtils.join(updates.getSampleCodes(), ","));
         return null;
     }
@@ -180,12 +180,12 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
-    public Date updateSample(String sessionToken, SampleIdentifier identifier,
-            List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
-            List<AttachmentPE> attachments, Date version)
+    public Date updateSample(String sessionToken, TechId sampleId, List<SampleProperty> properties,
+            ExperimentIdentifier experimentIdentifierOrNull, List<AttachmentPE> attachments,
+            Date version)
     {
         logTracking(sessionToken, "edit_sample",
-                "SAMPLE(%s), CHANGE_TO_EXPERIMENT(%s) ATTACHMENTS(%s)", identifier,
+                "SAMPLE(%s), CHANGE_TO_EXPERIMENT(%s) ATTACHMENTS(%s)", sampleId,
                 experimentIdentifierOrNull, attachments.size());
         return null;
     }

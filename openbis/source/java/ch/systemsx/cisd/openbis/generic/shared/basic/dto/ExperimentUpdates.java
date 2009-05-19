@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+
 /**
  * Description of the updates which should be performed on the experiment.
  * 
@@ -23,7 +25,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  */
 public class ExperimentUpdates extends BasicExperimentUpdates
 {
-    private String experimentIdentifier;
+    private TechId experimentId;
 
     // ----- the data which should be changed:
 
@@ -50,14 +52,14 @@ public class ExperimentUpdates extends BasicExperimentUpdates
         this.attachmentSessionKey = attachmentSessionKey;
     }
 
-    public String getExperimentIdentifier()
+    public TechId getExperimentId()
     {
-        return experimentIdentifier;
+        return experimentId;
     }
 
-    public void setExperimentIdentifier(String experimentIdentifier)
+    public void setExperimentId(TechId experimentId)
     {
-        this.experimentIdentifier = experimentIdentifier;
+        this.experimentId = experimentId;
     }
 
     public String getProjectIdentifier()

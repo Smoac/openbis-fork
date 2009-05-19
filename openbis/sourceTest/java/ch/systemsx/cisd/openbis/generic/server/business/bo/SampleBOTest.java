@@ -35,6 +35,8 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
+import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -66,6 +68,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
  */
 public final class SampleBOTest extends AbstractBOTest
 {
+    private static final TechId SAMPLE_TECH_ID = CommonTestUtils.TECH_ID;
+
     private static final String DB = "DB";
 
     private static final String DILUTION_PLATE = SampleTypeCode.DILUTION_PLATE.getCode();
@@ -158,6 +162,18 @@ public final class SampleBOTest extends AbstractBOTest
 
                     String sampleCode = sampleIdentifier.getSampleCode();
                     one(sampleDAO).tryFindByCodeAndGroup(sampleCode, group, HierarchyType.CHILD);
+                    will(returnValue(sample));
+                }
+            });
+    }
+
+    private void prepareTryToLoadOfSampleWithId(final SamplePE sample)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(sampleDAO).tryGetByTechId(with(new TechId(sample.getId())),
+                            with(any(String[].class)));
                     will(returnValue(sample));
                 }
             });
@@ -519,17 +535,17 @@ public final class SampleBOTest extends AbstractBOTest
     @Test
     public final void testEditStaleSampleFails()
     {
-        SampleIdentifier identifier = getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE);
         Date then = new Date(0);
         Date now = new Date();
 
         SamplePE sample = new SamplePE();
         sample.setModificationDate(then);
+        sample.setId(SAMPLE_TECH_ID.getId());
 
-        prepareTryToLoadOfGroupSample(identifier, sample);
+        prepareTryToLoadOfSampleWithId(sample);
         try
         {
-            createSampleBO().update(identifier, null, null, new ArrayList<AttachmentPE>(), now);
+            createSampleBO().update(SAMPLE_TECH_ID, null, null, new ArrayList<AttachmentPE>(), now);
         } catch (UserFailureException e)
         {
             return;
@@ -540,14 +556,14 @@ public final class SampleBOTest extends AbstractBOTest
     @Test
     public final void testDetachFromExperiment()
     {
-        SampleIdentifier identifier = getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE);
         final SamplePE sample = createAnySample();
         sample.setExperiment(new ExperimentPE());
+        sample.setId(SAMPLE_TECH_ID.getId());
 
-        prepareExperimentUpdateOnly(identifier, sample);
+        prepareExperimentUpdateOnly(sample);
         ExperimentIdentifier experimentIdentifier = null;
 
-        updateSampleExperiment(identifier, sample, experimentIdentifier);
+        updateSampleExperiment(SAMPLE_TECH_ID, sample, experimentIdentifier);
         assertNull(sample.getExperiment());
     }
 
@@ -562,11 +578,11 @@ public final class SampleBOTest extends AbstractBOTest
     @Test
     public final void testDetachFromExperimentWithDatasetsFails()
     {
-        SampleIdentifier identifier = getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE);
         final SamplePE sample = createAnySample();
         sample.setExperiment(new ExperimentPE());
+        sample.setId(SAMPLE_TECH_ID.getId());
 
-        prepareTryToLoadOfGroupSample(identifier, sample);
+        prepareTryToLoadOfSampleWithId(sample);
         prepareNoPropertiesToUpdate(sample);
         context.checking(new Expectations()
             {
@@ -580,7 +596,7 @@ public final class SampleBOTest extends AbstractBOTest
                 "Cannot detach the sample 'xx' from the experiment because there are already datasets attached to the sample.";
         try
         {
-            updateSampleExperiment(identifier, sample, experimentIdentifier);
+            updateSampleExperiment(SAMPLE_TECH_ID, sample, experimentIdentifier);
         } catch (UserFailureException e)
         {
             assertEquals(errorMsg, e.getMessage());
@@ -589,16 +605,16 @@ public final class SampleBOTest extends AbstractBOTest
         fail("Following exception expected: " + errorMsg);
     }
 
-    private void updateSampleExperiment(SampleIdentifier identifier, final SamplePE sample,
+    private void updateSampleExperiment(final TechId sampleId, final SamplePE sample,
             ExperimentIdentifier experimentIdentifier)
     {
-        createSampleBO().update(identifier, null, experimentIdentifier,
+        createSampleBO().update(sampleId, null, experimentIdentifier,
                 new ArrayList<AttachmentPE>(), sample.getModificationDate());
     }
 
-    private void prepareExperimentUpdateOnly(SampleIdentifier identifier, final SamplePE sample)
+    private void prepareExperimentUpdateOnly(final SamplePE sample)
     {
-        prepareTryToLoadOfGroupSample(identifier, sample);
+        prepareTryToLoadOfSampleWithId(sample);
         prepareNoPropertiesToUpdate(sample);
         prepareNoDatasetsFound(sample);
     }
@@ -628,7 +644,6 @@ public final class SampleBOTest extends AbstractBOTest
     @Test
     public final void testEditExperiment()
     {
-        SampleIdentifier identifier = getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE);
         final ProjectPE project = createProject();
         // create experiment which we will attach the sample
         final ExperimentPE experimentToAttach = new ExperimentPE();
@@ -646,6 +661,7 @@ public final class SampleBOTest extends AbstractBOTest
         sampleExperiment.setCode("exp2");
         sampleExperiment.setProject(project);
         final SamplePE sample = new SamplePE();
+        sample.setId(SAMPLE_TECH_ID.getId());
         sample.setCode("sampleCode");
         sample.setExperiment(sampleExperiment);
         sample.setGroup(EXAMPLE_GROUP);
@@ -653,7 +669,7 @@ public final class SampleBOTest extends AbstractBOTest
         Date now = new Date();
         sample.setModificationDate(now);
 
-        prepareTryToLoadOfGroupSample(identifier, sample);
+        prepareTryToLoadOfSampleWithId(sample);
         prepareNoPropertiesToUpdate(sample);
         context.checking(new Expectations()
             {
@@ -676,7 +692,7 @@ public final class SampleBOTest extends AbstractBOTest
                     will(returnValue(new ArrayList<ExternalDataPE>()));
                 }
             });
-        createSampleBO().update(identifier, null, experimentIdentifier,
+        createSampleBO().update(SAMPLE_TECH_ID, null, experimentIdentifier,
                 new ArrayList<AttachmentPE>(), now);
 
         assertEquals(experimentToAttach, sample.getExperiment());

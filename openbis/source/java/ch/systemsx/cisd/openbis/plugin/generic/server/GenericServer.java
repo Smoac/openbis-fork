@@ -397,13 +397,13 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     }
 
-    public Date updateSample(String sessionToken, SampleIdentifier identifier,
-            List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
-            List<AttachmentPE> attachments, Date version)
+    public Date updateSample(String sessionToken, TechId sampleId, List<SampleProperty> properties,
+            ExperimentIdentifier experimentIdentifierOrNull, List<AttachmentPE> attachments,
+            Date version)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-        sampleBO.update(identifier, properties, experimentIdentifierOrNull, attachments, version);
+        sampleBO.update(sampleId, properties, experimentIdentifierOrNull, attachments, version);
         sampleBO.save();
         return sampleBO.getSample().getModificationDate();
 

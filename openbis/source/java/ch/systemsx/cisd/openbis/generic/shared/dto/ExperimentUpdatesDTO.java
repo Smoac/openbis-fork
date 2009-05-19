@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
@@ -30,8 +30,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
  */
 public class ExperimentUpdatesDTO extends BasicExperimentUpdates
 {
-    private ExperimentIdentifier experimentIdentifier;
-
+    private TechId experimentId; 
+    
     // ----- the data which should be changed:
 
     // points to the project which will be set for the experiment
@@ -53,14 +53,14 @@ public class ExperimentUpdatesDTO extends BasicExperimentUpdates
         this.attachments = attachments;
     }
 
-    public ExperimentIdentifier getExperimentIdentifier()
+    public TechId getExperimentId()
     {
-        return experimentIdentifier;
+        return experimentId;
     }
 
-    public void setExperimentIdentifier(ExperimentIdentifier experimentIdentifier)
+    public void setExperimentId(TechId experimentId)
     {
-        this.experimentIdentifier = experimentIdentifier;
+        this.experimentId = experimentId;
     }
 
     public ProjectIdentifier getProjectIdentifier()

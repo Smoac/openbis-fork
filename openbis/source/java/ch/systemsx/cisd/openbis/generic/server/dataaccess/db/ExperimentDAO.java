@@ -113,7 +113,11 @@ public class ExperimentDAO extends AbstractGenericEntityDAO<ExperimentPE> implem
     {
         assert experiment != null : "Missing experiment.";
         experiment.setCode(CodeConverter.tryToDatabase(experiment.getCode()));
-        validatePE(experiment);
+        // FIXME 2009-05-19, PB: uncomment when we overcome Hibernate Validation bug
+        // that occurs when we validate a Hibernate proxy object with initialized values
+        // see http://lists.jboss.org/pipermail/hibernate-issues/2009-February/013988.html
+
+        // validatePE(experiment);
 
         final HibernateTemplate template = getHibernateTemplate();
         template.saveOrUpdate(experiment);

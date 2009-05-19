@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -80,7 +81,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
     protected void save()
     {
         ExperimentUpdates updates = new ExperimentUpdates();
-        updates.setExperimentIdentifier(originalExperiment.getIdentifier());
+        updates.setExperimentId(new TechId(originalExperiment));
         updates.setVersion(originalExperiment.getModificationDate());
         updates.setProperties(extractProperties());
         updates.setProjectIdentifier(extractProjectIdentifier());

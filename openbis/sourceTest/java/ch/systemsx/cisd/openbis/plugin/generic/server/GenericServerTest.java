@@ -48,11 +48,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
@@ -64,10 +62,6 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 @Friend(toClasses = GenericServer.class)
 public final class GenericServerTest extends AbstractServerTestCase
 {
-    private static final String SAMPLE_1 = "SAMPLE-1";
-
-    private static final String EXP_1 = "EXP-1";
-
     private static final String PROJECT_1 = "PROJECT-1";
 
     private static final String GROUP_1 = "GROUP-1";
@@ -452,9 +446,10 @@ public final class GenericServerTest extends AbstractServerTestCase
     @Test
     public void testEditSampleNothingChanged() throws Exception
     {
-        final SampleIdentifier identifier =
-                SampleIdentifier.createOwnedBy(new SampleOwnerIdentifier(new GroupIdentifier(
-                        DATABASE_1, GROUP_1)), SAMPLE_1);
+        final TechId sampleId = CommonTestUtils.TECH_ID;
+        // final SampleIdentifier identifier =
+        // SampleIdentifier.createOwnedBy(new SampleOwnerIdentifier(new GroupIdentifier(
+        // DATABASE_1, GROUP_1)), SAMPLE_1);
         final List<SampleProperty> properties = new ArrayList<SampleProperty>();
         prepareGetSession();
         final Date version = new Date();
@@ -468,13 +463,13 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(genericBusinessObjectFactory).createSampleBO(SESSION);
                     will(returnValue(sampleBO));
 
-                    one(sampleBO).update(identifier, properties, null, attachments, version);
+                    one(sampleBO).update(sampleId, properties, null, attachments, version);
                     one(sampleBO).save();
                     one(sampleBO).getSample();
                     will(returnValue(sample));
                 }
             });
-        assertEquals(newModificationDate, createServer().updateSample(SESSION_TOKEN, identifier,
+        assertEquals(newModificationDate, createServer().updateSample(SESSION_TOKEN, sampleId,
                 properties, null, attachments, version));
         context.assertIsSatisfied();
     }
@@ -482,12 +477,11 @@ public final class GenericServerTest extends AbstractServerTestCase
     @Test
     public void testEditExperimentNothingChanged() throws Exception
     {
-        final ExperimentIdentifier identifier =
-                new ExperimentIdentifier(DATABASE_1, GROUP_1, PROJECT_1, EXP_1);
+        final TechId experimentId = CommonTestUtils.TECH_ID;
         final ProjectIdentifier newProjectIdentifier =
                 new ProjectIdentifier(DATABASE_1, GROUP_1, PROJECT_1);
         final ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
-        updates.setExperimentIdentifier(identifier);
+        updates.setExperimentId(experimentId);
         updates.setProjectIdentifier(newProjectIdentifier);
         final ExperimentPE experiment = new ExperimentPE();
         Date newModificationDate = new Date(2);

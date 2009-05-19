@@ -453,7 +453,7 @@ public final class GenericClientService extends AbstractClientService implements
 
     public Date updateSample(
             String sessionKey,
-            final String sampleIdentifier,
+            final TechId sampleId,
             final List<SampleProperty> properties,
             final ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier experimentIdentifierOrNull,
             final Date version)
@@ -466,8 +466,6 @@ public final class GenericClientService extends AbstractClientService implements
                 @Override
                 public void register(List<AttachmentPE> attachments)
                 {
-                    final SampleIdentifier identifier =
-                            new SampleIdentifierFactory(sampleIdentifier).createIdentifier();
                     ExperimentIdentifier convExperimentIdentifierOrNull = null;
                     if (experimentIdentifierOrNull != null)
                     {
@@ -476,7 +474,7 @@ public final class GenericClientService extends AbstractClientService implements
                                         .getIdentifier()).createIdentifier();
                     }
                     Date date =
-                            genericServer.updateSample(sessionToken, identifier, properties,
+                            genericServer.updateSample(sessionToken, sampleId, properties,
                                     convExperimentIdentifierOrNull, attachments, version);
                     modificationDate.setTime(date.getTime());
                 }
@@ -550,11 +548,9 @@ public final class GenericClientService extends AbstractClientService implements
     {
         ExperimentUpdatesDTO updatesDTO = new ExperimentUpdatesDTO();
 
-        final ExperimentIdentifier identifier =
-                new ExperimentIdentifierFactory(updates.getExperimentIdentifier())
-                        .createIdentifier();
-        updatesDTO.setExperimentIdentifier(identifier);
+        updatesDTO.setExperimentId(updates.getExperimentId());
 
+        System.err.println(updates.getProjectIdentifier());
         final ProjectIdentifier project =
                 new ProjectIdentifierFactory(updates.getProjectIdentifier()).createIdentifier();
         updatesDTO.setProjectIdentifier(project);
@@ -567,5 +563,4 @@ public final class GenericClientService extends AbstractClientService implements
         updatesDTO.setSampleType(updates.getSampleType());
         return updatesDTO;
     }
-
 }

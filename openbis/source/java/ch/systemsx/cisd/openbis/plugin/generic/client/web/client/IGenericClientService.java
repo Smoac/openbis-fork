@@ -131,7 +131,7 @@ public interface IGenericClientService extends IClientService
     /**
      * Updates sample.
      */
-    public Date updateSample(String sessionKey, final String sampleIdentifier,
+    public Date updateSample(String sessionKey, final TechId sampleId,
             List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
             Date version) throws UserFailureException;
 

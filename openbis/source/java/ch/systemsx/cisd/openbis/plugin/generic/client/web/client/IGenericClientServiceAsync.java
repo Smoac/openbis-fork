@@ -122,9 +122,9 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             Date version, final AsyncCallback<Date> asyncCallback) throws UserFailureException;
 
     /**
-     * @see IGenericClientService#updateSample(String, String, List, ExperimentIdentifier, Date)
+     * @see IGenericClientService#updateSample(String, TechId, List, ExperimentIdentifier, Date)
      */
-    public void updateSample(String sessionKey, final String sampleIdentifier,
+    public void updateSample(String sessionKey, final TechId sampleId,
             List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
             Date version, final AsyncCallback<Date> asyncCallback) throws UserFailureException;
 

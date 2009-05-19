@@ -146,7 +146,7 @@ public final class ClientPluginFactory extends
                 {
                     public ITabItem create()
                     {
-                        return createDummyTab(identifiable.getIdentifier());
+                        return createDummyTab(identifiable.getCode());
                     }
 
                     public String getId()
@@ -173,7 +173,7 @@ public final class ClientPluginFactory extends
                 {
                     public ITabItem create()
                     {
-                        return createDummyTab(identifiable.getIdentifier());
+                        return createDummyTab(identifiable.getCode());
                     }
 
                     public String getId()

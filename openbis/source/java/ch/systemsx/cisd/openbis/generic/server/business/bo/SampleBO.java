@@ -228,11 +228,11 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         }
     }
 
-    public void update(SampleIdentifier identifier, List<SampleProperty> properties,
+    public void update(TechId sampleId, List<SampleProperty> properties,
             ExperimentIdentifier experimentIdentifierOrNull, List<AttachmentPE> newAttachments,
             Date version)
     {
-        loadBySampleIdentifier(identifier);
+        loadDataByTechId(sampleId);
         if (version.equals(sample.getModificationDate()) == false)
         {
             throwModifiedEntityException("Sample");

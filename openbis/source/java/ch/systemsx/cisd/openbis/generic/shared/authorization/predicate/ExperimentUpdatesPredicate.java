@@ -21,6 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
@@ -33,15 +34,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  */
 public class ExperimentUpdatesPredicate extends AbstractPredicate<ExperimentUpdatesDTO>
 {
+    private final ExperimentTechIdPredicate experimentTechIdPredicate;
+
     private final GroupIdentifierPredicate groupPredicate;
 
     public ExperimentUpdatesPredicate()
     {
+        this.experimentTechIdPredicate = new ExperimentTechIdPredicate();
         this.groupPredicate = new GroupIdentifierPredicate();
     }
 
     public final void init(IAuthorizationDataProvider provider)
     {
+        experimentTechIdPredicate.init(provider);
         groupPredicate.init(provider);
     }
 
@@ -55,11 +60,11 @@ public class ExperimentUpdatesPredicate extends AbstractPredicate<ExperimentUpda
     Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final ExperimentUpdatesDTO updates)
     {
-        assert groupPredicate.inited : "Predicate has not been initialized";
+        assert experimentTechIdPredicate.inited : "Predicate has not been initialized";
         Status status;
         status =
-                groupPredicate
-                        .doEvaluation(person, allowedRoles, updates.getExperimentIdentifier());
+                experimentTechIdPredicate.doEvaluation(person, allowedRoles, updates
+                        .getExperimentId());
         if (status.equals(Status.OK) == false)
         {
             return status;

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.C
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
 
 /**
@@ -42,17 +43,22 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Pro
 public final class FillExperimentEditForm extends AbstractDefaultTestCommand
 {
 
-    private final List<PropertyField> properties;
+    private final TechId experimentId;
 
-    private String identifier;
+    private final List<PropertyField> properties;
 
     private String newProjectOrNull;
 
     private String samplesOrNull;
 
-    public FillExperimentEditForm(String identifier)
+    public FillExperimentEditForm()
     {
-        this.identifier = identifier;
+        this(TechId.createWildcardTechId());
+    }
+
+    private FillExperimentEditForm(final TechId experimentId)
+    {
+        this.experimentId = experimentId;
         this.properties = new ArrayList<PropertyField>();
         addCallbackClass(GenericExperimentEditForm.ExperimentInfoCallback.class);
         addCallbackClass(GenericExperimentEditForm.ListSamplesCallback.class);
@@ -75,7 +81,7 @@ public final class FillExperimentEditForm extends AbstractDefaultTestCommand
 
     public final void execute()
     {
-        String simpleId = "generic-experiment-edit_" + identifier + "_form";
+        String simpleId = "generic-experiment-edit_" + experimentId + "_form";
         String id = GenericExperimentEditForm.ID_PREFIX + simpleId;
         for (final PropertyField property : properties)
         {

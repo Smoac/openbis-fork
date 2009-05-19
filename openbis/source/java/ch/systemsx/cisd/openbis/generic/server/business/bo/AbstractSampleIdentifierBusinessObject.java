@@ -50,7 +50,6 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
         return sampleOwnerFinder;
     }
 
-    // TODO 2009-05-18, PB: remove after [LMS-870] is finished
     /**
      * Finds a sample with the given identifier.<br>
      * Note: this method will never return samples which are contained (part-of relation) in another
@@ -70,7 +69,6 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
         return sample;
     }
 
-    // TODO 2009-05-18, PB: remove after [LMS-870] is finished
     protected SamplePE tryToGetSampleByIdentifier(final SampleIdentifier sampleIdentifier)
     {
         assert sampleIdentifier != null : "Sample identifier unspecified.";

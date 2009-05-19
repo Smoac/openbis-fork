@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -104,9 +105,9 @@ public final class GenericSampleEditForm extends
         final List<SampleProperty> properties = extractProperties();
         ExperimentIdentifier experimentIdent =
                 experimentFieldOrNull != null ? experimentFieldOrNull.getValue() : null;
-        viewContext.getService().updateSample(sessionKey, originalSample.getIdentifier(),
-                properties, experimentIdent, originalSample.getModificationDate(),
-                new UpdateSampleCallback(viewContext));
+        TechId sampleId = new TechId(originalSample);
+        viewContext.getService().updateSample(sessionKey, sampleId, properties, experimentIdent,
+                originalSample.getModificationDate(), new UpdateSampleCallback(viewContext));
     }
 
     public final class UpdateSampleCallback extends
