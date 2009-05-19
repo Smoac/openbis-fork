@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.Date;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -29,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 /**
  * @author Franz-Josef Elmer
  */
-public interface IExternalDataBO extends IBusinessObject
+public interface IExternalDataBO extends IEntityBusinessObject
 {
     /**
      * Returns the external data item which has been created by
@@ -47,7 +48,7 @@ public interface IExternalDataBO extends IBusinessObject
     /**
      * Changes given data set. Currently allowed changes: properties, sample.
      */
-    public void update(String code, SampleIdentifier sampleIdentifier,
+    public void update(TechId datasetId, SampleIdentifier sampleIdentifier,
             List<DataSetProperty> properties, Date version);
 
     /**
@@ -60,7 +61,7 @@ public interface IExternalDataBO extends IBusinessObject
      */
     public void enrichWithParentsAndExperiment();
 
-    /** 
+    /**
      * Entich external data with properties.
      */
     public void enrichWithProperties();

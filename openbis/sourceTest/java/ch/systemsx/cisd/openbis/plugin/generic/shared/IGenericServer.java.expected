@@ -28,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.shared.IPluginCommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperimentPredicate;
@@ -36,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSample
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NullableGroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -89,12 +89,12 @@ public interface IGenericServer extends IPluginCommonServer
     public MaterialPE getMaterialInfo(String sessionToken, TechId materialId);
 
     /**
-     * For given <var>datasetCode</var> returns the corresponding {@link ExternalDataPE}.
+     * For given {@link TechId} returns the corresponding {@link ExternalDataPE}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public ExternalDataPE getDataSetInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String datasetCode);
+            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId);
 
     /**
      * Returns attachment described by given experiment identifier, filename and version.
@@ -203,7 +203,7 @@ public interface IGenericServer extends IPluginCommonServer
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public Date updateDataSet(
             String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String code,
+            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) SampleIdentifier sampleIdentifier,
             List<DataSetProperty> properties, Date version);
 }

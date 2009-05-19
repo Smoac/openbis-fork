@@ -57,8 +57,7 @@ public final class GenericDataSetEditForm
     private ExternalData originalDataSet;
 
     public static DatabaseModificationAwareComponent create(
-            IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdentifiable identifiable)
+            IViewContext<IGenericClientServiceAsync> viewContext, IIdentifiable identifiable)
     {
         GenericDataSetEditForm form = new GenericDataSetEditForm(viewContext, identifiable);
         return new DatabaseModificationAwareComponent(form, form);
@@ -75,9 +74,7 @@ public final class GenericDataSetEditForm
     {
         final List<DataSetProperty> properties = extractProperties();
         final String sampleIdentifier = extractSampleIdentifier();
-        viewContext.getService().updateDataSet(
-                // TODO 2009-05-13, PB: this identifier is permanent but we could techId instead
-                identifiableOrNull.getIdentifier(), sampleIdentifier, properties,
+        viewContext.getService().updateDataSet(techIdOrNull, sampleIdentifier, properties,
                 originalDataSet.getModificationDate(), new UpdateDataSetCallback(viewContext));
     }
 
@@ -163,9 +160,8 @@ public final class GenericDataSetEditForm
     @Override
     protected void loadForm()
     {
-        // TODO 2009-05-11, IA: use code
-        viewContext.getService().getDataSetInfo(identifiableOrNull.getIdentifier(),
-                GWTUtils.getBaseIndexURL(), new DataSetInfoCallback(viewContext));
+        viewContext.getService().getDataSetInfo(techIdOrNull, GWTUtils.getBaseIndexURL(),
+                new DataSetInfoCallback(viewContext));
 
     }
 

@@ -477,7 +477,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
             addProperty(property);
         }
     }
-    
+
     public void addProperty(final EntityPropertyPE property)
     {
         property.setEntity(this);

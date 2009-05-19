@@ -31,8 +31,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
@@ -48,28 +49,32 @@ public final class GenericDataSetViewer extends AbstractViewer<IGenericClientSer
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final String datasetIdentifier;
+    private final TechId datasetId;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> viewContext,
-            final String datasetIdentifier)
+            final IIdentifiable identifiable)
     {
-        GenericDataSetViewer viewer = new GenericDataSetViewer(viewContext, datasetIdentifier);
+        GenericDataSetViewer viewer = new GenericDataSetViewer(viewContext, identifiable);
         return new DatabaseModificationAwareComponent(viewer, viewer);
     }
 
     private GenericDataSetViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
-            final String datasetIdentifier)
+            final IIdentifiable identifiable)
     {
-        super(viewContext, EntityKind.DATA_SET.getDescription() + " " + datasetIdentifier,
-                createId(datasetIdentifier));
-        this.datasetIdentifier = datasetIdentifier;
+        super(viewContext, createId(identifiable));
+        this.datasetId = new TechId(identifiable);
         reloadData();
     }
 
-    public static String createId(String datasetIdentifier)
+    public static final String createId(final IIdentifiable identifiable)
     {
-        return ID_PREFIX + datasetIdentifier;
+        return createId(new TechId(identifiable));
+    }
+
+    public static final String createId(final TechId datasetId)
+    {
+        return ID_PREFIX + datasetId;
     }
 
     private static void addSection(final LayoutContainer lc, final Widget w)
@@ -82,7 +87,7 @@ public final class GenericDataSetViewer extends AbstractViewer<IGenericClientSer
      */
     protected void reloadData()
     {
-        viewContext.getService().getDataSetInfo(datasetIdentifier, getBaseIndexURL(),
+        viewContext.getService().getDataSetInfo(datasetId, getBaseIndexURL(),
                 new DataSetInfoCallback(viewContext, this));
     }
 

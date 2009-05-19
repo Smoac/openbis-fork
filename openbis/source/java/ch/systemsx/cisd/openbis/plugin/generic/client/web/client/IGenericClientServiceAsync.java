@@ -92,9 +92,9 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<Material> materialInfoCallback);
 
     /**
-     * @see IGenericClientService#getDataSetInfo(String, String)
+     * @see IGenericClientService#getDataSetInfo(TechId, String)
      */
-    public void getDataSetInfo(String code, String baseIndexURL,
+    public void getDataSetInfo(TechId datasetTechId, String baseIndexURL,
             final AsyncCallback<ExternalData> datasetInfoCallback);
 
     /**
@@ -129,9 +129,9 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             Date version, final AsyncCallback<Date> asyncCallback) throws UserFailureException;
 
     /**
-     * @see IGenericClientService#updateDataSet(String, String, List, Date)
+     * @see IGenericClientService#updateDataSet(TechId, String, List, Date)
      */
-    public void updateDataSet(final String dataSetIdentifier, final String sampleIdentifier,
+    public void updateDataSet(final TechId datasetId, final String sampleIdentifier,
             List<DataSetProperty> properties, Date version, final AsyncCallback<Date> asyncCallback)
             throws UserFailureException;
 

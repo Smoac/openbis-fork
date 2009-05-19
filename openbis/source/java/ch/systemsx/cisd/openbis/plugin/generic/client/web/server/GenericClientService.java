@@ -350,13 +350,13 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
-    public final ExternalData getDataSetInfo(final String datasetCode, final String baseIndexURL)
+    public final ExternalData getDataSetInfo(final TechId datasetId, final String baseIndexURL)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
-            final ExternalDataPE dataset = genericServer.getDataSetInfo(sessionToken, datasetCode);
+            final ExternalDataPE dataset = genericServer.getDataSetInfo(sessionToken, datasetId);
             return ExternalDataTranslator.translate(dataset, getDataStoreBaseURL(), baseIndexURL,
                     false);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
@@ -528,7 +528,7 @@ public final class GenericClientService extends AbstractClientService implements
         return result;
     }
 
-    public Date updateDataSet(String dataSetIdentifier, String sampleIdentifier,
+    public Date updateDataSet(TechId datasetId, String sampleIdentifier,
             List<DataSetProperty> properties, Date version)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -537,8 +537,8 @@ public final class GenericClientService extends AbstractClientService implements
             final String sessionToken = getSessionToken();
 
             SampleIdentifier convSampleIdentifier = SampleIdentifierFactory.parse(sampleIdentifier);
-            return genericServer.updateDataSet(sessionToken, dataSetIdentifier,
-                    convSampleIdentifier, properties, version);
+            return genericServer.updateDataSet(sessionToken, datasetId, convSampleIdentifier,
+                    properties, version);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -200,6 +201,9 @@ public final class PredicateExecutor
         {
             switch (kind)
             {
+                case DATASET:
+                    ExternalDataPE dataset = daoFactory.getExternalDataDAO().getByTechId(techId);
+                    return dataset.getExperiment().getProject().getGroup();
                 case EXPERIMENT:
                     ExperimentPE experiment = daoFactory.getExperimentDAO().getByTechId(techId);
                     return experiment.getProject().getGroup();

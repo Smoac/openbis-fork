@@ -310,20 +310,19 @@ public final class ClientPluginFactory extends
         @Override
         public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
         {
-            final String identifier = identifiable.getIdentifier();
             return new ITabItemFactory()
                 {
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent dataSetViewer =
-                                GenericDataSetViewer.create(getViewContext(), identifier);
+                                GenericDataSetViewer.create(getViewContext(), identifiable);
                         return DefaultTabItem.create(getViewerTitle(Dict.DATA_SET, identifiable),
                                 dataSetViewer, getViewContext(), false);
                     }
 
                     public String getId()
                     {
-                        return GenericDataSetViewer.createId(identifier);
+                        return GenericDataSetViewer.createId(identifiable);
                     }
                 };
         }

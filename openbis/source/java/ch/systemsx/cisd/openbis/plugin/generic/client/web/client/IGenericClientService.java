@@ -95,9 +95,9 @@ public interface IGenericClientService extends IClientService
     public Material getMaterialInfo(final TechId materialId) throws UserFailureException;
 
     /**
-     * For given <var>datasetCode</var> returns corresponding {@link ExternalData}.
+     * For given {@link TechId} returns corresponding {@link ExternalData}.
      */
-    public ExternalData getDataSetInfo(final String datasetCode, final String baseIndexURL)
+    public ExternalData getDataSetInfo(final TechId datasetId, final String baseIndexURL)
             throws UserFailureException;
 
     /**
@@ -125,8 +125,8 @@ public interface IGenericClientService extends IClientService
     /**
      * Updates material.
      */
-    public Date updateMaterial(final TechId techId, List<MaterialProperty> properties, Date version)
-            throws UserFailureException;
+    public Date updateMaterial(final TechId materialId, List<MaterialProperty> properties,
+            Date version) throws UserFailureException;
 
     /**
      * Updates sample.
@@ -138,6 +138,6 @@ public interface IGenericClientService extends IClientService
     /**
      * Updates data set.
      */
-    public Date updateDataSet(final String dataSetIdentifier, final String sampleIdentifier,
+    public Date updateDataSet(final TechId datasetId, final String sampleIdentifier,
             List<DataSetProperty> properties, Date version) throws UserFailureException;
 }

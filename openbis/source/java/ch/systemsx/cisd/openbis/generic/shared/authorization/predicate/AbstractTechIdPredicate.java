@@ -47,6 +47,8 @@ public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<Tec
     {
         switch (entityKind)
         {
+            case DATASET:
+                return new DataSetTechIdPredicate();
             case EXPERIMENT:
                 return new ExperimentTechIdPredicate();
             case PROJECT:
@@ -55,6 +57,14 @@ public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<Tec
                 return new GroupTechIdPredicate();
         }
         return null;
+    }
+
+    public static class DataSetTechIdPredicate extends AbstractTechIdPredicate
+    {
+        public DataSetTechIdPredicate()
+        {
+            super(EntityWithGroupKind.DATASET);
+        }
     }
 
     public static class ExperimentTechIdPredicate extends AbstractTechIdPredicate
@@ -107,6 +117,5 @@ public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<Tec
         final DatabaseInstancePE databaseInstance = groupOrNull.getDatabaseInstance();
         return evaluate(person, allowedRoles, databaseInstance, groupCode);
     }
-
 
 }

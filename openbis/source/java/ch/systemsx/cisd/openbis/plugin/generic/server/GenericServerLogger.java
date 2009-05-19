@@ -105,10 +105,9 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
-    public ExternalDataPE getDataSetInfo(final String sessionToken, final String code)
+    public ExternalDataPE getDataSetInfo(final String sessionToken, final TechId datasetId)
     {
-        logAccess(sessionToken, "get_data_set_info", "DATA_SET(%s)", code);
-
+        logAccess(sessionToken, "get_data_set_info", "ID(%s)", datasetId);
         return null;
     }
 
@@ -191,10 +190,10 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
-    public Date updateDataSet(String sessionToken, String code, SampleIdentifier sampleIdentifier,
-            List<DataSetProperty> properties, Date version)
+    public Date updateDataSet(String sessionToken, TechId datasetId,
+            SampleIdentifier sampleIdentifier, List<DataSetProperty> properties, Date version)
     {
-        logTracking(sessionToken, "edit_data_set", "DATA_SET(%s)", code);
+        logTracking(sessionToken, "edit_data_set", "DATA_SET(%s)", datasetId);
         return null;
     }
 

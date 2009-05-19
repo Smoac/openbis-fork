@@ -28,5 +28,5 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
  */
 public enum EntityWithGroupKind
 {
-    EXPERIMENT, GROUP, PROJECT;
+    DATASET, EXPERIMENT, GROUP, PROJECT;
 }

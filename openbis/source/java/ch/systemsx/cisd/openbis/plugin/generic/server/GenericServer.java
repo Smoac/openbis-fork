@@ -196,11 +196,11 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         return material;
     }
 
-    public ExternalDataPE getDataSetInfo(final String sessionToken, final String dataSetCode)
+    public ExternalDataPE getDataSetInfo(final String sessionToken, final TechId datasetId)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IExternalDataBO datasetBO = businessObjectFactory.createExternalDataBO(session);
-        datasetBO.loadByCode(dataSetCode);
+        datasetBO.loadDataByTechId(datasetId);
         datasetBO.enrichWithParentsAndExperiment();
         datasetBO.enrichWithProperties();
         final ExternalDataPE dataset = datasetBO.getExternalData();
@@ -409,12 +409,12 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     }
 
-    public Date updateDataSet(String sessionToken, String code, SampleIdentifier sampleIdentifier,
-            List<DataSetProperty> properties, Date version)
+    public Date updateDataSet(String sessionToken, TechId datasetId,
+            SampleIdentifier sampleIdentifier, List<DataSetProperty> properties, Date version)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IExternalDataBO dataSetBO = businessObjectFactory.createExternalDataBO(session);
-        dataSetBO.update(code, sampleIdentifier, properties, version);
+        dataSetBO.update(datasetId, sampleIdentifier, properties, version);
         return dataSetBO.getExternalData().getModificationDate();
     }
 

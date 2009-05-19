@@ -25,6 +25,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -84,6 +85,23 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
     public void loadByCode(String dataSetCode)
     {
         externalData = getExternalDataDAO().tryToFindFullDataSetByCode(dataSetCode);
+    }
+
+    private static final String PROPERTY_TYPES = "dataSetType.dataSetTypePropertyTypesInternal";
+
+    private static final String VOCABULARY_TERMS =
+            PROPERTY_TYPES + ".propertyTypeInternal.vocabulary.vocabularyTerms";
+
+    public void loadDataByTechId(TechId datasetId)
+    {
+        String[] connections =
+            { PROPERTY_TYPES, VOCABULARY_TERMS };
+        externalData = getExternalDataDAO().tryGetByTechId(datasetId, connections);
+        if (externalData == null)
+        {
+            throw new UserFailureException(String.format("Data set with ID '%s' does not exist.",
+                    datasetId));
+        }
     }
 
     public void enrichWithParentsAndExperiment()
@@ -235,10 +253,10 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
                 externalData.getDataSetType());
     }
 
-    public void update(String code, SampleIdentifier sampleIdentifier,
+    public void update(TechId datasetId, SampleIdentifier sampleIdentifier,
             List<DataSetProperty> properties, Date version)
     {
-        loadByCode(code);
+        loadDataByTechId(datasetId);
         if (version.equals(externalData.getModificationDate()) == false)
         {
             throwModifiedEntityException("Data set");
