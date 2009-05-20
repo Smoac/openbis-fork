@@ -180,6 +180,8 @@ public final class ColumnNames
 
     public static final String PERM_ID_COLUMN = "perm_id";
 
+    public static final String IS_CHOSEN_FROM_LIST = "is_choosen_from_list";
+
     private ColumnNames()
     {
         // Can not be instantiated.

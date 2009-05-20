@@ -85,6 +85,19 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
 
     private Date modificationDate;
 
+    private boolean chosenFromList = true;
+
+    @Column(name = ColumnNames.IS_CHOSEN_FROM_LIST)
+    public boolean isChosenFromList()
+    {
+        return chosenFromList;
+    }
+
+    public void setChosenFromList(boolean chosenFromList)
+    {
+        this.chosenFromList = chosenFromList;
+    }
+
     public VocabularyPE()
     {
     }
@@ -183,7 +196,7 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
         child.setVocabularyInternal(this);
         getVocabularyTerms().add(child);
     }
-    
+
     void removeTerm(VocabularyTermPE child)
     {
         if (this.equals(child.getVocabulary()) == false)
@@ -192,7 +205,7 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
         }
         getVocabularyTerms().remove(child);
     }
-    
+
     @SequenceGenerator(name = SequenceNames.CONTROLLED_VOCABULARY_SEQUENCE, sequenceName = SequenceNames.CONTROLLED_VOCABULARY_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.CONTROLLED_VOCABULARY_SEQUENCE)

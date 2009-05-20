@@ -39,6 +39,8 @@ public abstract class AbstractIdAndCodeHolder<T extends IIdAndCodeHolder> implem
 
     public final static String CODE_PATTERN = "^[A-Z0-9_\\-]+$";
 
+    public final static String TERM_CODE_PATTERN = "^[A-Z0-9_\\-\\.:]+$";
+
     /**
      * A static method for comparing two {@link IIdAndCodeHolder}s.
      */

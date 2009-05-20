@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * @author Christian Ribeaud
  */
 @Test(groups =
-    { "db"})
+    { "db" })
 public final class VocabularyDAOTest extends AbstractDAOTest
 {
     private final VocabularyTermPE createVocabularyTerm(final String code)
@@ -91,7 +91,7 @@ public final class VocabularyDAOTest extends AbstractDAOTest
         vocabularyPE.setRegistrator(registrator);
         vocabularyPE.addTerm(createVocabularyTerm("SMALL"));
         vocabularyPE.addTerm(createVocabularyTerm("MEDIUM"));
-        vocabularyPE.addTerm(createVocabularyTerm("BIG"));
+        vocabularyPE.addTerm(createVocabularyTerm("BIG:.-_-"));
         try
         {
             vocabularyDAO.createOrUpdateVocabulary(vocabularyPE);

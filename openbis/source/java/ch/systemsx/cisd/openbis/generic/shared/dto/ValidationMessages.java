@@ -47,8 +47,11 @@ public final class ValidationMessages
     public static final String CODE_PATTERN_MESSAGE =
             "Given code '%s' contains illegal characters (allowed: A-Z, a-z, 0-9, _ and -)";
 
+    public static final String TERM_CODE_PATTERN_MESSAGE =
+            "Given term code '%s' contains illegal characters (allowed: A-Z, a-z, 0-9 and '_', '-', ':', '.')";
+
     public static final String DATA_STORE_NOT_NULL_MESSAGE = "Data store" + CAN_NOT_BE_NULL;
-    
+
     public static final String DATA_SET_TYPE_NOT_NULL_MESSAGE = "Data set type" + CAN_NOT_BE_NULL;
 
     public static final String DATA_TYPE_NOT_NULL_MESSAGE = "Data type" + CAN_NOT_BE_NULL;
@@ -64,9 +67,9 @@ public final class ValidationMessages
     public static final String DOWNLOAD_URL_NOT_NULL_MESSAGE = "Download URL" + CAN_NOT_BE_NULL;
 
     public static final String REMOTE_URL_NOT_NULL_MESSAGE = "Remote URL" + CAN_NOT_BE_NULL;
-    
+
     public static final String SESSION_TOKEN_NOT_NULL_MESSAGE = "Session token" + CAN_NOT_BE_NULL;
-    
+
     public static final String EMAIL_EMAIL_MESSAGE = "Given email address '%s' is not a valid one.";
 
     public static final String EMAIL_LENGTH_MESSAGE =
