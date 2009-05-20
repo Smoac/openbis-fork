@@ -104,20 +104,33 @@ public final class ClassUtils
             }
         }
     }
-    
+
+    /**
+     * Returns <code>true</code>, if the <var>clazz</var> has a constructor with the given
+     * <var>arguments</var>.
+     */
+    public final static <C> boolean hasConstructor(final Class<C> clazz, final Object... arguments)
+    {
+        try
+        {
+            return tryGetConstructor(clazz, getClasses(arguments)) != null;
+        } catch (NoSuchMethodException ex)
+        {
+            return false;
+        }
+    }
+
     /**
      * Creates a new instance of a class specified by its fully-qualified name.
      * 
      * @param superClazz Super class <code>className</code> has to be implemented or extended.
      * @param clazz Fully-qualified class.
-     * @param argumentsOrNull Optional constructor arguments. If <code>(Object[]) null</code> then
-     *            the empty constructor will be used. Note that <code>(Object) null</code> is not
-     *            interpreted as <code>null</code> arguments but rather as
-     *            <code>new Object[]{null}</code>.
+     * @param arguments Optional constructor arguments. If <code>(Object[])</code> is an empty
+     *            array, then the default constructor will be used.
      * @return an instance of type <code>interface</code>.
      */
     public final static <T, C> T create(final Class<T> superClazz, final Class<C> clazz,
-            final Object... argumentsOrNull)
+            final Object... arguments)
     {
         assert superClazz != null : "Missing super class";
         assert clazz != null : "Missing class name";
@@ -128,12 +141,12 @@ public final class ClassUtils
                     + "' can not be instanciated as it is an interface.";
             assert superClazz.isAssignableFrom(clazz) : "Class '" + clazz.getName()
                     + "' does not implements/extends '" + superClazz.getName() + "'.";
-            if (argumentsOrNull == null)
+            if (arguments.length == 0)
             {
                 return cast(clazz.newInstance());
             }
-            final Class<?>[] classes = getClasses(argumentsOrNull);
-            final Constructor<T> constructor = getConstructor(clazz, classes);
+            final Class<?>[] classes = getClasses(arguments);
+            final Constructor<T> constructor = tryGetConstructor(clazz, classes);
             if (constructor == null)
             {
                 if (classes.length == 0)
@@ -143,7 +156,7 @@ public final class ClassUtils
                 throw new IllegalArgumentException("No constructor found for " + clazz
                         + " with arguments of the following types: " + Arrays.asList(classes));
             }
-            return constructor.newInstance(argumentsOrNull);
+            return constructor.newInstance(arguments);
         } catch (final InstantiationException ex)
         {
         } catch (final IllegalAccessException ex)
@@ -156,7 +169,7 @@ public final class ClassUtils
         }
         throw new IllegalArgumentException(String.format(
                 "Cannot instantiate class '%s' with given arguments '%s'.", clazz.getName(), Arrays
-                        .asList(argumentsOrNull)));
+                        .asList(arguments)));
     }
 
     /**
@@ -202,7 +215,7 @@ public final class ClassUtils
         return classes;
     }
 
-    private final static <T> Constructor<T> getConstructor(final Class<?> clazz,
+    private final static <T> Constructor<T> tryGetConstructor(final Class<?> clazz,
             final Class<?>[] classes) throws NoSuchMethodException
     {
         final Constructor<?>[] constructors = clazz.getConstructors();
@@ -279,8 +292,8 @@ public final class ClassUtils
     }
 
     /**
-     * Sets declared field named <var>fieldName</var> of given <var>object</var> to given new
-     * value <var>newValue</var>.
+     * Sets declared field named <var>fieldName</var> of given <var>object</var> to given new value
+     * <var>newValue</var>.
      * <p>
      * This is useful when you want to set a <code>private</code> field on which you do not have
      * access. Note that this method should only be used in very special cases. You should consider
