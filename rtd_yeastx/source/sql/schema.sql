@@ -86,11 +86,14 @@ CREATE TABLE centroids (
 
 CREATE INDEX centroids_fk_idx on centroids(fiaMsRunId);
 
-GRANT SELECT ON eicmsruns TO GROUP metabol_readonly;
-GRANT SELECT ON chromatograms TO GROUP metabol_readonly;
-GRANT SELECT ON fiamsruns TO GROUP metabol_readonly;
-GRANT SELECT ON profiles TO GROUP metabol_readonly;
-GRANT SELECT ON centroids TO GROUP metabol_readonly;
+GRANT SELECT ON TABLE eicmsruns TO GROUP metabol_readonly;
+GRANT SELECT ON TABLE chromatograms TO GROUP metabol_readonly;
+GRANT SELECT ON TABLE fiamsruns TO GROUP metabol_readonly;
+GRANT SELECT ON TABLE profiles TO GROUP metabol_readonly;
+GRANT SELECT ON TABLE centroids TO GROUP metabol_readonly;
+GRANT SELECT ON SEQUENCE eicmsruns_eicmsrunid_seq TO GROUP metabol_readonly;
+GRANT SELECT ON SEQUENCE chromatograms_chromid_seq TO GROUP metabol_readonly;
+GRANT SELECT ON SEQUENCE fiamsruns_fiamsrunid_seq TO GROUP metabol_readonly;
 
 GRANT ALL PRIVILEGES ON TABLE eicmsruns TO GROUP metabol_readwrite;
 GRANT ALL PRIVILEGES ON TABLE chromatograms TO GROUP metabol_readwrite;
