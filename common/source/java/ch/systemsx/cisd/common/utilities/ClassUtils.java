@@ -141,7 +141,7 @@ public final class ClassUtils
                     + "' can not be instanciated as it is an interface.";
             assert superClazz.isAssignableFrom(clazz) : "Class '" + clazz.getName()
                     + "' does not implements/extends '" + superClazz.getName() + "'.";
-            if (arguments.length == 0)
+            if (arguments == null || arguments.length == 0)
             {
                 return cast(clazz.newInstance());
             }
@@ -177,21 +177,21 @@ public final class ClassUtils
      * 
      * @param superClazz Super class <code>className</code> has to be implemented or extended.
      * @param className Fully-qualified class name.
-     * @param argumentsOrNull Optional constructor arguments. If <code>(Object[]) null</code> then
+     * @param arguments Optional constructor arguments. If <code>(Object[]) null</code> then
      *            the empty constructor will be used. Note that <code>(Object) null</code> is not
      *            interpreted as <code>null</code> arguments but rather as
      *            <code>new Object[]{null}</code>.
      * @return an instance of type <code>interface</code>.
      */
     public final static <T> T create(final Class<T> superClazz, final String className,
-            final Object... argumentsOrNull)
+            final Object... arguments)
     {
         assert superClazz != null : "Missing super class";
         assert className != null : "Missing class name";
 
         try
         {
-            return create(superClazz, Class.forName(className), argumentsOrNull);
+            return create(superClazz, Class.forName(className), arguments);
         } catch (final ClassNotFoundException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
