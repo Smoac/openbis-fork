@@ -20,7 +20,7 @@
 
     <bean id="db-configuration-context"
         class="ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext">
-        <property name="basicDatabaseName" value="lims" />
+        <property name="basicDatabaseName" value="openbis" />
         <property name="createFromScratch" value="${database.create-from-scratch}" />
         <property name="scriptSingleStepMode" value="${database.script-single-step-mode}" />
         <property name="sequenceNameMapper">
