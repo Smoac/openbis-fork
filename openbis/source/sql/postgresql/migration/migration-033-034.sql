@@ -1,5 +1,3 @@
--- JAVA ch.systemsx.cisd.openbis.generic.server.dataaccess.migration.MigrationStepFrom033To034
-
 ------------------------------------------------------------------------------------
 -- Create sequence for generating permanent identifiers starting with nextval of existing dataset sequence.
 ------------------------------------------------------------------------------------
@@ -21,6 +19,14 @@ DROP FUNCTION CREATE_SEQUENCE(VARCHAR, VARCHAR);
 ------------------------------------------------------------------------------------
 ALTER TABLE SAMPLES ADD COLUMN PERM_ID CODE;
 ALTER TABLE EXPERIMENTS ADD COLUMN PERM_ID CODE;
+
+UPDATE SAMPLES SET PERM_ID = to_char(registration_timestamp,'YYYYMMDDHHSSMS') || '-' || NEXTVAL('PERM_ID_SEQ');
+UPDATE EXPERIMENTS SET PERM_ID = to_char(registration_timestamp,'YYYYMMDDHHSSMS') || '-' || NEXTVAL('PERM_ID_SEQ');
+ALTER TABLE SAMPLES ALTER COLUMN PERM_ID SET NOT NULL;
+ALTER TABLE EXPERIMENTS ALTER COLUMN PERM_ID SET NOT NULL;
+ALTER TABLE SAMPLES ADD CONSTRAINT SAMP_PI_UK UNIQUE(PERM_ID);
+ALTER TABLE EXPERIMENTS ADD CONSTRAINT EXPE_PI_UK UNIQUE(PERM_ID);
+
 
 ------------------------------------------------------------------------------------
 -- Add column is_chosen_from_list to controlled_vocabularies.
