@@ -29,6 +29,7 @@
         <property name="urlHostPart" value="${database.url-host-part}" />
         <property name="adminUser" value="${database.admin-user}" />
         <property name="owner" value="${database.owner}" />
+        <property name="readOnlyGroup" value="openbis_readonly" />
         <property name="password" value="${database.owner-password}" />
         <property name="adminPassword" value="${database.admin-password}" />
         <property name="databaseKind" value="${database.kind}" />
