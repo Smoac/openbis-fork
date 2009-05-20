@@ -123,8 +123,8 @@ public class ExternalDataBOTest extends AbstractBOTest
         assertEquals(0, externalData.getParents().size());
         assertSame(experimentPE, externalData.getExperiment());
         assertEquals(PRODUCTION_DATE, externalData.getProductionDate());
-        assertSame(null, externalData.getSampleAcquiredFrom());
-        assertSame(sample, externalData.getSampleDerivedFrom());
+        assertSame(sample, externalData.getSample());
+        assertSame(true, externalData.isDerived());
         assertEquals(StorageFormat.PROPRIETARY, externalData.getStorageFormat());
         assertSame(vocabularyTerm, externalData.getStorageFormatVocabularyTerm());
         context.assertIsSatisfied();
@@ -159,8 +159,8 @@ public class ExternalDataBOTest extends AbstractBOTest
         sampleBO.define(createData(PARENT_CODE), sample, SourceType.MEASUREMENT);
         ExternalDataPE externalData = sampleBO.getExternalData();
 
-        assertSame(sample, externalData.getSampleAcquiredFrom());
-        assertSame(null, externalData.getSampleDerivedFrom());
+        assertSame(sample, externalData.getSample());
+        assertSame(true, externalData.isMeasured());
         assertSame(dataStore, externalData.getDataStore());
         assertEquals(1, externalData.getParents().size());
         assertSame(data, externalData.getParents().iterator().next());
@@ -206,8 +206,8 @@ public class ExternalDataBOTest extends AbstractBOTest
         sampleBO.define(createData(PARENT_CODE), sample, SourceType.MEASUREMENT);
         ExternalDataPE externalData = sampleBO.getExternalData();
 
-        assertSame(sample, externalData.getSampleAcquiredFrom());
-        assertSame(null, externalData.getSampleDerivedFrom());
+        assertSame(sample, externalData.getSample());
+        assertSame(true, externalData.isMeasured());
         assertSame(dataStore, externalData.getDataStore());
         assertEquals(1, externalData.getParents().size());
         assertEquals(parentData, externalData.getParents().iterator().next());
@@ -244,7 +244,7 @@ public class ExternalDataBOTest extends AbstractBOTest
                     one(dataSetTypeDAO).tryToFindDataSetTypeByCode(
                             DataSetTypeCode.UNKNOWN.getCode());
                     will(returnValue(dataSetTypeUnknown));
-                    
+
                     one(externalDataDAO).createDataSet(parentData);
                 }
             });
@@ -253,8 +253,8 @@ public class ExternalDataBOTest extends AbstractBOTest
         bo.define(createData(PARENT_CODE), data, SourceType.MEASUREMENT);
         ExternalDataPE externalData = bo.getExternalData();
 
-        assertSame(data, externalData.getSampleAcquiredFrom());
-        assertSame(null, externalData.getSampleDerivedFrom());
+        assertSame(data, externalData.getSample());
+        assertSame(true, externalData.isMeasured());
         assertSame(dataStore, externalData.getDataStore());
         assertEquals(1, externalData.getParents().size());
         assertEquals(parentData, externalData.getParents().iterator().next());
@@ -334,7 +334,9 @@ public class ExternalDataBOTest extends AbstractBOTest
         assertSame(dataStore, externalData.getDataStore());
         assertEquals(false, externalData.isPlaceholder());
         assertEquals(4711, externalData.getId().longValue());
-        assertEquals(null, externalData.getSampleDerivedFrom());
+        assertSame(sample, externalData.getSample()); // TODO additional test
+        assertSame(true, externalData.isDerived());
+
         context.assertIsSatisfied();
     }
 
@@ -390,7 +392,7 @@ public class ExternalDataBOTest extends AbstractBOTest
                             dataSetType.getCode(), EXAMPLE_SESSION.tryGetPerson());
                     ArrayList<DataSetPropertyPE> properties = new ArrayList<DataSetPropertyPE>();
                     will(returnValue(properties));
-                    
+
                     one(dataStoreDAO).tryToFindDataStoreByCode(DATA_STORE_CODE);
                     will(returnValue(dataStore));
                 }

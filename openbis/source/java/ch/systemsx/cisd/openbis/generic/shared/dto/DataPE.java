@@ -43,7 +43,6 @@ import javax.persistence.Version;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.Check;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.search.annotations.DocumentId;
@@ -56,6 +55,7 @@ import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
 import ch.rinn.restrictions.Friend;
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
@@ -72,9 +72,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 @Entity
 @Table(name = TableNames.DATA_TABLE, uniqueConstraints = @UniqueConstraint(columnNames = ColumnNames.CODE_COLUMN))
-@Check(constraints = "(" + ColumnNames.SAMPLE_ACQUIRED_FROM + " IS NOT NULL AND "
-        + ColumnNames.SAMPLE_DERIVED_FROM + " IS NULL) OR (" + ColumnNames.SAMPLE_ACQUIRED_FROM
-        + " IS NULL AND " + ColumnNames.SAMPLE_DERIVED_FROM + " IS NOT NULL)")
 @Inheritance(strategy = InheritanceType.JOINED)
 @Friend(toClasses = EventPE.class)
 public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPropertiesHolder,
@@ -92,6 +89,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
 
     private boolean deleted;
 
+    private boolean isDerived;
+
     /** Registration date of the database instance. */
     private Date registrationDate;
 
@@ -99,15 +98,13 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
 
     private ExperimentPE experiment;
 
+    private SamplePE sample;
+
     private Date productionDate;
 
     private Date modificationDate;
 
     private String dataProducerCode;
-
-    private SamplePE sampleAcquiredFrom;
-
-    private SamplePE sampleDerivedFrom;
 
     private Set<DataPE> parents = new HashSet<DataPE>();
 
@@ -156,6 +153,36 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
     }
 
     /**
+     * Returns <code>true</code> if this data set is data set is derived from a sample (otherwise it
+     * is measured from a sample).
+     */
+    @Column(name = ColumnNames.IS_DERIVED)
+    public boolean isDerived()
+    {
+        return isDerived;
+    }
+
+    /**
+     * Set to <code>true</code> if this data set is data set is derived from a sample (otherwise it
+     * is measured from a sample).
+     */
+    @Private
+    public void setDerived(boolean isDerived)
+    {
+        this.isDerived = isDerived;
+    }
+
+    /**
+     * Returns <code>true</code> if this data set is data set is measured from a sample (otherwise it
+     * is derived from a sample).
+     */
+    @Transient
+    public boolean isMeasured()
+    {
+        return isDerived == false;
+    }
+
+    /**
      * Returns <code>true</code> if this data set is a placeholder for a data set yet to arrive.
      */
     @Column(name = ColumnNames.IS_PLACEHOLDER_COLUMN)
@@ -184,89 +211,62 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
         this.deleted = deleted;
     }
 
-    // bidirectional connections SamplePE-DataPE
+    // bidirectional connection SamplePE-DataPE
 
-    public void setSampleDerivedFrom(final SamplePE sampleDerivedFrom)
+    public void setSampleDerivedFrom(final SamplePE sample)
     {
-        if (sampleDerivedFrom != null)
+        setDerived(true);
+        setSample(sample);
+    }
+
+    public void setSampleAcquiredFrom(final SamplePE sample)
+    {
+        setDerived(false);
+        setSample(sample);
+    }
+
+    @Private
+    public void setSample(final SamplePE sample)
+    {
+        if (sample != null)
         {
-            sampleDerivedFrom.addDerivedDataSet(this);
+            sample.addDataSet(this);
         } else
         {
-            SamplePE previousSample = getSampleDerivedFrom();
+            SamplePE previousSample = getSample();
             if (previousSample != null)
             {
-                previousSample.removeDerivedDataSet(this);
+                previousSample.removeDataSet(this);
             }
         }
     }
 
-    public void setSampleAcquiredFrom(final SamplePE sampleAcquiredFrom)
-    {
-        if (sampleAcquiredFrom != null)
-        {
-            sampleAcquiredFrom.addAcquiredDataSet(this);
-        } else
-        {
-            SamplePE previousSample = getSampleAcquiredFrom();
-            if (previousSample != null)
-            {
-                previousSample.removeAcquiredDataSet(this);
-            }
-        }
-    }
-
     @Transient
-    public SamplePE getSampleAcquiredFrom()
+    public SamplePE getSample()
     {
-        return getSampleAcquiredFromInternal();
-    }
-
-    @Transient
-    public SamplePE getSampleDerivedFrom()
-    {
-        return getSampleDerivedFromInternal();
+        return getSampleInternal();
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.SAMPLE_ACQUIRED_FROM)
+    @NotNull(message = ValidationMessages.SAMPLE_NOT_NULL_MESSAGE)
+    @JoinColumn(name = ColumnNames.SAMPLE_COLUMN)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SAMPLE)
-    private SamplePE getSampleAcquiredFromInternal()
+    private SamplePE getSampleInternal()
     {
-        return sampleAcquiredFrom;
-    }
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.SAMPLE_DERIVED_FROM)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SAMPLE)
-    private SamplePE getSampleDerivedFromInternal()
-    {
-        return sampleDerivedFrom;
+        return sample;
     }
 
     // TODO 2009-04-28, Tomasz Pylak: make @Private
-    void setSampleAcquiredFromInternal(final SamplePE sampleAcquiredFrom)
+    void setSampleInternal(final SamplePE sample)
     {
-        this.sampleAcquiredFrom = sampleAcquiredFrom;
-    }
-
-    // TODO 2009-04-28, Tomasz Pylak: make @Private
-    void setSampleDerivedFromInternal(final SamplePE sampleDerivedFrom)
-    {
-        this.sampleDerivedFrom = sampleDerivedFrom;
-    }
-
-    @Transient
-    public SamplePE getAssociatedSample()
-    {
-        return sampleAcquiredFrom == null ? sampleDerivedFrom : sampleAcquiredFrom;
+        this.sample = sample;
     }
 
     @Transient
     public String getAssociatedSampleCode()
     {
-        final SamplePE sample = getAssociatedSample();
-        return sample != null ? sample.getCode() : null;
+        SamplePE samplePE = getSample();
+        return samplePE != null ? samplePE.getCode() : null;
     }
 
     /**

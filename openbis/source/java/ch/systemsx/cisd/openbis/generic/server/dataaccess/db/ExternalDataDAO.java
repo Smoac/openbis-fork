@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
 /**
@@ -83,10 +82,8 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         final String query =
                 String.format("from %s e " + "left join fetch e.experimentInternal "
                         + "left join fetch e.parents " + "left join fetch e.dataSetProperties "
-                        + "where (e.%s = ? or e.%s = ?) and e.deleted = false", TABLE_NAME,
-                        SourceType.DERIVED.getFieldName(), SourceType.MEASUREMENT.getFieldName());
-        final List<ExternalDataPE> list =
-                cast(getHibernateTemplate().find(query, toArray(sample, sample)));
+                        + "where e.sampleInternal = ? and e.deleted = false", TABLE_NAME);
+        final List<ExternalDataPE> list = cast(getHibernateTemplate().find(query, toArray(sample)));
 
         // distinct does not work properly in HQL for left joins
         distinct(list);

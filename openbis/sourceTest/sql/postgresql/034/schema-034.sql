@@ -291,8 +291,6 @@ CREATE TABLE data (
     dsty_id tech_id NOT NULL,
     data_producer_code code,
     production_timestamp time_stamp,
-    samp_id_acquired_from tech_id,
-    samp_id_derived_from tech_id,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     is_placeholder boolean_char DEFAULT false,
     is_deleted boolean_char DEFAULT false,
@@ -300,7 +298,8 @@ CREATE TABLE data (
     modification_timestamp time_stamp DEFAULT now(),
     expe_id tech_id NOT NULL,
     dast_id tech_id NOT NULL,
-    CONSTRAINT data_samp_arc_ck CHECK ((((samp_id_acquired_from IS NOT NULL) AND (samp_id_derived_from IS NULL)) OR ((samp_id_acquired_from IS NULL) AND (samp_id_derived_from IS NOT NULL))))
+    is_derived boolean_char NOT NULL,
+    samp_id tech_id NOT NULL
 );
 CREATE SEQUENCE data_id_seq
     INCREMENT BY 1

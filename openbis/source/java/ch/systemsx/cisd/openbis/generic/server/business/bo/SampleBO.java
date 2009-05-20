@@ -282,8 +282,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         ensureSampleAttachableToExperiment();
 
         GroupPE experimentGroup = newExperiment.getProject().getGroup();
-        changeDatasetsExperiment(sample.getAcquiredDatasets(), newExperiment);
-        changeDatasetsExperiment(sample.getDerivedDatasets(), newExperiment);
+        changeDatasetsExperiment(sample.getDatasets(), newExperiment);
         sample.setGroup(experimentGroup);
         sample.setExperiment(newExperiment);
     }

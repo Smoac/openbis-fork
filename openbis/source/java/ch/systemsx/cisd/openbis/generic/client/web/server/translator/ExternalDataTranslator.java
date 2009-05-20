@@ -70,7 +70,7 @@ public class ExternalDataTranslator
             String defaultDataStoreBaseURL, String baseIndexURL, boolean loadSampleProperties,
             final LoadableFields... withExperimentFields)
     {
-        SamplePE sample = tryToGetSample(externalDataPE);
+        SamplePE sample = externalDataPE.getSample();
         ExternalData externalData = new ExternalData();
         externalData.setId(externalDataPE.getId());
         externalData.setCode(StringEscapeUtils.escapeHtml(externalDataPE.getCode()));
@@ -79,7 +79,7 @@ public class ExternalDataTranslator
                 .getDataProducerCode()));
         externalData.setDataSetType(DataSetTypeTranslator
                 .translate(externalDataPE.getDataSetType()));
-        externalData.setDerived(externalDataPE.getSampleDerivedFrom() != null);
+        externalData.setDerived(externalDataPE.isDerived());
         externalData
                 .setFileFormatType(TypeTranslator.translate(externalDataPE.getFileFormatType()));
         externalData.setInvalidation(tryToGetInvalidation(sample));
@@ -137,16 +137,6 @@ public class ExternalDataTranslator
     {
         Set<DataPE> parents = externalDataPE.getParents();
         return parents.isEmpty() ? null : parents.iterator().next().getCode();
-    }
-
-    private static SamplePE tryToGetSample(ExternalDataPE externalDataPE)
-    {
-        SamplePE sample = externalDataPE.getSampleAcquiredFrom();
-        if (sample != null)
-        {
-            return sample;
-        }
-        return externalDataPE.getSampleDerivedFrom();
     }
 
     private static Sample fill(Sample sample, SamplePE samplePE, boolean loadSampleProperties)

@@ -370,6 +370,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         datasets = filterNulls(datasets);
         // NOTE: there is a limit on the number of JOINs, so we have to initialize sample properties
         // manually
+        // TODO 2009-05-20, Piotr Buczek: maybe it works now when we removed arc connection with sample
         initSamplesWithProperties(datasets);
         return datasets;
     }
@@ -378,8 +379,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     {
         for (ExternalDataPE dataset : datasets)
         {
-            initSamplesWithProperties(dataset.getSampleAcquiredFrom());
-            initSamplesWithProperties(dataset.getSampleDerivedFrom());
+            initSamplesWithProperties(dataset.getSample());
         }
     }
 

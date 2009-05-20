@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
@@ -57,11 +58,10 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 /**
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses = DataPE.class)
 public class ExternalDataBO extends AbstractExternalDataBusinessObject implements IExternalDataBO
 {
     private ExternalDataPE externalData;
-
-    private SourceType sourceType;
 
     protected final IEntityPropertiesConverter entityPropertiesConverter;
 
@@ -120,7 +120,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         }
     }
 
-    public void define(ExternalData data, SamplePE sample, SourceType type)
+    public void define(ExternalData data, SamplePE sample, SourceType sourceType)
     {
         assert data != null : "Undefined data.";
         final DataSetType dataSetType = data.getDataSetType();
@@ -131,9 +131,8 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         assert location != null : "Undefined location.";
         final LocatorType locatorType = data.getLocatorType();
         assert locatorType != null : "Undefined location type.";
-        assert type != null : "Undefined source type.";
+        assert sourceType != null : "Undefined source type.";
 
-        sourceType = type;
         externalData = new ExternalDataPE();
         externalData.setExperiment(sample.getExperiment());
         externalData.setDataProducerCode(data.getDataProducerCode());
@@ -159,7 +158,9 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
             parents.add(getOrCreateParentData(parentDataSetCode, dataStore, sample));
             externalData.setParents(parents);
         }
-        sourceType.setSample(externalData, sample);
+        
+        externalData.setSample(sample);
+        externalData.setDerived(sourceType == SourceType.DERIVED);
     }
 
     private VocabularyTermPE tryToFindStorageFormatTerm(StorageFormat storageFormat)
@@ -243,7 +244,6 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
                         + "' can not be updated by data set " + externalData);
             }
             externalData.setPlaceholder(false);
-            sourceType.nullifyProducerSample(externalData);
             externalData.setId(data.getId());
             externalData.setRegistrationDate(new Date());
             externalData.setModificationDate(data.getModificationDate());
@@ -279,7 +279,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
     private void updateSample(SampleIdentifier sampleIdentifier)
     {
         SamplePE sample = getSampleByIdentifier(sampleIdentifier);
-        SamplePE previousSample = externalData.getAssociatedSample();
+        SamplePE previousSample = externalData.getSample();
         if (sample.equals(previousSample))
         {
             return; // nothing to change
@@ -299,7 +299,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         {
             externalData.setExperiment(experiment);
         }
-        setAssociatedSample(sample);
+        externalData.setSample(sample);
     }
 
     private UserFailureException createWrongSampleException(SamplePE sample, String reason)
@@ -307,22 +307,6 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         return UserFailureException.fromTemplate(
                 "The dataset '%s' cannot be connected to the sample '%s'" + " because %s.",
                 externalData.getCode(), sample.getIdentifier(), reason);
-    }
-
-    /**
-     * Updates associated sample. If there is an associated derived from or acquired from sample the
-     * same 'sample from type' will be set. If no sample is associated acquired from sample will be
-     * set.
-     */
-    private void setAssociatedSample(SamplePE sample)
-    {
-        if (externalData.getSampleDerivedFrom() != null)
-        {
-            externalData.setSampleDerivedFrom(sample);
-        } else
-        {
-            externalData.setSampleAcquiredFrom(sample);
-        }
     }
 
     private final void defineDataSetProperties(final ExternalDataPE data,

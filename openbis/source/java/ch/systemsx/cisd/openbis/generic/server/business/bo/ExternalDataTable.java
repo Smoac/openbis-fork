@@ -182,7 +182,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             for (ExternalDataPE dataSet : dataSets)
             {
                 HibernateUtils.initialize(dataSet.getParents());
-                SamplePE sample = dataSet.getAssociatedSample();
+                SamplePE sample = dataSet.getSample();
                 ExperimentPE experiment;
                 if (sample != null)
                 {

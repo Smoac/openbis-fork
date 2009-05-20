@@ -157,8 +157,7 @@ CREATE INDEX cvte_pers_fk_i ON controlled_vocabulary_terms USING btree (pers_id_
 CREATE INDEX dast_dbin_fk_i ON data_stores USING btree (dbin_id);
 CREATE INDEX data_dsty_fk_i ON data USING btree (dsty_id);
 CREATE INDEX data_expe_fk_i ON data USING btree (expe_id);
-CREATE INDEX data_samp_fk_i_acquired_from ON data USING btree (samp_id_acquired_from);
-CREATE INDEX data_samp_fk_i_derived_from ON data USING btree (samp_id_derived_from);
+CREATE INDEX data_samp_fk_i ON data USING btree (samp_id);
 CREATE INDEX dspr_cvte_fk_i ON data_set_properties USING btree (cvte_id);
 CREATE INDEX dspr_ds_fk_i ON data_set_properties USING btree (ds_id);
 CREATE INDEX dspr_dstpt_fk_i ON data_set_properties USING btree (dstpt_id);
@@ -287,9 +286,7 @@ ALTER TABLE ONLY data
 ALTER TABLE ONLY data
     ADD CONSTRAINT data_expe_fk FOREIGN KEY (expe_id) REFERENCES experiments(id);
 ALTER TABLE ONLY data
-    ADD CONSTRAINT data_samp_fk_acquired_from FOREIGN KEY (samp_id_acquired_from) REFERENCES samples(id);
-ALTER TABLE ONLY data
-    ADD CONSTRAINT data_samp_fk_derived_from FOREIGN KEY (samp_id_derived_from) REFERENCES samples(id);
+    ADD CONSTRAINT data_samp_fk FOREIGN KEY (samp_id) REFERENCES samples(id);
 ALTER TABLE ONLY data_set_properties
     ADD CONSTRAINT dspr_cvte_fk FOREIGN KEY (cvte_id) REFERENCES controlled_vocabulary_terms(id);
 ALTER TABLE ONLY data_set_properties

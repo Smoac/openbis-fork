@@ -92,6 +92,8 @@ public final class ColumnNames
 
     public static final String IS_DATA_ACQUSITION = "is_data_acquisition";
 
+    public static final String IS_DERIVED = "is_derived";
+
     public static final String IS_DISPLAYED = "is_displayed";
 
     public static final String IS_INTERNAL_NAMESPACE = "is_internal_namespace";
@@ -148,11 +150,7 @@ public final class ColumnNames
 
     public final static String ROLE_COLUMN = "role_code";
 
-    public static final String SAMPLE_ACQUIRED_FROM = "samp_id_acquired_from";
-
     public static final String SAMPLE_COLUMN = "samp_id";
-
-    public static final String SAMPLE_DERIVED_FROM = "samp_id_derived_from";
 
     public static final String SAMPLE_TYPE_COLUMN = "saty_id";
 

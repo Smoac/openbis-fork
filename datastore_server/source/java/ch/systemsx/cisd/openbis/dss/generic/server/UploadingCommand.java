@@ -57,20 +57,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class UploadingCommand implements IDataSetCommand
 {
     private static final long serialVersionUID = 1L;
-    
+
     private static final Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, UploadingCommand.class);
+            LogFactory.getLogger(LogCategory.OPERATION, UploadingCommand.class);
 
     private static final Logger notificationLog =
-        LogFactory.getLogger(LogCategory.NOTIFY, UploadingCommand.class);
-    
+            LogFactory.getLogger(LogCategory.NOTIFY, UploadingCommand.class);
+
     private final class ProgressListener implements IProgressListener
     {
         private final File zipFile;
@@ -220,18 +218,27 @@ class UploadingCommand implements IDataSetCommand
             return builder.toString();
         }
     }
-    
+
     private final ICIFEXRPCServiceFactory cifexServiceFactory;
+
     private final List<ExternalDataPE> dataSets;
+
     private final String fileName;
+
     private final String comment;
+
     private final String userID;
+
     private final String password;
+
     private final String userEMail;
+
     private final MailClientParameters mailClientParameters;
+
     private final TokenGenerator tokenGenerator;
 
-    @Private boolean deleteAfterUploading = true;
+    @Private
+    boolean deleteAfterUploading = true;
 
     UploadingCommand(ICIFEXRPCServiceFactory cifexServiceFactory,
             MailClientParameters mailClientParameters, List<ExternalDataPE> dataSets,
@@ -282,7 +289,7 @@ class UploadingCommand implements IDataSetCommand
         {
             return tokenGenerator.getNewToken(System.currentTimeMillis()) + ".zip";
         }
-        return fileName.toLowerCase().endsWith(".zip") ? fileName : fileName + ".zip"; 
+        return fileName.toLowerCase().endsWith(".zip") ? fileName : fileName + ".zip";
     }
 
     private boolean fillZipFile(File store, File zipFile)
@@ -305,8 +312,9 @@ class UploadingCommand implements IDataSetCommand
                 String newRootPath = createRootPath(dataSet);
                 try
                 {
-                    addEntry(zipOutputStream, newRootPath + "/meta-data.tsv", System.currentTimeMillis(),
-                            new ByteArrayInputStream(createMetaData(dataSet).getBytes()));
+                    addEntry(zipOutputStream, newRootPath + "/meta-data.tsv", System
+                            .currentTimeMillis(), new ByteArrayInputStream(createMetaData(dataSet)
+                            .getBytes()));
                 } catch (IOException ex)
                 {
                     notificationLog.error("Couldn't add meta date for data set '"
@@ -315,7 +323,8 @@ class UploadingCommand implements IDataSetCommand
                 }
                 try
                 {
-                    addTo(zipOutputStream, dataSetFile.getCanonicalPath().length(), newRootPath, dataSetFile);
+                    addTo(zipOutputStream, dataSetFile.getCanonicalPath().length(), newRootPath,
+                            dataSetFile);
                 } catch (IOException ex)
                 {
                     notificationLog.error("Couldn't add data set '" + location + "' to zip file.",
@@ -342,7 +351,7 @@ class UploadingCommand implements IDataSetCommand
             }
         }
     }
-    
+
     private String createMetaData(ExternalDataPE dataSet)
     {
         MetaDataBuilder builder = new MetaDataBuilder();
@@ -350,9 +359,9 @@ class UploadingCommand implements IDataSetCommand
         builder.dataSet("production_timestamp", dataSet.getProductionDate());
         builder.dataSet("producer_code", dataSet.getDataProducerCode());
         builder.dataSet("data_set_type", dataSet.getDataSetType().getCode());
-        builder.dataSet("is_measured", dataSet.getSampleAcquiredFrom() != null);
+        builder.dataSet("is_measured", dataSet.isMeasured());
         builder.dataSet("is_complete", BooleanOrUnknown.T.equals(dataSet.getComplete()));
-        
+
         StringBuilder stringBuilder = new StringBuilder();
         Set<DataPE> parents = dataSet.getParents();
         if (parents.isEmpty() == false)
@@ -367,7 +376,7 @@ class UploadingCommand implements IDataSetCommand
             }
         }
         builder.dataSet("parent_codes", stringBuilder.toString());
-        SamplePE sample = dataSet.getAssociatedSample();
+        SamplePE sample = dataSet.getSample();
         if (sample != null)
         {
             builder.sample("type_code", sample.getSampleType().getCode());
@@ -387,10 +396,10 @@ class UploadingCommand implements IDataSetCommand
         builder.experiment("registrator", experiment.getRegistrator());
         return builder.toString();
     }
-    
+
     private String createRootPath(ExternalDataPE dataSet)
     {
-        SamplePE sample = dataSet.getAssociatedSample();
+        SamplePE sample = dataSet.getSample();
         ExperimentPE experiment = sample == null ? dataSet.getExperiment() : sample.getExperiment();
         ProjectPE project = experiment.getProject();
         project.getGroup().getCode();
@@ -403,7 +412,8 @@ class UploadingCommand implements IDataSetCommand
     {
         if (file.isFile())
         {
-            String zipEntryPath = newRootPath + file.getCanonicalPath().substring(oldRootPathLength);
+            String zipEntryPath =
+                    newRootPath + file.getCanonicalPath().substring(oldRootPathLength);
             addEntry(zipOutputStream, zipEntryPath, file.lastModified(), new FileInputStream(file));
         } else
         {
