@@ -36,6 +36,13 @@ public class DBFactory
 
     public static Connection getConnection() throws SQLException
     {
+        try
+        {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException ex)
+        {
+            throw new SQLException("No suitable driver.");
+        }
         final Connection conn =
             DriverManager.getConnection("jdbc:postgresql:metabol", System.getProperties()
                     .getProperty("user.name"), "");
