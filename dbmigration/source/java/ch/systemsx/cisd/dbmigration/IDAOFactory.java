@@ -50,4 +50,10 @@ public interface IDAOFactory
      * Returns the java migration step executor.
      */
     public IMigrationStepExecutor getMigrationStepExecutor();
+
+    /**
+     * Returns the java migration step executor to be run as the database admin user.
+     */
+    public IMigrationStepExecutor getMigrationStepExecutorAdmin();
+
 }

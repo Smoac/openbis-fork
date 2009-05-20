@@ -50,6 +50,8 @@ public class PostgreSQLDAOFactory implements IDAOFactory
 
     private final IMigrationStepExecutor migrationStepExecutor;
 
+    private final IMigrationStepExecutor migrationStepExecutorAdmin;
+
     /**
      * Creates an instance based on the specified configuration context.
      */
@@ -57,7 +59,8 @@ public class PostgreSQLDAOFactory implements IDAOFactory
     {
         final DataSource dataSource = context.getDataSource();
         sqlScriptExecutor = new SqlScriptExecutor(dataSource, context.isScriptSingleStepMode());
-        migrationStepExecutor = new MigrationStepExecutor(dataSource);
+        migrationStepExecutor = new MigrationStepExecutor(dataSource, false);
+        migrationStepExecutorAdmin = new MigrationStepExecutor(context.getAdminDataSource(), true);
         databaseVersionLogDAO = new DatabaseVersionLogDAO(dataSource, context.getLobHandler());
         try
         {
@@ -97,6 +100,11 @@ public class PostgreSQLDAOFactory implements IDAOFactory
     public IMigrationStepExecutor getMigrationStepExecutor()
     {
         return migrationStepExecutor;
+    }
+
+    public IMigrationStepExecutor getMigrationStepExecutorAdmin()
+    {
+        return migrationStepExecutorAdmin;
     }
 
 }

@@ -74,6 +74,8 @@ public final class DBMigrationEngine
 
     private final IMigrationStepExecutor migrationStepExecutor;
 
+    private final IMigrationStepExecutor migrationStepExecutorAdmin;
+
     /**
      * Creates an instance for the specified DAO factory and SQL script provider.
      * 
@@ -87,6 +89,7 @@ public final class DBMigrationEngine
         logDAO = daoFactory.getDatabaseVersionLogDAO();
         scriptExecutor = daoFactory.getSqlScriptExecutor();
         migrationStepExecutor = daoFactory.getMigrationStepExecutor();
+        migrationStepExecutorAdmin = daoFactory.getMigrationStepExecutorAdmin();
         this.scriptProvider = scriptProvider;
         this.shouldCreateFromScratch = shouldCreateFromScratch;
     }
@@ -256,11 +259,15 @@ public final class DBMigrationEngine
                 throw new EnvironmentFailureException(message);
             }
             final long time = System.currentTimeMillis();
+            migrationStepExecutorAdmin.init(migrationScript);
             migrationStepExecutor.init(migrationScript);
+            migrationStepExecutorAdmin.performPreMigration();
             migrationStepExecutor.performPreMigration();
             scriptExecutor.execute(migrationScript, true, logDAO);
             migrationStepExecutor.performPostMigration();
+            migrationStepExecutorAdmin.performPostMigration();
             migrationStepExecutor.finish();
+            migrationStepExecutorAdmin.finish();
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Successfully migrated from version " + version + " to "

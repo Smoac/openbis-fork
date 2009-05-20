@@ -49,16 +49,22 @@ public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigr
 
     private static final String JAVA_MIGRATION_STEP_PREFIX = "--JAVA";
 
+    private static final String JAVA_ADMIN_MIGRATION_STEP_PREFIX = "--JAVA_ADMIN";
+
+    private final boolean isAdmin;
+
     private IMigrationStep migrationStep;
 
     private boolean inited;
 
-    public MigrationStepExecutor(final DataSource dataSource)
+    public MigrationStepExecutor(final DataSource dataSource, boolean isAdmin)
     {
         setDataSource(dataSource);
+        this.isAdmin = isAdmin;
     }
 
-    private final static IMigrationStep tryExtractMigrationStep(final Script sqlScript)
+    private final static IMigrationStep tryExtractMigrationStep(final Script sqlScript,
+            final boolean isAdmin)
 
     {
         assert sqlScript != null : "SQL script not provided";
@@ -71,17 +77,20 @@ public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigr
                 ParserUtilities.tryGetFirstAcceptedLine(content, NonEmptyLineFilter.INSTANCE);
         if (firstNonEmptyLineOrNull != null)
         {
-            return tryExtractMigrationStepFromLine(firstNonEmptyLineOrNull.getText());
+            return tryExtractMigrationStepFromLine(firstNonEmptyLineOrNull.getText(), isAdmin);
         }
         return null;
     }
 
-    private final static IMigrationStep tryExtractMigrationStepFromLine(final String lineToProcess)
+    private final static IMigrationStep tryExtractMigrationStepFromLine(final String lineToProcess,
+            final boolean isAdmin)
     {
         final String line = StringUtils.deleteWhitespace(lineToProcess);
-        if (line != null && line.startsWith(JAVA_MIGRATION_STEP_PREFIX))
+        final String prefix =
+                isAdmin ? JAVA_ADMIN_MIGRATION_STEP_PREFIX : JAVA_MIGRATION_STEP_PREFIX;
+        if (line != null && line.startsWith(prefix))
         {
-            final String className = StringUtils.removeStart(line, JAVA_MIGRATION_STEP_PREFIX);
+            final String className = StringUtils.removeStart(line, prefix);
             try
             {
                 return (IMigrationStep) ClassUtils.createInstance(Class.forName(className));
@@ -101,7 +110,7 @@ public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigr
 
     public final void init(final Script migrationScript)
     {
-        migrationStep = tryExtractMigrationStep(migrationScript);
+        migrationStep = tryExtractMigrationStep(migrationScript, isAdmin);
         if (migrationStep != null)
         {
             operationLog.info(String.format(
