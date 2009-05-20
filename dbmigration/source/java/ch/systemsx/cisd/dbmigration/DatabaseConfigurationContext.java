@@ -82,6 +82,8 @@ public class DatabaseConfigurationContext implements DisposableBean
 
     private String owner;
 
+    private String readOnlyGroup;
+
     private String password;
 
     private String basicDatabaseName;
@@ -276,6 +278,24 @@ public class DatabaseConfigurationContext implements DisposableBean
         {
             this.owner = owner;
         }
+    }
+
+    /**
+     * Sets the name of group that gets read-only access to all database objects. If
+     * <var>readOnlyGroup</var> is <code>null</code> or empty, then no read-only group will be
+     * created.
+     */
+    public String getReadOnlyGroup()
+    {
+        return readOnlyGroup;
+    }
+
+    /**
+     * Sets the name of the group that should be granted read-only access.
+     */
+    public void setReadOnlyGroup(String readOnlyUser)
+    {
+        this.readOnlyGroup = readOnlyUser;
     }
 
     /**

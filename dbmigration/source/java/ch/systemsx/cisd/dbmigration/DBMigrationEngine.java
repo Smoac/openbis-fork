@@ -186,6 +186,7 @@ public final class DBMigrationEngine
     private final void setupDatabase(final String version)
     {
         adminDAO.createOwner();
+        adminDAO.createReadOnlyGroup();
         if (scriptProvider.isDumpRestore(version))
         {
             adminDAO.restoreDatabaseFromDump(scriptProvider.getDumpFolder(version), version);

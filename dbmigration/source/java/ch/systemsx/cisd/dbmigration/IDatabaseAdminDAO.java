@@ -47,6 +47,12 @@ public interface IDatabaseAdminDAO
     public void createOwner();
 
     /**
+     * Creates the group that should be granted read-only access to all objects in this database. 
+     * Implementation should handle the case of already existing group gracefully.
+     */
+    public void createReadOnlyGroup();
+
+    /**
      * Creates the database and the 'database_version_logs' table.
      */
     public void createDatabase();

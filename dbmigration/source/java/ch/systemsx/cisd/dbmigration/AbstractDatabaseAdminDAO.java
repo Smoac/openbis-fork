@@ -30,11 +30,12 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
 
 /**
+ * Common base class of {@link IDatabaseAdminDAO} implementations.
  * 
- *
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractDatabaseAdminDAO extends SimpleJdbcDaoSupport implements IDatabaseAdminDAO
+public abstract class AbstractDatabaseAdminDAO extends SimpleJdbcDaoSupport implements
+        IDatabaseAdminDAO
 {
     protected final ISqlScriptExecutor scriptExecutor;
 
@@ -42,10 +43,12 @@ public abstract class AbstractDatabaseAdminDAO extends SimpleJdbcDaoSupport impl
 
     protected final String owner;
 
+    protected final String readOnlyGroupOrNull;
+
     protected final String databaseName;
 
     protected final String databaseURL;
-    
+
     /**
      * Creates an instance.
      * 
@@ -53,15 +56,18 @@ public abstract class AbstractDatabaseAdminDAO extends SimpleJdbcDaoSupport impl
      * @param scriptExecutor An executor for SQL scripts.
      * @param massUploader A class that can perform mass (batch) uploads into database tables.
      * @param owner Owner to be created if it doesn't exist.
+     * @param readOnlyGroupOrNull Group name that gets read-only access.
      * @param databaseName Name of the database.
      * @param databaseURL URL of the database.
      */
     public AbstractDatabaseAdminDAO(DataSource dataSource, ISqlScriptExecutor scriptExecutor,
-            IMassUploader massUploader, String owner, String databaseName, String databaseURL)
+            IMassUploader massUploader, String owner, String readOnlyGroupOrNull, String databaseName,
+            String databaseURL)
     {
         this.scriptExecutor = scriptExecutor;
         this.massUploader = massUploader;
         this.owner = owner;
+        this.readOnlyGroupOrNull = readOnlyGroupOrNull;
         this.databaseName = databaseName;
         this.databaseURL = databaseURL;
         setDataSource(dataSource);
@@ -102,7 +108,7 @@ public abstract class AbstractDatabaseAdminDAO extends SimpleJdbcDaoSupport impl
         }
         return databaseDefinition;
     }
-    
+
     private void addColumns(DatabaseDefinition databaseDefinition, DatabaseMetaData metaData)
             throws SQLException
     {
@@ -162,5 +168,5 @@ public abstract class AbstractDatabaseAdminDAO extends SimpleJdbcDaoSupport impl
             }
         }
     }
-    
+
 }

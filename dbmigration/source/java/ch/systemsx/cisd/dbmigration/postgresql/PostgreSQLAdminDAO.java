@@ -68,13 +68,16 @@ public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
      * @param scriptExecutor An executor for SQL scripts.
      * @param massUploader A class that can perform mass (batch) uploads into database tables.
      * @param owner Owner to be created if it doesn't exist.
+     * @param readOnlyGroup Group that should be granted read-only access.
      * @param databaseName Name of the database.
      * @param databaseURL URL of the database.
      */
     public PostgreSQLAdminDAO(DataSource dataSource, ISqlScriptExecutor scriptExecutor,
-            IMassUploader massUploader, String owner, String databaseName, String databaseURL)
+            IMassUploader massUploader, String owner, String readOnlyGroup, String databaseName,
+            String databaseURL)
     {
-        super(dataSource, scriptExecutor, massUploader, owner, databaseName, databaseURL);
+        super(dataSource, scriptExecutor, massUploader, owner, readOnlyGroup, databaseName,
+                databaseURL);
     }
 
     public void createOwner()
@@ -97,6 +100,36 @@ public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
             } else
             {
                 operationLog.error("Database role '" + owner + "' couldn't be created:", ex);
+                throw ex;
+            }
+        }
+    }
+
+    public void createReadOnlyGroup()
+    {
+        if (readOnlyGroupOrNull == null)
+        {
+            return;
+        }
+        try
+        {
+            getJdbcTemplate().execute("create role " + readOnlyGroupOrNull);
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Created role '" + readOnlyGroupOrNull + "'.");
+            }
+        } catch (DataAccessException ex)
+        {
+            if (DBUtilities.isDuplicateObjectException(ex))
+            {
+                if (operationLog.isInfoEnabled())
+                {
+                    operationLog.info("Role '" + readOnlyGroupOrNull + "' already exists.");
+                }
+            } else
+            {
+                operationLog
+                        .error("Database role '" + readOnlyGroupOrNull + "' couldn't be created:", ex);
                 throw ex;
             }
         }
