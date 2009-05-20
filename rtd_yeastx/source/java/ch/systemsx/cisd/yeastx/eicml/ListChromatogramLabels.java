@@ -60,7 +60,7 @@ public class ListChromatogramLabels
     {
         for (MSRunDTO run : runs)
         {
-            String msRunName = run.rawDataFileName;
+            String msRunName = run.getRawDataFileName();
             if (msRunName.endsWith(".RAW"))
             {
                 msRunName = msRunName.substring(0, msRunName.length() - 4);

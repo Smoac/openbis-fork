@@ -17,20 +17,22 @@
 package ch.systemsx.cisd.yeastx.eicml;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import ch.systemsx.cisd.base.convert.NativeData;
 import ch.systemsx.cisd.base.convert.NativeData.ByteOrder;
-
 
 /**
  * A file for parsing <code>eicML</code> files.
@@ -39,7 +41,6 @@ import ch.systemsx.cisd.base.convert.NativeData.ByteOrder;
  */
 public class EICMLParser extends DefaultHandler
 {
-
     /** A role that observes {@Link MSRun}s. */
     public interface IMSRunObserver
     {
@@ -52,10 +53,23 @@ public class EICMLParser extends DefaultHandler
         void observe(ChromatogramDTO chromatogram);
     }
 
+    private static final ThreadLocal<DateFormat> dateFormatHolder = new ThreadLocal<DateFormat>();
+    
+    public static DateFormat getDateFormat()
+    {
+        DateFormat dateFormat = dateFormatHolder.get();
+        if (dateFormat == null)
+        {
+            dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
+            dateFormatHolder.set(dateFormat);
+        }
+        return dateFormat;
+    }
+    
     private StringBuilder buffer = new StringBuilder();
 
     private String permIdOrNull;
-    
+
     private MSRunDTO msRun;
 
     private ChromatogramDTO chromatogram;
@@ -96,7 +110,7 @@ public class EICMLParser extends DefaultHandler
         if ("msRun".equals(name))
         {
             msRun = new MSRunDTO();
-            msRun.permId = permIdOrNull;
+            msRun.setPermId(permIdOrNull);
             parsingMsRun = true;
         } else if ("chromatogram".equals(name))
         {
@@ -111,7 +125,60 @@ public class EICMLParser extends DefaultHandler
         return NativeData.byteToFloat(decoded, ByteOrder.BIG_ENDIAN);
     }
 
-    void set(String name, String value) throws SAXException
+    void setMsRun(String name, String value) throws SAXException
+    {
+        if ("filePath".equals(name))
+        {
+            msRun.setRawDataFilePath(value);
+        } else if ("fileName".equals(name))
+        {
+            msRun.setRawDataFileName(value);
+        } else if ("instrumentType".equals(name))
+        {
+            msRun.setInstrumentType(value);
+        } else if ("instrumentManufacturer".equals(name))
+        {
+            msRun.setInstrumentManufacturer(value);
+        } else if ("instrumentModel".equals(name))
+        {
+            msRun.setInstrumentModel(value);
+        } else if ("methodIonisation".equals(name))
+        {
+            msRun.setMethodIonisation(value);
+        } else if ("methodSeparation".equals(name))
+        {
+            msRun.setMethodSeparation(value);
+        } else if ("acquisitionDate".equals(name) && StringUtils.isNotBlank(value))
+        {
+            try
+            {
+                msRun.setAcquisitionDate(getDateFormat().parse(value));
+            } catch (ParseException ex)
+            {
+                throw new SAXException("Error parsing date: " + value);
+            }
+        } else if ("chromCount".equals(name) && value.length() > 0)
+        {
+            msRun.setChromCount(Integer.parseInt(value));
+        } else if ("msRunId".equals(name) && value.length() > 0)
+        {
+            msRun.setMsRunId(Long.parseLong(value));
+        } else if ("startTime".equals(name) && value.length() > 0)
+        {
+            msRun.setStartTime(Float.parseFloat(value));
+        } else if ("endTime".equals(name) && value.length() > 0)
+        {
+            msRun.setEndTime(Float.parseFloat(value));
+        } else if ("setId".equals(name))
+        {
+            msRun.setSetId(Long.parseLong(value));
+        } else if ("operator".equals(name))
+        {
+            msRun.setOperator(value);
+        }
+    }
+
+    void setChromatogram(String name, String value) throws SAXException
     {
         if ("Q1Mz".equals(name) && value.length() > 0)
         {
@@ -163,10 +230,10 @@ public class EICMLParser extends DefaultHandler
         }
         if (parsingMsRun && msRun != null)
         {
-            msRun.set(name, buffer.toString());
+            setMsRun(name, buffer.toString());
         } else if (parsingChromatogram && chromatogram != null)
         {
-            set(name, buffer.toString());
+            setChromatogram(name, buffer.toString());
         }
         buffer.setLength(0);
     }

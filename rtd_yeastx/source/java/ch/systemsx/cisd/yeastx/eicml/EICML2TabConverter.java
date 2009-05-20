@@ -45,7 +45,7 @@ public class EICML2TabConverter
                 {
                     public void observe(MSRunDTO run)
                     {
-                        String runName = run.rawDataFileName;
+                        String runName = run.getRawDataFileName();
                         if (runName.endsWith(".RAW"))
                         {
                             runName = runName.substring(0, runName.length() - 4);
@@ -56,57 +56,57 @@ public class EICML2TabConverter
                         PrintStream out;
                         try
                         {
-                            out =
-                                    new PrintStream(new File(runDir + "/msrun_" + runName
-                                            + ".tsv"));
-                            if (StringUtils.isNotBlank(run.rawDataFilePath))
+                            out = new PrintStream(new File(runDir + "/msrun_" + runName + ".tsv"));
+                            if (StringUtils.isNotBlank(run.getRawDataFilePath()))
                             {
-                                out.println("filePath\t" + run.rawDataFilePath);
+                                out.println("filePath\t" + run.getRawDataFilePath());
                             }
-                            if (StringUtils.isNotBlank(run.rawDataFileName))
+                            if (StringUtils.isNotBlank(run.getRawDataFileName()))
                             {
-                                out.println("fileName\t" + run.rawDataFileName);
+                                out.println("fileName\t" + run.getRawDataFileName());
                             }
-                            if (StringUtils.isNotBlank(run.instrumentType))
+                            if (StringUtils.isNotBlank(run.getInstrumentType()))
                             {
-                                out.println("instrumentType\t" + run.instrumentType);
+                                out.println("instrumentType\t" + run.getInstrumentType());
                             }
-                            if (StringUtils.isNotBlank(run.instrumentManufacturer))
+                            if (StringUtils.isNotBlank(run.getInstrumentManufacturer()))
                             {
                                 out.println("instrumentManufacturer\t"
-                                        + run.instrumentManufacturer);
+                                        + run.getInstrumentManufacturer());
                             }
-                            if (StringUtils.isNotBlank(run.instrumentModel))
+                            if (StringUtils.isNotBlank(run.getInstrumentModel()))
                             {
-                                out.println("instrumentModel\t" + run.instrumentModel);
+                                out.println("instrumentModel\t" + run.getInstrumentModel());
                             }
-                            if (StringUtils.isNotBlank(run.methodIonisation))
+                            if (StringUtils.isNotBlank(run.getMethodIonisation()))
                             {
-                                out.println("methodIonisation\t" + run.methodIonisation);
+                                out.println("methodIonisation\t" + run.getMethodIonisation());
                             }
-                            if (StringUtils.isNotBlank(run.methodSeparation))
+                            if (StringUtils.isNotBlank(run.getMethodSeparation()))
                             {
-                                out.println("methodSeparation\t" + run.methodSeparation);
+                                out.println("methodSeparation\t" + run.getMethodSeparation());
                             }
-                            if (StringUtils.isNotBlank(run.acquisitionDate))
+                            if (run.getAcquisitionDate() != null)
                             {
-                                out.println("acquisitionDate\t" + run.acquisitionDate);
+                                out.println("acquisitionDate\t"
+                                        + EICMLParser.getDateFormat().format(
+                                                run.getAcquisitionDate()));
                             }
-                            if (run.chromCount >= 0)
+                            if (run.getChromCount() >= 0)
                             {
-                                out.println("chromCount\t" + run.chromCount);
+                                out.println("chromCount\t" + run.getChromCount());
                             }
-                            if (Float.isNaN(run.startTime) == false)
+                            if (Float.isNaN(run.getStartTime()) == false)
                             {
-                                out.println("startTime\t" + run.startTime);
+                                out.println("startTime\t" + run.getStartTime());
                             }
-                            if (Float.isNaN(run.endTime) == false)
+                            if (Float.isNaN(run.getEndTime()) == false)
                             {
-                                out.println("endTime\t" + run.endTime);
+                                out.println("endTime\t" + run.getEndTime());
                             }
-                            if (run.msRunId >= 0)
+                            if (run.getMsRunId() >= 0)
                             {
-                                out.println("msRunId\t" + run.msRunId);
+                                out.println("msRunId\t" + run.getMsRunId());
                             }
                             out.close();
                         } catch (FileNotFoundException ex)

@@ -31,14 +31,15 @@ public interface IMSRunDAO extends BaseQuery
             "msruns.msRunId, msruns.permId, msruns.rawDataFileName, msruns.rawDataFilePath, "
                     + "msruns.acquisitionDate, msruns.instrumentType, msruns.instrumentManufacturer, "
                     + "msruns.instrumentModel, msruns.methodIonisation, msruns.methodSeparation, "
+                    + "msruns.setId, msruns.operator, "
                     + "msruns.startTime, msruns.endTime";
 
     @Select("INSERT INTO msruns (permId, rawDataFileName, rawDataFilePath, acquisitionDate, "
             + "instrumentType, instrumentManufacturer, instrumentModel, methodIonisation, "
-            + "methodSeparation, startTime, endTime) values (?{1.permId}, ?{1.rawDataFileName}, "
+            + "methodSeparation, setId, operator, startTime, endTime) values (?{1.permId}, ?{1.rawDataFileName}, "
             + "?{1.rawDataFilePath}, ?{1.acquisitionDate}, ?{1.instrumentType}, "
             + "?{1.instrumentManufacturer}, ?{1.instrumentModel}, ?{1.methodIonisation}, "
-            + "?{1.methodSeparation}, ?{1.startTime}, ?{1.endTime}) returning msRunId")
+            + "?{1.methodSeparation}, ?{1.setId}, ?{1.operator}, ?{1.startTime}, ?{1.endTime}) returning msRunId")
     public long addMSRun(MSRunDTO msRun);
 
     @Select("INSERT INTO chromatograms (msRunId, Q1MZ, Q3LowMz, Q3HighMz, label, polarity, runTimes, "
