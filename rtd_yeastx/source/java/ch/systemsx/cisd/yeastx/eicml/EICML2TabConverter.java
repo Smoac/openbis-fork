@@ -104,9 +104,9 @@ public class EICML2TabConverter
                             {
                                 out.println("endTime\t" + run.getEndTime());
                             }
-                            if (run.getMsRunId() >= 0)
+                            if (run.getEicMsRunId() >= 0)
                             {
-                                out.println("msRunId\t" + run.getMsRunId());
+                                out.println("msRunId\t" + run.getEicMsRunId());
                             }
                             out.close();
                         } catch (FileNotFoundException ex)

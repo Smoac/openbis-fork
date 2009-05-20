@@ -45,7 +45,7 @@ public class EICML2Database
         final long[] id = new long[1];
         try
         {
-            final IMSRunDAO dao = DBFactory.getDAO(conn);
+            final IEICMSRunDAO dao = DBFactory.getDAO(conn);
             new EICMLParser(eicMLFile.getPath(), permId, new IMSRunObserver()
                 {
                     public void observe(MSRunDTO run)
@@ -56,7 +56,7 @@ public class EICML2Database
                 {
                     public void observe(ChromatogramDTO chromatogram)
                     {
-                        chromatogram.setMsRunId(id[0]);
+                        chromatogram.setEicMsRunId(id[0]);
                         dao.addChromatogram(chromatogram);
                     }
                 });

@@ -50,8 +50,8 @@ public class DBFactory
         return conn;
     }
 
-    public static IMSRunDAO getDAO(Connection conn)
+    public static IEICMSRunDAO getDAO(Connection conn)
     {
-        return QueryTool.getQuery(conn, IMSRunDAO.class);
+        return QueryTool.getQuery(conn, IEICMSRunDAO.class);
     }
 }

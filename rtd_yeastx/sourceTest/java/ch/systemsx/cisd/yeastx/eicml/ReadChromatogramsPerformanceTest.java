@@ -33,8 +33,8 @@ public class ReadChromatogramsPerformanceTest
         final Connection conn = DBFactory.getConnection();
         try
         {
-            final IMSRunDAO dao = DBFactory.getDAO(conn);
-            for (MSRunDTO run : dao.getMSRuns())
+            final IEICMSRunDAO dao = DBFactory.getDAO(conn);
+            for (MSRunDTO run : dao.getMsRuns())
             {
                 // We need to iterate over the chromatograms to make sure they are really read.
                 for (@SuppressWarnings("unused")

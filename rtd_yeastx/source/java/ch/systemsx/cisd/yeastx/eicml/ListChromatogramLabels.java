@@ -22,7 +22,7 @@ import java.sql.SQLException;
 import net.lemnik.eodsql.DataIterator;
 
 /**
- * A method for listing all chromatogram labels of all run.
+ * A method for listing all chromatogram labels of all runs.
  *
  * @author Bernd Rinn
  */
@@ -34,7 +34,7 @@ public class ListChromatogramLabels
         final Connection conn = DBFactory.getConnection();
         try
         {
-            final IMSRunDAO dao = DBFactory.getDAO(conn);
+            final IEICMSRunDAO dao = DBFactory.getDAO(conn);
             if (args.length > 0)
             {
                 for (String fn : args)
@@ -44,11 +44,11 @@ public class ListChromatogramLabels
                     {
                         rawFile += ".RAW";
                     }
-                    listChromatogramsForRuns(dao, dao.getMSRunsForRawDataFile(rawFile)); 
+                    listChromatogramsForRuns(dao, dao.getMsRunsForRawDataFile(rawFile)); 
                 }
             } else
             {
-                listChromatogramsForRuns(dao, dao.getMSRuns());
+                listChromatogramsForRuns(dao, dao.getMsRuns());
             }
         } finally
         {
@@ -56,7 +56,7 @@ public class ListChromatogramLabels
         }
     }
 
-    private static void listChromatogramsForRuns(final IMSRunDAO dao, DataIterator<MSRunDTO> runs)
+    private static void listChromatogramsForRuns(final IEICMSRunDAO dao, DataIterator<MSRunDTO> runs)
     {
         for (MSRunDTO run : runs)
         {
