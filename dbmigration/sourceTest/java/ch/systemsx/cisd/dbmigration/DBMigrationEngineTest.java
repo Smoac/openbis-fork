@@ -66,11 +66,15 @@ public class DBMigrationEngineTest
                 final boolean honorSingleStepMode)
         {
             will(returnValue(script));
+            one(migrationStepExecutorAdmin).init(script);
             one(migrationStepExecutor).init(script);
+            one(migrationStepExecutorAdmin).performPreMigration();
             one(migrationStepExecutor).performPreMigration();
             one(scriptExecutor).execute(script, honorSingleStepMode, logDAO);
             one(migrationStepExecutor).performPostMigration();
+            one(migrationStepExecutorAdmin).performPostMigration();
             one(migrationStepExecutor).finish();
+            one(migrationStepExecutorAdmin).finish();
         }
     }
 
@@ -88,6 +92,8 @@ public class DBMigrationEngineTest
 
     private IMigrationStepExecutor migrationStepExecutor;
 
+    private IMigrationStepExecutor migrationStepExecutorAdmin;
+
     private BufferedAppender logRecorder;
 
     @BeforeMethod
@@ -99,7 +105,8 @@ public class DBMigrationEngineTest
         adminDAO = context.mock(IDatabaseAdminDAO.class);
         logDAO = context.mock(IDatabaseVersionLogDAO.class);
         scriptExecutor = context.mock(ISqlScriptExecutor.class);
-        migrationStepExecutor = context.mock(IMigrationStepExecutor.class);
+        migrationStepExecutor = context.mock(IMigrationStepExecutor.class, "migrationStepExecutor");
+        migrationStepExecutorAdmin = context.mock(IMigrationStepExecutor.class, "migrationStepExecutorAdmin");
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
     }
 
@@ -136,6 +143,8 @@ public class DBMigrationEngineTest
                     will(returnValue(scriptExecutor));
                     one(daoFactory).getMigrationStepExecutor();
                     will(returnValue(migrationStepExecutor));
+                    one(daoFactory).getMigrationStepExecutorAdmin();
+                    will(returnValue(migrationStepExecutorAdmin));
 
                     one(adminDAO).dropDatabase();
                     one(logDAO).canConnectToDatabase();
@@ -143,6 +152,7 @@ public class DBMigrationEngineTest
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 1. database"));
                     one(adminDAO).createOwner();
+                    one(adminDAO).createReadOnlyGroup();
                     one(scriptProvider).isDumpRestore(version);
                     will(returnValue(false));
                     one(adminDAO).createDatabase();
@@ -186,6 +196,8 @@ public class DBMigrationEngineTest
                     will(returnValue(scriptExecutor));
                     one(daoFactory).getMigrationStepExecutor();
                     will(returnValue(migrationStepExecutor));
+                    one(daoFactory).getMigrationStepExecutorAdmin();
+                    will(returnValue(migrationStepExecutorAdmin));
 
                     one(adminDAO).dropDatabase();
                     one(logDAO).canConnectToDatabase();
@@ -193,6 +205,7 @@ public class DBMigrationEngineTest
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 1. database"));
                     one(adminDAO).createOwner();
+                    one(adminDAO).createReadOnlyGroup();
                     one(scriptProvider).isDumpRestore(version);
                     will(returnValue(true));
 
@@ -235,6 +248,8 @@ public class DBMigrationEngineTest
 
                     one(daoFactory).getMigrationStepExecutor();
                     will(returnValue(migrationStepExecutor));
+                    one(daoFactory).getMigrationStepExecutorAdmin();
+                    will(returnValue(migrationStepExecutorAdmin));
 
                     one(adminDAO).dropDatabase();
                     one(logDAO).canConnectToDatabase();
@@ -277,12 +292,15 @@ public class DBMigrationEngineTest
                     will(returnValue(scriptExecutor));
                     one(daoFactory).getMigrationStepExecutor();
                     will(returnValue(migrationStepExecutor));
+                    one(daoFactory).getMigrationStepExecutorAdmin();
+                    will(returnValue(migrationStepExecutorAdmin));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(false));
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 1. database"));
                     one(adminDAO).createOwner();
+                    one(adminDAO).createReadOnlyGroup();
                     one(scriptProvider).isDumpRestore(version);
                     will(returnValue(false));
                     one(adminDAO).createDatabase();
@@ -324,12 +342,15 @@ public class DBMigrationEngineTest
 
                     one(daoFactory).getMigrationStepExecutor();
                     will(returnValue(migrationStepExecutor));
+                    one(daoFactory).getMigrationStepExecutorAdmin();
+                    will(returnValue(migrationStepExecutorAdmin));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(false));
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 1. database"));
                     one(adminDAO).createOwner();
+                    one(adminDAO).createReadOnlyGroup();
                     one(scriptProvider).isDumpRestore(version);
                     will(returnValue(false));
                     one(adminDAO).createDatabase();
@@ -370,14 +391,18 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+
                     one(daoFactory).getMigrationStepExecutor();
                     will(returnValue(migrationStepExecutor));
+                    one(daoFactory).getMigrationStepExecutorAdmin();
+                    will(returnValue(migrationStepExecutorAdmin));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(false));
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 1. database"));
                     one(adminDAO).createOwner();
+                    one(adminDAO).createReadOnlyGroup();
                     one(scriptProvider).isDumpRestore(version);
                     will(returnValue(false));
                     one(adminDAO).createDatabase();
@@ -418,6 +443,8 @@ public class DBMigrationEngineTest
                     will(returnValue(scriptExecutor));
                     one(daoFactory).getMigrationStepExecutor();
                     will(returnValue(migrationStepExecutor));
+                    one(daoFactory).getMigrationStepExecutorAdmin();
+                    will(returnValue(migrationStepExecutorAdmin));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(true));
@@ -461,6 +488,8 @@ public class DBMigrationEngineTest
                     will(returnValue(scriptExecutor));
                     one(daoFactory).getMigrationStepExecutor();
                     will(returnValue(migrationStepExecutor));
+                    one(daoFactory).getMigrationStepExecutorAdmin();
+                    will(returnValue(migrationStepExecutorAdmin));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(true));
@@ -522,6 +551,8 @@ public class DBMigrationEngineTest
                     will(returnValue(scriptExecutor));
                     one(daoFactory).getMigrationStepExecutor();
                     will(returnValue(migrationStepExecutor));
+                    one(daoFactory).getMigrationStepExecutorAdmin();
+                    will(returnValue(migrationStepExecutorAdmin));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(true));
@@ -537,6 +568,8 @@ public class DBMigrationEngineTest
 
                     will(returnValue(script));
 
+                    one(migrationStepExecutorAdmin).init(script);
+                    one(migrationStepExecutorAdmin).performPreMigration();
                     one(migrationStepExecutor).init(script);
                     one(migrationStepExecutor).performPreMigration();
                     one(scriptExecutor).execute(script, true, logDAO);
@@ -579,6 +612,8 @@ public class DBMigrationEngineTest
                     will(returnValue(scriptExecutor));
                     one(daoFactory).getMigrationStepExecutor();
                     will(returnValue(migrationStepExecutor));
+                    one(daoFactory).getMigrationStepExecutorAdmin();
+                    will(returnValue(migrationStepExecutorAdmin));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(true));
@@ -592,6 +627,9 @@ public class DBMigrationEngineTest
                     one(scriptProvider).tryGetMigrationScript(fromVersion, "100");
                     final Script script = new Script("m-099-100", "code 099 100", toVersion);
                     will(returnValue(script));
+
+                    one(migrationStepExecutorAdmin).init(script);
+                    one(migrationStepExecutorAdmin).performPreMigration();
 
                     one(migrationStepExecutor).init(script);
                     one(migrationStepExecutor).performPreMigration();
@@ -633,6 +671,8 @@ public class DBMigrationEngineTest
                     will(returnValue(scriptExecutor));
                     one(daoFactory).getMigrationStepExecutor();
                     will(returnValue(migrationStepExecutor));
+                    one(daoFactory).getMigrationStepExecutorAdmin();
+                    will(returnValue(migrationStepExecutorAdmin));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(true));
@@ -686,6 +726,8 @@ public class DBMigrationEngineTest
                     will(returnValue(scriptExecutor));
                     one(daoFactory).getMigrationStepExecutor();
                     will(returnValue(migrationStepExecutor));
+                    one(daoFactory).getMigrationStepExecutorAdmin();
+                    will(returnValue(migrationStepExecutorAdmin));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(true));
@@ -731,6 +773,8 @@ public class DBMigrationEngineTest
                     will(returnValue(scriptExecutor));
                     one(daoFactory).getMigrationStepExecutor();
                     will(returnValue(migrationStepExecutor));
+                    one(daoFactory).getMigrationStepExecutorAdmin();
+                    will(returnValue(migrationStepExecutorAdmin));
 
                     one(adminDAO).dropDatabase();
                     one(logDAO).canConnectToDatabase();
@@ -776,6 +820,8 @@ public class DBMigrationEngineTest
                     will(returnValue(scriptExecutor));
                     one(daoFactory).getMigrationStepExecutor();
                     will(returnValue(migrationStepExecutor));
+                    one(daoFactory).getMigrationStepExecutorAdmin();
+                    will(returnValue(migrationStepExecutorAdmin));
 
                     one(adminDAO).dropDatabase();
                     one(logDAO).canConnectToDatabase();
@@ -825,6 +871,8 @@ public class DBMigrationEngineTest
                     will(returnValue(scriptExecutor));
                     one(daoFactory).getMigrationStepExecutor();
                     will(returnValue(migrationStepExecutor));
+                    one(daoFactory).getMigrationStepExecutorAdmin();
+                    will(returnValue(migrationStepExecutorAdmin));
 
                     one(adminDAO).dropDatabase();
                     one(logDAO).canConnectToDatabase();
@@ -871,6 +919,8 @@ public class DBMigrationEngineTest
                     will(returnValue(scriptExecutor));
                     one(daoFactory).getMigrationStepExecutor();
                     will(returnValue(migrationStepExecutor));
+                    one(daoFactory).getMigrationStepExecutorAdmin();
+                    will(returnValue(migrationStepExecutorAdmin));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(true));
@@ -889,7 +939,10 @@ public class DBMigrationEngineTest
                     one(migrationStepExecutor).performPreMigration();
                     one(scriptExecutor).execute(script, true, logDAO);
                     will(throwException(exception));
-                }
+
+                    one(migrationStepExecutorAdmin).init(script);
+                    one(migrationStepExecutorAdmin).performPreMigration();
+}
             });
         final DBMigrationEngine migrationEngine =
                 new DBMigrationEngine(daoFactory, scriptProvider, false);

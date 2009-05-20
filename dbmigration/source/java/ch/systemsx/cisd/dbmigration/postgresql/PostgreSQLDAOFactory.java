@@ -59,8 +59,8 @@ public class PostgreSQLDAOFactory implements IDAOFactory
     {
         final DataSource dataSource = context.getDataSource();
         sqlScriptExecutor = new SqlScriptExecutor(dataSource, context.isScriptSingleStepMode());
-        migrationStepExecutor = new MigrationStepExecutor(dataSource, false);
-        migrationStepExecutorAdmin = new MigrationStepExecutor(context.getAdminDataSource(), true);
+        migrationStepExecutor = new MigrationStepExecutor(context, false);
+        migrationStepExecutorAdmin = new MigrationStepExecutor(context, true);
         databaseVersionLogDAO = new DatabaseVersionLogDAO(dataSource, context.getLobHandler());
         try
         {

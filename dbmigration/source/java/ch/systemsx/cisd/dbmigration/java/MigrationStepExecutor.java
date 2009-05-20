@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.dbmigration.java;
 
-import javax.sql.DataSource;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
@@ -30,6 +28,7 @@ import ch.systemsx.cisd.common.parser.Line;
 import ch.systemsx.cisd.common.parser.ParserUtilities;
 import ch.systemsx.cisd.common.parser.filter.NonEmptyLineFilter;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 
 /**
  * Allows to extract {@link IMigrationStep} class from migration script and run the <i>pre</i>- and
@@ -53,18 +52,22 @@ public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigr
 
     private final boolean isAdmin;
 
+    private final DatabaseConfigurationContext dbConfigurationContext;
+
     private IMigrationStep migrationStep;
 
     private boolean inited;
 
-    public MigrationStepExecutor(final DataSource dataSource, boolean isAdmin)
+    public MigrationStepExecutor(final DatabaseConfigurationContext dbConfigurationContext,
+            boolean isAdmin)
     {
-        setDataSource(dataSource);
+        this.dbConfigurationContext = dbConfigurationContext;
         this.isAdmin = isAdmin;
+        setDataSource(isAdmin ? dbConfigurationContext.getAdminDataSource()
+                : dbConfigurationContext.getDataSource());
     }
 
-    private final static IMigrationStep tryExtractMigrationStep(final Script sqlScript,
-            final boolean isAdmin)
+    private final IMigrationStep tryExtractMigrationStep(final Script sqlScript)
 
     {
         assert sqlScript != null : "SQL script not provided";
@@ -77,13 +80,12 @@ public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigr
                 ParserUtilities.tryGetFirstAcceptedLine(content, NonEmptyLineFilter.INSTANCE);
         if (firstNonEmptyLineOrNull != null)
         {
-            return tryExtractMigrationStepFromLine(firstNonEmptyLineOrNull.getText(), isAdmin);
+            return tryExtractMigrationStepFromLine(firstNonEmptyLineOrNull.getText());
         }
         return null;
     }
 
-    private final static IMigrationStep tryExtractMigrationStepFromLine(final String lineToProcess,
-            final boolean isAdmin)
+    private final IMigrationStep tryExtractMigrationStepFromLine(final String lineToProcess)
     {
         final String line = StringUtils.deleteWhitespace(lineToProcess);
         final String prefix =
@@ -93,7 +95,14 @@ public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigr
             final String className = StringUtils.removeStart(line, prefix);
             try
             {
-                return (IMigrationStep) ClassUtils.createInstance(Class.forName(className));
+                if (ClassUtils.hasConstructor(Class.forName(className), dbConfigurationContext))
+                {
+                    return ClassUtils.create(IMigrationStep.class, Class.forName(className),
+                            dbConfigurationContext);
+                } else
+                {
+                    return (IMigrationStep) ClassUtils.createInstance(Class.forName(className));
+                }
             } catch (final ClassNotFoundException ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -110,7 +119,7 @@ public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigr
 
     public final void init(final Script migrationScript)
     {
-        migrationStep = tryExtractMigrationStep(migrationScript, isAdmin);
+        migrationStep = tryExtractMigrationStep(migrationScript);
         if (migrationStep != null)
         {
             operationLog.info(String.format(

@@ -21,6 +21,9 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.testng.AssertJUnit;
+
+import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 
 /**
  * A <code>IMigrationStep</code> implementation for test.
@@ -29,7 +32,11 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
  */
 public final class MigrationStepFrom002To003 implements IMigrationStep
 {
-
+    public MigrationStepFrom002To003(DatabaseConfigurationContext context)
+    {
+        AssertJUnit.assertNotNull(context);
+    }
+    
     //
     // IMigrationStep
     //

@@ -20,10 +20,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.fail;
 
-import javax.sql.DataSource;
-
 import org.apache.log4j.Level;
-import org.jmock.Mockery;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.testng.annotations.BeforeClass;
@@ -34,6 +31,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 
 /**
  * Test cases for the {@link MigrationStepExecutor}.
@@ -42,17 +40,15 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
  */
 public final class MigrationStepExecutorTest
 {
-    private Mockery context;
-
-    private DataSource dataSource;
-
+    private DatabaseConfigurationContext dbContext;
+    
     private BufferedAppender logRecorder;
 
     @BeforeMethod
     public final void setUp()
     {
-        context = new Mockery();
-        dataSource = context.mock(DataSource.class);
+        dbContext = new DatabaseConfigurationContext();
+        dbContext.setDatabaseEngineCode("postgresql");
         logRecorder = new BufferedAppender("%m%n", Level.DEBUG);
     }
 
@@ -66,7 +62,7 @@ public final class MigrationStepExecutorTest
     public final void testHappyCase()
     {
         final MigrationStepExecutor migrationStepExecutor =
-                new MigrationStepExecutor(dataSource, false);
+                new MigrationStepExecutor(dbContext, false);
         Script script =
                 new Script("001To002.sql",
                         "-- JAVA ch.systemsx.cisd.dbmigration.java.MigrationStepFrom001To002");
@@ -89,7 +85,7 @@ public final class MigrationStepExecutorTest
     public final void testHappyCaseAdmin()
     {
         final MigrationStepExecutor migrationStepExecutor =
-                new MigrationStepExecutor(dataSource, true);
+                new MigrationStepExecutor(dbContext, true);
         Script script =
                 new Script("001To002.sql",
                         "-- JAVA_ADMIN ch.systemsx.cisd.dbmigration.java.MigrationStepFrom001To002");
@@ -112,7 +108,7 @@ public final class MigrationStepExecutorTest
     public final void testFinish()
     {
         final MigrationStepExecutor migrationStepExecutor =
-                new MigrationStepExecutor(dataSource, false);
+                new MigrationStepExecutor(dbContext, false);
         final Script script =
                 new Script("001To002.sql",
                         "--   JAVA ch.systemsx.cisd.dbmigration.java.MigrationStepFrom001To002");
@@ -135,7 +131,7 @@ public final class MigrationStepExecutorTest
     public final void testUnhappyCase()
     {
         final MigrationStepExecutor migrationStepExecutor =
-                new MigrationStepExecutor(dataSource, false);
+                new MigrationStepExecutor(dbContext, false);
         Script script =
                 new Script("002To003.sql", "\n-- This is a comment\n"
                         + "-- JAVA ch.systemsx.cisd.dbmigration.java.MigrationStepFrom002To003");
@@ -171,7 +167,7 @@ public final class MigrationStepExecutorTest
     public final void testClassNotFound()
     {
         final MigrationStepExecutor migrationStepExecutor =
-                new MigrationStepExecutor(dataSource, false);
+                new MigrationStepExecutor(dbContext, false);
         final Script script =
                 new Script("003To004.sql",
                         "-- JAVA ch.systemsx.cisd.dbmigration.java.MigrationStepFrom003To003");
