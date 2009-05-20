@@ -123,31 +123,31 @@ public class EICML2TabConverter
                         {
                             out =
                                     new PrintStream(new File(msRunName[0] + "/"
-                                            + chromatogram.label + ".tsv"));
-                            if (Float.isNaN(chromatogram.q1Mz) == false)
+                                            + chromatogram.getLabel() + ".tsv"));
+                            if (Float.isNaN(chromatogram.getQ1Mz()) == false)
                             {
-                                out.println("#\tQ1Mz\t" + chromatogram.q1Mz);
+                                out.println("#\tQ1Mz\t" + chromatogram.getQ1Mz());
                             }
-                            if (Float.isNaN(chromatogram.q3LowMz) == false)
+                            if (Float.isNaN(chromatogram.getQ3LowMz()) == false)
                             {
-                                out.println("#\tQ3LowMz\t" + chromatogram.q3LowMz);
+                                out.println("#\tQ3LowMz\t" + chromatogram.getQ3LowMz());
                             }
-                            if (Float.isNaN(chromatogram.q3HighMz) == false)
+                            if (Float.isNaN(chromatogram.getQ3HighMz()) == false)
                             {
-                                out.println("#\tQ3HighMz\t" + chromatogram.q3HighMz);
+                                out.println("#\tQ3HighMz\t" + chromatogram.getQ3HighMz());
                             }
-                            if (StringUtils.isNotBlank(chromatogram.label))
+                            if (StringUtils.isNotBlank(chromatogram.getLabel()))
                             {
-                                out.println("#\tLabel\t" + chromatogram.label);
+                                out.println("#\tLabel\t" + chromatogram.getLabel());
                             }
-                            if (chromatogram.polarity != '\0')
+                            if (chromatogram.getPolarity() != '\0')
                             {
-                                out.println("#\tPolarity\t" + chromatogram.polarity);
+                                out.println("#\tPolarity\t" + chromatogram.getPolarity());
                             }
-                            for (int i = 0; i < chromatogram.runTimes.length; ++i)
+                            for (int i = 0; i < chromatogram.getRunTimes().length; ++i)
                             {
-                                out.println(chromatogram.runTimes[i] + "\t"
-                                        + chromatogram.intensities[i]);
+                                out.println(chromatogram.getRunTimes()[i] + "\t"
+                                        + chromatogram.getIntensities()[i]);
                             }
                             out.close();
                         } catch (FileNotFoundException ex)

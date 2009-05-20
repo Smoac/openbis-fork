@@ -36,6 +36,38 @@ import ch.systemsx.cisd.yeastx.eicml.EICMLParser.IMSRunObserver;
 public class EICML2Database
 {
 
+    /**
+     * Method for uploading an <var>eicMLFile</var> to the database.
+     */
+    public static void uploadEicMLFile(final Connection conn, final File eicMLFile,
+            String permId) throws SQLException
+    {
+        final long[] id = new long[1];
+        try
+        {
+            final IMSRunDAO dao = DBFactory.getDAO(conn);
+            new EICMLParser(eicMLFile.getPath(), permId, new IMSRunObserver()
+                {
+                    public void observe(MSRunDTO run)
+                    {
+                        id[0] = dao.addMSRun(run);
+                    }
+                }, new IChromatogramObserver()
+                {
+                    public void observe(ChromatogramDTO chromatogram)
+                    {
+                        chromatogram.setMsRunId(id[0]);
+                        dao.addChromatogram(chromatogram);
+                    }
+                });
+            conn.commit();
+        } catch (Throwable th)
+        {
+            conn.rollback();
+            th.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) throws ParserConfigurationException, SAXException,
             IOException, SQLException
     {
@@ -46,34 +78,12 @@ public class EICML2Database
             int permId = 0;
             for (String f : new File(dir).list(new EICMLFilenameFilter()))
             {
-                final long[] id = new long[1];
-                try
-                {
-                    final IMSRunDAO dao = DBFactory.getDAO(conn);
-                    new EICMLParser(dir + "/" + f, Integer.toString(++permId), new IMSRunObserver()
-                        {
-                            public void observe(MSRunDTO run)
-                            {
-                                id[0] = dao.addMSRun(run);
-                            }
-                        }, new IChromatogramObserver()
-                        {
-                            public void observe(ChromatogramDTO chromatogram)
-                            {
-                                chromatogram.msRunId = id[0];
-                                dao.addChromatogram(chromatogram);
-                            }
-                        });
-                    conn.commit();
-                } catch (Throwable th)
-                {
-                    conn.rollback();
-                    th.printStackTrace();
-                }
+                uploadEicMLFile(conn, new File(dir, f), Integer.toString(++permId));
             }
         } finally
         {
             conn.close();
         }
     }
+
 }

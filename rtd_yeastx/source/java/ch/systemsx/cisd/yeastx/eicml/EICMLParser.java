@@ -182,29 +182,29 @@ public class EICMLParser extends DefaultHandler
     {
         if ("Q1Mz".equals(name) && value.length() > 0)
         {
-            chromatogram.q1Mz = Float.parseFloat(value);
+            chromatogram.setQ1Mz(Float.parseFloat(value));
         } else if ("Q3LowMz".equals(name) && value.length() > 0)
         {
-            chromatogram.q3LowMz = Float.parseFloat(value);
+            chromatogram.setQ3LowMz(Float.parseFloat(value));
         } else if ("Q3HighMz".equals(name) && value.length() > 0)
         {
-            chromatogram.q3HighMz = Float.parseFloat(value);
+            chromatogram.setQ3HighMz(Float.parseFloat(value));
         } else if ("label".equals(name) && value.length() > 0)
         {
-            chromatogram.label = value;
+            chromatogram.setLabel(value);
         } else if ("polarity".equals(name) && value.length() > 0)
         {
             if (value.length() != 1)
             {
                 throw new SAXException("Illegal polarity: must be of length 1");
             }
-            chromatogram.polarity = value.charAt(0);
+            chromatogram.setPolarity(value.charAt(0));
         } else if ("RT".equals(name) && value.length() > 0)
         {
-            chromatogram.runTimes = convert(value);
+            chromatogram.setRunTimes(convert(value));
         } else if ("INT".equals(name) && value.length() > 0)
         {
-            chromatogram.intensities = convert(value);
+            chromatogram.setIntensities(convert(value));
         }
     }
 

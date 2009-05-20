@@ -67,7 +67,7 @@ public class ListChromatogramLabels
             }
             for (ChromatogramDTO chrom : dao.getChromatogramsForRunNoData(run))
             {
-                System.out.println(msRunName + "\t" + chrom.label);
+                System.out.println(msRunName + "\t" + chrom.getLabel());
             }
         }
     }
