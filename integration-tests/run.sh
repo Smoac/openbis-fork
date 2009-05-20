@@ -744,25 +744,25 @@ function assert_correct_content {
     assert_correct_content_of_processing_dir
     assert_correct_content_of_plate_3VCP1_in_store
     assert_correct_content_of_invalid_plate_in_store 3VCP4
-    assert_correct_content_of_image_analysis_data 3VCP1 ".*-2.*3VCP1$"
-    assert_correct_content_of_image_analysis_data 3VCP3 ".*-6.*3VCP3$"
-    assert_correct_content_of_image_analysis_data 3VCP4 ".*-9.*3VCP4$"
+    assert_correct_content_of_image_analysis_data 3VCP1 ".*-19.*3VCP1$"
+    assert_correct_content_of_image_analysis_data 3VCP3 ".*-21.*3VCP3$"
+    assert_correct_content_of_image_analysis_data 3VCP4 ".*-22.*3VCP4$"
     assert_correct_content_of_unidentified_plate_in_store UnknownPlate
-    local file=`find_dataset_dir ".*-15$"`/original/3VCP1.txt
+    local file=`find_dataset_dir ".*-25$"`/original/3VCP1.txt
     assert_equals_as_in_file "hello world" $file
     # result set columns are
     # id;experiment_code;data_store_code;code;is_placeholder;data_id_parent;is_complete;data_producer_code;production_timestamp
-    assert_correct_dataset_content_in_database 1 "1;EXP1;DSS1;MICROX-3VCP1;f;;F;microX;2008-01-01.*"
-    assert_correct_dataset_content_in_database 3 "3;EXP1;DSS1;20[0-9]*-2;f;1;U;;"
-    assert_correct_dataset_content_in_database 5 "5;EXP1;DSS1;20[0-9]*-4;f;1;U;;"
-    assert_correct_dataset_content_in_database 7 "7;EXP1;DSS1;MICROX-3VCP3;f;;F;microX;2008-01-01.*"
-    assert_correct_dataset_content_in_database 8 "8;EXP1;DSS1;20[0-9]*-6;f;7;U;;"   
-    assert_correct_dataset_content_in_database 10 "10;EXP1;DSS1;MICROX-3VCP4;t;;;;"
-    assert_correct_dataset_content_in_database 11 "11;EXP1;DSS1;20[0-9]*-9;f;10;U;;"
-    assert_correct_dataset_content_in_database 14 "14;EXP1;DSS1;20[0-9]*-13;f;7;U;;"
-    assert_correct_dataset_content_in_database 16 "16;EXP1;DSS2;20[0-9]*-15;f;;U;;"
-    assert_equals "Content of file in drop box1" "hello world" "`cat $DATA/drop-box1/3VCP1_*-15.txt`"
-    assert_equals "Content of file in drop box2" "hello world" "`cat $DATA/drop-box2/3VCP1.*-15.txt`"
+    assert_correct_dataset_content_in_database 2 "2;EXP1;DSS1;MICROX-3VCP1;f;;F;microX;2008-01-01.*"
+    assert_correct_dataset_content_in_database 3 "3;EXP1;DSS1;20[0-9]*-19;f;2;U;;"
+    assert_correct_dataset_content_in_database 4 "4;EXP1;DSS1;20[0-9]*-20;f;2;U;;"
+    assert_correct_dataset_content_in_database 5 "5;EXP1;DSS1;MICROX-3VCP3;f;;F;microX;2008-01-01.*"
+    assert_correct_dataset_content_in_database 6 "6;EXP1;DSS1;20[0-9]*-21;f;5;U;;"   
+    assert_correct_dataset_content_in_database 7 "7;EXP1;DSS1;MICROX-3VCP4;t;;;;"
+    assert_correct_dataset_content_in_database 8 "8;EXP1;DSS1;20[0-9]*-22;f;7;U;;"
+    assert_correct_dataset_content_in_database 9 "9;EXP1;DSS1;20[0-9]*-24;f;5;U;;"
+    assert_correct_dataset_content_in_database 10 "10;EXP1;DSS2;20[0-9]*-25;f;;U;;"
+    assert_equals "Content of file in drop box1" "hello world" "`cat $DATA/drop-box1/3VCP1_*-25.txt`"
+    assert_equals "Content of file in drop box2" "hello world" "`cat $DATA/drop-box2/3VCP1.*-25.txt`"
 }
 
 function integration_tests {
