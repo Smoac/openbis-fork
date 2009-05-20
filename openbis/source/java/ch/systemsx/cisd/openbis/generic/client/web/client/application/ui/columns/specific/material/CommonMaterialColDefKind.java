@@ -55,27 +55,6 @@ public enum CommonMaterialColDefKind implements IColumnDefinitionKind<Material>
             }
         }),
 
-    INHIBITOR_OF_CODE(new AbstractColumnDefinitionKind<Material>(Dict.INHIBITOR_OF, true)
-        {
-            @Override
-            public String tryGetValue(Material entity)
-            {
-                final Material inhibitor = tryGetInhibitor(entity);
-                if (inhibitor != null)
-                {
-                    return inhibitor.getCode();
-                } else
-                {
-                    return null;
-                }
-            }
-
-            private Material tryGetInhibitor(Material entity)
-            {
-                return entity.getInhibitorOf();
-            }
-        }),
-
     REGISTRATOR(new AbstractColumnDefinitionKind<Material>(Dict.REGISTRATOR)
         {
             @Override

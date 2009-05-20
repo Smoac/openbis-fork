@@ -42,8 +42,6 @@ public class Material extends CodeWithRegistration<Material> implements IEntityI
 
     private MaterialType MaterialType;
 
-    private Material inhibitorOf;
-
     private Long id;
 
     private Date modificationDate;
@@ -78,16 +76,6 @@ public class Material extends CodeWithRegistration<Material> implements IEntityI
     public void setDatabaseInstance(DatabaseInstance databaseInstance)
     {
         this.databaseInstance = databaseInstance;
-    }
-
-    public Material getInhibitorOf()
-    {
-        return inhibitorOf;
-    }
-
-    public void setInhibitorOf(Material inhibitorOf)
-    {
-        this.inhibitorOf = inhibitorOf;
     }
 
     public Long getId()

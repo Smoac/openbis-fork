@@ -98,7 +98,6 @@ GRANT SELECT ON SEQUENCE file_format_type_id_seq TO GROUP OPENBIS_READONLY;
 GRANT SELECT ON SEQUENCE group_id_seq TO GROUP OPENBIS_READONLY;
 GRANT SELECT ON SEQUENCE invalidation_id_seq TO GROUP OPENBIS_READONLY;
 GRANT SELECT ON SEQUENCE locator_type_id_seq TO GROUP OPENBIS_READONLY;
-GRANT SELECT ON SEQUENCE material_batch_id_seq TO GROUP OPENBIS_READONLY;
 GRANT SELECT ON SEQUENCE material_id_seq TO GROUP OPENBIS_READONLY;
 GRANT SELECT ON SEQUENCE material_property_id_seq TO GROUP OPENBIS_READONLY;
 GRANT SELECT ON SEQUENCE material_type_id_seq TO GROUP OPENBIS_READONLY;
@@ -135,7 +134,6 @@ GRANT SELECT ON TABLE file_format_types TO GROUP OPENBIS_READONLY;
 GRANT SELECT ON TABLE groups TO GROUP OPENBIS_READONLY;
 GRANT SELECT ON TABLE invalidations TO GROUP OPENBIS_READONLY;
 GRANT SELECT ON TABLE locator_types TO GROUP OPENBIS_READONLY;
-GRANT SELECT ON TABLE material_batches TO GROUP OPENBIS_READONLY;
 GRANT SELECT ON TABLE material_properties TO GROUP OPENBIS_READONLY;
 GRANT SELECT ON TABLE material_type_property_types TO GROUP OPENBIS_READONLY;
 GRANT SELECT ON TABLE material_types TO GROUP OPENBIS_READONLY;
@@ -144,8 +142,30 @@ GRANT SELECT ON TABLE persons TO GROUP OPENBIS_READONLY;
 GRANT SELECT ON TABLE projects TO GROUP OPENBIS_READONLY;
 GRANT SELECT ON TABLE property_types TO GROUP OPENBIS_READONLY;
 GRANT SELECT ON TABLE role_assignments TO GROUP OPENBIS_READONLY;
-GRANT SELECT ON TABLE sample_material_batches TO GROUP OPENBIS_READONLY;
 GRANT SELECT ON TABLE sample_properties TO GROUP OPENBIS_READONLY;
 GRANT SELECT ON TABLE sample_type_property_types TO GROUP OPENBIS_READONLY;
 GRANT SELECT ON TABLE sample_types TO GROUP OPENBIS_READONLY;
 GRANT SELECT ON TABLE samples TO GROUP OPENBIS_READONLY;
+
+------------------------------------------------------------------------------------
+-- Delete MATERIAL_BATCHES table
+------------------------------------------------------------------------------------
+
+-- WARNING: Potential data lost!!!
+-- WARNING: Potential data lost!!!
+-- WARNING: Potential data lost!!!
+
+DROP TABLE SAMPLE_MATERIAL_BATCHES;
+DROP TABLE MATERIAL_BATCHES;
+DROP SEQUENCE MATERIAL_BATCH_ID_SEQ;
+
+------------------------------------------------------------------------------------
+-- Delete MATE_ID_INHIBITOR_OF from table MATERIALS
+------------------------------------------------------------------------------------
+
+-- WARNING: Potential data lost!!!
+-- WARNING: Potential data lost!!!
+-- WARNING: Potential data lost!!!
+
+ALTER TABLE MATERIALS DROP COLUMN MATE_ID_INHIBITOR_OF;
+

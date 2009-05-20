@@ -61,7 +61,6 @@ public class MaterialDAO extends AbstractGenericEntityDAO<MaterialPE> implements
 
         final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("materialType", materialType));
-        criteria.setFetchMode("inhibitorOf", FetchMode.JOIN);
         criteria.setFetchMode("materialProperties", FetchMode.JOIN);
         criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         final List<MaterialPE> list = cast(criteria.list());

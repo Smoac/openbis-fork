@@ -553,20 +553,6 @@ CREATE TABLE locator_types (
     code code NOT NULL,
     description description_80
 );
-CREATE SEQUENCE material_batch_id_seq
-    INCREMENT BY 1
-    NO MAXVALUE
-    NO MINVALUE
-    CACHE 1;
-SELECT pg_catalog.setval('material_batch_id_seq', 656, true);
-CREATE TABLE material_batches (
-    id tech_id NOT NULL,
-    code code NOT NULL,
-    amount real_value,
-    mate_id tech_id NOT NULL,
-    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
-    pers_id_registerer tech_id NOT NULL
-);
 CREATE SEQUENCE material_id_seq
     INCREMENT BY 1
     NO MAXVALUE
@@ -618,7 +604,6 @@ CREATE TABLE materials (
     code code NOT NULL,
     maty_id tech_id NOT NULL,
     pers_id_registerer tech_id NOT NULL,
-    mate_id_inhibitor_of tech_id,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     dbin_id tech_id NOT NULL,
     modification_timestamp time_stamp DEFAULT now()
@@ -711,10 +696,6 @@ CREATE SEQUENCE sample_id_seq
     NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('sample_id_seq', 1044, true);
-CREATE TABLE sample_material_batches (
-    samp_id tech_id NOT NULL,
-    maba_id tech_id NOT NULL
-);
 CREATE TABLE sample_properties (
     id tech_id NOT NULL,
     samp_id tech_id NOT NULL,

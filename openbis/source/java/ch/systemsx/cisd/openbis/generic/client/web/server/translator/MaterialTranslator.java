@@ -65,7 +65,6 @@ public final class MaterialTranslator
             result.setRegistrator(PersonTranslator.translate(materialPE.getRegistrator()));
             result.setRegistrationDate(materialPE.getRegistrationDate());
             result.setProperties(MaterialPropertyTranslator.translate(materialPE.getProperties()));
-            result.setInhibitorOf(MaterialTranslator.translate(materialPE.getInhibitorOf(), false));
         }
         return result;
     }

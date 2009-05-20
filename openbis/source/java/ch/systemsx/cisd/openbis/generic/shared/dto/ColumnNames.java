@@ -84,8 +84,6 @@ public final class ColumnNames
 
     public static final String ID_COLUMN = "id";
 
-    public static final String INHIBITOR_OF_COLUMN = "mate_id_inhibitor_of";
-
     public static final String INVALIDATION_COLUMN = "inva_id";
 
     public static final String IS_COMPLETE_COLUMN = "is_complete";

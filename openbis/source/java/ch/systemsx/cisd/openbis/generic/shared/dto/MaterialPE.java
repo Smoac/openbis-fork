@@ -89,8 +89,6 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
 
     public static final MaterialPE[] EMPTY_ARRAY = new MaterialPE[0];
 
-    private MaterialPE inhibitorOf;
-
     public MaterialPE()
     {
     }
@@ -191,18 +189,6 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     public void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
     {
         this.databaseInstance = databaseInstance;
-    }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = ColumnNames.INHIBITOR_OF_COLUMN)
-    public MaterialPE getInhibitorOf()
-    {
-        return inhibitorOf;
-    }
-
-    public void setInhibitorOf(final MaterialPE inhibitorOf)
-    {
-        this.inhibitorOf = inhibitorOf;
     }
 
     @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)

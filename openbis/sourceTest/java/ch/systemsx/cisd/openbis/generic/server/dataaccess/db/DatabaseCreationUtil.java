@@ -91,7 +91,7 @@ public final class DatabaseCreationUtil
     private static final void createDumpForJava(final String databaseKind, final File destinationDir)
             throws IOException
     {
-        final String dataBaseName = "lims_" + databaseKind;
+        final String dataBaseName = "openbis_" + databaseKind;
         final File dumpFile = new File("targets/dump.sql");
         final boolean ok = DumpPreparator.createDatabaseDump(dataBaseName, dumpFile);
         if (ok == false)
