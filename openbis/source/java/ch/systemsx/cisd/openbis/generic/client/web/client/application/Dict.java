@@ -46,6 +46,8 @@ public abstract class Dict
 
     public static final String CODE = "code";
 
+    public static final String PERM_ID = "perm_id";
+
     public static final String REGISTRATOR = "registrator";
 
     public static final String REGISTRATION_DATE = "registration_date";

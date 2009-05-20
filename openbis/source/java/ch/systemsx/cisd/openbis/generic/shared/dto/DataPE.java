@@ -59,6 +59,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * Kind of <i>Java Bean</i> or <i>Value Object</i> which contains any information we would like to
@@ -76,7 +77,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
         + " IS NULL AND " + ColumnNames.SAMPLE_DERIVED_FROM + " IS NOT NULL)")
 @Inheritance(strategy = InheritanceType.JOINED)
 @Friend(toClasses = EventPE.class)
-public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPropertiesHolder
+public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPropertiesHolder,
+        IEntityInformationHolderDTO
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
@@ -496,4 +498,21 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
         return new UnmodifiableSetDecorator<DataSetPropertyPE>(getDataSetProperties());
     }
 
+    @Transient
+    public EntityKind getEntityKind()
+    {
+        return EntityKind.DATA_SET;
+    }
+
+    @Transient
+    public EntityTypePE getEntityType()
+    {
+        return getDataSetType();
+    }
+
+    @Transient
+    public String getIdentifier()
+    {
+        return getCode();
+    }
 }

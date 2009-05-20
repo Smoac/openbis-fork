@@ -284,6 +284,7 @@ public final class DBCreator extends AbstractDAOTest
 
         final ExperimentPE experiment = new ExperimentPE();
         experiment.setCode(code);
+        experiment.setPermId(daoFactory.getPermIdDAO().createPermId());
         experiment.setExperimentType(type);
         experiment.setProject(defaultProject);
         experiment.setRegistrationDate(new Date());
@@ -316,6 +317,7 @@ public final class DBCreator extends AbstractDAOTest
         sample.setRegistrator(getSystemPerson());
         sample.setGroup(defaultGroup); // not shared
         sample.setExperiment(experiment);
+        sample.setPermId(daoFactory.getPermIdDAO().createPermId());
         return sample;
     }
 
@@ -337,7 +339,7 @@ public final class DBCreator extends AbstractDAOTest
     private ExternalDataPE generateDataSetForSample(SamplePE sample)
     {
         ExternalDataPE externalData = new ExternalDataPE();
-        String dataSetCode = daoFactory.getExternalDataDAO().createDataSetCode();
+        String dataSetCode = daoFactory.getPermIdDAO().createPermId();
         externalData.setCode(dataSetCode);
         externalData.setDataSetType(defaultDataSetType);
         externalData.setExperiment(sample.getExperiment());

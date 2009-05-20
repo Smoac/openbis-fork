@@ -109,6 +109,24 @@ public enum CommonExperimentColDefKind implements IColumnDefinitionKind<Experime
             {
                 return renderInvalidationFlag(entity);
             }
+        }),
+
+    PERM_ID(new AbstractColumnDefinitionKind<Experiment>(Dict.PERM_ID, true)
+        {
+            @Override
+            public String tryGetValue(Experiment entity)
+            {
+                return entity.getPermId();
+            }
+        }),
+
+    SHOW_DETAILS_LINK(new AbstractColumnDefinitionKind<Experiment>(Dict.SHOW_DETAILS_LINK, true)
+        {
+            @Override
+            public String tryGetValue(Experiment entity)
+            {
+                return entity.getPermlink();
+            }
         });
 
     private final AbstractColumnDefinitionKind<Experiment> columnDefinitionKind;

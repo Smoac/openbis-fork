@@ -74,6 +74,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IDataStoreDAO dataStoreDAO;
 
+    private final IPermIdDAO permIdDAO;
+
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory)
     {
@@ -90,6 +92,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         materialDAO = new MaterialDAO(sessionFactory, databaseInstance);
         codeSequenceDAO = new CodeSequenceDAO(sessionFactory, databaseInstance);
         dataStoreDAO = new DataStoreDAO(sessionFactory, databaseInstance);
+        permIdDAO = new PermIdDAO(sessionFactory, databaseInstance);
         final EntityKind[] entityKinds = EntityKind.values();
         for (final EntityKind entityKind : entityKinds)
         {
@@ -168,5 +171,10 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public IDataStoreDAO getDataStoreDAO()
     {
         return dataStoreDAO;
+    }
+
+    public IPermIdDAO getPermIdDAO()
+    {
+        return permIdDAO;
     }
 }

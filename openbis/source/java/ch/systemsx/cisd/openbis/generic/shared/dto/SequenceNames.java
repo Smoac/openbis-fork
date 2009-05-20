@@ -30,6 +30,8 @@ public final class SequenceNames
 
     public static final String DATA_SEQUENCE = "DATA_ID_SEQ";
 
+    public static final String PERM_ID_SEQUENCE = "PERM_ID_SEQ";
+
     public static final String DATA_SET_RELATIONSHIP_SEQUENCE = "DATA_SET_RELATIONSHIP_ID_SEQ";
 
     public static final String DATA_SET_TYPE_SEQUENCE = "DATA_SET_TYPE_ID_SEQ";

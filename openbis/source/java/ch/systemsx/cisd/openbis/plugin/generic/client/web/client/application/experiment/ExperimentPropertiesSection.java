@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPan
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
@@ -139,7 +140,7 @@ public class ExperimentPropertiesSection extends SectionPanel
     private void reloadData()
     {
         viewContext.getService().getExperimentInfo(experimentId,
-                new ExperimentInfoCallback(viewContext, this));
+                GWTUtils.getBaseIndexURL(), new ExperimentInfoCallback(viewContext, this));
     }
 
     public IDatabaseModificationObserver getDatabaseModificationObserver()

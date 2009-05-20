@@ -23,6 +23,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -37,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  */
 public final class Sample extends CodeWithRegistration<Sample> implements IInvalidationProvider,
         Comparable<Sample>, IEntityInformationHolder, IAttachmentHolder, IEntityPropertiesHolder,
-        IIdentifiable
+        IIdentifiable, IPermIdHolder
 {
     public static final Sample[] EMPTY_ARRAY = new Sample[0];
 
@@ -64,6 +65,20 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
     private Date modificationDate;
 
     private List<Attachment> attachments;
+
+    private String permId;
+
+    private String permlink;
+
+    public String getPermlink()
+    {
+        return permlink;
+    }
+
+    public void setPermlink(String permlink)
+    {
+        this.permlink = permlink;
+    }
 
     public AttachmentHolderKind getAttachmentHolderKind()
     {
@@ -219,4 +234,15 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
     {
         return attachments;
     }
+
+    public void setPermId(String permId)
+    {
+        this.permId = permId;
+    }
+
+    public String getPermId()
+    {
+        return permId;
+    }
+
 }

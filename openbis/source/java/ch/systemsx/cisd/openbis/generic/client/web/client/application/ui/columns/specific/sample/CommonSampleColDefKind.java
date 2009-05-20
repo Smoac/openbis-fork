@@ -144,6 +144,24 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
             {
                 return renderRegistrationDate(entity);
             }
+        }),
+
+    PERM_ID(new AbstractColumnDefinitionKind<Sample>(Dict.PERM_ID, true)
+        {
+            @Override
+            public String tryGetValue(Sample entity)
+            {
+                return entity.getPermId();
+            }
+        }),
+
+    SHOW_DETAILS_LINK(new AbstractColumnDefinitionKind<Sample>(Dict.SHOW_DETAILS_LINK, true)
+        {
+            @Override
+            public String tryGetValue(Sample entity)
+            {
+                return entity.getPermlink();
+            }
         });
 
     private final AbstractColumnDefinitionKind<Sample> columnDefinitionKind;

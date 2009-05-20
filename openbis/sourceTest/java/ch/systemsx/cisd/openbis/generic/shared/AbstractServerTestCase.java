@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -99,6 +100,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
     protected IGroupDAO groupDAO;
 
     protected IExternalDataDAO externalDataDAO;
+
+    protected IPermIdDAO permIdDAO;
 
     protected ISampleDAO sampleDAO;
 
@@ -159,6 +162,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         sampleDAO = context.mock(ISampleDAO.class);
         roleAssignmentDAO = context.mock(IRoleAssignmentDAO.class);
         externalDataDAO = context.mock(IExternalDataDAO.class);
+        permIdDAO = context.mock(IPermIdDAO.class);
         entityTypeDAO = context.mock(IEntityTypeDAO.class);
         experimentAttachmentDAO = context.mock(IAttachmentDAO.class);
         projectDAO = context.mock(IProjectDAO.class);

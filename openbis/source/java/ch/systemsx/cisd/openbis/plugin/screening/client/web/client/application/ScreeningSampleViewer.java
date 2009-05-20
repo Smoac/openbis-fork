@@ -64,7 +64,7 @@ public final class ScreeningSampleViewer extends AbstractViewer<IScreeningClient
     protected void reloadData()
     {
         SampleInfoCallback callback = new SampleInfoCallback(viewContext, this);
-        viewContext.getService().getSampleGenerationInfo(sampleId, callback);
+        viewContext.getService().getSampleGenerationInfo(sampleId, getBaseIndexURL(), callback);
     }
 
     //

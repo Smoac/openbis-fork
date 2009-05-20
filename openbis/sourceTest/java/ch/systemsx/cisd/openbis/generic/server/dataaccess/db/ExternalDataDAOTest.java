@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.Date;
@@ -62,19 +61,6 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
 {
 
     @Test
-    public final void testCreateDataSetCode()
-    {
-        IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
-        String code = externalDataDAO.createDataSetCode();
-        String[] tokens = code.split("-");
-        assertEquals(2, tokens.length);
-        int id = Integer.parseInt(tokens[1]) + 1;
-
-        code = externalDataDAO.createDataSetCode();
-        assertTrue("Expected id " + id + " at the end of code " + code, code.endsWith("-" + id));
-    }
-
-    @Test
     public final void testListExternalData()
     {
         testCreateDataSet();
@@ -92,7 +78,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
     {
         IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
         ExternalDataPE externalData = new ExternalDataPE();
-        String dataSetCode = daoFactory.getExternalDataDAO().createDataSetCode();
+        String dataSetCode = daoFactory.getPermIdDAO().createPermId();
         externalData.setCode(dataSetCode);
         externalData.setDataSetType(getDataSetType(DataSetTypeCode.UNKNOWN));
         externalData.setExperiment(pickAnExperiment());
@@ -124,7 +110,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
     {
         IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
         DataPE data = new DataPE();
-        String dataSetCode = externalDataDAO.createDataSetCode();
+        String dataSetCode = daoFactory.getPermIdDAO().createPermId();
         data.setCode(dataSetCode);
         data.setDataSetType(getDataSetType(DataSetTypeCode.UNKNOWN));
         data.setExperiment(pickAnExperiment());

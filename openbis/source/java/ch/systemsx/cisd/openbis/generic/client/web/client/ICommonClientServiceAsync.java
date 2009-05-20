@@ -405,7 +405,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /**
      * @see ICommonClientService#getEntityInformationHolder(EntityKind, String)
      */
-    public void getEntityInformationHolder(EntityKind entityKind, String identifier,
+    public void getEntityInformationHolder(EntityKind entityKind, String permId,
             AsyncCallback<IEntityInformationHolder> callback);
 
 }

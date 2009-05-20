@@ -96,4 +96,5 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
     List<SamplePE> listSamplesWithPropertiesByTypeAndDatabaseInstance(
             final SampleTypePE sampleType, final DatabaseInstancePE databaseInstance)
             throws DataAccessException;
+
 }

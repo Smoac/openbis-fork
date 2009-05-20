@@ -84,7 +84,6 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
     { AttachmentPE.class, ProjectPE.class })
 public class ExperimentPE extends AttachmentHolderPE implements IEntityPropertiesHolder,
         IIdAndCodeHolder, Comparable<ExperimentPE>, IMatchingEntity, Serializable
-
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
@@ -132,6 +131,8 @@ public class ExperimentPE extends AttachmentHolderPE implements IEntityPropertie
     private Date registrationDate;
 
     private Date modificationDate;
+
+    private String permId;
 
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
     @Generated(GenerationTime.INSERT)
@@ -519,6 +520,20 @@ public class ExperimentPE extends AttachmentHolderPE implements IEntityPropertie
     public String getHolderName()
     {
         return "experiment";
+    }
+
+    @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
+    @Length(min = 1, max = 40, message = ValidationMessages.CODE_LENGTH_MESSAGE)
+    @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
+    @Column(name = ColumnNames.PERM_ID_COLUMN, nullable = false)
+    public String getPermId()
+    {
+        return permId;
+    }
+
+    public void setPermId(String permId)
+    {
+        this.permId = permId;
     }
 
 }

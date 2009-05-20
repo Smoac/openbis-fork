@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ICodeSequenceDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -233,5 +234,10 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public IDataStoreDAO getDataStoreDAO()
     {
         return daoFactory.getDataStoreDAO();
+    }
+
+    public IPermIdDAO getPermIdDAO()
+    {
+        return daoFactory.getPermIdDAO();
     }
 }

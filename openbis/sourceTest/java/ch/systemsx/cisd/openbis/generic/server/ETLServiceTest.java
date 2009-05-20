@@ -53,23 +53,29 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=ETLService.class)
+@Friend(toClasses = ETLService.class)
 public class ETLServiceTest extends AbstractServerTestCase
 {
     private static final String DOWNLOAD_URL = "download-url";
+
     private static final String DSS_CODE = "my-dss";
+
     private static final String DSS_SESSION_TOKEN = "dss42";
+
     private static final int PORT = 443;
+
     private static final String URL = "https://" + SESSION.getRemoteHost() + ":" + PORT;
+
     private ICommonBusinessObjectFactory boFactory;
+
     private IDataStoreServiceFactory dssfactory;
+
     private IDataStoreService dataStoreService;
+
     private IDataStoreDAO dataStoreDAO;
-    
+
     @Override
     @BeforeMethod
     public final void setUp()
@@ -80,7 +86,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         dataStoreService = context.mock(IDataStoreService.class);
         dataStoreDAO = context.mock(IDataStoreDAO.class);
     }
-    
+
     @Test
     public void testRegisterDataStoreServer()
     {
@@ -90,22 +96,22 @@ public class ETLServiceTest extends AbstractServerTestCase
                 {
                     one(daoFactory).getDataStoreDAO();
                     will(returnValue(dataStoreDAO));
-                    
+
                     one(dataStoreDAO).tryToFindDataStoreByCode(DSS_CODE);
                     will(returnValue(null));
-                    
+
                     one(dssfactory).create(URL);
                     will(returnValue(dataStoreService));
-                    
+
                     one(dataStoreService).getVersion(DSS_SESSION_TOKEN);
                     will(returnValue(IDataStoreService.VERSION));
-                    
+
                     one(dataStoreDAO).createOrUpdateDataStore(with(new BaseMatcher<DataStorePE>()
                         {
                             public void describeTo(Description description)
                             {
                             }
-                    
+
                             public boolean matches(Object item)
                             {
                                 if (item instanceof DataStorePE)
@@ -118,16 +124,16 @@ public class ETLServiceTest extends AbstractServerTestCase
                                 }
                                 return false;
                             }
-                    
+
                         }));
                 }
             });
-        
+
         createService().registerDataStoreServer(SESSION_TOKEN, createDSSInfo());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRegisterDataStoreServerAgain()
     {
@@ -178,10 +184,10 @@ public class ETLServiceTest extends AbstractServerTestCase
                 {
                     one(daoFactory).getDataStoreDAO();
                     will(returnValue(dataStoreDAO));
-                    
+
                     one(dataStoreDAO).tryToFindDataStoreByCode(DSS_CODE);
                     will(returnValue(null));
-                    
+
                     one(dssfactory).create(URL);
                     will(returnValue(dataStoreService));
 
@@ -200,10 +206,10 @@ public class ETLServiceTest extends AbstractServerTestCase
                     "Data Store Server version is " + (VERSION + 1) + " instead of " + VERSION, e
                             .getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCreateDataSetCode()
     {
@@ -211,18 +217,21 @@ public class ETLServiceTest extends AbstractServerTestCase
             {
                 {
                     one(sessionManager).getSession(SESSION_TOKEN);
-                    
-                    one(externalDataDAO).createDataSetCode();
+
+                    one(daoFactory).getPermIdDAO();
+                    will(returnValue(permIdDAO));
+
+                    one(permIdDAO).createPermId();
                     will(returnValue("abc"));
                 }
             });
-        
+
         String dataSetCode = createService().createDataSetCode(SESSION_TOKEN);
-        
+
         assertEquals("abc", dataSetCode);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testTryToGetBaseExperimentForAnUnknownSample()
     {
@@ -232,11 +241,11 @@ public class ETLServiceTest extends AbstractServerTestCase
 
         ExperimentPE experiment =
                 createService().tryToGetBaseExperiment(SESSION_TOKEN, sampleIdentifier);
-        
+
         assertEquals(null, experiment);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testTryToGetBaseExperimentForSampleWithNoValidProcedure()
     {
@@ -250,7 +259,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         assertEquals(null, experiment);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testTryToGetBaseExperimentWithoutAttachment()
     {
@@ -294,21 +303,21 @@ public class ETLServiceTest extends AbstractServerTestCase
                             createProcessingInstruction(ETLService.PROCESSING_PATH_TEMPLATE, code,
                                     "myPath");
                     will(returnValue(Arrays.asList(attachment1, processingPath)));
-                    
+
                     one(experimentAttachmentDAO).tryFindAttachmentByOwnerAndFileName(experiment,
                             processingPath.getFileName());
                     will(returnValue(processingPath));
-                    
+
                     AttachmentPE processingDescription =
-                        createProcessingInstruction(ETLService.PROCESSING_DESCRIPTION_TEMPLATE,
-                                code, "myDescription");
+                            createProcessingInstruction(ETLService.PROCESSING_DESCRIPTION_TEMPLATE,
+                                    code, "myDescription");
                     one(experimentAttachmentDAO).tryFindAttachmentByOwnerAndFileName(experiment,
                             processingDescription.getFileName());
                     will(returnValue(processingDescription));
-                    
+
                     AttachmentPE processingParameters =
-                        createProcessingInstruction(ETLService.PROCESSING_PARAMETERS_TEMPLATE,
-                                code, "myParameters");
+                            createProcessingInstruction(ETLService.PROCESSING_PARAMETERS_TEMPLATE,
+                                    code, "myParameters");
                     one(experimentAttachmentDAO).tryFindAttachmentByOwnerAndFileName(experiment,
                             processingParameters.getFileName());
                     will(returnValue(processingParameters));
@@ -319,14 +328,15 @@ public class ETLServiceTest extends AbstractServerTestCase
                 createService().tryToGetBaseExperiment(SESSION_TOKEN, sampleIdentifier);
 
         assertSame(experiment, actualExperiment);
-        ProcessingInstructionDTO[] processingInstructions = actualExperiment.getProcessingInstructions();
+        ProcessingInstructionDTO[] processingInstructions =
+                actualExperiment.getProcessingInstructions();
         assertEquals(1, processingInstructions.length);
         assertEquals("myPath", processingInstructions[0].getPath());
         assertEquals("myDescription", processingInstructions[0].getDescription());
         assertEquals("myParameters", new String(processingInstructions[0].getParameters()));
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testTryToGetPropertiesOfTopSampleForAnUnknownSample()
     {
@@ -341,67 +351,67 @@ public class ETLServiceTest extends AbstractServerTestCase
         assertEquals(null, properties);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testTryToGetPropertiesOfTopSampleForAToplessSample()
     {
         final SampleIdentifier sampleIdentifier =
-            new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
+                new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
         prepareLoadSample(sampleIdentifier, new SamplePE());
-        
+
         SamplePropertyPE[] properties =
-            createService().tryToGetPropertiesOfTopSampleRegisteredFor(SESSION_TOKEN,
-                    sampleIdentifier);
-        
+                createService().tryToGetPropertiesOfTopSampleRegisteredFor(SESSION_TOKEN,
+                        sampleIdentifier);
+
         assertEquals(0, properties.length);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testTryToGetPropertiesOfTopSampleWhichHasNoProperties()
     {
         final SampleIdentifier sampleIdentifier =
-            new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
+                new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
         SamplePE sample = new SamplePE();
         sample.setTop(new SamplePE());
         prepareLoadSample(sampleIdentifier, sample);
-        
+
         SamplePropertyPE[] properties =
-            createService().tryToGetPropertiesOfTopSampleRegisteredFor(SESSION_TOKEN,
-                    sampleIdentifier);
-        
+                createService().tryToGetPropertiesOfTopSampleRegisteredFor(SESSION_TOKEN,
+                        sampleIdentifier);
+
         assertEquals(0, properties.length);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testTryToGetPropertiesOfTopSample()
     {
         final SampleIdentifier sampleIdentifier =
-            new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
+                new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
         SamplePE sample = new SamplePE();
         SamplePE top = new SamplePE();
         SamplePropertyPE property = new SamplePropertyPE();
         top.setProperties(new LinkedHashSet<SamplePropertyPE>(Arrays.asList(property)));
         sample.setTop(top);
         prepareLoadSample(sampleIdentifier, sample);
-        
+
         SamplePropertyPE[] properties =
-            createService().tryToGetPropertiesOfTopSampleRegisteredFor(SESSION_TOKEN,
-                    sampleIdentifier);
-        
+                createService().tryToGetPropertiesOfTopSampleRegisteredFor(SESSION_TOKEN,
+                        sampleIdentifier);
+
         assertEquals(1, properties.length);
         assertSame(property, properties[0]);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRegisterDataSetForUnknownExperiment()
     {
         final SampleIdentifier sampleIdentifier =
-            new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
+                new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
         prepareTryToLoadSample(sampleIdentifier, new SamplePE());
-        
+
         try
         {
             createService().registerDataSet(SESSION_TOKEN, sampleIdentifier, null);
@@ -413,7 +423,7 @@ public class ETLServiceTest extends AbstractServerTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRegisterDataSetForInvalidExperiment()
     {
@@ -422,7 +432,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
         experiment.setInvalidation(new InvalidationPE());
         prepareTryToLoadSample(sampleIdentifier, createSampleWithExperiment(experiment));
-        
+
         try
         {
             createService().registerDataSet(SESSION_TOKEN, sampleIdentifier, null);
@@ -433,10 +443,10 @@ public class ETLServiceTest extends AbstractServerTestCase
                     "Data set can not be registered because experiment 'DB:/G1/P/EXP1' is invalid.",
                     e.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRegisterDataSet()
     {
@@ -448,8 +458,8 @@ public class ETLServiceTest extends AbstractServerTestCase
         final ExternalData externalData = new ExternalData();
         externalData.setCode("dc");
         externalData.setMeasured(true);
-        prepareRegisterDataSet(sampleIdentifier, sample.getExperiment(),
-                SourceType.MEASUREMENT, externalData);
+        prepareRegisterDataSet(sampleIdentifier, sample.getExperiment(), SourceType.MEASUREMENT,
+                externalData);
 
         createService().registerDataSet(SESSION_TOKEN, sampleIdentifier, externalData);
 
@@ -493,7 +503,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         sample.setExperiment(experiment);
         return sample;
     }
-    
+
     private void prepareTryToLoadSample(final SampleIdentifier identifier, final SamplePE sample)
     {
         prepareGetSession();
@@ -525,7 +535,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                 }
             });
     }
-    
+
     private AttachmentPE createProcessingInstruction(String template, String code, String content)
     {
         AttachmentPE attachment = new AttachmentPE();
@@ -535,12 +545,12 @@ public class ETLServiceTest extends AbstractServerTestCase
         attachment.setAttachmentContent(attachmentContent);
         return attachment;
     }
-    
+
     private IETLLIMSService createService()
     {
         return new ETLService(sessionManager, daoFactory, boFactory, dssfactory);
     }
-    
+
     private DataStoreServerInfo createDSSInfo()
     {
         DataStoreServerInfo info = new DataStoreServerInfo();

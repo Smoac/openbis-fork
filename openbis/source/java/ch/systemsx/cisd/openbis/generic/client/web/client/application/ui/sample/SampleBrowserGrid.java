@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Samp
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.ShowDetailsLinkCellRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
@@ -51,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.en
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
@@ -122,7 +124,8 @@ public class SampleBrowserGrid extends
             final IViewContext<ICommonClientServiceAsync> viewContext, final TechId experimentId,
             String gridId, ExperimentType experimentType)
     {
-        final ListSampleCriteria criteria = ListSampleCriteria.createForExperiment(experimentId);
+        final ListSampleCriteria criteria =
+                ListSampleCriteria.createForExperiment(experimentId, GWTUtils.getBaseIndexURL());
         ISampleCriteriaProvider criteriaProvider =
                 new SampleCriteriaProvider(viewContext, criteria);
         // we do not refresh the grid, the criteria provider will do this when property types will
@@ -353,6 +356,9 @@ public class SampleBrowserGrid extends
                         .getSampleType());
         schema.setGridCellRendererFor(CommonSampleColDefKind.CODE.id(), LinkRenderer
                 .createGridCellRenderer());
+        schema.setGridCellRendererFor(CommonSampleColDefKind.SHOW_DETAILS_LINK.id(),
+                new ShowDetailsLinkCellRenderer(viewContext
+                        .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE)));
         return schema;
     }
 
@@ -390,4 +396,5 @@ public class SampleBrowserGrid extends
     {
         return CommonSampleColDefKind.values();
     }
+
 }

@@ -259,6 +259,7 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
     {
         final ExperimentPE result = new ExperimentPE();
         result.setCode(expCode);
+        result.setPermId(daoFactory.getPermIdDAO().createPermId());
         result.setExperimentType(findExperimentType(expType));
         result.setProject(findProject(db, group, project));
         result.setRegistrator(getTestPerson());

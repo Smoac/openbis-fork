@@ -144,10 +144,10 @@ public final class ExternalDataPE extends DataPE
     @NotNull(message = ValidationMessages.IS_COMPLETE_NOT_NULL_MESSAGE)
     @Column(name = ColumnNames.IS_COMPLETE_COLUMN)
     @Enumerated(EnumType.STRING)
-    /**
-     * Returns {@link BooleanOrUnknown#T}, if the data set is complete in the data store and
-     * {@link BooleanOrUnknown#F}, if some parts of the data are missing. If the completeness is
-     * not known (e.g. because the data set is stored in a format that does not allow to assess the
+    /*
+     * * Returns {@link BooleanOrUnknown#T}, if the data set is complete in the data store and
+     * {@link BooleanOrUnknown#F}, if some parts of the data are missing. If the completeness is not
+     * known (e.g. because the data set is stored in a format that does not allow to assess the
      * completeness, {@link BooleanOrUnknown#U} is returned.
      */
     public BooleanOrUnknown getComplete()
@@ -164,4 +164,5 @@ public final class ExternalDataPE extends DataPE
     {
         this.complete = complete;
     }
+
 }

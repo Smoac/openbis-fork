@@ -109,6 +109,8 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     private ExperimentPE experiment;
 
+    private String permId;
+
     /**
      * Invalidation information.
      * <p>
@@ -577,6 +579,20 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     protected Set<AttachmentPE> getInternalAttachments()
     {
         return attachments;
+    }
+
+    @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
+    @Length(min = 1, max = 40, message = ValidationMessages.CODE_LENGTH_MESSAGE)
+    @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
+    @Column(name = ColumnNames.PERM_ID_COLUMN, nullable = false)
+    public String getPermId()
+    {
+        return permId;
+    }
+
+    public void setPermId(String permId)
+    {
+        this.permId = permId;
     }
 
 }

@@ -49,15 +49,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 public interface IGenericClientServiceAsync extends IClientServiceAsync
 {
     /**
-     * @see IGenericClientService#getSampleGenerationInfo(TechId)
+     * @see IGenericClientService#getSampleGenerationInfo(TechId, String)
      */
-    public void getSampleGenerationInfo(final TechId sampleId,
+    public void getSampleGenerationInfo(final TechId sampleId, String baseIndexURL,
             AsyncCallback<SampleGeneration> asyncCallback);
 
     /**
-     * @see IGenericClientService#getSampleInfo(TechId)
+     * @see IGenericClientService#getSampleInfo(TechId, String)
      */
-    public void getSampleInfo(final TechId sampleId, AsyncCallback<Sample> asyncCallback);
+    public void getSampleInfo(final TechId sampleId, String baseIndexURL,
+            AsyncCallback<Sample> asyncCallback);
 
     /**
      * @see IGenericClientService#registerSample(String, NewSample)
@@ -74,15 +75,15 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             throws UserFailureException;
 
     /**
-     * @see IGenericClientService#getExperimentInfo(String)
+     * @see IGenericClientService#getExperimentInfo(String, String)
      */
-    public void getExperimentInfo(String experimentIdentifier,
+    public void getExperimentInfo(String experimentIdentifier, String baseIndexURL,
             final AsyncCallback<Experiment> experimentInfoCallback);
 
     /**
-     * @see IGenericClientService#getExperimentInfo(TechId)
+     * @see IGenericClientService#getExperimentInfo(TechId, String)
      */
-    public void getExperimentInfo(TechId experimentId,
+    public void getExperimentInfo(TechId experimentId, String baseIndexURL,
             final AsyncCallback<Experiment> experimentInfoCallback);
 
     /**

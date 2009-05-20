@@ -10,6 +10,7 @@ var common = {
   // 
   
   code: "Code",
+  perm_id: "PermID",
   registrator: "Registrator",
   registration_date: "Registration Date",
   filter: "Filter",

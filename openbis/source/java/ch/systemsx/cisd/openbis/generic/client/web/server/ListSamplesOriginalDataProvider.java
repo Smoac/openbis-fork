@@ -44,7 +44,7 @@ final class ListSamplesOriginalDataProvider extends AbstractOriginalDataProvider
         final List<Sample> list = new ArrayList<Sample>(samples.size());
         for (final SamplePE sample : samples)
         {
-            list.add(SampleTranslator.translate(sample));
+            list.add(SampleTranslator.translate(sample, listCriteria.getBaseIndexUrl()));
         }
         return list;
     }

@@ -16,28 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * A entity that matches the <i>Hibernate Search</i> request.
  * 
  * @author Christian Ribeaud
  */
-public interface IMatchingEntity extends IIdentifiable
+public interface IMatchingEntity extends IEntityInformationHolderDTO
 {
     /**
      * Returns the registrator of the entity.
      */
     public PersonPE getRegistrator();
 
-    /**
-     * Returns the entity type of this matching entity.
-     */
-    public EntityTypePE getEntityType();
-
-    /**
-     * Return the entity kind of this matching entity.
-     */
-    public EntityKind getEntityKind();
 }

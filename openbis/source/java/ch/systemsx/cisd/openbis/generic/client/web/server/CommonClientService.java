@@ -1341,14 +1341,13 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public IEntityInformationHolder getEntityInformationHolder(EntityKind entityKind,
-            String identifier)
+    public IEntityInformationHolder getEntityInformationHolder(EntityKind entityKind, String permId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         try
         {
-            return commonServer.getEntityInformationHolder(sessionToken, entityKind, identifier);
+            return commonServer.getEntityInformationHolder(sessionToken, entityKind, permId);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

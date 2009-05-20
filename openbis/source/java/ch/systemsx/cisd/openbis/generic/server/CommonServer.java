@@ -78,6 +78,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
@@ -100,6 +101,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -809,40 +811,42 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public IEntityInformationHolder getEntityInformationHolder(String sessionToken,
             final ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind,
-            final String identifier)
+            final String permId)
     {
         getSessionManager().getSession(sessionToken);
-
         switch (entityKind)
         {
             case DATA_SET:
-                return getDataSetInformationHolder(entityKind, identifier);
+                return createInformationHolder(entityKind, permId, getDAOFactory()
+                        .getExternalDataDAO().tryToFindDataSetByCode(permId));
             case SAMPLE:
+                return createInformationHolder(entityKind, permId, getDAOFactory().getPermIdDAO()
+                        .tryToFindByPermId(permId, EntityKind.SAMPLE));
             case EXPERIMENT:
+                return createInformationHolder(entityKind, permId, getDAOFactory().getPermIdDAO()
+                        .tryToFindByPermId(permId, EntityKind.EXPERIMENT));
             case MATERIAL:
-                break; // throws declaration is outside switch because we have to return sth
+                break;
         }
-        throw UserFailureException.fromTemplate("Operation for entity kind '" + entityKind
-                + "' is not implemented yet.");
+        throw UserFailureException.fromTemplate("Operation not available for "
+                + entityKind.getDescription() + "s");
     }
 
-    private IEntityInformationHolder getDataSetInformationHolder(
-            final ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind,
-            final String identifier)
+    private IEntityInformationHolder createInformationHolder(
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind kind, final String permId,
+            IEntityInformationHolderDTO entityOrNull)
     {
-        ExternalDataPE entityPEOrNull =
-                getDAOFactory().getExternalDataDAO().tryToFindFullDataSetByCode(identifier);
-        if (entityPEOrNull == null)
+        if (entityOrNull == null)
         {
-            throw UserFailureException.fromTemplate("There is no %s with identifier '%s'",
-                    entityKind.getDescription(), identifier);
+            throw UserFailureException.fromTemplate("There is no %s with permId '%s'", kind
+                    .getDescription(), permId);
         }
-        final EntityType entityType = new DataSetType();
-        entityType.setCode(entityPEOrNull.getDataSetType().getCode());
-        final String code = entityPEOrNull.getCode();
-        final Long id = entityPEOrNull.getId();
-
-        return new BasicEntityInformationHolder(entityKind, entityType, identifier, code, id);
+        final EntityType entityType =
+                EntityHelper.createEntityType(kind, entityOrNull.getEntityType().getCode());
+        final String code = entityOrNull.getCode();
+        final Long id = entityOrNull.getId();
+        final String identifier = entityOrNull.getIdentifier();
+        return new BasicEntityInformationHolder(kind, entityType, identifier, code, id);
     }
 
     public String generateCode(String sessionToken, String prefix)

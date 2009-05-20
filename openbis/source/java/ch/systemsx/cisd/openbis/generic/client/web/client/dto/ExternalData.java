@@ -21,6 +21,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -37,8 +38,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
  * @author Christian Ribeaud
  */
 public class ExternalData extends CodeWithRegistration<ExternalData> implements
-        IInvalidationProvider, IEntityInformationHolder, IEntityPropertiesHolder,
-        IIdentifiable
+        IInvalidationProvider, IEntityInformationHolder, IEntityPropertiesHolder, IIdentifiable,
+        IPermIdHolder
 {
     private boolean derived;
 
@@ -312,6 +313,11 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     public void setId(Long id)
     {
         this.id = id;
+    }
+
+    public String getPermId()
+    {
+        return getCode();
     }
 
 }

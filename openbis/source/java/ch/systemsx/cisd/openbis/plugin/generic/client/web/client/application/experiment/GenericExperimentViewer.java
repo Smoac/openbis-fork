@@ -92,7 +92,8 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
      */
     protected void reloadData(AbstractAsyncCallback<Experiment> callback)
     {
-        viewContext.getService().getExperimentInfo(experimentId, callback);
+        viewContext.getService().getExperimentInfo(experimentId, getBaseIndexURL(),
+                callback);
     }
 
     private ExperimentPropertiesSection createExperimentPropertiesSection(
@@ -107,6 +108,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
                 new AttachmentsSection<Experiment>(experiment, viewContext);
         attachmentsSection.setReloadDataAction(new IDelegatedAction()
             {
+
                 public void execute()
                 {
                     reloadData(attachmentsSection.getReloadDataCallback());

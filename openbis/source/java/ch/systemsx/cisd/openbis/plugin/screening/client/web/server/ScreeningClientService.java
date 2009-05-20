@@ -78,15 +78,15 @@ public final class ScreeningClientService extends AbstractClientService implemen
     // IScreeningClientService
     //
 
-    public final SampleGeneration getSampleGenerationInfo(final TechId sampleId)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    public final SampleGeneration getSampleGenerationInfo(final TechId sampleId, String baseIndexURL)
+            throws UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
-            final SampleGenerationDTO sampleGenerationDTO =
+          final SampleGenerationDTO sampleGenerationDTO =
                     screeningServer.getSampleInfo(sessionToken, sampleId);
-            return SampleTranslator.translate(sampleGenerationDTO);
+            return SampleTranslator.translate(sampleGenerationDTO, baseIndexURL);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

@@ -250,7 +250,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
                         final AsyncCallback<BaseListLoadResult<ModelData>> callback)
                 {
                     final ListSampleCriteria sampleCriteria =
-                            ListSampleCriteria.createForContainer(sampleId);
+                            ListSampleCriteria.createForContainer(sampleId, getBaseIndexURL());
                     ListSamplesCallback listCallback =
                             new ListSamplesCallback(viewContext, callback,
                                     showComponentsPanelAction);
@@ -386,7 +386,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
      */
     protected void reloadSampleGenerationData(AbstractAsyncCallback<SampleGeneration> callback)
     {
-        viewContext.getService().getSampleGenerationInfo(sampleId, callback);
+        viewContext.getService().getSampleGenerationInfo(sampleId, getBaseIndexURL(), callback);
     }
 
     /**
@@ -394,7 +394,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
      */
     protected void reloadSampleData(AbstractAsyncCallback<Sample> callback)
     {
-        viewContext.getService().getSampleInfo(sampleId, callback);
+        viewContext.getService().getSampleInfo(sampleId, getBaseIndexURL(), callback);
     }
 
     /**

@@ -109,7 +109,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                 "TIFF"));
         dataTable.expectedRow(new DataSetRow("20081105092159188-3").invalid().withLocation(
                 "analysis/result"));
-        dataTable.expectedColumnsNumber(15);
+        dataTable.expectedColumnsNumber(16);
         final String commentColIdent = GridTestUtils.getPropertyColumnIdentifier("COMMENT", false);
         dataTable.expectedColumnHidden(commentColIdent, true);
 

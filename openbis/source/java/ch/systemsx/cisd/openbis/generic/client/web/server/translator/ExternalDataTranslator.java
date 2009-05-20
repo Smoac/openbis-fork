@@ -98,8 +98,8 @@ public class ExternalDataTranslator
                 EntityKind.DATA_SET, externalData.getIdentifier()));
         setProperties(externalDataPE, externalData);
         ExperimentPE experiment = externalDataPE.getExperiment();
-        externalData
-                .setExperiment(ExperimentTranslator.translate(experiment, withExperimentFields));
+        externalData.setExperiment(ExperimentTranslator.translate(experiment, baseIndexURL,
+                withExperimentFields));
         return externalData;
     }
 

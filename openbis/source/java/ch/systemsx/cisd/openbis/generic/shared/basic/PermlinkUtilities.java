@@ -27,7 +27,7 @@ public class PermlinkUtilities
 {
 
     /** The HTTP URL parameter used to specify the entity identifier. */
-    public static final String ENTITY_IDENTIFIER_PARAMETER_KEY = "identifier";
+    public static final String PERM_ID_PARAMETER_KEY = "permId";
 
     /** The HTTP URL parameter used to specify the entity kind. */
     public static final String ENTITY_KIND_PARAMETER_KEY = "entity";
@@ -37,7 +37,7 @@ public class PermlinkUtilities
     {
         URLMethodWithParameters ulrWithParameters = new URLMethodWithParameters(baseIndexURL);
         ulrWithParameters.addParameter(ENTITY_KIND_PARAMETER_KEY, entityKind.name());
-        ulrWithParameters.addParameter(ENTITY_IDENTIFIER_PARAMETER_KEY, identifier);
+        ulrWithParameters.addParameter(PERM_ID_PARAMETER_KEY, identifier);
         return ulrWithParameters.toString();
     }
 

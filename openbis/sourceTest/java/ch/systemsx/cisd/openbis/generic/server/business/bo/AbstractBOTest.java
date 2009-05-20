@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
 
 /**
  * An <i>abstract</i> test for <i>Business Object</i>.
@@ -88,6 +89,8 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     IDataStoreDAO dataStoreDAO;
 
+    IPermIdDAO permIdDAO;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -111,6 +114,7 @@ public abstract class AbstractBOTest extends AssertJUnit
         fileFormatTypeDAO = context.mock(IFileFormatTypeDAO.class);
         locatorTypeDAO = context.mock(ILocatorTypeDAO.class);
         dataStoreDAO = context.mock(IDataStoreDAO.class);
+        permIdDAO = context.mock(IPermIdDAO.class);
         context.checking(new Expectations()
             {
                 {

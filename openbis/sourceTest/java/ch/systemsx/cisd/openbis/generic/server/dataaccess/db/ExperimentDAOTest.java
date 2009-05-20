@@ -210,6 +210,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         String codeBefore = experiment.getCode();
         String codeModified = codeBefore + MODIFIED;
         experiment.setCode(codeModified);
+        experiment.setPermId(daoFactory.getPermIdDAO().createPermId());
         final Date modificationTimestamp = experiment.getModificationDate();
         daoFactory.getExperimentDAO().createExperiment(experiment);
 

@@ -436,13 +436,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public IEntityInformationHolder getEntityInformationHolder(String sessionToken,
-            ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind,
-            String identifier)
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind, String permId)
     {
 
         final String entityTypeFormat = entityKind.name() + "_TYPE(%S)";
         logTracking(sessionToken, "get_entity_information_holder", entityTypeFormat
-                + " IDENTIFIER(%S) ", entityKind, identifier);
+                + " PERM_ID(%S) ", entityKind, permId);
         return null;
     }
 

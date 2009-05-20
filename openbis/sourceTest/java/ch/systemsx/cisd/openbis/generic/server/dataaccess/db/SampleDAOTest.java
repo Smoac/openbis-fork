@@ -166,6 +166,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         final SamplePE samplePE = new SamplePE();
         final String sampleCode = "A03";
         samplePE.setCode(sampleCode);
+        samplePE.setPermId(daoFactory.getPermIdDAO().createPermId());
         samplePE.setSampleType(daoFactory.getSampleTypeDAO().tryFindSampleTypeByCode(
                 SampleTypeCode.DILUTION_PLATE.getCode()));
         final DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
@@ -246,6 +247,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         final SamplePE sample = new SamplePE();
         sample.setRegistrator(getSystemPerson());
         sample.setCode(code);
+        sample.setPermId(daoFactory.getPermIdDAO().createPermId());
         sample.setSampleType(type);
         sample.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
         sample.setGroup(sampleOwner.tryGetGroup());

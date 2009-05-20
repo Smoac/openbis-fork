@@ -33,8 +33,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
 public interface IScreeningClientServiceAsync extends IClientServiceAsync
 {
 
-    /** @see IScreeningClientService#getSampleGenerationInfo(TechId) */
-    public void getSampleGenerationInfo(final TechId sampleId,
+    /** @see IScreeningClientService#getSampleGenerationInfo(TechId, String) */
+    public void getSampleGenerationInfo(final TechId sampleId, String baseIndexUrl,
             final AsyncCallback<SampleGeneration> callback);
 
     /**

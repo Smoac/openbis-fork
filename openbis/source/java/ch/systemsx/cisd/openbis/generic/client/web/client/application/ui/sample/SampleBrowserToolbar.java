@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid.ISampleCriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -96,6 +97,7 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
         criteria.setIncludeGroup(includeGroup);
         criteria.setIncludeInstance(includeInstance);
         criteria.setExcludeWithoutExperiment(excludeWithoutExperiment);
+        criteria.setBaseIndexUrl(GWTUtils.getBaseIndexURL());
         return criteria;
     }
 

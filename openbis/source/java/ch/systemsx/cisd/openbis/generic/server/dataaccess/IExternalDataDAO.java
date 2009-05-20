@@ -59,11 +59,6 @@ public interface IExternalDataDAO extends IGenericDAO<ExternalDataPE>
     public ExternalDataPE tryToFindFullDataSetByCode(String dataSetCode);
 
     /**
-     * Creates a unique data set code.
-     */
-    public String createDataSetCode();
-
-    /**
      * Persists the specified data set.
      */
     public void createDataSet(DataPE dataset);

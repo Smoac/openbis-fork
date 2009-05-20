@@ -112,18 +112,18 @@ public final class UrlParamsHelper
         {
             String entityKindValueOrNull =
                     tryGetUrlParamValue(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY);
-            String identifierValueOrNull =
-                    tryGetUrlParamValue(PermlinkUtilities.ENTITY_IDENTIFIER_PARAMETER_KEY);
+            String permIdValueOrNull =
+                    tryGetUrlParamValue(PermlinkUtilities.PERM_ID_PARAMETER_KEY);
             try
             {
-                if (entityKindValueOrNull != null || identifierValueOrNull != null)
+                if (entityKindValueOrNull != null || permIdValueOrNull != null)
                 {
                     checkMissingURLParameter(entityKindValueOrNull,
                             PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY);
-                    checkMissingURLParameter(identifierValueOrNull,
-                            PermlinkUtilities.ENTITY_IDENTIFIER_PARAMETER_KEY);
+                    checkMissingURLParameter(permIdValueOrNull,
+                            PermlinkUtilities.PERM_ID_PARAMETER_KEY);
                     EntityKind entityKind = getEntityKind(entityKindValueOrNull);
-                    openEntityDetailsTab(entityKind, identifierValueOrNull);
+                    openEntityDetailsTab(entityKind, permIdValueOrNull);
                 }
             } catch (UserFailureException exception)
             {
@@ -139,9 +139,9 @@ public final class UrlParamsHelper
             }
         }
 
-        private void openEntityDetailsTab(EntityKind entityKind, String identifier)
+        private void openEntityDetailsTab(EntityKind entityKind, String permId)
         {
-            viewContext.getCommonService().getEntityInformationHolder(entityKind, identifier,
+            viewContext.getCommonService().getEntityInformationHolder(entityKind, permId,
                     new OpenEntityDetailsTabCallback(viewContext));
 
         }

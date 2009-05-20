@@ -56,7 +56,7 @@ final class ListExperimentsOriginalDataProvider extends AbstractOriginalDataProv
         final List<Experiment> list = new ArrayList<Experiment>(experiments.size());
         for (final ExperimentPE experiment : experiments)
         {
-            list.add(ExperimentTranslator.translate(experiment,
+            list.add(ExperimentTranslator.translate(experiment, listCriteria.getBaseIndexURL(),
                     ExperimentTranslator.LoadableFields.PROPERTIES));
         }
         return list;

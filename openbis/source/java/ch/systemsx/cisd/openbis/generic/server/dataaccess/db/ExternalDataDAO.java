@@ -16,12 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
@@ -44,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
@@ -59,8 +56,6 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
     private static final String EXTERNAL_DATA_UPDATE_TEMPLATE =
             "insert into %s (data_id, location, loty_id, ffty_id, is_complete, cvte_id_stor_fmt) "
                     + "values (%d, '%s', %d, %d, '%c', %d)";
-
-    private final static String DATA_CODE_DATE_FORMAT_PATTERN = "yyyyMMddHHmmssSSS";
 
     private final static Class<ExternalDataPE> ENTITY_CLASS = ExternalDataPE.class;
 
@@ -86,9 +81,8 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         assert sample != null : "Unspecified sample.";
 
         final String query =
-                String.format("from %s e "
-                        + "left join fetch e.experimentInternal " + "left join fetch e.parents "
-                        + "left join fetch e.dataSetProperties "
+                String.format("from %s e " + "left join fetch e.experimentInternal "
+                        + "left join fetch e.parents " + "left join fetch e.dataSetProperties "
                         + "where (e.%s = ? or e.%s = ?) and e.deleted = false", TABLE_NAME,
                         SourceType.DERIVED.getFieldName(), SourceType.MEASUREMENT.getFieldName());
         final List<ExternalDataPE> list =
@@ -110,9 +104,8 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         assert experiment != null : "Unspecified experiment.";
 
         final String query =
-                String.format("from %s e "
-                        + "left join fetch e.experimentInternal " + "left join fetch e.parents "
-                        + "left join fetch e.dataSetProperties "
+                String.format("from %s e " + "left join fetch e.experimentInternal "
+                        + "left join fetch e.parents " + "left join fetch e.dataSetProperties "
                         + "where e.experimentInternal = ? and e.deleted = false", TABLE_NAME);
         final List<ExternalDataPE> list =
                 cast(getHibernateTemplate().find(query, toArray(experiment)));
@@ -175,13 +168,6 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
                     entity, dataSetCode));
         }
         return entity;
-    }
-
-    public String createDataSetCode()
-    {
-        long id = getNextSequenceId(SequenceNames.DATA_SEQUENCE);
-        return DateFormatUtils.format(new Date(), DATA_CODE_DATE_FORMAT_PATTERN) + "-"
-                + Long.toString(id);
     }
 
     public void createDataSet(DataPE dataset)

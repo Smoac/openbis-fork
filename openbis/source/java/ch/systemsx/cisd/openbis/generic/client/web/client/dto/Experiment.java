@@ -21,6 +21,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -34,8 +35,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
  * @author Tomasz Pylak
  */
 public class Experiment extends CodeWithRegistration<Experiment> implements IInvalidationProvider,
-        IEntityInformationHolder, IAttachmentHolder, IEntityPropertiesHolder,
-        IIdentifiable
+        IEntityInformationHolder, IAttachmentHolder, IEntityPropertiesHolder, IIdentifiable,
+        IPermIdHolder
 {
     private Project project;
 
@@ -52,6 +53,20 @@ public class Experiment extends CodeWithRegistration<Experiment> implements IInv
     private Long id;
 
     private Date modificationDate;
+
+    private String permId;
+
+    private String permlink;
+
+    public String getPermlink()
+    {
+        return permlink;
+    }
+
+    public void setPermlink(String permlink)
+    {
+        this.permlink = permlink;
+    }
 
     public AttachmentHolderKind getAttachmentHolderKind()
     {
@@ -161,4 +176,15 @@ public class Experiment extends CodeWithRegistration<Experiment> implements IInv
     {
         return EntityKind.EXPERIMENT;
     }
+
+    public void setPermId(String permId)
+    {
+        this.permId = permId;
+    }
+
+    public String getPermId()
+    {
+        return permId;
+    }
+
 }

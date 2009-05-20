@@ -213,6 +213,9 @@ public final class ExperimentBOTest extends AbstractBOTest
                     one(projectDAO).tryFindProject(dbCode, groupCode, projectCode);
                     will(returnValue(project));
 
+                    one(permIdDAO).createPermId();
+                    will(returnValue("2009010112341234-1"));
+
                     one(experimentDAO).createExperiment(experiment);
                 }
             });
@@ -339,6 +342,9 @@ public final class ExperimentBOTest extends AbstractBOTest
                     one(projectDAO).tryFindProject(dbCode, groupCode, projectCode);
                     will(returnValue(project));
 
+                    one(permIdDAO).createPermId();
+                    will(returnValue("2009010101011111-1"));
+
                     one(experimentDAO).createExperiment(experiment);
                     will(throwException(new DataIntegrityViolationException(
                             "exception description...")));
@@ -377,6 +383,9 @@ public final class ExperimentBOTest extends AbstractBOTest
 
                     allowing(daoFactory).getExternalDataDAO();
                     will(returnValue(externalDataDAO));
+
+                    allowing(daoFactory).getPermIdDAO();
+                    will(returnValue(permIdDAO));
                 }
             });
     }

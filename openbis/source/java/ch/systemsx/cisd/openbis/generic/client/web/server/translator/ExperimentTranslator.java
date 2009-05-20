@@ -24,6 +24,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -47,7 +49,7 @@ public final class ExperimentTranslator
         // Can not be instantiated.
     }
 
-    public final static Experiment translate(final ExperimentPE experiment,
+    public final static Experiment translate(final ExperimentPE experiment, String baseIndexURL,
             final LoadableFields... withFields)
     {
         if (experiment == null)
@@ -58,6 +60,9 @@ public final class ExperimentTranslator
         result.setId(experiment.getId());
         result.setModificationDate(experiment.getModificationDate());
         result.setCode(StringEscapeUtils.escapeHtml(experiment.getCode()));
+        result.setPermId(StringEscapeUtils.escapeHtml(experiment.getPermId()));
+        result.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL, EntityKind.EXPERIMENT,
+                experiment.getPermId()));
         result.setExperimentType(translate(experiment.getExperimentType()));
         result.setIdentifier(StringEscapeUtils.escapeHtml(experiment.getIdentifier()));
         result.setProject(ProjectTranslator.translate(experiment.getProject()));

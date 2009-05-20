@@ -38,7 +38,7 @@ public interface IScreeningClientService extends IClientService
     /**
      * For given {@link TechId} returns corresponding {@link SampleGeneration}.
      */
-    public SampleGeneration getSampleGenerationInfo(final TechId sampleId)
+    public SampleGeneration getSampleGenerationInfo(final TechId sampleId, String baseIndexURL)
             throws UserFailureException;
 
     /**

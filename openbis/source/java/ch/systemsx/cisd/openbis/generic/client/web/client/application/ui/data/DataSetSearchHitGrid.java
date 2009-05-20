@@ -23,8 +23,6 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -35,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.ShowDetailsLinkCellRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetSearchHitColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
@@ -183,20 +182,6 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
         return new DataSetSearchHitModel(entity);
     }
 
-    public GridCellRenderer<BaseEntityModel<?>> createShowDetailsLinkCellRenderer()
-    {
-        return new GridCellRenderer<BaseEntityModel<?>>()
-            {
-                public String render(BaseEntityModel<?> model, String property, ColumnData config,
-                        int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store)
-                {
-                    String originalValue = String.valueOf(model.get(property));
-                    return LinkRenderer.renderAsLinkWithAnchor(viewContext
-                            .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE), originalValue, true);
-                }
-            };
-    }
-
     @Override
     protected ColumnDefsAndConfigs<ExternalData> createColumnsDefinition()
     {
@@ -210,7 +195,8 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
                 linkRenderer);
         schema.setGridCellRendererFor(DataSetSearchHitColDefKind.EXPERIMENT.id(), linkRenderer);
         schema.setGridCellRendererFor(DataSetSearchHitColDefKind.SHOW_DETAILS_LINK.id(),
-                createShowDetailsLinkCellRenderer());
+                new ShowDetailsLinkCellRenderer(viewContext
+                        .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE)));
         return schema;
     }
 

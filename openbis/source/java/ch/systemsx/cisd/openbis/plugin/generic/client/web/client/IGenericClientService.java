@@ -55,13 +55,14 @@ public interface IGenericClientService extends IClientService
     /**
      * For given {@link TechId} returns corresponding {@link SampleGeneration}.
      */
-    public SampleGeneration getSampleGenerationInfo(final TechId sampleId)
+    public SampleGeneration getSampleGenerationInfo(final TechId sampleId, String baseIndexURL)
             throws UserFailureException;
 
     /**
      * For given {@link TechId} returns corresponding {@link Sample}.
      */
-    public Sample getSampleInfo(final TechId sampleId) throws UserFailureException;
+    public Sample getSampleInfo(final TechId sampleId, String baseIndexURL)
+            throws UserFailureException;
 
     /**
      * Registers a new sample.
@@ -81,13 +82,14 @@ public interface IGenericClientService extends IClientService
     /**
      * For given <var>experimentIdentifier</var> returns corresponding {@link Experiment}.
      */
-    public Experiment getExperimentInfo(final String experimentIdentifier)
+    public Experiment getExperimentInfo(final String experimentIdentifier, String baseIndexURL)
             throws UserFailureException;
 
     /**
      * For given {@link TechId} returns corresponding {@link Experiment}.
      */
-    public Experiment getExperimentInfo(final TechId experimentId) throws UserFailureException;
+    public Experiment getExperimentInfo(final TechId experimentId, String baseIndexURL)
+            throws UserFailureException;
 
     /**
      * For given {@link TechId} returns corresponding {@link Material}.

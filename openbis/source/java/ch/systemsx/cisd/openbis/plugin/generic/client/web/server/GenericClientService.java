@@ -118,7 +118,7 @@ public final class GenericClientService extends AbstractClientService implements
     // IGenericClientService
     //
 
-    public final SampleGeneration getSampleGenerationInfo(final TechId sampleId)
+    public final SampleGeneration getSampleGenerationInfo(final TechId sampleId, String baseIndexURL)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -126,17 +126,17 @@ public final class GenericClientService extends AbstractClientService implements
             final String sessionToken = getSessionToken();
             final SampleGenerationDTO sampleGenerationDTO =
                     genericServer.getSampleInfo(sessionToken, sampleId);
-            return SampleTranslator.translate(sampleGenerationDTO);
+            return SampleTranslator.translate(sampleGenerationDTO, baseIndexURL);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
-    public final Sample getSampleInfo(final TechId sampleId)
+    public final Sample getSampleInfo(final TechId sampleId, String baseIndexURL)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return getSampleGenerationInfo(sampleId).getGenerator();
+        return getSampleGenerationInfo(sampleId, baseIndexURL).getGenerator();
     }
 
     public final void registerSample(final String sessionKey, final NewSample newSample)
@@ -300,7 +300,7 @@ public final class GenericClientService extends AbstractClientService implements
 
     }
 
-    public final Experiment getExperimentInfo(final String experimentIdentifier)
+    public final Experiment getExperimentInfo(final String experimentIdentifier, String baseIndexURL)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -310,7 +310,7 @@ public final class GenericClientService extends AbstractClientService implements
                     new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
             final ExperimentPE experiment =
                     genericServer.getExperimentInfo(sessionToken, identifier);
-            return ExperimentTranslator.translate(experiment,
+            return ExperimentTranslator.translate(experiment, baseIndexURL,
                     ExperimentTranslator.LoadableFields.PROPERTIES,
                     ExperimentTranslator.LoadableFields.ATTACHMENTS);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
@@ -319,7 +319,7 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
-    public final Experiment getExperimentInfo(final TechId experimentId)
+    public final Experiment getExperimentInfo(final TechId experimentId, String baseIndexURL)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -327,7 +327,7 @@ public final class GenericClientService extends AbstractClientService implements
             final String sessionToken = getSessionToken();
             final ExperimentPE experiment =
                     genericServer.getExperimentInfo(sessionToken, experimentId);
-            return ExperimentTranslator.translate(experiment,
+            return ExperimentTranslator.translate(experiment, baseIndexURL,
                     ExperimentTranslator.LoadableFields.PROPERTIES,
                     ExperimentTranslator.LoadableFields.ATTACHMENTS);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)

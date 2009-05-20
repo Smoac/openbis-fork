@@ -579,6 +579,5 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public IEntityInformationHolder getEntityInformationHolder(String sessionToken,
-            ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind,
-            String identifier);
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind, String permId);
 }

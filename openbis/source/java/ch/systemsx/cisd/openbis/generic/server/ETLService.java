@@ -112,7 +112,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     public void registerDataStoreServer(String sessionToken, DataStoreServerInfo info)
     {
         Session session = sessionManager.getSession(sessionToken);
-        
+
         String dssSessionToken = info.getSessionToken();
         String remoteHost = session.getRemoteHost();
         int port = info.getPort();
@@ -130,8 +130,8 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
             if (IDataStoreService.VERSION != dssVersion)
             {
                 String msg =
-                    "Data Store Server version is " + dssVersion + " instead of "
-                    + IDataStoreService.VERSION;
+                        "Data Store Server version is " + dssVersion + " instead of "
+                                + IDataStoreService.VERSION;
                 notificationLog.error(msg);
                 throw new ConfigurationFailureException(msg);
             }
@@ -164,7 +164,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     public String createDataSetCode(String sessionToken) throws UserFailureException
     {
         sessionManager.getSession(sessionToken); // throws exception if invalid sessionToken
-        return daoFactory.getExternalDataDAO().createDataSetCode();
+        return daoFactory.getPermIdDAO().createPermId();
     }
 
     public ExperimentPE tryToGetBaseExperiment(String sessionToken,
@@ -198,10 +198,8 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         HibernateUtils.initialize(experiment.getProperties());
         final List<ProcessingInstructionDTO> instructions =
                 new ArrayList<ProcessingInstructionDTO>();
-        final IAttachmentDAO experimentAttachmentDAO =
-                daoFactory.getAttachmentDAO();
-        final List<AttachmentPE> attachments =
-                experimentAttachmentDAO.listAttachments(experiment);
+        final IAttachmentDAO experimentAttachmentDAO = daoFactory.getAttachmentDAO();
+        final List<AttachmentPE> attachments = experimentAttachmentDAO.listAttachments(experiment);
         for (final AttachmentPE attachment : attachments)
         {
             final String fileName = attachment.getFileName();
@@ -255,8 +253,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
             final String procedureTypeCode)
     {
         final String key = createKey(template, procedureTypeCode);
-        final IAttachmentDAO experimentAttachmentDAO =
-                daoFactory.getAttachmentDAO();
+        final IAttachmentDAO experimentAttachmentDAO = daoFactory.getAttachmentDAO();
         final AttachmentPE attachment =
                 experimentAttachmentDAO.tryFindAttachmentByOwnerAndFileName(experiment, key);
         if (attachment != null)
@@ -310,7 +307,8 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         sampleBO.loadBySampleIdentifier(sampleIdentifier);
         final SamplePE cellPlate = sampleBO.getSample();
         final IExternalDataBO externalDataBO = boFactory.createExternalDataBO(session);
-        SourceType sourceType = externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
+        SourceType sourceType =
+                externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
         externalDataBO.define(externalData, cellPlate, sourceType);
         externalDataBO.save();
         final String dataSetCode = externalDataBO.getExternalData().getCode();

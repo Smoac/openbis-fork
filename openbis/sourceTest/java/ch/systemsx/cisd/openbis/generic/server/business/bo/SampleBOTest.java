@@ -287,6 +287,12 @@ public final class SampleBOTest extends AbstractBOTest
                     one(propertiesConverter).convertProperties(newSharedSample.getProperties(),
                             DILUTION_PLATE, EXAMPLE_PERSON);
                     will(returnValue(new ArrayList<SamplePropertyPE>()));
+
+                    one(daoFactory).getPermIdDAO();
+                    will(returnValue(permIdDAO));
+
+                    one(permIdDAO).createPermId();
+                    will(returnValue("2009010112341234-1"));
                 }
             });
 
@@ -360,6 +366,12 @@ public final class SampleBOTest extends AbstractBOTest
                     one(propertiesConverter).convertProperties(newSample.getProperties(),
                             DILUTION_PLATE, EXAMPLE_PERSON);
                     will(returnValue(new ArrayList<SamplePropertyPE>()));
+
+                    one(daoFactory).getPermIdDAO();
+                    will(returnValue(permIdDAO));
+
+                    one(permIdDAO).createPermId();
+                    will(returnValue("2009010112341234-1"));
                 }
             });
 
@@ -410,6 +422,12 @@ public final class SampleBOTest extends AbstractBOTest
                     final List<SamplePropertyPE> set = new ArrayList<SamplePropertyPE>();
                     set.add(samplePropertyPE);
                     will(returnValue(set));
+
+                    one(daoFactory).getPermIdDAO();
+                    will(returnValue(permIdDAO));
+
+                    one(permIdDAO).createPermId();
+                    will(returnValue("2009010112341234-1"));
 
                     one(sampleDAO).createSample(with(new BaseMatcher<SamplePE>()
                         {
