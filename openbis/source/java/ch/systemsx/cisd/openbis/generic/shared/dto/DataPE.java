@@ -55,7 +55,6 @@ import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
 import ch.rinn.restrictions.Friend;
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
@@ -166,15 +165,15 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
      * Set to <code>true</code> if this data set is data set is derived from a sample (otherwise it
      * is measured from a sample).
      */
-    @Private
+    // @Private
     public void setDerived(boolean isDerived)
     {
         this.isDerived = isDerived;
     }
 
     /**
-     * Returns <code>true</code> if this data set is data set is measured from a sample (otherwise it
-     * is derived from a sample).
+     * Returns <code>true</code> if this data set is data set is measured from a sample (otherwise
+     * it is derived from a sample).
      */
     @Transient
     public boolean isMeasured()
@@ -225,7 +224,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
         setSample(sample);
     }
 
-    @Private
+    // @Private
     public void setSample(final SamplePE sample)
     {
         if (sample != null)
