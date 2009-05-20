@@ -289,23 +289,20 @@ public class ExperimentDAOTest extends AbstractDAOTest
         }
     }
 
-    // FIXME 2009-05-19, PB: uncomment when we overcome Hibernate Validation bug
-    // that occurs when we validate a Hibernate proxy object with initialized values
-    // see http://lists.jboss.org/pipermail/hibernate-issues/2009-February/013988.html
-    // @Test(dataProvider = "illegalCodesProvider")
-    // public final void testCreateExperimentWithIllegalCode(String code)
-    // {
-    // final ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", code, "SIRNA_HCS");
-    // boolean exceptionThrown = false;
-    // try
-    // {
-    // daoFactory.getExperimentDAO().createExperiment(experiment);
-    // } catch (final DataIntegrityViolationException ex)
-    // {
-    // exceptionThrown = true;
-    // }
-    // assertTrue(exceptionThrown);
-    // }
+    @Test(dataProvider = "illegalCodesProvider")
+    public final void testCreateExperimentWithIllegalCode(String code)
+    {
+        final ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", code, "SIRNA_HCS");
+        boolean exceptionThrown = false;
+        try
+        {
+            daoFactory.getExperimentDAO().createExperiment(experiment);
+        } catch (final DataIntegrityViolationException ex)
+        {
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
+    }
 
     private void assertExperimentsEqual(ExperimentPE e1, ExperimentPE e2)
     {
