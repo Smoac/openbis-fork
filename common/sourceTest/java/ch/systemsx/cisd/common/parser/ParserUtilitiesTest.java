@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.parser;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
@@ -29,8 +30,10 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.parser.filter.ExcludeEmptyAndCommentLineFilter;
+import ch.systemsx.cisd.common.parser.filter.NonEmptyLineFilter;
 
 /**
  * Test cases for corresponding {@link ParserUtilities} class.
@@ -80,8 +83,7 @@ public final class ParserUtilitiesTest
         try
         {
             ParserUtilities.tryGetFirstAcceptedLine(file, null);
-
-        } catch (AssertionError e)
+        } catch (IOExceptionUnchecked e)
         {
             exceptionThrown = true;
         }
@@ -98,6 +100,25 @@ public final class ParserUtilitiesTest
         Line line = ParserUtilities.tryGetFirstAcceptedLine(file, null);
         assertEquals(StringUtils.EMPTY, line.getText());
         assertEquals(0, line.getNumber());
+        assert file.delete();
+    }
+
+    @Test
+    public final void testGetAllAcceptedLinesWithNullILineFilter() throws IOException
+    {
+        String[] lines = new String[]
+            { StringUtils.EMPTY, "non-empty line", StringUtils.EMPTY, "hello" };
+        File file = new File(workingDirectory, "test.txt");
+        FileUtils.writeLines(file, Arrays.asList(lines));
+        ParserUtilities.LineSplitter splitter =
+                new ParserUtilities.LineSplitter(file, NonEmptyLineFilter.INSTANCE);
+        Line line = splitter.tryNextLine();
+        assertEquals("non-empty line", line.getText());
+        assertEquals(1, line.getNumber());
+        line = splitter.tryNextLine();
+        assertEquals("hello", line.getText());
+        assertEquals(3, line.getNumber());
+        assertNull(splitter.tryNextLine());
         assert file.delete();
     }
 

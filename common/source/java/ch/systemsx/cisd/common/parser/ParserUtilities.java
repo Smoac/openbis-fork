@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.parser;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
@@ -25,6 +26,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
@@ -41,23 +43,77 @@ public final class ParserUtilities
         // Can not be instantiated.
     }
 
-    private final static Line tryFirstAcceptedLine(final ILineFilter filter,
-            final LineIterator lineIterator)
+    /**
+     * A class for splitting text content from a <code>String</code> or <code>File</code> into
+     * lines, optionally filtering them by a {@link ILineFilter}.
+     */
+    public static class LineSplitter implements Closeable
     {
-        for (int line = 0; lineIterator.hasNext(); line++)
+        private final LineIterator lineIterator;
+
+        private final ILineFilter lineFilter;
+
+        private int lineNumber;
+
+        public LineSplitter(final String content)
         {
-            final String nextLine = lineIterator.nextLine();
-            if (filter.acceptLine(nextLine, line))
+            this(content, null);
+        }
+        public LineSplitter(final String content, final ILineFilter lineFilterOrNull)
+        {
+            assert content != null : "Unspecified context.";
+
+            final Reader reader = new StringReader(content);
+            lineIterator = IOUtils.lineIterator(reader);
+            lineFilter = getLineFilter(lineFilterOrNull);
+        }
+
+        public LineSplitter(final File file) throws IOExceptionUnchecked
+        {
+            this(file, null);
+        }
+        
+        public LineSplitter(final File file, final ILineFilter lineFilterOrNull)
+                throws IOExceptionUnchecked
+        {
+            assert file != null : "Given file must not be null.";
+
+            try
             {
-                return new Line(line, nextLine);
+                lineIterator = FileUtils.lineIterator(file);
+                lineFilter = getLineFilter(lineFilterOrNull);
+            } catch (IOException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
         }
-        return null;
-    }
 
-    private final static ILineFilter getLineFilter(final ILineFilter lineFilter)
-    {
-        return lineFilter == null ? AlwaysAcceptLineFilter.INSTANCE : lineFilter;
+        private final static ILineFilter getLineFilter(final ILineFilter lineFilterOrNull)
+        {
+            return (lineFilterOrNull == null) ? AlwaysAcceptLineFilter.INSTANCE : lineFilterOrNull;
+        }
+
+       public void close()
+        {
+            lineIterator.close();
+        }
+
+        /**
+         * Returns the next line that is accepted by the <var>lineFilter</var>.
+         */
+        public Line tryNextLine()
+        {
+            for (int line = lineNumber; lineIterator.hasNext(); line++)
+            {
+                final String nextLine = lineIterator.nextLine();
+                if (lineFilter.acceptLine(nextLine, line))
+                {
+                    lineNumber = line + 1;
+                    return new Line(line, nextLine);
+                }
+            }
+            return null;
+        }
     }
 
     /**
@@ -67,27 +123,21 @@ public final class ParserUtilities
      * You should not call this method if given <var>content</var> is <code>null</code>.
      * </p>
      * 
-     * @param lineFilter could be <code>null</code>. In this case, the
+     * @param lineFilterOrNull could be <code>null</code>. In this case, the
      *            {@link AlwaysAcceptLineFilter} implementation will be used.
      * @param content the content that is going to be analyzed. Can not be <code>null</code>.
      * @return <code>null</code> if all lines have been filtered out.
      */
     public final static Line tryGetFirstAcceptedLine(final String content,
-            final ILineFilter lineFilter)
+            final ILineFilter lineFilterOrNull)
     {
-        assert content != null : "Unspecified reader.";
-        final ILineFilter filter = getLineFilter(lineFilter);
-        LineIterator lineIterator = null;
-        Reader reader = null;
+        final LineSplitter splitter = new LineSplitter(content, lineFilterOrNull);
         try
         {
-            reader = new StringReader(content);
-            lineIterator = IOUtils.lineIterator(reader);
-            return tryFirstAcceptedLine(filter, lineIterator);
+            return splitter.tryNextLine();
         } finally
         {
-            IOUtils.closeQuietly(reader);
-            LineIterator.closeQuietly(lineIterator);
+            splitter.close();
         }
     }
 
@@ -98,27 +148,22 @@ public final class ParserUtilities
      * You should not call this method if given <var>file</var> does not exist.
      * </p>
      * 
-     * @param lineFilter could be <code>null</code>. In this case, the
+     * @param lineFilterOrNull could be <code>null</code>. In this case, the
      *            {@link AlwaysAcceptLineFilter} implementation will be used.
      * @param file the file that is going to be analyzed. Can not be <code>null</code> and must
      *            exists.
      * @return <code>null</code> if all lines have been filtered out.
      */
-    public final static Line tryGetFirstAcceptedLine(final File file, final ILineFilter lineFilter)
+    public final static Line tryGetFirstAcceptedLine(final File file,
+            final ILineFilter lineFilterOrNull)
     {
-        assert file != null && file.exists() : "Given file must not be null and must exist.";
-        final ILineFilter filter = getLineFilter(lineFilter);
-        LineIterator lineIterator = null;
+        final LineSplitter splitter = new LineSplitter(file, lineFilterOrNull);
         try
         {
-            lineIterator = FileUtils.lineIterator(file);
-            return tryFirstAcceptedLine(filter, lineIterator);
-        } catch (final IOException ex)
-        {
-            throw new IOExceptionUnchecked(ex);
+            return splitter.tryNextLine();
         } finally
         {
-            LineIterator.closeQuietly(lineIterator);
+            splitter.close();
         }
     }
 }
