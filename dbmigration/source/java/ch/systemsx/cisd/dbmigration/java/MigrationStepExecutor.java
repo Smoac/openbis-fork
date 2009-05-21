@@ -26,7 +26,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.parser.Line;
 import ch.systemsx.cisd.common.parser.ParserUtilities;
-import ch.systemsx.cisd.common.parser.filter.NonEmptyLineFilter;
+import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 
@@ -76,18 +76,30 @@ public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigr
         {
             return null;
         }
-        final Line firstNonEmptyLineOrNull =
-                ParserUtilities.tryGetFirstAcceptedLine(content, NonEmptyLineFilter.INSTANCE);
-        if (firstNonEmptyLineOrNull != null)
+        final ParserUtilities.LineSplitter splitter =
+                new ParserUtilities.LineSplitter(content, new ILineFilter()
+                {
+                    public boolean acceptLine(String line, int lineNumber)
+                    {
+                        return StringUtils.isNotBlank(line) && line.startsWith("--");
+                    }
+                });
+        IMigrationStep stepOrNull = null;
+        Line lineOrNull;
+        while (stepOrNull == null && (lineOrNull = splitter.tryNextLine()) != null)
         {
-            return tryExtractMigrationStepFromLine(firstNonEmptyLineOrNull.getText());
+            stepOrNull = tryExtractMigrationStepFromLine(lineOrNull.getText());
         }
-        return null;
+        return stepOrNull;
     }
 
     private final IMigrationStep tryExtractMigrationStepFromLine(final String lineToProcess)
     {
         final String line = StringUtils.deleteWhitespace(lineToProcess);
+        if (isAdmin == false && line.startsWith(JAVA_ADMIN_MIGRATION_STEP_PREFIX))
+        {
+            return null;
+        }
         final String prefix =
                 isAdmin ? JAVA_ADMIN_MIGRATION_STEP_PREFIX : JAVA_MIGRATION_STEP_PREFIX;
         if (line != null && line.startsWith(prefix))
