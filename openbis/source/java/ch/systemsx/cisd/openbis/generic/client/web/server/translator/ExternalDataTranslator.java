@@ -141,6 +141,7 @@ public class ExternalDataTranslator
 
     private static Sample fill(Sample sample, SamplePE samplePE, boolean loadSampleProperties)
     {
+        sample.setId(samplePE.getId());
         sample.setCode(StringEscapeUtils.escapeHtml(samplePE.getCode()));
         sample.setInvalidation(tryToGetInvalidation(samplePE));
         sample.setSampleType(TypeTranslator.translate(samplePE.getSampleType()));
