@@ -68,6 +68,8 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
         return result;
     }
 
+    // TODO 2009-05-22, Tomasz Pylak: remove connections, it forces BOs to use strings with field
+    // paths
     public final T tryGetByTechId(final TechId techId, String... connections)
             throws DataAccessException
     {
