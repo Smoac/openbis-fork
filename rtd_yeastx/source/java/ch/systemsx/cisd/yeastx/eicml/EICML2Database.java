@@ -23,18 +23,27 @@ import java.sql.SQLException;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import net.lemnik.eodsql.QueryTool;
+
 import org.xml.sax.SAXException;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.yeastx.db.DBFactory;
 import ch.systemsx.cisd.yeastx.eicml.EICMLParser.IChromatogramObserver;
 import ch.systemsx.cisd.yeastx.eicml.EICMLParser.IMSRunObserver;
 
 /**
- * Tool for uploading eicML files to the database.
+ * Tool for uploading <code>eicML</code> files to the database.
  * 
  * @author Bernd Rinn
  */
 public class EICML2Database
 {
+
+    public static IEICMSRunDAO getDAO(Connection conn)
+    {
+        return QueryTool.getQuery(conn, IEICMSRunDAO.class);
+    }
 
     /**
      * Method for uploading an <var>eicMLFile</var> to the database.
@@ -45,10 +54,10 @@ public class EICML2Database
         final long[] id = new long[1];
         try
         {
-            final IEICMSRunDAO dao = DBFactory.getDAO(conn);
+            final IEICMSRunDAO dao = getDAO(conn);
             new EICMLParser(eicMLFile.getPath(), permId, new IMSRunObserver()
                 {
-                    public void observe(MSRunDTO run)
+                    public void observe(EICMSRunDTO run)
                     {
                         id[0] = dao.addMSRun(run);
                     }
@@ -64,7 +73,13 @@ public class EICML2Database
         } catch (Throwable th)
         {
             conn.rollback();
-            th.printStackTrace();
+            if (th instanceof SQLException)
+            {
+                throw (SQLException) th;
+            } else
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(th);
+            }
         }
     }
 

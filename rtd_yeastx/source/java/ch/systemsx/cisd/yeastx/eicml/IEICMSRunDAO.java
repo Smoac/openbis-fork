@@ -40,7 +40,7 @@ public interface IEICMSRunDAO extends BaseQuery
             + "?{1.rawDataFilePath}, ?{1.acquisitionDate}, ?{1.instrumentType}, "
             + "?{1.instrumentManufacturer}, ?{1.instrumentModel}, ?{1.methodIonisation}, "
             + "?{1.methodSeparation}, ?{1.setId}, ?{1.operator}, ?{1.startTime}, ?{1.endTime}) returning eicMsRunId")
-    public long addMSRun(MSRunDTO msRun);
+    public long addMSRun(EICMSRunDTO msRun);
 
     @Select("INSERT INTO chromatograms (eicMsRunId, Q1MZ, Q3LowMz, Q3HighMz, label, polarity, runTimes, "
             + "intensities) values (?{1.eicMsRunId}, ?{1.q1Mz}, "
@@ -49,24 +49,24 @@ public interface IEICMSRunDAO extends BaseQuery
     public long addChromatogram(ChromatogramDTO chromatogram);
 
     @Select(sql = "SELECT * from eicmsruns", rubberstamp = true)
-    public DataIterator<MSRunDTO> getMsRuns();
+    public DataIterator<EICMSRunDTO> getMsRuns();
 
     @Select(sql = "SELECT * from eicmsruns where rawDataFileName=?{1}", rubberstamp = true)
-    public DataIterator<MSRunDTO> getMsRunsForRawDataFile(String rawDataFileName);
+    public DataIterator<EICMSRunDTO> getMsRunsForRawDataFile(String rawDataFileName);
 
     @Select("SELECT eicmsruns.*, count(chromatograms.*) AS chromCount from eicmsruns "
             + "LEFT JOIN chromatograms USING(eicMsRunId) where eicmsruns.eicMsRunId=?{1} GROUP BY "
             + ALL_EIC_MSRUN_COLUMNS)
-    public MSRunDTO getMSRunById(long id);
+    public EICMSRunDTO getMSRunById(long id);
 
     @Select("SELECT eicmsruns.*, count(chromatograms.*) AS chromCount from eicmsruns "
             + "LEFT JOIN chromatograms USING(eicMsRunId) where eicmsruns.permId=?{1} GROUP BY "
             + ALL_EIC_MSRUN_COLUMNS)
-    public MSRunDTO getMSRunByPermId(String permId);
+    public EICMSRunDTO getMSRunByPermId(String permId);
 
     @Select("SELECT eicmsruns.* FROM msrun LEFT JOIN chromatograms USING(eicMsRunId) "
             + "where chromatograms.chromId = ?{1.chromId}")
-    public MSRunDTO getMSRunForChromatogram(ChromatogramDTO chromatogram);
+    public EICMSRunDTO getMSRunForChromatogram(ChromatogramDTO chromatogram);
 
     @Select("SELECT chromatograms.* FROM chromatograms where chromId=?{1}")
     public ChromatogramDTO getChromatogramById(long id);
@@ -76,10 +76,10 @@ public interface IEICMSRunDAO extends BaseQuery
 
     @Select(sql = "SELECT chromatograms.* FROM chromatograms LEFT JOIN eicmsruns USING(eicMsRunId) "
             + "where eicMsRunId=?{1.eicMsRunId}", rubberstamp = true)
-    public DataIterator<ChromatogramDTO> getChromatogramsForRun(MSRunDTO msRun);
+    public DataIterator<ChromatogramDTO> getChromatogramsForRun(EICMSRunDTO msRun);
 
     @Select(sql = "SELECT chromId, eicMsRunId, Q1Mz, Q3LowMz, Q3HighMz, label, polarity FROM chromatograms "
             + "LEFT JOIN eicmsruns USING(eicMsRunId) " + "where eicMsRunId=?{1.eicMsRunId}", rubberstamp = true)
-    public DataIterator<ChromatogramDTO> getChromatogramsForRunNoData(MSRunDTO msRun);
+    public DataIterator<ChromatogramDTO> getChromatogramsForRunNoData(EICMSRunDTO msRun);
 
 }

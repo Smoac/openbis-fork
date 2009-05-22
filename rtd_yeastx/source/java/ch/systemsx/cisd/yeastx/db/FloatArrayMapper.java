@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.yeastx.eicml;
+package ch.systemsx.cisd.yeastx.db;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

@@ -19,6 +19,8 @@ package ch.systemsx.cisd.yeastx.eicml;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import ch.systemsx.cisd.yeastx.db.DBFactory;
+
 /**
  * A performance test of reading all chromatograms from the database.
  *
@@ -33,8 +35,8 @@ public class ReadChromatogramsPerformanceTest
         final Connection conn = DBFactory.getConnection();
         try
         {
-            final IEICMSRunDAO dao = DBFactory.getDAO(conn);
-            for (MSRunDTO run : dao.getMsRuns())
+            final IEICMSRunDAO dao = EICML2Database.getDAO(conn);
+            for (EICMSRunDTO run : dao.getMsRuns())
             {
                 // We need to iterate over the chromatograms to make sure they are really read.
                 for (@SuppressWarnings("unused")

@@ -19,7 +19,6 @@ CREATE TABLE eicmsruns (
   instrumentModel VARCHAR(100) DEFAULT NULL,
   methodIonisation VARCHAR(10) DEFAULT NULL,
   methodSeparation VARCHAR(100) DEFAULT NULL,
-  polarity VARCHAR(1) DEFAULT NULL,
   operator VARCHAR(20) DEFAULT NULL,
   setId BIGINT DEFAULT NULL,
   startTime REAL NOT NULL,
@@ -55,8 +54,9 @@ CREATE TABLE fiamsruns (
   instrumentModel VARCHAR(100) DEFAULT NULL,
   methodIonisation VARCHAR(10) DEFAULT NULL,
   methodSeparation VARCHAR(100) DEFAULT NULL,
-  lowMZ REAL NOT NULL,
-  highMZ REAL NOT NULL,
+  polarity VARCHAR(1) DEFAULT NULL,
+  lowMz REAL NOT NULL,
+  highMz REAL NOT NULL,
   internalStandard REAL NOT NULL,
   -- Is this a good name?
   od REAL NOT NULL,
@@ -67,24 +67,24 @@ CREATE TABLE fiamsruns (
 
 CREATE TABLE profiles (
   fiaMsRunId BIGINT NOT NULL,
-  mz REAL NOT NULL,
-  intensity REAL NOT NULL,
-  PRIMARY KEY (mz),
+  lowMz REAL NOT NULL,
+  highMz REAL NOT NULL,
+  mz TEXT NOT NULL,
+  intensities TEXT NOT NULL,
+  PRIMARY KEY (fiaMsRunId, lowMz),
   CONSTRAINT FK_profiles_1 FOREIGN KEY (fiaMsRunId) REFERENCES fiamsruns (fiaMsRunId) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE INDEX profiles_fk_idx on profiles(fiaMsRunId);
+CREATE INDEX profile_idx on profiles(fiaMsRunId, lowMz, highMz);
 
 CREATE TABLE centroids (
   fiaMsRunId BIGINT NOT NULL,
   mz REAL NOT NULL,
   intensity REAL NOT NULL,
   correlation REAL NOT NULL,
-  PRIMARY KEY (mz),
+  PRIMARY KEY (fiaMsRunId, mz),
   CONSTRAINT FK_centroids_1 FOREIGN KEY (fiaMsRunId) REFERENCES fiamsruns (fiaMsRunId) ON DELETE CASCADE ON UPDATE CASCADE
 );
-
-CREATE INDEX centroids_fk_idx on centroids(fiaMsRunId);
 
 GRANT SELECT ON TABLE eicmsruns TO GROUP metabol_readonly;
 GRANT SELECT ON TABLE chromatograms TO GROUP metabol_readonly;

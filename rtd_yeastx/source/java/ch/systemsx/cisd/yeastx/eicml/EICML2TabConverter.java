@@ -43,7 +43,7 @@ public class EICML2TabConverter
             final String[] msRunName = new String[1];
             new EICMLParser(dir + "/" + f, null, new EICMLParser.IMSRunObserver()
                 {
-                    public void observe(MSRunDTO run)
+                    public void observe(EICMSRunDTO run)
                     {
                         String runName = run.getRawDataFileName();
                         if (runName.endsWith(".RAW"))

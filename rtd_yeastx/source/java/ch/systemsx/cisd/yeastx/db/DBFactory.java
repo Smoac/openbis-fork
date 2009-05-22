@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.yeastx.eicml;
+package ch.systemsx.cisd.yeastx.db;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import net.lemnik.eodsql.QueryTool;
 
 /**
- * Factory for database objects.
+ * Factory for database connections.
  *
  * @author Bernd Rinn
  */
@@ -50,8 +50,4 @@ public class DBFactory
         return conn;
     }
 
-    public static IEICMSRunDAO getDAO(Connection conn)
-    {
-        return QueryTool.getQuery(conn, IEICMSRunDAO.class);
-    }
 }

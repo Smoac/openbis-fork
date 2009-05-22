@@ -19,6 +19,8 @@ package ch.systemsx.cisd.yeastx.eicml;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import ch.systemsx.cisd.yeastx.db.DBFactory;
+
 import net.lemnik.eodsql.DataIterator;
 
 /**
@@ -34,7 +36,7 @@ public class ListChromatogramLabels
         final Connection conn = DBFactory.getConnection();
         try
         {
-            final IEICMSRunDAO dao = DBFactory.getDAO(conn);
+            final IEICMSRunDAO dao = EICML2Database.getDAO(conn);
             if (args.length > 0)
             {
                 for (String fn : args)
@@ -56,9 +58,9 @@ public class ListChromatogramLabels
         }
     }
 
-    private static void listChromatogramsForRuns(final IEICMSRunDAO dao, DataIterator<MSRunDTO> runs)
+    private static void listChromatogramsForRuns(final IEICMSRunDAO dao, DataIterator<EICMSRunDTO> runs)
     {
-        for (MSRunDTO run : runs)
+        for (EICMSRunDTO run : runs)
         {
             String msRunName = run.getRawDataFileName();
             if (msRunName.endsWith(".RAW"))
