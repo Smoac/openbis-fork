@@ -56,6 +56,10 @@ public abstract class Dict
 
     public static final String LOAD_IN_PROGRESS = "load_in_progress";
 
+    public static final String TABLE_OPERATIONS = "table_operations";
+
+    public static final String ENTITY_OPERATIONS = "entity_operations";
+
     //
     // Field
     //
@@ -92,6 +96,9 @@ public abstract class Dict
 
     public static final String TOOLTIP_CONFIG_DISABLED = "tooltip_config_disabled";
 
+    public static final String TOOLTIP_VOCABULARY_MANAGED_INTERNALLY =
+            "tooltip_vocabulary_managed_internally";
+
     public static final String BUTTON_SAVE = "button_save";
 
     public static final String BUTTON_CHOOSE = "button_choose";
@@ -110,7 +117,7 @@ public abstract class Dict
 
     public static final String BUTTON_SHOW_DETAILS = "button_show_details";
 
-    public static final String BUTTON_EXPORT_DATA = "button_exportData";
+    public static final String BUTTON_EXPORT_TABLE = "button_exportTable";
 
     public static final String BUTTON_ADD_GROUP = "button_add_group";
 

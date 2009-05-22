@@ -21,6 +21,9 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolItem;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -54,6 +57,8 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
         super(pageSize);
         this.messageProvider = messageProvider;
 
+        add(createTableOperationsLabel());
+
         this.configButton = createConfigButton(messageProvider, invoker);
         add(configButton);
         updateDefaultConfigButton(false);
@@ -67,12 +72,17 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
         this.exportButton = createExportButton(messageProvider, invoker);
         disableExportButton();
         add(exportButton);
-
     }
 
     private void add(Widget widget)
     {
         add(new AdapterToolItem(widget));
+    }
+
+    public final void addEntityOperationsLabel()
+    {
+        add(new FillToolItem());
+        add(new LabelToolItem(messageProvider.getMessage(Dict.ENTITY_OPERATIONS)));
     }
 
     protected final void updateDefaultRefreshButton(boolean isEnabled)
@@ -158,7 +168,7 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
             final IBrowserGridActionInvoker invoker)
     {
         final Button button =
-                new Button(messageProvider.getMessage(Dict.BUTTON_EXPORT_DATA),
+                new Button(messageProvider.getMessage(Dict.BUTTON_EXPORT_TABLE),
                         new SelectionListener<ButtonEvent>()
                             {
                                 @Override
@@ -185,6 +195,11 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
                                 }
                             });
         return button;
+    }
+
+    private ToolItem createTableOperationsLabel()
+    {
+        return new LabelToolItem(messageProvider.getMessage(Dict.TABLE_OPERATIONS));
     }
 
     //

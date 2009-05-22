@@ -138,7 +138,8 @@ public class RolesView extends ContentPanel
         grid.setBorders(true);
         grid.setId(TABLE_ID);
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
-        String displayTypeID = DisplayTypeIDGenerator.ROLE_ASSIGNMENT_BROWSER_GRID.createID(null, null);
+        String displayTypeID =
+                DisplayTypeIDGenerator.ROLE_ASSIGNMENT_BROWSER_GRID.createID(null, null);
         viewContext.getDisplaySettingsManager().prepareGrid(displayTypeID, grid);
 
         cp.add(grid);
@@ -184,14 +185,12 @@ public class RolesView extends ContentPanel
 
                 if (StringUtils.isBlank((String) selectedRole.get(ModelDataPropertyNames.GROUP)))
                 {
-                    viewContext.getService().deleteInstanceRole(
-                            selectedRole.getRoleSetCode(),
+                    viewContext.getService().deleteInstanceRole(selectedRole.getRoleSetCode(),
                             (String) selectedRole.get(ModelDataPropertyNames.PERSON),
                             roleListRefreshCallback);
                 } else
                 {
-                    viewContext.getService().deleteGroupRole(
-                            selectedRole.getRoleSetCode(),
+                    viewContext.getService().deleteGroupRole(selectedRole.getRoleSetCode(),
                             (String) selectedRole.get(ModelDataPropertyNames.GROUP),
                             (String) selectedRole.get(ModelDataPropertyNames.PERSON),
                             roleListRefreshCallback);
@@ -235,7 +234,6 @@ public class RolesView extends ContentPanel
                 ModelDataPropertyNames.ROLE, viewContext.getMessage(Dict.ROLE))));
         toolBar.add(new SeparatorToolItem());
         toolBar.add(new AdapterToolItem(addRoleButton));
-        toolBar.add(new SeparatorToolItem());
         toolBar.add(new AdapterToolItem(removeRoleButton));
         cp.setBottomComponent(toolBar);
         add(cp);

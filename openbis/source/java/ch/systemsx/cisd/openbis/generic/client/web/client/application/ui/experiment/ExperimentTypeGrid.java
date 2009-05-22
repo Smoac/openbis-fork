@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
-import com.extjs.gxt.ui.client.widget.Component;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -47,8 +46,7 @@ public class ExperimentTypeGrid extends AbstractEntityTypeGrid
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final ExperimentTypeGrid grid = new ExperimentTypeGrid(viewContext);
-        Component toolbar = grid.createToolbar(EntityKind.EXPERIMENT);
-        return grid.asDisposableWithToolbar(toolbar);
+        return grid.asDisposableWithoutToolbar();
     }
 
     private ExperimentTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)

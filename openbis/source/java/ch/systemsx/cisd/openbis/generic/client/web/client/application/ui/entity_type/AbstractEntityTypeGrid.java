@@ -22,15 +22,12 @@ import java.util.List;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.ToolBarEvent;
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -78,7 +75,44 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
                     AbstractEntityTypeGrid.this.refresh();
                 }
             };
-        createDeleteButton(viewContext);
+        extendBottomToolbar();
+    }
+
+    private void extendBottomToolbar()
+    {
+        addEntityOperationsLabel();
+
+        final EntityKind entityKind = getEntityKind();
+        pagingToolbar.add(new TextToolItem(viewContext.getMessage(Dict.ADD_NEW_TYPE_BUTTON),
+                new SelectionListener<ToolBarEvent>()
+                    {
+                        @Override
+                        public void componentSelected(ToolBarEvent ce)
+                        {
+                            createRegisterEntityTypeDialog(entityKind).show();
+                        }
+                    }));
+
+        pagingToolbar.add(new SeparatorToolItem());
+
+        Button editButton =
+                createSelectedItemButton(viewContext.getMessage(Dict.EDIT_TYPE_BUTTON),
+                        new ISelectedEntityInvoker<BaseEntityModel<EntityType>>()
+                            {
+
+                                public void invoke(BaseEntityModel<EntityType> selectedItem)
+                                {
+                                    EntityType entityType = selectedItem.getBaseObject();
+                                    createEditEntityTypeDialog(entityKind, entityType).show();
+                                }
+
+                            });
+        pagingToolbar.add(new AdapterToolItem(editButton));
+        Button deleteButton = createDeleteButton(viewContext);
+        enableButtonOnSelectedItems(deleteButton);
+        pagingToolbar.add(new AdapterToolItem(deleteButton));
+
+        addEntityOperationsSeparator();
     }
 
     protected void deleteEntityTypes(List<String> types, AsyncCallback<Void> callback)
@@ -86,7 +120,7 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
         viewContext.getCommonService().deleteEntityTypes(getEntityKind(), types, callback);
     }
 
-    private void createDeleteButton(final IViewContext<ICommonClientServiceAsync> context)
+    private Button createDeleteButton(final IViewContext<ICommonClientServiceAsync> context)
     {
         Button deleteButton = new Button(context.getMessage(Dict.BUTTON_DELETE));
         deleteButton.addSelectionListener(new SelectionListener<ButtonEvent>()
@@ -121,37 +155,7 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
                     confirmationDialog.show();
                 }
             });
-        pagingToolbar.add(new AdapterToolItem(deleteButton));
-    }
-
-    public final Component createToolbar(final EntityKind entityKind)
-    {
-        ToolBar toolbar = new ToolBar();
-        toolbar.add(new FillToolItem());
-        toolbar.add(new TextToolItem(viewContext.getMessage(Dict.ADD_NEW_TYPE_BUTTON),
-                new SelectionListener<ToolBarEvent>()
-                    {
-                        @Override
-                        public void componentSelected(ToolBarEvent ce)
-                        {
-                            createRegisterEntityTypeDialog(entityKind).show();
-                        }
-                    }));
-        toolbar.add(new SeparatorToolItem());
-        Button editButton =
-                createSelectedItemButton(viewContext.getMessage(Dict.EDIT_TYPE_BUTTON),
-                        new ISelectedEntityInvoker<BaseEntityModel<EntityType>>()
-                            {
-
-                                public void invoke(BaseEntityModel<EntityType> selectedItem)
-                                {
-                                    EntityType entityType = selectedItem.getBaseObject();
-                                    createEditEntityTypeDialog(entityKind, entityType).show();
-                                }
-
-                            });
-        toolbar.add(new AdapterToolItem(editButton));
-        return toolbar;
+        return deleteButton;
     }
 
     private Window createRegisterEntityTypeDialog(final EntityKind entityKind)
@@ -181,7 +185,8 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
                 private final TextField<String> descriptionField;
                 {
                     descriptionField = createDescriptionField();
-                    descriptionField.setValue(StringEscapeUtils.unescapeHtml(entityType.getDescription()));
+                    descriptionField.setValue(StringEscapeUtils.unescapeHtml(entityType
+                            .getDescription()));
                     addField(descriptionField);
 
                 }

@@ -24,6 +24,8 @@ var common = {
   edit_title: "Edit {0} {1}",
   show_details_link_column_name: "Show Details Link",
   show_details_link_text_value: "Permlink",
+  table_operations: "Table:",
+  entity_operations: "Entity:",
   
   //
   // Field
@@ -53,7 +55,7 @@ var common = {
   button_submit: "Submit",
   button_refresh: "Refresh",
   button_show: "Show",
-  button_exportData: "Export Table",
+  button_exportTable: "Export",
   button_add_group: "Add Group",
   button_show_details: "Show Details",
   button_browse: "Browse",
@@ -66,7 +68,9 @@ var common = {
   tooltip_export_disabled: "Refresh the data before exporting them.",
   tooltip_config_enabled: "Choose the columns.",
   tooltip_config_disabled: "Load the data to activate this option.",
-
+  
+  tooltip_vocabulary_managed_internally: "This operation is not available for a vocabulary that is managed internally.",
+  
   //
   // LoginWidget
   //
@@ -143,7 +147,7 @@ var common = {
   // Entity Type Browser
   //
 
-  add_new_type_button: "Add New Type",
+  add_new_type_button: "Add",
   edit_type_button: "Edit",
   add_type_title_template: "Add a new {0} Type",
   edit_type_title_template: "Edit {0} Type {1}",

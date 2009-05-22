@@ -22,8 +22,6 @@ import java.util.Set;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -104,7 +102,7 @@ public class ExperimentBrowserGrid extends
         final ExperimentBrowserToolbar toolbar = new ExperimentBrowserToolbar(viewContext, tree);
         final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar);
         browserGrid.addGridRefreshListener(toolbar);
-        browserGrid.extendToolbar(toolbar);
+        browserGrid.extendBottomToolbar();
         return browserGrid.asDisposableWithToolbarAndTree(toolbar, treeSection);
     }
 
@@ -116,18 +114,21 @@ public class ExperimentBrowserGrid extends
         setEntityKindForDisplayTypeIDGeneration(EntityKind.EXPERIMENT);
     }
 
-    private void extendToolbar(ExperimentBrowserToolbar topToolbar)
+    private void extendBottomToolbar()
     {
-        topToolbar.add(new FillToolItem());
+        addEntityOperationsLabel();
+
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
         Button showDetailsButton =
                 createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
-        topToolbar.add(new AdapterToolItem(showDetailsButton));
-        topToolbar.add(new SeparatorToolItem());
+        pagingToolbar.add(new AdapterToolItem(showDetailsButton));
+
         String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
         Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
         editButton.setId(GRID_ID + ID_SUFFIX_EDIT_BUTTON);
-        topToolbar.add(new AdapterToolItem(editButton));
+        pagingToolbar.add(new AdapterToolItem(editButton));
+
+        addEntityOperationsSeparator();
     }
 
     private void addGridRefreshListener(ExperimentBrowserToolbar topToolbar)

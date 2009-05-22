@@ -22,8 +22,6 @@ import java.util.Set;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -86,7 +84,8 @@ public class MaterialBrowserGrid extends
         final ICriteriaProvider<ListMaterialCriteria> criteriaProvider = toolbar;
         final MaterialBrowserGrid browserGrid =
                 createBrowserGrid(viewContext, criteriaProvider, detailsAvailable);
-        browserGrid.extendTopToolbar(toolbar, detailsAvailable);
+        browserGrid.addGridRefreshListener(toolbar);
+        browserGrid.extendBottomToolbar(detailsAvailable);
         return browserGrid.asDisposableWithToolbar(toolbar);
 
     }
@@ -149,23 +148,28 @@ public class MaterialBrowserGrid extends
         setEntityKindForDisplayTypeIDGeneration(EntityKind.MATERIAL);
     }
 
-    private void extendTopToolbar(MaterialBrowserToolbar toolbar, boolean detailsAvailable)
+    private void extendBottomToolbar(boolean detailsAvailable)
     {
-        toolbar.setCriteriaChangedListener(createGridRefreshListener());
-        toolbar.add(new FillToolItem());
-
         if (detailsAvailable)
         {
+            addEntityOperationsLabel();
+
             String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
             Button showDetailsButton =
                     createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
-            toolbar.add(new AdapterToolItem(showDetailsButton));
-            toolbar.add(new SeparatorToolItem());
+            pagingToolbar.add(new AdapterToolItem(showDetailsButton));
 
             String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
             Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
-            toolbar.add(new AdapterToolItem(editButton));
+            pagingToolbar.add(new AdapterToolItem(editButton));
+
+            addEntityOperationsSeparator();
         }
+    }
+
+    private void addGridRefreshListener(MaterialBrowserToolbar toolbar)
+    {
+        toolbar.setCriteriaChangedListener(createGridRefreshListener());
     }
 
     @Override

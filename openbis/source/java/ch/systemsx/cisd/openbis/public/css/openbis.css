@@ -117,6 +117,7 @@ body,div,td {
 }
 .x-toolbar .x-btn-right{
 	background:url(../images/default/toolbar/tb-btn-sprite.gif) no-repeat 0 -21px;
+  padding-right:2px;	
 }
 .x-toolbar .x-btn-center{
 	background:url(../images/default/toolbar/tb-btn-sprite.gif) repeat-x 0 -42px;

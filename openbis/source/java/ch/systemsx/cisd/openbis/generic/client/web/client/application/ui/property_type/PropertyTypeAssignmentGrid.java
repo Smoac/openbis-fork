@@ -63,10 +63,13 @@ public class PropertyTypeAssignmentGrid extends
     static final class UnassignmentPreparationCallback extends AbstractAsyncCallback<Integer>
     {
         private final IViewContext<ICommonClientServiceAsync> commonViewContext;
+
         private final EntityTypePropertyType<?> etpt;
+
         private final IBrowserGridActionInvoker invoker;
 
-        private UnassignmentPreparationCallback(IViewContext<ICommonClientServiceAsync> viewContext,
+        private UnassignmentPreparationCallback(
+                IViewContext<ICommonClientServiceAsync> viewContext,
                 EntityTypePropertyType<?> etpt, IBrowserGridActionInvoker invoker)
         {
             super(viewContext);
@@ -93,20 +96,24 @@ public class PropertyTypeAssignmentGrid extends
             super(viewContext);
             this.invoker = invoker;
         }
-        
+
         @Override
         protected void process(Void result)
         {
             invoker.refresh();
         }
     }
-    
+
     private static final class UnassignmentConfirmationDialog extends Dialog
     {
         private final IViewContext<ICommonClientServiceAsync> viewContext;
+
         private final IBrowserGridActionInvoker invoker;
+
         private final EntityKind entityKind;
+
         private final String entityTypeCode;
+
         private final String propertyTypeCode;
 
         UnassignmentConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
@@ -148,7 +155,7 @@ public class PropertyTypeAssignmentGrid extends
             }
         }
     }
-    
+
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -158,6 +165,14 @@ public class PropertyTypeAssignmentGrid extends
     private PropertyTypeAssignmentGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID, GRID_ID);
+        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.PROPERTY_TYPE_ASSIGNMENT_BROWSER_GRID);
+        extendBottomToolbar();
+    }
+
+    private void extendBottomToolbar()
+    {
+        addEntityOperationsLabel();
+
         Button button = new Button(viewContext.getMessage(Dict.UNASSIGN_BUTTON_LABEL));
         button.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
@@ -181,8 +196,8 @@ public class PropertyTypeAssignmentGrid extends
                 }
             });
         pagingToolbar.add(new AdapterToolItem(button));
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.PROPERTY_TYPE_ASSIGNMENT_BROWSER_GRID);
 
+        addEntityOperationsSeparator();
     }
 
     @Override
@@ -221,5 +236,5 @@ public class PropertyTypeAssignmentGrid extends
         return new DatabaseModificationKind[]
             { DatabaseModificationKind.createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
-    
+
 }

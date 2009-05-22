@@ -334,7 +334,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         assertSame(dataStore, externalData.getDataStore());
         assertEquals(false, externalData.isPlaceholder());
         assertEquals(4711, externalData.getId().longValue());
-        assertSame(sample, externalData.getSample()); // TODO additional test
+        assertSame(sample, externalData.getSample());
         assertSame(true, externalData.isDerived());
 
         context.assertIsSatisfied();

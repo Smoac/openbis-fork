@@ -18,11 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabu
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -67,13 +64,14 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final VocabularyGrid grid = new VocabularyGrid(viewContext);
-        return grid.asDisposableWithToolbar(grid.createToolbar());
+        grid.extendBottomToolbar();
+        return grid.asDisposableWithoutToolbar();
     }
 
-    private final Component createToolbar()
+    private void extendBottomToolbar()
     {
-        ToolBar toolbar = new ToolBar();
-        toolbar.add(new FillToolItem());
+        addEntityOperationsLabel();
+
         Button showDetailsButton =
                 createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
                         new ISelectedEntityInvoker<BaseEntityModel<Vocabulary>>()
@@ -84,8 +82,9 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                                 }
                             });
         showDetailsButton.setId(SHOW_DETAILS_BUTTON_ID);
-        toolbar.add(new AdapterToolItem(showDetailsButton));
-        return toolbar;
+        pagingToolbar.add(new AdapterToolItem(showDetailsButton));
+
+        addEntityOperationsSeparator();
     }
 
     private VocabularyGrid(IViewContext<ICommonClientServiceAsync> viewContext)

@@ -21,11 +21,8 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.ToolBarEvent;
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -46,12 +43,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
@@ -61,17 +55,16 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
     public static final String GRID_ID = BROWSER_ID + "_grid";
 
     public static final String ADD_NEW_TYPE_BUTTON_ID = GRID_ID + "-" + Dict.ADD_NEW_TYPE_BUTTON;
-    
+
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final FileFormatTypeGrid grid = new FileFormatTypeGrid(viewContext);
-        Component toolbar = grid.createToolbar(EntityKind.DATA_SET);
-        return grid.asDisposableWithToolbar(toolbar);
+        return grid.asDisposableWithoutToolbar();
     }
 
     private IDelegatedAction postRegistrationCallback;
-    
+
     private FileFormatTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID, GRID_ID);
@@ -83,30 +76,32 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
                     FileFormatTypeGrid.this.refresh();
                 }
             };
+        extendBottomToolbar();
     }
 
-    public final Component createToolbar(final EntityKind entityKind)
+    private final void extendBottomToolbar()
     {
-        ToolBar toolbar = new ToolBar();
-        toolbar.add(new FillToolItem());
-        TextToolItem createItem = new TextToolItem(viewContext.getMessage(Dict.ADD_NEW_TYPE_BUTTON),
-                new SelectionListener<ToolBarEvent>()
-                    {
-                        @Override
-                        public void componentSelected(ToolBarEvent ce)
-                        {
-                            createRegisterFileTypeDialog().show();
-                        }
-                    });
+        addEntityOperationsLabel();
+
+        TextToolItem createItem =
+                new TextToolItem(viewContext.getMessage(Dict.ADD_NEW_TYPE_BUTTON),
+                        new SelectionListener<ToolBarEvent>()
+                            {
+                                @Override
+                                public void componentSelected(ToolBarEvent ce)
+                                {
+                                    createRegisterFileTypeDialog().show();
+                                }
+                            });
         createItem.setId(ADD_NEW_TYPE_BUTTON_ID);
-        toolbar.add(createItem);
-        return toolbar;
+        pagingToolbar.add(createItem);
+
+        addEntityOperationsSeparator();
     }
 
     private Window createRegisterFileTypeDialog()
     {
-        String title =
-                viewContext.getMessage(Dict.ADD_TYPE_TITLE_TEMPLATE, "File");
+        String title = viewContext.getMessage(Dict.ADD_TYPE_TITLE_TEMPLATE, "File");
         return new AddTypeDialog(viewContext, title, postRegistrationCallback)
             {
                 @Override
@@ -120,6 +115,7 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
                 }
             };
     }
+
     @Override
     protected IColumnDefinitionKind<AbstractType>[] getStaticColumnsDefinition()
     {

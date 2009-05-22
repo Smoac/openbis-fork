@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material;
 
-import com.extjs.gxt.ui.client.widget.Component;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -47,8 +46,7 @@ public class MaterialTypeGrid extends AbstractEntityTypeGrid
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final MaterialTypeGrid grid = new MaterialTypeGrid(viewContext);
-        Component toolbar = grid.createToolbar(EntityKind.MATERIAL);
-        return grid.asDisposableWithToolbar(toolbar);
+        return grid.asDisposableWithoutToolbar();
     }
 
     private MaterialTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)

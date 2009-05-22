@@ -313,6 +313,12 @@ public abstract class AbstractExternalDataGrid
                             DataSetUtils.showDataSet(rowItem, viewContext.getModel());
                         }
                     });
+
+        addEntityOperationsLabel();
+        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
+                asShowEntityInvoker(false)));
+        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
+                asShowEntityInvoker(true)));
         addButton(Dict.BUTTON_DELETE_DATASETS, new AbstractDataSetAction()
             {
                 @Override
@@ -331,10 +337,7 @@ public abstract class AbstractExternalDataGrid
                     return new UploadConfirmationDialog(viewContext, dataSets, invoker);
                 }
             });
-        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
-                asShowEntityInvoker(true)));
-        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
-                asShowEntityInvoker(false)));
+        addEntityOperationsSeparator();
         allowMultipleSelection();
 
     }
@@ -349,9 +352,16 @@ public abstract class AbstractExternalDataGrid
 
     private void addButton(String labelKey, SelectionListener<ButtonEvent> action)
     {
+        final Button button = createButton(labelKey, action);
+        enableButtonOnSelectedItems(button);
+        addButton(button);
+    }
+
+    private Button createButton(String labelKey, SelectionListener<ButtonEvent> action)
+    {
         Button button = new Button(viewContext.getMessage(labelKey));
         button.addSelectionListener(action);
-        addButton(button);
+        return button;
     }
 
     private void addButton(Button button)

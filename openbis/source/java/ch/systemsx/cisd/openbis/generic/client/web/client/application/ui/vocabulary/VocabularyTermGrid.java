@@ -104,32 +104,53 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
     {
         super(viewContext, createBrowserId(vocabulary), createGridId(vocabulary.getCode()));
         this.vocabulary = vocabulary;
-        if (vocabulary.isManagedInternally() == false)
+        extendBottomToolbar();
+        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.VOCABULARY_TERMS_GRID);
+    }
+
+    private void extendBottomToolbar()
+    {
+        addEntityOperationsLabel();
+
+        Button addButton = new Button(viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_BUTTON));
+        addButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public void componentSelected(ButtonEvent ce)
+                {
+                    askForNewTerms();
+                }
+            });
+        pagingToolbar.add(new AdapterToolItem(addButton));
+        Button deleteButton =
+                new Button(viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_BUTTON));
+        deleteButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public void componentSelected(ButtonEvent ce)
+                {
+                    deleteTerms();
+                }
+            });
+        pagingToolbar.add(new AdapterToolItem(deleteButton));
+
+        if (vocabulary.isManagedInternally())
         {
-            Button addButton = new Button(viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_BUTTON));
-            addButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-                {
-                    @Override
-                    public void componentSelected(ButtonEvent ce)
-                    {
-                        askForNewTerms();
-                    }
-                });
-            pagingToolbar.add(new AdapterToolItem(addButton));
-            Button deleteButton =
-                    new Button(viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_BUTTON));
-            deleteButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-                {
-                    @Override
-                    public void componentSelected(ButtonEvent ce)
-                    {
-                        deleteTerms();
-                    }
-                });
-            pagingToolbar.add(new AdapterToolItem(deleteButton));
+            String tooltip = viewContext.getMessage(Dict.TOOLTIP_VOCABULARY_MANAGED_INTERNALLY);
+            disableButton(addButton, tooltip);
+            disableButton(deleteButton, tooltip);
+        } else
+        {
             allowMultipleSelection();
         }
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.VOCABULARY_TERMS_GRID);
+
+        addEntityOperationsSeparator();
+    }
+
+    private void disableButton(Button button, String tooltip)
+    {
+        button.setEnabled(false);
+        button.setTitle(tooltip);
     }
 
     public static String createGridId(String vocabularyCode)

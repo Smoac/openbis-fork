@@ -55,6 +55,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -692,17 +693,38 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 }
             });
         button.setEnabled(false);
-        grid.getSelectionModel().addListener(Events.SelectionChange,
-                new Listener<SelectionEvent<ModelData>>()
-                    {
-                        public void handleEvent(SelectionEvent<ModelData> se)
-                        {
-                            boolean enabled = se.selection.size() == 1;
-                            button.setEnabled(enabled);
-                        }
+        addGridSelectionChangeListener(new Listener<SelectionEvent<ModelData>>()
+            {
+                public void handleEvent(SelectionEvent<ModelData> se)
+                {
+                    boolean enabled = se.selection.size() == 1;
+                    button.setEnabled(enabled);
+                }
 
-                    });
+            });
         return button;
+    }
+
+    /**
+     * Given <var>button</var> will be enabled only if at least one item is selected in the grid.
+     */
+    protected void enableButtonOnSelectedItems(final Button button)
+    {
+        button.setEnabled(false);
+        addGridSelectionChangeListener(new Listener<SelectionEvent<ModelData>>()
+            {
+                public void handleEvent(SelectionEvent<ModelData> se)
+                {
+                    boolean enabled = se.selection.size() > 0;
+                    button.setEnabled(enabled);
+                }
+
+            });
+    }
+
+    private final void addGridSelectionChangeListener(Listener<SelectionEvent<ModelData>> listener)
+    {
+        grid.getSelectionModel().addListener(Events.SelectionChange, listener);
     }
 
     /**
@@ -919,6 +941,16 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         ListStore<M> store = grid.getStore();
         return translateSortInfo(store.getSortField(), store.getSortDir(), columns.getColumnDefs());
+    }
+
+    protected final void addEntityOperationsLabel()
+    {
+        pagingToolbar.addEntityOperationsLabel();
+    }
+
+    protected final void addEntityOperationsSeparator()
+    {
+        pagingToolbar.add(new SeparatorToolItem());
     }
 
     // ------- generic static helpers

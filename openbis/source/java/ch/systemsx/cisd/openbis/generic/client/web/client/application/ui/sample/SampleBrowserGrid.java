@@ -24,8 +24,6 @@ import java.util.Set;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -116,7 +114,7 @@ public class SampleBrowserGrid extends
         final SampleBrowserGrid browserGrid =
                 new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, true, false);
         browserGrid.addGridRefreshListener(toolbar);
-        browserGrid.extendTopToolbar(toolbar);
+        browserGrid.extendBottomToolbar();
         return browserGrid.asDisposableWithToolbar(toolbar);
     }
 
@@ -230,19 +228,20 @@ public class SampleBrowserGrid extends
     }
 
     // adds show, show-details and invalidate buttons
-    private void extendTopToolbar(SampleBrowserToolbar toolbar)
+    private void extendBottomToolbar()
     {
-        toolbar.add(new FillToolItem());
+        addEntityOperationsLabel();
 
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
         Button showDetailsButton =
                 createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
-        toolbar.add(new AdapterToolItem(showDetailsButton));
+        pagingToolbar.add(new AdapterToolItem(showDetailsButton));
 
-        toolbar.add(new SeparatorToolItem());
         String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
         Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
-        toolbar.add(new AdapterToolItem(editButton));
+        pagingToolbar.add(new AdapterToolItem(editButton));
+
+        addEntityOperationsSeparator();
     }
 
     private void addGridRefreshListener(SampleBrowserToolbar topToolbar)

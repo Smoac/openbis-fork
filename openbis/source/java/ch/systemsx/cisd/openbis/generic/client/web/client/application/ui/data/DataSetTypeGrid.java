@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
-import com.extjs.gxt.ui.client.widget.Component;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -47,8 +46,7 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final DataSetTypeGrid grid = new DataSetTypeGrid(viewContext);
-        Component toolbar = grid.createToolbar(EntityKind.DATA_SET);
-        return grid.asDisposableWithToolbar(toolbar);
+        return grid.asDisposableWithoutToolbar();
     }
 
     private DataSetTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)
