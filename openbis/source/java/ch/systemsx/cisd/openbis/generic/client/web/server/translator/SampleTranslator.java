@@ -69,7 +69,9 @@ public final class SampleTranslator
         result.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL, EntityKind.SAMPLE,
                 samplePE.getPermId()));
         result.setModificationDate(samplePE.getModificationDate());
-        result.setId(samplePE.getId());
+        // TODO 2009-05-22, Piotr Buczek: we should always translate Id in this way
+        // because getId() on HibernateProxy object always returns null
+        result.setId(HibernateUtils.getId(samplePE));
         result.setIdentifier(StringEscapeUtils
                 .escapeHtml(samplePE.getSampleIdentifier().toString()));
         result.setSampleType(SampleTypeTranslator.translate(samplePE.getSampleType()));

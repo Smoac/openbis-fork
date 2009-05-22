@@ -79,8 +79,10 @@ public final class HibernateUtils
         if (idHolder instanceof HibernateProxy)
         {
             return (Long) ((HibernateProxy) idHolder).getHibernateLazyInitializer().getIdentifier();
+        } else
+        {
+            return idHolder.getId();
         }
-        return idHolder.getId();
     }
 
     /** @return Unproxied <var>proxy</var>. */

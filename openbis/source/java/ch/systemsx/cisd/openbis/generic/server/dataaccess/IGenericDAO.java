@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import org.hibernate.proxy.HibernateProxy;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Generic interface for DAOs.
@@ -29,19 +31,22 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 public interface IGenericDAO<T extends IIdHolder>
 {
     /**
-     * Returns the entity for given technical id with no lazy connections initialized.
-     * 
      * @param techId the entity technical identifier.
+     * @return entity with the given technical identifier (and no lazy connections initialized) or
+     *         null if it is not found <br>
+     *         NOTE: don't rely on T.getId() value because returned value can be a
+     *         {@link HibernateProxy}. Use {@link HibernateUtils#getId(IIdHolder)} instead.
      * @throws EmptyResultDataAccessException if the entity with given identifier does not exist in
      *             the database.
      */
     public T getByTechId(final TechId techId);
 
-    
     /**
      * @param techId the entity technical identifier
      * @param connections the (lazy) connections to additionally initialize
-     * @return entity with the given technical identifier or null if it is not found
+     * @return entity with the given technical identifier or null if it is not found <br>
+     *         NOTE: don't rely on T.getId() value because returned value can be a
+     *         {@link HibernateProxy}. Use {@link HibernateUtils#getId(IIdHolder)} instead.
      */
     public T tryGetByTechId(final TechId techId, String... connections);
 }

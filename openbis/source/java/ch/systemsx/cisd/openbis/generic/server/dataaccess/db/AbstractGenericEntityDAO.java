@@ -80,10 +80,7 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
         {
             criteria.setFetchMode(connection, FetchMode.JOIN);
         }
-        Object bean = criteria.uniqueResult();
-        // TODO 2009-05-22, Piotr Buczek: Use HibernateUtils.getId(IdHolder) instead
-        // but first create a new interface with setId(Long) method
-        final T result = tryGetEntity(bean); // HibernateUtils.unproxy(bean));
+        final T result = tryGetEntity(criteria.uniqueResult());
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(%d): '%s'.", MethodUtils.getCurrentMethod()
