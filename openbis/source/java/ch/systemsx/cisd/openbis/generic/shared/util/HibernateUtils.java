@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
 import org.hibernate.Hibernate;
+import org.hibernate.engine.SessionImplementor;
 import org.hibernate.proxy.HibernateProxy;
+import org.hibernate.proxy.LazyInitializer;
 
 import ch.systemsx.cisd.common.collections.UnmodifiableCollectionDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
@@ -79,5 +81,30 @@ public final class HibernateUtils
             return (Long) ((HibernateProxy) idHolder).getHibernateLazyInitializer().getIdentifier();
         }
         return idHolder.getId();
+    }
+
+    /** @return Unproxied <var>proxy</var>. */
+    public final static Object unproxy(final Object proxy)
+    {
+        if (proxy instanceof HibernateProxy && Hibernate.isInitialized(proxy))
+        {
+            LazyInitializer lazyInitializer =
+                    ((HibernateProxy) proxy).getHibernateLazyInitializer();
+            SessionImplementor sessionImplementor = lazyInitializer.getSession();
+            // check if the given bean still has a session instance attached
+            if (sessionImplementor != null)
+            {
+                // use the unproxy method of the persistenceContext class
+                return sessionImplementor.getPersistenceContext().unproxy(proxy);
+            } else
+            {
+                // return the wrapped bean instance if there's no active session instance available
+                return lazyInitializer.getImplementation();
+            }
+        } else
+        {
+            // not a proxy - nothing to do
+            return proxy;
+        }
     }
 }

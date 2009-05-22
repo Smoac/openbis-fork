@@ -105,7 +105,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     public void loadDataByTechId(TechId sampleId)
     {
         tryToLoadBySampleTechId(sampleId);
-        if (sampleId == null)
+        if (sample == null)
         {
             throw new UserFailureException(String.format("Sample with ID '%s' does not exist.",
                     sampleId));
