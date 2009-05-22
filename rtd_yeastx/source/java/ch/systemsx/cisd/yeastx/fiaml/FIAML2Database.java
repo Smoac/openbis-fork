@@ -109,13 +109,13 @@ public class FIAML2Database
     /**
      * Method for uploading an <var>fiaMLFile</var> to the database.
      */
-    public static void uploadFiaMLFile(final Connection conn, final File eicMLFile, String permId)
-            throws SQLException
+    public static void uploadFiaMLFile(final Connection conn, final File fiaMLFile,
+            final String permId) throws SQLException
     {
         try
         {
             final IFIAMSRunDAO dao = getDAO(conn);
-            new FIAMLParser(eicMLFile.getPath(), permId, new IMSRunObserver()
+            new FIAMLParser(fiaMLFile.getPath(), permId, new IMSRunObserver()
                 {
                     public void observe(FIAMSRunDTO run, FIAMSRunDataDTO runData)
                     {
