@@ -50,9 +50,14 @@ public class MoveableColumnModel extends ColumnModel
             ColumnConfig c = config.get(fromIndex);
             config.remove(fromIndex);
             config.add(toIndex, c);
-            ColumnModelEvent e = new MoveableColumnModelEvent(this, fromIndex, toIndex);
-            fireEvent(AppEvents.ColumnMove, e);
+            triggerColumnMoveEvent(fromIndex, toIndex);
         }
+    }
+
+    private void triggerColumnMoveEvent(int fromIndex, int toIndex)
+    {
+        ColumnModelEvent e = new MoveableColumnModelEvent(this, fromIndex, toIndex);
+        fireEvent(AppEvents.ColumnMove, e);
     }
 
 }
