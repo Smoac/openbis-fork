@@ -85,9 +85,6 @@ public final class ClientPluginFactory extends
     //
 
     @SuppressWarnings("unchecked")
-    // FIXME Tomasz Pylak: the generics should be <EntityType, IIdAndIdentifierHolder>.
-    // Now the implementation can require a more specific parameter that the intrface because we
-    // have casting to a more generic class here.
     public final <T extends EntityType, I extends IIdentifiable> IClientPlugin<T, I> createClientPlugin(
             EntityKind entityKind)
     {
