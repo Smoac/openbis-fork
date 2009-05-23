@@ -32,11 +32,13 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class ColumnSetting implements Serializable, IsSerializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     private String columnID;
-    
+
     private boolean hidden;
-    
+
+    private boolean hasFilter;
+
     private int width;
 
     public final String getColumnID()
@@ -67,6 +69,16 @@ public class ColumnSetting implements Serializable, IsSerializable
     public final void setWidth(int width)
     {
         this.width = width;
+    }
+
+    public boolean hasFilter()
+    {
+        return hasFilter;
+    }
+
+    public void setHasFilter(boolean hasFilter)
+    {
+        this.hasFilter = hasFilter;
     }
 
     @Override

@@ -16,21 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
-import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.store.ListStore;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.extjs.gxt.ui.client.widget.grid.Grid;
 
 /**
- * Subset of {@link Grid} methods needed by {@link DisplaySettingsManager}.
- *
+ * The interface with which {@link DisplaySettingsManager} gets the current settings.
+ * 
  * @author Franz-Josef Elmer
  */
-public interface IGrid<M extends ModelData>
+public interface IDisplaySettingsGetter
 {
-    public ColumnModel getColumnModel();
-    
-    public ListStore<M> getStore();
-    
-    public void reconfigure(ListStore<M> store, ColumnModel columnModel);
+    ColumnModel getColumnModel();
+
+    List<String> getFilteredColumnIds();
 }

@@ -17,9 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
@@ -35,7 +35,7 @@ public class ColumnDefsAndConfigs<T>
 {
     private final List<ColumnConfig> columnConfigs;
 
-    private final List<IColumnDefinition<T>> columnDefs;
+    private final Set<IColumnDefinition<T>> columnDefs;
 
     public static <T> ColumnDefsAndConfigs<T> create(
             List<? extends IColumnDefinitionUI<T>> columnsSchema)
@@ -48,7 +48,7 @@ public class ColumnDefsAndConfigs<T>
     private ColumnDefsAndConfigs()
     {
         this.columnConfigs = new ArrayList<ColumnConfig>();
-        this.columnDefs = new ArrayList<IColumnDefinition<T>>();
+        this.columnDefs = new HashSet<IColumnDefinition<T>>();
     }
 
     public void addColumns(List<? extends IColumnDefinitionUI<T>> columnsSchema)
@@ -59,9 +59,8 @@ public class ColumnDefsAndConfigs<T>
             columnDefs.add(column);
         }
     }
-    
-    public void setGridCellRendererFor(String columnID,
-            GridCellRenderer<BaseEntityModel<?>> render)
+
+    public void setGridCellRendererFor(String columnID, GridCellRenderer<BaseEntityModel<?>> render)
     {
         for (ColumnConfig columnConfig : columnConfigs)
         {
@@ -85,7 +84,7 @@ public class ColumnDefsAndConfigs<T>
         return columnConfig;
     }
 
-    public List<IColumnDefinition<T>> getColumnDefs()
+    public Set<IColumnDefinition<T>> getColumnDefs()
     {
         return columnDefs;
     }
@@ -94,35 +93,4 @@ public class ColumnDefsAndConfigs<T>
     {
         return columnConfigs;
     }
-
-    /** restores the column configs for those columns which existed before */
-    public void restorePreviousSettings(List<ColumnConfig> previousColumnConfigs)
-    {
-        Map<String, ColumnConfig> prevMap = asMap(previousColumnConfigs);
-        List<ColumnConfig> newColumnConfigs = new ArrayList<ColumnConfig>();
-        for (ColumnConfig newColumnConfig : columnConfigs)
-        {
-            ColumnConfig prevColumnConfig = prevMap.get(newColumnConfig.getId());
-            if (prevColumnConfig != null)
-            {
-                newColumnConfigs.add(prevColumnConfig);
-            } else
-            {
-                newColumnConfigs.add(newColumnConfig);
-            }
-        }
-        this.columnConfigs.clear();
-        this.columnConfigs.addAll(newColumnConfigs);
-    }
-
-    private static Map<String/* column id */, ColumnConfig> asMap(List<ColumnConfig> columnConfigs)
-    {
-        Map<String, ColumnConfig> visibilityMap = new HashMap<String, ColumnConfig>();
-        for (ColumnConfig columnConfig : columnConfigs)
-        {
-            visibilityMap.put(columnConfig.getId(), columnConfig);
-        }
-        return visibilityMap;
-    }
-
 }

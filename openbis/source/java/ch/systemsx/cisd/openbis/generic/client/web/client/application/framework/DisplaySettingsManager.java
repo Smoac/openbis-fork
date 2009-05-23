@@ -25,12 +25,10 @@ import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ColumnModelEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.MoveableColumnModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
@@ -62,39 +60,46 @@ public class DisplaySettingsManager
     }
 
     /**
-     * Prepares the specified grid using column settings for the specified display type ID.
-     * Preparation means synchronisation of the {@link ColumnModel} and registering a listener which
-     * updates settings after column configuration changes.
+     * This method is deprecated and will be removed when AbstractGridBrowser will be used
+     * everywhere.
      */
     public <M extends ModelData> void prepareGrid(final String displayTypeID, final Grid<M> grid)
     {
-        prepareGrid(displayTypeID, new IGrid<M>()
+        final ArrayList<String> emptyFilters = new ArrayList<String>();
+        IDisplaySettingsGetter displaySettingsUpdater = new IDisplaySettingsGetter()
             {
                 public ColumnModel getColumnModel()
                 {
                     return grid.getColumnModel();
                 }
 
-                public ListStore<M> getStore()
+                public List<String> getFilteredColumnIds()
                 {
-                    return grid.getStore();
+                    return emptyFilters;
                 }
-
-                public void reconfigure(ListStore<M> store, ColumnModel columnModel)
-                {
-                    grid.reconfigure(store, columnModel);
-                }
-            });
+            };
+        GridDisplaySettings settings =
+                tryApplySettings(displayTypeID, grid.getColumnModel(), emptyFilters);
+        if (settings != null)
+        {
+            grid.reconfigure(grid.getStore(), new ColumnModel(settings.getColumnConfigs()));
+        }
+        registerGridSettingsChangesListener(displayTypeID, displaySettingsUpdater);
     }
 
-    public <M extends ModelData> void prepareGrid(final String displayTypeID, final IGrid<M> grid)
+    /**
+     * Register listeners which monitors all the column configuration changes and makes them
+     * persistent.
+     */
+    public void registerGridSettingsChangesListener(final String displayTypeID,
+            final IDisplaySettingsGetter grid)
     {
-        synchronizeColumnModel(displayTypeID, grid);
+
         Listener<ColumnModelEvent> listener = new Listener<ColumnModelEvent>()
             {
                 public void handleEvent(ColumnModelEvent event)
                 {
-                    updateColumnSettings(displayTypeID, grid);
+                    storeSettings(displayTypeID, grid);
                 }
             };
         ColumnModel columnModel = grid.getColumnModel();
@@ -103,29 +108,68 @@ public class DisplaySettingsManager
         columnModel.addListener(AppEvents.ColumnMove, listener);
     }
 
-    private <M extends ModelData> void synchronizeColumnModel(String displayTypeID, IGrid<M> grid)
+    /**
+     * Synchronizes the initial grid display settings with the settings stored at the specified
+     * display type ID. Stored settings (if any) override the current settings.
+     */
+    public GridDisplaySettings tryApplySettings(String displayTypeID, ColumnModel columnModel,
+            List<String> filteredColumnIds)
     {
         List<ColumnSetting> columnSettings = displaySettings.getColumnSettings().get(displayTypeID);
         if (columnSettings == null)
         {
-            return;
+            return null;
         }
-        synchronizeColumnModel(columnSettings, grid);
+        return tryApplySettings(columnSettings, columnModel, filteredColumnIds);
     }
 
-    // Update grid columns by applying the specified settings.
-    private static <M extends ModelData> void synchronizeColumnModel(
-            List<ColumnSetting> columnSettings, IGrid<M> grid)
+    public static class GridDisplaySettings
+    {
+        List<ColumnConfig> columnConfigs;
+
+        List<String> filteredColumnIds;
+
+        public GridDisplaySettings(List<ColumnConfig> columnConfigs, List<String> filteredColumnIds)
+        {
+            this.columnConfigs = columnConfigs;
+            this.filteredColumnIds = filteredColumnIds;
+        }
+
+        public List<ColumnConfig> getColumnConfigs()
+        {
+            return columnConfigs;
+        }
+
+        public void setColumnConfigs(List<ColumnConfig> columnConfigs)
+        {
+            this.columnConfigs = columnConfigs;
+        }
+
+        public List<String> getFilteredColumnIds()
+        {
+            return filteredColumnIds;
+        }
+
+        public void setFilteredColumnIds(List<String> filteredColumnIds)
+        {
+            this.filteredColumnIds = filteredColumnIds;
+        }
+    }
+
+    // Update grid columns and filters by applying the specified settings.
+    private static GridDisplaySettings tryApplySettings(List<ColumnSetting> columnSettings,
+            ColumnModel columnModel, List<String> filteredColumnIds)
     {
         boolean refreshNeeded = false;
-        ColumnModel columnModel = grid.getColumnModel();
         List<ColumnConfig> newColumnConfigList = new ArrayList<ColumnConfig>();
         Set<Integer> indices = new HashSet<Integer>();
+        List<String> newFilteredColumnIds = new ArrayList<String>();
         for (int i = 0; i < columnSettings.size(); i++)
         {
             ColumnSetting columnSetting = columnSettings.get(i);
             // update column using the settings stored for it
-            int index = columnModel.getIndexById(columnSetting.getColumnID());
+            String columnID = columnSetting.getColumnID();
+            int index = columnModel.getIndexById(columnID);
             if (index >= 0)
             {
                 if (i != index)
@@ -147,6 +191,10 @@ public class DisplaySettingsManager
                     refreshNeeded = true;
                 }
                 newColumnConfigList.add(columnConfig);
+                if (columnSetting.hasFilter())
+                {
+                    newFilteredColumnIds.add(columnID);
+                }
             }
         }
         // add columns for which no settings were stored at the end
@@ -157,21 +205,36 @@ public class DisplaySettingsManager
                 newColumnConfigList.add(columnModel.getColumn(i));
             }
         }
+        if (newFilteredColumnIds.equals(filteredColumnIds) == false)
+        {
+            refreshNeeded = true;
+        }
         if (refreshNeeded)
         {
-            grid.reconfigure(grid.getStore(), new MoveableColumnModel(newColumnConfigList));
+            return new GridDisplaySettings(newColumnConfigList, newFilteredColumnIds);
+        } else
+        {
+            return null;
         }
     }
 
-    private <M extends ModelData> void updateColumnSettings(String displayTypeID, IGrid<M> grid)
+    public void storeSettings(final String displayTypeID, final IDisplaySettingsGetter grid)
     {
-        List<ColumnSetting> columnSettings = createColumnsSettings(grid.getColumnModel());
+        storeSettings(displayTypeID, grid.getColumnModel(), grid.getFilteredColumnIds());
+    }
+
+    private void storeSettings(String displayTypeID, ColumnModel columnModel,
+            List<String> filteredColumnIds)
+    {
+        List<ColumnSetting> columnSettings = createColumnsSettings(columnModel, filteredColumnIds);
         displaySettings.getColumnSettings().put(displayTypeID, columnSettings);
         updater.update();
     }
 
-    private static List<ColumnSetting> createColumnsSettings(ColumnModel columnModel)
+    private static List<ColumnSetting> createColumnsSettings(ColumnModel columnModel,
+            List<String> filteredColumnIdsList)
     {
+        Set<String> filteredColumnIds = new HashSet<String>(filteredColumnIdsList);
         List<ColumnSetting> columnSettings = new ArrayList<ColumnSetting>();
         for (int i = 0; i < columnModel.getColumnCount(); i++)
         {
@@ -180,6 +243,8 @@ public class DisplaySettingsManager
             columnSetting.setColumnID(columnConfig.getId());
             columnSetting.setHidden(columnConfig.isHidden());
             columnSetting.setWidth(columnConfig.getWidth());
+            boolean hasFilter = filteredColumnIds.contains(columnConfig.getId());
+            columnSetting.setHasFilter(hasFilter);
             columnSettings.add(columnSetting);
         }
         return columnSettings;

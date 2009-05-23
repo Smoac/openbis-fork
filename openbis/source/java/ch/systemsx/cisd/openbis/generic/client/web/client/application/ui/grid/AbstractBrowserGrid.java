@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -68,12 +69,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplaySettingsGetter;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.GridDisplaySettings;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IResultUpdater;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilterInfo;
@@ -134,6 +138,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     protected final IViewContext<ICommonClientServiceAsync> viewContext;
 
+    // the toolbar has the refresh and export buttons besides the paging controls
+    protected final BrowserGridPagingToolBar pagingToolbar;
+
     // ------ private section. NOTE: it should remain unaccessible to subclasses! ---------------
 
     private static final int PAGE_SIZE = 50;
@@ -146,17 +153,17 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private final ColumnListener<T, M> columnListener;
 
-    // the toolbar has the refresh and export buttons besides the paging controls
-    protected final BrowserGridPagingToolBar pagingToolbar;
-
     private final boolean refreshAutomatically;
 
-    private final List<PagingColumnFilter<T>> filterWidgets;
+    // used to change displayed filter widgets
+    private final ToolBar filterToolbar;
 
-    // --------- non-final fields
+    // --------- private non-final fields
 
-    // available columns configs and definitions
-    private ColumnDefsAndConfigs<T> columns;
+    private List<PagingColumnFilter<T>> filterWidgets;
+
+    // available columns definitions
+    private Set<IColumnDefinition<T>> columnDefinitions;
 
     // result set key of the last refreshed data
     private String resultSetKey;
@@ -193,8 +200,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         this.pagingToolbar =
                 new BrowserGridPagingToolBar(asActionInvoker(), viewContext, PAGE_SIZE);
         pagingToolbar.bind(pagingLoader);
-        this.filterWidgets = createFilterWidgets();
-        Component filterToolbar = createFilterToolbar(filterWidgets, viewContext);
+        this.filterToolbar = new ToolBar();
 
         final LayoutContainer bottomToolbars = createBottomToolbars(filterToolbar, pagingToolbar);
         this.contentPanel = createEmptyContentPanel();
@@ -216,7 +222,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     /** Refreshes the grid without showing the loading progress bar */
-    protected void refreshGridSilently()
+    protected final void refreshGridSilently()
     {
         grid.setLoadMask(false);
         refresh();
@@ -229,7 +235,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
      * @param columnID Column ID. Not case sensitive.
      * @param listener Listener handle single clicks.
      */
-    protected void registerCellClickListenerFor(final String columnID,
+    protected final void registerCellClickListenerFor(final String columnID,
             final ICellListener<T> listener)
     {
         columnListener.registerCellClickListener(columnID, listener);
@@ -241,7 +247,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
      * @param columnID Column ID. Not case sensitive.
      * @param listener Listener handle single clicks.
      */
-    protected void registerLinkClickListenerFor(final String columnID,
+    protected final void registerLinkClickListenerFor(final String columnID,
             final ICellListener<T> listener)
     {
         columnListener.registerLinkClickListener(columnID, listener);
@@ -250,22 +256,22 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     /**
      * Allows multiple selection instead of single selection.
      */
-    protected void allowMultipleSelection()
+    protected final void allowMultipleSelection()
     {
         grid.getSelectionModel().setSelectionMode(SelectionMode.MULTI);
     }
 
-    protected List<M> getGridModels()
+    protected final List<M> getGridModels()
     {
         return grid.getStore().getModels();
     }
 
-    protected void setDisplayTypeIDGenerator(IDisplayTypeIDGenerator displayTypeIDGenerator)
+    protected final void setDisplayTypeIDGenerator(IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
         this.displayTypeIDGenerator = displayTypeIDGenerator;
     }
 
-    protected void setEntityKindForDisplayTypeIDGeneration(EntityKind entityKind)
+    protected final void setEntityKindForDisplayTypeIDGeneration(EntityKind entityKind)
     {
         this.entityKind = entityKind;
     }
@@ -275,9 +281,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return null;
     }
 
-    private List<PagingColumnFilter<T>> createFilterWidgets()
+    private List<PagingColumnFilter<T>> createFilterWidgets(
+            List<IColumnDefinition<T>> filteredColumns)
     {
-        return createFilterWidgets(getInitialFilters(), createApplyFiltersDelagator());
+        return createFilterWidgets(filteredColumns, createApplyFiltersDelagator());
     }
 
     private IDelegatedAction createApplyFiltersDelagator()
@@ -429,7 +436,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 {
                     List<GridFilterInfo<T>> appliedFilters = getAppliedFilters();
                     DefaultResultSetConfig<String, T> resultSetConfig =
-                            createPagingConfig(loadConfig, columns.getColumnDefs(), appliedFilters,
+                            createPagingConfig(loadConfig, columnDefinitions, appliedFilters,
                                     resultSetKey);
                     ListEntitiesCallback listCallback =
                             new ListEntitiesCallback(viewContext, callback, resultSetConfig);
@@ -473,7 +480,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     private static <T> DefaultResultSetConfig<String, T> createPagingConfig(
-            PagingLoadConfig loadConfig, List<IColumnDefinition<T>> availableColumns,
+            PagingLoadConfig loadConfig, Set<IColumnDefinition<T>> availableColumns,
             List<GridFilterInfo<T>> appliedFilters, String resultSetKey)
     {
         DefaultResultSetConfig<String, T> resultSetConfig = new DefaultResultSetConfig<String, T>();
@@ -487,7 +494,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     private static <T> SortInfo<T> translateSortInfo(PagingLoadConfig loadConfig,
-            List<IColumnDefinition<T>> availableColumns)
+            Set<IColumnDefinition<T>> availableColumns)
     {
         com.extjs.gxt.ui.client.data.SortInfo sortInfo = loadConfig.getSortInfo();
         return translateSortInfo(sortInfo.getSortField(), sortInfo.getSortDir(), availableColumns);
@@ -495,7 +502,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private static <T> SortInfo<T> translateSortInfo(String dortFieldId,
             com.extjs.gxt.ui.client.Style.SortDir sortDir,
-            List<IColumnDefinition<T>> availableColumns)
+            Set<IColumnDefinition<T>> availableColumns)
     {
         IColumnDefinition<T> sortColumnDefinition = null;
         if (dortFieldId != null)
@@ -628,7 +635,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
                 public void configure()
                 {
-                    delegate.configure();
+                    delegate.configureColumnSettings();
                 }
             };
     }
@@ -778,34 +785,130 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         disposeCache();
         this.refreshCallback = createRefreshCallback(externalRefreshCallbackOrNull);
         setHeader(headerOrNull);
-        if (columns == null || refreshColumnsDefinition)
+        if (columnDefinitions == null || refreshColumnsDefinition)
         {
-            refreshColumnDefinitions();
+            refreshColumnsAndFilters();
         }
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
 
         reloadData();
     }
 
-    private void refreshColumnDefinitions()
+    private void refreshColumnsAndFilters()
     {
-        ColumnDefsAndConfigs<T> newColumnsDefinition = createColumnsDefinition();
-        if (columns != null)
-        {
-            List<ColumnConfig> previousColumnConfigs = columns.getColumnConfigs();
-            newColumnsDefinition.restorePreviousSettings(previousColumnConfigs);
-        }
-        this.columns = newColumnsDefinition;
+        ColumnModel columnModel = rebuildColumns();
+        List<IColumnDefinition<T>> initialFilters = getInitialFilters();
 
+        GridDisplaySettings settings = tryApplyDisplaySettings(columnModel, initialFilters);
+
+        if (settings != null)
+        {
+            columnModel = createColumnModel(settings.getColumnConfigs());
+            rebuildFiltersFromIds(settings.getFilteredColumnIds());
+        } else
+        {
+            rebuildFilters(initialFilters);
+        }
+        changeColumnModel(columnModel);
     }
 
-    // refreshes the data, does not clear the cache
+    private GridDisplaySettings tryApplyDisplaySettings(ColumnModel columnModel,
+            List<IColumnDefinition<T>> initialFilters)
+    {
+        return viewContext.getDisplaySettingsManager().tryApplySettings(getGridDisplayTypeID(),
+                columnModel, extractColumnIds(initialFilters));
+    }
+
+    private ColumnModel rebuildColumns()
+    {
+        ColumnDefsAndConfigs<T> defsAndConfigs = createColumnsDefinition();
+        this.columnDefinitions = defsAndConfigs.getColumnDefs();
+        return createColumnModel(defsAndConfigs.getColumnConfigs());
+    }
+
+    private void changeColumnModel(ColumnModel columnModel)
+    {
+        grid.reconfigure(grid.getStore(), columnModel);
+        registerGridSettingsChangesListener();
+    }
+
+    private void registerGridSettingsChangesListener()
+    {
+        viewContext.getDisplaySettingsManager().registerGridSettingsChangesListener(
+                getGridDisplayTypeID(), createDisplaySettingsUpdater());
+    }
+
+    // Refreshes the data, does not clear the cache. Does not change the column model.
     private void reloadData()
     {
-        MoveableColumnModel columnModel = new MoveableColumnModel(columns.getColumnConfigs());
-        grid.reconfigure(grid.getStore(), columnModel);
-        viewContext.getDisplaySettingsManager().prepareGrid(getGridDisplayTypeID(), grid);
         pagingLoader.load(0, PAGE_SIZE);
+    }
+
+    private IDisplaySettingsGetter createDisplaySettingsUpdater()
+    {
+        return new IDisplaySettingsGetter()
+            {
+                public ColumnModel getColumnModel()
+                {
+                    return AbstractBrowserGrid.this.getColumnModel();
+                }
+
+                public List<String> getFilteredColumnIds()
+                {
+                    return extractFilteredColumnIds();
+                }
+            };
+    }
+
+    private List<String> extractFilteredColumnIds()
+    {
+        if (filterWidgets != null)
+        {
+            return extractFilteredColumnIds(filterWidgets);
+        } else
+        {
+            return new ArrayList<String>();
+        }
+    }
+
+    // returns true if some filters have changed
+    private boolean rebuildFiltersFromIds(List<String> filteredColumnIds)
+    {
+        if (filteredColumnIds.equals(extractFilteredColumnIds()))
+        {
+            return false; // nothing to change
+        }
+        List<IColumnDefinition<T>> filteredColumns = getColumnDefinitions(filteredColumnIds);
+        rebuildFilters(filteredColumns);
+        return true;
+    }
+
+    // true if the toolbar with filters has just disappeared or appeared
+    private void rebuildFilters(List<IColumnDefinition<T>> filteredColumns)
+    {
+        List<PagingColumnFilter<T>> newFilterWidgets = createFilterWidgets(filteredColumns);
+        rebuildFilterToolbar(newFilterWidgets, this.filterWidgets, this.filterToolbar, viewContext);
+
+        boolean noFiltersBefore = filterWidgets == null || filterWidgets.isEmpty();
+        boolean noFiltersAfter = newFilterWidgets.isEmpty();
+        this.filterWidgets = newFilterWidgets;
+        if (noFiltersBefore != noFiltersAfter)
+        {
+            layout();
+        }
+    }
+
+    private List<IColumnDefinition<T>> getColumnDefinitions(List<String> columnIds)
+    {
+        Map<String, IColumnDefinition<T>> colsMap = asColumnIdMap(columnDefinitions);
+        List<IColumnDefinition<T>> columns = new ArrayList<IColumnDefinition<T>>();
+        for (String columnId : columnIds)
+        {
+            IColumnDefinition<T> colDef = colsMap.get(columnId);
+            assert colDef != null : "Cannot find a column '" + columnId;
+            columns.add(colDef);
+        }
+        return columns;
     }
 
     private String getGridDisplayTypeID()
@@ -868,12 +971,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
     }
 
-    private List<IColumnDefinition<T>> getSelectedColumns(
-            List<IColumnDefinition<T>> availableColumns)
+    private List<IColumnDefinition<T>> getVisibleColumns(Set<IColumnDefinition<T>> availableColumns)
     {
         Map<String, IColumnDefinition<T>> availableColumnsMap = asColumnIdMap(availableColumns);
         final ColumnModel columnModel = grid.getColumnModel();
-        return getSelectedColumns(availableColumnsMap, columnModel);
+        return getVisibleColumns(availableColumnsMap, columnModel);
     }
 
     private void saveCacheKey(final String newResultSetKey)
@@ -915,20 +1017,38 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     /**
      * Shows the dialog allowing to configure visibility and order of the table columns.
      */
-    private final void configure()
+    private final void configureColumnSettings()
     {
         assert grid != null && grid.getColumnModel() != null : "Grid must be loaded";
 
-        new ColumnSettingsDialog(viewContext).show(grid);
+        IResultUpdater<List<ColumnDataModel>> updater = new IResultUpdater<List<ColumnDataModel>>()
+            {
+                public void update(List<ColumnDataModel> result)
+                {
+                    boolean filtersChanged = rebuildFiltersFromIds(getFilteredColumnIds(result));
+                    // refresh the data - some filters may have been removed
+                    if (filtersChanged)
+                    {
+                        createApplyFiltersDelagator().execute();
+                    }
+                    updateColumnsSettingsModel(getColumnModel(), result);
+                    refreshColumnsSettings();
+                    viewContext.getDisplaySettingsManager().storeSettings(getGridDisplayTypeID(),
+                            createDisplaySettingsUpdater());
+                }
+            };
+        List<ColumnDataModel> settingsModel =
+                createColumnsSettingsModel(getColumnModel(), extractFilteredColumnIds());
+        ColumnSettingsDialog.show(viewContext, settingsModel, updater);
     }
 
     // @Private - for tests
     public final void export(final AbstractAsyncCallback<String> callback)
     {
-        assert columns != null : "refresh before exporting!";
+        assert columnDefinitions != null : "refresh before exporting!";
         assert resultSetKey != null : "refresh before exporting, resultSetKey is null!";
 
-        final List<IColumnDefinition<T>> columnDefs = getSelectedColumns(columns.getColumnDefs());
+        final List<IColumnDefinition<T>> columnDefs = getVisibleColumns(columnDefinitions);
         SortInfo<T> sortInfo = getGridSortInfo();
         final TableExportCriteria<T> exportCriteria =
                 new TableExportCriteria<T>(resultSetKey, sortInfo, getAppliedFilters(), columnDefs);
@@ -940,7 +1060,14 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private SortInfo<T> getGridSortInfo()
     {
         ListStore<M> store = grid.getStore();
-        return translateSortInfo(store.getSortField(), store.getSortDir(), columns.getColumnDefs());
+        return translateSortInfo(store.getSortField(), store.getSortDir(), columnDefinitions);
+    }
+
+    private void refreshColumnsSettings()
+    {
+        grid.setLoadMask(false);
+        grid.getView().refresh(true);
+        grid.setLoadMask(true);
     }
 
     protected final void addEntityOperationsLabel()
@@ -954,6 +1081,72 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     // ------- generic static helpers
+
+    private static List<String> getFilteredColumnIds(List<ColumnDataModel> result)
+    {
+        List<String> filteredColumnsIds = new ArrayList<String>();
+        for (ColumnDataModel model : result)
+        {
+            if (model.hasFilter())
+            {
+                filteredColumnsIds.add(model.getColumnID());
+            }
+        }
+        return filteredColumnsIds;
+    }
+
+    private static <T> List<String> extractFilteredColumnIds(List<PagingColumnFilter<T>> filters)
+    {
+        List<String> filteredColumnsIds = new ArrayList<String>();
+        for (PagingColumnFilter<T> filter : filters)
+        {
+            filteredColumnsIds.add(filter.getFilteredColumnId());
+        }
+        return filteredColumnsIds;
+    }
+
+    private static <T> List<String> extractColumnIds(List<IColumnDefinition<T>> columns)
+    {
+        List<String> columnsIds = new ArrayList<String>();
+        for (IColumnDefinition<T> column : columns)
+        {
+            columnsIds.add(column.getIdentifier());
+        }
+        return columnsIds;
+    }
+
+    private static void updateColumnsSettingsModel(final MoveableColumnModel cm,
+            List<ColumnDataModel> columnModels)
+    {
+        int newIndex = 0;
+        for (ColumnDataModel m : columnModels)
+        {
+            String columnID = m.getColumnID();
+            int oldIndex = cm.getIndexById(columnID);
+            cm.setHidden(oldIndex, m.isVisible() == false);
+            cm.move(oldIndex, newIndex++);
+        }
+    }
+
+    private static List<ColumnDataModel> createColumnsSettingsModel(ColumnModel cm,
+            List<String> filteredColumnsIds)
+    {
+        Set<String> filteredColumnsMap = new HashSet<String>(filteredColumnsIds);
+        int cols = cm.getColumnCount();
+        List<ColumnDataModel> list = new ArrayList<ColumnDataModel>();
+        for (int i = 0; i < cols; i++)
+        {
+            if (cm.getColumnHeader(i) == null || cm.getColumnHeader(i).equals("") || cm.isFixed(i))
+            {
+                continue;
+            }
+            String columnId = cm.getColumnId(i);
+            boolean isVisible = cm.isHidden(i) == false;
+            boolean hasFilter = filteredColumnsMap.contains(columnId);
+            list.add(new ColumnDataModel(cm.getColumnHeader(i), isVisible, hasFilter, columnId));
+        }
+        return list;
+    }
 
     private final static ContentPanel createEmptyContentPanel()
     {
@@ -975,13 +1168,15 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return bottomToolbars;
     }
 
-    private static <T> ToolBar createFilterToolbar(List<PagingColumnFilter<T>> filterWidgets,
+    // Clears the filter toolbar and fills it with the specified filter widgets.
+    private static <T> void rebuildFilterToolbar(List<PagingColumnFilter<T>> filterWidgets,
+            List<PagingColumnFilter<T>> previousFilterWidgetsOrNull, ToolBar filterToolbar,
             IMessageProvider messageProvider)
     {
-        ToolBar filterToolbar = new ToolBar();
+        filterToolbar.removeAll();
         if (filterWidgets.size() == 0)
         {
-            return filterToolbar;
+            return;
         }
 
         filterToolbar.add(new LabelToolItem(messageProvider.getMessage(Dict.FILTERS) + ": "));
@@ -989,20 +1184,35 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         {
             filterToolbar.add(new AdapterToolItem(filterWidget));
         }
-        return filterToolbar;
+        if (previousFilterWidgetsOrNull != null)
+        {
+            // TODO 2009--, Tomasz Pylak: fill the new filters with the values entered in the
+            // previous filters
+        }
     }
 
     private static final <T extends ModelData> Grid<T> createGrid(
             PagingLoader<PagingLoadConfig> dataLoader, String gridId)
     {
         ListStore<T> listStore = new ListStore<T>(dataLoader);
-        MoveableColumnModel columnModel = new MoveableColumnModel(new ArrayList<ColumnConfig>());
+        ColumnModel columnModel = createColumnModel(new ArrayList<ColumnConfig>());
         Grid<T> grid = new Grid<T>(listStore, columnModel);
         grid.setId(gridId);
         grid.setLoadMask(true);
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
         return grid;
+    }
+
+    // this should be the only place where we create the grid column model.
+    private static MoveableColumnModel createColumnModel(List<ColumnConfig> columConfigs)
+    {
+        return new MoveableColumnModel(columConfigs);
+    }
+
+    private MoveableColumnModel getColumnModel()
+    {
+        return (MoveableColumnModel) grid.getColumnModel();
     }
 
     private static final class ExportEntitiesCallback extends AbstractAsyncCallback<String>
@@ -1027,7 +1237,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     // creates a map to quickly find a definition by its identifier
     private static <T> Map<String, IColumnDefinition<T>> asColumnIdMap(
-            final List<IColumnDefinition<T>> defs)
+            final Set<IColumnDefinition<T>> defs)
     {
         final Map<String, IColumnDefinition<T>> map = new HashMap<String, IColumnDefinition<T>>();
         for (final IColumnDefinition<T> def : defs)
@@ -1043,7 +1253,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
      *            availableColumns by column id.
      * @return list of columns definitions for those columns which are currently shown
      */
-    private static <T/* column definition */> List<T> getSelectedColumns(
+    private static <T/* column definition */> List<T> getVisibleColumns(
             final Map<String, T> availableColumns, final ColumnModel columnModel)
     {
         final List<T> selectedColumnDefs = new ArrayList<T>();

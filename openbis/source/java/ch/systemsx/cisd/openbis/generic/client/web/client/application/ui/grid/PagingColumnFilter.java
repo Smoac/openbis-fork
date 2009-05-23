@@ -45,6 +45,11 @@ public class PagingColumnFilter<T/* entity */> extends StoreFilterField<ModelDat
         setEmptyText(label);
     }
 
+    public String getFilteredColumnId()
+    {
+        return filteredField.getIdentifier();
+    }
+
     /** @return filter with the pattern or null if pattern was not specified by the user */
     public GridFilterInfo<T> tryGetFilter()
     {
