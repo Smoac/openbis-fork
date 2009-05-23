@@ -53,11 +53,6 @@ class ColumnDataModel extends BaseModelData
         return get(COLUMN_ID);
     }
 
-    public String getHeader()
-    {
-        return get(HEADER);
-    }
-
     public boolean isVisible()
     {
         return get(IS_VISIBLE);
