@@ -23,7 +23,6 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -42,10 +41,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifi
  * 
  * @author Tomasz Pylak
  */
-public final class ExperimentChooserField extends TextField<String> implements
-        ChosenEntitySetter<Experiment>
+public final class ExperimentChooserField extends ChosenEntitySetter<Experiment>
 {
-    private static final int CHOOSER_FIELD_WIDTH = 342;
 
     public interface ExperimentChooserFieldAdaptor
     {
@@ -132,6 +129,7 @@ public final class ExperimentChooserField extends TextField<String> implements
 
     private final boolean mandatory;
 
+    @Override
     public void setChosenEntity(Experiment entityOrNull)
     {
         if (entityOrNull != null)
@@ -170,7 +168,6 @@ public final class ExperimentChooserField extends TextField<String> implements
 
         setValidateOnBlur(true);
         setAutoValidate(true);
-        setWidth(CHOOSER_FIELD_WIDTH);
 
         setRegex(EXPERIMENT_IDENTIFIER_PATTERN);
         getMessages().setRegexText(viewContext.getMessage(Dict.INCORRECT_EXPERIMENT_SYNTAX));

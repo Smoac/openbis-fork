@@ -23,7 +23,6 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -39,8 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
  * 
  * @author Piotr Buczek
  */
-public final class SampleChooserField extends TextField<String> implements
-        ChosenEntitySetter<Sample>
+public final class SampleChooserField extends ChosenEntitySetter<Sample>
 {
     public interface SampleChooserFieldAdaptor
     {
@@ -117,6 +115,7 @@ public final class SampleChooserField extends TextField<String> implements
 
     private final boolean mandatory;
 
+    @Override
     public void setChosenEntity(Sample entityOrNull)
     {
         if (entityOrNull != null)

@@ -23,7 +23,6 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -41,8 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
  * 
  * @author Tomasz Pylak
  */
-public final class MaterialChooserField extends TextField<String> implements
-        ChosenEntitySetter<Material>
+public final class MaterialChooserField extends ChosenEntitySetter<Material>
 {
     public static Field<?> create(final String labelField, final boolean mandatory,
             final MaterialType materialTypeOrNull, String initialValueOrNull,
@@ -86,6 +84,7 @@ public final class MaterialChooserField extends TextField<String> implements
 
     private final boolean mandatory;
 
+    @Override
     public void setChosenEntity(Material materialOrNull)
     {
         if (materialOrNull != null)
