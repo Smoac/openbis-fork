@@ -124,7 +124,7 @@ public final class ExperimentChooserField extends TextField<String> implements
             CodeField.CODE_CHARS + "/" + CodeField.CODE_CHARS;
 
     // @Private, only for tests
-    public final static String EXPERIMENT_IDENTIFIER_PATTERN = 
+    public final static String EXPERIMENT_IDENTIFIER_PATTERN =
             "(" + EXPERIMENT_IDENTIFIER_WITH_GROUP_PATTERN + ")|("
                     + EXPERIMENT_IDENTIFIER_WITHOUT_GROUP_PATTERN + ")";
 
@@ -168,6 +168,7 @@ public final class ExperimentChooserField extends TextField<String> implements
 
         setValidateOnBlur(true);
         setAutoValidate(true);
+        setWidth(342);
 
         setRegex(EXPERIMENT_IDENTIFIER_PATTERN);
         getMessages().setRegexText(viewContext.getMessage(Dict.INCORRECT_EXPERIMENT_SYNTAX));
