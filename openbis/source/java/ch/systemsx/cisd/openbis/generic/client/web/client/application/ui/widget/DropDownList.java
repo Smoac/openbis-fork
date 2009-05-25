@@ -170,12 +170,21 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
         }
     }
 
-    protected void updateStore(final List<M> models)
+    protected final void updateStore(final List<M> models)
     {
         final ListStore<M> termsStore = getStore();
         termsStore.removeAll();
         termsStore.add(models);
-        if (termsStore.getCount() > 0)
+
+        int termsCount = termsStore.getCount();
+        if (termsCount == 0)
+        {
+            setEmptyText(emptyMsg);
+            setReadOnly(true);
+        } else if (termsCount == 1)
+        {
+            setSelection(models);
+        } else
         {
             setEmptyText(chooseMsg);
             setReadOnly(false);
@@ -184,10 +193,6 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
                 validate(); // maybe the value became a valid selection
             }
             restoreSelection(getSelection());
-        } else
-        {
-            setEmptyText(emptyMsg);
-            setReadOnly(true);
         }
         applyEmptyText();
     }
