@@ -33,7 +33,7 @@ public class ListChromatogramLabels
 
     public static void main(String[] args) throws SQLException
     {
-        final Connection conn = DBFactory.getConnection();
+        final Connection conn = new DBFactory(DBFactory.createDefaultDBContext()).getConnection();
         try
         {
             final IEICMSRunDAO dao = EICML2Database.getDAO(conn);

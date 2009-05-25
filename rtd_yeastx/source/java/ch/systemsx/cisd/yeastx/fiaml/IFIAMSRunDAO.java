@@ -44,12 +44,13 @@ public interface IFIAMSRunDAO extends BaseQuery
             + "?{1.internalStandard}, ?{1.od}, ?{1.operator}) returning fiaMsRunId")
     public long addMSRun(FIAMSRunDTO msRun);
 
-    // Too slow as eodsql 2.0 doesn't support batch updates.
-    @Update("INSERT INTO profiles (fiaMsRunId, mz, intensity) values (?{1}, ?{2}, ?{3})")
-    public void addProfileEntry(long fiaMsRunId, float mz, float intensity);
+    @Update(sql = "INSERT INTO centroids (fiaMsRunId, mz, intensity, correlation) "
+            + "values (?{1}, ?{2}, ?{3}, ?{4})", batchUpdate = true)
+    public void addCentroids(long fiaMsRunId, float[] mz, float[] intensity, float[] correlation);
 
-    // Too slow as eodsql 2.0 doesn't support batch updates.
-    @Update("INSERT INTO centroids (fiaMsRunId, mz, intensity, correlation) "
-            + "values (?{1}, ?{2}, ?{3}, ?{4})")
-    public void addCentroidEntry(long fiaMsRunId, float mz, float intensity, float correlation);
+    @Update(sql = "INSERT INTO profiles (fiaMsRunId, lowMz, highMz, mz, intensities) "
+            + "values (?{1}, ?{2.lowMz}, ?{2.highMz}, ?{2.mz}, ?{2.intensities})", batchUpdate = true, parameterTypes =
+        { Long.class, ProfileDTO.class })
+    public void addProfiles(long fiaMsRunId, Iterable<ProfileDTO> profiles);
+
 }

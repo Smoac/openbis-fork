@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -40,18 +42,32 @@ import ch.systemsx.cisd.yeastx.eicml.EICMLParser.IMSRunObserver;
 public class EICML2Database
 {
 
+    private final static int CHROMATOGRAM_BATCH_SIZE = 100;
+
     public static IEICMSRunDAO getDAO(Connection conn)
     {
         return QueryTool.getQuery(conn, IEICMSRunDAO.class);
     }
 
+    private static void addChromatograms(IEICMSRunDAO dao, long eicMLId,
+            List<ChromatogramDTO> chromatograms, int threshold)
+    {
+        if (chromatograms.size() >= CHROMATOGRAM_BATCH_SIZE)
+        {
+            dao.addChromatograms(eicMLId, chromatograms);
+            chromatograms.clear();
+        }
+    }
+
     /**
      * Method for uploading an <var>eicMLFile</var> to the database.
      */
-    public static void uploadEicMLFile(final Connection conn, final File eicMLFile,
-            String permId) throws SQLException
+    public static void uploadEicMLFile(final Connection conn, final File eicMLFile, String permId)
+            throws SQLException
     {
-        final long[] id = new long[1];
+        final long[] eicMLId = new long[1];
+        final List<ChromatogramDTO> chromatograms =
+                new ArrayList<ChromatogramDTO>(CHROMATOGRAM_BATCH_SIZE);
         try
         {
             final IEICMSRunDAO dao = getDAO(conn);
@@ -59,16 +75,18 @@ public class EICML2Database
                 {
                     public void observe(EICMSRunDTO run)
                     {
-                        id[0] = dao.addMSRun(run);
+                        eicMLId[0] = dao.addMSRun(run);
+                        addChromatograms(dao, eicMLId[0], chromatograms, 1);
                     }
                 }, new IChromatogramObserver()
                 {
                     public void observe(ChromatogramDTO chromatogram)
                     {
-                        chromatogram.setEicMsRunId(id[0]);
-                        dao.addChromatogram(chromatogram);
+                        chromatograms.add(chromatogram);
+                        addChromatograms(dao, eicMLId[0], chromatograms, CHROMATOGRAM_BATCH_SIZE);
                     }
                 });
+            addChromatograms(dao, eicMLId[0], chromatograms, 1);
             conn.commit();
         } catch (Throwable th)
         {
@@ -86,7 +104,8 @@ public class EICML2Database
     public static void main(String[] args) throws ParserConfigurationException, SAXException,
             IOException, SQLException
     {
-        final Connection conn = DBFactory.getConnection();
+        final long start = System.currentTimeMillis();
+        final Connection conn = new DBFactory(DBFactory.createDefaultDBContext()).getConnection();
         try
         {
             final String dir = args[0];
@@ -99,6 +118,7 @@ public class EICML2Database
         {
             conn.close();
         }
+        System.out.println((System.currentTimeMillis() - start) / 1000.0);
     }
 
 }

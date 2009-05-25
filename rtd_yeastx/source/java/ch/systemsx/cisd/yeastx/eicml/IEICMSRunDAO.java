@@ -16,9 +16,12 @@
 
 package ch.systemsx.cisd.yeastx.eicml;
 
+import java.util.List;
+
 import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
+import net.lemnik.eodsql.Update;
 
 /**
  * Interface for querying / updating the metabol database.
@@ -42,11 +45,11 @@ public interface IEICMSRunDAO extends BaseQuery
             + "?{1.methodSeparation}, ?{1.setId}, ?{1.operator}, ?{1.startTime}, ?{1.endTime}) returning eicMsRunId")
     public long addMSRun(EICMSRunDTO msRun);
 
-    @Select("INSERT INTO chromatograms (eicMsRunId, Q1MZ, Q3LowMz, Q3HighMz, label, polarity, runTimes, "
-            + "intensities) values (?{1.eicMsRunId}, ?{1.q1Mz}, "
-            + "?{1.q3LowMz}, ?{1.q3HighMz}, ?{1.label}, "
-            + "?{1.polarity}, ?{1.runTimes}, ?{1.intensities}) returning chromId")
-    public long addChromatogram(ChromatogramDTO chromatogram);
+    @Update(sql = "INSERT INTO chromatograms (eicMsRunId, Q1MZ, Q3LowMz, Q3HighMz, label, polarity, runTimes, "
+            + "intensities) values (?{1}, ?{2.q1Mz}, ?{2.q3LowMz}, ?{2.q3HighMz}, ?{2.label}, "
+            + "?{2.polarity}, ?{2.runTimes}, ?{2.intensities})", batchUpdate = true, parameterTypes =
+        { Long.class, ChromatogramDTO.class })
+    public void addChromatograms(long eicMsRunId, List<ChromatogramDTO> chromatogram);
 
     @Select(sql = "SELECT * from eicmsruns", rubberstamp = true)
     public DataIterator<EICMSRunDTO> getMsRuns();
@@ -70,16 +73,16 @@ public interface IEICMSRunDAO extends BaseQuery
 
     @Select("SELECT chromatograms.* FROM chromatograms where chromId=?{1}")
     public ChromatogramDTO getChromatogramById(long id);
-    
+
     @Select("SELECT chromatograms.* FROM chromatograms where label=?{1}")
     public ChromatogramDTO getChromatogramByLabel(String label);
 
-    @Select(sql = "SELECT chromatograms.* FROM chromatograms LEFT JOIN eicmsruns USING(eicMsRunId) "
-            + "where eicMsRunId=?{1.eicMsRunId}", rubberstamp = true)
+    @Select("SELECT chromatograms.* FROM chromatograms LEFT JOIN eicmsruns USING(eicMsRunId) "
+            + "where eicMsRunId=?{1.eicMsRunId}")
     public DataIterator<ChromatogramDTO> getChromatogramsForRun(EICMSRunDTO msRun);
 
     @Select(sql = "SELECT chromId, eicMsRunId, Q1Mz, Q3LowMz, Q3HighMz, label, polarity FROM chromatograms "
-            + "LEFT JOIN eicmsruns USING(eicMsRunId) " + "where eicMsRunId=?{1.eicMsRunId}", rubberstamp = true)
+            + "LEFT JOIN eicmsruns USING(eicMsRunId) " + "where eicMsRunId=?{1.eicMsRunId}")
     public DataIterator<ChromatogramDTO> getChromatogramsForRunNoData(EICMSRunDTO msRun);
 
 }

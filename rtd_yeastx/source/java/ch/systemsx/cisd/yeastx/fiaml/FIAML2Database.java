@@ -17,10 +17,9 @@
 package ch.systemsx.cisd.yeastx.fiaml;
 
 import java.io.File;
-import java.sql.BatchUpdateException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Iterator;
 
 import net.lemnik.eodsql.QueryTool;
 
@@ -43,67 +42,39 @@ public class FIAML2Database
         return QueryTool.getQuery(conn, IFIAMSRunDAO.class);
     }
 
-    private static void addProfilesForRun(final Connection conn, final long fiaMsRunId,
-            FIAMSRunDataDTO runData) throws SQLException
+    private static Iterable<ProfileDTO> profileChunk(final FIAMSRunDataDTO runData)
     {
-        try
-        {
-            final PreparedStatement prepProfile =
-                    conn.prepareStatement("INSERT INTO profiles "
-                            + "(fiaMsRunId, lowMz, highMz, mz, "
-                            + "intensities) values (?, ?, ?, ?, ?)");
-            final float[] mz = runData.getProfileMz();
-            final float[] intensities = runData.getProfileIntensities();
-            for (int i = 0; i < mz.length; i += PROFILE_CHUNK_SIZE)
+        return new Iterable<ProfileDTO>()
             {
-                final int imax = Math.min(mz.length, i + PROFILE_CHUNK_SIZE);
-                prepProfile.setLong(1, fiaMsRunId);
-                prepProfile.setFloat(2, mz[i]);
-                prepProfile.setFloat(3, mz[imax - 1]);
-                prepProfile.setString(4, toString(mz, i, imax));
-                prepProfile.setString(5, toString(intensities, i, imax));
-                prepProfile.addBatch();
-            }
-            prepProfile.executeBatch();
-        } catch (BatchUpdateException ex)
-        {
-            throw ex.getNextException();
-        }
-    }
+                public Iterator<ProfileDTO> iterator()
+                {
+                    return new Iterator<ProfileDTO>()
+                        {
+                            int i = 0;
 
-    private static String toString(float[] array, int start, int end)
-    {
-        StringBuilder b = new StringBuilder();
-        for (int i = start; i < end; ++i)
-        {
-            b.append(array[i]);
-            b.append(',');
-        }
-        b.setLength(b.length() - 1);
-        return b.toString();
-    }
+                            public boolean hasNext()
+                            {
+                                return i < runData.getProfileMz().length;
+                            }
 
-    private static void addCentroidsForRun(final Connection conn, final long fiaMsRunId,
-            FIAMSRunDataDTO runData) throws SQLException
-    {
-        try
-        {
-            final PreparedStatement prepCentroid =
-                    conn.prepareStatement("INSERT INTO centroids (fiaMsRunId, mz, "
-                            + "intensity, correlation) values (?, ?, ?, ?)");
-            for (int i = 0; i < runData.getCentroidMz().length; ++i)
-            {
-                prepCentroid.setLong(1, fiaMsRunId);
-                prepCentroid.setFloat(2, runData.getCentroidMz()[i]);
-                prepCentroid.setFloat(3, runData.getCentroidIntensities()[i]);
-                prepCentroid.setFloat(4, runData.getCentroidCorrelations()[i]);
-                prepCentroid.addBatch();
-            }
-            prepCentroid.executeBatch();
-        } catch (BatchUpdateException ex)
-        {
-            throw ex.getNextException();
-        }
+                            public ProfileDTO next()
+                            {
+                                final int imax =
+                                        Math.min(runData.getProfileMz().length, i
+                                                + PROFILE_CHUNK_SIZE);
+                                final int imin = i;
+                                i = imax;
+                                return ProfileDTO.split(runData.getProfileMz(), runData
+                                        .getProfileIntensities(), imin, imax);
+                            }
+
+                            public void remove()
+                            {
+                                throw new UnsupportedOperationException();
+                            }
+                        };
+                }
+            };
     }
 
     /**
@@ -120,14 +91,11 @@ public class FIAML2Database
                     public void observe(FIAMSRunDTO run, FIAMSRunDataDTO runData)
                     {
                         final long fiaMsRunId = dao.addMSRun(run);
-                        try
-                        {
-                            addProfilesForRun(conn, fiaMsRunId, runData);
-                            addCentroidsForRun(conn, fiaMsRunId, runData);
-                        } catch (SQLException ex)
-                        {
-                            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-                        }
+                        getDAO(conn).addProfiles(fiaMsRunId, profileChunk(runData));
+                        getDAO(conn)
+                                .addCentroids(fiaMsRunId, runData.getCentroidMz(),
+                                        runData.getCentroidIntensities(),
+                                        runData.getCentroidCorrelations());
                     }
                 });
             conn.commit();
@@ -147,7 +115,7 @@ public class FIAML2Database
     public static void main(String[] args) throws SQLException
     {
         final long start = System.currentTimeMillis();
-        final Connection conn = DBFactory.getConnection();
+        final Connection conn = new DBFactory(DBFactory.createDefaultDBContext()).getConnection();
         try
         {
             final String dir = args[0];

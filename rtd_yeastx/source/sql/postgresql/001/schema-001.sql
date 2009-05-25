@@ -1,12 +1,6 @@
-CREATE DATABASE metabol ENCODING 'UTF8';
-
-CREATE ROLE metabol_readonly;
-
-CREATE ROLE metabol_readwrite;
-
-GRANT metabol_readwrite to brinn;
-
-\c metabol
+-----------------------------------
+-- Version 001
+-----------------------------------
 
 CREATE TABLE eicmsruns (
   eicMsRunId BIGSERIAL NOT NULL,
@@ -66,25 +60,29 @@ CREATE TABLE fiamsruns (
 );
 
 CREATE TABLE profiles (
+  profileId BIGSERIAL NOT NULL,
   fiaMsRunId BIGINT NOT NULL,
   lowMz REAL NOT NULL,
   highMz REAL NOT NULL,
   mz TEXT NOT NULL,
   intensities TEXT NOT NULL,
-  PRIMARY KEY (fiaMsRunId, lowMz),
+  PRIMARY KEY (profileId),
   CONSTRAINT FK_profiles_1 FOREIGN KEY (fiaMsRunId) REFERENCES fiamsruns (fiaMsRunId) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE INDEX profile_idx on profiles(fiaMsRunId, lowMz, highMz);
+CREATE INDEX profile_i on profiles(fiaMsRunId, lowMz, highMz);
 
 CREATE TABLE centroids (
+  centroidId BIGSERIAL NOT NULL,
   fiaMsRunId BIGINT NOT NULL,
   mz REAL NOT NULL,
   intensity REAL NOT NULL,
   correlation REAL NOT NULL,
-  PRIMARY KEY (fiaMsRunId, mz),
+  PRIMARY KEY (centroidId),
   CONSTRAINT FK_centroids_1 FOREIGN KEY (fiaMsRunId) REFERENCES fiamsruns (fiaMsRunId) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+CREATE INDEX centroid_i on centroids(fiaMsRunId, mz);
 
 GRANT SELECT ON TABLE eicmsruns TO GROUP metabol_readonly;
 GRANT SELECT ON TABLE chromatograms TO GROUP metabol_readonly;
@@ -103,3 +101,5 @@ GRANT ALL PRIVILEGES ON TABLE centroids TO GROUP metabol_readwrite;
 GRANT ALL PRIVILEGES ON SEQUENCE eicmsruns_eicmsrunid_seq TO GROUP metabol_readwrite;
 GRANT ALL PRIVILEGES ON SEQUENCE chromatograms_chromid_seq TO GROUP metabol_readwrite;
 GRANT ALL PRIVILEGES ON SEQUENCE fiamsruns_fiamsrunid_seq TO GROUP metabol_readwrite;
+GRANT ALL PRIVILEGES ON SEQUENCE profiles_profileid_seq TO GROUP metabol_readwrite;
+GRANT ALL PRIVILEGES ON SEQUENCE centroids_centroidid_seq TO GROUP metabol_readwrite;

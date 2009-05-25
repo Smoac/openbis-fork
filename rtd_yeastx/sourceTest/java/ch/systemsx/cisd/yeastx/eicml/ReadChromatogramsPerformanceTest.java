@@ -31,8 +31,8 @@ public class ReadChromatogramsPerformanceTest
 
     public static void main(String[] args) throws SQLException
     {
+        final Connection conn = new DBFactory(DBFactory.createDefaultDBContext()).getConnection();
         long start = System.currentTimeMillis();
-        final Connection conn = DBFactory.getConnection();
         try
         {
             final IEICMSRunDAO dao = EICML2Database.getDAO(conn);

@@ -9,5 +9,7 @@
 	<classpathentry kind="lib" path="/libraries/postgresql/postgresql.jar" sourcepath="/libraries/postgresql/postgresql-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/eodsql/eodsql.jar" sourcepath="/libraries/eodsql/eodsql_src.zip"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/dbmigration"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

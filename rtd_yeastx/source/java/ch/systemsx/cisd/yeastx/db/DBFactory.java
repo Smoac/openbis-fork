@@ -17,10 +17,12 @@
 package ch.systemsx.cisd.yeastx.db;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import net.lemnik.eodsql.QueryTool;
+
+import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
+import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 
 /**
  * Factory for database connections.
@@ -29,25 +31,39 @@ import net.lemnik.eodsql.QueryTool;
  */
 public class DBFactory
 {
+    /** Current version of the database. */
+    public static final String DATABASE_VERSION = "001";
+    
     static
     {
         QueryTool.getTypeMap().put(float[].class, new FloatArrayMapper());
     }
 
-    public static Connection getConnection() throws SQLException
+    private final DatabaseConfigurationContext context;
+
+    public DBFactory(DatabaseConfigurationContext context)
     {
-        try
-        {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException ex)
-        {
-            throw new SQLException("No suitable driver.");
-        }
-        final Connection conn =
-            DriverManager.getConnection("jdbc:postgresql:metabol", System.getProperties()
-                    .getProperty("user.name"), "");
+        this.context = context;
+        DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, DATABASE_VERSION);
+    }
+    
+    public Connection getConnection() throws SQLException
+    {
+        final Connection conn = context.getDataSource().getConnection();
         conn.setAutoCommit(false);
         return conn;
+    }
+
+    public static DatabaseConfigurationContext createDefaultDBContext()
+    {
+        final DatabaseConfigurationContext context = new DatabaseConfigurationContext();
+        context.setDatabaseEngineCode("postgresql");
+        context.setBasicDatabaseName("metabol");
+        context.setDatabaseKind("dev");
+        context.setReadOnlyGroup("metabol_readonly");
+        context.setReadWriteGroup("metabol_readwrite");
+        context.setScriptFolder("source/sql");
+        return context;
     }
 
 }
