@@ -81,7 +81,7 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
                 DEFAULT_FIELD_WIDTH);
         this.viewContext = viewContext;
         this.entityKind = entityKind;
-        this.techIdOrNull = new TechId(identifiable);
+        this.techIdOrNull = identifiable == null ? null : new TechId(identifiable);
     }
 
     /**
