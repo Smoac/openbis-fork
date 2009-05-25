@@ -160,6 +160,7 @@ public class UploadingCommandTest extends AssertJUnit
         ExternalDataPE externalData = new ExternalDataPE();
         externalData.setCode(code);
         externalData.setLocation(location);
+        externalData.setDerived(true); // measured == (derived == false)
         DataSetTypePE dataSetTypePE = new DataSetTypePE();
         dataSetTypePE.setCode("D");
         externalData.setDataSetType(dataSetTypePE);
@@ -234,8 +235,6 @@ public class UploadingCommandTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    // FIXME 2009-05-20, Piotr Buczek: find out why there is measured=FALSE set in dataset
-    @Test(groups = "broken")
     public void testExecute() throws Exception
     {
         context.checking(new Expectations()
