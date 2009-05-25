@@ -69,7 +69,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
  * 
  * @author Bernd Rinn
  */
-public final class TransferredDataSetHandler implements IPathHandler, ISelfTestable, IDataSetHandler
+public final class TransferredDataSetHandler implements IPathHandler, ISelfTestable,
+        IDataSetHandler
 {
 
     private static final String TARGET_NOT_RELATIVE_TO_STORE_ROOT =
@@ -118,7 +119,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
     private final IMailClient mailClient;
 
     private final String dssCode;
-    
+
     private final boolean notifySuccessfulRegistration;
 
     private final boolean useIsFinishedMarkerFile;
@@ -138,20 +139,20 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
      *            certain amount of time (so called "quiet period").
      */
     public TransferredDataSetHandler(String dssCode, final IETLServerPlugin plugin,
-            final IEncapsulatedOpenBISService limsService,
-            final Properties mailProperties, final HighwaterMarkWatcher highwaterMarkWatcher,
-            final boolean notifySuccessfulRegistration,
-            boolean useIsFinishedMarkerFile)
+            final IEncapsulatedOpenBISService limsService, final Properties mailProperties,
+            final HighwaterMarkWatcher highwaterMarkWatcher,
+            final boolean notifySuccessfulRegistration, boolean useIsFinishedMarkerFile)
 
     {
         this(dssCode, plugin.getStorageProcessor(), plugin, limsService, new MailClient(
                 mailProperties), notifySuccessfulRegistration, useIsFinishedMarkerFile);
     }
 
-    TransferredDataSetHandler(String dssCode, final IStoreRootDirectoryHolder storeRootDirectoryHolder, 
-            final IETLServerPlugin plugin,
-            final IEncapsulatedOpenBISService limsService, final IMailClient mailClient,
-            final boolean notifySuccessfulRegistration, boolean useIsFinishedMarkerFile)
+    TransferredDataSetHandler(String dssCode,
+            final IStoreRootDirectoryHolder storeRootDirectoryHolder,
+            final IETLServerPlugin plugin, final IEncapsulatedOpenBISService limsService,
+            final IMailClient mailClient, final boolean notifySuccessfulRegistration,
+            boolean useIsFinishedMarkerFile)
 
     {
         assert dssCode != null : "Unspecified data store code";
@@ -202,7 +203,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         dataSetHandler.handleDataSet(file);
     }
 
-    public DataSetInformation handleDataSet(final File dataSet)
+    public void handleDataSet(final File dataSet)
     {
         final RegistrationHelper registrationHelper = createRegistrationHelper(dataSet);
         registrationHelper.prepare();
@@ -213,7 +214,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         {
             registrationHelper.moveDataSet();
         }
-        return registrationHelper.dataSetInformation;
+        // NOTE: now registrationHelper.dataSetInformation stores the information about the dataset
     }
 
     public boolean isStopped()

@@ -17,9 +17,11 @@
 package ch.systemsx.cisd.etlserver;
 
 import static ch.systemsx.cisd.etlserver.IDataSetInfoExtractor.EXTRACTOR_KEY;
-import static ch.systemsx.cisd.etlserver.ITypeExtractor.TYPE_EXTRACTOR_KEY;
 import static ch.systemsx.cisd.etlserver.IStorageProcessor.STORAGE_PROCESSOR_KEY;
+import static ch.systemsx.cisd.etlserver.ITypeExtractor.TYPE_EXTRACTOR_KEY;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -27,14 +29,14 @@ import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 
 /**
- * An implementation of {@link IETLServerPlugin} which is based on a <code>Properties</code>
- * object. The objects delivered by this implementation are created only once. For creation the
- * properties are used. For each object a specific property has to be defined which specifies the
+ * An implementation of {@link IETLServerPlugin} which is based on a <code>Properties</code> object.
+ * The objects delivered by this implementation are created only once. For creation the properties
+ * are used. For each object a specific property has to be defined which specifies the
  * fully-qualified class name of the object. The class has to implement a specific interface and it
- * should have a constructor with a single argument of type <code>Properties</code>. The argmunt
- * is derived from the original properties by extracting all properties where the key starts with
- * the prefix <code><i>&lt;class name key&gt;</i> + '.'</code>. The prefix is removed from the
- * key for the derived properties. The following table shows all class name keys and interfaces:
+ * should have a constructor with a single argument of type <code>Properties</code>. The argmunt is
+ * derived from the original properties by extracting all properties where the key starts with the
+ * prefix <code><i>&lt;class name key&gt;</i> + '.'</code>. The prefix is removed from the key for
+ * the derived properties. The following table shows all class name keys and interfaces:
  * <table cellspacing="0" cellpadding="5" border="1">
  * <tr>
  * <th>Class name key</th>
@@ -48,9 +50,11 @@ import ch.systemsx.cisd.common.utilities.ExtendedProperties;
  * <td><code>type-extractor</code></td>
  * <td>{@link ITypeExtractor}</td>
  * </tr>
- * </table> Example of a properties file:
+ * </table>
+ * Example of a properties file:
  * 
- * <pre><tt>
+ * <pre>
+ * &lt;tt&gt;
  * data-set-info-extractor = ch.systemsx.cisd.etlserver.DefaultDataSetInfoExtractor
  * data-set-info-extractor.entity-separator = ==
  * 
@@ -59,7 +63,8 @@ import ch.systemsx.cisd.common.utilities.ExtendedProperties;
  * type-extractor.locator-type = RELATIVE_LOCATION
  * type-extractor.data-set-type = HCS_IMAGE
  * type-extractor.procedure-type = DATA_ACQUISITION
- * </tt></pre>
+ * &lt;/tt&gt;
+ * </pre>
  * 
  * @author Franz-Josef Elmer
  */
@@ -69,7 +74,7 @@ public class PropertiesBasedETLServerPlugin extends ETLServerPlugin
     private static final Properties EMPTY_PROPERTIES = new Properties();
 
     private final static <T> T create(final Class<T> superClazz, final Properties properties,
-            final String keyPrefix, final boolean withSubset)
+            final String keyPrefix, final boolean withSubset, final Object... arguments)
     {
         final String className = properties.getProperty(keyPrefix);
         if (className == null)
@@ -78,18 +83,36 @@ public class PropertiesBasedETLServerPlugin extends ETLServerPlugin
         }
         try
         {
-            return ClassUtils.create(superClazz, className, withSubset ? createSubsetProperties(
-                    properties, keyPrefix) : properties);
+            Object[] args = gatherArguments(properties, keyPrefix, withSubset, arguments);
+            return ClassUtils.create(superClazz, className, args);
         } catch (IllegalArgumentException ex)
         {
             throw new ConfigurationFailureException(ex.getMessage());
         }
     }
 
+    private final static Object[] gatherArguments(final Properties properties,
+            final String keyPrefix, final boolean withSubset, final Object... arguments)
+    {
+        Properties props = withSubset ? createSubsetProperties(properties, keyPrefix) : properties;
+        List<Object> allArgs = new ArrayList<Object>();
+        allArgs.add(props);
+        for (Object arg : arguments)
+        {
+            allArgs.add(arg);
+        }
+        return allArgs.toArray(new Object[0]);
+    }
+
+    // ---
+
+    private final Properties properties;
+
     public PropertiesBasedETLServerPlugin(final Properties properties)
     {
         super(createDataSetInfoExtractor(properties),
                 createProcedureAndDataTypeExtractor(properties), createStorageProcessor(properties));
+        this.properties = properties;
     }
 
     private final static Properties createSubsetProperties(final Properties properties,
@@ -118,6 +141,20 @@ public class PropertiesBasedETLServerPlugin extends ETLServerPlugin
             final Properties properties)
     {
         return create(IDataSetInfoExtractor.class, properties, EXTRACTOR_KEY, false);
+    }
+
+    @Override
+    public IDataSetHandler getDataSetHandler(IDataSetHandler primaryDataSetHandler)
+    {
+        final String className = properties.getProperty(IDataSetHandler.DATASET_HANDLER_KEY);
+        if (className == null)
+        {
+            return primaryDataSetHandler;
+        } else
+        {
+            return create(IDataSetHandler.class, properties, IDataSetHandler.DATASET_HANDLER_KEY,
+                    true, primaryDataSetHandler);
+        }
     }
 
 }
