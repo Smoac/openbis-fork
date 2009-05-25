@@ -45,6 +45,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifi
 public final class ExperimentChooserField extends TextField<String> implements
         ChosenEntitySetter<Experiment>
 {
+    private static final int CHOOSER_FIELD_WIDTH = 342;
+
     public interface ExperimentChooserFieldAdaptor
     {
         Field<?> getField();
@@ -168,7 +170,7 @@ public final class ExperimentChooserField extends TextField<String> implements
 
         setValidateOnBlur(true);
         setAutoValidate(true);
-        setWidth(342);
+        setWidth(CHOOSER_FIELD_WIDTH);
 
         setRegex(EXPERIMENT_IDENTIFIER_PATTERN);
         getMessages().setRegexText(viewContext.getMessage(Dict.INCORRECT_EXPERIMENT_SYNTAX));
