@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.RemoteConsole;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test <i>Vocabulary Browser</i>.
@@ -53,25 +54,30 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
     public final void testShowTermDetails()
     {
         loginAndInvokeAction(ActionMenuKind.VOCABULARY_MENU_BROWSE);
-
-        remoteConsole.prepare(new ClickOnVocabularyCmd(VOCABULARY_CODE));
-
-        CheckTableCommand termsTable =
-                new CheckTableCommand(VocabularyTermGrid.createGridId(VOCABULARY_CODE));
-        expectTermWithCode(termsTable, "FLY");
-        expectTermWithCode(termsTable, "GORILLA");
-        expectTermWithCode(termsTable, "HUMAN");
-        remoteConsole.prepare(termsTable.expectedSize(5));
+        showControlledVocabularyTerms(remoteConsole, VOCABULARY_CODE, 5, "FLY", "GORILLA", "HUMAN");
 
         launchTest(20000);
     }
 
-    private void expectTermWithCode(CheckTableCommand termsTable, String code)
+    public static void showControlledVocabularyTerms(RemoteConsole remoteConsole,
+            String vocabularyCode, Integer expectedSize, String... expectedTerms)
+    {
+        remoteConsole.prepare(new ClickOnVocabularyCmd(vocabularyCode));
+        CheckTableCommand termsTable =
+                new CheckTableCommand(VocabularyTermGrid.createGridId(vocabularyCode));
+        for (String expectedTerm : expectedTerms)
+        {
+            expectTermWithCode(termsTable, expectedTerm);
+        }
+        remoteConsole.prepare(termsTable.expectedSize(expectedSize));
+    }
+
+    private static void expectTermWithCode(CheckTableCommand termsTable, String code)
     {
         termsTable.expectedColumn(VocabularyTermColDefKind.CODE.id(), code);
     }
 
-    public class ClickOnVocabularyCmd extends AbstractDefaultTestCommand
+    public static class ClickOnVocabularyCmd extends AbstractDefaultTestCommand
     {
         private final String code;
 

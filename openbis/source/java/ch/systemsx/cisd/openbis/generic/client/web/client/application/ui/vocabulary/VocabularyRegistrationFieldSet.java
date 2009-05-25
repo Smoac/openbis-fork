@@ -55,9 +55,8 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
 
     private final String idPrefix;
 
-    public VocabularyRegistrationFieldSet(
-            final IMessageProvider viewContext, final String idPrefix,
-            final int labelWidth, final int fieldWidth)
+    public VocabularyRegistrationFieldSet(final IMessageProvider viewContext,
+            final String idPrefix, final int labelWidth, final int fieldWidth)
     {
         this.messageProvider = viewContext;
         this.labelWidth = labelWidth;
@@ -84,7 +83,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
     {
         final CodeField codeField =
                 new CodeField(messageProvider, messageProvider.getMessage(Dict.CODE),
-                        CodeField.CODE_PATTERN_WITH_DOT);
+                        CodeField.CODE_PATTERN_WITH_DOT_AND_COLON);
         codeField.setId(idPrefix + "_code");
         return codeField;
     }

@@ -48,6 +48,14 @@ public class CodeField extends TriggerField<String>
      */
     public final static String CODE_PATTERN_WITH_DOT = "^[a-zA-Z0-9_\\-\\.]+$";
 
+    /**
+     * Code pattern extended by '.' and ':'.
+     * <p>
+     * Useful for vocabulary term codes.
+     * </p>
+     */
+    public final static String CODE_PATTERN_WITH_DOT_AND_COLON = "^[a-zA-Z0-9_\\-\\.:]+$";
+
     public CodeField(final IMessageProvider messageProvider, final String label)
     {
         this(messageProvider, label, CODE_PATTERN);

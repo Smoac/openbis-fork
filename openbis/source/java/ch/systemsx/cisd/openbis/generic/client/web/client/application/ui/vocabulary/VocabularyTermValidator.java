@@ -23,11 +23,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 final class VocabularyTermValidator implements Validator<String, TextArea>
 {
     private final IMessageProvider messageProvider;
+
     private Set<String> existingTerms;
 
     VocabularyTermValidator(final IMessageProvider messageProvider)
     {
-        this(messageProvider, Collections.<VocabularyTerm>emptyList());
+        this(messageProvider, Collections.<VocabularyTerm> emptyList());
     }
 
     public VocabularyTermValidator(final IMessageProvider messageProvider,
@@ -71,9 +72,10 @@ final class VocabularyTermValidator implements Validator<String, TextArea>
         }
         for (final String term : terms)
         {
-            if (term.matches(CodeField.CODE_PATTERN) == false)
+            if (term.matches(CodeField.CODE_PATTERN_WITH_DOT_AND_COLON) == false)
             {
-                return messageProvider.getMessage(Dict.INVALID_CODE_MESSAGE, "Term '" + term + "'");
+                return messageProvider.getMessage(Dict.INVALID_TERM_CODE_MESSAGE, "Term '" + term
+                        + "'");
             }
             if (existingTerms.contains(term.toUpperCase()))
             {

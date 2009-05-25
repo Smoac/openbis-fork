@@ -16,31 +16,39 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.FillVocabularyRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test <i>Vocabulary Registration</i>.
  * 
  * @author Christian Ribeaud
+ * @author Piotr Buczek
  */
 public class VocabularyRegistrationTest extends AbstractGWTTestCase
 {
 
-    private final static FillVocabularyRegistrationForm createFillVocabularyRegistrationForm()
-    {
-        final FillVocabularyRegistrationForm form =
-                new FillVocabularyRegistrationForm("USER.COLOR", "Color", "RED", "BLACK", "YELLOW");
-        return form;
-    }
+    private static final String VOCABULARY_CODE = "USER.COLOR";
+
+    private static final String DESCRIPTION = "Color";
+
+    private static final String[] TERMS =
+        { "RED:01", "BLACK", "Y.E.L.L.O.W" };
 
     public final void testRegisterVocabulary()
     {
         loginAndInvokeAction(ActionMenuKind.VOCABULARY_MENU_NEW);
-        remoteConsole.prepare(createFillVocabularyRegistrationForm());
+        remoteConsole.prepare(new FillVocabularyRegistrationForm(VOCABULARY_CODE, DESCRIPTION,
+                TERMS));
+        remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.VOCABULARY_MENU_BROWSE,
+                VocabularyRegistrationForm.VocabularyRegistrationCallback.class));
+        VocabularyBrowserTest.showControlledVocabularyTerms(remoteConsole, VOCABULARY_CODE, 3,
+                TERMS);
 
-        // TODO 2008-12-22, Christian Ribeaud: Finish this once we have list vocabularies.
         launchTest(20000);
     }
 }
