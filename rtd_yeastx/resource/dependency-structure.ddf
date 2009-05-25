@@ -1,0 +1,46 @@
+#
+#
+#
+#show allResults
+
+{root} = ch.systemsx.cisd
+{openbis} = ${root}.openbis
+{dss} = ${openbis}.dss
+{yeastx} = ${root}.yeastx
+
+######################################################################
+# Check dependencies of yeastx to openbis
+
+[yeastx] = ${yeastx}.**
+[dss] = ${dss}.*
+[private_openbis] = ${openbis}.* excluding [dss] ${openbis}.generic.shared.*
+
+check sets [yeastx]
+
+check [yeastx] independentOf [private_openbis]
+
+######################################################################
+# Check dependencies of yeastx to dss
+
+[dss.shared] = ${dss}.generic.shared.*
+[private_dss] = ${dss}.* excluding [dss.shared] ${dss}.generic.DataStoreServer 
+
+layer l1 = [dss.shared]
+layer l2 = [yeastx] [private_dss]
+
+check layeringOf l1 l2
+
+######################################################################
+# Check internal dependencies of yeastx
+
+[db] = ${yeastx}.db.**
+[eicml] = ${yeastx}.eicml.**
+[fiaml] = ${yeastx}.fiaml.**
+[etl] = ${yeastx}.etl.**
+
+check sets [db] [eicml] [fiaml] [etl]
+
+layer ll1 = [db]
+layer ll2 = [eicml] [fiaml] [etl]
+
+check layeringOf ll1 ll2

@@ -1,0 +1,21 @@
+<project name="yeastx" basedir="..">
+	<import file="../../build_resources/ant/build-common.xml" />
+	<project-classpath name="ecp" classes="${classes}" />
+
+	<property name="original.dist" value="dist" />
+	<property name="mainfolder" value="rtd_yeastx" />
+	<property name="nativeroot" value="${targets}/ant" />
+
+	<target name="clean">
+		<delete dir="${dist}" />
+	</target>
+
+	<target name="compile" depends="build-common.compile, clean" />
+
+	<target name="run-tests">
+		<antcall target="build-common.run-tests">
+			<param name="test.suite" value="tests.xml" />
+		</antcall>
+	</target>
+
+</project>
