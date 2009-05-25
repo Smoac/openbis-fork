@@ -151,7 +151,7 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     /**
      * Whether unmatched properties should be ignored or not.Default is <code>false</code>.
      * <p>
-     * If <code>true</code> and if some unmatched properties are found, a
+     * If <code>false</code> and if some unmatched properties are found, a
      * {@link UnmatchedPropertiesException} will be thrown.
      * </p>
      */
