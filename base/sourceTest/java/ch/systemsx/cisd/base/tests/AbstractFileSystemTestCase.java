@@ -16,12 +16,11 @@
 
 package ch.systemsx.cisd.base.tests;
 
-import static org.testng.AssertJUnit.assertTrue;
-
 import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
 
@@ -33,7 +32,7 @@ import org.testng.annotations.BeforeMethod;
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractFileSystemTestCase
+public abstract class AbstractFileSystemTestCase extends AssertJUnit
 {
     protected static final String UNIT_TEST_WORKING_DIRECTORY = "unit-test-wd";
 
