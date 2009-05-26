@@ -96,7 +96,7 @@ final class DataStrategyStore implements IDataStrategyStore
             final File incomingDataSetPathForLogging)
     {
         final SampleIdentifier sampleIdentifier = dataSetInfo.getSampleIdentifier();
-        return String.format("Directory '%s', sample identifier '%s': unknown to openBIS",
+        return String.format("Dataset '%s', sample identifier '%s': unknown to openBIS",
                 incomingDataSetPathForLogging, sampleIdentifier);
     }
 
