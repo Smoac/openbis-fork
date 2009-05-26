@@ -57,4 +57,25 @@ public class FieldUtil
     {
         field.setLabelSeparator(MANDATORY_LABEL_SEPARATOR);
     }
+
+    /** makes all given fields visible or invisible including validation dependent on given value */
+    public static void setVisibility(boolean visible, Field<?>... fields)
+    {
+        for (Field<?> field : fields)
+        {
+            setVisibility(field, visible);
+        }
+    }
+
+    /** makes field visible or invisible including validation dependent on given value */
+    private static void setVisibility(Field<?> field, boolean visible)
+    {
+        field.setEnabled(visible);
+        field.setVisible(visible);
+        // invalidation mark is not removed automatically when we make field invisible
+        if (visible == false)
+        {
+            field.clearInvalid();
+        }
+    }
 }

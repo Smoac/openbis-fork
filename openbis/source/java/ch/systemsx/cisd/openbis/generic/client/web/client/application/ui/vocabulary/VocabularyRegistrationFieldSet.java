@@ -25,14 +25,17 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
+import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -165,7 +168,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
     public final void setVisible(final boolean visible)
     {
         super.setVisible(visible);
-        vocabularyCodeField.setAllowBlank(visible == false);
+        FieldUtil.setVisibility(visible, vocabularyCodeField); 
         vocabularyTermsSection.setVisible(visible);
     }
 
@@ -184,6 +187,8 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
 
         private VarcharField uriField;
 
+        private FileUploadField uploadFileField;
+
         public VocabularyTermsSection()
         {
             add(createSourceRadio());
@@ -191,13 +196,18 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
             add(termsArea = createTermsArea());
             // fromFile
             add(uriField = createURIField());
+            add(uploadFileField = createImportFileField());
             //
             updateSection();
         }
 
         public void setVisible(boolean visible)
         {
-            termsArea.setAllowBlank(visible == false);
+            FieldUtil.setVisibility(visible, termsArea, uploadFileField);
+            if (visible)
+            {
+                updateSection();
+            }
         }
 
         private final RadioGroup createSourceRadio()
@@ -235,6 +245,13 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
                     false);
         }
 
+        private FileUploadField createImportFileField()
+        {
+            FileFieldManager fileManager = new FileFieldManager(null, 1, "File");
+            fileManager.setMandatory();
+            return fileManager.getFields().get(0);
+        }
+
         private final TextArea createTermsArea()
         {
             final TextArea textArea = new TextArea();
@@ -250,17 +267,8 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
         private void updateSection()
         {
             Boolean useFreeText = freeText.getValue();
-            termsArea.setVisible(useFreeText);
-            termsArea.validate();
-            uriField.setVisible(useFreeText == false);
-            uriField.validate();
-            // TODO 2009-05-26, Piotr Buczek: importTerms
-            // for (FileUploadField samplesFileField : importSamplesFileManager.getFields())
-            // {
-            // samplesFileField.setVisible(useFreeText == false);
-            // samplesFileField.setEnabled(useFreeText == false);
-            // samplesFileField.validate();
-            // }
+            FieldUtil.setVisibility(useFreeText, termsArea);
+            FieldUtil.setVisibility(useFreeText == false, uriField, uploadFileField);
         }
 
         public void setValues(Vocabulary vocabulary)

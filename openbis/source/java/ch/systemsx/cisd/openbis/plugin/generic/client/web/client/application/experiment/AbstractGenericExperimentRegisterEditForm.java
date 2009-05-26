@@ -92,8 +92,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm
     }
 
     protected AbstractGenericExperimentRegisterEditForm(
-            IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdentifiable identifiable)
+            IViewContext<IGenericClientServiceAsync> viewContext, IIdentifiable identifiable)
     {
         super(viewContext, identifiable, EntityKind.EXPERIMENT);
 
@@ -109,20 +108,9 @@ abstract public class AbstractGenericExperimentRegisterEditForm
     protected void updateSamples()
     {
         Boolean useExistingSamples = existingSamplesRadio.getValue();
-        samplesArea.setVisible(useExistingSamples);
-        samplesArea.setEnabled(useExistingSamples);
-        importSampleTypeSelection.setVisible(useExistingSamples == false);
-        importSampleTypeSelection.setEnabled(useExistingSamples == false);
-        autoGenerateCodes.setVisible(useExistingSamples == false);
-        autoGenerateCodes.setEnabled(useExistingSamples == false);
-        for (FileUploadField samplesFileField : importSamplesFileManager.getFields())
-        {
-            samplesFileField.setVisible(useExistingSamples == false);
-            samplesFileField.setEnabled(useExistingSamples == false);
-            samplesFileField.validate();
-        }
-        samplesArea.validate();
-        importSampleTypeSelection.validate();
+        FieldUtil.setVisibility(useExistingSamples, samplesArea);
+        FieldUtil.setVisibility(useExistingSamples == false, importSampleTypeSelection,
+                autoGenerateCodes, importSamplesFileManager.getFields().get(0));
     }
 
     private void redefineSaveListeners()
