@@ -976,7 +976,6 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            // TODO extend vocabulary
             Vocabulary vocabularyOrNull = propertyType.getVocabulary();
             if (vocabularyOrNull != null && vocabularyOrNull.isUploadedFromFile())
             {

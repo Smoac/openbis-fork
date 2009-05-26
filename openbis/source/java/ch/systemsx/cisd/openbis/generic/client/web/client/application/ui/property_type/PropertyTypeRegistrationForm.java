@@ -16,17 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
 
-import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
@@ -38,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationFieldSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.AbstractVocabularyRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularySelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -49,15 +45,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
- * A {@link LayoutContainer} extension for registering a new property type.
+ * A {@link LayoutContainer} extension for registering a new property type. It also extends
+ * {@link AbstractVocabularyRegistrationForm} because vocabulary registration is possible through
+ * this form too.
  * 
  * @author Christian Ribeaud
+ * @author Piotr Buczek
  */
-public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
+public final class PropertyTypeRegistrationForm extends AbstractVocabularyRegistrationForm
 {
     public static final String ID = GenericConstants.ID_PREFIX + "property-type-registration_form";
-
-    final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private final CodeField propertyTypeCodeField;
 
@@ -69,11 +66,7 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
 
     private final VocabularySelectionWidget vocabularySelectionWidget;
 
-    private final VocabularyRegistrationFieldSet vocabularyRegistrationFieldSet;
-
     private final MaterialTypeSelectionWidget materialTypeSelectionWidget;
-
-    private final String vocabularyTermsSessionKey;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
@@ -85,15 +78,12 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
 
     private PropertyTypeRegistrationForm(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, ID, DEFAULT_LABEL_WIDTH + 20, DEFAULT_FIELD_WIDTH);
-        this.viewContext = viewContext;
-        vocabularyTermsSessionKey = ID + "_terms";
+        super(viewContext, ID);
 
         this.propertyTypeCodeField = createPropertyTypeCodeField();
         this.propertyTypeLabelField = createPropertyTypeLabelField();
         this.propertyTypeDescriptionField = createPropertyTypeDescriptionField();
         this.dataTypeSelectionWidget = createDataTypeSelectionWidget();
-        this.vocabularyRegistrationFieldSet = createVocabularyRegistrationFieldSet();
         this.vocabularySelectionWidget = createVocabularySelectionWidget();
         this.materialTypeSelectionWidget = createMaterialTypeSelectionField(viewContext);
 
@@ -108,8 +98,6 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
         formPanel.add(vocabularySelectionWidget);
         formPanel.add(vocabularyRegistrationFieldSet);
         formPanel.add(materialTypeSelectionWidget);
-
-        addUploadFeatures();
     }
 
     private static MaterialTypeSelectionWidget createMaterialTypeSelectionField(
@@ -120,61 +108,6 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
                 MaterialTypeSelectionWidget.createWithAdditionalOption(viewContext, label, ID);
         FieldUtil.markAsMandatory(chooser);
         return chooser;
-    }
-
-    // TODO 2009-05-26, Piotr Buczek: refactor - common code with VocabularyRegistrationForm
-    private void addUploadFeatures()
-    {
-        addFormSubmitListener();
-        redefineSaveListeners();
-        addUploadFeatures(vocabularyTermsSessionKey);
-    }
-
-    private void addFormSubmitListener()
-    {
-        formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
-            {
-                @Override
-                protected void onSuccessfullUpload()
-                {
-                    submitValidForm();
-                }
-
-                @Override
-                protected void setUploadEnabled()
-                {
-                    PropertyTypeRegistrationForm.this.setUploadEnabled(true);
-                }
-            });
-    }
-
-    private void redefineSaveListeners()
-    {
-        saveButton.removeAllListeners();
-        saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-            {
-                @Override
-                public final void componentSelected(final ButtonEvent ce)
-                {
-                    if (formPanel.isValid())
-                    {
-                        if (vocabularyRegistrationFieldSet.isUploadFileDefined())
-                        {
-                            setUploadEnabled(false);
-                            formPanel.submit();
-                        } else
-                        {
-                            submitValidForm();
-                        }
-                    }
-                }
-            });
-    }
-
-    private final VocabularyRegistrationFieldSet createVocabularyRegistrationFieldSet()
-    {
-        return new VocabularyRegistrationFieldSet(viewContext, getId(), labelWidth,
-                fieldWidth - 40, vocabularyTermsSessionKey);
     }
 
     private final CodeField createPropertyTypeCodeField()
@@ -280,7 +213,7 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
     protected final void submitValidForm()
     {
         final PropertyType propertyType = createPropertyType();
-        viewContext.getService().registerPropertyType(vocabularyTermsSessionKey, propertyType,
+        viewContext.getService().registerPropertyType(termsSessionKey, propertyType,
                 new PropertyTypeRegistrationCallback(viewContext, propertyType));
     }
 

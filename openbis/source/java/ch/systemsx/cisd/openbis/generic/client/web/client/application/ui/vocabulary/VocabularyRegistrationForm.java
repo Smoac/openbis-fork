@@ -16,24 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary;
 
-import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
- * A {@link LayoutContainer} extension for registering a new vocabulary.
+ * A basic {@link AbstractVocabularyRegistrationForm} implementation.
  * 
- * @author Christian Ribeaud
+ * @author Piotr Buczek
  */
-public final class VocabularyRegistrationForm extends AbstractRegistrationForm
+public final class VocabularyRegistrationForm extends AbstractVocabularyRegistrationForm
 {
     private static final String PREFIX = "vocabulary-registration_";
 
@@ -41,74 +35,11 @@ public final class VocabularyRegistrationForm extends AbstractRegistrationForm
 
     public static final String ID = ID_PREFIX + "form";
 
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
-
-    private final String termsSessionKey;
-
-    private VocabularyRegistrationFieldSet vocabularyRegistrationFieldSet;
-
     public VocabularyRegistrationForm(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, ID);
-        this.viewContext = viewContext;
-        termsSessionKey = ID + "_terms";
-        addFields();
-        addUploadFeatures();
-    }
 
-    private final void addFields()
-    {
-        formPanel.add(vocabularyRegistrationFieldSet =
-                new VocabularyRegistrationFieldSet(viewContext, getId(), labelWidth,
-                        fieldWidth - 40, termsSessionKey));
-    }
-
-    private void addUploadFeatures()
-    {
-        addFormSubmitListener();
-        redefineSaveListeners();
-        addUploadFeatures(termsSessionKey);
-    }
-
-    private void addFormSubmitListener()
-    {
-        formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
-            {
-                @Override
-                protected void onSuccessfullUpload()
-                {
-                    submitValidForm();
-                }
-
-                @Override
-                protected void setUploadEnabled()
-                {
-                    VocabularyRegistrationForm.this.setUploadEnabled(true);
-                }
-            });
-    }
-
-    private void redefineSaveListeners()
-    {
-        saveButton.removeAllListeners();
-        saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-            {
-                @Override
-                public final void componentSelected(final ButtonEvent ce)
-                {
-                    if (formPanel.isValid())
-                    {
-                        if (vocabularyRegistrationFieldSet.isUploadFileDefined())
-                        {
-                            setUploadEnabled(false);
-                            formPanel.submit();
-                        } else
-                        {
-                            submitValidForm();
-                        }
-                    }
-                }
-            });
+        formPanel.add(vocabularyRegistrationFieldSet);
     }
 
     //
