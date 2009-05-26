@@ -34,7 +34,7 @@ public class TechId implements IIdHolder, IsSerializable
 
     public TechId(Long id)
     {
-        this();
+        assert id != null : "id cannot be null";
         this.id = id;
     }
 
@@ -73,7 +73,6 @@ public class TechId implements IIdHolder, IsSerializable
         {
             return false;
         }
-        // FIXME 2009-05-26, Piotr Buczek: check for null
         return this.toString().equals(obj.toString());
     }
 
