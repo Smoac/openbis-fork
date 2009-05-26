@@ -52,6 +52,8 @@ public class Parameters
 
     private static final String QUIET_PERIOD_NAME = "quiet-period";
 
+    private static final String REPROCESS_FAULTY_DATASETS_NAME = "reprocess-faulty-datasets";
+
     private static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
 
     private static final Logger operationLog =
@@ -106,6 +108,14 @@ public class Parameters
      */
     @Option(name = "p", longName = "password", usage = "User login password")
     private String password;
+
+    /**
+     * The password to access the LIMS server with.
+     */
+    @Option(longName = REPROCESS_FAULTY_DATASETS_NAME, usage = "Specifies what should happen if an error occurs during dataset processing. "
+            + "By default this flag is set to false and user has to modify the 'faulty paths file' each time the faulty dataset should be processed again. "
+            + "Set this flag to true if the processing should be repeated after some time without any manual intervention.")
+    private boolean reprocessFaultyDatasets;
 
     /** A subset of <code>service.properties</code> that are reserved for the <i>JavaMail API</i>. */
     private Properties mailProperties;
@@ -194,6 +204,9 @@ public class Parameters
         serverURL = serviceProperties.getProperty("server-url");
         username = serviceProperties.getProperty("username");
         password = serviceProperties.getProperty("password");
+        reprocessFaultyDatasets =
+                Boolean.parseBoolean(serviceProperties.getProperty(REPROCESS_FAULTY_DATASETS_NAME,
+                        "false"));
         checkIntervalSeconds =
                 Long.parseLong(serviceProperties.getProperty(CHECK_INTERVAL_NAME, "120"));
         quietPeriodMillis = Long.parseLong(serviceProperties.getProperty(QUIET_PERIOD_NAME, "300"));
@@ -351,6 +364,11 @@ public class Parameters
     public String getPassword()
     {
         return password;
+    }
+
+    public boolean reprocessFaultyDatasets()
+    {
+        return reprocessFaultyDatasets;
     }
 
     /**

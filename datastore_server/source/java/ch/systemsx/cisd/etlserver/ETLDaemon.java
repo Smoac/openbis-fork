@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.TimerUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.filesystem.FaultyPathDirectoryScanningHandler;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -51,6 +52,7 @@ import ch.systemsx.cisd.common.filesystem.PathPrefixPrepender;
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.filesystem.QuietPeriodFileFilter;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
+import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask.IScannedStore;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkDirectoryScanningHandler;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
@@ -75,6 +77,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 public final class ETLDaemon
 {
     static final String STOREROOT_DIR_KEY = "storeroot-dir";
+
     static final String DSS_CODE_KEY = "data-store-server-code";
 
     static final String NOTIFY_SUCCESSFUL_REGISTRATION = "notify-successful-registration";
@@ -347,7 +350,8 @@ public final class ETLDaemon
         String dssCode = parameters.getProperties().getProperty(DSS_CODE_KEY);
         if (dssCode == null)
         {
-            throw new ConfigurationFailureException("Missing service property '" + DSS_CODE_KEY + "'");
+            throw new ConfigurationFailureException("Missing service property '" + DSS_CODE_KEY
+                    + "'");
         }
         final TransferredDataSetHandler pathHandler =
                 new TransferredDataSetHandler(dssCode, plugin, authorizedLimsService,
@@ -356,7 +360,8 @@ public final class ETLDaemon
         pathHandler.setProcessorFactories(processorFactories);
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
                 createDirectoryScanningHandler(pathHandler, highwaterMarkWatcher,
-                        incomingDataDirectory, storeRootDir, processorFactories.values());
+                        incomingDataDirectory, processorFactories.values(), parameters
+                                .reprocessFaultyDatasets());
         FileFilter fileFilter =
                 createFileFilter(incomingDataDirectory, threadParameters.useIsFinishedMarkerFile(),
                         parameters);
@@ -470,11 +475,12 @@ public final class ETLDaemon
 
     private final static HighwaterMarkDirectoryScanningHandler createDirectoryScanningHandler(
             final IStopSignaler stopSignaler, final HighwaterMarkWatcher highwaterMarkWatcher,
-            final File incomingDataDirectory, final File storeRootDir,
-            final Iterable<IProcessorFactory> processorFactories)
+            final File incomingDataDirectory, final Iterable<IProcessorFactory> processorFactories,
+            boolean reprocessFaultyDatasets)
     {
         final IDirectoryScanningHandler faultyPathHandler =
-                new FaultyPathDirectoryScanningHandler(incomingDataDirectory, stopSignaler);
+                createFaultyPathHandler(stopSignaler, incomingDataDirectory,
+                        reprocessFaultyDatasets);
         final List<File> list = new ArrayList<File>();
         list.add(incomingDataDirectory);
         for (final IProcessorFactory processorFactory : processorFactories)
@@ -494,6 +500,43 @@ public final class ETLDaemon
         }
         return new HighwaterMarkDirectoryScanningHandler(faultyPathHandler, highwaterMarkWatcher,
                 list.toArray(new File[0]));
+    }
+
+    private static IDirectoryScanningHandler createFaultyPathHandler(
+            final IStopSignaler stopSignaler, final File incomingDataDirectory,
+            boolean reprocessFaultyDatasets)
+    {
+        if (reprocessFaultyDatasets)
+        {
+            return createDummyFaultyPathHandler();
+        } else
+        {
+            return new FaultyPathDirectoryScanningHandler(incomingDataDirectory, stopSignaler);           
+        }
+    }
+
+    // returns the handler which does not check if the path was faulty
+    private static IDirectoryScanningHandler createDummyFaultyPathHandler()
+    {
+        return new IDirectoryScanningHandler()
+            {
+
+                public void beforeHandle()
+                {
+                    // do nothing
+                }
+
+                public Status finishItemHandle(IScannedStore scannedStore, StoreItem storeItem)
+                {
+                    return Status.OK;
+                }
+
+                public HandleInstruction mayHandle(IScannedStore scannedStore, StoreItem storeItem)
+                {
+                    return HandleInstruction.PROCESS;
+                }
+
+            };
     }
 
     public final static void main(final String[] args)
