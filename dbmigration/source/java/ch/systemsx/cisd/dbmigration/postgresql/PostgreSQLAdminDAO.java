@@ -22,6 +22,7 @@ import java.util.Arrays;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
 
@@ -69,15 +70,16 @@ public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
      * @param massUploader A class that can perform mass (batch) uploads into database tables.
      * @param owner Owner to be created if it doesn't exist.
      * @param readOnlyGroup Group that should be granted read-only access.
+     * @param readWriteGroup Group that should be granted read-write access.
      * @param databaseName Name of the database.
      * @param databaseURL URL of the database.
      */
     public PostgreSQLAdminDAO(DataSource dataSource, ISqlScriptExecutor scriptExecutor,
-            IMassUploader massUploader, String owner, String readOnlyGroup, String databaseName,
-            String databaseURL)
+            IMassUploader massUploader, String owner, String readOnlyGroup, String readWriteGroup,
+            String databaseName, String databaseURL)
     {
-        super(dataSource, scriptExecutor, massUploader, owner, readOnlyGroup, databaseName,
-                databaseURL);
+        super(dataSource, scriptExecutor, massUploader, owner, readOnlyGroup, readWriteGroup,
+                databaseName, databaseURL);
     }
 
     public void createOwner()
@@ -105,32 +107,56 @@ public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
         }
     }
 
-    public void createReadOnlyGroup()
+    public void createGroups()
     {
-        if (readOnlyGroupOrNull == null)
+        if (StringUtils.isNotBlank(readOnlyGroupOrNull))
         {
-            return;
-        }
-        try
-        {
-            getJdbcTemplate().execute("create role " + readOnlyGroupOrNull);
-            if (operationLog.isInfoEnabled())
+            try
             {
-                operationLog.info("Created role '" + readOnlyGroupOrNull + "'.");
-            }
-        } catch (DataAccessException ex)
-        {
-            if (DBUtilities.isDuplicateObjectException(ex))
-            {
+                getJdbcTemplate().execute("create role " + readOnlyGroupOrNull);
                 if (operationLog.isInfoEnabled())
                 {
-                    operationLog.info("Role '" + readOnlyGroupOrNull + "' already exists.");
+                    operationLog.info("Created role '" + readOnlyGroupOrNull + "'.");
                 }
-            } else
+            } catch (DataAccessException ex)
             {
-                operationLog
-                        .error("Database role '" + readOnlyGroupOrNull + "' couldn't be created:", ex);
-                throw ex;
+                if (DBUtilities.isDuplicateObjectException(ex))
+                {
+                    if (operationLog.isInfoEnabled())
+                    {
+                        operationLog.info("Role '" + readOnlyGroupOrNull + "' already exists.");
+                    }
+                } else
+                {
+                    operationLog.error("Database role '" + readOnlyGroupOrNull
+                            + "' couldn't be created:", ex);
+                    throw ex;
+                }
+            }
+        }
+        if (StringUtils.isNotBlank(readWriteGroupOrNull))
+        {
+            try
+            {
+                getJdbcTemplate().execute("create role " + readWriteGroupOrNull);
+                if (operationLog.isInfoEnabled())
+                {
+                    operationLog.info("Created role '" + readWriteGroupOrNull + "'.");
+                }
+            } catch (DataAccessException ex)
+            {
+                if (DBUtilities.isDuplicateObjectException(ex))
+                {
+                    if (operationLog.isInfoEnabled())
+                    {
+                        operationLog.info("Role '" + readWriteGroupOrNull + "' already exists.");
+                    }
+                } else
+                {
+                    operationLog.error("Database role '" + readWriteGroupOrNull
+                            + "' couldn't be created:", ex);
+                    throw ex;
+                }
             }
         }
     }

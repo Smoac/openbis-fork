@@ -45,6 +45,8 @@ public abstract class AbstractDatabaseAdminDAO extends SimpleJdbcDaoSupport impl
 
     protected final String readOnlyGroupOrNull;
 
+    protected final String readWriteGroupOrNull;
+
     protected final String databaseName;
 
     protected final String databaseURL;
@@ -57,17 +59,19 @@ public abstract class AbstractDatabaseAdminDAO extends SimpleJdbcDaoSupport impl
      * @param massUploader A class that can perform mass (batch) uploads into database tables.
      * @param owner Owner to be created if it doesn't exist.
      * @param readOnlyGroupOrNull Group name that gets read-only access.
+     * @param readWriteGroupOrNull Group that should be granted read-write access.
      * @param databaseName Name of the database.
      * @param databaseURL URL of the database.
      */
     public AbstractDatabaseAdminDAO(DataSource dataSource, ISqlScriptExecutor scriptExecutor,
-            IMassUploader massUploader, String owner, String readOnlyGroupOrNull, String databaseName,
-            String databaseURL)
+            IMassUploader massUploader, String owner, String readOnlyGroupOrNull,
+            String readWriteGroupOrNull, String databaseName, String databaseURL)
     {
         this.scriptExecutor = scriptExecutor;
         this.massUploader = massUploader;
         this.owner = owner;
         this.readOnlyGroupOrNull = readOnlyGroupOrNull;
+        this.readWriteGroupOrNull = readWriteGroupOrNull;
         this.databaseName = databaseName;
         this.databaseURL = databaseURL;
         setDataSource(dataSource);

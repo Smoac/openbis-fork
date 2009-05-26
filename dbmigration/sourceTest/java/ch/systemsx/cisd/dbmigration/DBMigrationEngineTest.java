@@ -152,7 +152,7 @@ public class DBMigrationEngineTest
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 1. database"));
                     one(adminDAO).createOwner();
-                    one(adminDAO).createReadOnlyGroup();
+                    one(adminDAO).createGroups();
                     one(scriptProvider).isDumpRestore(version);
                     will(returnValue(false));
                     one(adminDAO).createDatabase();
@@ -205,7 +205,7 @@ public class DBMigrationEngineTest
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 1. database"));
                     one(adminDAO).createOwner();
-                    one(adminDAO).createReadOnlyGroup();
+                    one(adminDAO).createGroups();
                     one(scriptProvider).isDumpRestore(version);
                     will(returnValue(true));
 
@@ -300,7 +300,7 @@ public class DBMigrationEngineTest
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 1. database"));
                     one(adminDAO).createOwner();
-                    one(adminDAO).createReadOnlyGroup();
+                    one(adminDAO).createGroups();
                     one(scriptProvider).isDumpRestore(version);
                     will(returnValue(false));
                     one(adminDAO).createDatabase();
@@ -350,7 +350,7 @@ public class DBMigrationEngineTest
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 1. database"));
                     one(adminDAO).createOwner();
-                    one(adminDAO).createReadOnlyGroup();
+                    one(adminDAO).createGroups();
                     one(scriptProvider).isDumpRestore(version);
                     will(returnValue(false));
                     one(adminDAO).createDatabase();
@@ -402,7 +402,7 @@ public class DBMigrationEngineTest
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 1. database"));
                     one(adminDAO).createOwner();
-                    one(adminDAO).createReadOnlyGroup();
+                    one(adminDAO).createGroups();
                     one(scriptProvider).isDumpRestore(version);
                     will(returnValue(false));
                     one(adminDAO).createDatabase();

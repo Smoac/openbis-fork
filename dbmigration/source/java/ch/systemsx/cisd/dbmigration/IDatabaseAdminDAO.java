@@ -34,12 +34,12 @@ public interface IDatabaseAdminDAO
      * Returns the complete URL of the database to be created / dropped.
      */
     public String getDatabaseURL();
-    
+
     /**
      * Returns meta data and maximum primary keys of all tables.
      */
     public DatabaseDefinition getDatabaseDefinition();
-    
+
     /**
      * Creates the owner/user of the database. Implementation should handle the case of already
      * existing owner/user gracefully.
@@ -47,10 +47,10 @@ public interface IDatabaseAdminDAO
     public void createOwner();
 
     /**
-     * Creates the group that should be granted read-only access to all objects in this database. 
-     * Implementation should handle the case of already existing group gracefully.
+     * Creates the groups that should be granted read-only and read-write access to all objects in
+     * this database. Implementation should handle the case of already existing group gracefully.
      */
-    public void createReadOnlyGroup();
+    public void createGroups();
 
     /**
      * Creates the database and the 'database_version_logs' table.

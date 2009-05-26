@@ -84,6 +84,8 @@ public class DatabaseConfigurationContext implements DisposableBean
 
     private String readOnlyGroup;
 
+    private String readWriteGroup;
+
     private String password;
 
     private String basicDatabaseName;
@@ -93,7 +95,7 @@ public class DatabaseConfigurationContext implements DisposableBean
     private String urlHostPart;
 
     private String databaseInstance;
-
+    
     public DatabaseConfigurationContext()
     {
         setOwner(null);
@@ -293,9 +295,27 @@ public class DatabaseConfigurationContext implements DisposableBean
     /**
      * Sets the name of the group that should be granted read-only access.
      */
-    public void setReadOnlyGroup(String readOnlyUser)
+    public void setReadOnlyGroup(String readOnlyGroup)
     {
-        this.readOnlyGroup = readOnlyUser;
+        this.readOnlyGroup = readOnlyGroup;
+    }
+
+    /**
+     * Sets the name of group that gets read-write access to all database objects. If
+     * <var>readWriteGroup</var> is <code>null</code> or empty, then no read-write group will be
+     * created.
+     */
+    public String getReadWriteGroup()
+    {
+        return readWriteGroup;
+    }
+
+    /**
+     * Sets the name of the group that should be granted read-write access.
+     */
+    public void setReadWriteGroup(String readWriteGroup)
+    {
+        this.readWriteGroup = readWriteGroup;
     }
 
     /**

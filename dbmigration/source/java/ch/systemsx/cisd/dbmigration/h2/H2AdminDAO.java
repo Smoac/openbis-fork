@@ -78,7 +78,7 @@ public class H2AdminDAO extends AbstractDatabaseAdminDAO
     public H2AdminDAO(DataSource dataSource, ISqlScriptExecutor scriptExecutor,
             IMassUploader massUploader, String databaseName, String databaseURL)
     {
-        super(dataSource, scriptExecutor, massUploader, null, null, databaseName, databaseURL);
+        super(dataSource, scriptExecutor, massUploader, null, null, null, databaseName, databaseURL);
         final Matcher dbDirPartMatcherOrNull = dbDirPartPattern.matcher(databaseURL);
         if (dbDirPartMatcherOrNull.matches())
         {
@@ -94,7 +94,7 @@ public class H2AdminDAO extends AbstractDatabaseAdminDAO
         // Creation of the user happens "on the fly" with H2
     }
 
-    public void createReadOnlyGroup()
+    public void createGroups()
     {
         // Creation of the user happens "on the fly" with H2
     }

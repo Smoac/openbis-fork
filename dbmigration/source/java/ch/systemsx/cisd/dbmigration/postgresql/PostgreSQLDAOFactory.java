@@ -74,7 +74,8 @@ public class PostgreSQLDAOFactory implements IDAOFactory
         databaseDAO =
                 new PostgreSQLAdminDAO(context.getAdminDataSource(), sqlScriptExecutor,
                         massUploader, context.getOwner(), context.getReadOnlyGroup(), context
-                                .getDatabaseName(), context.getDatabaseURL());
+                                .getReadWriteGroup(), context.getDatabaseName(), context
+                                .getDatabaseURL());
     }
 
     public IDatabaseAdminDAO getDatabaseDAO()
