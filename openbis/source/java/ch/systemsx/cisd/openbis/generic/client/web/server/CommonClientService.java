@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server;
 
 import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,7 +29,14 @@ import java.util.Set;
 import javax.servlet.http.HttpSession;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.io.DelegatedReader;
+import ch.systemsx.cisd.common.parser.AbstractParserObjectFactory;
+import ch.systemsx.cisd.common.parser.IParserObjectFactory;
+import ch.systemsx.cisd.common.parser.IParserObjectFactoryFactory;
+import ch.systemsx.cisd.common.parser.IPropertyMapper;
+import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
+import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
@@ -960,13 +968,20 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public final void registerPropertyType(final PropertyType propertyType)
+    public final void registerPropertyType(final String termsSessionKey,
+            final PropertyType propertyType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         assert propertyType != null : "Unspecified property type.";
         try
         {
             final String sessionToken = getSessionToken();
+            // TODO extend vocabulary
+            Vocabulary vocabularyOrNull = propertyType.getVocabulary();
+            if (vocabularyOrNull != null && vocabularyOrNull.isUploadedFromFile())
+            {
+                extendVocabularyWithUploadedData(vocabularyOrNull, termsSessionKey);
+            }
             commonServer.registerPropertyType(sessionToken, propertyType);
         } catch (final UserFailureException e)
         {
@@ -974,18 +989,116 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public final void registerVocabulary(final Vocabulary vocabulary)
+    public final void registerVocabulary(final String termsSessionKey, final Vocabulary vocabulary)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         assert vocabulary != null : "Unspecified vocabulary.";
         try
         {
             final String sessionToken = getSessionToken();
+            if (vocabulary.isUploadedFromFile())
+            {
+                extendVocabularyWithUploadedData(vocabulary, termsSessionKey);
+            }
             commonServer.registerVocabulary(sessionToken, vocabulary);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
+    }
+
+    private final void extendVocabularyWithUploadedData(Vocabulary vocabulary, String sessionKey)
+    {
+        VocabularyTermsExtractor extractor =
+                new VocabularyTermsExtractor().prepareTerms(sessionKey);
+        vocabulary.setTerms(extractor.getTerms());
+    }
+
+    private class VocabularyTermsExtractor
+    {
+        private List<VocabularyTerm> terms;
+
+        private VocabularyTermsExtractor()
+        {
+        }
+
+        public List<VocabularyTerm> getTerms()
+        {
+            return terms;
+        }
+
+        public VocabularyTermsExtractor prepareTerms(final String sessionKey)
+        {
+            HttpSession session = null;
+            UploadedFilesBean uploadedFiles = null;
+            try
+            {
+                session = getHttpSession();
+                assert session.getAttribute(sessionKey) != null
+                        && session.getAttribute(sessionKey) instanceof UploadedFilesBean : String
+                        .format("No UploadedFilesBean object as session attribute '%s' found.",
+                                sessionKey);
+                uploadedFiles = (UploadedFilesBean) session.getAttribute(sessionKey);
+                final BisTabFileLoader<VocabularyTerm> tabFileLoader = createTermsLoader();
+                terms = loadTermsFromFiles(uploadedFiles, tabFileLoader);
+                return this;
+            } catch (final UserFailureException e)
+            {
+                throw UserFailureExceptionTranslator.translate(e);
+            } finally
+            {
+                if (uploadedFiles != null)
+                {
+                    uploadedFiles.deleteTransferredFiles();
+                }
+                if (session != null)
+                {
+                    session.removeAttribute(sessionKey);
+                }
+            }
+        }
+
+        private BisTabFileLoader<VocabularyTerm> createTermsLoader()
+        {
+            final BisTabFileLoader<VocabularyTerm> tabFileLoader =
+                    new BisTabFileLoader<VocabularyTerm>(
+                            new IParserObjectFactoryFactory<VocabularyTerm>()
+                                {
+                                    public final IParserObjectFactory<VocabularyTerm> createFactory(
+                                            final IPropertyMapper propertyMapper)
+                                            throws ParserException
+                                    {
+                                        return new VocabularyTermObjectFactory(propertyMapper);
+                                    }
+                                });
+            return tabFileLoader;
+        }
+
+        private class VocabularyTermObjectFactory extends
+                AbstractParserObjectFactory<VocabularyTerm>
+        {
+            protected VocabularyTermObjectFactory(IPropertyMapper propertyMapper)
+            {
+                super(VocabularyTerm.class, propertyMapper);
+            }
+        }
+
+        private List<VocabularyTerm> loadTermsFromFiles(UploadedFilesBean uploadedFiles,
+                final BisTabFileLoader<VocabularyTerm> tabFileLoader)
+        {
+            final List<VocabularyTerm> results = new ArrayList<VocabularyTerm>();
+            for (final IUncheckedMultipartFile multipartFile : uploadedFiles.iterable())
+            {
+                final StringReader stringReader =
+                        new StringReader(new String(multipartFile.getBytes()));
+                final List<VocabularyTerm> loadedTerms =
+                        tabFileLoader.load(new DelegatedReader(stringReader, multipartFile
+                                .getOriginalFilename()));
+                results.addAll(loadedTerms);
+            }
+            return results;
+        }
+
     }
 
     public void addVocabularyTerms(String vocabularyCode, List<String> vocabularyTerms)

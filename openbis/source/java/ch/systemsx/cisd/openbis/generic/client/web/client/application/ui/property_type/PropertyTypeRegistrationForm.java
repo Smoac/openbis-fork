@@ -16,13 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
 
+import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
@@ -69,6 +73,8 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
 
     private final MaterialTypeSelectionWidget materialTypeSelectionWidget;
 
+    private final String vocabularyTermsSessionKey;
+
     public static DatabaseModificationAwareComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -81,6 +87,7 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
     {
         super(viewContext, ID, DEFAULT_LABEL_WIDTH + 20, DEFAULT_FIELD_WIDTH);
         this.viewContext = viewContext;
+        vocabularyTermsSessionKey = ID + "_terms";
 
         this.propertyTypeCodeField = createPropertyTypeCodeField();
         this.propertyTypeLabelField = createPropertyTypeLabelField();
@@ -101,6 +108,8 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
         formPanel.add(vocabularySelectionWidget);
         formPanel.add(vocabularyRegistrationFieldSet);
         formPanel.add(materialTypeSelectionWidget);
+
+        addUploadFeatures();
     }
 
     private static MaterialTypeSelectionWidget createMaterialTypeSelectionField(
@@ -113,9 +122,59 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
         return chooser;
     }
 
+    // TODO 2009-05-26, Piotr Buczek: refactor - common code with VocabularyRegistrationForm
+    private void addUploadFeatures()
+    {
+        addFormSubmitListener();
+        redefineSaveListeners();
+        addUploadFeatures(vocabularyTermsSessionKey);
+    }
+
+    private void addFormSubmitListener()
+    {
+        formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
+            {
+                @Override
+                protected void onSuccessfullUpload()
+                {
+                    submitValidForm();
+                }
+
+                @Override
+                protected void setUploadEnabled()
+                {
+                    PropertyTypeRegistrationForm.this.setUploadEnabled(true);
+                }
+            });
+    }
+
+    private void redefineSaveListeners()
+    {
+        saveButton.removeAllListeners();
+        saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public final void componentSelected(final ButtonEvent ce)
+                {
+                    if (formPanel.isValid())
+                    {
+                        if (vocabularyRegistrationFieldSet.isUploadFileDefined())
+                        {
+                            setUploadEnabled(false);
+                            formPanel.submit();
+                        } else
+                        {
+                            submitValidForm();
+                        }
+                    }
+                }
+            });
+    }
+
     private final VocabularyRegistrationFieldSet createVocabularyRegistrationFieldSet()
     {
-        return new VocabularyRegistrationFieldSet(viewContext, getId(), labelWidth, fieldWidth - 40);
+        return new VocabularyRegistrationFieldSet(viewContext, getId(), labelWidth,
+                fieldWidth - 40, vocabularyTermsSessionKey);
     }
 
     private final CodeField createPropertyTypeCodeField()
@@ -221,7 +280,7 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
     protected final void submitValidForm()
     {
         final PropertyType propertyType = createPropertyType();
-        viewContext.getService().registerPropertyType(propertyType,
+        viewContext.getService().registerPropertyType(vocabularyTermsSessionKey, propertyType,
                 new PropertyTypeRegistrationCallback(viewContext, propertyType));
     }
 

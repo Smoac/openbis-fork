@@ -38,6 +38,8 @@ public final class Vocabulary extends CodeWithRegistration<Vocabulary>
 
     private boolean chosenFromList;
 
+    private boolean uploadedFromFile; // transient
+
     private String sourceURI;
 
     public Vocabulary()
@@ -105,4 +107,13 @@ public final class Vocabulary extends CodeWithRegistration<Vocabulary>
         this.sourceURI = sourceURI;
     }
 
+    public boolean isUploadedFromFile()
+    {
+        return uploadedFromFile;
+    }
+
+    public void setUploadedFromFile(boolean uploadedFromFile)
+    {
+        this.uploadedFromFile = uploadedFromFile;
+    }
 }

@@ -300,12 +300,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void unassignPropertyType(EntityKind entityKind, String propertyTypeCode,
             String entityTypeCode, AsyncCallback<Void> callback);
 
-    /** @see ICommonClientService#registerPropertyType(PropertyType) */
-    public void registerPropertyType(final PropertyType propertyType,
+    /** @see ICommonClientService#registerPropertyType(String, PropertyType) */
+    public void registerPropertyType(final String termsSessionKey, final PropertyType propertyType,
             final AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#registerVocabulary(Vocabulary) */
-    public void registerVocabulary(final Vocabulary vocabulary,
+    /** @see ICommonClientService#registerVocabulary(String, Vocabulary) */
+    public void registerVocabulary(final String termsSessionKey, final Vocabulary vocabulary,
             final AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#addVocabularyTerms(String, List) */

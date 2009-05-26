@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
+package ch.systemsx.cisd.openbis.generic.client.web.server;
 
 import java.io.Reader;
 import java.util.List;

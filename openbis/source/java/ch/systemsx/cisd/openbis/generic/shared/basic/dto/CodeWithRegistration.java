@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
 
-
 /**
  * An {@link AbstractRegistrationHolder} extension which holds a code.
  * 
@@ -29,7 +28,7 @@ public class CodeWithRegistration<T extends CodeWithRegistration<T>> extends
 {
     private String code;
 
-    public final void setCode(final String code)
+    public void setCode(final String code)
     {
         this.code = code;
     }

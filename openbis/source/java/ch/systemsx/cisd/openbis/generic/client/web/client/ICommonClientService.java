@@ -356,12 +356,14 @@ public interface ICommonClientService extends IClientService
     /**
      * Registers given {@link PropertyType}.
      */
-    public void registerPropertyType(final PropertyType propertyType) throws UserFailureException;
+    public void registerPropertyType(final String termsSessionKey, final PropertyType propertyType)
+            throws UserFailureException;
 
     /**
      * Registers given {@link Vocabulary}.
      */
-    public void registerVocabulary(final Vocabulary vocabulary) throws UserFailureException;
+    public void registerVocabulary(final String termsSessionKey, final Vocabulary vocabulary)
+            throws UserFailureException;
 
     /** Adds specified terms to the specified vocabulary. */
     public void addVocabularyTerms(String vocabularyCode, List<String> vocabularyTerms)

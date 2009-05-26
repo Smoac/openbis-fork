@@ -67,13 +67,17 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
 
     private final String idPrefix;
 
+    private final String termsSessionKey;
+
     public VocabularyRegistrationFieldSet(final IMessageProvider messageProvider,
-            final String idPrefix, final int labelWidth, final int fieldWidth)
+            final String idPrefix, final int labelWidth, final int fieldWidth,
+            final String termsSessionKey)
     {
         this.messageProvider = messageProvider;
         this.labelWidth = labelWidth;
         this.fieldWidth = fieldWidth;
         this.idPrefix = idPrefix + ID;
+        this.termsSessionKey = termsSessionKey;
         createForm();
     }
 
@@ -139,6 +143,11 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
         return vocabulary;
     }
 
+    public boolean isUploadFileDefined()
+    {
+        return vocabularyTermsSection.isUploadFileDefined();
+    }
+
     private final String getVocabularyCodeValue()
     {
         final String prepend = PropertyType.USER_NAMESPACE_CODE_PREPEND;
@@ -168,7 +177,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
     public final void setVisible(final boolean visible)
     {
         super.setVisible(visible);
-        FieldUtil.setVisibility(visible, vocabularyCodeField); 
+        FieldUtil.setVisibility(visible, vocabularyCodeField);
         vocabularyTermsSection.setVisible(visible);
     }
 
@@ -212,7 +221,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
 
         private final RadioGroup createSourceRadio()
         {
-            RadioGroup result = new RadioGroup();
+            final RadioGroup result = new RadioGroup();
             result.setSelectionRequired(true);
             result.setFieldLabel(messageProvider.getMessage(Dict.VOCABULARY_TERMS_SOURCE));
             result.setOrientation(Orientation.HORIZONTAL);
@@ -247,7 +256,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
 
         private FileUploadField createImportFileField()
         {
-            FileFieldManager fileManager = new FileFieldManager(null, 1, "File");
+            FileFieldManager fileManager = new FileFieldManager(termsSessionKey, 1, "File");
             fileManager.setMandatory();
             return fileManager.getFields().get(0);
         }
@@ -273,6 +282,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
 
         public void setValues(Vocabulary vocabulary)
         {
+            vocabulary.setUploadedFromFile(fromFile.getValue());
             // from file
             vocabulary.setSourceURI(getURIValue());
             // free text
@@ -286,6 +296,12 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
             vocabulary.setTerms(vocabularyTerms);
         }
 
+        public boolean isUploadFileDefined()
+        {
+            return uploadFileField.isVisible() ? StringUtils.isBlank(uploadFileField.getValue()
+                    .toString()) == false : false;
+        }
+
         private String getTermsAreaValue()
         {
             return termsArea.isVisible() ? termsArea.getValue() : null;
@@ -296,4 +312,5 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
             return uriField.isVisible() ? uriField.getValue() : null;
         }
     }
+
 }

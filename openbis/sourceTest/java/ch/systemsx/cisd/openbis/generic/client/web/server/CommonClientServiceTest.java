@@ -71,6 +71,8 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
 
     private static final String CIFEX_URL = "cifexURL";
 
+    private static final String TERMS_SESSION_KEY = "termsSessionKey";
+
     private CommonClientService commonClientService;
 
     private ICommonServer commonServer;
@@ -289,7 +291,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                             with(aNonNull(PropertyType.class)));
                 }
             });
-        commonClientService.registerPropertyType(new PropertyType());
+        commonClientService.registerPropertyType(TERMS_SESSION_KEY, new PropertyType());
         context.assertIsSatisfied();
     }
 
@@ -305,7 +307,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                             with(aNonNull(Vocabulary.class)));
                 }
             });
-        commonClientService.registerVocabulary(new Vocabulary());
+        commonClientService.registerVocabulary(TERMS_SESSION_KEY, new Vocabulary());
         context.assertIsSatisfied();
     }
 

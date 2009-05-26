@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import ch.systemsx.cisd.common.annotation.BeanProperty;
+
 /**
  * A vocabulary term.
  * 
@@ -27,9 +29,11 @@ public final class VocabularyTerm extends CodeWithRegistration<Vocabulary>
     {
     }
 
-    public VocabularyTerm(String code)
+    @Override
+    @BeanProperty(label = "code", optional = false)
+    public void setCode(String code)
     {
-        setCode(code);
+        super.setCode(code);
     }
 
     @Override
