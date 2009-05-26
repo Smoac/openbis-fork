@@ -69,7 +69,7 @@ public class ChangeUserHomeGroupDialog extends AbstractSaveDialog
     {
         Group group = groupField.tryGetSelected();
         String groupCodeOrNull = group == null ? null : group.getCode();
-        TechId groupIdOrNull = group == null ? null : new TechId(group.getId());
+        TechId groupIdOrNull = TechId.create(group);
         viewContext.getModel().getSessionContext().getUser().setHomeGroupCode(groupCodeOrNull);
         viewContext.getService().changeUserHomeGroup(groupIdOrNull, saveCallback);
     }

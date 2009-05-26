@@ -37,7 +37,7 @@ class ExperimentDataSetSection extends SectionPanel
     {
         super("Data Sets");
         setLayout(new RowLayout());
-        TechId experimentId = new TechId(experiment);
+        TechId experimentId = TechId.create(experiment);
         disposableBrowser = ExperimentDataSetBrowser.create(viewContext, experimentId);
         add(disposableBrowser.getComponent(), new RowData(-1, 200));
     }

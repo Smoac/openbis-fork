@@ -111,7 +111,7 @@ public final class ClientPluginFactory extends
 
         public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
         {
-            final TechId sampleId = new TechId(identifiable);
+            final TechId sampleId = TechId.create(identifiable);
             return new ITabItemFactory()
                 {
                     public ITabItem create()

@@ -62,7 +62,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
             final IIdentifiable identifiable)
     {
         super(viewContext, createId(identifiable));
-        this.experimentId = new TechId(identifiable);
+        this.experimentId = TechId.create(identifiable);
         this.modificationObserver = new CompositeDatabaseModificationObserver();
         reloadAllData();
     }
@@ -74,7 +74,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
 
     public static final String createId(final IIdentifiable identifiable)
     {
-        return createId(new TechId(identifiable));
+        return createId(TechId.create(identifiable));
     }
 
     public static final String createId(final TechId experimentId)
@@ -92,8 +92,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
      */
     protected void reloadData(AbstractAsyncCallback<Experiment> callback)
     {
-        viewContext.getService().getExperimentInfo(experimentId, getBaseIndexURL(),
-                callback);
+        viewContext.getService().getExperimentInfo(experimentId, getBaseIndexURL(), callback);
     }
 
     private ExperimentPropertiesSection createExperimentPropertiesSection(

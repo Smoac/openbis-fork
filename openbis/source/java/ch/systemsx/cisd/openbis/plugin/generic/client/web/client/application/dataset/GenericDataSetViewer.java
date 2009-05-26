@@ -63,13 +63,13 @@ public final class GenericDataSetViewer extends AbstractViewer<IGenericClientSer
             final IIdentifiable identifiable)
     {
         super(viewContext, createId(identifiable));
-        this.datasetId = new TechId(identifiable);
+        this.datasetId = TechId.create(identifiable);
         reloadData();
     }
 
     public static final String createId(final IIdentifiable identifiable)
     {
-        return createId(new TechId(identifiable));
+        return createId(TechId.create(identifiable));
     }
 
     public static final String createId(final TechId datasetId)

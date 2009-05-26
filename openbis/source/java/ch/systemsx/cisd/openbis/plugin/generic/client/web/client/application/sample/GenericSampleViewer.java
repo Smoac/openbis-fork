@@ -123,7 +123,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
             final IIdentifiable identifiable)
     {
         super(viewContext, createId(identifiable));
-        this.sampleId = new TechId(identifiable);
+        this.sampleId = TechId.create(identifiable);
         reloadAllData();
     }
 
@@ -134,7 +134,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
     public static final String createId(final IIdentifiable identifiable)
     {
-        return createId(new TechId(identifiable));
+        return createId(TechId.create(identifiable));
     }
 
     public static final String createId(final TechId sampleId)

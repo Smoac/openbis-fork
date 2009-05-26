@@ -64,7 +64,7 @@ public class ExperimentPropertiesSection extends SectionPanel
             final IViewContext<IGenericClientServiceAsync> viewContext)
     {
         super("Experiment Properties");
-        this.experimentId = new TechId(experiment);
+        this.experimentId = TechId.create(experiment);
         this.experiment = experiment;
         this.viewContext = viewContext;
         this.grid = createPropertyGrid();
@@ -139,8 +139,8 @@ public class ExperimentPropertiesSection extends SectionPanel
 
     private void reloadData()
     {
-        viewContext.getService().getExperimentInfo(experimentId,
-                GWTUtils.getBaseIndexURL(), new ExperimentInfoCallback(viewContext, this));
+        viewContext.getService().getExperimentInfo(experimentId, GWTUtils.getBaseIndexURL(),
+                new ExperimentInfoCallback(viewContext, this));
     }
 
     public IDatabaseModificationObserver getDatabaseModificationObserver()

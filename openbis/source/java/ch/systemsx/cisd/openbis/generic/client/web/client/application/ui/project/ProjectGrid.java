@@ -158,7 +158,7 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         ITabItemFactory tabFactory;
-        final TechId projectId = new TechId(project);
+        final TechId projectId = TechId.create(project);
         if (editMode == false)
         {
             tabFactory = new ITabItemFactory()

@@ -74,14 +74,14 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
      * For editing chosen entity.
      */
     protected AbstractGenericEntityRegistrationForm(
-            final IViewContext<IGenericClientServiceAsync> viewContext, IIdentifiable identifiable,
-            EntityKind entityKind)
+            final IViewContext<IGenericClientServiceAsync> viewContext,
+            IIdentifiable identifiableOrNull, EntityKind entityKind)
     {
-        super(viewContext, createId(identifiable, entityKind), DEFAULT_LABEL_WIDTH + 20,
+        super(viewContext, createId(identifiableOrNull, entityKind), DEFAULT_LABEL_WIDTH + 20,
                 DEFAULT_FIELD_WIDTH);
         this.viewContext = viewContext;
         this.entityKind = entityKind;
-        this.techIdOrNull = identifiable == null ? null : new TechId(identifiable);
+        this.techIdOrNull = TechId.create(identifiableOrNull);
     }
 
     /**
@@ -130,7 +130,7 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
      */
     protected static final String createSimpleId(IIdentifiable identifiable, EntityKind entityKind)
     {
-        return createSimpleId(new TechId(identifiable), entityKind);
+        return createSimpleId(TechId.create(identifiable), entityKind);
     }
 
     /**

@@ -38,9 +38,19 @@ public class TechId implements IIdHolder, IsSerializable
         this.id = id;
     }
 
-    public TechId(IIdHolder idHolder)
+    /**
+     * @return Technical id with id from given <var>idHolder</var> or null if the holder does not
+     *         provide any id.
+     */
+    public static TechId create(IIdHolder idHolder)
     {
-        this(idHolder == null ? null : idHolder.getId());
+        if (idHolder == null || idHolder.getId() == null)
+        {
+            return null;
+        } else
+        {
+            return new TechId(idHolder.getId());
+        }
     }
 
     public Long getId()
@@ -63,6 +73,7 @@ public class TechId implements IIdHolder, IsSerializable
         {
             return false;
         }
+        // FIXME 2009-05-26, Piotr Buczek: check for null
         return this.toString().equals(obj.toString());
     }
 

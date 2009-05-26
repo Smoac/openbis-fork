@@ -117,8 +117,7 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
     @Override
     protected void loadForm()
     {
-        viewContext.getService().getProjectInfo(new TechId(projectId),
-                new ProjectInfoCallback(viewContext));
+        viewContext.getService().getProjectInfo(projectId, new ProjectInfoCallback(viewContext));
     }
 
     public final class ProjectInfoCallback extends AbstractAsyncCallback<Project>

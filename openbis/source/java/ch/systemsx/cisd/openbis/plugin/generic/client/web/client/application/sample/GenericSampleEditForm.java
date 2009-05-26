@@ -106,7 +106,7 @@ public final class GenericSampleEditForm extends
         final List<SampleProperty> properties = extractProperties();
         ExperimentIdentifier experimentIdent =
                 experimentFieldOrNull != null ? experimentFieldOrNull.getValue() : null;
-        TechId sampleId = new TechId(originalSample);
+        TechId sampleId = TechId.create(originalSample);
         viewContext.getService().updateSample(sessionKey, sampleId, properties, experimentIdent,
                 originalSample.getModificationDate(), new UpdateSampleCallback(viewContext));
     }

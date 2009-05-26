@@ -82,7 +82,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
     protected void save()
     {
         ExperimentUpdates updates = new ExperimentUpdates();
-        updates.setExperimentId(new TechId(originalExperiment));
+        updates.setExperimentId(TechId.create(originalExperiment));
         updates.setVersion(originalExperiment.getModificationDate());
         updates.setProperties(extractProperties());
         updates.setProjectIdentifier(extractProjectIdentifier());

@@ -203,7 +203,7 @@ public final class ClientPluginFactory extends
         @Override
         public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
         {
-            final TechId techId = new TechId(identifiable);
+            final TechId techId = TechId.create(identifiable);
             return new ITabItemFactory()
                 {
                     public ITabItem create()
