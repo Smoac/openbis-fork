@@ -52,7 +52,7 @@ public final class VocabularyRegistrationForm extends AbstractRegistrationForm
     {
         formPanel.add(vocabularyRegistrationFieldSet =
                 new VocabularyRegistrationFieldSet(viewContext, getId(), labelWidth,
-                        fieldWitdh - 40));
+                        fieldWidth - 40));
     }
 
     //

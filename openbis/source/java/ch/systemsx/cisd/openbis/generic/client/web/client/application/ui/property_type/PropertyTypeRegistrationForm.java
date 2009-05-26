@@ -115,7 +115,7 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
 
     private final VocabularyRegistrationFieldSet createVocabularyRegistrationFieldSet()
     {
-        return new VocabularyRegistrationFieldSet(viewContext, getId(), labelWidth, fieldWitdh - 40);
+        return new VocabularyRegistrationFieldSet(viewContext, getId(), labelWidth, fieldWidth - 40);
     }
 
     private final CodeField createPropertyTypeCodeField()

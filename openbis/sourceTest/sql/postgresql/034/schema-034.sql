@@ -264,7 +264,8 @@ CREATE TABLE controlled_vocabularies (
     is_internal_namespace boolean_char DEFAULT false NOT NULL,
     dbin_id tech_id NOT NULL,
     modification_timestamp time_stamp DEFAULT now(),
-    is_choosen_from_list boolean_char DEFAULT true NOT NULL
+    is_chosen_from_list boolean_char DEFAULT true NOT NULL,
+    source_uri character varying(250)
 );
 CREATE SEQUENCE controlled_vocabulary_id_seq
     INCREMENT BY 1

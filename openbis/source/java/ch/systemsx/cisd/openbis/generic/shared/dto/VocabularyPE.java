@@ -81,22 +81,13 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
 
     private boolean internalNamespace;
 
+    private boolean chosenFromList;
+
+    private String sourceURI;
+
     private DatabaseInstancePE databaseInstance;
 
     private Date modificationDate;
-
-    private boolean chosenFromList = true;
-
-    @Column(name = ColumnNames.IS_CHOSEN_FROM_LIST)
-    public boolean isChosenFromList()
-    {
-        return chosenFromList;
-    }
-
-    public void setChosenFromList(boolean chosenFromList)
-    {
-        this.chosenFromList = chosenFromList;
-    }
 
     public VocabularyPE()
     {
@@ -130,6 +121,28 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
     public void setModificationDate(Date versionDate)
     {
         this.modificationDate = versionDate;
+    }
+
+    @Column(name = ColumnNames.IS_CHOSEN_FROM_LIST)
+    public boolean isChosenFromList()
+    {
+        return chosenFromList;
+    }
+
+    public void setChosenFromList(boolean chosenFromList)
+    {
+        this.chosenFromList = chosenFromList;
+    }
+
+    @Column(name = ColumnNames.SOURCE_URI, updatable = true)
+    public String getSourceURI()
+    {
+        return sourceURI;
+    }
+
+    public void setSourceURI(String sourceURI)
+    {
+        this.sourceURI = sourceURI;
     }
 
     @Column(name = ColumnNames.DESCRIPTION_COLUMN)

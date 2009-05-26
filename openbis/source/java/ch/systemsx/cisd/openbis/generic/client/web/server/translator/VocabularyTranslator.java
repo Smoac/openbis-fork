@@ -44,8 +44,6 @@ public final class VocabularyTranslator
             return null;
         }
         final Vocabulary result = new Vocabulary();
-        result.setInternalNamespace(vocabulary.isInternalNamespace());
-        result.setManagedInternally(vocabulary.isManagedInternally());
         List<VocabularyTerm> list;
         if (HibernateUtils.isInitialized(vocabulary.getTerms()) == false)
         {
@@ -61,6 +59,10 @@ public final class VocabularyTranslator
         result.setTerms(list);
         result.setCode(StringEscapeUtils.escapeHtml(vocabulary.getCode()));
         result.setDescription(StringEscapeUtils.escapeHtml(vocabulary.getDescription()));
+        result.setInternalNamespace(vocabulary.isInternalNamespace());
+        result.setManagedInternally(vocabulary.isManagedInternally());
+        result.setChosenFromList(vocabulary.isChosenFromList());
+        result.setSourceURI(vocabulary.getSourceURI());
         return result;
     }
 

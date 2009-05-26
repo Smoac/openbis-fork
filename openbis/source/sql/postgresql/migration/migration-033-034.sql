@@ -31,8 +31,8 @@ ALTER TABLE EXPERIMENTS ADD CONSTRAINT EXPE_PI_UK UNIQUE(PERM_ID);
 ------------------------------------------------------------------------------------
 -- Add column is_chosen_from_list to controlled_vocabularies.
 ------------------------------------------------------------------------------------
-ALTER TABLE CONTROLLED_VOCABULARIES ADD COLUMN IS_CHOOSEN_FROM_LIST BOOLEAN_CHAR NOT NULL DEFAULT TRUE;
-
+ALTER TABLE controlled_vocabularies ADD COLUMN is_chosen_from_list BOOLEAN_CHAR NOT NULL DEFAULT TRUE;
+ALTER TABLE controlled_vocabularies ADD COLUMN source_uri CHARACTER VARYING(250);
 ------------------------------------------------------------------------------------
 -- Modify Data table - remove arc connection between Sample and Data table, use a flag instead
 ------------------------------------------------------------------------------------
@@ -168,4 +168,3 @@ DROP SEQUENCE MATERIAL_BATCH_ID_SEQ;
 -- WARNING: Potential data lost!!!
 
 ALTER TABLE MATERIALS DROP COLUMN MATE_ID_INHIBITOR_OF;
-

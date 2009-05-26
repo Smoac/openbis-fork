@@ -62,10 +62,12 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
     {
         assert vocabulary != null : "Unspecified vocabulary.";
         vocabularyPE = new VocabularyPE();
-        vocabularyPE.setCode(vocabulary.getCode());
-        vocabularyPE.setDescription(vocabulary.getDescription());
         vocabularyPE.setDatabaseInstance(getHomeDatabaseInstance());
+        vocabularyPE.setCode(vocabulary.getCode());
         vocabularyPE.setRegistrator(findRegistrator());
+        vocabularyPE.setDescription(vocabulary.getDescription());
+        vocabularyPE.setChosenFromList(vocabulary.isChosenFromList());
+        vocabularyPE.setSourceURI(vocabulary.getSourceURI());
         for (final VocabularyTerm term : vocabulary.getTerms())
         {
             addTerm(term.getCode());
@@ -77,9 +79,10 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         assert vocabularyPE != null : "Unspecified vocabulary";
         if (vocabularyPE.isManagedInternally())
         {
-            throw new UserFailureException("Not allowed to add terms to an internally managed vocabulary.");
+            throw new UserFailureException(
+                    "Not allowed to add terms to an internally managed vocabulary.");
         }
-        
+
         for (String term : newTerms)
         {
             addTerm(term);
@@ -100,7 +103,8 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         assert vocabularyPE != null : "Unspecified vocabulary";
         if (vocabularyPE.isManagedInternally())
         {
-            throw new UserFailureException("Not allowed to delete terms from an internally managed vocabulary.");
+            throw new UserFailureException(
+                    "Not allowed to delete terms from an internally managed vocabulary.");
         }
 
         Set<VocabularyTermPE> terms = vocabularyPE.getTerms();
@@ -119,7 +123,8 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         }
         if (remainingTerms.isEmpty())
         {
-            throw new IllegalArgumentException("Deletion of all " + terms.size() + " terms are not allowed.");
+            throw new IllegalArgumentException("Deletion of all " + terms.size()
+                    + " terms are not allowed.");
         }
         for (VocabularyTermReplacement termToBeReplaced : termsToBeReplaced)
         {
@@ -130,7 +135,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
             {
                 throw new IllegalArgumentException(
                         "Invalid vocabulary replacement because of unknown replacement: "
-                        + termToBeReplaced);
+                                + termToBeReplaced);
             }
             for (EntityKind entityKind : EntityKind.values())
             {

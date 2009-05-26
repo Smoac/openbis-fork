@@ -36,8 +36,33 @@ public final class Vocabulary extends CodeWithRegistration<Vocabulary>
 
     private boolean internalNamespace;
 
+    private boolean chosenFromList;
+
+    private String sourceURI;
+
     public Vocabulary()
     {
+    }
+
+    public final List<VocabularyTerm> getTerms()
+    {
+        return terms;
+    }
+
+    @CollectionMapping(collectionClass = ArrayList.class, elementClass = VocabularyTerm.class)
+    public final void setTerms(final List<VocabularyTerm> terms)
+    {
+        this.terms = terms;
+    }
+
+    public final String getDescription()
+    {
+        return description;
+    }
+
+    public final void setDescription(final String description)
+    {
+        this.description = description;
     }
 
     public final boolean isManagedInternally()
@@ -60,25 +85,24 @@ public final class Vocabulary extends CodeWithRegistration<Vocabulary>
         this.internalNamespace = internalNamespace;
     }
 
-    public final List<VocabularyTerm> getTerms()
+    public boolean isChosenFromList()
     {
-        return terms;
+        return chosenFromList;
     }
 
-    @CollectionMapping(collectionClass = ArrayList.class, elementClass = VocabularyTerm.class)
-    public final void setTerms(final List<VocabularyTerm> terms)
+    public void setChosenFromList(boolean chosenFromList)
     {
-        this.terms = terms;
+        this.chosenFromList = chosenFromList;
     }
 
-    public final void setDescription(final String description)
+    public String getSourceURI()
     {
-        this.description = description;
+        return sourceURI;
     }
 
-    public final String getDescription()
+    public void setSourceURI(String sourceURI)
     {
-        return description;
+        this.sourceURI = sourceURI;
     }
 
 }

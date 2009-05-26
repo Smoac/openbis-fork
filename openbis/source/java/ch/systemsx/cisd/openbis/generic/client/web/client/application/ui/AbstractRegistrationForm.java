@@ -70,7 +70,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
 
     protected final int labelWidth;
 
-    protected final int fieldWitdh;
+    protected final int fieldWidth;
 
     protected Button saveButton;
 
@@ -87,7 +87,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
             final int labelWidth, final int fieldWidth)
     {
         this.labelWidth = labelWidth;
-        this.fieldWitdh = fieldWidth;
+        this.fieldWidth = fieldWidth;
         setHeaderVisible(false);
         setLayout(new FlowLayout(5));
         setBodyBorder(false);
@@ -136,9 +136,9 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         panel.addClickListener(new InfoBoxResetListener(infoBox));
         panel.setHeaderVisible(false);
         panel.setBodyBorder(false);
-        panel.setWidth(labelWidth + fieldWitdh + 40);
+        panel.setWidth(labelWidth + fieldWidth + 40);
         panel.setLabelWidth(labelWidth);
-        panel.setFieldWidth(fieldWitdh);
+        panel.setFieldWidth(fieldWidth);
         panel.setButtonAlign(HorizontalAlignment.RIGHT);
         saveButton = new Button(messageProvider.getMessage(Dict.BUTTON_SAVE));
         saveButton.setStyleAttribute("marginRight", "20px");

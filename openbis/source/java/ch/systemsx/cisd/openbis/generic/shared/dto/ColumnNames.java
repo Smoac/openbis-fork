@@ -54,6 +54,8 @@ public final class ColumnNames
 
     public static final String REMOTE_URL_COLUMN = "remote_url";
 
+    public static final String SOURCE_URI = "source_uri";
+
     public static final String SESSION_TOKEN_COLUMN = "session_token";
 
     public static final String ATTACHMENT_CONTENT_COLUMN = "exac_id";
@@ -180,7 +182,7 @@ public final class ColumnNames
 
     public static final String PERM_ID_COLUMN = "perm_id";
 
-    public static final String IS_CHOSEN_FROM_LIST = "is_choosen_from_list";
+    public static final String IS_CHOSEN_FROM_LIST = "is_chosen_from_list";
 
     private ColumnNames()
     {
