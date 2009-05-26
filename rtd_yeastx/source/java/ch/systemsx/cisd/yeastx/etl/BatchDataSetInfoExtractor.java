@@ -19,6 +19,7 @@ package ch.systemsx.cisd.yeastx.etl;
 import java.io.File;
 import java.util.Properties;
 
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
@@ -30,7 +31,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
 {
-    private static final String GROUP_CODE = "group-code";
+    private static final String GROUP_CODE_PROPERTY_NAME = "group-code";
 
     private final String groupCode;
 
@@ -38,13 +39,25 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
     {
         Properties properties =
                 ExtendedProperties.getSubset(globalProperties, EXTRACTOR_KEY + '.', true);
-        this.groupCode = properties.getProperty(GROUP_CODE);
+        this.groupCode = properties.getProperty(GROUP_CODE_PROPERTY_NAME);
+        ensureGroupCodeDefined();
+    }
+
+    private void ensureGroupCodeDefined()
+    {
+        if (groupCode == null)
+        {
+            throw ConfigurationFailureException
+                    .fromTemplate(
+                            "No group code defined in server configuration. Use '%s' property to specify it.",
+                            GROUP_CODE_PROPERTY_NAME);
+        }
     }
 
     public DataSetInformation getDataSetInformation(File incomingDataSetPath)
             throws UserFailureException, EnvironmentFailureException
     {
-        PlainDataSetInformation plainInfo =
+        DataSetMappingInformation plainInfo =
                 DatasetMappingUtil.tryGetPlainDatasetInfo(incomingDataSetPath);
         if (plainInfo != null)
         {
@@ -62,7 +75,7 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
         }
     }
 
-    private String getSampleCode(PlainDataSetInformation plainInfo)
+    private String getSampleCode(DataSetMappingInformation plainInfo)
     {
         return getSampleCode(plainInfo.getSampleCodeOrLabel(), plainInfo.getExperimentCode());
     }

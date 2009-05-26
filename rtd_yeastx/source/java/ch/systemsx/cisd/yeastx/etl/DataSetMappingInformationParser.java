@@ -36,35 +36,55 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
  * 
  * @author Tomasz Pylak
  */
-final class DataSetInformationParser
+final class DataSetMappingInformationParser
 {
-    public static List<PlainDataSetInformation> parse(File indexFile)
+    public static List<DataSetMappingInformation> tryParse(File mappingFile)
     {
-        TabFileLoader<PlainDataSetInformation> tabFileLoader =
-                new TabFileLoader<PlainDataSetInformation>(
-                        new IParserObjectFactoryFactory<PlainDataSetInformation>()
+        TabFileLoader<DataSetMappingInformation> tabFileLoader =
+                new TabFileLoader<DataSetMappingInformation>(
+                        new IParserObjectFactoryFactory<DataSetMappingInformation>()
                             {
 
-                                public IParserObjectFactory<PlainDataSetInformation> createFactory(
+                                public IParserObjectFactory<DataSetMappingInformation> createFactory(
                                         IPropertyMapper propertyMapper) throws ParserException
                                 {
                                     return new NewPropertyParserObjectFactory(propertyMapper);
                                 }
                             });
-        // TODO 2009-05-25, Tomasz Pylak: consider handling exception similar to BisTabFileLoader
-        return tabFileLoader.load(indexFile);
+        // TODO 2009-05-25, Tomasz Pylak: consider handling exception similar to BisTabFileLoader.
+        // Probably an email should be sent if the file has incorrect syntax.
+        try
+        {
+            return tabFileLoader.load(mappingFile);
+        } catch (final IllegalArgumentException e)
+        {
+            logParsingError(e, mappingFile);
+            return null;
+        } catch (final Exception e)
+        {
+            logParsingError(e, mappingFile);
+            return null;
+        }
+    }
+
+    private static void logParsingError(Exception e, File mappingFile)
+    {
+        LogUtils.error(mappingFile.getParentFile(),
+                "The datasets cannot be processed because the mapping file '%s' has incorrect format."
+                        + " The following exception occured:\n%s", mappingFile.getPath(), e
+                        .getMessage());
     }
 
     private static final class NewPropertyParserObjectFactory extends
-            AbstractParserObjectFactory<PlainDataSetInformation>
+            AbstractParserObjectFactory<DataSetMappingInformation>
     {
 
         private NewPropertyParserObjectFactory(final IPropertyMapper propertyMapper)
         {
-            super(PlainDataSetInformation.class, propertyMapper);
+            super(DataSetMappingInformation.class, propertyMapper);
         }
 
-        private final void setProperties(final PlainDataSetInformation dataset,
+        private final void setProperties(final DataSetMappingInformation dataset,
                 final String[] lineTokens)
         {
             final List<NewProperty> properties = new ArrayList<NewProperty>();
@@ -94,10 +114,10 @@ final class DataSetInformationParser
         }
 
         @Override
-        public final PlainDataSetInformation createObject(final String[] lineTokens)
+        public final DataSetMappingInformation createObject(final String[] lineTokens)
                 throws ParserException
         {
-            final PlainDataSetInformation dataset = super.createObject(lineTokens);
+            final DataSetMappingInformation dataset = super.createObject(lineTokens);
             setProperties(dataset, lineTokens);
             return dataset;
         }

@@ -21,7 +21,6 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * @author Tomasz Pylak
@@ -30,45 +29,60 @@ public class DatasetMappingUtil
 {
     private static final String MAPPING_FILE_NAME = "index.tsv";
 
-    private static TableMap<String, PlainDataSetInformation> asFileMap(
-            List<PlainDataSetInformation> load)
+    private static TableMap<String, DataSetMappingInformation> asFileMap(
+            List<DataSetMappingInformation> list)
     {
-        return new TableMap<String, PlainDataSetInformation>(
-                new IKeyExtractor<String, PlainDataSetInformation>()
+        return new TableMap<String, DataSetMappingInformation>(list,
+                new IKeyExtractor<String, DataSetMappingInformation>()
                     {
-
-                        public String getKey(PlainDataSetInformation dataset)
+                        public String getKey(DataSetMappingInformation dataset)
                         {
                             return dataset.getFileName().toLowerCase();
                         }
                     });
     }
 
-    public static PlainDataSetInformation tryGetPlainDatasetInfo(File incomingDataSetPath)
+    public static DataSetMappingInformation tryGetPlainDatasetInfo(File incomingDataSetPath)
     {
-        TableMap<String, PlainDataSetInformation> datasetsMapping =
-                getDatasetsMapping(incomingDataSetPath.getParentFile());
+        TableMap<String, DataSetMappingInformation> datasetsMapping =
+                tryGetDatasetsMapping(incomingDataSetPath.getParentFile());
+        if (datasetsMapping == null)
+        {
+            return null;
+        }
         return tryGetPlainDatasetInfo(incomingDataSetPath, datasetsMapping);
     }
 
     public static boolean hasMapping(File incomingDataSetPath,
-            TableMap<String, PlainDataSetInformation> datasetsMapping)
+            TableMap<String, DataSetMappingInformation> datasetsMapping)
     {
         return tryGetPlainDatasetInfo(incomingDataSetPath, datasetsMapping) != null;
     }
 
-    private static PlainDataSetInformation tryGetPlainDatasetInfo(File incomingDataSetPath,
-            TableMap<String, PlainDataSetInformation> datasetsMapping)
+    private static DataSetMappingInformation tryGetPlainDatasetInfo(File incomingDataSetPath,
+            TableMap<String, DataSetMappingInformation> datasetsMapping)
     {
         String datasetFileName = incomingDataSetPath.getName();
         return datasetsMapping.tryGet(datasetFileName.toLowerCase());
     }
 
-    public static TableMap<String/* file name in lowercase */, PlainDataSetInformation> getDatasetsMapping(
+    public static TableMap<String/* file name in lowercase */, DataSetMappingInformation> tryGetDatasetsMapping(
             File parentDir)
     {
-        File mappingFile = getMappingFile(parentDir);
-        List<PlainDataSetInformation> list = DataSetInformationParser.parse(mappingFile);
+        File mappingFile = tryGetMappingFile(parentDir);
+        if (mappingFile == null)
+        {
+            LogUtils.warn(parentDir, "Cannot process the directory '%s' "
+                    + "because the file '%s' with datasets descriptions does not exist.", parentDir
+                    .getPath(), MAPPING_FILE_NAME);
+            return null;
+        }
+        List<DataSetMappingInformation> list =
+                DataSetMappingInformationParser.tryParse(mappingFile);
+        if (list == null)
+        {
+            return null;
+        }
         return asFileMap(list);
     }
 
@@ -77,15 +91,18 @@ public class DatasetMappingUtil
         return incomingDataSetPath.getName().equals(MAPPING_FILE_NAME);
     }
 
-    private static File getMappingFile(File parentDir)
+    private static File tryGetMappingFile(File parentDir)
     {
         File indexFile = new File(parentDir, MAPPING_FILE_NAME);
         if (indexFile.isFile() == false)
         {
-            throw UserFailureException.fromTemplate(
-                    "The file '%s' with datasets descriptions does not exist.", indexFile
-                            .getAbsolutePath());
+            return null;
+        } else if (indexFile.canWrite() == false)
+        {
+            return null;
+        } else
+        {
+            return indexFile;
         }
-        return indexFile;
     }
 }

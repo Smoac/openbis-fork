@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 /**
  * @author Tomasz Pylak
  */
-public class PlainDataSetInformation
+public class DataSetMappingInformation
 {
     private String fileName;
 

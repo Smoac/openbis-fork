@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.collections.TableMap;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
 
@@ -44,8 +43,12 @@ public class BatchDataSetHandler implements IDataSetHandler
     {
         if (datasetsParentDir.isDirectory())
         {
-            TableMap<String, PlainDataSetInformation> datasetsMapping =
-                    DatasetMappingUtil.getDatasetsMapping(datasetsParentDir);
+            TableMap<String, DataSetMappingInformation> datasetsMapping =
+                    DatasetMappingUtil.tryGetDatasetsMapping(datasetsParentDir);
+            if (datasetsMapping == null)
+            {
+                return;
+            }
             List<File> files = listAll(datasetsParentDir);
             for (File file : files)
             {
@@ -54,25 +57,27 @@ public class BatchDataSetHandler implements IDataSetHandler
                     delegator.handleDataSet(file);
                 }
             }
-            if (isEmpty(datasetsParentDir))
+            if (hasNoDatasets(datasetsParentDir))
             {
+                LogUtils.deleteUserLog(datasetsParentDir);
                 deleteEmptyDir(datasetsParentDir);
             }
         } else
         {
-            throw UserFailureException.fromTemplate("The path '%s' is not a directory.",
+            LogUtils.adminWarn("The path '%s' is not a directory and will not be processed.",
                     datasetsParentDir.getPath());
         }
     }
 
     private boolean isValidDataset(File file,
-            TableMap<String, PlainDataSetInformation> datasetsMapping)
+            TableMap<String, DataSetMappingInformation> datasetsMapping)
     {
         if (DatasetMappingUtil.isMappingFile(file))
         {
             return false;
         }
-        // TODO 2009-05-26, Tomasz Pylak: check that the sample from the mapping exists - we do not
+        // TODO 2009-05-26, Tomasz Pylak: check that the sample from the mapping exists and is
+        // assigned to the experiment - we do not
         // want to move datasets to unidentified directory in this case
         return DatasetMappingUtil.hasMapping(file, datasetsMapping);
     }
@@ -82,14 +87,16 @@ public class BatchDataSetHandler implements IDataSetHandler
         boolean ok = dir.delete();
         if (ok == false)
         {
-            LogUtils.error("The directory '%s' cannot be deleted although it seems to be empty.",
-                    dir.getPath());
+            LogUtils.adminError(
+                    "The directory '%s' cannot be deleted although it seems to be empty.", dir
+                            .getPath());
         }
     }
 
-    private boolean isEmpty(File dataSet)
+    private boolean hasNoDatasets(File dir)
     {
-        return listAll(dataSet).size() == 0;
+        List<File> files = listAll(dir);
+        return files.size() == 0 || (files.size() == 1 && LogUtils.isUserLog(files.get(0)));
     }
 
     private List<File> listAll(File dataSet)

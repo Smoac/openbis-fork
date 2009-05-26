@@ -41,9 +41,9 @@ public class DataSetInformationParserTest extends AbstractFileSystemTestCase
     public void testLoadIndexFile()
     {
         File indexFile = writeFile(HEADER + "data.txt sample1 experiment1 conversion1 v1 v2");
-        List<PlainDataSetInformation> list = DataSetInformationParser.parse(indexFile);
+        List<DataSetMappingInformation> list = DataSetMappingInformationParser.tryParse(indexFile);
         AssertJUnit.assertEquals(1, list.size());
-        PlainDataSetInformation elem = list.get(0);
+        DataSetMappingInformation elem = list.get(0);
         AssertJUnit.assertEquals("data.txt", elem.getFileName());
         AssertJUnit.assertEquals(2, elem.getProperties().size());
         NewProperty prop1 = elem.getProperties().get(0);
@@ -56,14 +56,14 @@ public class DataSetInformationParserTest extends AbstractFileSystemTestCase
     public void testLoadIndexFileWithMissingFieldValueFails()
     {
         File indexFile = writeFile(HEADER + TAB + TAB + TAB + TAB + TAB);
-        DataSetInformationParser.parse(indexFile);
+        DataSetMappingInformationParser.tryParse(indexFile);
     }
 
     @Test(expectedExceptions = MandatoryPropertyMissingException.class)
     public void testLoadIndexFileWithMissingFieldHeaderFails()
     {
         File indexFile = writeFile("xxx");
-        DataSetInformationParser.parse(indexFile);
+        DataSetMappingInformationParser.tryParse(indexFile);
     }
 
     private File writeFile(String content)
