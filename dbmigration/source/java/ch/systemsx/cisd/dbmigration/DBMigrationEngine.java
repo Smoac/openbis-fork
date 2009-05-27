@@ -131,6 +131,7 @@ public final class DBMigrationEngine
             }
         } else if (version.compareTo(databaseVersion) > 0)
         {
+            adminDAO.createGroups();
             if (operationLog.isInfoEnabled())
             {
                 final String databaseName = adminDAO.getDatabaseName();
