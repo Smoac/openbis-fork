@@ -472,6 +472,8 @@ public abstract class Dict
 
     public static final String IS_MANAGED_INTERNALLY = "is_managed_internally";
 
+    public static final String SOURCE_URI = "source_uri";
+
     public static final String TERMS = "terms";
 
     public static final String VOCABULARY_TERMS_BROWSER = "VOCABULARY_TERMS_BROWSER";

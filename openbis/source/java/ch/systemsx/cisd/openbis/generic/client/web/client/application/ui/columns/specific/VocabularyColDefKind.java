@@ -84,6 +84,15 @@ public enum VocabularyColDefKind implements IColumnDefinitionKind<Vocabulary>
             {
                 return renderRegistrationDate(entity);
             }
+        }),
+
+    SORUCE_URI(new AbstractColumnDefinitionKind<Vocabulary>(Dict.SOURCE_URI, 300, true)
+        {
+            @Override
+            public String tryGetValue(Vocabulary entity)
+            {
+                return entity.getSourceURI();
+            }
         });
 
     private final AbstractColumnDefinitionKind<Vocabulary> columnDefinitionKind;

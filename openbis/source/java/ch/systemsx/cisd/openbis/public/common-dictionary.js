@@ -294,6 +294,7 @@ var common = {
  //
  vocabulary_browser: "Vocabulary Browser",
  is_managed_internally: "Managed Internally?",
+ source_uri: "Source URI",
  terms: "Terms",
  VOCABULARY_TERMS_BROWSER: "Vocabulary Terms of {0}",
  TERM_FOR_SAMPLES_USAGE: "Usages for Samples",
