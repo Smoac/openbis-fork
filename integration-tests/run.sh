@@ -9,7 +9,7 @@ BIN_PATHS="/opt/local/bin /usr/bin /usr/sbin"
 TRUE=1
 FALSE=0
 USER=`whoami`
-DATABASE=lims_integration_test
+DATABASE=openbis_integration_test
 
 # all paths are relative to the template directory
 TEMPLATE=templates
