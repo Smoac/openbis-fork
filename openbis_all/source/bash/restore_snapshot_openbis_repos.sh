@@ -3,7 +3,7 @@
 # Restore a snapshot of an openBIS repository
 # 2009, Bernd Rinn, CISD
 
-DB_NAME="lims_productive"
+DB_NAME="openbis_productive"
 BASE_DIR="$HOME/sprint"
 
 FNAME="$1"

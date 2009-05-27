@@ -37,7 +37,7 @@ if [ -e $SERVERS_PREV_VER ]; then
 fi
 
 echo Making a database dump...
-DB_NAME=lims_productive
+DB_NAME=openbis_productive
 DB_SNAPSHOT=db_snapshots/$SERVERS_PREV_VER-$DB_NAME.sql
 pg_dump -U postgres -O $DB_NAME > $DB_SNAPSHOT
 tar -cf - $DB_SNAPSHOT | bzip2 > $DB_SNAPSHOT.tar.bz2

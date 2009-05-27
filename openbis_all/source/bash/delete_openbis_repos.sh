@@ -9,7 +9,7 @@
 
 # Remove the repos data
 rm -fR  ~/sprint/datastore_server/data/store/*
-psql -U postgres -c "drop database lims_productive"
+psql -U postgres -c "drop database openbis_productive"
 rm -fR ~/sprint/openBIS-server/apache-tomcat/indices/*
 
 # Startup servers (will rebuild the database)
