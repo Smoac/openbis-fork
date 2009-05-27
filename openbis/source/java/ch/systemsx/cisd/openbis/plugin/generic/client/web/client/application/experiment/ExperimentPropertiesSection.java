@@ -60,13 +60,17 @@ public class ExperimentPropertiesSection extends SectionPanel
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
 
+    private final GenericExperimentViewer viewer;
+
     public ExperimentPropertiesSection(final Experiment experiment,
-            final IViewContext<IGenericClientServiceAsync> viewContext)
+            final IViewContext<IGenericClientServiceAsync> viewContext,
+            final GenericExperimentViewer viewer)
     {
         super("Experiment Properties");
         this.experimentId = TechId.create(experiment);
         this.experiment = experiment;
         this.viewContext = viewContext;
+        this.viewer = viewer;
         this.grid = createPropertyGrid();
         add(grid);
     }
@@ -140,7 +144,7 @@ public class ExperimentPropertiesSection extends SectionPanel
     private void reloadData()
     {
         viewContext.getService().getExperimentInfo(experimentId, GWTUtils.getBaseIndexURL(),
-                new ExperimentInfoCallback(viewContext, this));
+                new ExperimentInfoCallback(viewContext, this, viewer));
     }
 
     public IDatabaseModificationObserver getDatabaseModificationObserver()
@@ -169,11 +173,14 @@ public class ExperimentPropertiesSection extends SectionPanel
     {
         private final ExperimentPropertiesSection section;
 
+        private final GenericExperimentViewer viewer;
+
         private ExperimentInfoCallback(final IViewContext<?> viewContext,
-                final ExperimentPropertiesSection section)
+                final ExperimentPropertiesSection section, final GenericExperimentViewer viewer)
         {
             super(viewContext);
             this.section = section;
+            this.viewer = viewer;
         }
 
         //
@@ -184,6 +191,7 @@ public class ExperimentPropertiesSection extends SectionPanel
         @Override
         protected final void process(final Experiment result)
         {
+            viewer.updateOriginalData(result);
             section.updateData(result);
         }
     }

@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -95,10 +96,16 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
         viewContext.getService().getExperimentInfo(experimentId, getBaseIndexURL(), callback);
     }
 
+    @Override
+    public void updateOriginalData(IEntityInformationHolder newData)
+    {
+        super.updateOriginalData(newData);
+    }
+
     private ExperimentPropertiesSection createExperimentPropertiesSection(
             final Experiment experiment)
     {
-        return new ExperimentPropertiesSection(experiment, viewContext);
+        return new ExperimentPropertiesSection(experiment, viewContext, this);
     }
 
     private AttachmentsSection<Experiment> createAttachmentsSection(final Experiment experiment)

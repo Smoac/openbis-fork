@@ -518,6 +518,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         @Override
         protected final void process(final SampleGeneration result)
         {
+            genericSampleViewer.updateOriginalData(result.getGenerator());
             genericSampleViewer.updateProperties(result);
         }
     }

@@ -126,7 +126,6 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
     /** Updates data displayed in the browser (needed to open editor view). */
     protected void updateOriginalData(IEntityInformationHolder newData)
     {
-        // System.err.println(newData.getId());
         this.originalData = newData;
         updateTitle();
     }
