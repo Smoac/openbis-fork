@@ -15,6 +15,25 @@ SELECT CREATE_SEQUENCE('DATA_ID_SEQ', 'PERM_ID_SEQ');
 DROP FUNCTION CREATE_SEQUENCE(VARCHAR, VARCHAR);
 
 ------------------------------------------------------------------------------------
+-- Create sequence data_set_relationship_id_seq if it doesn't exist
+------------------------------------------------------------------------------------
+
+create function create_data_set_relationship_id_seq() returns void AS $$
+begin
+   perform *
+     FROM information_schema.sequences WHERE sequence_name='data_set_relationship_id_seq';
+   if not found
+   then
+     CREATE SEQUENCE DATA_SET_RELATIONSHIP_ID_SEQ;
+   end if;
+end;
+$$ language 'plpgsql';
+select create_data_set_relationship_id_seq();
+drop function create_data_set_relationship_id_seq();
+
+
+
+------------------------------------------------------------------------------------
 -- Add perm_id columns to samples and experiments.
 ------------------------------------------------------------------------------------
 ALTER TABLE SAMPLES ADD COLUMN PERM_ID CODE;
@@ -55,16 +74,6 @@ UPDATE data
     SET samp_id = samp_id_acquired_from 
     WHERE is_derived = 'FALSE';
 
--- add constraints and indexes to new columns
-
-ALTER TABLE data
-    ALTER COLUMN is_derived SET NOT NULL;
-ALTER TABLE data
-    ALTER COLUMN samp_id SET NOT NULL;   
-ALTER TABLE data
-    ADD CONSTRAINT data_samp_fk FOREIGN KEY (samp_id) REFERENCES samples (id);
-CREATE INDEX data_samp_fk_i ON data USING btree (samp_id);
-
 -- remove old columns
 
 ALTER TABLE data
@@ -72,6 +81,17 @@ ALTER TABLE data
 ALTER TABLE data
     DROP COLUMN samp_id_derived_from;
     
+-- add constraints and indexes to new columns
+
+ALTER TABLE data
+    ALTER COLUMN is_derived SET NOT NULL;
+ALTER TABLE data
+    ALTER COLUMN samp_id SET NOT NULL;   
+
+ALTER TABLE data
+    ADD CONSTRAINT data_samp_fk FOREIGN KEY (samp_id) REFERENCES samples (id);
+CREATE INDEX data_samp_fk_i ON data USING btree (samp_id);
+
 ------------------------------------------------------------------------------------
 -- Granting SELECT privilege to group openbis_readonly
 ------------------------------------------------------------------------------------
