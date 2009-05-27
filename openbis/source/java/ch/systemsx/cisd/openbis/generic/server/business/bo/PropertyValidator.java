@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -244,29 +245,38 @@ public final class PropertyValidator implements IPropertyValueValidator
             assert vocabulary != null : "Unspecified vocabulary.";
 
             final String upperCaseValue = value.toUpperCase();
-            final Set<VocabularyTermPE> terms = vocabulary.getTerms();
-            for (final VocabularyTermPE term : terms)
+            final Set<String> terms = createTerms(vocabulary.getTerms());
+            if (terms.contains(upperCaseValue))
             {
-                if (term.getCode().equals(upperCaseValue))
-                {
-                    return upperCaseValue;
-                }
+                return upperCaseValue;
             }
-            throw UserFailureException.fromTemplate("Vocabulary value '%s' has improper format. "
-                    + "It must be one of '%s'.", upperCaseValue, CollectionUtils.abbreviate(terms,
-                    -1, new IToStringConverter<VocabularyTermPE>()
-                        {
+            throw UserFailureException.fromTemplate("Vocabulary value '%s' is not valid. "
+                    + "It must exist in '%s' controlled vocabulary: '%s'.", upperCaseValue,
+                    vocabulary.getCode(), CollectionUtils.abbreviate(vocabulary.getTerms(), 10,
+                            new IToStringConverter<VocabularyTermPE>()
+                                {
 
-                            //
-                            // IToStringConverter
-                            //
+                                    //
+                                    // IToStringConverter
+                                    //
 
-                            public final String toString(final VocabularyTermPE term)
-                            {
-                                return term.getCode();
-                            }
-                        }));
+                                    public final String toString(final VocabularyTermPE term)
+                                    {
+                                        return term.getCode();
+                                    }
+                                }));
         }
+
+        private Set<String> createTerms(Set<VocabularyTermPE> vocabularyTerms)
+        {
+            Set<String> result = new HashSet<String>(vocabularyTerms.size());
+            for (VocabularyTermPE vocabularyTerm : vocabularyTerms)
+            {
+                result.add(vocabularyTerm.getCode());
+            }
+            return result;
+        }
+
     }
 
     private final static class MaterialValidator implements IDataTypeValidator

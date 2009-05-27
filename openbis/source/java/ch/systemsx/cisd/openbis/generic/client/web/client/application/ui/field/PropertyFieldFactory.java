@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.D
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 public class PropertyFieldFactory
 {
@@ -63,7 +64,7 @@ public class PropertyFieldFactory
             case TIMESTAMP:
                 return wrapUnaware(new DateFormField(label, isMandatory));
             case CONTROLLEDVOCABULARY:
-                return VocabularyTermSelectionWidget.create(fieldId, label, pt.getVocabulary(),
+                return createControlledVocabularyField(fieldId, label, pt.getVocabulary(),
                         isMandatory, viewContext);
             case INTEGER:
                 return wrapUnaware(new IntegerField(label, isMandatory));
@@ -78,6 +79,20 @@ public class PropertyFieldFactory
                 return wrapUnaware(new MultilineVarcharField(label, isMandatory));
         }
         throw new IllegalStateException("unknown enum " + dataType);
+    }
+
+    private static DatabaseModificationAwareField<?> createControlledVocabularyField(
+            String fieldId, String label, Vocabulary vocabulary, boolean isMandatory,
+            IViewContext<ICommonClientServiceAsync> viewContext)
+    {
+        if (vocabulary.isChosenFromList())
+        {
+            return VocabularyTermSelectionWidget.create(fieldId, label, vocabulary, isMandatory,
+                    viewContext);
+        } else
+        {
+            return wrapUnaware(new VocabularyTermField(label, isMandatory, vocabulary));
+        }
     }
 
     private static DatabaseModificationAwareField<?> wrapUnaware(Field<?> field)
