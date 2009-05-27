@@ -31,7 +31,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField.SampleChooserFieldAdaptor;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
@@ -160,7 +159,7 @@ public final class GenericDataSetEditForm
     @Override
     protected void loadForm()
     {
-        viewContext.getService().getDataSetInfo(techIdOrNull, GWTUtils.getBaseIndexURL(),
+        viewContext.getService().getDataSetInfo(techIdOrNull, getBaseIndexURL(),
                 new DataSetInfoCallback(viewContext));
 
     }

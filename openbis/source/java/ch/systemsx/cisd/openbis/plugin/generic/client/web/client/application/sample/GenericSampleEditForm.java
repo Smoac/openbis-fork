@@ -38,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
@@ -238,7 +237,7 @@ public final class GenericSampleEditForm extends
     @Override
     protected void loadForm()
     {
-        viewContext.getService().getSampleInfo(techIdOrNull, GWTUtils.getBaseIndexURL(),
+        viewContext.getService().getSampleInfo(techIdOrNull, getBaseIndexURL(),
                 new SampleInfoCallback(viewContext));
     }
 

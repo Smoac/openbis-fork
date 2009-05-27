@@ -21,7 +21,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -57,7 +56,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
     private void loadSamplesInBackground()
     {
         final ListSampleCriteria sampleCriteria =
-                ListSampleCriteria.createForExperiment(techIdOrNull, GWTUtils.getBaseIndexURL());
+                ListSampleCriteria.createForExperiment(techIdOrNull, getBaseIndexURL());
         viewContext.getCommonService().listSamples(sampleCriteria,
                 new ListSamplesCallback(viewContext));
     }
@@ -150,7 +149,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
     @Override
     protected void loadForm()
     {
-        viewContext.getService().getExperimentInfo(techIdOrNull, GWTUtils.getBaseIndexURL(),
+        viewContext.getService().getExperimentInfo(techIdOrNull, getBaseIndexURL(),
                 new ExperimentInfoCallback(viewContext));
     }
 

@@ -50,7 +50,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.en
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
@@ -123,7 +122,7 @@ public class SampleBrowserGrid extends
             String gridId, ExperimentType experimentType)
     {
         final ListSampleCriteria criteria =
-                ListSampleCriteria.createForExperiment(experimentId, GWTUtils.getBaseIndexURL());
+                ListSampleCriteria.createForExperiment(experimentId, getBaseIndexURL());
         ISampleCriteriaProvider criteriaProvider =
                 new SampleCriteriaProvider(viewContext, criteria);
         // we do not refresh the grid, the criteria provider will do this when property types will
