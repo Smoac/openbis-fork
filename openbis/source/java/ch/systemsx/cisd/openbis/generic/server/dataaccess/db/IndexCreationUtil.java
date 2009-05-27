@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
  */
 public final class IndexCreationUtil
 {
-    static final String DATABASE_NAME_PREFIX = "lims_";
+    static final String DATABASE_NAME_PREFIX = "openbis_";
 
     private static final Template DROP_DATABASE_TEMPLATE =
             new Template("drop database if exists ${duplicated-database}");
