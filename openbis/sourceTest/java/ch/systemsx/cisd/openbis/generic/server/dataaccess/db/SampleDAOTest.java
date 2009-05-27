@@ -23,9 +23,7 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.hibernate.classic.Session;
 import org.testng.annotations.Test;
@@ -181,13 +179,8 @@ public final class SampleDAOTest extends AbstractDAOTest
 
         List<SamplePE> samples =
                 sampleDAO.listSamplesByGroupAndProperty("USER.ORGANISM", "HUMAN", group);
-        assertEquals(2, samples.size());
-        Set<String> expectedSamples = new HashSet<String>(Arrays.asList("CP-TEST-1", "CP1-A1"));
-        for (SamplePE sample : samples)
-        {
-            assertTrue("Unexpected sample found: " + sample.getCode(), expectedSamples
-                    .contains(sample.getCode()));
-        }
+        assertEquals(1, samples.size());
+        assertEquals("CP-TEST-1", samples.get(0).getCode());
     }
 
     private GroupPE findGroup(String groupCode)
