@@ -921,6 +921,8 @@ public class DBMigrationEngineTest
                     will(returnValue(migrationStepExecutor));
                     one(daoFactory).getMigrationStepExecutorAdmin();
                     will(returnValue(migrationStepExecutorAdmin));
+                    
+                    one(adminDAO).createGroups();
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(true));
