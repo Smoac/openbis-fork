@@ -18,6 +18,7 @@ package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -324,7 +325,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
             return;
         }
         final Set<StoreItem> itemSet = new HashSet<StoreItem>(Arrays.asList(allStoreItemsOrNull));
-        for (StoreItem errorItem : errorLog.keySet())
+        for (StoreItem errorItem : new ArrayList<StoreItem>(errorLog.keySet()))
         {
             if (itemSet.contains(errorItem) == false)
             {
