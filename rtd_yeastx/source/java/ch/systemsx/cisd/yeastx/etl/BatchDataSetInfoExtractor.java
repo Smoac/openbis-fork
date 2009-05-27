@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.yeastx.etl;
 
 import java.io.File;
+import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -25,6 +26,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
  * @author Tomasz Pylak
@@ -32,6 +34,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
 {
     private static final String GROUP_CODE_PROPERTY_NAME = "group-code";
+
+    private static final String PROPERTIES_PREFIX = "USER.";
 
     private final String groupCode;
 
@@ -63,7 +67,7 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
         {
             DataSetInformation info = new DataSetInformation();
             info.setComplete(true);
-            info.setDataSetProperties(plainInfo.getProperties());
+            info.setDataSetProperties(adaptPropertyNames(plainInfo.getProperties()));
             info.setSampleCode(getSampleCode(plainInfo));
             info.setGroupCode(groupCode);
             return info;
@@ -73,6 +77,19 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
             throw new UserFailureException("No mapping found for the dataset file "
                     + incomingDataSetPath.getPath());
         }
+    }
+
+    private List<NewProperty> adaptPropertyNames(List<NewProperty> properties)
+    {
+        for (NewProperty prop : properties)
+        {
+            String propertyCode = prop.getPropertyCode();
+            if (propertyCode.startsWith(PROPERTIES_PREFIX) == false)
+            {
+                prop.setPropertyCode(PROPERTIES_PREFIX + propertyCode);
+            }
+        }
+        return properties;
     }
 
     private String getSampleCode(DataSetMappingInformation plainInfo)

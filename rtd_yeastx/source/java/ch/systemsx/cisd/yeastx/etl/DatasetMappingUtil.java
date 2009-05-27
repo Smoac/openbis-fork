@@ -17,7 +17,15 @@
 package ch.systemsx.cisd.yeastx.etl;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.io.IOUtils;
 
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
@@ -104,5 +112,47 @@ public class DatasetMappingUtil
         {
             return indexFile;
         }
+    }
+
+    public static void deleteMappingFile(File parentDir)
+    {
+        File mappingFile = tryGetMappingFile(parentDir);
+        if (mappingFile != null && mappingFile.isFile())
+        {
+            mappingFile.delete();
+        }
+    }
+
+    /**
+     * Removes from the specified file these lines which describe the already processed files.
+     * 
+     * @param processedFiles files which should be removed from the mapping file
+     */
+    public static void cleanMappingFile(File parentDir, Set<String> processedFiles)
+            throws IOException
+    {
+        File mappingFile = tryGetMappingFile(parentDir);
+        if (mappingFile == null)
+        {
+            return;
+        }
+        List<String> lines = readLines(mappingFile);
+        List<String> unprocessedLines = new ArrayList<String>();
+        for (String line : lines)
+        {
+            String tokens[] = line.trim().split("\t");
+            if (tokens.length == 0 || processedFiles.contains(tokens[0].toLowerCase()) == false)
+            {
+                unprocessedLines.add(line);
+            }
+        }
+        IOUtils.writeLines(unprocessedLines, "\n", new FileOutputStream(mappingFile));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<String> readLines(File mappingFile) throws IOException,
+            FileNotFoundException
+    {
+        return IOUtils.readLines(new FileInputStream(mappingFile));
     }
 }
