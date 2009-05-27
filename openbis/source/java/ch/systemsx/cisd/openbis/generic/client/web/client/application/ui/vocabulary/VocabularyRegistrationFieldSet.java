@@ -89,8 +89,8 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
         add(vocabularyCodeField = createCodeField());
         add(vocabularyDescriptionField =
                 createDescriptionField(messageProvider.getMessage(Dict.DESCRIPTION), false));
-        add(chosenFromListCheckbox = createChosenFromListCheckbox());
         createVocabularyTermsSection();
+        add(chosenFromListCheckbox = createChosenFromListCheckbox());
     }
 
     private void createVocabularyTermsSection()
@@ -128,7 +128,8 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
     {
         final CheckBox checkBox = new CheckBox();
         checkBox.setId(idPrefix + "_chosen-from-list");
-        checkBox.setFieldLabel(messageProvider.getMessage(Dict.CHOSEN_FROM_LIST));
+        checkBox.setFieldLabel(messageProvider
+                .getMessage(Dict.VOCABULARY_SHOW_AVAILABLE_TERMS_IN_CHOOSERS));
         checkBox.setValue(true);
         return checkBox;
     }
@@ -190,9 +191,9 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
     {
         private Radio freeText;
 
-        private TextArea termsArea;
-
         private Radio fromFile;
+
+        private TextArea termsArea;
 
         private VarcharField uriField;
 
@@ -204,8 +205,8 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
             // freeText
             add(termsArea = createTermsArea());
             // fromFile
-            add(uriField = createURIField());
             add(uploadFileField = createImportFileField());
+            add(uriField = createURIField());
             //
             updateSection();
         }
@@ -223,21 +224,23 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
         {
             final RadioGroup result = new RadioGroup();
             result.setSelectionRequired(true);
-            result.setFieldLabel(messageProvider.getMessage(Dict.VOCABULARY_TERMS_SOURCE));
             result.setOrientation(Orientation.HORIZONTAL);
             result.addListener(Events.Change, new Listener<BaseEvent>()
                 {
                     public void handleEvent(BaseEvent be)
                     {
+                        Boolean useFreeText = freeText.getValue();
+                        chosenFromListCheckbox.setValue(useFreeText);
                         updateSection();
                     }
                 });
 
-            freeText = createRadio("specified by hand");
-            fromFile = createRadio("registered from a file");
+            freeText = createRadio("specify the list of terms");
+            fromFile = createRadio("load terms from a file");
             result.add(freeText);
             result.add(fromFile);
             result.setValue(freeText);
+            result.setLabelSeparator("");
             return result;
         }
 

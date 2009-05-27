@@ -176,15 +176,14 @@ var common = {
   type_of: "Entity",
   vocabulary: "Vocabulary",
   vocabulary_terms: "Terms",
-  vocabulary_terms_source: "Data source",
   vocabulary_terms_source_uri: "Source URI",
   vocabulary_terms_empty: "Space or comma separated list of terms.",
+  vocabulary_show_available_terms_in_choosers: "Show available terms in choosers",
   missing_vocabulary_terms: "Missing vocabulary term.",
   mandatory: "Mandatory",
   default_value: "Initial Value",
   default_value_tooltip: "The value of the assigned property for all currently existing entities.",
   entity_type_assignments: "{0} Type Assignment{1}",
-  chosen_from_list: "Chosen from list",
   
   //
   // Property Type Assignments Browser
