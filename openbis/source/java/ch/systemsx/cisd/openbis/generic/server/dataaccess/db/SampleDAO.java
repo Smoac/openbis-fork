@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -37,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
@@ -260,6 +262,50 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
                     sample));
         }
         return list;
+    }
+
+    public final List<SamplePE> listSamplesByGroupAndProperty(final String propertyCode,
+            final String propertyValue, final GroupPE group) throws DataAccessException
+    {
+        assert group != null : "Unspecified group.";
+        assert propertyCode != null : "Unspecified property code";
+        assert propertyValue != null : "Unspecified property value";
+
+        String queryFormat =
+                "from " + SamplePropertyPE.class.getSimpleName()
+                        + " where %s = ? and entity.group = ? "
+                        + " and entityTypePropertyType.propertyTypeInternal.simpleCode = ?"
+                        + " and entityTypePropertyType.propertyTypeInternal.internalNamespace = ?";
+        String queryPropertySimpleValue = String.format(queryFormat, "value");
+        String queryPropertyVocabularyTerm = String.format(queryFormat, "vocabularyTerm.code");
+
+        String simplePropertyCode = CodeConverter.tryToDatabase(propertyCode);
+        boolean isInternalNamespace = CodeConverter.isInternalNamespace(propertyCode);
+        Object[] arguments = toArray(propertyValue, group, simplePropertyCode, isInternalNamespace);
+        List<SamplePropertyPE> properties1 =
+                cast(getHibernateTemplate().find(queryPropertySimpleValue, arguments));
+        List<SamplePropertyPE> properties2 =
+                cast(getHibernateTemplate().find(queryPropertyVocabularyTerm, arguments));
+        properties1.addAll(properties2);
+        List<SamplePE> samples = extractSamples(properties1);
+
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "%d samples have been found for group '%s' and property '%s' equal to '%s'.",
+                    samples.size(), group, propertyCode, propertyValue));
+        }
+        return samples;
+    }
+
+    private static List<SamplePE> extractSamples(List<SamplePropertyPE> properties)
+    {
+        List<SamplePE> samples = new ArrayList<SamplePE>();
+        for (SamplePropertyPE prop : properties)
+        {
+            samples.add(prop.getEntity());
+        }
+        return samples;
     }
 
     public final SamplePE tryFindByCodeAndDatabaseInstance(final String sampleCode,

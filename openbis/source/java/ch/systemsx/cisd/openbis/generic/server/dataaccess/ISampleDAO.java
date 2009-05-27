@@ -97,4 +97,11 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
             final SampleTypePE sampleType, final DatabaseInstancePE databaseInstance)
             throws DataAccessException;
 
+    /**
+     * Lists samples (with minimal additional information) belonging to the given <code>group</code>
+     * and having a property with the specified value.
+     */
+    List<SamplePE> listSamplesByGroupAndProperty(final String propertyCode,
+            final String propertyValue, final GroupPE group) throws DataAccessException;
+
 }

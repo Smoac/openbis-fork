@@ -23,7 +23,9 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.classic.Session;
 import org.testng.annotations.Test;
@@ -157,6 +159,44 @@ public final class SampleDAOTest extends AbstractDAOTest
         assertNotNull(sample);
         final List<SamplePE> samples = sampleDAO.listSamplesWithPropertiesByContainer(sample);
         assertEquals(320, samples.size());
+    }
+
+    @Test
+    public final void testListSamplesBySimpleProperty()
+    {
+        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
+        GroupPE group = findGroup("CISD");
+
+        List<SamplePE> samples = sampleDAO.listSamplesByGroupAndProperty("USER.SIZE", "321", group);
+
+        assertEquals(1, samples.size());
+        assertEquals("CP-TEST-2", samples.get(0).getCode());
+    }
+
+    @Test
+    public final void testListSamplesByVocabularyTermProperty()
+    {
+        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
+        GroupPE group = findGroup("CISD");
+
+        List<SamplePE> samples =
+                sampleDAO.listSamplesByGroupAndProperty("USER.ORGANISM", "HUMAN", group);
+        assertEquals(2, samples.size());
+        Set<String> expectedSamples = new HashSet<String>(Arrays.asList("CP-TEST-1", "CP1-A1"));
+        for (SamplePE sample : samples)
+        {
+            assertTrue("Unexpected sample found: " + sample.getCode(), expectedSamples
+                    .contains(sample.getCode()));
+        }
+    }
+
+    private GroupPE findGroup(String groupCode)
+    {
+        GroupPE group =
+                daoFactory.getGroupDAO().tryFindGroupByCodeAndDatabaseInstance(groupCode,
+                        daoFactory.getHomeDatabaseInstance());
+        assert group != null : "group not found: " + groupCode;
+        return group;
     }
 
     @Test
