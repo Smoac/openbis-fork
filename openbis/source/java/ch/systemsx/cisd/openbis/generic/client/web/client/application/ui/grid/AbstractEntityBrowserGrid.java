@@ -24,10 +24,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.ShowDetailsLinkCellRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -187,6 +191,12 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
         criteria.setSortInfo(resultSetConfig.getSortInfo());
         criteria.setFilterInfos(resultSetConfig.getFilterInfos());
         criteria.setResultSetKey(resultSetConfig.getResultSetKey());
+    }
+
+    protected final GridCellRenderer<BaseEntityModel<?>> createShowDetailsLinkCellRenderer()
+    {
+        return new ShowDetailsLinkCellRenderer(viewContext
+                .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE));
     }
 
     // ------ static helpers

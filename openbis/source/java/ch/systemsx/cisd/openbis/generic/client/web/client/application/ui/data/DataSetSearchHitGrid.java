@@ -33,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.ShowDetailsLinkCellRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetSearchHitColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
@@ -195,8 +194,7 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
                 linkRenderer);
         schema.setGridCellRendererFor(DataSetSearchHitColDefKind.EXPERIMENT.id(), linkRenderer);
         schema.setGridCellRendererFor(DataSetSearchHitColDefKind.SHOW_DETAILS_LINK.id(),
-                new ShowDetailsLinkCellRenderer(viewContext
-                        .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE)));
+                createShowDetailsLinkCellRenderer());
         return schema;
     }
 

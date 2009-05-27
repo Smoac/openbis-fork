@@ -38,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Samp
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.ShowDetailsLinkCellRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
@@ -355,8 +354,7 @@ public class SampleBrowserGrid extends
         schema.setGridCellRendererFor(CommonSampleColDefKind.CODE.id(), LinkRenderer
                 .createGridCellRenderer());
         schema.setGridCellRendererFor(CommonSampleColDefKind.SHOW_DETAILS_LINK.id(),
-                new ShowDetailsLinkCellRenderer(viewContext
-                        .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE)));
+                createShowDetailsLinkCellRenderer());
         return schema;
     }
 
