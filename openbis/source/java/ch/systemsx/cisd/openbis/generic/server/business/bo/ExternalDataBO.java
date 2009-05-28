@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
@@ -46,7 +47,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
@@ -158,7 +158,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
             parents.add(getOrCreateParentData(parentDataSetCode, dataStore, sample));
             externalData.setParents(parents);
         }
-        
+
         externalData.setSample(sample);
         externalData.setDerived(sourceType == SourceType.DERIVED);
     }
@@ -265,6 +265,12 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         updateSample(sampleIdentifier);
         entityPropertiesConverter.checkMandatoryProperties(externalData.getProperties(),
                 externalData.getDataSetType());
+        validateAndSave();
+    }
+
+    private void validateAndSave()
+    {
+        getExternalDataDAO().validateAndSaveUpdatedEntity(externalData);
     }
 
     private void updateProperties(List<DataSetProperty> properties)

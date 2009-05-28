@@ -178,8 +178,16 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<External
             }
         }),
 
-    SHOW_DETAILS_LINK(new AbstractColumnDefinitionKind<ExternalData>(Dict.SHOW_DETAILS_LINK, 150,
-            false)
+    PERM_ID(new AbstractColumnDefinitionKind<ExternalData>(Dict.PERM_ID, true)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                return entity.getPermId();
+            }
+        }),
+
+    SHOW_DETAILS_LINK(new AbstractColumnDefinitionKind<ExternalData>(Dict.SHOW_DETAILS_LINK, 150)
         {
             @Override
             public String tryGetValue(ExternalData entity)

@@ -140,7 +140,7 @@ public final class MaterialBO extends AbstractBusinessObject implements IMateria
     public void update(TechId materialId, List<MaterialProperty> properties, Date version)
     {
         loadDataByTechId(materialId);
-        if (material.getModificationDate().equals(version) == false)
+        if (version.equals(material.getModificationDate()) == false)
         {
             throwModifiedEntityException("Material");
         }

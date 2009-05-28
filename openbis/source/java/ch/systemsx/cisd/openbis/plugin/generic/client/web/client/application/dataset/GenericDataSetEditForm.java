@@ -51,6 +51,8 @@ public final class GenericDataSetEditForm
         AbstractGenericEntityRegistrationForm<DataSetType, DataSetTypePropertyType, DataSetProperty>
 {
 
+    private static final String SAMPLE_FIELD_ID_SUFFIX = "sample_field";
+
     private SampleChooserFieldAdaptor sampleField;
 
     private ExternalData originalDataSet;
@@ -66,6 +68,11 @@ public final class GenericDataSetEditForm
             IIdentifiable identifiable)
     {
         super(viewContext, identifiable, EntityKind.DATA_SET);
+    }
+
+    private String createChildId(String childSuffix)
+    {
+        return getId() + childSuffix;
     }
 
     @Override
@@ -106,18 +113,10 @@ public final class GenericDataSetEditForm
         }
     }
 
-    private SampleChooserFieldAdaptor createSampleField()
-    {
-        String label = viewContext.getMessage(Dict.SAMPLE);
-        String originalSample = originalDataSet.getSampleIdentifier();
-        // one cannot select a sample from shared group or a sample that has no experiment
-        return SampleChooserField.create(label, true, originalSample, false, true, viewContext
-                .getCommonViewContext());
-    }
-
     private void updateOriginalValues()
     {
         updatePropertyFieldsOriginalValues();
+        sampleField.updateOriginalValue();
     }
 
     @Override
@@ -141,6 +140,19 @@ public final class GenericDataSetEditForm
     protected void createEntitySpecificFormFields()
     {
         this.sampleField = createSampleField();
+    }
+
+
+    private SampleChooserFieldAdaptor createSampleField()
+    {
+        String label = viewContext.getMessage(Dict.SAMPLE);
+        String originalSample = originalDataSet.getSampleIdentifier();
+        // one cannot select a sample from shared group or a sample that has no experiment
+        SampleChooserFieldAdaptor result =
+                SampleChooserField.create(label, true, originalSample, false, true, viewContext
+                        .getCommonViewContext());
+        result.getField().setId(createChildId(SAMPLE_FIELD_ID_SUFFIX));
+        return result;
     }
 
     @Override

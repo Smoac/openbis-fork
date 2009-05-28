@@ -13,17 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.systemsx.cisd.openbis.generic.shared.dto;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
  * The type of source represented by given <code>Sample</code> id.
  * <p>
- * This will specify {@link DataPE#isDerived} value.
+ * This is connected with {@link DataPE#isDerived} value.
  * </p>
  * 
  * @author Christian Ribeaud
  */
 public enum SourceType
 {
-    MEASUREMENT, DERIVED
+    MEASUREMENT, DERIVED;
+
+    public static SourceType create(boolean derived)
+    {
+        return derived ? DERIVED : MEASUREMENT;
+    }
 }

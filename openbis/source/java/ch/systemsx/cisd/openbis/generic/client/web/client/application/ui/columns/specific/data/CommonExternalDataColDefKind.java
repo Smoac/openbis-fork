@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 
 /**
  * @author Franz-Josef Elmer
@@ -84,12 +85,12 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             }
         }),
 
-    IS_DERIVED(new AbstractColumnDefinitionKind<ExternalData>(Dict.IS_DERIVED, true)
+    SOURCE_TYPE(new AbstractColumnDefinitionKind<ExternalData>(Dict.SOURCE_TYPE, true)
         {
             @Override
             public String tryGetValue(ExternalData entity)
             {
-                return SimpleYesNoRenderer.render(entity.isDerived());
+                return SourceType.create(entity.isDerived()).name();
             }
         }),
 

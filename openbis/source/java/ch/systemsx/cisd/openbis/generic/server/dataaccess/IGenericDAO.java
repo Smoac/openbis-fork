@@ -49,4 +49,15 @@ public interface IGenericDAO<T extends IIdHolder>
      *         {@link HibernateProxy}. Use {@link HibernateUtils#getId(IIdHolder)} instead.
      */
     public T tryGetByTechId(final TechId techId, String... connections);
+
+    /**
+     * Updates given persistent (already saved) <var>entity</var> after successful validation.<br>
+     * <br>
+     * Useful especially instead of a save() method (used for making entity persistent) after BO
+     * update that does not flush.
+     * 
+     * @param entity the entity to be validated and updated
+     */
+    public void validateAndSaveUpdatedEntity(T entity);
+
 }

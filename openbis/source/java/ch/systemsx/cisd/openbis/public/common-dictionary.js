@@ -335,7 +335,7 @@ var common = {
  //
  location: "Location",
  external_data_sample: "Sample",
- is_derived: "Derived?",
+ source_type: "Source Type",
  is_complete: "Complete?",
  data_set_type: "Data Set Type",
  parent_code: "Parent Code",

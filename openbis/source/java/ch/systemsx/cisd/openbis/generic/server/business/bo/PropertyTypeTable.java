@@ -59,17 +59,21 @@ public final class PropertyTypeTable extends AbstractBusinessObject implements I
         }
         for (final PropertyTypePE pt : propertyTypes)
         {
+            // optimize?
             HibernateUtils.initialize(pt.getMaterialTypePropertyTypes());
             HibernateUtils.initialize(pt.getSampleTypePropertyTypes());
             HibernateUtils.initialize(pt.getExperimentTypePropertyTypes());
             HibernateUtils.initialize(pt.getDataSetTypePropertyTypes());
             HibernateUtils.initialize(pt.getVocabulary());
-            if (pt.getVocabulary() != null)
+            // TODO 2009-05-28, Piotr Buczek: terms are still loaded even for browsers
+            if (pt.getVocabulary() != null && pt.getVocabulary().isChosenFromList())
             {
                 HibernateUtils.initialize(pt.getVocabulary().getTerms());
+            } else
+            {
+                System.err.println("not initialized");
             }
 
         }
     }
-
 }

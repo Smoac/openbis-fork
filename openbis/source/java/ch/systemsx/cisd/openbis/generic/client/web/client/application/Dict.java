@@ -277,7 +277,7 @@ public abstract class Dict
 
     public static final String VOCABULARY_SHOW_AVAILABLE_TERMS_IN_CHOOSERS =
             "vocabulary_show_available_terms_in_choosers";
-    
+
     public static final String MANDATORY = "mandatory";
 
     public static final String DEFAULT_VALUE = "default_value";
@@ -347,7 +347,7 @@ public abstract class Dict
 
     public static final String EXTERNAL_DATA_SAMPLE = "external_data_sample";
 
-    public static final String IS_DERIVED = "is_derived";
+    public static final String SOURCE_TYPE = "source_type";
 
     public static final String IS_COMPLETE = "is_complete";
 

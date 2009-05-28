@@ -49,7 +49,7 @@ public class DataSetSearchTest extends AbstractGWTTestCase
         row.withCell(DataSetSearchHitColDefKind.LOCATION.id(), "a/3");
         row.withPropertyCell("comment", "no comment");
         checkResultTableCmd.expectedRow(row);
-        checkResultTableCmd.expectedColumnsNumber(25);
+        checkResultTableCmd.expectedColumnsNumber(26);
         remoteConsole.prepare(checkResultTableCmd);
 
         launchTest(30000);
@@ -68,7 +68,7 @@ public class DataSetSearchTest extends AbstractGWTTestCase
         row.withCell(DataSetSearchHitColDefKind.LOCATION.id(), "a/1");
         row.withPropertyCell("comment", "no comment");
         checkResultTableCmd.expectedRow(row);
-        checkResultTableCmd.expectedColumnsNumber(25);
+        checkResultTableCmd.expectedColumnsNumber(26);
         remoteConsole.prepare(checkResultTableCmd);
 
         launchTest(20000);

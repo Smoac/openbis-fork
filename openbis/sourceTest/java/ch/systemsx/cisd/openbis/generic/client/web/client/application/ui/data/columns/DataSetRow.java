@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.c
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 
 /**
  * @author Franz-Josef Elmer
@@ -29,7 +30,7 @@ public class DataSetRow extends Row
     {
         withCell(CommonExternalDataColDefKind.CODE, code);
     }
-    
+
     public DataSetRow invalid()
     {
         withInvalidation(true);
@@ -66,7 +67,7 @@ public class DataSetRow extends Row
 
     private DataSetRow withIsDerived(boolean derived)
     {
-        withCell(CommonExternalDataColDefKind.IS_DERIVED, derived);
+        withCell(CommonExternalDataColDefKind.SOURCE_TYPE, SourceType.create(derived).name());
         return this;
     }
 
@@ -92,11 +93,6 @@ public class DataSetRow extends Row
     {
         withCell(CommonExternalDataColDefKind.SAMPLE_TYPE, sampleType);
         return this;
-    }
-
-    private void withCell(CommonExternalDataColDefKind definition, boolean value)
-    {
-        withCell(definition.id(), SimpleYesNoRenderer.render(value));
     }
 
     private void withCell(CommonExternalDataColDefKind definition, String value)

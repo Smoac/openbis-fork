@@ -88,4 +88,19 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
         }
         return result;
     }
+
+    // TODO 2009-05-28, Piotr Buczek: use this instead of save() after BO update that does not flush
+    public final void validateAndSaveUpdatedEntity(T entity)
+    {
+        assert entity != null : "entity is null";
+
+        // as long as CODE cannot be edited we don't have to translate it with a converter here
+        // because the code set in updated entity should be the one already translated during save
+        // but if we allow it this will have to be changed for entities with codes e.g.
+        // like for experiment:
+        // experiment.setCode(CodeConverter.tryToDatabase(experiment.getCode()));
+
+        validatePE(entity);
+        getHibernateTemplate().flush();
+    }
 }
