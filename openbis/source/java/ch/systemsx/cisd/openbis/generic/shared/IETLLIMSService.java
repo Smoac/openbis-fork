@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
+import java.util.List;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -23,12 +25,14 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSamplesByPropertyPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -46,9 +50,9 @@ public interface IETLLIMSService extends IWebService, ISessionProvider
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)
     public DatabaseInstancePE getHomeDatabaseInstance(final String sessionToken);
-    
+
     /**
-     * Registers a Data Store Server for the specified info. 
+     * Registers a Data Store Server for the specified info.
      */
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
@@ -59,13 +63,15 @@ public interface IETLLIMSService extends IWebService, ISessionProvider
      * 
      * @param sessionToken the user authentication token. Must not be <code>null</code>.
      * @param sampleIdentifier an identifier which uniquely identifies the sample.
-     * @return <code>null</code> if no experiment could be found for given <var>sampleIdentifier</var>.
+     * @return <code>null</code> if no experiment could be found for given
+     *         <var>sampleIdentifier</var>.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)
-    public ExperimentPE tryToGetBaseExperiment(final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            final SampleIdentifier sampleIdentifier) throws UserFailureException;
+    public ExperimentPE tryToGetBaseExperiment(
+            final String sessionToken,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) final SampleIdentifier sampleIdentifier)
+            throws UserFailureException;
 
     /**
      * Tries to return the properties of the top sample (e.g. master plate) registered for the
@@ -78,9 +84,10 @@ public interface IETLLIMSService extends IWebService, ISessionProvider
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)
-    public SamplePropertyPE[] tryToGetPropertiesOfTopSampleRegisteredFor(final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            final SampleIdentifier sampleIdentifier) throws UserFailureException;
+    public SamplePropertyPE[] tryToGetPropertiesOfTopSampleRegisteredFor(
+            final String sessionToken,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) final SampleIdentifier sampleIdentifier)
+            throws UserFailureException;
 
     /**
      * Registers the specified data.
@@ -88,18 +95,18 @@ public interface IETLLIMSService extends IWebService, ISessionProvider
      * @param sessionToken The user authentication token. Must not be <code>null</code>.
      * @param sampleIdentifier an identifier which uniquely identifies the sample.
      * @param externalData Data set to be registered. It is assumed that the attributes
-     *            <code>location</code>, <code>fileFormatType</code>, <code>dataSetType</code>,
-     *            and <code>locatorType</code> are not-<code>null</code>.
+     *            <code>location</code>, <code>fileFormatType</code>, <code>dataSetType</code>, and
+     *            <code>locatorType</code> are not-<code>null</code>.
      * @throws UserFailureException if given data set code could not be found in the persistence
      *             layer.
      */
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
-    public void registerDataSet(final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            final SampleIdentifier sampleIdentifier, final ExternalData externalData)
-            throws UserFailureException;
-    
+    public void registerDataSet(
+            final String sessionToken,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) final SampleIdentifier sampleIdentifier,
+            final ExternalData externalData) throws UserFailureException;
+
     /**
      * Tries to return the data set specified by its code.
      */
@@ -114,5 +121,16 @@ public interface IETLLIMSService extends IWebService, ISessionProvider
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
     public String createDataSetCode(final String sessionToken) throws UserFailureException;
+
+    /**
+     * Lists samples codes filtered by specified criteria, see {@link ListSamplesByPropertyCriteria}
+     * to see the details.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.ETL_SERVER)
+    public List<String> listSamplesByCriteria(
+            final String sessionToken,
+            @AuthorizationGuard(guardClass = ListSamplesByPropertyPredicate.class) final ListSamplesByPropertyCriteria criteria)
+            throws UserFailureException;
 
 }

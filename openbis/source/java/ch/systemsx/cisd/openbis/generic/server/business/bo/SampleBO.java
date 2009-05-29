@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -327,30 +326,6 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     {
         return experimentOrNull == null ? newExperimentOrNull == null : experimentOrNull
                 .equals(newExperimentOrNull);
-    }
-
-    private ExperimentPE findExperiment(ExperimentIdentifier identifierOrNull)
-    {
-        String groupCode = identifierOrNull.getGroupCode();
-        String projectCode = identifierOrNull.getProjectCode();
-        String databaseInstanceCode = identifierOrNull.getDatabaseInstanceCode();
-        ProjectPE project =
-                getProjectDAO().tryFindProject(databaseInstanceCode, groupCode, projectCode);
-        if (project == null)
-        {
-            throw UserFailureException.fromTemplate(
-                    "No project '%s' could be found in the '%s' group!", projectCode, groupCode);
-        }
-        String experimentCode = identifierOrNull.getExperimentCode();
-        ExperimentPE experiment =
-                getExperimentDAO().tryFindByCodeAndProject(project, experimentCode);
-        if (experiment == null)
-        {
-            throw UserFailureException.fromTemplate(
-                    "No experiment '%s' could be found in the '%s/%s' project!", experimentCode,
-                    groupCode, projectCode);
-        }
-        return experiment;
     }
 
     private void updateProperties(List<SampleProperty> properties)

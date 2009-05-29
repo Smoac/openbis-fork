@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
@@ -43,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -327,6 +329,28 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         externalDataBO.loadByCode(dataSetCode);
         externalDataBO.enrichWithParentsAndExperiment();
         return externalDataBO.getExternalData();
+    }
+
+    public List<String> listSamplesByCriteria(String sessionToken,
+            ListSamplesByPropertyCriteria criteria) throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        assert criteria != null : "Unspecified criteria.";
+
+        Session session = sessionManager.getSession(sessionToken);
+        ISampleTable sampleTable = boFactory.createSampleTable(session);
+        sampleTable.loadSamplesByCriteria(criteria);
+        return extractCodes(sampleTable.getSamples());
+    }
+
+    private static List<String> extractCodes(List<SamplePE> samples)
+    {
+        List<String> codes = new ArrayList<String>();
+        for (SamplePE sample : samples)
+        {
+            codes.add(sample.getCode());
+        }
+        return codes;
     }
 
 }

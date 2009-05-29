@@ -28,10 +28,13 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -70,19 +73,63 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
     // ISampleTable
     //
 
+    public final void loadSamplesByCriteria(final ListSamplesByPropertyCriteria criteria)
+    {
+        GroupPE group = findGroup(criteria.getGroupCode());
+        List<SamplePE> foundSamples =
+                getSampleDAO().listSamplesByGroupAndProperty(criteria.getPropertyCode(),
+                        criteria.getPropertyValue(), group);
+        if (criteria.getExperimentIdentifier() != null)
+        {
+            foundSamples =
+                    filterSamplesByExperiment(foundSamples, criteria.getExperimentIdentifier());
+        }
+        samples = foundSamples;
+    }
+
+    private List<SamplePE> filterSamplesByExperiment(List<SamplePE> foundSamples,
+            ExperimentIdentifier experimentIdentifier)
+    {
+        ExperimentPE expectedExperiment = findExperiment(experimentIdentifier);
+        List<SamplePE> filteredSamples = new ArrayList<SamplePE>();
+        for (SamplePE sample : foundSamples)
+        {
+            if (expectedExperiment.equals(sample.getExperiment()))
+            {
+                filteredSamples.add(sample);
+            }
+        }
+        return filteredSamples;
+    }
+
+    private GroupPE findGroup(String groupCode)
+    {
+        GroupPE group =
+                getGroupDAO().tryFindGroupByCodeAndDatabaseInstance(groupCode,
+                        getHomeDatabaseInstance());
+        if (group == null)
+        {
+            throw UserFailureException
+                    .fromTemplate("No group with the name '%s' found!", groupCode);
+        }
+        return group;
+    }
+
     public final void loadSamplesByCriteria(final ListSampleCriteriaDTO criteria)
     {
         final TechId containerSampleId = criteria.getContainerSampleId();
         final TechId experimentId = criteria.getExperimentId();
         if (experimentId != null)
         {
-            // TODO 2009-05-19, Piotr Buczek: this could be done by one DAO method call with one SQL question
+            // TODO 2009-05-19, Piotr Buczek: this could be done by one DAO method call with one SQL
+            // question
             ExperimentPE experiment = getExperimentDAO().getByTechId(experimentId);
             samples = getSampleDAO().listSamplesWithPropertiesByExperiment(experiment);
             enrichWithHierarchy();
         } else if (containerSampleId != null)
         {
-            // TODO 2009-05-19, Piotr Buczek: this could be done by one DAO method call with one SQL question
+            // TODO 2009-05-19, Piotr Buczek: this could be done by one DAO method call with one SQL
+            // question
             final SamplePE container = getSampleByTechId(containerSampleId);
             samples = getSampleDAO().listSamplesWithPropertiesByContainer(container);
         } else

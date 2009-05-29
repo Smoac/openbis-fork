@@ -21,6 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -37,6 +38,12 @@ public interface ISampleTable
      * </p>
      */
     void loadSamplesByCriteria(final ListSampleCriteriaDTO criteria);
+
+    /**
+     * Lists samples filtered by specified criteria, see {@link ListSamplesByPropertyCriteria} to
+     * see the details.
+     */
+    void loadSamplesByCriteria(final ListSamplesByPropertyCriteria criteria);
 
     /**
      * Returns the loaded {@link SamplePE}s.
