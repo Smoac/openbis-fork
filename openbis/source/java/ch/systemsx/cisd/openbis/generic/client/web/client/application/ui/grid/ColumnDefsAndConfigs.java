@@ -74,7 +74,7 @@ public class ColumnDefsAndConfigs<T>
     private static <T> ColumnConfig createColumn(IColumnDefinitionUI<T> column)
     {
         final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setMenuDisabled(false);
+        columnConfig.setMenuDisabled(true);
         columnConfig.setSortable(true);
         columnConfig.setId(column.getIdentifier());
         columnConfig.setHeader(column.getHeader());
