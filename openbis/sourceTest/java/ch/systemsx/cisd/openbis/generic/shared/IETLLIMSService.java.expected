@@ -33,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -124,12 +123,12 @@ public interface IETLLIMSService extends IWebService, ISessionProvider
     public String createDataSetCode(final String sessionToken) throws UserFailureException;
 
     /**
-     * Lists samples filtered by specified criteria, see {@link ListSamplesByPropertyCriteria} to
-     * see the details.
+     * Lists samples codes filtered by specified criteria, see {@link ListSamplesByPropertyCriteria}
+     * to see the details.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)
-    public List<SamplePE> listSamplesByCriteria(
+    public List<String> listSamplesByCriteria(
             final String sessionToken,
             @AuthorizationGuard(guardClass = ListSamplesByPropertyPredicate.class) final ListSamplesByPropertyCriteria criteria)
             throws UserFailureException;
