@@ -34,6 +34,8 @@ public class DataSetMappingInformation
 
     private String experimentCode;
 
+    private String projectCode;
+
     private String conversion;
 
     private List<NewProperty> properties;
@@ -68,7 +70,18 @@ public class DataSetMappingInformation
     @BeanProperty(label = "experiment", optional = true)
     public void setExperimentCode(String experimentCode)
     {
-        this.experimentCode = experimentCode;
+        this.experimentCode = StringUtils.trimToNull(experimentCode);
+    }
+
+    public String getProjectCode()
+    {
+        return projectCode;
+    }
+
+    @BeanProperty(label = "project", optional = true)
+    public void setProjectCode(String projectCode)
+    {
+        this.projectCode = StringUtils.trimToNull(projectCode);
     }
 
     public String getConversion()

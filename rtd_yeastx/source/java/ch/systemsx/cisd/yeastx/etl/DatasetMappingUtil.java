@@ -29,6 +29,8 @@ import org.apache.commons.io.IOUtils;
 
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
+import ch.systemsx.cisd.common.collections.TableMap.UniqueKeyViolationException;
+import ch.systemsx.cisd.common.collections.TableMap.UniqueKeyViolationStrategy;
 
 /**
  * @author Tomasz Pylak
@@ -37,40 +39,45 @@ public class DatasetMappingUtil
 {
     private static final String MAPPING_FILE_NAME = "index.tsv";
 
-    private static TableMap<String, DataSetMappingInformation> asFileMap(
-            List<DataSetMappingInformation> list)
+    private static TableMap<String, DataSetMappingInformation> tryAsFileMap(
+            List<DataSetMappingInformation> list, File logDir)
     {
-        return new TableMap<String, DataSetMappingInformation>(list,
+        IKeyExtractor<String, DataSetMappingInformation> extractor =
                 new IKeyExtractor<String, DataSetMappingInformation>()
                     {
                         public String getKey(DataSetMappingInformation dataset)
                         {
                             return dataset.getFileName().toLowerCase();
                         }
-                    });
+                    };
+        try
+        {
+            return new TableMap<String, DataSetMappingInformation>(list, extractor,
+                    UniqueKeyViolationStrategy.ERROR);
+        } catch (UniqueKeyViolationException e)
+        {
+            LogUtils.error(logDir,
+                    "The file '%s' appears more than once. No datasets will be processed.", e
+                            .getInvalidKey());
+            return null;
+        }
     }
 
-    public static DataSetMappingInformation tryGetPlainDatasetInfo(File incomingDataSetPath)
+    public static DataSetMappingInformation tryGetDatasetMapping(File datasetFile)
     {
         TableMap<String, DataSetMappingInformation> datasetsMapping =
-                tryGetDatasetsMapping(incomingDataSetPath.getParentFile());
+                tryGetDatasetsMapping(datasetFile.getParentFile());
         if (datasetsMapping == null)
         {
             return null;
         }
-        return tryGetPlainDatasetInfo(incomingDataSetPath, datasetsMapping);
+        return tryGetDatasetMapping(datasetFile, datasetsMapping);
     }
 
-    public static boolean hasMapping(File incomingDataSetPath,
+    public static DataSetMappingInformation tryGetDatasetMapping(File datasetFile,
             TableMap<String, DataSetMappingInformation> datasetsMapping)
     {
-        return tryGetPlainDatasetInfo(incomingDataSetPath, datasetsMapping) != null;
-    }
-
-    private static DataSetMappingInformation tryGetPlainDatasetInfo(File incomingDataSetPath,
-            TableMap<String, DataSetMappingInformation> datasetsMapping)
-    {
-        String datasetFileName = incomingDataSetPath.getName();
+        String datasetFileName = datasetFile.getName();
         return datasetsMapping.tryGet(datasetFileName.toLowerCase());
     }
 
@@ -91,12 +98,13 @@ public class DatasetMappingUtil
         {
             return null;
         }
-        return asFileMap(list);
+        DatasetMappingResolver.adaptPropertyCodes(list);
+        return tryAsFileMap(list, parentDir);
     }
 
-    public static boolean isMappingFile(File incomingDataSetPath)
+    public static boolean isMappingFile(File file)
     {
-        return incomingDataSetPath.getName().equals(MAPPING_FILE_NAME);
+        return file.getName().equals(MAPPING_FILE_NAME);
     }
 
     private static File tryGetMappingFile(File parentDir)

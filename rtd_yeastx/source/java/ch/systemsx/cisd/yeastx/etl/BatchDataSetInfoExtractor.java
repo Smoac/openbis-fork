@@ -17,58 +17,44 @@
 package ch.systemsx.cisd.yeastx.etl;
 
 import java.io.File;
-import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
  * @author Tomasz Pylak
  */
 public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
 {
-    private static final String GROUP_CODE_PROPERTY_NAME = "group-code";
-
-    private static final String PROPERTIES_PREFIX = "USER.";
+    private final Properties properties;
 
     private final String groupCode;
 
     public BatchDataSetInfoExtractor(final Properties globalProperties)
     {
-        Properties properties =
-                ExtendedProperties.getSubset(globalProperties, EXTRACTOR_KEY + '.', true);
-        this.groupCode = properties.getProperty(GROUP_CODE_PROPERTY_NAME);
-        ensureGroupCodeDefined();
+        this.properties = ExtendedProperties.getSubset(globalProperties, EXTRACTOR_KEY + '.', true);
+        this.groupCode = DatasetMappingResolver.getGroupCode(properties);
     }
 
-    private void ensureGroupCodeDefined()
-    {
-        if (groupCode == null)
-        {
-            throw ConfigurationFailureException
-                    .fromTemplate(
-                            "No group code defined in server configuration. Use '%s' property to specify it.",
-                            GROUP_CODE_PROPERTY_NAME);
-        }
-    }
-
-    public DataSetInformation getDataSetInformation(File incomingDataSetPath)
-            throws UserFailureException, EnvironmentFailureException
+    public DataSetInformation getDataSetInformation(File incomingDataSetPath,
+            IEncapsulatedOpenBISService openbisService) throws UserFailureException,
+            EnvironmentFailureException
     {
         DataSetMappingInformation plainInfo =
-                DatasetMappingUtil.tryGetPlainDatasetInfo(incomingDataSetPath);
+                DatasetMappingUtil.tryGetDatasetMapping(incomingDataSetPath);
         if (plainInfo != null)
         {
             DataSetInformation info = new DataSetInformation();
             info.setComplete(true);
-            info.setDataSetProperties(adaptPropertyNames(plainInfo.getProperties()));
-            info.setSampleCode(getSampleCode(plainInfo));
+            info.setDataSetProperties(plainInfo.getProperties());
+            String sampleCode =
+                    getSampleCode(plainInfo, openbisService, incomingDataSetPath.getParentFile());
+            info.setSampleCode(sampleCode);
             info.setGroupCode(groupCode);
             return info;
         } else
@@ -79,28 +65,18 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
         }
     }
 
-    private List<NewProperty> adaptPropertyNames(List<NewProperty> properties)
+    private String getSampleCode(DataSetMappingInformation mapping,
+            IEncapsulatedOpenBISService openbisService, File logDir)
     {
-        for (NewProperty prop : properties)
+        String sampleCode =
+                new DatasetMappingResolver(properties, openbisService).tryFigureSampleCode(mapping,
+                        logDir);
+        if (sampleCode == null)
         {
-            String propertyCode = prop.getPropertyCode();
-            if (propertyCode.startsWith(PROPERTIES_PREFIX) == false)
-            {
-                prop.setPropertyCode(PROPERTIES_PREFIX + propertyCode);
-            }
+            // should not happen, the dataset handler should skip datasets with incorrect mapping
+            throw UserFailureException.fromTemplate("Cannot find a sample for the file '%s'.",
+                    mapping.getFileName());
         }
-        return properties;
+        return sampleCode;
     }
-
-    private String getSampleCode(DataSetMappingInformation plainInfo)
-    {
-        return getSampleCode(plainInfo.getSampleCodeOrLabel(), plainInfo.getExperimentCode());
-    }
-
-    // TODO 2009-05-25, Tomasz Pylak: implement sample extraction
-    private String getSampleCode(String sampleCodeOrLabel, String experimentCodeOrNull)
-    {
-        return sampleCodeOrLabel;
-    }
-
 }
