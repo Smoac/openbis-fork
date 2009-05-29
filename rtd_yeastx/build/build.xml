@@ -19,7 +19,7 @@
 		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
 		<recursive-jar destfile="${jar.file}">
 			<fileset dir="${classes}">
-				<include name="**/*.class" />
+				<include name="ch/systemsx/cisd/yeastx/**/*.class" />
 				<include name="${build.info.filename}" />
 			</fileset>
 		</recursive-jar>
