@@ -21,6 +21,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.common.converter.Converter;
 import ch.systemsx.cisd.common.converter.ConverterPool;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
@@ -100,10 +102,10 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     /**
      * Checks given <code>IPropertyMapper</code>.
      * <p>
-     * This method tries to find properties declared in given <code>IPropertyMapper</code> that
-     * are not in labels in annotated write methods (throws a
-     * <code>UnmatchedPropertiesException</code>) or mandatory fields that could not be found in
-     * the same annotated write methods (throws a <code>MandatoryPropertyMissingException</code>).
+     * This method tries to find properties declared in given <code>IPropertyMapper</code> that are
+     * not in labels in annotated write methods (throws a <code>UnmatchedPropertiesException</code>)
+     * or mandatory fields that could not be found in the same annotated write methods (throws a
+     * <code>MandatoryPropertyMissingException</code>).
      * </p>
      */
     private final void checkPropertyMapper(final Class<E> clazz, final IPropertyMapper propMapper)
@@ -145,7 +147,17 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         {
             throw new IndexOutOfBoundsException(column, lineTokens);
         }
-        return lineTokens[column];
+        String value = lineTokens[column];
+        checkMandatory(value, propertyModel.getCode());
+        return value;
+    }
+
+    private void checkMandatory(String value, String code)
+    {
+        if (beanAnalyzer.isMandatory(code) && StringUtils.isBlank(value))
+        {
+            throw new MandatoryPropertyMissingException(code);
+        }
     }
 
     /**

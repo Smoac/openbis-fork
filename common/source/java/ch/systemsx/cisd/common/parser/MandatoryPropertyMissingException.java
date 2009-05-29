@@ -28,10 +28,18 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
  */
 public final class MandatoryPropertyMissingException extends ParserException
 {
-    private static final String MESSAGE_FORMAT =
+    private static final String MISSING_PROPERTY_COLUMN =
             "Mandatory column(s) %s are missing (mandatory columns are %s).";
 
+    private static final String MISSING_PROPERTY_VALUE =
+            "Missing value for the mandatory column '%s'.";
+
     private static final long serialVersionUID = 1L;
+
+    public MandatoryPropertyMissingException(final String propertyField)
+    {
+        super(String.format(MISSING_PROPERTY_VALUE, propertyField));
+    }
 
     public MandatoryPropertyMissingException(final Set<String> mandatoryFields,
             final Set<String> missingMandatoryProperties)
@@ -44,7 +52,7 @@ public final class MandatoryPropertyMissingException extends ParserException
     {
         assert missingMandatoryProperties != null : "Missing mandatory properties can not be null.";
         assert missingMandatoryProperties.size() > 0 : "No reason to throw this exception.";
-        return String.format(MESSAGE_FORMAT, toString(missingMandatoryProperties),
+        return String.format(MISSING_PROPERTY_COLUMN, toString(missingMandatoryProperties),
                 toString(mandatoryFields));
     }
 

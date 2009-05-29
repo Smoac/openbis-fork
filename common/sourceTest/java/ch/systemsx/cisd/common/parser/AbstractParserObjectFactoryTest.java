@@ -109,6 +109,25 @@ public final class AbstractParserObjectFactoryTest
     }
 
     @Test
+    public final void testMandatoryFieldWithoutValue()
+    {
+        final IPropertyMapper propertyMapper = createPropertyMapper(false);
+        final BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
+        final String[] lineTokens = new String[]
+            { "", "desc", "1" };
+        String errMsg = "Missing value for the mandatory column 'name'.";
+        try
+        {
+            beanFactory.createObject(lineTokens);
+        } catch (MandatoryPropertyMissingException e)
+        {
+            assertEquals(errMsg, e.getMessage());
+            return;
+        }
+        fail("Error expected: " + errMsg);
+    }
+
+    @Test
     public final void testTooManyDataColumns()
     {
         final IPropertyMapper propertyMapper = createPropertyMapper(false);
