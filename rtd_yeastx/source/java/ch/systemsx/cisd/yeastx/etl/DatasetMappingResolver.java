@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 /**
  * @author Tomasz Pylak
  */
-public class DatasetMappingResolver
+class DatasetMappingResolver
 {
     /**
      * The property type code for property which is supposed to have a unique value for all samples

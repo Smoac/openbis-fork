@@ -35,7 +35,7 @@ import ch.systemsx.cisd.common.collections.TableMap.UniqueKeyViolationStrategy;
 /**
  * @author Tomasz Pylak
  */
-public class DatasetMappingUtil
+class DatasetMappingUtil
 {
     private static final String MAPPING_FILE_NAME = "index.tsv";
 

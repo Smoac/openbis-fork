@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
  * 
  * @author Tomasz Pylak
  */
-final class DataSetMappingInformationParser
+class DataSetMappingInformationParser
 {
     public static List<DataSetMappingInformation> tryParse(File mappingFile)
     {
