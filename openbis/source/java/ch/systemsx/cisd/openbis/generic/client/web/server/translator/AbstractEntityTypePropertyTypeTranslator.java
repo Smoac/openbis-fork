@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Encapsulates the translation logic of ETPEs.
+ * 
  * @author Izabela Adamczyk
  */
 abstract public class AbstractEntityTypePropertyTypeTranslator<ET extends EntityType, ETPT extends EntityTypePropertyType<ET>, ETPTPE extends EntityTypePropertyTypePE>
@@ -66,10 +67,13 @@ abstract public class AbstractEntityTypePropertyTypeTranslator<ET extends Entity
             result.setPropertyType(propertyType);
         } else
         {
-        	if(entityType != null && (entityType instanceof MaterialType)){
-        		result.setPropertyType(PropertyTypeTranslator.translate(etptPE.getPropertyType(), (MaterialType)entityType));
-            }else{
-            	result.setPropertyType(PropertyTypeTranslator.translate(etptPE.getPropertyType()));
+            if (entityType != null && (entityType instanceof MaterialType))
+            {
+                result.setPropertyType(PropertyTypeTranslator.translate(etptPE.getPropertyType(),
+                        (MaterialType) entityType));
+            } else
+            {
+                result.setPropertyType(PropertyTypeTranslator.translate(etptPE.getPropertyType()));
             }
         }
         if (entityType != null)

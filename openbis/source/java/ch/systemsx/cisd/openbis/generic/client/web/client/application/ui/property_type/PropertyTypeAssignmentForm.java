@@ -106,6 +106,8 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
 
     private CheckBox mandatoryCheckbox;
 
+    private Button saveButton;
+
     private final InfoBox infoBox;
 
     private final FormPanel formPanel;
@@ -243,7 +245,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         panel.setLabelWidth(LABEL_WIDTH);
         panel.setFieldWidth(FIELD_WIDTH);
         panel.setButtonAlign(HorizontalAlignment.RIGHT);
-        final Button saveButton = new Button(viewContext.getMessage(Dict.BUTTON_SAVE));
+        saveButton = new Button(viewContext.getMessage(Dict.BUTTON_SAVE));
         saveButton.setStyleAttribute("marginRight", "20px");
         saveButton.setId(createChildId(SAVE_BUTTON_ID_SUFFIX));
         saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
@@ -322,6 +324,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         AssignPropertyTypeCallback(final IViewContext<?> viewContext)
         {
             super(viewContext, new InfoBoxCallbackListener<String>(infoBox));
+            saveButton.disable();
         }
 
         @Override
@@ -329,6 +332,14 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         {
             infoBox.displayInfo(result);
             resetForm();
+            saveButton.enable();
+        }
+
+        @Override
+        protected void finishOnFailure(Throwable caught)
+        {
+            super.finishOnFailure(caught);
+            saveButton.enable();
         }
     }
 

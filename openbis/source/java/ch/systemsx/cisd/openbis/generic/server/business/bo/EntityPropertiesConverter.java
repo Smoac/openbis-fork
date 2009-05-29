@@ -73,7 +73,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
 
     public EntityPropertiesConverter(final EntityKind entityKind, final IDAOFactory daoFactory)
     {
-        this(entityKind, daoFactory, new PropertyValidator());
+        this(entityKind, daoFactory, new PropertyValidator(daoFactory));
     }
 
     @Private

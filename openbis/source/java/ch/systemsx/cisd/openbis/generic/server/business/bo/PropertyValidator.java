@@ -20,10 +20,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -34,6 +32,7 @@ import ch.systemsx.cisd.common.collections.IToStringConverter;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils.Boolean;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ValidationUtilities.HyperlinkValidationHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -86,6 +85,15 @@ public final class PropertyValidator implements IPropertyValueValidator
         datePatterns.add(MINUTES_DATE_PATTERN);
         datePatterns.add(DAYS_DATE_PATTERN);
         return datePatterns.toArray(ArrayUtils.EMPTY_STRING_ARRAY);
+    }
+
+    public PropertyValidator(IDAOFactory daoFactory)
+    {
+        assert daoFactory != null : "Unspecified DAO factory.";
+
+        final IDataTypeValidator dataTypeValidator =
+                dataTypeValidators.get(EntityDataType.CONTROLLEDVOCABULARY);
+        ((ControlledVocabularyValidator) dataTypeValidator).setDaoFactory(daoFactory);
     }
 
     //
@@ -230,9 +238,17 @@ public final class PropertyValidator implements IPropertyValueValidator
 
         private VocabularyPE vocabulary;
 
+        private IDAOFactory daoFactory;
+
         final void setVocabulary(final VocabularyPE vocabulary)
         {
+            System.err.println("FIXME - " + vocabulary.getTerms());
             this.vocabulary = vocabulary;
+        }
+
+        public void setDaoFactory(final IDAOFactory daoFactory)
+        {
+            this.daoFactory = daoFactory;
         }
 
         //
@@ -245,36 +261,48 @@ public final class PropertyValidator implements IPropertyValueValidator
             assert vocabulary != null : "Unspecified vocabulary.";
 
             final String upperCaseValue = value.toUpperCase();
-            final Set<String> terms = createTerms(vocabulary.getTerms());
-            if (terms.contains(upperCaseValue))
+            VocabularyTermPE termOrNull =
+                    daoFactory.getVocabularyDAO().tryFindVocabularyTermByCode(vocabulary,
+                            upperCaseValue);
+            if (termOrNull != null)
             {
                 return upperCaseValue;
             }
             throw UserFailureException.fromTemplate("Vocabulary value '%s' is not valid. "
-                    + "It must exist in '%s' controlled vocabulary: '%s'.", upperCaseValue,
-                    vocabulary.getCode(), CollectionUtils.abbreviate(vocabulary.getTerms(), 10,
-                            new IToStringConverter<VocabularyTermPE>()
-                                {
-
-                                    //
-                                    // IToStringConverter
-                                    //
-
-                                    public final String toString(final VocabularyTermPE term)
-                                    {
-                                        return term.getCode();
-                                    }
-                                }));
+                    + "It must exist in '%s' controlled vocabulary %s", upperCaseValue, vocabulary
+                    .getCode(), getVocabularyDetails());
         }
 
-        private Set<String> createTerms(Set<VocabularyTermPE> vocabularyTerms)
+        /**
+         * @return Details about vocabulary dependent on {@link VocabularyPE#isChosenFromList()}
+         *         value:
+         *         <ul>
+         *         <li>for <var>true</var> - returns a list of first few vocabulary terms from it.
+         *         <li>for <var>false</var> - returns a vocabulary description
+         *         </ul>
+         */
+        private final String getVocabularyDetails()
         {
-            Set<String> result = new HashSet<String>(vocabularyTerms.size());
-            for (VocabularyTermPE vocabularyTerm : vocabularyTerms)
+            if (vocabulary.isChosenFromList())
             {
-                result.add(vocabularyTerm.getCode());
+                return CollectionUtils.abbreviate(vocabulary.getTerms(), 10,
+                        new IToStringConverter<VocabularyTermPE>()
+                            {
+
+                                //
+                                // IToStringConverter
+                                //
+
+                                public final String toString(final VocabularyTermPE term)
+                                {
+                                    return term.getCode();
+                                }
+                            });
+            } else
+            {
+                String descriptionOrNull = vocabulary.getDescription();
+                return descriptionOrNull == null ? "" : " - " + descriptionOrNull;
             }
-            return result;
         }
 
     }

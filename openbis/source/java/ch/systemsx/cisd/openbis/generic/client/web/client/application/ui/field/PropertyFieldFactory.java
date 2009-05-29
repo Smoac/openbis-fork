@@ -91,7 +91,7 @@ public class PropertyFieldFactory
                     viewContext);
         } else
         {
-            return wrapUnaware(new VocabularyTermField(label, isMandatory, vocabulary));
+            return wrapUnaware(new VocabularyTermField(viewContext, label, isMandatory));
         }
     }
 

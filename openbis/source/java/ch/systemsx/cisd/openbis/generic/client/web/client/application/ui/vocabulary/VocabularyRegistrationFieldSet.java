@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField.CodeFieldKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
@@ -110,7 +111,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
     {
         final CodeField codeField =
                 new CodeField(messageProvider, messageProvider.getMessage(Dict.CODE),
-                        CodeField.CODE_PATTERN_WITH_DOT_AND_COLON);
+                        CodeFieldKind.CODE_WITH_DOT);
         codeField.setId(idPrefix + "_code");
         return codeField;
     }

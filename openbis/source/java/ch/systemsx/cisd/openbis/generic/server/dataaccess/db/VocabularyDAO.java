@@ -19,7 +19,9 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.jdbc.support.JdbcAccessor;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -30,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
 /**
  * Implementation of {@link IVocabularyDAO} for databases.
@@ -107,6 +110,23 @@ final class VocabularyDAO extends AbstractGenericEntityDAO<VocabularyPE> impleme
             operationLog.debug(list.size() + " vocabulary(ies) have been found.");
         }
         return list;
+    }
+
+    // this one could be moved to VocabularyTermDAO if we create it
+    public VocabularyTermPE tryFindVocabularyTermByCode(VocabularyPE vocabulary, String code)
+    {
+        assert vocabulary != null : "Unspecified vocabulary.";
+        assert code != null : "Unspecified code.";
+
+        final Criteria criteria = getSession().createCriteria(VocabularyTermPE.class);
+        criteria.add(Restrictions.eq("code", code));
+        criteria.add(Restrictions.eq("vocabularyInternal", vocabulary));
+        final VocabularyTermPE result = tryGetEntity(criteria.uniqueResult());
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s(%s): '%s'.", vocabulary.getCode(), code, result));
+        }
+        return result;
     }
 
 }

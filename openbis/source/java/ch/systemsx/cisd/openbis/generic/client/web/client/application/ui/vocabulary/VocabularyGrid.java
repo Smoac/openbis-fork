@@ -119,7 +119,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
     protected void listEntities(DefaultResultSetConfig<String, Vocabulary> resultSetConfig,
             AbstractAsyncCallback<ResultSet<Vocabulary>> callback)
     {
-        viewContext.getService().listVocabularies(true, false, resultSetConfig, callback);
+        viewContext.getService().listVocabularies(false, false, resultSetConfig, callback);
     }
 
     @Override

@@ -10,7 +10,7 @@ import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.Validator;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField.CodeFieldKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -72,10 +72,11 @@ final class VocabularyTermValidator implements Validator<String, TextArea>
         }
         for (final String term : terms)
         {
-            if (term.matches(CodeField.CODE_PATTERN_WITH_DOT_AND_COLON) == false)
+            CodeFieldKind codeKind = CodeFieldKind.CODE_WITH_DOT_AND_COLON;
+            if (term.matches(codeKind.getPattern()) == false)
             {
-                return messageProvider.getMessage(Dict.INVALID_TERM_CODE_MESSAGE, "Term '" + term
-                        + "'");
+                return messageProvider.getMessage(Dict.INVALID_CODE_MESSAGE, codeKind
+                        .getAllowedCharacters());
             }
             if (existingTerms.contains(term.toUpperCase()))
             {

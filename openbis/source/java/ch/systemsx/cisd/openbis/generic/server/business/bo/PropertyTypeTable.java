@@ -69,11 +69,7 @@ public final class PropertyTypeTable extends AbstractBusinessObject implements I
             if (pt.getVocabulary() != null && pt.getVocabulary().isChosenFromList())
             {
                 HibernateUtils.initialize(pt.getVocabulary().getTerms());
-            } else
-            {
-                System.err.println("not initialized");
             }
-
         }
     }
 }

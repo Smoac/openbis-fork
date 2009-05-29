@@ -32,42 +32,88 @@ public class CodeField extends TriggerField<String>
 
     public static final String CODE_CHARS = CODE_CHARS_OR_EMPTY + "+";
 
-    /**
-     * The pattern for a correct code.
-     * <p>
-     * Note that this one accepts also letters in lower case.
-     * </p>
-     */
     public final static String CODE_PATTERN = "^" + CODE_CHARS + "$";
 
-    /**
-     * Code pattern extended by '.'.
-     * <p>
-     * Useful for user namespace codes.
-     * </p>
-     */
+    private final static String CODE_PATTERN_ALLOWED_CHARACTERS = "letters, numbers, \"-\", \"_\"";
+
     public final static String CODE_PATTERN_WITH_DOT = "^[a-zA-Z0-9_\\-\\.]+$";
 
-    /**
-     * Code pattern extended by '.' and ':'.
-     * <p>
-     * Useful for vocabulary term codes.
-     * </p>
-     */
+    private final static String CODE_PATTERN_WITH_DOT_ALLOWED_CHARACTERS =
+            CODE_PATTERN_ALLOWED_CHARACTERS + ", \".\"";
+
     public final static String CODE_PATTERN_WITH_DOT_AND_COLON = "^[a-zA-Z0-9_\\-\\.:]+$";
 
+    private final static String CODE_PATTERN_WITH_DOT_AND_COLON_ALLOWED_CHARACTERS =
+            CODE_PATTERN_WITH_DOT_ALLOWED_CHARACTERS + ", \":\"";
+
+    public enum CodeFieldKind
+    {
+        /**
+         * Field with a basic code pattern (letters, numbers, '-', '_').
+         * <p>
+         * Note that this one accepts also letters in lower case.
+         * </p>
+         */
+        BASIC_CODE(CODE_PATTERN, CODE_PATTERN_ALLOWED_CHARACTERS),
+
+        /**
+         * Field with a basic code pattern extended by '.'.
+         * <p>
+         * Useful for user namespace codes.
+         * </p>
+         */
+        CODE_WITH_DOT(CODE_PATTERN_WITH_DOT, CODE_PATTERN_WITH_DOT_ALLOWED_CHARACTERS),
+
+        /**
+         * Field with a basic code pattern extended by '.' and ':'.
+         * <p>
+         * Useful for user vocabulary term codes.
+         * </p>
+         */
+        CODE_WITH_DOT_AND_COLON(CODE_PATTERN_WITH_DOT_AND_COLON,
+                CODE_PATTERN_WITH_DOT_AND_COLON_ALLOWED_CHARACTERS);
+
+        private final String pattern;
+
+        private final String allowedCharacters;
+
+        CodeFieldKind(String pattern, String allowedCharacters)
+        {
+            this.pattern = pattern;
+            this.allowedCharacters = allowedCharacters;
+        }
+
+        public String getPattern()
+        {
+            return pattern;
+        }
+
+        public String getAllowedCharacters()
+        {
+            return allowedCharacters;
+        }
+    }
+
+    /** Constructor of a code field with {@link CodeFieldKind#BASIC_CODE} kind. */
     public CodeField(final IMessageProvider messageProvider, final String label)
     {
-        this(messageProvider, label, CODE_PATTERN);
+        this(messageProvider, label, CodeFieldKind.BASIC_CODE);
     }
 
     public CodeField(final IMessageProvider messageProvider, final String label,
-            final String pattern)
+            final CodeFieldKind kind)
+    {
+        this(messageProvider, label, kind.getPattern(), kind.getAllowedCharacters());
+    }
+
+    private CodeField(final IMessageProvider messageProvider, final String label,
+            final String pattern, final String allowedCharacters)
     {
         VarcharField.configureField(this, label, true);
         setMaxLength(40);
         setRegex(pattern);
-        getMessages().setRegexText(messageProvider.getMessage(Dict.INVALID_CODE_MESSAGE, "Code"));
+        getMessages().setRegexText(
+                messageProvider.getMessage(Dict.INVALID_CODE_MESSAGE, allowedCharacters));
         setHideTrigger(true);
     }
 

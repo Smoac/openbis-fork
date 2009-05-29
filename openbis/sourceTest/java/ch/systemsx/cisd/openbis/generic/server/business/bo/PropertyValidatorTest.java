@@ -16,14 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.fail;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.time.DateFormatUtils;
+import org.jmock.Expectations;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -41,12 +39,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
  * @author Christian Ribeaud
  */
 @Friend(toClasses = PropertyValidator.class)
-public final class PropertyValidatorTest
+public final class PropertyValidatorTest extends AbstractBOTest
 {
 
-    private final static PropertyValidator createPropertyValidator()
+    private final PropertyValidator createPropertyValidator()
     {
-        return new PropertyValidator();
+        return new PropertyValidator(daoFactory);
     }
 
     private final static PropertyTypePE createPropertyType(final EntityDataType entityDataType)
@@ -69,19 +67,6 @@ public final class PropertyValidatorTest
     private final static PropertyTypePE createBooleanPropertyType()
     {
         final PropertyTypePE propertyType = createPropertyType(EntityDataType.BOOLEAN);
-        return propertyType;
-    }
-
-    private final static PropertyTypePE createControlledVocabularyPropertyType()
-    {
-        final PropertyTypePE propertyType = createPropertyType(EntityDataType.CONTROLLEDVOCABULARY);
-        final VocabularyPE vocabularyPE = new VocabularyPE();
-        final List<VocabularyTermPE> terms = new ArrayList<VocabularyTermPE>();
-        terms.add(createVocabularyTerm("RED"));
-        terms.add(createVocabularyTerm("YELLOW"));
-        terms.add(createVocabularyTerm("GREEN"));
-        vocabularyPE.setTerms(terms);
-        propertyType.setVocabulary(vocabularyPE);
         return propertyType;
     }
 
@@ -119,7 +104,6 @@ public final class PropertyValidatorTest
                 { createIntegerPropertyType(), "a" },
                 { createIntegerPropertyType(), "1.1" },
                 { createRealPropertyType(), "b" },
-                { createControlledVocabularyPropertyType(), "BLACK" },
                 { createBooleanPropertyType(), "BOB" }, };
     }
 
@@ -138,8 +122,6 @@ public final class PropertyValidatorTest
                         { createIntegerPropertyType(), "1" },
                         { createRealPropertyType(), "1" },
                         { createRealPropertyType(), "1.1" },
-                        { createControlledVocabularyPropertyType(), "RED" },
-                        { createControlledVocabularyPropertyType(), "red" },
                         { createBooleanPropertyType(), "yes" },
                         { createBooleanPropertyType(), "1" },
                         { createBooleanPropertyType(), "true" } };
@@ -171,6 +153,66 @@ public final class PropertyValidatorTest
     public final void testValidatePropertyValueFailed(final PropertyTypePE propertyType,
             final String value)
     {
+        final PropertyValidator propertyValidator = createPropertyValidator();
+        try
+        {
+            propertyValidator.validatePropertyValue(propertyType, value);
+            fail(String.format("'%s' expected.", UserFailureException.class.getSimpleName()));
+        } catch (final UserFailureException ex)
+        {
+            // Nothing to do here.
+        }
+    }
+
+    //
+    // Controlled Vocabulary with DAO access
+    //
+
+    private final static PropertyTypePE createControlledVocabularyPropertyType()
+    {
+        final PropertyTypePE propertyType = createPropertyType(EntityDataType.CONTROLLEDVOCABULARY);
+        final VocabularyPE vocabularyPE = new VocabularyPE();
+        // terms list is currently not used in validation but lets keep it here
+        final List<VocabularyTermPE> terms = new ArrayList<VocabularyTermPE>();
+        terms.add(createVocabularyTerm("GOODVALUE"));
+        vocabularyPE.setTerms(terms);
+        propertyType.setVocabulary(vocabularyPE);
+        return propertyType;
+    }
+
+    @Test
+    public final void testValidateControlledVocabularyPropertyValue()
+    {
+        final PropertyTypePE propertyType = createControlledVocabularyPropertyType();
+        final VocabularyPE vocabulary = propertyType.getVocabulary();
+        final String value = "goodValue";
+        final String code = value.toUpperCase();
+        final VocabularyTermPE term = createVocabularyTerm(code);
+        context.checking(new Expectations()
+            {
+                {
+                    one(vocabularyDAO).tryFindVocabularyTermByCode(vocabulary, code);
+                    will(returnValue(term));
+                }
+            });
+        final PropertyValidator propertyValidator = createPropertyValidator();
+        propertyValidator.validatePropertyValue(propertyType, value);
+    }
+
+    @Test
+    public final void testValidateControlledVocabularyPropertyValueFailed()
+    {
+        PropertyTypePE propertyType = createControlledVocabularyPropertyType();
+        final VocabularyPE vocabulary = propertyType.getVocabulary();
+        final String value = "wrongValue";
+        final String code = value.toUpperCase();
+        context.checking(new Expectations()
+            {
+                {
+                    one(vocabularyDAO).tryFindVocabularyTermByCode(vocabulary, code);
+                    will(returnValue(null));
+                }
+            });
         final PropertyValidator propertyValidator = createPropertyValidator();
         try
         {

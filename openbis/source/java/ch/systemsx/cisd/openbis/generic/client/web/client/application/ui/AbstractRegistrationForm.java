@@ -155,6 +155,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
                 {
                     if (panel.isValid())
                     {
+                        // TODO 2009-05-29, Piotr Buczek: isValid could be changed to disable save button
                         submitValidForm();
                     }
                 }
@@ -200,6 +201,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         protected AbstractRegistrationCallback(final IViewContext<?> viewContext)
         {
             super(viewContext, new InfoBoxCallbackListener<T>(infoBox));
+            saveButton.disable();
         }
 
         //
@@ -212,6 +214,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
             infoBox.displayInfo(createSuccessfullRegistrationInfo(result));
             resetPanel();
             setUploadEnabled(true);
+            saveButton.enable();
         }
 
         protected abstract String createSuccessfullRegistrationInfo(T result);
@@ -220,6 +223,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         protected final void finishOnFailure(final Throwable caught)
         {
             setUploadEnabled(true);
+            saveButton.enable();
         }
 
     }

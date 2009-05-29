@@ -46,4 +46,10 @@ public interface IVocabularyDAO extends IGenericDAO<VocabularyPE>
      */
     List<VocabularyPE> listVocabularies(boolean excludeInternal);
 
+    /**
+     * @return {@link VocabularyTermPE} with given <var>code</var> for given {@link VocabularyPE} or
+     *         null if it does not exist.
+     */
+    VocabularyTermPE tryFindVocabularyTermByCode(VocabularyPE vocabulary, String code);
+
 }

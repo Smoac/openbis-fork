@@ -16,78 +16,26 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.widget.form.Validator;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 /**
- * {@link VarcharField} extension for registering {@link VocabularyTerm} that will be validated with
- * and existing {@link Vocabulary}.
+ * {@link CodeField} extension for registering {@link VocabularyTerm} that may be optional.
  * 
  * @author Piotr Buczek
  */
-public class VocabularyTermField extends VarcharField
+public class VocabularyTermField extends CodeField
 {
-
-    public VocabularyTermField(String label, boolean mandatory, Vocabulary vocabulary)
+    public VocabularyTermField(IViewContext<ICommonClientServiceAsync> viewContext, String label,
+            boolean isMandatory)
     {
-        super(label, mandatory);
-        setAutoValidate(false);
-        setValidator(new VocabularyTermValidator(vocabulary));
-        setValidateOnBlur(true);
-        setEmptyText("Vocabulary term");
-        getMessages().setBlankText("Vocabulary term required");
-    }
-
-    @Override
-    protected void onFocus(ComponentEvent be)
-    {
-        // clearing invalid messages on focus is needed because auto validation is turned off
-        super.onFocus(be);
-        clearInvalid();
-    }
-
-    /** {@link Validator} for vocabulary terms from controlled vocabulary. */
-    private class VocabularyTermValidator implements Validator<String, VocabularyTermField>
-    {
-        private final String vocabularyCode;
-
-        private final Set<String> terms;
-
-        public VocabularyTermValidator(Vocabulary vocabulary)
+        super(viewContext, label, CodeFieldKind.CODE_WITH_DOT_AND_COLON);
+        // by default CodeField is mandatory
+        if (isMandatory == false)
         {
-            this.vocabularyCode = vocabulary.getCode();
-            this.terms = createTerms(vocabulary.getTerms());
-        }
-
-        private Set<String> createTerms(List<VocabularyTerm> vocabularyTerms)
-        {
-            // we could use a set of VocabularyTerm's but than we would have to reimplement
-            // VocabuleryTerm hashCode and equals to use only code
-            final Set<String> result = new HashSet<String>(vocabularyTerms.size());
-            for (VocabularyTerm vocabularyTerm : vocabularyTerms)
-            {
-                result.add(vocabularyTerm.getCode());
-            }
-            return result;
-        }
-
-        public String validate(VocabularyTermField field, final String fieldValue)
-        {
-            final String upperCaseValue = fieldValue.toUpperCase();
-            if (terms.contains(upperCaseValue) == false)
-            {
-                return "Given term does not exist in '" + vocabularyCode
-                        + "' controlled vocabulary.";
-            }
-            // validated value is valid
-            return null;
+            this.setLabelSeparator("");
+            this.setAllowBlank(true);
         }
     }
 

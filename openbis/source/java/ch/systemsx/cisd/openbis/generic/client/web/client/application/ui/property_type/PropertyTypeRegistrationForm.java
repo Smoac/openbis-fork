@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Mode
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField.CodeFieldKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.AbstractVocabularyRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularySelectionWidget;
@@ -114,7 +115,7 @@ public final class PropertyTypeRegistrationForm extends AbstractVocabularyRegist
     {
         final CodeField codeField =
                 new CodeField(viewContext, viewContext.getMessage(Dict.CODE),
-                        CodeField.CODE_PATTERN_WITH_DOT);
+                        CodeFieldKind.CODE_WITH_DOT);
         codeField.setId(getId() + "_code");
         return codeField;
     }

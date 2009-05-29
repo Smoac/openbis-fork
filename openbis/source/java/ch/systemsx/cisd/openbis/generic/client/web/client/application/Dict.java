@@ -70,8 +70,6 @@ public abstract class Dict
 
     public static final String INVALID_CODE_MESSAGE = "invalid_code_message";
 
-    public static final String INVALID_TERM_CODE_MESSAGE = "invalid_term_code_message";
-
     //
     // MessageBox
     //
