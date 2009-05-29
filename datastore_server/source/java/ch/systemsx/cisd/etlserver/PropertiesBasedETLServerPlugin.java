@@ -27,6 +27,7 @@ import java.util.Properties;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 
 /**
  * An implementation of {@link IETLServerPlugin} which is based on a <code>Properties</code> object.
@@ -144,7 +145,8 @@ public class PropertiesBasedETLServerPlugin extends ETLServerPlugin
     }
 
     @Override
-    public IDataSetHandler getDataSetHandler(IDataSetHandler primaryDataSetHandler)
+    public IDataSetHandler getDataSetHandler(IDataSetHandler primaryDataSetHandler,
+            IEncapsulatedOpenBISService openbisService)
     {
         final String className = properties.getProperty(IDataSetHandler.DATASET_HANDLER_KEY);
         if (className == null)
@@ -153,7 +155,7 @@ public class PropertiesBasedETLServerPlugin extends ETLServerPlugin
         } else
         {
             return create(IDataSetHandler.class, properties, IDataSetHandler.DATASET_HANDLER_KEY,
-                    true, primaryDataSetHandler);
+                    true, primaryDataSetHandler, openbisService);
         }
     }
 

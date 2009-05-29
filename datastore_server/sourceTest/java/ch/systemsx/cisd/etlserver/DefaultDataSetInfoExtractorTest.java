@@ -59,7 +59,7 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
         final IDataSetInfoExtractor extractor = new DefaultDataSetInfoExtractor(new Properties());
 
         final DataSetInformation dsInfo =
-                extractor.getDataSetInformation(new File("bla.bla." + barcode));
+                extractor.getDataSetInformation(new File("bla.bla." + barcode), null);
 
         assertNull(dsInfo.getExperimentIdentifier());
         assertEquals(barcode, dsInfo.getSampleIdentifier().getSampleCode());
@@ -81,7 +81,7 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
 
         final DataSetInformation dsInfo =
                 extractor.getDataSetInformation(new File(productionDate + ".A.B." + producerCode
-                        + "." + barcode));
+                        + "." + barcode), null);
 
         assertEquals(barcode, dsInfo.getSampleIdentifier().getSampleCode());
         assertEquals(producerCode, dsInfo.getProducerCode());
@@ -113,7 +113,7 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
         incoming.mkdir();
         FileUtilities.writeToFile(new File(incoming, "props.tsv"),
                 "property\tvalue\np1\tv1\np2\tv2");
-        final DataSetInformation dsInfo = extractor.getDataSetInformation(incoming);
+        final DataSetInformation dsInfo = extractor.getDataSetInformation(incoming, null);
         assertEquals(barcode, dsInfo.getSampleIdentifier().getSampleCode());
         assertEquals(parentDataSetCode, dsInfo.getParentDataSetCode());
         assertEquals(producerCode, dsInfo.getProducerCode());
@@ -141,7 +141,7 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
         boolean exceptionThrown = false;
         try
         {
-            extractor.getDataSetInformation(incoming);
+            extractor.getDataSetInformation(incoming, null);
         } catch (UserFailureException ex)
         {
             exceptionThrown = true;
@@ -168,7 +168,7 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
         boolean exceptionThrown = false;
         try
         {
-            extractor.getDataSetInformation(incoming);
+            extractor.getDataSetInformation(incoming, null);
         } catch (MandatoryPropertyMissingException ex)
         {
             exceptionThrown = true;
@@ -184,7 +184,7 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
         final IDataSetInfoExtractor extractor = new DefaultDataSetInfoExtractor(properties);
         try
         {
-            extractor.getDataSetInformation(new File("blabla.XYZ-123"));
+            extractor.getDataSetInformation(new File("blabla.XYZ-123"), null);
             fail("UserFailureException expected");
         } catch (final UserFailureException e)
         {
@@ -201,7 +201,7 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
         final IDataSetInfoExtractor extractor = new DefaultDataSetInfoExtractor(properties);
         try
         {
-            extractor.getDataSetInformation(new File("XYZ-123"));
+            extractor.getDataSetInformation(new File("XYZ-123"), null);
             fail("UserFailureException expected");
         } catch (final UserFailureException e)
         {
@@ -219,7 +219,7 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
         final IDataSetInfoExtractor extractor = new DefaultDataSetInfoExtractor(properties);
         try
         {
-            extractor.getDataSetInformation(new File("XYZ-123"));
+            extractor.getDataSetInformation(new File("XYZ-123"), null);
             fail("UserFailureException expected");
         } catch (final UserFailureException e)
         {

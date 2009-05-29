@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.etlserver;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 
 /**
  * ETL Server plugin as a bean.
@@ -34,8 +35,7 @@ public class ETLServerPlugin implements IETLServerPlugin
      * Creates an instance with the specified extractors.
      */
     public ETLServerPlugin(final IDataSetInfoExtractor codeExtractor,
-            final ITypeExtractor typeExtractor,
-            final IStorageProcessor storageProcessor)
+            final ITypeExtractor typeExtractor, final IStorageProcessor storageProcessor)
     {
         assert codeExtractor != null : "Missing code extractor";
         assert typeExtractor != null : "Missing type extractor";
@@ -65,7 +65,8 @@ public class ETLServerPlugin implements IETLServerPlugin
         return storageProcessor;
     }
 
-    public IDataSetHandler getDataSetHandler(IDataSetHandler primaryDataSetHandler)
+    public IDataSetHandler getDataSetHandler(IDataSetHandler primaryDataSetHandler,
+            IEncapsulatedOpenBISService openbisService)
     {
         return primaryDataSetHandler;
     }

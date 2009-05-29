@@ -166,7 +166,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         this.dataSetInfoExtractor = plugin.getDataSetInfoExtractor();
         this.typeExtractor = plugin.getTypeExtractor();
         this.storageProcessor = plugin.getStorageProcessor();
-        dataSetHandler = plugin.getDataSetHandler(this);
+        dataSetHandler = plugin.getDataSetHandler(this, limsService);
         this.limsService = limsService;
         this.mailClient = mailClient;
         this.dataStrategyStore = new DataStrategyStore(this.limsService, mailClient);
@@ -691,7 +691,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             try
             {
                 final DataSetInformation dataSetInfo =
-                        dataSetInfoExtractor.getDataSetInformation(incomingDataSetPath);
+                        dataSetInfoExtractor
+                                .getDataSetInformation(incomingDataSetPath, limsService);
                 if (dataSetInfo.getSampleIdentifier() == null)
                 {
                     final String extractorName = dataSetInfoExtractor.getClass().getSimpleName();

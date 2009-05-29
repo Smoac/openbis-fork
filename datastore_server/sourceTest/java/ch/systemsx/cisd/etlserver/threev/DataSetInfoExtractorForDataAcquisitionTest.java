@@ -50,7 +50,7 @@ public class DataSetInfoExtractorForDataAcquisitionTest extends CodeExtractortTe
                 new DataSetInfoExtractorForDataAcquisition(properties);
 
         final DataSetInformation dataSetInfo =
-                extractor.getDataSetInformation(new File("alpha.42.beta"));
+                extractor.getDataSetInformation(new File("alpha.42.beta"), null);
         assertEquals("42.alpha", dataSetInfo.getDataSetCode());
         assertEquals("beta", dataSetInfo.getSampleIdentifier().getSampleCode());
         assertEquals(null, dataSetInfo.getParentDataSetCode());
@@ -76,7 +76,7 @@ public class DataSetInfoExtractorForDataAcquisitionTest extends CodeExtractortTe
 
         final String date = "2007-12-24";
         final DataSetInformation dataSetInfo =
-                extractor.getDataSetInformation(new File("a_b_c_" + date));
+                extractor.getDataSetInformation(new File("a_b_c_" + date), null);
         assertEquals("2007-12-24-c", dataSetInfo.getDataSetCode());
         assertEquals("a", dataSetInfo.getSampleIdentifier().getSampleCode());
         assertEquals("b", dataSetInfo.getParentDataSetCode());

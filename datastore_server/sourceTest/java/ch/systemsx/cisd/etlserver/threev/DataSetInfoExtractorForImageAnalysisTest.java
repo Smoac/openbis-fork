@@ -44,7 +44,8 @@ public class DataSetInfoExtractorForImageAnalysisTest extends CodeExtractortTest
         properties.setProperty(INDICES_OF_PARENT_DATA_SET_CODE_ENTITIES, "1, 0");
         IDataSetInfoExtractor extractor = new DataSetInfoExtractorForImageAnalysis(properties);
 
-        DataSetInformation dataSetInfo = extractor.getDataSetInformation(new File("alpha.42.beta"));
+        DataSetInformation dataSetInfo =
+                extractor.getDataSetInformation(new File("alpha.42.beta"), null);
         assertEquals("42.alpha", dataSetInfo.getParentDataSetCode());
         assertEquals("beta", dataSetInfo.getSampleIdentifier().getSampleCode());
         assertEquals(null, dataSetInfo.getDataSetCode());

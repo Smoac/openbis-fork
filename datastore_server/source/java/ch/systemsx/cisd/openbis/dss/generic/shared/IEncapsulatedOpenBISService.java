@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
+import java.util.List;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
@@ -23,12 +25,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * This interface is very similar to {@link IETLLIMSService} but <code>sessionToken</code> has
- * been removed from most methods.
+ * This interface is very similar to {@link IETLLIMSService} but <code>sessionToken</code> has been
+ * removed from most methods.
  * 
  * @see IETLLIMSService
  * @author Christian Ribeaud
@@ -40,9 +43,10 @@ public interface IEncapsulatedOpenBISService
      */
     public ExternalDataPE tryGetDataSet(final String sessionToken, final String dataSetCode)
             throws UserFailureException;
-    
+
     /**
-     * For given <var>dataSetInfo</var> returns the <code>BaseExperiment</code> object.
+     * For given <var>dataSetInfo</var> returns the <code>BaseExperiment</code> object or null if it
+     * does not exist.
      */
     public ExperimentPE getBaseExperiment(final SampleIdentifier sampleIdentifier)
             throws UserFailureException;
@@ -53,8 +57,8 @@ public interface IEncapsulatedOpenBISService
      * As side effect, sets <i>data set code</i> in {@link DataSetInformation#getExtractableData()}.
      * </p>
      */
-    public void registerDataSet(final DataSetInformation dataSetInformation,
-            final ExternalData data) throws UserFailureException;
+    public void registerDataSet(final DataSetInformation dataSetInformation, final ExternalData data)
+            throws UserFailureException;
 
     /**
      * Tries to return the properties of the top sample (e.g. master plate) registered for the
@@ -66,6 +70,10 @@ public interface IEncapsulatedOpenBISService
     public SamplePropertyPE[] getPropertiesOfTopSampleRegisteredFor(
             final SampleIdentifier sampleIdentifier) throws UserFailureException;
 
+    /** See {@link IETLLIMSService#listSamplesByCriteria(String, ListSamplesByPropertyCriteria)} */
+    public List<String> listSamplesByCriteria(final ListSamplesByPropertyCriteria criteria)
+            throws UserFailureException;
+
     /**
      * Creates and returns a unique code for a new data set.
      */
@@ -75,7 +83,7 @@ public interface IEncapsulatedOpenBISService
      * Returns the version of the service.
      */
     public int getVersion();
-    
+
     /**
      * Returns the home database instance.
      */

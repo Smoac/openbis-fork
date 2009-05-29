@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.FactoryBean;
 
@@ -33,12 +35,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * A class that encapsulates the {@link IETLLIMSService} and handles (re-)authentication automatically
- * as needed.
+ * A class that encapsulates the {@link IETLLIMSService} and handles (re-)authentication
+ * automatically as needed.
  * <p>
  * This class is thread safe (otherwise one thread can change the session and cause the other thread
  * to use the invalid one).
@@ -55,17 +58,17 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     private final IETLLIMSService service;
 
     private final SessionTokenManager sessionTokenManager;
-    
+
     private int port;
-    
+
     private String username;
-    
+
     private String password;
-    
+
     private String downloadUrl;
-    
+
     private String dataStoreCode;
-    
+
     private String sessionToken; // NOTE: can be changed in parallel by different threads
 
     private Integer version;
@@ -87,7 +90,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         this.sessionTokenManager = sessionTokenManager;
         this.service = service;
     }
-    
+
     public final void setPort(int port)
     {
         this.port = port;
@@ -166,8 +169,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     private final void primRegisterDataSet(final DataSetInformation dataSetInformation,
             final ExternalData data)
     {
-        service.registerDataSet(sessionToken, dataSetInformation.getSampleIdentifier(),
-                data);
+        service.registerDataSet(sessionToken, dataSetInformation.getSampleIdentifier(), data);
     }
 
     private final SamplePropertyPE[] primGetPropertiesOfSampleRegisteredFor(
@@ -176,17 +178,22 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return service.tryToGetPropertiesOfTopSampleRegisteredFor(sessionToken, sampleIdentifier);
     }
 
+    private List<String> primListSamplesByCriteria(final ListSamplesByPropertyCriteria criteria)
+            throws UserFailureException
+    {
+        return service.listSamplesByCriteria(sessionToken, criteria);
+    }
+
     private final String primCreateDataSetCode()
     {
         return service.createDataSetCode(sessionToken);
     }
-    
+
     //
     // IEncapsulatedLimsService
     //
 
-    synchronized public final ExperimentPE getBaseExperiment(
-            final SampleIdentifier sampleIdentifier)
+    synchronized public final ExperimentPE getBaseExperiment(final SampleIdentifier sampleIdentifier)
     {
         assert sampleIdentifier != null : "Given sample identifier can not be null.";
 
@@ -239,6 +246,20 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
+    synchronized public final List<String> listSamplesByCriteria(
+            final ListSamplesByPropertyCriteria criteria) throws UserFailureException
+    {
+        checkSessionToken();
+        try
+        {
+            return primListSamplesByCriteria(criteria);
+        } catch (final InvalidSessionException ex)
+        {
+            authenticate();
+            return primListSamplesByCriteria(criteria);
+        }
+    }
+
     synchronized public final int getVersion()
     {
         checkSessionToken();
@@ -272,7 +293,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
-    synchronized public ExternalDataPE tryGetDataSet(String sToken, String dataSetCode) throws UserFailureException
+    synchronized public ExternalDataPE tryGetDataSet(String sToken, String dataSetCode)
+            throws UserFailureException
     {
         checkSessionToken();
         return service.tryGetDataSet(sToken, dataSetCode);

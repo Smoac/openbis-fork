@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.etlserver;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 
 /**
  * Plugin interface of the ETL Server.
@@ -38,9 +39,10 @@ public interface IETLServerPlugin
      * Returns the {@link IStorageProcessor} implementation.
      */
     public IStorageProcessor getStorageProcessor();
-    
+
     /**
      * Returns an appropriated data set handler which wraps the specified primary data set handler.
      */
-    public IDataSetHandler getDataSetHandler(IDataSetHandler primaryDataSetHandler);
+    public IDataSetHandler getDataSetHandler(IDataSetHandler primaryDataSetHandler,
+            IEncapsulatedOpenBISService openbisService);
 }

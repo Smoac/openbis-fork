@@ -57,6 +57,7 @@ import ch.systemsx.cisd.common.mail.JavaMailProperties;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
@@ -172,10 +173,11 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
             this.codeExtractor = codeExtractor;
         }
 
-        public DataSetInformation getDataSetInformation(final File incomingDataSetPath)
-                throws UserFailureException, EnvironmentFailureException
+        public DataSetInformation getDataSetInformation(final File incomingDataSetPath,
+                IEncapsulatedOpenBISService openbisService) throws UserFailureException,
+                EnvironmentFailureException
         {
-            return codeExtractor.getDataSetInformation(incomingDataSetPath);
+            return codeExtractor.getDataSetInformation(incomingDataSetPath, null);
         }
     }
 
@@ -271,8 +273,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         authorizedLimsService.setUsername("u");
         authorizedLimsService.setPassword("p");
         handler =
-                new TransferredDataSetHandler("dss", storageProcessor, plugin, authorizedLimsService,
-                        mailClient, true, true);
+                new TransferredDataSetHandler("dss", storageProcessor, plugin,
+                        authorizedLimsService, mailClient, true, true);
 
         handler.setProcessorFactories(map);
         dataSetInformation = new DataSetInformation();
@@ -378,7 +380,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         context.checking(new Expectations()
             {
                 {
-                    one(dataSetInfoExtractor).getDataSetInformation(dataSet);
+                    one(dataSetInfoExtractor).getDataSetInformation(dataSet, null);
                     will(returnValue(dataSetInformation));
 
                     one(limsService).getHomeDatabaseInstance(SESSION_TOKEN);
@@ -506,7 +508,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         context.checking(new Expectations()
             {
                 {
-                    one(dataSetInfoExtractor).getDataSetInformation(data1);
+                    one(dataSetInfoExtractor).getDataSetInformation(data1, null);
                     will(returnValue(new DataSetInformation()));
                 }
             });

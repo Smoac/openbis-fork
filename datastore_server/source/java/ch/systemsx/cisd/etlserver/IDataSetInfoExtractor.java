@@ -20,6 +20,7 @@ import java.io.File;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -40,8 +41,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * </pre>
  * 
  * Implementations of this class are expected to be "re-usable". This is, calling the method
- * {@link #getDataSetInformation(File)} multiple times for different data set on the same instance
- * is expected to work.
+ * {@link #getDataSetInformation(File, IEncapsulatedOpenBISService)} multiple times for different
+ * data set on the same instance is expected to work.
  * 
  * @author Bernd Rinn
  */
@@ -61,6 +62,7 @@ public interface IDataSetInfoExtractor
      * @param incomingDataSetPath The path of the incoming data set. The path may be a file or
      *            directory. The caller needs to ensure that the path exists when this method is
      *            called.
+     * @param openbisService the service which can communicate with openBIS server
      * @return The information extracted about this data set. The code extractor <i>can</i>, but
      *         <i>doesn't have to</i> provide an group. If no group has been provided by the
      *         extractor then the one specified for the thread in the
@@ -70,7 +72,8 @@ public interface IDataSetInfoExtractor
      *             the extractor can't extract either the experiment id or the data set code or
      *             both.
      */
-    public DataSetInformation getDataSetInformation(final File incomingDataSetPath)
-            throws UserFailureException, EnvironmentFailureException;
+    public DataSetInformation getDataSetInformation(final File incomingDataSetPath,
+            IEncapsulatedOpenBISService openbisService) throws UserFailureException,
+            EnvironmentFailureException;
 
 }

@@ -34,6 +34,7 @@ import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.common.parser.TabFileLoader;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
@@ -172,7 +173,8 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
     /** Default data production date format. */
     private static final String DEFAULT_DATA_PRODUCTION_DATE_FORMAT = "yyyyMMddHHmmss";
 
-    @Private static final String DATA_SET_PROPERTIES_FILE_NAME_KEY = "data-set-properties-file-name";
+    @Private
+    static final String DATA_SET_PROPERTIES_FILE_NAME_KEY = "data-set-properties-file-name";
 
     private final int indexOfSampleCode;
 
@@ -223,8 +225,9 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
     // ICodeExtractor
     //
 
-    public DataSetInformation getDataSetInformation(final File incomingDataSetPath)
-            throws EnvironmentFailureException, UserFailureException
+    public DataSetInformation getDataSetInformation(final File incomingDataSetPath,
+            IEncapsulatedOpenBISService openbisService) throws EnvironmentFailureException,
+            UserFailureException
     {
         assert incomingDataSetPath != null : "Incoming data set path can not be null.";
         final DataSetNameEntitiesProvider entitiesProvider =

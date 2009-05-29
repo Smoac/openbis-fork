@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractDataSetInfoExtractor;
 import ch.systemsx.cisd.etlserver.DataSetNameEntitiesProvider;
 import ch.systemsx.cisd.etlserver.DefaultDataSetInfoExtractor;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -81,11 +82,12 @@ abstract class AbstractDataSetInfoExtractorFor3V extends AbstractDataSetInfoExtr
     // AbstractCodeExtractor
     //
 
-    public DataSetInformation getDataSetInformation(final File incomingDataSetPath)
-            throws UserFailureException, EnvironmentFailureException
+    public DataSetInformation getDataSetInformation(final File incomingDataSetPath,
+            IEncapsulatedOpenBISService openbisService) throws UserFailureException,
+            EnvironmentFailureException
     {
         final DataSetInformation dataSetInfo =
-                codeExtractor.getDataSetInformation(incomingDataSetPath);
+                codeExtractor.getDataSetInformation(incomingDataSetPath, openbisService);
         final DataSetNameEntitiesProvider entitiesProvider =
                 new DataSetNameEntitiesProvider(incomingDataSetPath, entitySeparator,
                         stripExtension);
