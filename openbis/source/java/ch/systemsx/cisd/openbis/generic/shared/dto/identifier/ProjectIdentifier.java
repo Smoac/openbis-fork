@@ -45,6 +45,11 @@ public class ProjectIdentifier extends GroupIdentifier
         this(null, groupCode, projectCode);
     }
 
+    public ProjectIdentifier(GroupIdentifier groupIdentifier, String projectCode)
+    {
+        this(groupIdentifier.getDatabaseInstanceCode(), groupIdentifier.getGroupCode(), projectCode);
+    }
+
     public String getProjectCode()
     {
         return StringUtils.upperCase(projectCode);
