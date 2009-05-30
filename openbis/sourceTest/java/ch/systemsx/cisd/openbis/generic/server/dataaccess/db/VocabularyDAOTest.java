@@ -113,6 +113,42 @@ public final class VocabularyDAOTest extends AbstractDAOTest
     }
 
     @Test
+    public final void testFindVocabularyTermByCode()
+    {
+        final IVocabularyDAO vocabularyDAO = daoFactory.getVocabularyDAO();
+        final String vocabularyCode = "USER.HUMAN";
+        final String realTermCode = "MAN";
+        final String fakeTermCode = "DOG";
+        final VocabularyPE vocabularyPE = vocabularyDAO.tryFindVocabularyByCode(vocabularyCode);
+
+        testFindVocabularyTermByCodeAssertions(vocabularyDAO, null, realTermCode);
+        testFindVocabularyTermByCodeAssertions(vocabularyDAO, vocabularyPE, null);
+
+        assertNull(vocabularyDAO.tryFindVocabularyTermByCode(vocabularyPE, fakeTermCode));
+
+        VocabularyTermPE termPE =
+                vocabularyDAO.tryFindVocabularyTermByCode(vocabularyPE, realTermCode);
+        assertNotNull(termPE);
+        VocabularyTermPE realTermPE = createVocabularyTerm(realTermCode);
+        realTermPE.setVocabulary(vocabularyPE);
+        assertEquals(termPE, realTermPE);
+    }
+
+    private final void testFindVocabularyTermByCodeAssertions(IVocabularyDAO vocabularyDAO,
+            VocabularyPE vocabulary, String code)
+    {
+        boolean fail = true;
+        try
+        {
+            vocabularyDAO.tryFindVocabularyTermByCode(vocabulary, code);
+        } catch (final AssertionError e)
+        {
+            fail = false;
+        }
+        assertFalse(fail);
+    }
+
+    @Test
     public final void testListVocabularies()
     {
         final IVocabularyDAO vocabularyDAO = daoFactory.getVocabularyDAO();
