@@ -16,21 +16,16 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
-import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
-
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.event.GridEvent;
-import com.extjs.gxt.ui.client.event.MvcEvent;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.mvc.DispatcherListener;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.BrowseDataSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ShowSample;
@@ -56,6 +51,8 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
     private static final String CONTROL_LAYOUT_EXAMPLE = "CL1";
 
     private static final String CELL_PLATE_EXAMPLE = "3VCP1";
+
+    private static final String DATA_SET_CODE = "20081105092159188-3";
 
     public final void testShowMasterPlateView()
     {
@@ -107,12 +104,11 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         final CheckTableCommand dataTable = checkSample.dataTable().expectedSize(2);
         dataTable.expectedRow(new DataSetRow("20081105092158673-1").invalid().withFileFormatType(
                 "TIFF"));
-        dataTable.expectedRow(new DataSetRow("20081105092159188-3").invalid().withLocation(
+        dataTable.expectedRow(new DataSetRow(DATA_SET_CODE).invalid().withLocation(
                 "analysis/result"));
         dataTable.expectedColumnsNumber(16);
         final String commentColIdent = GridTestUtils.getPropertyColumnIdentifier("COMMENT", false);
         dataTable.expectedColumnHidden(commentColIdent, true);
-
         remoteConsole.prepare(new AbstractDefaultTestCommand()
             {
                 @Override
@@ -122,47 +118,22 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                     return checkSample.tryValidOnSucess(callbackObjects, result);
                 }
 
-                // NOTE: GridTestUtils provides a nicer way to simulate grid click, this code should
-                // be refactored
                 public void execute()
                 {
                     checkSample.execute();
-                    // click on first data set
-                    client.removeControllers();
-                    DispatcherListener dispatcherListener = createDispatcherListener();
-                    Dispatcher dispatcher = Dispatcher.get();
-                    dispatcher.addDispatcherListener(dispatcherListener);
+
+                    // show DataSet
+                    TechId wildcard = TechId.createWildcardTechId();
                     final Widget widget =
-                            GWTTestUtil.getWidgetWithID(SampleDataSetBrowser.createGridId(TechId
-                                    .createWildcardTechId()));
+                            GWTTestUtil
+                                    .getWidgetWithID(SampleDataSetBrowser.createGridId(wildcard));
                     assertTrue(widget instanceof Grid);
                     final Grid<?> table = (Grid<?>) widget;
-                    final GridEvent gridEvent = new GridEvent(table);
-                    gridEvent.rowIndex = 0;
-                    gridEvent.colIndex = 0;
-                    table.fireEvent(Events.CellClick, gridEvent);
-                    dispatcher.removeDispatcherListener(dispatcherListener);
+                    GridTestUtils.fireSingleClick(table, CommonExternalDataColDefKind.CODE.id(),
+                            DATA_SET_CODE);
                 }
-
-                private DispatcherListener createDispatcherListener()
-                {
-                    return new DispatcherListener()
-                        {
-                            @Override
-                            public void beforeDispatch(MvcEvent mvce)
-                            {
-                                String url = String.valueOf(mvce.appEvent.data);
-                                assertTrue("Invalid URL: " + url, url
-                                        .startsWith("https://localhost:8889/"
-                                                + DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/"
-                                                + "20081105092158673-1?sessionID=test-"));
-                            }
-                        };
-                }
-
             });
-
+        remoteConsole.prepare(new BrowseDataSet(DATA_SET_CODE));
         launchTest(60000);
     }
-
 }

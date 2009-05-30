@@ -50,7 +50,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
@@ -305,16 +304,12 @@ public abstract class AbstractExternalDataGrid
         setEntityKindForDisplayTypeIDGeneration(EntityKind.DATA_SET);
         super.updateCriteriaProviderAndRefresh();
 
-        registerCellClickListenerFor(CommonExternalDataColDefKind.CODE.id(),
-                new ICellListener<ExternalData>()
-                    {
-                        public void handle(ExternalData rowItem)
-                        {
-                            DataSetUtils.showDataSet(rowItem, viewContext.getModel());
-                        }
-                    });
-
         addEntityOperationsLabel();
+        Button browseButton =
+                createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_BROWSE),
+                        asBrowseExternalDataInvoker());
+        browseButton.setId(getId() + "_browse-button");
+        addButton(browseButton);
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
                 asShowEntityInvoker(false)));
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
@@ -340,6 +335,21 @@ public abstract class AbstractExternalDataGrid
         addEntityOperationsSeparator();
         allowMultipleSelection();
 
+    }
+
+    private final ISelectedEntityInvoker<BaseEntityModel<ExternalData>> asBrowseExternalDataInvoker()
+    {
+        return new ISelectedEntityInvoker<BaseEntityModel<ExternalData>>()
+            {
+                public void invoke(BaseEntityModel<ExternalData> selectedItem)
+                {
+                    if (selectedItem != null)
+                    {
+                        DataSetUtils.showDataSet(selectedItem.getBaseObject(), viewContext
+                                .getModel());
+                    }
+                }
+            };
     }
 
     private static ICriteriaProvider<PropertyTypesCriteria> createCriteriaProvider(

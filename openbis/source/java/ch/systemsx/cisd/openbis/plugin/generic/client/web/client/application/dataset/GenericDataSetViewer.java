@@ -19,17 +19,22 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.da
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -49,6 +54,10 @@ public final class GenericDataSetViewer extends AbstractViewer<IGenericClientSer
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
+    public static final String BROWSE_BUTTON_ID_SUFFIX = "_browse-button";
+
+    private final BrowseButtonHolder browseButtonHolder;
+
     private final TechId datasetId;
 
     public static DatabaseModificationAwareComponent create(
@@ -64,6 +73,8 @@ public final class GenericDataSetViewer extends AbstractViewer<IGenericClientSer
     {
         super(viewContext, createId(identifiable));
         this.datasetId = TechId.create(identifiable);
+        this.browseButtonHolder = new BrowseButtonHolder();
+        this.addToolBarButton(browseButtonHolder.getButton());
         reloadData();
     }
 
@@ -75,6 +86,11 @@ public final class GenericDataSetViewer extends AbstractViewer<IGenericClientSer
     public static final String createId(final TechId datasetId)
     {
         return ID_PREFIX + datasetId;
+    }
+
+    private final String createChildId(String childIdSuffix)
+    {
+        return getId() + childIdSuffix;
     }
 
     private static void addSection(final LayoutContainer lc, final Widget w)
@@ -120,6 +136,56 @@ public final class GenericDataSetViewer extends AbstractViewer<IGenericClientSer
             genericDataSetViewer.setScrollMode(Scroll.AUTO);
             addSection(genericDataSetViewer, new DataSetPropertiesSection(result, viewContext));
             genericDataSetViewer.layout();
+        }
+    }
+
+    private void updateOriginalData(final ExternalData result)
+    {
+        super.updateOriginalData(result);
+        browseButtonHolder.setupData(result);
+    }
+
+    /**
+     * Holder of a {@link Button} that goes to external data browsing on selection. The button is
+     * disabled until this holder is set up with {@link #setupData(ExternalData)}.
+     */
+    private class BrowseButtonHolder
+    {
+        private final Button button;
+
+        public BrowseButtonHolder()
+        {
+            this.button = createBrowseButton();
+        }
+
+        private Button createBrowseButton()
+        {
+            Button result = new Button(viewContext.getMessage(Dict.BUTTON_BROWSE));
+            result.setId(createChildId(BROWSE_BUTTON_ID_SUFFIX));
+            result.disable();
+            return result;
+        }
+
+        public Button getButton()
+        {
+            return this.button;
+        }
+
+        /** @param data external data that will be browsed after selection */
+        public void setupData(final ExternalData data)
+        {
+            if (button.isEnabled() == false)
+            {
+                button.addSelectionListener(new SelectionListener<ButtonEvent>()
+                    {
+                        @Override
+                        public void componentSelected(ButtonEvent ce)
+                        {
+                            DataSetUtils.showDataSet(data, viewContext.getModel());
+                        }
+                    });
+                button.enable();
+            }
         }
     }
 

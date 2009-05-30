@@ -74,16 +74,28 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
         setTopComponent(toolBar);
         toolBar.add(titleLabel);
         toolBar.add(new FillToolItem());
-        editButton = new Button(viewContext.getMessage(Dict.BUTTON_EDIT));
-        editButton.setId(getId() + ID_EDIT_SUFFIX);
-        editButton.addListener(Events.Select, new Listener<BaseEvent>()
+        editButton = createEditButton();
+        addToolBarButton(editButton);
+    }
+
+    private Button createEditButton()
+    {
+        Button result = new Button(viewContext.getMessage(Dict.BUTTON_EDIT));
+        result.setId(getId() + ID_EDIT_SUFFIX);
+        result.addListener(Events.Select, new Listener<BaseEvent>()
             {
                 public void handleEvent(BaseEvent be)
                 {
                     showEntityEditor();
                 }
             });
-        toolBar.add(new AdapterToolItem(editButton));
+        result.disable();
+        return result;
+    }
+
+    protected final void addToolBarButton(Button button)
+    {
+        toolBar.add(new AdapterToolItem(button));
     }
 
     protected final void updateTitle(String title)
@@ -98,7 +110,7 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
 
     protected void showEntityEditor()
     {
-        assert originalData != null;
+        assert originalData != null : "data is not yet set";
         showEntityEditor(originalData.getEntityKind(), originalData.getEntityType(), originalData);
     }
 
@@ -127,6 +139,7 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
     protected void updateOriginalData(IEntityInformationHolder newData)
     {
         this.originalData = newData;
+        editButton.enable();
         updateTitle();
     }
 

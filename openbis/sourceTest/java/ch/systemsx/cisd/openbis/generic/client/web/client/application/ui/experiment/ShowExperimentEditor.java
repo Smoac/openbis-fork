@@ -16,11 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
-import junit.framework.Assert;
-
-import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.widget.button.Button;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -33,12 +28,12 @@ public class ShowExperimentEditor extends AbstractDefaultTestCommand
 {
     private final TechId experimentId;
 
-    public ShowExperimentEditor() 
+    public ShowExperimentEditor()
     {
         this(TechId.createWildcardTechId());
     }
 
-    private ShowExperimentEditor(TechId experimentId)
+    private ShowExperimentEditor(final TechId experimentId)
     {
         this.experimentId = experimentId;
         addCallbackClass(GenericExperimentViewer.ExperimentInfoCallback.class);
@@ -46,11 +41,8 @@ public class ShowExperimentEditor extends AbstractDefaultTestCommand
 
     public void execute()
     {
-        final Button edit =
-                (Button) GWTTestUtil.getWidgetWithID(GenericExperimentViewer.createId(experimentId)
-                        + GenericExperimentViewer.ID_EDIT_SUFFIX);
-        Assert.assertTrue(edit.isEnabled());
-        edit.fireEvent(Events.Select);
+        GWTTestUtil.clickButtonWithID(GenericExperimentViewer.createId(experimentId)
+                + GenericExperimentViewer.ID_EDIT_SUFFIX);
     }
 
 }
