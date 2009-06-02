@@ -176,6 +176,10 @@ public final class ColumnNames
 
     public static final String EVENT_TYPE = "event_type";
 
+    public static final String ENTITY_TYPE = "entity_type";
+
+    public static final String IDENTIFIER = "identifier";
+
     public static final String MATERIAL_PROP_COLUMN = "mate_prop_id";
 
     public static final String PROPERTY_MATERIAL_TYPE_COLUMN = "maty_prop_id";

@@ -160,6 +160,10 @@ public final class ValidationMessages
 
     public static final String EVENT_TYPE_NOT_NULL_MESSAGE = "Event Type" + CAN_NOT_BE_NULL;
 
+    public static final String ENTITY_TYPE_NOT_NULL_MESSAGE = "Entity Type" + CAN_NOT_BE_NULL;
+
+    public static final String IDENTIFIER_NOT_NULL_MESSAGE = "Identifier" + CAN_NOT_BE_NULL;
+
     public static final String DATA_NOT_NULL_MESSAGE = "Data " + CAN_NOT_BE_NULL;
 
     private ValidationMessages()

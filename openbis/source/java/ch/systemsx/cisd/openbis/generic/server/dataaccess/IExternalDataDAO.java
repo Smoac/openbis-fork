@@ -69,11 +69,9 @@ public interface IExternalDataDAO extends IGenericDAO<ExternalDataPE>
     public void updateDataSet(ExternalDataPE dataset);
 
     /**
-     * Marks the specified data set for the specified reason as deleted.
-     * 
-     * @param description Description deletion circumstances.
+     * Deletes the specified data set and creates an event with specified data.
      */
-    public void markAsDeleted(ExternalDataPE dataSet, PersonPE registrator, String description,
+    public void delete(ExternalDataPE dataSet, PersonPE registrator, String description,
             String reason);
 
 }

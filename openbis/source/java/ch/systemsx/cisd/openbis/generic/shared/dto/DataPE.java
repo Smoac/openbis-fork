@@ -86,8 +86,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
 
     private boolean placeholder;
 
-    private boolean deleted;
-
     private boolean isDerived;
 
     /** Registration date of the database instance. */
@@ -106,8 +104,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
     private String dataProducerCode;
 
     private Set<DataPE> parents = new HashSet<DataPE>();
-
-    private Set<EventPE> events = new HashSet<EventPE>();
 
     private DataStorePE dataStore;
 
@@ -196,18 +192,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
     public void setPlaceholder(final boolean placeholder)
     {
         this.placeholder = placeholder;
-    }
-
-    @Column(name = ColumnNames.IS_DELETED_COLUMN)
-    @Field(index = Index.UN_TOKENIZED, store = Store.YES, name = SearchFieldConstants.DELETED)
-    public boolean isDeleted()
-    {
-        return deleted;
-    }
-
-    public void setDeleted(boolean deleted)
-    {
-        this.deleted = deleted;
     }
 
     // bidirectional connection SamplePE-DataPE
@@ -398,52 +382,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
     private ExperimentPE getExperimentInternal()
     {
         return experiment;
-    }
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "dataInternal", cascade = CascadeType.ALL)
-    private final Set<EventPE> getEventsInternal()
-    {
-        return events;
-    }
-
-    // Required by Hibernate.
-    @SuppressWarnings("unused")
-    private final void setEventsInternal(final Set<EventPE> events)
-    {
-        this.events = events;
-    }
-
-    public final void setEvents(final Set<EventPE> events)
-    {
-        getEventsInternal().clear();
-        for (final EventPE child : events)
-        {
-            addEvent(child);
-        }
-    }
-
-    @Transient
-    public final Set<EventPE> getEvents()
-    {
-        return new UnmodifiableSetDecorator<EventPE>(getEventsInternal());
-    }
-
-    public void addEvent(final EventPE event)
-    {
-        final DataPE data = event.getData();
-        if (data != null)
-        {
-            data.removeEvent(event);
-        }
-        event.setDataInternal(this);
-        getEventsInternal().add(event);
-    }
-
-    public void removeEvent(final EventPE event)
-    {
-        assert event != null : "Unspecified event.";
-        getEventsInternal().remove(event);
-        event.setDataInternal(null);
     }
 
     private Set<DataSetPropertyPE> properties = new HashSet<DataSetPropertyPE>();

@@ -22,7 +22,6 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -31,28 +30,25 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
  * The <i>generic</i> data set slave server.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 @Component(ch.systemsx.cisd.openbis.generic.shared.ResourceNames.GENERIC_DATA_SET_TYPE_SLAVE_SERVER_PLUGIN)
 public class GenericDataSetTypeSlaveServerPlugin implements IDataSetTypeSlaveServerPlugin
 {
-    @Private static final String DELETION_DESCRIPTION = "single deletion";
-    
     @Resource(name = ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
     private IGenericBusinessObjectFactory businessObjectFactory;
 
     public GenericDataSetTypeSlaveServerPlugin()
     {
     }
-    
+
     public void deleteDataSets(Session session, List<ExternalDataPE> dataSets, String reason)
     {
-        IExternalDataTable externalDataTable = businessObjectFactory.createExternalDataTable(session);
+        IExternalDataTable externalDataTable =
+                businessObjectFactory.createExternalDataTable(session);
         externalDataTable.setExternalData(dataSets);
         externalDataTable.deleteLoadedDataSets(reason);
     }
-    
-
 
 }

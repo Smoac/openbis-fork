@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
-import static ch.systemsx.cisd.openbis.generic.server.business.bo.ExternalDataTable.DELETION_DESCRIPTION;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -156,8 +155,9 @@ public final class ExternalDataTableTest extends AbstractBOTest
         data1.setDataSetType(new DataSetTypePE());
         final ExternalDataPE data2 = new ExternalDataPE();
         data2.setCode("d2");
-        data2.setDeleted(true);
+        // data2.setDeleted(true);
         data2.setDataSetType(new DataSetTypePE());
+        // TODO 2009-06-02, Piotr Buczek: are these datasets used at all?
 
         context.checking(new Expectations()
             {
@@ -259,8 +259,10 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     will(returnValue(d2Locations));
 
                     PersonPE person = EXAMPLE_SESSION.tryGetPerson();
-                    one(externalDataDAO).markAsDeleted(d1, person, DELETION_DESCRIPTION, "reason");
-                    one(externalDataDAO).markAsDeleted(d2, person, DELETION_DESCRIPTION, "reason");
+                    one(externalDataDAO).delete(d1, person,
+                            ExternalDataTable.getDeletionDescription(d1), "reason");
+                    one(externalDataDAO).delete(d2, person,
+                            ExternalDataTable.getDeletionDescription(d2), "reason");
 
                     one(dataStoreService2).deleteDataSets(dss2.getSessionToken(), d2Locations);
                 }

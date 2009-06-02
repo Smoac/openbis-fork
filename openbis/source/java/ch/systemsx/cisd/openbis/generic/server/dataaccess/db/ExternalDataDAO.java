@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 
 /**
  * Implementation of {@link IExternalDataDAO} for databases.
@@ -82,7 +83,7 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         final String query =
                 String.format("from %s e " + "left join fetch e.experimentInternal "
                         + "left join fetch e.parents " + "left join fetch e.dataSetProperties "
-                        + "where e.sampleInternal = ? and e.deleted = false", TABLE_NAME);
+                        + "where e.sampleInternal = ?", TABLE_NAME);
         final List<ExternalDataPE> list = cast(getHibernateTemplate().find(query, toArray(sample)));
 
         // distinct does not work properly in HQL for left joins
@@ -103,7 +104,7 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         final String query =
                 String.format("from %s e " + "left join fetch e.experimentInternal "
                         + "left join fetch e.parents " + "left join fetch e.dataSetProperties "
-                        + "where e.experimentInternal = ? and e.deleted = false", TABLE_NAME);
+                        + "where e.experimentInternal = ?", TABLE_NAME);
         final List<ExternalDataPE> list =
                 cast(getHibernateTemplate().find(query, toArray(experiment)));
 
@@ -214,24 +215,28 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         }
     }
 
-    public void markAsDeleted(ExternalDataPE dataSet, PersonPE registrator, String description,
+    public void delete(ExternalDataPE dataSet, PersonPE registrator, String description,
             String reason)
     {
         assert dataSet != null : "Unspecified data set.";
 
-        dataSet.setDeleted(true);
         EventPE event = new EventPE();
         event.setEventType(EventType.DELETION);
+        event.setEntityType(EntityType.DATASET);
+        event.setIdentifier(dataSet.getCode());
         event.setDescription(description);
         event.setReason(reason);
         event.setRegistrator(registrator);
-        dataSet.addEvent(event);
+
         HibernateTemplate template = getHibernateTemplate();
-        template.update(dataSet);
+        template.save(event);
+        template.delete(dataSet);
         template.flush();
+
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("UPDATE: Events of data set '%s'.", dataSet));
+            operationLog.info(String.format("DELETE: data set '%s'.", dataSet));
+            operationLog.info(String.format("ADD: event '%s'.", event));
         }
     }
 }

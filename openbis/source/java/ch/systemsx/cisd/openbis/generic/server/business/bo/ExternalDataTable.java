@@ -63,9 +63,6 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     static final String AND_MORE_TEMPLATE = "and %d more.";
 
     @Private
-    static final String DELETION_DESCRIPTION = "single deletion";
-
-    @Private
     static String createUploadComment(List<ExternalDataPE> dataSets)
     {
         StringBuilder builder = new StringBuilder(UPLOAD_COMMENT_TEXT);
@@ -158,11 +155,16 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             List<ExternalDataPE> dataSets = entry.getValue();
             for (ExternalDataPE dataSet : dataSets)
             {
-                externalDataDAO.markAsDeleted(dataSet, session.tryGetPerson(),
-                        DELETION_DESCRIPTION, reason);
+                externalDataDAO.delete(dataSet, session.tryGetPerson(),
+                        getDeletionDescription(dataSet), reason);
             }
             deleteDataSets(dataStore, getLocations(dataSets));
         }
+    }
+
+    public static String getDeletionDescription(ExternalDataPE dataSet)
+    {
+        return dataSet.getCode();
     }
 
     public String uploadLoadedDataSetsToCIFEX(DataSetUploadContext uploadContext)

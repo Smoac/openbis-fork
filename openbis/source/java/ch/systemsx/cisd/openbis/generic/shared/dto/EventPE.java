@@ -22,27 +22,24 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 
 import ch.rinn.restrictions.Friend;
-import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
  * Persistent entity representing an event which changed some entities in the persistent layer.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 @Entity
@@ -52,14 +49,21 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
+    public enum EntityType
+    {
+        ATTACHMENT, DATASET, EXPERIMENT, MATERIAL, PROJECT, PROPERTY_TYPE, SAMPLE, VOCABULARY;
+    }
+
     private transient Long id;
-    
+
     private EventType eventType;
-    
-    private DataPE data;
+
+    private EntityType entityType;
+
+    private String identifier;
 
     private String description;
-    
+
     private String reason;
 
     public final void setId(final Long id)
@@ -87,28 +91,32 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
     {
         this.eventType = eventType;
     }
-    
-    @NotNull(message = ValidationMessages.DATA_NOT_NULL_MESSAGE)
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.DATA_ID_COLUMN, updatable = false)
-    @Private
-    public final DataPE getDataInternal()
+
+    @NotNull(message = ValidationMessages.ENTITY_TYPE_NOT_NULL_MESSAGE)
+    @Column(name = ColumnNames.ENTITY_TYPE)
+    @Enumerated(EnumType.STRING)
+    public EntityType getEntityType()
     {
-        return data;
+        return entityType;
     }
 
-    @Private
-    public final void setDataInternal(DataPE data)
+    public void setEntityType(EntityType entityType)
     {
-        this.data = data;
+        this.entityType = entityType;
     }
 
-    @Transient
-    public final DataPE getData()
+    @NotNull(message = ValidationMessages.IDENTIFIER_NOT_NULL_MESSAGE)
+    @Column(name = ColumnNames.IDENTIFIER)
+    public String getIdentifier()
     {
-        return getDataInternal();
+        return identifier;
     }
-    
+
+    public void setIdentifier(String identifier)
+    {
+        this.identifier = identifier;
+    }
+
     @Length(max = 250, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
     public final String getDescription()
     {
@@ -129,6 +137,24 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
     public final void setReason(final String reason)
     {
         this.reason = reason;
+    }
+
+    //
+    // Object
+    // 
+
+    @Override
+    public final String toString()
+    {
+        final ToStringBuilder builder =
+                new ToStringBuilder(this,
+                        ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
+        builder.append("eventType", getEventType());
+        builder.append("entityType", getEntityType());
+        builder.append("identifier", getIdentifier());
+        builder.append("description", getDescription());
+        builder.append("reason", getReason());
+        return builder.toString();
     }
 
 }
