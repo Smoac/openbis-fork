@@ -168,10 +168,11 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         assertEquals(null, retrievedData);
 
         final IEventDAO eventDAO = daoFactory.getEventDAO();
-        List<EventPE> events =
-                eventDAO.list(data.getIdentifier(), EntityType.DATASET, EventType.DELETION);
-        assertEquals(1, events.size());
-        EventPE event = events.iterator().next();
+        EventPE eventOrNull =
+                eventDAO.tryFind(data.getIdentifier(), EntityType.DATASET, EventType.DELETION);
+        assertNotNull(eventOrNull);
+
+        EventPE event = eventOrNull;
         assertEquals("description", event.getDescription());
         assertEquals("testing deletion", event.getReason());
         assertEquals(data.getIdentifier(), event.getIdentifier());

@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
-import java.util.List;
-
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
@@ -31,10 +29,10 @@ public interface IEventDAO extends IGenericDAO<EventPE>
 {
 
     /**
-     * Lists all <var>eventType</var> events concerning an object of given <var>entityType</var> and
-     * <code>identifier</code>.
+     * Tries to find <var>eventType</var> event concerning an object of given <var>entityType</var>
+     * and <code>identifier</code>.
      */
-    public List<EventPE> list(final String identifier, final EntityType entityType,
+    public EventPE tryFind(final String identifier, final EntityType entityType,
             final EventType eventType);
 
 }

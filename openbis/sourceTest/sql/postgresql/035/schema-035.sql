@@ -434,7 +434,7 @@ CREATE TABLE events (
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     entity_type character varying(80) NOT NULL,
     identifier character varying(250) NOT NULL,
-    CONSTRAINT evet_enum_ck CHECK (((entity_type)::text = ANY ((ARRAY['ATTACHMENT'::character varying, 'DATASET'::character varying, 'EXPERIMENT'::character varying, 'MATERIAL'::character varying, 'PROJECT'::character varying, 'PROPERTY_TYPE'::character varying, 'SAMPLE'::character varying, 'VOCABULARY'::character varying])::text[])))
+    CONSTRAINT evnt_et_enum_ck CHECK (((entity_type)::text = ANY ((ARRAY['ATTACHMENT'::character varying, 'DATASET'::character varying, 'EXPERIMENT'::character varying, 'MATERIAL'::character varying, 'PROJECT'::character varying, 'PROPERTY_TYPE'::character varying, 'SAMPLE'::character varying, 'VOCABULARY'::character varying])::text[])))
 );
 CREATE SEQUENCE experiment_id_seq
     INCREMENT BY 1

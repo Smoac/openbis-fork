@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
@@ -26,6 +24,7 @@ import org.springframework.jdbc.support.JdbcAccessor;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
@@ -53,7 +52,7 @@ public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEven
         super(sessionFactory, databaseInstance, ENTITY_CLASS);
     }
 
-    public List<EventPE> list(String identifier, EntityType entityType, EventType eventType)
+    public EventPE tryFind(String identifier, EntityType entityType, EventType eventType)
     {
         assert identifier != null : "Unspecified identifier.";
         assert entityType != null : "Unspecified entityType.";
@@ -63,12 +62,13 @@ public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEven
         criteria.add(Restrictions.eq("identifier", identifier));
         criteria.add(Restrictions.eq("entityType", entityType));
         criteria.add(Restrictions.eq("eventType", eventType));
-        final List<EventPE> list = cast(criteria.list());
+        final EventPE result = tryGetEntity(criteria.uniqueResult());
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format("%s event(s) have been found: '%s'.", list.size()));
+            String methodName = MethodUtils.getCurrentMethod().getName();
+            operationLog.debug(String.format("%s: '%s'.", methodName, result));
         }
-        return list;
+        return result;
     }
 
 }
