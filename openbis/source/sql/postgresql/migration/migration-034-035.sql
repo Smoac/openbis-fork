@@ -23,6 +23,8 @@ UPDATE events SET
 
 DELETE FROM data_set_properties 
     WHERE ds_id IN (SELECT id FROM data WHERE is_deleted = 'TRUE');
+DELETE FROM external_data
+		WHERE data_id IN (SELECT id FROM data WHERE is_deleted = 'TRUE');
 DELETE FROM data WHERE is_deleted = 'TRUE';    
 
 -- remove old columns
