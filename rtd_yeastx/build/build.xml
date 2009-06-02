@@ -31,4 +31,8 @@
 		</antcall>
 	</target>
 
+      <!--
+      // Task for continuous integration server.
+      -->
+      <target name="ci" depends="build-common.ci, check-dependencies, jar"/>
 </project>
