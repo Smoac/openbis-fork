@@ -242,7 +242,6 @@ public final class PropertyValidator implements IPropertyValueValidator
 
         final void setVocabulary(final VocabularyPE vocabulary)
         {
-            System.err.println("FIXME - " + vocabulary.getTerms());
             this.vocabulary = vocabulary;
         }
 
