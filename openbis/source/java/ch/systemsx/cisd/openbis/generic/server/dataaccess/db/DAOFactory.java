@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
@@ -76,6 +77,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IPermIdDAO permIdDAO;
 
+    private final IEventDAO eventDAO;
+
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory)
     {
@@ -93,6 +96,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         codeSequenceDAO = new CodeSequenceDAO(sessionFactory, databaseInstance);
         dataStoreDAO = new DataStoreDAO(sessionFactory, databaseInstance);
         permIdDAO = new PermIdDAO(sessionFactory, databaseInstance);
+        eventDAO = new EventDAO(sessionFactory, databaseInstance);
         final EntityKind[] entityKinds = EntityKind.values();
         for (final EntityKind entityKind : entityKinds)
         {
@@ -176,5 +180,10 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public IPermIdDAO getPermIdDAO()
     {
         return permIdDAO;
+    }
+
+    public IEventDAO getEventDAO()
+    {
+        return eventDAO;
     }
 }

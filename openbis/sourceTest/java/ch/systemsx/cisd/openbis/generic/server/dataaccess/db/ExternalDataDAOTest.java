@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
@@ -36,6 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
@@ -45,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 
 /**
@@ -163,14 +167,16 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         DataPE retrievedData = externalDataDAO.tryToFindDataSetByCode(data.getCode());
         assertEquals(null, retrievedData);
 
-        // TODO 2009-06-02, Piotr Buczek: find Event by identifier
-
-        // Set<EventPE> events = retrievedData.getEvents();
-        // assertEquals(1, events.size());
-        // EventPE event = events.iterator().next();
-        // assertEquals("description", event.getDescription());
-        // assertEquals("testing deletion", event.getReason());
-        // assertEquals(EventType.DELETION, event.getEventType());
+        final IEventDAO eventDAO = daoFactory.getEventDAO();
+        List<EventPE> events =
+                eventDAO.list(data.getIdentifier(), EntityType.DATASET, EventType.DELETION);
+        assertEquals(1, events.size());
+        EventPE event = events.iterator().next();
+        assertEquals("description", event.getDescription());
+        assertEquals("testing deletion", event.getReason());
+        assertEquals(data.getIdentifier(), event.getIdentifier());
+        assertEquals(EventType.DELETION, event.getEventType());
+        assertEquals(EntityType.DATASET, event.getEntityType());
     }
 
     protected VocabularyTermPE pickAStorageFormatVocabularyTerm()

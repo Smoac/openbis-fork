@@ -84,4 +84,7 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
     /** Returns an implementation of {@link IPermIdDAO}. */
     public IPermIdDAO getPermIdDAO();
 
+    /** Returns an implementation of {@link IEventDAO}. */
+    public IEventDAO getEventDAO();
+
 }

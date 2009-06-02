@@ -164,7 +164,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
 
     public static String getDeletionDescription(ExternalDataPE dataSet)
     {
-        return dataSet.getCode();
+        return dataSet.getIdentifier();
     }
 
     public String uploadLoadedDataSetsToCIFEX(DataSetUploadContext uploadContext)
