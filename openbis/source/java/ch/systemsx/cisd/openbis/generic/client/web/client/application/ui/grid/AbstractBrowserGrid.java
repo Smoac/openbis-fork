@@ -160,7 +160,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     // --------- private non-final fields
 
-    private List<PagingColumnFilter<T>> filterWidgets;
+    private List<PagingColumnFilter<T>> filterWidgets = new ArrayList<PagingColumnFilter<T>>();
 
     // available columns definitions
     private Set<IColumnDefinition<T>> columnDefinitions;
@@ -855,26 +855,15 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
                 public List<String> getFilteredColumnIds()
                 {
-                    return extractFilteredColumnIds();
+                    return extractFilteredColumnIds(filterWidgets);
                 }
             };
-    }
-
-    private List<String> extractFilteredColumnIds()
-    {
-        if (filterWidgets != null)
-        {
-            return extractFilteredColumnIds(filterWidgets);
-        } else
-        {
-            return new ArrayList<String>();
-        }
     }
 
     // returns true if some filters have changed
     private boolean rebuildFiltersFromIds(List<String> filteredColumnIds)
     {
-        if (filteredColumnIds.equals(extractFilteredColumnIds()))
+        if (filteredColumnIds.equals(extractFilteredColumnIds(filterWidgets)))
         {
             return false; // nothing to change
         }
@@ -889,7 +878,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         List<PagingColumnFilter<T>> newFilterWidgets = createFilterWidgets(filteredColumns);
         rebuildFilterToolbar(newFilterWidgets, this.filterWidgets, this.filterToolbar, viewContext);
 
-        boolean noFiltersBefore = filterWidgets == null || filterWidgets.isEmpty();
+        boolean noFiltersBefore = filterWidgets.isEmpty();
         boolean noFiltersAfter = newFilterWidgets.isEmpty();
         this.filterWidgets = newFilterWidgets;
         if (noFiltersBefore != noFiltersAfter)
@@ -1038,7 +1027,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 }
             };
         List<ColumnDataModel> settingsModel =
-                createColumnsSettingsModel(getColumnModel(), extractFilteredColumnIds());
+                createColumnsSettingsModel(getColumnModel(), extractFilteredColumnIds(filterWidgets));
         ColumnSettingsDialog.show(viewContext, settingsModel, updater);
     }
 
