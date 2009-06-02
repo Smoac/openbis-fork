@@ -118,6 +118,11 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         loadingInfo.setVisible(loading);
     }
 
+    protected void resetFieldsAfterSave()
+    {
+        resetPanel();
+    }
+
     protected void resetPanel()
     {
         try
@@ -155,7 +160,8 @@ public abstract class AbstractRegistrationForm extends ContentPanel
                 {
                     if (panel.isValid())
                     {
-                        // TODO 2009-05-29, Piotr Buczek: isValid could be changed to disable save button
+                        // TODO 2009-05-29, Piotr Buczek: isValid could be changed to disable save
+                        // button
                         submitValidForm();
                     }
                 }
@@ -212,7 +218,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         protected void process(final T result)
         {
             infoBox.displayInfo(createSuccessfullRegistrationInfo(result));
-            resetPanel();
+            resetFieldsAfterSave();
             setUploadEnabled(true);
             saveButton.enable();
         }

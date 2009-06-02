@@ -131,6 +131,15 @@ public final class GenericSampleBatchRegistrationForm extends AbstractRegistrati
         return field;
     }
 
+    @Override
+    protected void resetFieldsAfterSave()
+    {
+        for (FileUploadField attachmentField : fileFieldsManager.getFields())
+        {
+            attachmentField.reset();
+        }
+    }
+
     private final void addFormFields()
     {
         for (FileUploadField attachmentField : fileFieldsManager.getFields())

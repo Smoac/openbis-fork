@@ -63,7 +63,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm
 {
     private static final int DEFAULT_NUMBER_OF_ATTACHMENTS = 3;
 
-    private FileFieldManager attachmentManager;
+    protected FileFieldManager attachmentManager;
 
     protected String attachmentsSessionKey;
 
@@ -73,7 +73,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm
 
     protected final String samplesSessionKey;
 
-    private FileFieldManager importSamplesFileManager;
+    protected FileFieldManager importSamplesFileManager;
 
     private SampleTypeSelectionWidget importSampleTypeSelection;
 

@@ -109,6 +109,16 @@ public final class GenericSampleRegistrationForm extends
     {
     }
 
+    @Override
+    protected void resetFieldsAfterSave()
+    {
+        codeField.reset();
+        for (FileUploadField attachmentField : attachmentManager.getFields())
+        {
+            attachmentField.reset();
+        }
+    }
+
     public final void registerSample()
     {
         final NewSample newSample =

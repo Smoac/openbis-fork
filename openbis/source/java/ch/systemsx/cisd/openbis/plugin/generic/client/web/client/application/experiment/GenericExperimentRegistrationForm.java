@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ex
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.form.FileUploadField;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
@@ -33,7 +35,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Izabela Adamczyk
  */
-public final class GenericExperimentRegistrationForm extends AbstractGenericExperimentRegisterEditForm
+public final class GenericExperimentRegistrationForm extends
+        AbstractGenericExperimentRegisterEditForm
 {
 
     private final ExperimentType experimentType;
@@ -44,6 +47,21 @@ public final class GenericExperimentRegistrationForm extends AbstractGenericExpe
     {
         super(viewContext);
         this.experimentType = experimentType;
+    }
+
+    @Override
+    protected void resetFieldsAfterSave()
+    {
+        codeField.reset();
+        for (FileUploadField attachmentField : attachmentManager.getFields())
+        {
+            attachmentField.reset();
+        }
+        for (FileUploadField importSamplesField : importSamplesFileManager.getFields())
+        {
+            importSamplesField.reset();
+        }
+        samplesArea.reset();
     }
 
     private final String createExperimentIdentifier()
