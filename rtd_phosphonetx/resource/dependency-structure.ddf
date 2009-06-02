@@ -1,0 +1,8 @@
+#
+#
+#
+#show allResults
+
+{root} = ch.systemsx.cisd
+{phosphonetx} = ${root}.phosphonetx
+
