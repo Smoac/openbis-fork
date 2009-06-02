@@ -255,7 +255,7 @@
       <buildstatus logdir="logs/common"/>
       <buildstatus logdir="logs/openbis"/>
       <buildstatus logdir="logs/datastore_server"/>
-      <buildstatus logdir="logs/db_migration"/>
+      <buildstatus logdir="logs/dbmigration"/>
       <svn localWorkingCopy="${project.trunk}"/>
     </modificationset>
   </project>
