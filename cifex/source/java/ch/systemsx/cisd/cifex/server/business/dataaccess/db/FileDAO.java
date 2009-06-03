@@ -51,7 +51,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     private static final ParameterizedRowMapper SHARING_USER_ROW_MAPPER =
             new SharingUserRowMapper();
 
-    private static final String SELECT =
+    private static final String SELECT_FILES =
             "select f.ID as f_id, f.NAME as f_name, f.PATH as f_path, f.COMMENT as f_comment, "
                     + "f.USER_ID as f_user_id, "
                     + "f.REGISTRATION_TIMESTAMP as f_registration_timestamp, "
@@ -59,8 +59,9 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
                     + "f.CONTENT_TYPE as f_content_type," + "f.SIZE as f_size";
 
     private static final String FILES_JOIN_USERS =
-            SELECT + ", u.* " + " from files as f "
-                    + " join users as u on f.user_id = u.id where f.id = ?";
+            SELECT_FILES + ", u.* " + " from files as f " + " left join users as u on f.user_id = u.id";
+
+    private static final String FILES_JOIN_USERS_WHERE_ID = FILES_JOIN_USERS + " where f.id = ?";
 
     FileDAO(final DataSource dataSource, final ISequencerHandler sequencerHandler)
     {
@@ -146,9 +147,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     public List<FileDTO> listFiles() throws DataAccessException
     {
         final List<FileDTO> list =
-                getSimpleJdbcTemplate().query(
-                        SELECT + ", u.* from files f, users u " + "where f.user_id = u.id",
-                        FILE_WITH_REGISTERER_ROW_MAPPER);
+                getSimpleJdbcTemplate().query(FILES_JOIN_USERS, FILE_WITH_REGISTERER_ROW_MAPPER);
         for (FileDTO file : list)
         {
             final List<UserDTO> sharingUsers = listSharingUsers(file.getID());
@@ -156,7 +155,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
             {
                 file.setSharingUsers(sharingUsers);
             }
-            
+
         }
         return list;
     }
@@ -167,7 +166,8 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         try
         {
             final FileDTO file =
-                    template.queryForObject(FILES_JOIN_USERS, FILE_WITH_REGISTERER_ROW_MAPPER, id);
+                    template.queryForObject(FILES_JOIN_USERS_WHERE_ID,
+                            FILE_WITH_REGISTERER_ROW_MAPPER, id);
             final List<UserDTO> sharingUsers = listSharingUsers(id);
             if (sharingUsers.size() > 0)
             {
@@ -184,7 +184,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     {
         final List<FileDTO> list =
                 getSimpleJdbcTemplate().query(
-                        SELECT + " from files as f where f.expiration_timestamp < now() ",
+                        SELECT_FILES + " from files as f where f.expiration_timestamp < now() ",
                         FILE_ROW_MAPPER);
         return list;
 
@@ -194,8 +194,8 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     {
         final List<FileDTO> list =
                 getSimpleJdbcTemplate().query(
-                        SELECT + ", u.* from files f, file_shares s, users u "
-                                + "where s.file_id = f.id and f.user_id = u.id and s.user_id = ?",
+                        SELECT_FILES + ", u.* from files f left join users u "
+                                + "on f.user_id = u.id left join file_shares s on s.file_id = f.id where s.user_id = ?",
                         FILE_WITH_REGISTERER_ROW_MAPPER, userId);
         return list;
     }
@@ -204,7 +204,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     {
         final List<FileDTO> list =
                 getSimpleJdbcTemplate().query(
-                        SELECT + ", u.* from files f, users u "
+                        SELECT_FILES + ", u.* from files f, users u "
                                 + "where f.user_id = u.id and u.id = ?",
                         FILE_WITH_REGISTERER_ROW_MAPPER, userId);
         return list;
