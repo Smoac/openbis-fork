@@ -106,7 +106,7 @@ public class UserDTO extends ID
 
     public final void setEmail(final String email)
     {
-        this.email = email.toLowerCase();
+        this.email = (email == null) ? null : email.toLowerCase();
     }
 
     public final Password getPassword()
