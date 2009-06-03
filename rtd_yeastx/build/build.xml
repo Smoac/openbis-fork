@@ -6,6 +6,7 @@
 	<property name="mainfolder" value="rtd_yeastx" />
 	<property name="nativeroot" value="${targets}/ant" />
 	<property name="jar.file" value="${dist}/datastore_server-plugins.jar" />
+	<property name="libraries" value="../libraries" />
 
 	<target name="clean">
 		<delete dir="${dist}" />
@@ -17,11 +18,21 @@
 		<mkdir dir="${dist}" />
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+		<unjar src="${libraries}/eodsql/eodsql.jar"
+		       dest="${classes}">
+		    <patternset>
+		        <exclude name="META-INF"/>
+		    </patternset>
+		</unjar>
 		<recursive-jar destfile="${jar.file}">
 			<fileset dir="${classes}">
+				<include name="net/lemnik/eodsql/**" />
 				<include name="ch/systemsx/cisd/yeastx/**/*.class" />
 				<include name="${build.info.filename}" />
 			</fileset>
+			<fileset dir="source">
+				<include name="**/*.sql" />
+			</fileset>	
 		</recursive-jar>
 	</target>
 
