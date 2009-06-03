@@ -62,6 +62,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -82,6 +84,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -91,6 +94,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -900,6 +904,44 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             throws UserFailureException
     {
         deleteEntityTypes(sessionToken, EntityKind.SAMPLE, entityTypesCodes);
+    }
 
+    public List<String> getTemplateColumns(String sessionToken, EntityKind entityKind, String type,
+            boolean autoGenerate)
+    {
+        EntityTypePE typeOrNull =
+                getDAOFactory().getEntityTypeDAO(entityKind).tryToFindEntityTypeByCode(type);
+        if (typeOrNull == null)
+        {
+            throw new UserFailureException("Unknown " + entityKind.name() + " type '" + type + "'");
+        }
+        List<String> result = new ArrayList<String>();
+        switch (entityKind)
+        {
+            case SAMPLE:
+                if (autoGenerate == false)
+                {
+                    result.add(NewSample.IDENTIFIER_COLUMN);
+                }
+                result.add(NewSample.CONTAINER);
+                result.add(NewSample.PARENT);
+                for (SampleTypePropertyTypePE etpt : ((SampleTypePE) typeOrNull)
+                        .getSampleTypePropertyTypes())
+                {
+                    result.add(etpt.getPropertyType().getCode());
+                }
+                break;
+            case MATERIAL:
+                result.add(NewMaterial.CODE);
+                for (MaterialTypePropertyTypePE etpt : ((MaterialTypePE) typeOrNull)
+                        .getMaterialTypePropertyTypes())
+                {
+                    result.add(etpt.getPropertyType().getCode());
+                }
+                break;
+            default:
+                break;
+        }
+        return result;
     }
 }

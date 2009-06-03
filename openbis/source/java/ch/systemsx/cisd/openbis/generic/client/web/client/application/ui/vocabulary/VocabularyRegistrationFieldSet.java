@@ -196,7 +196,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
 
         private TextArea termsArea;
 
-        private VarcharField uriField;
+        private VarcharField urlTemplateField;
 
         private FileUploadField uploadFileField;
 
@@ -207,7 +207,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
             add(termsArea = createTermsArea());
             // fromFile
             add(uploadFileField = createImportFileField());
-            add(uriField = createURIField());
+            add(urlTemplateField = createURLTemplateField());
             //
             updateSection();
         }
@@ -252,10 +252,12 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
             return result;
         }
 
-        private VarcharField createURIField()
+        private VarcharField createURLTemplateField()
         {
-            return new VarcharField(messageProvider.getMessage(Dict.VOCABULARY_TERMS_SOURCE_URI),
-                    false);
+            VarcharField result =
+                    new VarcharField(
+                            messageProvider.getMessage(Dict.VOCABULARY_TERMS_URL_TEMPLATE), false);
+            return result;
         }
 
         private FileUploadField createImportFileField()
@@ -281,14 +283,14 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
         {
             Boolean useFreeText = freeText.getValue();
             FieldUtil.setVisibility(useFreeText, termsArea);
-            FieldUtil.setVisibility(useFreeText == false, uriField, uploadFileField);
+            FieldUtil.setVisibility(useFreeText == false, urlTemplateField, uploadFileField);
         }
 
         public void setValues(Vocabulary vocabulary)
         {
             vocabulary.setUploadedFromFile(fromFile.getValue());
             // from file
-            vocabulary.setSourceURI(getURIValue());
+            vocabulary.setURLTemplate(getURLTemplateValue());
             // free text
             final List<VocabularyTerm> vocabularyTerms = new ArrayList<VocabularyTerm>();
             for (final String termCode : VocabularyTermValidator.getTerms(getTermsAreaValue()))
@@ -311,9 +313,9 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
             return termsArea.isVisible() ? termsArea.getValue() : null;
         }
 
-        private String getURIValue()
+        private String getURLTemplateValue()
         {
-            return uriField.isVisible() ? uriField.getValue() : null;
+            return urlTemplateField.isVisible() ? urlTemplateField.getValue() : null;
         }
     }
 

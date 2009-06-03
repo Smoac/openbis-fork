@@ -408,4 +408,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void getEntityInformationHolder(EntityKind entityKind, String permId,
             AsyncCallback<IEntityInformationHolder> callback);
 
+    /**
+     * @see ICommonClientService#getTemplate(EntityKind, String, boolean)
+     */
+    public void getTemplate(EntityKind kind, String type, boolean autoGenerate,
+            AsyncCallback<String> callback);
+
 }

@@ -83,7 +83,7 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
 
     private boolean chosenFromList;
 
-    private String sourceURI;
+    private String urlTemplate;
 
     private DatabaseInstancePE databaseInstance;
 
@@ -134,15 +134,15 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
         this.chosenFromList = chosenFromList;
     }
 
-    @Column(name = ColumnNames.SOURCE_URI, updatable = true)
-    public String getSourceURI()
+    @Column(name = ColumnNames.URL_TEMPLATE, updatable = true)
+    public String getURLTemplate()
     {
-        return sourceURI;
+        return urlTemplate;
     }
 
-    public void setSourceURI(String sourceURI)
+    public void setURLTemplate(String urlTemplate)
     {
-        this.sourceURI = sourceURI;
+        this.urlTemplate = urlTemplate;
     }
 
     @Column(name = ColumnNames.DESCRIPTION_COLUMN)

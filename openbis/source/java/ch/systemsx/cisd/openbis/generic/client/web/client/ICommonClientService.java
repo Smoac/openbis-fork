@@ -476,4 +476,9 @@ public interface ICommonClientService extends IClientService
     public IEntityInformationHolder getEntityInformationHolder(EntityKind entityKind,
             String identifier) throws UserFailureException;
 
+    /**
+     * Returns example file format of new entities.
+     */
+    public String getTemplate(EntityKind kind, String type, boolean autoGenerate);
+
 }

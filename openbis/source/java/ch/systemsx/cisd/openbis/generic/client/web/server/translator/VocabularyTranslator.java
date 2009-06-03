@@ -62,7 +62,7 @@ public final class VocabularyTranslator
         result.setInternalNamespace(vocabulary.isInternalNamespace());
         result.setManagedInternally(vocabulary.isManagedInternally());
         result.setChosenFromList(vocabulary.isChosenFromList());
-        result.setSourceURI(StringEscapeUtils.escapeHtml(vocabulary.getSourceURI()));
+        result.setURLTemplate(StringEscapeUtils.escapeHtml(vocabulary.getURLTemplate()));
         return result;
     }
 

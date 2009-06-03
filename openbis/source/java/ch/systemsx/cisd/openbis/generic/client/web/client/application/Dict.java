@@ -267,7 +267,7 @@ public abstract class Dict
 
     public static final String VOCABULARY_TERMS = "vocabulary_terms";
 
-    public static final String VOCABULARY_TERMS_SOURCE_URI = "vocabulary_terms_source_uri";
+    public static final String VOCABULARY_TERMS_URL_TEMPLATE = "vocabulary_terms_url_template";
 
     public static final String VOCABULARY_TERMS_EMPTY = "vocabulary_terms_empty";
 
@@ -469,7 +469,7 @@ public abstract class Dict
 
     public static final String IS_MANAGED_INTERNALLY = "is_managed_internally";
 
-    public static final String SOURCE_URI = "source_uri";
+    public static final String URL_TEMPLATE = "url_template";
 
     public static final String TERMS = "terms";
 
@@ -614,6 +614,8 @@ public abstract class Dict
 
     public static final String CHANGE_USER_HOME_GROUP_DIALOG_TITLE =
             "change_user_home_group_dialog_title";
+
+    public static final String FILE_TEMPLATE_LABEL = "file_template_label";
 
     // ----- end generic ------------------
 }

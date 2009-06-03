@@ -36,7 +36,7 @@ var common = {
   combo_box_expected_value_from_the_list: "Value from the list required",
   invalid_code_message: "Code contains invalid characters. Allowed characters are: {0}.",
   invalid_term_code_message: "{0} contains invalid characters. Allowed characters are: letters, numbers, hyphen (\"-\"), underscore (\"_\"), colon (\":\") and dot (\".\").",
- 
+ 	file_template_label: "Download file template",
  
   //
   // MessageBox
@@ -177,7 +177,7 @@ var common = {
   type_of: "Entity",
   vocabulary: "Vocabulary",
   vocabulary_terms: "Terms",
-  vocabulary_terms_source_uri: "Source URI",
+  vocabulary_terms_url_template: "URL Template",
   vocabulary_terms_empty: "Space or comma separated list of terms.",
   vocabulary_show_available_terms_in_choosers: "Show available terms in choosers",
   missing_vocabulary_terms: "Missing vocabulary term.",
@@ -294,7 +294,7 @@ var common = {
  //
  vocabulary_browser: "Vocabulary Browser",
  is_managed_internally: "Managed Internally?",
- source_uri: "Source URI",
+ url_template: "URL Template",
  terms: "Terms",
  VOCABULARY_TERMS_BROWSER: "Vocabulary Terms of {0}",
  TERM_FOR_SAMPLES_USAGE: "Usages for Samples",

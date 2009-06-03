@@ -25,6 +25,10 @@ import ch.systemsx.cisd.common.annotation.BeanProperty;
  */
 public final class NewSample extends Identifier<NewSample>
 {
+    public static final String CONTAINER = "container";
+
+    public static final String PARENT = "parent";
+
     private SampleType sampleType;
 
     /**
@@ -67,7 +71,7 @@ public final class NewSample extends Identifier<NewSample>
         return parentIdentifier;
     }
 
-    @BeanProperty(label = "parent", optional = true)
+    @BeanProperty(label = PARENT, optional = true)
     public final void setParentIdentifier(final String parent)
     {
         this.parentIdentifier = parent;
@@ -78,7 +82,7 @@ public final class NewSample extends Identifier<NewSample>
         return containerIdentifier;
     }
 
-    @BeanProperty(label = "container", optional = true)
+    @BeanProperty(label = CONTAINER, optional = true)
     public final void setContainerIdentifier(final String container)
     {
         this.containerIdentifier = container;

@@ -40,7 +40,7 @@ public final class Vocabulary extends CodeWithRegistration<Vocabulary>
 
     private boolean uploadedFromFile; // transient
 
-    private String sourceURI;
+    private String urlTemplate;
 
     public Vocabulary()
     {
@@ -97,14 +97,14 @@ public final class Vocabulary extends CodeWithRegistration<Vocabulary>
         this.chosenFromList = chosenFromList;
     }
 
-    public String getSourceURI()
+    public String getURLTemplate()
     {
-        return sourceURI;
+        return urlTemplate;
     }
 
-    public void setSourceURI(String sourceURI)
+    public void setURLTemplate(String urlTemplate)
     {
-        this.sourceURI = sourceURI;
+        this.urlTemplate = urlTemplate;
     }
 
     public boolean isUploadedFromFile()

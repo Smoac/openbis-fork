@@ -31,12 +31,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
  */
 public class Code<T extends Code<T>> implements IsSerializable, ICodeProvider, Comparable<T>
 {
+    public static final String CODE = "code";
+
     public final static Comparator<ICodeProvider> CODE_PROVIDER_COMPARATOR =
             new CodeProviderComparator();
 
     private String code;
 
-    @BeanProperty(label = "code")
+    @BeanProperty(label = CODE)
     public final void setCode(final String code)
     {
         this.code = code;

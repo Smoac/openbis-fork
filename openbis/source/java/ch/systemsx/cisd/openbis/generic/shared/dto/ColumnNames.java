@@ -54,7 +54,7 @@ public final class ColumnNames
 
     public static final String REMOTE_URL_COLUMN = "remote_url";
 
-    public static final String SOURCE_URI = "source_uri";
+    public static final String URL_TEMPLATE = "source_uri";
 
     public static final String SESSION_TOKEN_COLUMN = "session_token";
 

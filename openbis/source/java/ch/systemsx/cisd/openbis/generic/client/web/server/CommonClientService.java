@@ -1466,4 +1466,29 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public String getTemplate(EntityKind entityKind, String type, boolean autoGenerate)
+    {
+        try
+        {
+            String sessionToken = getSessionToken();
+            StringBuilder sb = new StringBuilder();
+            ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind kind =
+                    ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind
+                            .valueOf(entityKind.name());
+            for (String column : commonServer.getTemplateColumns(sessionToken, kind, type,
+                    autoGenerate))
+            {
+                if (sb.length() != 0)
+                {
+                    sb.append("\t");
+                }
+                sb.append(column);
+            }
+            return sb.toString();
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
 }

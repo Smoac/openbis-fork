@@ -27,21 +27,27 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.google.gwt.user.client.Event;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.UrlParamsHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
@@ -85,6 +91,8 @@ abstract public class AbstractGenericExperimentRegisterEditForm
 
     protected String simpleId;
 
+    private LabelField templateField;
+
     protected AbstractGenericExperimentRegisterEditForm(
             IViewContext<IGenericClientServiceAsync> viewContext)
     {
@@ -110,7 +118,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm
         Boolean useExistingSamples = existingSamplesRadio.getValue();
         FieldUtil.setVisibility(useExistingSamples, samplesArea);
         FieldUtil.setVisibility(useExistingSamples == false, importSampleTypeSelection,
-                autoGenerateCodes, importSamplesFileManager.getFields().get(0));
+                autoGenerateCodes, importSamplesFileManager.getFields().get(0), templateField);
     }
 
     private void redefineSaveListeners()
@@ -185,17 +193,41 @@ abstract public class AbstractGenericExperimentRegisterEditForm
         fields.add(wrapUnaware(createSamplesSourceRadio(existingSamplesRadio, importSamplesRadio)));
         fields.add(wrapUnaware(samplesArea));
         fields.add(importSampleTypeSelection.asDatabaseModificationAware());
+        fields.add(wrapUnaware(autoGenerateCodes));
         for (FileUploadField samplesFileField : importSamplesFileManager.getFields())
         {
             fields.add(wrapUnaware((Field<?>) samplesFileField));
         }
-        fields.add(wrapUnaware(autoGenerateCodes));
-
+        fields.add(wrapUnaware(templateField));
         for (FileUploadField f : attachmentManager.getFields())
         {
             fields.add(wrapUnaware(f));
         }
         return fields;
+    }
+
+    private static LabelField createTemplateField(String label,
+            final SampleTypeSelectionWidget typeSelection, final CheckBox autoGenerate)
+    {
+        LabelField result = new LabelField(LinkRenderer.renderAsLink(label));
+        result.sinkEvents(Event.ONCLICK);
+        result.addListener(Event.ONCLICK, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    if (typeSelection.tryGetSelectedSampleType() != null)
+                    {
+                        WindowUtils.openWindow(UrlParamsHelper.createTemplateURL(EntityKind.SAMPLE,
+                                typeSelection.tryGetSelected(), autoGenerate.getValue()));
+                    } else
+                    {
+                        MessageBox.alert("Sample type not selected.",
+                                "Sample type must be selected before downloading file template.",
+                                null);
+                    }
+                }
+            });
+        return result;
     }
 
     protected String[] getSamples()
@@ -231,6 +263,9 @@ abstract public class AbstractGenericExperimentRegisterEditForm
         existingSamplesRadio = cerateExistingSamplesRadio();
         importSamplesRadio = createImportRadio();
         autoGenerateCodes = createAutoGenerateCheckbox();
+        templateField =
+                createTemplateField(viewContext.getMessage(Dict.FILE_TEMPLATE_LABEL),
+                        importSampleTypeSelection, autoGenerateCodes);
 
         attachmentManager =
                 new FileFieldManager(attachmentsSessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS,

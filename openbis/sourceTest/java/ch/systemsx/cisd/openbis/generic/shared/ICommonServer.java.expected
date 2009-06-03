@@ -580,4 +580,12 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.OBSERVER)
     public IEntityInformationHolder getEntityInformationHolder(String sessionToken,
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind, String permId);
+
+    /**
+     * Returns a list of columns available during registration of entity of given type.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<String> getTemplateColumns(String sessionToken, EntityKind kind, String type,
+            boolean autoGenerate);
 }

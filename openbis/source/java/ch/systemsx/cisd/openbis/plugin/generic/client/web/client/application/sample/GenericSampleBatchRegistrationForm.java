@@ -23,27 +23,33 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.Event;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.UrlParamsHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HelpHtml;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
@@ -101,11 +107,6 @@ public final class GenericSampleBatchRegistrationForm extends AbstractRegistrati
         addUploadFeatures(SESSION_KEY);
     }
 
-    private final static HTML createHelp()
-    {
-        return new HelpHtml(PREFIX);
-    }
-
     private final GroupSelectionWidget createGroupField(
             IViewContext<ICommonClientServiceAsync> context, String idSuffix, boolean addShared,
             final CheckBoxField checkbox)
@@ -142,12 +143,13 @@ public final class GenericSampleBatchRegistrationForm extends AbstractRegistrati
 
     private final void addFormFields()
     {
+        formPanel.add(generateCodesCheckbox);
+        formPanel.add(groupSelector);
         for (FileUploadField attachmentField : fileFieldsManager.getFields())
         {
             formPanel.add(wrapUnaware((Field<?>) attachmentField).get());
         }
-        formPanel.add(generateCodesCheckbox);
-        formPanel.add(groupSelector);
+        formPanel.add(createTemplateField());
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
                 @Override
@@ -242,7 +244,23 @@ public final class GenericSampleBatchRegistrationForm extends AbstractRegistrati
     {
         super.onRender(target, index);
         addFormFields();
-        add(createHelp());
+    }
+
+    private LabelField createTemplateField()
+    {
+        LabelField result =
+                new LabelField(LinkRenderer.renderAsLink(viewContext
+                        .getMessage(Dict.FILE_TEMPLATE_LABEL)));
+        result.sinkEvents(Event.ONCLICK);
+        result.addListener(Event.ONCLICK, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    WindowUtils.openWindow(UrlParamsHelper.createTemplateURL(EntityKind.SAMPLE,
+                            sampleType, generateCodesCheckbox.getValue()));
+                }
+            });
+        return result;
     }
 
 }

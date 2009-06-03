@@ -74,12 +74,12 @@ public enum VocabularyColDefKind implements IColumnDefinitionKind<Vocabulary>
             }
         }),
 
-    SORUCE_URI(new AbstractColumnDefinitionKind<Vocabulary>(Dict.SOURCE_URI, 300, true)
+    URL_TEMPLATE(new AbstractColumnDefinitionKind<Vocabulary>(Dict.URL_TEMPLATE, 300, true)
         {
             @Override
             public String tryGetValue(Vocabulary entity)
             {
-                return entity.getSourceURI();
+                return entity.getURLTemplate();
             }
         });
 

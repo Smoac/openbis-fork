@@ -76,4 +76,16 @@ public final class GenericConstants
 
     /** The HTTP URL parameter used to specify the technical id. */
     public static final String TECH_ID_PARAMETER = "id";
+
+    /** Name of the servlet to download a template. */
+    public static final String TEMPLATE_SERVLET_NAME = createServicePath("template-download");
+
+    /** The HTTP URL parameter used to specify the entity kind. */
+    public static final String ENTITY_KIND_KEY_PARAMETER = "entityKind";
+
+    /** The HTTP URL parameter used to specify the entity type. */
+    public static final String ENTITY_TYPE_KEY_PARAMETER = "entityType";
+
+    /** The HTTP URL parameter used to specify if codes are automatically generated. */
+    public static final String AUTO_GENERATE = "autoGenerate";
 }

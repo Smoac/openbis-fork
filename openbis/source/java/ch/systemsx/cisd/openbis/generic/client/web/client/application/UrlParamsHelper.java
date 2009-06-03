@@ -28,7 +28,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Strin
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
+import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 
 /**
  * A class with helper methods for URL parameters handling and opening initial tab.
@@ -112,8 +114,7 @@ public final class UrlParamsHelper
         {
             String entityKindValueOrNull =
                     tryGetUrlParamValue(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY);
-            String permIdValueOrNull =
-                    tryGetUrlParamValue(PermlinkUtilities.PERM_ID_PARAMETER_KEY);
+            String permIdValueOrNull = tryGetUrlParamValue(PermlinkUtilities.PERM_ID_PARAMETER_KEY);
             try
             {
                 if (entityKindValueOrNull != null || permIdValueOrNull != null)
@@ -181,6 +182,17 @@ public final class UrlParamsHelper
         {
             new OpenEntityDetailsTabAction(result, viewContext).execute();
         }
+    }
+
+    public static final String createTemplateURL(EntityKind kind, EntityType type, boolean withCodes)
+    {
+        URLMethodWithParameters methodWithParameters =
+                new URLMethodWithParameters(GenericConstants.TEMPLATE_SERVLET_NAME);
+        methodWithParameters.addParameter(GenericConstants.ENTITY_KIND_KEY_PARAMETER, kind.name());
+        methodWithParameters.addParameter(GenericConstants.ENTITY_TYPE_KEY_PARAMETER, type
+                .getCode());
+        methodWithParameters.addParameter(GenericConstants.AUTO_GENERATE, withCodes);
+        return methodWithParameters.toString();
     }
 
 }
