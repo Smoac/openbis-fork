@@ -60,13 +60,11 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.SearchAnalyzer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
-import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -352,9 +350,6 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     {
         BooleanQuery query = new BooleanQuery();
         query.add(LuceneQueryBuilder.createQuery(datasetSearchCriteria), Occur.MUST);
-        SearchAnalyzer searchAnalyzer = LuceneQueryBuilder.createSearchAnalyzer();
-        query.add(LuceneQueryBuilder.parseQuery(SearchFieldConstants.DELETED, "false",
-                searchAnalyzer), Occur.MUST);
         final FullTextSession fullTextSession = Search.getFullTextSession(session);
         final FullTextQuery hibernateQuery =
                 fullTextSession.createFullTextQuery(query, ExternalDataPE.class);
@@ -370,7 +365,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         datasets = filterNulls(datasets);
         // NOTE: there is a limit on the number of JOINs, so we have to initialize sample properties
         // manually
-        // TODO 2009-05-20, Piotr Buczek: maybe it works now when we removed arc connection with sample
+        // TODO 2009-05-20, Piotr Buczek: maybe it works now when we removed arc connection with
+        // sample
         initSamplesWithProperties(datasets);
         return datasets;
     }
