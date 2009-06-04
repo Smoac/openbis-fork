@@ -617,5 +617,7 @@ public abstract class Dict
 
     public static final String FILE_TEMPLATE_LABEL = "file_template_label";
 
+    public static final String URL = "url";
+
     // ----- end generic ------------------
 }

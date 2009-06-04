@@ -45,10 +45,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyTermColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VocabularyTermSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleDialog;
@@ -166,6 +168,15 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
     public static String createBrowserId(String vocabularyCode)
     {
         return BROWSER_ID + "-" + vocabularyCode;
+    }
+
+    @Override
+    protected ColumnDefsAndConfigs<VocabularyTermWithStats> createColumnsDefinition()
+    {
+        ColumnDefsAndConfigs<VocabularyTermWithStats> schema = super.createColumnsDefinition();
+        schema.setGridCellRendererFor(VocabularyTermColDefKind.URL.id(), LinkRenderer
+                .createExternalLinkRenderer());
+        return schema;
     }
 
     @Override

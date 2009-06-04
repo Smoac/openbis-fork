@@ -181,4 +181,11 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
         return AbstractIdAndCodeHolder.compare(this, o);
     }
 
+    @Transient
+    public String getUrl()
+    {
+        String template = getVocabulary().getURLTemplate();
+        return template != null ? (template.replaceAll("\\$term\\$", getCode())) : null;
+    }
+
 }

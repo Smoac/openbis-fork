@@ -25,6 +25,8 @@ import ch.systemsx.cisd.common.annotation.BeanProperty;
  */
 public final class VocabularyTerm extends CodeWithRegistration<Vocabulary>
 {
+    private String url;
+
     public VocabularyTerm()
     {
     }
@@ -40,5 +42,15 @@ public final class VocabularyTerm extends CodeWithRegistration<Vocabulary>
     public String toString()
     {
         return getCode();
+    }
+
+    public String getUrl()
+    {
+        return url;
+    }
+
+    public void setUrl(String url)
+    {
+        this.url = url;
     }
 }

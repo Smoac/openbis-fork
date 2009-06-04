@@ -36,6 +36,15 @@ public enum VocabularyTermColDefKind implements IColumnDefinitionKind<Vocabulary
             }
         }),
 
+    URL(new AbstractColumnDefinitionKind<VocabularyTermWithStats>(Dict.URL, 200)
+        {
+            @Override
+            public String tryGetValue(VocabularyTermWithStats entity)
+            {
+                return entity.getTerm().getUrl();
+            }
+        }),
+
     REGISTRATOR(new AbstractColumnDefinitionKind<VocabularyTermWithStats>(Dict.REGISTRATOR)
         {
             @Override

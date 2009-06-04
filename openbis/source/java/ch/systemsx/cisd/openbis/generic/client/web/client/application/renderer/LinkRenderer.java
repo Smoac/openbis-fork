@@ -45,6 +45,19 @@ public class LinkRenderer
             };
     }
 
+    public static GridCellRenderer<BaseEntityModel<?>> createExternalLinkRenderer()
+    {
+        return new GridCellRenderer<BaseEntityModel<?>>()
+            {
+                public String render(BaseEntityModel<?> model, String property, ColumnData config,
+                        int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store)
+                {
+                    return LinkRenderer.renderAsLinkWithAnchor(model.get(property).toString(),
+                            model.get(property).toString(), true);
+                }
+            };
+    }
+
     /** renders a div witch looks like an anchor (hand cursor is on div - block) */
     public static String renderAsLink(final String message)
     {

@@ -53,7 +53,7 @@ public class HyperlinkField extends VarcharField
     }
 
     /** {@link Validator} for external hyperlink value. */
-    private class HyperlinkValidator implements Validator<String, HyperlinkField>
+    protected class HyperlinkValidator implements Validator<String, HyperlinkField>
     {
         private final static String PROTOCOL_PART = "://";
 

@@ -26,7 +26,8 @@ var common = {
   show_details_link_text_value: "Permlink",
   table_operations: "Table:",
   entity_operations: "Entity:",
-  
+  url: "URL",
+    
   //
   // Field
   //
