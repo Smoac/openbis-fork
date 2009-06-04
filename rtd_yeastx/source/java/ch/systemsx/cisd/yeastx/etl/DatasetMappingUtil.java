@@ -84,7 +84,55 @@ class DatasetMappingUtil
             TableMap<String, DataSetMappingInformation> datasetsMapping)
     {
         String datasetFileName = datasetFile.getName();
-        return datasetsMapping.tryGet(datasetFileName.toLowerCase());
+        DataSetMappingInformation mapping = datasetsMapping.tryGet(datasetFileName.toLowerCase());
+        if (mapping != null
+                && isConversionColumnValid(mapping, datasetFile.getParentFile()) == false)
+        {
+            return null;
+        }
+        return mapping;
+    }
+
+    private static boolean isConversionColumnValid(final DataSetMappingInformation dataset,
+            File logDir)
+    {
+        String conversionText = dataset.getConversion();
+        MLConversionType conversion = MLConversionType.tryCreate(conversionText);
+        if (conversion == null)
+        {
+            LogUtils.error(logDir, String.format(
+                    "Error for file '%s'. Unexpected value '%s' in 'conversion' column. "
+                            + "Leave the column empty or use one of the allowed values: %s.",
+                    dataset.getFileName(), conversionText, CollectionUtils.abbreviate(
+                            MLConversionType.values(), MLConversionType.values().length)));
+            return false;
+        }
+
+        boolean conversionRequired = isConversionRequired(dataset);
+        if (conversion == MLConversionType.NONE && conversionRequired)
+        {
+            LogUtils
+                    .error(
+                            logDir,
+                            "Error for file '%s'. Conversion column cannot be empty for this type of file.",
+                            dataset.getFileName());
+            return false;
+        }
+        if (conversion != MLConversionType.NONE && conversionRequired == false)
+        {
+            LogUtils.error(logDir,
+                    "Error for file '%s'. Conversion column must be empty for this type of file.",
+                    dataset.getFileName());
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean isConversionRequired(final DataSetMappingInformation dataset)
+    {
+        String extension = FilenameUtils.getExtension(dataset.getFileName());
+        boolean conversionRequired = extension.equalsIgnoreCase(ConstantsYeastX.MZXML_EXT);
+        return conversionRequired;
     }
 
     public static TableMap<String/* file name in lowercase */, DataSetMappingInformation> tryGetDatasetsMapping(
