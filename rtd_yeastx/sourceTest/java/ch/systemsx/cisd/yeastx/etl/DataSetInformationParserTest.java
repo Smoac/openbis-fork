@@ -17,14 +17,18 @@
 package ch.systemsx.cisd.yeastx.etl;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.parser.MandatoryPropertyMissingException;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
@@ -40,7 +44,7 @@ public class DataSetInformationParserTest extends AbstractFileSystemTestCase
     @Test
     public void testLoadIndexFile()
     {
-        File indexFile = writeFile(HEADER + "data.txt sample1 experiment1 conversion1 v1 v2");
+        File indexFile = writeMappingFile(HEADER + "data.txt sample1 experiment1 fiaML v1 v2");
         List<DataSetMappingInformation> list = DataSetMappingInformationParser.tryParse(indexFile);
         AssertJUnit.assertEquals(1, list.size());
         DataSetMappingInformation elem = list.get(0);
@@ -51,25 +55,57 @@ public class DataSetInformationParserTest extends AbstractFileSystemTestCase
         AssertJUnit.assertEquals("dataset_property_1", prop1.getPropertyCode());
     }
 
-    // TODO 2009-05-25, Tomasz Pylak: remove from broken after LMS-914 is fixed
-    @Test(expectedExceptions = MandatoryPropertyMissingException.class, groups = "broken")
-    public void testLoadIndexFileWithMissingFieldValueFails()
+    @Test
+    public void testLoadIndexFileWithMissingFieldValueFails() throws FileNotFoundException,
+            IOException
     {
-        File indexFile = writeFile(HEADER + TAB + TAB + TAB + TAB + TAB);
-        DataSetMappingInformationParser.tryParse(indexFile);
+        File indexFile = writeMappingFile(HEADER + TAB + TAB + TAB + TAB + TAB);
+        List<DataSetMappingInformation> result =
+                DataSetMappingInformationParser.tryParse(indexFile);
+        AssertJUnit.assertNull("error during parsing expected", result);
+        List<String> logLines = readLogFile();
+        AssertJUnit.assertEquals(2, logLines.size());
+        AssertionUtil.assertContains(
+                "Creating an object with following tokens '[, , , , , ]' failed", logLines.get(1));
     }
 
-    @Test(expectedExceptions = MandatoryPropertyMissingException.class)
-    public void testLoadIndexFileWithMissingFieldHeaderFails()
+    @Test
+    public void testLoadIndexFileWithMissingFieldHeaderFails() throws FileNotFoundException,
+            IOException
     {
-        File indexFile = writeFile("xxx");
-        DataSetMappingInformationParser.tryParse(indexFile);
+        File indexFile = writeMappingFile("xxx");
+        List<DataSetMappingInformation> result =
+                DataSetMappingInformationParser.tryParse(indexFile);
+        AssertJUnit.assertNull("error during parsing expected", result);
+        List<String> logLines = readLogFile();
+        AssertJUnit.assertEquals(2, logLines.size());
+        AssertionUtil.assertContains("Mandatory column(s) 'sample', 'file_name' are missing",
+                logLines.get(1));
     }
 
-    private File writeFile(String content)
+    private List<String> readLogFile() throws IOException, FileNotFoundException
     {
+        File log = new File(workingDirectory, ConstantsYeastX.USER_LOG_FILE);
+        List<String> logLines = readLines(log);
+        return logLines;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<String> readLines(File file) throws IOException, FileNotFoundException
+    {
+        return IOUtils.readLines(new FileInputStream(file));
+    }
+
+    private File writeMappingFile(String content)
+    {
+        return writeFile("index.tsv", content);
+    }
+
+    private File writeFile(String fileName, String content)
+    {
+
         String contentWithTabs = spacesToTabs(content);
-        File indexFile = new File(workingDirectory, "index.tsv");
+        File indexFile = new File(workingDirectory, fileName);
         FileUtilities.writeToFile(indexFile, contentWithTabs);
         return indexFile;
     }

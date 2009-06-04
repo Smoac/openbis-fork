@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.parser.AbstractParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IParserObjectFactoryFactory;
@@ -32,8 +33,6 @@ import ch.systemsx.cisd.common.parser.TabFileLoader;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
- * A {@link AbstractParserObjectFactory} extension for creating {@link NewProperty}.
- * 
  * @author Tomasz Pylak
  */
 class DataSetMappingInformationParser
@@ -51,8 +50,6 @@ class DataSetMappingInformationParser
                                     return new NewPropertyParserObjectFactory(propertyMapper);
                                 }
                             });
-        // TODO 2009-05-25, Tomasz Pylak: consider handling exception similar to BisTabFileLoader.
-        // Probably an email should be sent if the file has incorrect syntax.
         try
         {
             return tabFileLoader.load(mappingFile);
@@ -118,8 +115,22 @@ class DataSetMappingInformationParser
                 throws ParserException
         {
             final DataSetMappingInformation dataset = super.createObject(lineTokens);
+            validateConversionColumn(dataset);
             setProperties(dataset, lineTokens);
             return dataset;
+        }
+
+        private void validateConversionColumn(final DataSetMappingInformation dataset)
+        {
+            String conversion = dataset.getConversion();
+            if (MLConversionType.tryCreate(conversion) == null)
+            {
+                throw new ParserException(String.format(
+                        "Unexpected value '%s' in 'conversion' column. "
+                                + "Leave the column empty or use one of the allowed values: %s.",
+                        conversion, CollectionUtils.abbreviate(MLConversionType.values(),
+                                MLConversionType.values().length)));
+            }
         }
     }
 }

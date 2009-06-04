@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.yeastx.etl;
 
+import static ch.systemsx.cisd.yeastx.etl.ConstantsYeastX.ERROR_MARKER_FILE;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
@@ -36,8 +38,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
  */
 public class BatchDataSetHandler implements IDataSetHandler
 {
-    private static final String ERROR_MARKER_FILE = "_delete_me_after_correcting_errors";
-
     private final IDataSetHandler delegator;
 
     private final DatasetMappingResolver datasetMappingResolver;
@@ -51,7 +51,7 @@ public class BatchDataSetHandler implements IDataSetHandler
 
     public void handleDataSet(File datasetsParentDir)
     {
-        if (datasetsParentDir.isDirectory() == false || errorMarkerFileExists(datasetsParentDir))
+        if (canBatchBeProcessed(datasetsParentDir))
         {
             return;
         }
@@ -66,7 +66,7 @@ public class BatchDataSetHandler implements IDataSetHandler
         List<File> files = listAll(datasetsParentDir);
         for (File file : files)
         {
-            if (canBeProcessed(file, datasetsMapping))
+            if (canDatasetBeProcessed(file, datasetsMapping))
             {
                 delegator.handleDataSet(file);
                 processedFiles.add(file.getName().toLowerCase());
@@ -74,6 +74,28 @@ public class BatchDataSetHandler implements IDataSetHandler
         }
         cleanMappingFile(datasetsParentDir, processedFiles);
         finish(datasetsParentDir, datasetsMapping.values().size() - processedFiles.size());
+    }
+
+    private boolean canBatchBeProcessed(File parentDir)
+    {
+        if (parentDir.isDirectory() == false)
+        {
+            return false;
+        }
+        if (errorMarkerFileExists(parentDir))
+        {
+            return false;
+        }
+        List<File> files = listAll(parentDir);
+        // Do not treat empty directories as faulty.
+        // The other reason of this check is that this handler is sometimes no able to delete
+        // processed directories. It happens when they are mounted on NAS and there are some
+        // hidden .nfs* files.
+        if (files.size() == 0)
+        {
+            return false;
+        }
+        return true;
     }
 
     private static boolean errorMarkerFileExists(File datasetsParentDir)
@@ -139,7 +161,7 @@ public class BatchDataSetHandler implements IDataSetHandler
 
     // Checks that the sample from the mapping exists and is assigned to the experiment - we do not
     // want to move datasets to unidentified directory in this case.
-    private boolean canBeProcessed(File file,
+    private boolean canDatasetBeProcessed(File file,
             TableMap<String, DataSetMappingInformation> datasetsMapping)
     {
         if (DatasetMappingUtil.isMappingFile(file))

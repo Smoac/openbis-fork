@@ -36,17 +36,13 @@ public class TypeExtractorYeastX implements ITypeExtractor
 {
     private static final String LOCATOR_TYPE_CODE = LocatorType.DEFAULT_LOCATOR_TYPE_CODE;
 
-    private static final String FILE_FORMAT_TYPE_CODE = "XML";
-
-    private static final String MEASURED_DATASET_FILE_EXTENSION = "mzXML";
-
     public TypeExtractorYeastX(final Properties properties)
     {
     }
 
     public final FileFormatType getFileFormatType(final File incomingDataSetPath)
     {
-        return new FileFormatType(FILE_FORMAT_TYPE_CODE);
+        return new FileFormatType(ConstantsYeastX.FILE_FORMAT_TYPE_CODE);
     }
 
     public final LocatorType getLocatorType(final File incomingDataSetPath)
@@ -67,7 +63,8 @@ public class TypeExtractorYeastX implements ITypeExtractor
 
     public boolean isMeasuredData(File incomingDataSetPath)
     {
-        return getExtension(incomingDataSetPath).equalsIgnoreCase(MEASURED_DATASET_FILE_EXTENSION);
+        return getExtension(incomingDataSetPath).equalsIgnoreCase(
+                ConstantsYeastX.MZXML_EXT);
     }
 
     private static String getExtension(final File incomingDataSetPath)

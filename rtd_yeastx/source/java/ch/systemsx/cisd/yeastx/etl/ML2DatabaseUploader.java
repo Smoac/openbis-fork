@@ -36,17 +36,26 @@ import ch.systemsx.cisd.yeastx.fiaml.FIAML2Database;
  */
 public class ML2DatabaseUploader
 {
-    private static final String FIA = "fiaML";
-
-    private static final String EIC = "eicML";
-
     private final Connection connection;
 
-    public ML2DatabaseUploader() throws SQLException
+    public ML2DatabaseUploader()
     {
-        this.connection = new DBFactory(DBFactory.createDefaultDBContext()).getConnection();
+        this.connection = getDatabaseConnection();
     }
 
+    private static Connection getDatabaseConnection() throws EnvironmentFailureException
+    {
+        try
+        {
+            return new DBFactory(DBFactory.createDefaultDBContext()).getConnection();
+        } catch (SQLException e)
+        {
+            throw EnvironmentFailureException.fromTemplate(e,
+                    "Cannot connect to the database which stores transformed mzXML files.");
+        }
+    }
+
+    /** uploads files with recognized extensions to the additional database */
     public void upload(File dataSet, DataSetInformation dataSetInformation)
             throws EnvironmentFailureException
     {
@@ -54,10 +63,10 @@ public class ML2DatabaseUploader
         String extension = getExtension(dataSet);
         try
         {
-            if (extension.equalsIgnoreCase(FIA))
+            if (extension.equalsIgnoreCase(ConstantsYeastX.FIAML_EXT))
             {
                 translateFIA(dataSet, datasetPermId);
-            } else if (extension.equalsIgnoreCase(EIC))
+            } else if (extension.equalsIgnoreCase(ConstantsYeastX.EICML_EXT))
             {
                 translateEIC(dataSet, datasetPermId);
             } else

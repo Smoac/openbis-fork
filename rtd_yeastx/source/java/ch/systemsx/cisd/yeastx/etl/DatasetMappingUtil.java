@@ -25,19 +25,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.collections.TableMap.UniqueKeyViolationException;
 import ch.systemsx.cisd.common.collections.TableMap.UniqueKeyViolationStrategy;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
  * @author Tomasz Pylak
  */
 class DatasetMappingUtil
 {
-    private static final String MAPPING_FILE_NAME = "index.tsv";
+    // extensions of the file which contains dataset mapping. It is assumed that exactly one such a
+    // file will exist in the directory.
+    private static final String[] MAPPING_FILE_EXTENSIONS = new String[]
+        { "tsv" };
 
     private static TableMap<String, DataSetMappingInformation> tryAsFileMap(
             List<DataSetMappingInformation> list, File logDir)
@@ -88,8 +94,9 @@ class DatasetMappingUtil
         if (mappingFile == null)
         {
             LogUtils.warn(parentDir, "Cannot process the directory '%s' "
-                    + "because the file '%s' with datasets descriptions does not exist.", parentDir
-                    .getPath(), MAPPING_FILE_NAME);
+                    + "because a file with extension '%s' which contains dataset descriptions "
+                    + "does not exist or there is more than one.", parentDir.getPath(),
+                    CollectionUtils.abbreviate(MAPPING_FILE_EXTENSIONS, -1));
             return null;
         }
         List<DataSetMappingInformation> list =
@@ -104,12 +111,25 @@ class DatasetMappingUtil
 
     public static boolean isMappingFile(File file)
     {
-        return file.getName().equals(MAPPING_FILE_NAME);
+        String ext = FilenameUtils.getExtension(file.getName());
+        for (String mappingExt : MAPPING_FILE_EXTENSIONS)
+        {
+            if (mappingExt.equalsIgnoreCase(ext))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static File tryGetMappingFile(File parentDir)
     {
-        File indexFile = new File(parentDir, MAPPING_FILE_NAME);
+        List<File> potentialMappingFiles = listPotentialMappingFiles(parentDir);
+        if (potentialMappingFiles.size() != 1)
+        {
+            return null;
+        }
+        File indexFile = potentialMappingFiles.get(0);
         if (indexFile.isFile() == false)
         {
             return null;
@@ -120,6 +140,11 @@ class DatasetMappingUtil
         {
             return indexFile;
         }
+    }
+
+    private static List<File> listPotentialMappingFiles(File dataSet)
+    {
+        return FileUtilities.listFiles(dataSet, MAPPING_FILE_EXTENSIONS, false, null);
     }
 
     public static void deleteMappingFile(File parentDir)

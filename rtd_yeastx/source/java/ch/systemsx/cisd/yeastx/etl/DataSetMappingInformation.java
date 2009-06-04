@@ -24,9 +24,12 @@ import ch.systemsx.cisd.common.annotation.BeanProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
+ * Represents one line in the file which describes one dataset: file name, sample to which dataset
+ * should be connected, dataset properties and some additional processing information.
+ * 
  * @author Tomasz Pylak
  */
-class DataSetMappingInformation
+public class DataSetMappingInformation
 {
     private String fileName;
 

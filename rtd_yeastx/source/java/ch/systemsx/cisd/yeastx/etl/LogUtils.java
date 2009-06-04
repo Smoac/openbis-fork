@@ -34,8 +34,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 class LogUtils
 {
-    private static final String USER_LOG_FILE = "error-log.txt";
-
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, LogUtils.class);
 
@@ -72,7 +70,7 @@ class LogUtils
 
     private static File getUserLogFile(File loggingDir)
     {
-        return new File(loggingDir, USER_LOG_FILE);
+        return new File(loggingDir, ConstantsYeastX.USER_LOG_FILE);
     }
 
     public static void adminError(String messageFormat, Object... arguments)
@@ -97,7 +95,7 @@ class LogUtils
 
     public static boolean isUserLog(File file)
     {
-        return file.getName().equals(USER_LOG_FILE);
+        return file.getName().equals(ConstantsYeastX.USER_LOG_FILE);
     }
 
     public static void deleteUserLog(File loggingDir)

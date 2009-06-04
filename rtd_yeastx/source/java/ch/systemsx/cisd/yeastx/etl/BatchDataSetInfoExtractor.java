@@ -49,13 +49,15 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
                 DatasetMappingUtil.tryGetDatasetMapping(incomingDataSetPath);
         if (plainInfo != null)
         {
-            DataSetInformation info = new DataSetInformation();
+            DataSetInformationYeastX info = new DataSetInformationYeastX();
             info.setComplete(true);
             info.setDataSetProperties(plainInfo.getProperties());
             String sampleCode =
                     getSampleCode(plainInfo, openbisService, incomingDataSetPath.getParentFile());
             info.setSampleCode(sampleCode);
             info.setGroupCode(groupCode);
+            MLConversionType conversion = getConversion(plainInfo.getConversion());
+            info.setConversion(conversion);
             return info;
         } else
         {
@@ -63,6 +65,17 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
             throw new UserFailureException("No mapping found for the dataset file "
                     + incomingDataSetPath.getPath());
         }
+    }
+
+    private static MLConversionType getConversion(String conversion)
+    {
+        MLConversionType conversionType = MLConversionType.tryCreate(conversion);
+        if (conversionType == null)
+        {
+            // this should not happen if dataset handler ensures that conversion is valid
+            throw new UserFailureException("Unknown value in conversion column " + conversion);
+        }
+        return conversionType;
     }
 
     private String getSampleCode(DataSetMappingInformation mapping,
