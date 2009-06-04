@@ -148,24 +148,24 @@
 	</target>
 
 	<!--
-      // Override 'prepare-gwt' target by writing out 'OpenBIS.gwt.xml' and updating 'ClientPluginProvider.java'.
+      // Override 'prepare-gwt' target by writing out 'OpenBIS.gwt-without-entry-point.xml' and updating 'ClientPluginProvider.java'.
       -->
 	<target name="prepare-gwt"
-            description="Override 'prepare-gwt' by writing out 'OpenBIS.gwt.xml' and updating 'ClientPluginProvider.java'.">
+            description="Override 'prepare-gwt' by writing out 'OpenBIS.gwt-without-entry-point.xml' and updating 'ClientPluginProvider.java'.">
 		<antcall target="prepare-web-client" />
 		<antcall target="server-common-common.prepare-gwt" />
 	</target>
 
 	<!--
-      // Updates 'ClientPluginProvider.java' and 'OpenBIS.gwt.xml' with requested plugins.
+      // Updates 'ClientPluginProvider.java' and 'OpenBIS.gwt-without-entry-point.xml' with requested plugins.
       -->
 	<target name="prepare-web-client" depends="compile"
-            description="Updates 'ClientPluginProvider.java' and 'OpenBIS.gwt.xml' with requested plugins.">
+            description="Updates 'ClientPluginProvider.java' and 'OpenBIS.gwt-without-entry-point.xml' with requested plugins.">
 		<java classname="ch.systemsx.cisd.openbis.generic.shared.util.WebClientFilesUpdater"
-              classpath="${ecp}:${sources}"
+              classpath="${ecp}:../openbis/source/java"
               fork="true"
               failonerror="true">
-			<arg value="${sources}" />
+			<arg value="../openbis/source/java" />
 		</java>
 	</target>
 

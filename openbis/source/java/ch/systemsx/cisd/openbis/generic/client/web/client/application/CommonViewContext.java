@@ -21,7 +21,6 @@ import com.google.gwt.user.client.Timer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IUpdater;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.DefaultClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -46,7 +45,7 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
 
     private final IPageController pageController;
 
-    private final IClientPluginFactoryProvider clientPluginFactoryProvider;
+    private IClientPluginFactoryProvider clientPluginFactoryProvider;
     
     private final Timer timer;
 
@@ -59,7 +58,6 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
         this.imageBundle = imageBundle;
         this.pageController = pageController;
         viewModel = new GenericViewModel();
-        clientPluginFactoryProvider = new DefaultClientPluginFactoryProvider(this);
         timer = new Timer()
             {
                 @Override
@@ -78,6 +76,12 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
                     service.updateDisplaySettings(displaySettings, callback);
                 }
             };
+    }
+    
+    final void setClientPluginFactoryProvider(
+            IClientPluginFactoryProvider clientPluginFactoryProvider)
+    {
+        this.clientPluginFactoryProvider = clientPluginFactoryProvider;
     }
 
     //

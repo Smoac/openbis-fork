@@ -80,7 +80,7 @@ public final class WebClientFilesUpdater
             "ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.DefaultClientPluginFactoryProvider";
 
     @Private
-    static final String OPENBIS_GWT_XML_FILE_NAME = "OpenBIS.gwt.xml";
+    static final String OPENBIS_GWT_XML_FILE_NAME = "OpenBIS-without-entry-point.gwt.xml";
 
     @Private
     static final String OPENBIS_PACKAGE_NAME = "ch/systemsx/cisd/openbis";

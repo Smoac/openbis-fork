@@ -30,6 +30,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LoginController;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.DefaultClientPluginFactoryProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
@@ -41,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
  * @author Franz-Josef Elmer
  * @author Izabela Adamczyk
  */
-public final class Client implements EntryPoint
+public class Client implements EntryPoint
 {
     private IViewContext<ICommonClientServiceAsync> viewContext;
 
@@ -76,7 +78,18 @@ public final class Client implements EntryPoint
                     onModuleLoad();
                 }
             };
-        return new CommonViewContext(service, messageProvider, imageBundle, pageController);
+        CommonViewContext commonContext = new CommonViewContext(service, messageProvider, imageBundle, pageController);
+        commonContext.setClientPluginFactoryProvider(createPluginFactoryProvider(commonContext));
+        return commonContext;
+    }
+
+    /**
+     * Creates the provider for client plugin factories. Can be overridden in subclasses.
+     */
+    protected IClientPluginFactoryProvider createPluginFactoryProvider(
+            IViewContext<ICommonClientServiceAsync> commonContext)
+    {
+        return new DefaultClientPluginFactoryProvider(commonContext);
     }
 
     private final void initializeControllers(Controller openUrlController)

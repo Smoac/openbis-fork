@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Cli
  * 
  * @author Christian Ribeaud
  */
-public final class DefaultClientPluginFactoryProvider implements IClientPluginFactoryProvider
+public class DefaultClientPluginFactoryProvider implements IClientPluginFactoryProvider
 {
     private final Map<EntityKindAndTypeCode, IClientPluginFactory> pluginFactoryByEntityKindAndTypeCode =
             new HashMap<EntityKindAndTypeCode, IClientPluginFactory>();
@@ -49,11 +49,12 @@ public final class DefaultClientPluginFactoryProvider implements IClientPluginFa
             final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
         // Automatically generated part - START
-        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory(originalViewContext));
+        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory(
+                originalViewContext));
         // Automatically generated part - END
     }
 
-    private final void registerPluginFactory(final IClientPluginFactory pluginFactory)
+    protected final void registerPluginFactory(final IClientPluginFactory pluginFactory)
     {
         assert pluginFactory != null : "Unspecified client plugin factory.";
         for (final EntityKind entityKind : EntityKind.values())
