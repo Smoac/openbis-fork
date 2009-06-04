@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.parser.AbstractParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IParserObjectFactoryFactory;
@@ -66,10 +65,16 @@ class DataSetMappingInformationParser
 
     private static void logParsingError(Exception e, File mappingFile)
     {
+        Throwable cause = e.getCause();
+        String causeMsg = "";
+        if (cause != null)
+        {
+            causeMsg = "\nThe exception was caused by: " + cause.getMessage();
+        }
         LogUtils.error(mappingFile.getParentFile(),
                 "The datasets cannot be processed because the mapping file '%s' has incorrect format."
-                        + " The following exception occured:\n%s", mappingFile.getPath(), e
-                        .getMessage());
+                        + " The following exception occured:\n%s%s", mappingFile.getPath(), e
+                        .getMessage(), causeMsg);
     }
 
     private static final class NewPropertyParserObjectFactory extends
@@ -115,22 +120,8 @@ class DataSetMappingInformationParser
                 throws ParserException
         {
             final DataSetMappingInformation dataset = super.createObject(lineTokens);
-            validateConversionColumn(dataset);
             setProperties(dataset, lineTokens);
             return dataset;
-        }
-
-        private void validateConversionColumn(final DataSetMappingInformation dataset)
-        {
-            String conversion = dataset.getConversion();
-            if (MLConversionType.tryCreate(conversion) == null)
-            {
-                throw new ParserException(String.format(
-                        "Unexpected value '%s' in 'conversion' column. "
-                                + "Leave the column empty or use one of the allowed values: %s.",
-                        conversion, CollectionUtils.abbreviate(MLConversionType.values(),
-                                MLConversionType.values().length)));
-            }
         }
     }
 }
