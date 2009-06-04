@@ -131,7 +131,7 @@ public abstract class AbstractExternalDataGrid
                 IBrowserGridActionInvoker invoker)
         {
             super(dataSets, invoker, Dict.CONFIRM_DATASET_UPLOAD_TITLE);
-            setWidth(LABEL_WIDTH_IN_UPLOAD_DIALOG + FIELD_WIDTH_IN_UPLOAD_DIALOG + 100);
+            setWidth(LABEL_WIDTH_IN_UPLOAD_DIALOG + FIELD_WIDTH_IN_UPLOAD_DIALOG + 50);
         }
 
         @Override
