@@ -19,13 +19,19 @@ UPDATE events SET
 		identifier = data_id,
 		description = data_id;
 
--- remove deleted data sets with their properties
+-- remove deleted data sets with their properties and relations to other data sets
 
+CREATE VIEW deleted_data_ids AS
+    SELECT id FROM data WHERE is_deleted = 'TRUE';
+DELETE FROM data_set_relationships 
+		WHERE data_id_parent IN (SELECT * FROM deleted_data_ids) 
+		OR data_id_child IN (SELECT * FROM deleted_data_ids);
 DELETE FROM data_set_properties 
-    WHERE ds_id IN (SELECT id FROM data WHERE is_deleted = 'TRUE');
+    WHERE ds_id IN (SELECT * FROM deleted_data_ids);
 DELETE FROM external_data
-		WHERE data_id IN (SELECT id FROM data WHERE is_deleted = 'TRUE');
+		WHERE data_id IN (SELECT * FROM deleted_data_ids);
 DELETE FROM data WHERE is_deleted = 'TRUE';    
+DROP VIEW deleted_data_ids;
 
 -- remove old columns
 
