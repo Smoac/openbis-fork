@@ -26,7 +26,6 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.DefaultClientPluginFactoryProvider;
 
@@ -160,7 +159,7 @@ public final class WebClientFilesUpdater
         final StringBuilder builder = new StringBuilder();
         builder.append(indent);
         builder.append(String.format(template, technology));
-        builder.append(OSUtilities.LINE_SEPARATOR);
+        builder.append("\n");
         return builder;
     }
 
@@ -177,7 +176,7 @@ public final class WebClientFilesUpdater
             throw new RuntimeException(response);
         }
         final StringBuilder builder = new StringBuilder(XML_MARKER_START);
-        final String sep = OSUtilities.LINE_SEPARATOR;
+        final String sep = "\n";
         builder.append(sep);
         final String indent = StringUtils.repeat(" ", 4);
         boolean first = true;
@@ -220,7 +219,7 @@ public final class WebClientFilesUpdater
             throw new RuntimeException(response);
         }
         final StringBuilder builder = new StringBuilder(JAVA_MARKER_START);
-        builder.append(OSUtilities.LINE_SEPARATOR);
+        builder.append("\n");
         final String indent = StringUtils.repeat(" ", 8);
         for (final String technology : technologies)
         {
@@ -237,7 +236,7 @@ public final class WebClientFilesUpdater
             }
             builder.append(indent);
             builder.append(String.format(PLUGIN_FACTORY_REGISTRATION_TEMPLATE, technology));
-            builder.append(OSUtilities.LINE_SEPARATOR);
+            builder.append("\n");
         }
         builder.append(indent);
         String content = FileUtilities.loadToString(clientPluginProviderJavaFile);
