@@ -32,8 +32,13 @@ public final class DummyComponent extends LayoutContainer
 
     public DummyComponent()
     {
+        this("This feature will be implemented later...");
+    }
+    
+    public DummyComponent(String message)
+    {
         setId(ID);
         setLayout(new CenterLayout());
-        addText("<div class='dummy-component'>This feature will be implemented later...</div>");
+        addText("<div class='dummy-component'>" + message + "</div>");
     }
 }
