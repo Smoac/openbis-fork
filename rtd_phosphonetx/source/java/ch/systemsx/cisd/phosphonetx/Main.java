@@ -77,9 +77,16 @@ public class Main
             Iterable<ModificationType> modificationTypes, ProteinSummary summary, IProtDAO dao)
     {
         List<ProteinGroup> proteinGroups = summary.getProteinGroups();
+        int maxGroupSize = 0;
+        String maxGroupName = null;
         for (ProteinGroup proteinGroup : proteinGroups)
         {
             List<Protein> proteins = proteinGroup.getProteins();
+            if (maxGroupSize < proteins.size())
+            {
+                maxGroupSize = proteins.size();
+                maxGroupName = proteinGroup.getGroupNumber();
+            }
             for (Protein protein : proteins)
             {
                 long proteinID = dao.createProtein(dataSetCode);
@@ -106,6 +113,7 @@ public class Main
                 }
             }
         }
+        System.out.println("maximum group size: " + maxGroupSize + ", name:" + maxGroupName);
     }
 
     private static Sequence getOrCreateSequence(IProtDAO dao, Peptide peptide)

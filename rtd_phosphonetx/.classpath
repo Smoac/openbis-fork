@@ -3,6 +3,8 @@
 	<classpathentry kind="src" path="source/java"/>
 	<classpathentry kind="src" path="sourceTest/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/openbis"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/datastore_server"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/dbmigration"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
@@ -15,5 +17,11 @@
 	<classpathentry kind="lib" path="/libraries/jaxb/jaxb-api.jar" sourcepath="/libraries/jaxb/jaxb-api-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jaxb/jaxb-impl.jar"/>
 	<classpathentry kind="lib" path="/libraries/jaxb/jsr173_1.0_api.jar"/>
+	<classpathentry kind="lib" path="/libraries/gwt1.5/gwt-user.jar"/>
+	<classpathentry kind="lib" path="/libraries/ext-gwt/gxt.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/libraries/ext-gwt/gxt-api.zip!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

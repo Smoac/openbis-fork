@@ -1,0 +1,13 @@
+<module>
+    <inherits name='ch.systemsx.cisd.openbis.OpenBIS-without-entry-point'/>
+    
+    <!--
+        // Application entry point 
+     -->    
+    <entry-point class='ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.PhosphoNetXClient' />
+    
+    <script src="phosphonetx-dictionary.js"/>
+    <public path="client/web/public"/>
+    <source path="client/web/client"/>
+    
+</module>
