@@ -26,14 +26,14 @@ import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 
 /**
  * Factory for database connections.
- *
+ * 
  * @author Bernd Rinn
  */
 public class DBFactory
 {
     /** Current version of the database. */
     public static final String DATABASE_VERSION = "001";
-    
+
     static
     {
         QueryTool.getTypeMap().put(float[].class, new FloatArrayMapper());
@@ -46,7 +46,7 @@ public class DBFactory
         this.context = context;
         DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, DATABASE_VERSION);
     }
-    
+
     public Connection getConnection() throws SQLException
     {
         final Connection conn = context.getDataSource().getConnection();
@@ -59,9 +59,13 @@ public class DBFactory
         final DatabaseConfigurationContext context = new DatabaseConfigurationContext();
         context.setDatabaseEngineCode("postgresql");
         context.setBasicDatabaseName("metabol");
-        context.setDatabaseKind("dev");
         context.setReadOnlyGroup("metabol_readonly");
         context.setReadWriteGroup("metabol_readwrite");
+        // TODO 2009-06-03, Tomasz Pylak: move to external file. Change for productive usage
+        // context.setDatabaseKind("productive");
+        // context.setScriptFolder("."); // or "sql" ???
+
+        context.setDatabaseKind("dev");
         context.setScriptFolder("source/sql");
         return context;
     }
