@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Bernd Rinn
  */
-public final class DataSetInformation implements Serializable
+public class DataSetInformation implements Serializable
 {
 
     private static final long serialVersionUID = IWebService.VERSION;

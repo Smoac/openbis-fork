@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.imsb;
+package ch.systemsx.cisd.etlserver;
 
-import static ch.systemsx.cisd.etlserver.imsb.StorageProcessorWithDropbox.DATASET_CODE_SEPARATOR_PROPERTY;
-import static ch.systemsx.cisd.etlserver.imsb.StorageProcessorWithDropbox.DELEGATE_PROCESSOR_CLASS_PROPERTY;
-import static ch.systemsx.cisd.etlserver.imsb.StorageProcessorWithDropbox.DROPBOX_INCOMING_DIRECTORY_PROPERTY;
+import static ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessorWithDropbox.DATASET_CODE_SEPARATOR_PROPERTY;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
@@ -34,21 +32,19 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
-import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
-import ch.systemsx.cisd.etlserver.IStorageProcessor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * @author Tomasz Pylak
  */
-@Friend(toClasses = StorageProcessorWithDropbox.class)
-public class StorageProcessorWithDropboxTest extends AbstractFileSystemTestCase
+@Friend(toClasses = AbstractDelegatingStorageProcessorWithDropbox.class)
+public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemTestCase
 {
     @Test
     public final void testStore()
     {
         Mockery context = new Mockery();
-        final IStorageProcessor storageProcessor = context.mock(IStorageProcessor.class);
+        final IStorageProcessor delegateStorageProcessor = context.mock(IStorageProcessor.class);
         final IFileOperations fileOperations = context.mock(IFileOperations.class);
 
         final DataSetInformation dataSetInfo = new DataSetInformation();
@@ -60,7 +56,7 @@ public class StorageProcessorWithDropboxTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(storageProcessor).storeData(null, dataSetInfo, null, null,
+                    one(delegateStorageProcessor).storeData(null, dataSetInfo, null, null,
                             incomingDirectory, null);
                     will(returnValue(incomingDirectory));
 
@@ -68,7 +64,7 @@ public class StorageProcessorWithDropboxTest extends AbstractFileSystemTestCase
                     one(fileOperations).isDirectory(dropboxIncomingDir);
                     will(returnValue(true));
 
-                    one(storageProcessor).tryGetProprietaryData(incomingDirectory);
+                    one(delegateStorageProcessor).tryGetProprietaryData(incomingDirectory);
                     final File dataset = new File("incomingData.xml");
                     will(returnValue(dataset));
 
@@ -79,20 +75,54 @@ public class StorageProcessorWithDropboxTest extends AbstractFileSystemTestCase
             });
 
         Properties props = new Properties();
-        props.setProperty(DROPBOX_INCOMING_DIRECTORY_PROPERTY, dropboxIncomingDirName);
+        props.setProperty(StorageProcessorWithDropboxTest.DROPBOX_INCOMING_DIRECTORY_PROPERTY,
+                dropboxIncomingDirName);
 
-        new StorageProcessorWithDropbox(props, storageProcessor, fileOperations).storeData(null,
-                dataSetInfo, null, null, incomingDirectory, null);
+        AbstractDelegatingStorageProcessorWithDropbox storageProcessor =
+                new StorageProcessorWithDropboxTest(props, delegateStorageProcessor, fileOperations);
+        storageProcessor.storeData(null, dataSetInfo, null, null, incomingDirectory, null);
+
         context.assertIsSatisfied();
+    }
+
+    public static class StorageProcessorWithDropboxTest extends AbstractDelegatingStorageProcessorWithDropbox
+    {
+        public final static String DROPBOX_INCOMING_DIRECTORY_PROPERTY = "dropbox-dir";
+
+        private final File dropboxDir;
+
+        public StorageProcessorWithDropboxTest(Properties properties)
+        {
+            super(properties);
+            this.dropboxDir = tryGetDropboxDir(properties);
+        }
+
+        private File tryGetDropboxDir(Properties properties)
+        {
+            return tryGetDirectory(DROPBOX_INCOMING_DIRECTORY_PROPERTY, properties);
+        }
+
+        StorageProcessorWithDropboxTest(Properties properties,
+                IStorageProcessor delegateStorageProcessor, IFileOperations fileOperations)
+        {
+            super(properties, delegateStorageProcessor, fileOperations);
+            this.dropboxDir = tryGetDropboxDir(properties);
+        }
+
+        @Override
+        protected File tryGetDropboxDir(File originalData, DataSetInformation dataSetInformation)
+        {
+            return dropboxDir;
+        }
     }
 
     @Test
     public final void testCreateDelegateStorageProcessor()
     {
         Properties props = new Properties();
-        props.setProperty(DELEGATE_PROCESSOR_CLASS_PROPERTY, DefaultStorageProcessor.class
-                .getCanonicalName());
-        StorageProcessorWithDropbox.createDelegateStorageProcessor(props);
+        props.setProperty(AbstractDelegatingStorageProcessor.DELEGATE_PROCESSOR_CLASS_PROPERTY,
+                DefaultStorageProcessor.class.getCanonicalName());
+        AbstractDelegatingStorageProcessor.createDelegateStorageProcessor(props);
     }
 
     @Test
@@ -101,7 +131,7 @@ public class StorageProcessorWithDropboxTest extends AbstractFileSystemTestCase
         String expectedErrorMsg = "Given key 'processor' not found in properties '[]'";
         try
         {
-            StorageProcessorWithDropbox.createDelegateStorageProcessor(new Properties());
+            AbstractDelegatingStorageProcessorWithDropbox.createDelegateStorageProcessor(new Properties());
         } catch (ConfigurationFailureException e)
         {
             assertEquals(expectedErrorMsg, e.getMessage());
@@ -109,7 +139,7 @@ public class StorageProcessorWithDropboxTest extends AbstractFileSystemTestCase
         }
         fail("Expected error: " + expectedErrorMsg);
     }
-    
+
     @Test
     public void testNestedStorageProcessorsWithDropBox()
     {
@@ -118,22 +148,30 @@ public class StorageProcessorWithDropboxTest extends AbstractFileSystemTestCase
         File dropbox2 = new File(workingDirectory, "dropbox2");
         dropbox2.mkdirs();
         Properties properties = new Properties();
-        properties.setProperty(DROPBOX_INCOMING_DIRECTORY_PROPERTY, dropbox1.getAbsolutePath());
-        properties.setProperty(DELEGATE_PROCESSOR_CLASS_PROPERTY, StorageProcessorWithDropbox.class.getName());
-        String prefix = DELEGATE_PROCESSOR_CLASS_PROPERTY + ".";
-        properties.setProperty(prefix + DELEGATE_PROCESSOR_CLASS_PROPERTY, DefaultStorageProcessor.class.getName());
-        properties.setProperty(prefix + DROPBOX_INCOMING_DIRECTORY_PROPERTY, dropbox2.getAbsolutePath());
+        properties.setProperty(StorageProcessorWithDropboxTest.DROPBOX_INCOMING_DIRECTORY_PROPERTY,
+                dropbox1.getAbsolutePath());
+        properties.setProperty(
+                AbstractDelegatingStorageProcessor.DELEGATE_PROCESSOR_CLASS_PROPERTY,
+                StorageProcessorWithDropboxTest.class.getName());
+        String prefix = AbstractDelegatingStorageProcessor.DELEGATE_PROCESSOR_CLASS_PROPERTY + ".";
+        properties.setProperty(prefix
+                + AbstractDelegatingStorageProcessor.DELEGATE_PROCESSOR_CLASS_PROPERTY,
+                DefaultStorageProcessor.class.getName());
+        properties.setProperty(prefix
+                + StorageProcessorWithDropboxTest.DROPBOX_INCOMING_DIRECTORY_PROPERTY, dropbox2
+                .getAbsolutePath());
         properties.setProperty(prefix + DATASET_CODE_SEPARATOR_PROPERTY, "-");
-        StorageProcessorWithDropbox processor = new StorageProcessorWithDropbox(properties);
+        AbstractDelegatingStorageProcessorWithDropbox processor =
+                new StorageProcessorWithDropboxTest(properties);
         DataSetInformation dataSetInfo = new DataSetInformation();
         dataSetInfo.setDataSetCode("1234-1");
         File dataSetFile = new File(workingDirectory, "data.txt");
         FileUtilities.writeToFile(dataSetFile, "hello world");
         File store = new File(workingDirectory, "store");
         store.mkdirs();
-        
+
         processor.storeData(null, dataSetInfo, null, null, dataSetFile, store);
-        
+
         File storeData = new File(store, "original/data.txt");
         assertEquals(true, storeData.exists());
         assertEquals("hello world", FileUtilities.loadToString(storeData).trim());
