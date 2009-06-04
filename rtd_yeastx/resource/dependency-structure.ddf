@@ -41,6 +41,7 @@ check layeringOf l1 l2
 check sets [db] [eicml] [fiaml] [etl]
 
 layer ll1 = [db]
-layer ll2 = [eicml] [fiaml] [etl]
+layer ll2 = [eicml] [fiaml] 
+layer ll3 = [etl]
 
-check layeringOf ll1 ll2
+check layeringOf ll1 ll2 ll3
