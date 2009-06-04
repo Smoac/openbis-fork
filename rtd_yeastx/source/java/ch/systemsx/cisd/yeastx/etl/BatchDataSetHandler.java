@@ -51,7 +51,7 @@ public class BatchDataSetHandler implements IDataSetHandler
 
     public void handleDataSet(File datasetsParentDir)
     {
-        if (canBatchBeProcessed(datasetsParentDir))
+        if (canBatchBeProcessed(datasetsParentDir) == false)
         {
             return;
         }
@@ -88,6 +88,7 @@ public class BatchDataSetHandler implements IDataSetHandler
         }
         List<File> files = listAll(parentDir);
         // Do not treat empty directories as faulty.
+        
         // The other reason of this check is that this handler is sometimes no able to delete
         // processed directories. It happens when they are mounted on NAS and there are some
         // hidden .nfs* files.
