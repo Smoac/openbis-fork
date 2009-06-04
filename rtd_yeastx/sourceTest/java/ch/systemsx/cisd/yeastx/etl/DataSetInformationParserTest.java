@@ -64,9 +64,10 @@ public class DataSetInformationParserTest extends AbstractFileSystemTestCase
                 DataSetMappingInformationParser.tryParse(indexFile);
         AssertJUnit.assertNull("error during parsing expected", result);
         List<String> logLines = readLogFile();
-        AssertJUnit.assertEquals(2, logLines.size());
-        AssertionUtil.assertContains(
-                "Creating an object with following tokens '[, , , , , ]' failed", logLines.get(1));
+        System.out.println(logLines);
+        AssertJUnit.assertEquals(3, logLines.size());
+        AssertionUtil.assertContains("Missing value for the mandatory column 'sample'", logLines
+                .get(2));
     }
 
     @Test
