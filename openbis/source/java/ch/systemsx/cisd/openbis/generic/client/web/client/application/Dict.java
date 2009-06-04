@@ -353,12 +353,6 @@ public abstract class Dict
 
     public static final String DATA_PRODUCER_CODE = "data_producer_code";
 
-    public static final String BUTTON_DELETE_DATASETS = "button_delete_datasets";
-
-    public static final String CONFIRM_DATASET_DELETION_TITLE = "confirm_dataset_deletion_title";
-
-    public static final String CONFIRM_DATASET_DELETION_MSG = "confirm_dataset_deletion_msg";
-
     public static final String BUTTON_UPLOAD_DATASETS = "button_upload_datasets";
 
     public static final String CONFIRM_DATASET_UPLOAD_TITLE = "confirm_dataset_upload_title";
@@ -606,6 +600,17 @@ public abstract class Dict
 
     public static final String DELETE_CONFIRMATION_MESSAGE = "delete_confirmation_message";
 
+    public static final String DELETE_CONFIRMATION_MESSAGE_WITH_REASON =
+            "delete_confirmation_message_with_reason";
+
+    public static final String DELETE_CONFIRMATION_WARNING = "delete_confirmation_warning";
+
+    public static final String DELETE_CONFIRMATION_WARNING_PART_FOR_EXPERIMENT =
+            "delete_confirmation_warning_part_for_experiment";
+
+    public static final String DELETE_CONFIRMATION_WARNING_PART_FOR_SAMPLE =
+            "delete_confirmation_warning_part_for_sample";
+
     public static final String BUTTON_CONFIGURE = "button_configure";
 
     public static final String SHOW_DETAILS_LINK = "show_details_link_column_name";
@@ -618,6 +623,8 @@ public abstract class Dict
     public static final String FILE_TEMPLATE_LABEL = "file_template_label";
 
     public static final String URL = "url";
+
+    public static final String REASON = "reason";
 
     // ----- end generic ------------------
 }

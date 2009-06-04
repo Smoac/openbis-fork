@@ -434,6 +434,13 @@ public interface ICommonClientService extends IClientService
     public void deleteDataSets(List<String> dataSetCodes, String reason)
             throws UserFailureException;
 
+    /** Deletes the specified samples. */
+    public void deleteSamples(List<TechId> sampleIds, String reason) throws UserFailureException;
+
+    /** Deletes the specified experiments. */
+    public void deleteExperiments(List<TechId> experimentIds, String reason)
+            throws UserFailureException;
+
     /**
      * Returns a list of all available data set types.
      */

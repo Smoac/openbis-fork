@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -245,6 +246,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
     {
         final ExternalDataPE d1 = createDataSet("d1", dss1);
         final ExternalDataPE d2 = createDataSet("d2", dss2);
+        final String reason = "reason";
         context.checking(new Expectations()
             {
                 {
@@ -259,10 +261,10 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     will(returnValue(d2Locations));
 
                     PersonPE person = EXAMPLE_SESSION.tryGetPerson();
-                    one(externalDataDAO).delete(d1, person,
-                            ExternalDataTable.getDeletionDescription(d1), "reason");
-                    one(externalDataDAO).delete(d2, person,
-                            ExternalDataTable.getDeletionDescription(d2), "reason");
+                    one(eventDAO).persist(createDeletionEvent(d1, person, reason));
+                    one(externalDataDAO).delete(d1);
+                    one(eventDAO).persist(createDeletionEvent(d2, person, reason));
+                    one(externalDataDAO).delete(d2);
 
                     one(dataStoreService2).deleteDataSets(dss2.getSessionToken(), d2Locations);
                 }
@@ -270,9 +272,14 @@ public final class ExternalDataTableTest extends AbstractBOTest
 
         ExternalDataTable externalDataTable = createExternalDataTable();
         externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()));
-        externalDataTable.deleteLoadedDataSets("reason");
+        externalDataTable.deleteLoadedDataSets(reason);
 
         context.assertIsSatisfied();
+    }
+
+    private EventPE createDeletionEvent(ExternalDataPE dataset, PersonPE person, String reason)
+    {
+        return ExternalDataTable.createDeletionEvent(dataset, person, reason);
     }
 
     @Test

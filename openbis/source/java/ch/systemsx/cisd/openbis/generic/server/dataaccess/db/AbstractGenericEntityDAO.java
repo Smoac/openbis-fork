@@ -22,6 +22,7 @@ import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -62,10 +63,17 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
         final T result = getEntity(getHibernateTemplate().load(getEntityClass(), techId.getId()));
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format("%s(%d): '%s'.", MethodUtils.getCurrentMethod()
+            operationLog.debug(String.format("%s(%s): '%s'.", MethodUtils.getCurrentMethod()
                     .getName(), techId, result));
         }
         return result;
+    }
+
+    @SuppressWarnings("unused")
+    private void deleteByTechId(TechId techId) throws DataAccessException
+    {
+        T entity = getByTechId(techId);
+        delete(entity);
     }
 
     // TODO 2009-05-22, Tomasz Pylak: remove connections, it forces BOs to use strings with field
@@ -83,7 +91,7 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
         final T result = tryGetEntity(criteria.uniqueResult());
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format("%s(%d): '%s'.", MethodUtils.getCurrentMethod()
+            operationLog.debug(String.format("%s(%s): '%s'.", MethodUtils.getCurrentMethod()
                     .getName(), techId, result));
         }
         return result;
@@ -102,5 +110,37 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
 
         validatePE(entity);
         getHibernateTemplate().flush();
+    }
+
+    public void persist(T entity)
+    {
+        assert entity != null : "entity unspecified";
+
+        // validation could be added here
+
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        hibernateTemplate.save(entity);
+        hibernateTemplate.flush();
+
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.debug(String.format("%s(%s)", MethodUtils.getCurrentMethod().getName(),
+                    entity));
+        }
+    }
+    
+    public void delete(T entity) throws DataAccessException
+    {
+        assert entity != null : "entity unspecified";
+
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        hibernateTemplate.delete(entity);
+        hibernateTemplate.flush();
+
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.debug(String.format("%s(%s)", MethodUtils.getCurrentMethod().getName(),
+                    entity));
+        }
     }
 }

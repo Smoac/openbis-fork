@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTr
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
@@ -43,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -759,6 +761,38 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
     }
 
+    public void deleteSamples(String sessionToken, List<TechId> sampleIds, String reason)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+            for (TechId id : sampleIds)
+            {
+                sampleBO.deleteByTechId(id, reason);
+            }
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
+    public void deleteExperiments(String sessionToken, List<TechId> experimentIds, String reason)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+            for (TechId id : experimentIds)
+            {
+                experimentBO.deleteByTechId(id, reason);
+            }
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
     public String uploadDataSets(String sessionToken, List<String> dataSetCodes,
             DataSetUploadContext uploadContext)
     {
@@ -944,4 +978,5 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
         return result;
     }
+
 }

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -160,8 +161,8 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         getDatasetsInternal().add(dataset);
     }
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "sampleInternal")
-    @JoinColumn(name = ColumnNames.SAMPLE_COLUMN, updatable = true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, mappedBy = "sampleInternal")
+    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     @ContainedIn
     private Set<DataPE> getDatasetsInternal()
     {
@@ -253,8 +254,8 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         this.sampleType = sampleType;
     }
 
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity")
+    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROPERTIES)
     private Set<SamplePropertyPE> getSampleProperties()
@@ -536,6 +537,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     @Override
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "sampleParentInternal")
+    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SAMPLE_ATTACHMENTS)
     protected Set<AttachmentPE> getInternalAttachments()
     {
@@ -554,6 +556,44 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     public void setPermId(String permId)
     {
         this.permId = permId;
+    }
+
+    //
+    // cascade deletion of connected samples (no bidirectional support for connection)
+    //
+
+    /** children of container hierarchy - added only to allow cascade deletion */
+    private List<SamplePE> contained = new ArrayList<SamplePE>();
+
+    /** children of generatedFrom hierarchy - added only to allow cascade deletion */
+    private List<SamplePE> derived = new ArrayList<SamplePE>();
+
+    @SuppressWarnings("unused")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, mappedBy = "container")
+    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    private List<SamplePE> getContained()
+    {
+        return contained;
+    }
+
+    @SuppressWarnings("unused")
+    private void setContained(List<SamplePE> contained)
+    {
+        this.contained = contained;
+    }
+
+    @SuppressWarnings("unused")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, mappedBy = "generatedFrom")
+    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    private List<SamplePE> getDerived()
+    {
+        return derived;
+    }
+
+    @SuppressWarnings("unused")
+    private void setDerived(List<SamplePE> derived)
+    {
+        this.derived = derived;
     }
 
 }

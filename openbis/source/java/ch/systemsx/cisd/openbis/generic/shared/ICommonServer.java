@@ -471,6 +471,29 @@ public interface ICommonServer extends IServer
             String reason);
 
     /**
+     * Deletes specified samples.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.GROUP_ADMIN)
+    @DatabaseCreateOrDeleteModification(value =
+        { ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    public void deleteSamples(String sessionToken,
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) List<TechId> sampleIds,
+            String reason);
+
+    /**
+     * Deletes specified experiments.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.GROUP_ADMIN)
+    @DatabaseCreateOrDeleteModification(value =
+        { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    public void deleteExperiments(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) List<TechId> experimentIds,
+            String reason);
+
+    /**
      * Uploads specified data sets to CIFEX server of specified URL with specified password.
      * 
      * @return a message or an empty string

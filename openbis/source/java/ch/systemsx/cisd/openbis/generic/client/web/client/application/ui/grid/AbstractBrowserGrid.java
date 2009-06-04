@@ -34,6 +34,8 @@ import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
@@ -43,9 +45,13 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -68,11 +74,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplaySettingsGetter;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.GridDisplaySettings;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -713,6 +720,25 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     /**
+     * @return a button which is enabled only when at least one entity in the grid is selected, and
+     *         with specified selection listener set.
+     */
+    protected final Button createSelectedItemsButton(final String title,
+            SelectionListener<ButtonEvent> listener)
+    {
+        Button button = new Button(title);
+        button.addSelectionListener(listener);
+        enableButtonOnSelectedItems(button);
+        return button;
+    }
+
+    /** adds given <var>button</var> to grid {@link PagingToolBar} */
+    protected void addButton(Button button)
+    {
+        pagingToolbar.add(new AdapterToolItem(button));
+    }
+
+    /**
      * Given <var>button</var> will be enabled only if at least one item is selected in the grid.
      */
     protected void enableButtonOnSelectedItems(final Button button)
@@ -1027,7 +1053,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 }
             };
         List<ColumnDataModel> settingsModel =
-                createColumnsSettingsModel(getColumnModel(), extractFilteredColumnIds(filterWidgets));
+                createColumnsSettingsModel(getColumnModel(),
+                        extractFilteredColumnIds(filterWidgets));
         ColumnSettingsDialog.show(viewContext, settingsModel, updater);
     }
 
@@ -1256,6 +1283,168 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             }
         }
         return selectedColumnDefs;
+    }
+
+    /** Deletion callback that refreshes the grid. */
+    protected static final class DeletionCallback extends AbstractAsyncCallback<Void>
+    {
+        private final IBrowserGridActionInvoker invoker;
+
+        public DeletionCallback(IViewContext<?> viewContext, IBrowserGridActionInvoker invoker)
+        {
+            super(viewContext);
+            this.invoker = invoker;
+        }
+
+        @Override
+        protected void process(Void result)
+        {
+            invoker.refresh();
+        }
+    }
+
+    /** Abstract dialog that executes an action with a list of data on confirm. */
+    protected abstract class AbstractConfirmationDialog extends Dialog
+    {
+        protected final List<T> data;
+
+        protected final IBrowserGridActionInvoker invoker;
+
+        protected final FormPanel formPanel;
+
+        protected final KeyListener keyListener;
+
+        protected AbstractConfirmationDialog(List<T> data, IBrowserGridActionInvoker invoker,
+                String titleKey)
+        {
+            this.invoker = invoker;
+            this.data = data;
+            setHeading(viewContext.getMessage(titleKey));
+            setButtons(Dialog.OKCANCEL);
+            setHideOnButtonClick(true);
+            setModal(true);
+            this.formPanel = createForm();
+            this.keyListener = new KeyListener()
+                {
+                    @Override
+                    public void handleEvent(ComponentEvent ce)
+                    {
+                        updateOkButtonState();
+                    }
+
+                };
+            extendForm();
+            addText(createMessage());
+            add(formPanel);
+        }
+
+        protected abstract String createMessage();
+
+        protected abstract void extendForm();
+
+        protected abstract void executeConfirmedAction();
+
+        private void updateOkButtonState()
+        {
+            okBtn.setEnabled(formPanel.isValid());
+        }
+
+        private FormPanel createForm()
+        {
+            FormPanel form = new FormPanel();
+            form.setBodyBorder(false);
+            form.setHeaderVisible(false);
+            return form;
+        }
+
+        @Override
+        protected final void onButtonPressed(Button button)
+        {
+            if (button.getItemId().equals(Dialog.OK))
+            {
+                if (formPanel.isValid())
+                {
+                    super.onButtonPressed(button);
+                    executeConfirmedAction();
+                }
+            } else
+            {
+                super.onButtonPressed(button);
+            }
+        }
+
+        @Override
+        protected void onRender(Element parent, int pos)
+        {
+            super.onRender(parent, pos);
+            updateOkButtonState();
+        }
+
+    }
+
+    /**
+     * {@link AbstractConfirmationDialog} abstract implementation for deleting given data on
+     * confirm.
+     */
+    protected abstract class DeletionConfirmationDialog extends AbstractConfirmationDialog
+    {
+        private static final int LABEL_WIDTH = 60;
+
+        private static final int FIELD_WIDTH = 180;
+
+        protected TextField<String> reason;
+
+        public DeletionConfirmationDialog(List<T> data, IBrowserGridActionInvoker invoker)
+        {
+            super(data, invoker, Dict.DELETE_CONFIRMATION_TITLE);
+        }
+
+        @Override
+        protected final void extendForm()
+        {
+            formPanel.setLabelWidth(LABEL_WIDTH);
+            formPanel.setFieldWidth(FIELD_WIDTH);
+
+            reason = new VarcharField(viewContext.getMessage(Dict.REASON), true);
+            reason.focus();
+            reason.setMaxLength(250);
+            reason.addKeyListener(keyListener);
+            formPanel.add(reason);
+        }
+
+        @Override
+        protected String createMessage()
+        {
+            return viewContext.getMessage(Dict.DELETE_CONFIRMATION_MESSAGE_WITH_REASON,
+                    data.size(), getEntityName(), getWarning());
+        }
+
+        protected abstract String getEntityName();
+
+        protected abstract String getWarning();
+
+    }
+
+    /** {@link SelectionListener} that creates a dialog with selected data items. */
+    protected abstract class AbstractCreateDialogListener extends SelectionListener<ButtonEvent>
+    {
+        @Override
+        public void componentSelected(ButtonEvent ce)
+        {
+            List<M> items = getSelectedItems();
+            if (items.isEmpty() == false)
+            {
+                List<T> data = new ArrayList<T>();
+                for (BaseEntityModel<T> item : items)
+                {
+                    data.add(item.getBaseObject());
+                }
+                IBrowserGridActionInvoker invoker = asActionInvoker();
+                createDialog(data, invoker).show();
+            }
+        }
+
+        protected abstract Dialog createDialog(List<T> data, IBrowserGridActionInvoker invoker);
     }
 
 }

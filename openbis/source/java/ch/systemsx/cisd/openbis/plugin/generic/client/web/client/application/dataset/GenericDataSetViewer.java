@@ -193,6 +193,7 @@ public final class GenericDataSetViewer extends AbstractViewer<IGenericClientSer
     {
         return new DatabaseModificationKind[]
             { DatabaseModificationKind.edit(ObjectKind.DATA_SET),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.DATA_SET),
                     DatabaseModificationKind.createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                     DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM) };
     }

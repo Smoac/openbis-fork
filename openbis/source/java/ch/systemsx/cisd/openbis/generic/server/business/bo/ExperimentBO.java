@@ -37,6 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -47,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -205,6 +208,41 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         }
         throw new UserFailureException("Attachment '" + filename + "' (version '" + version
                 + "') not found in experiment '" + experiment.getIdentifier() + "'.");
+    }
+
+    public void deleteByTechId(TechId experimentId, String reason) throws UserFailureException
+    {
+        loadDataByTechId(experimentId);
+        try
+        {
+            getExperimentDAO().delete(experiment);
+            getEventDAO().persist(createDeletionEvent(experiment, session.tryGetPerson(), reason));
+        } catch (final DataAccessException ex)
+        {
+            throw UserFailureException
+                    .fromTemplate(
+                            "Could not delete experiment '%s'. Someone might have already deleted it. Try to refresh data.",
+                            experiment.getCode());
+        }
+    }
+
+    public static EventPE createDeletionEvent(ExperimentPE experiment, PersonPE registrator,
+            String reason)
+    {
+        EventPE event = new EventPE();
+        event.setEventType(EventType.DELETION);
+        event.setEntityType(EntityType.EXPERIMENT);
+        event.setIdentifier(experiment.getPermId());
+        event.setDescription(getDeletionDescription(experiment));
+        event.setReason(reason);
+        event.setRegistrator(registrator);
+
+        return event;
+    }
+
+    private static String getDeletionDescription(ExperimentPE experiment)
+    {
+        return String.format("%s [%s]", experiment.getIdentifier(), experiment.getPermId());
     }
 
     public void define(NewExperiment newExperiment)

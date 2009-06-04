@@ -21,18 +21,10 @@ import java.util.List;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.KeyListener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
-import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -73,84 +65,33 @@ public abstract class AbstractExternalDataGrid
         extends
         AbstractEntityBrowserGrid<ExternalData, BaseEntityModel<ExternalData>, PropertyTypesCriteria>
 {
-    private static abstract class AbstractConfirmationDialog extends Dialog
+    private final class DataSetDeletionConfirmationDialog extends DeletionConfirmationDialog
     {
-        protected final IViewContext<?> viewContext;
-
-        protected final List<String> dataSetCodes;
-
-        protected final IBrowserGridActionInvoker invoker;
-
-        AbstractConfirmationDialog(IViewContext<?> viewContext, List<ExternalData> dataSets,
-                IBrowserGridActionInvoker invoker, String titleKey)
-        {
-            this.viewContext = viewContext;
-            this.invoker = invoker;
-            dataSetCodes = new ArrayList<String>();
-            for (ExternalData externalData : dataSets)
-            {
-                dataSetCodes.add(externalData.getCode());
-            }
-            setHeading(viewContext.getMessage(titleKey));
-            setButtons(Dialog.OKCANCEL);
-            setHideOnButtonClick(true);
-            setModal(true);
-        }
-
-    }
-
-    static final class DeletionCallback extends AbstractAsyncCallback<Void>
-    {
-        private final IBrowserGridActionInvoker invoker;
-
-        private DeletionCallback(IViewContext<?> viewContext, IBrowserGridActionInvoker invoker)
-        {
-            super(viewContext);
-            this.invoker = invoker;
-        }
-
-        @Override
-        protected void process(Void result)
-        {
-            invoker.refresh();
-        }
-    }
-
-    private static final class DeletionConfirmationDialog extends AbstractConfirmationDialog
-    {
-        private final TextField<String> reason;
-
-        public DeletionConfirmationDialog(IViewContext<?> viewContext, List<ExternalData> dataSets,
+        public DataSetDeletionConfirmationDialog(List<ExternalData> data,
                 IBrowserGridActionInvoker invoker)
         {
-            super(viewContext, dataSets, invoker, Dict.CONFIRM_DATASET_DELETION_TITLE);
-            addText(viewContext.getMessage(Dict.CONFIRM_DATASET_DELETION_MSG, dataSets.size()));
-            reason = new TextField<String>();
-            reason.setSelectOnFocus(true);
-            reason.setHideLabel(true);
-            reason.setWidth("100%");
-            reason.setMaxLength(250);
-            reason.addKeyListener(new KeyListener()
-                {
-                    @Override
-                    public void handleEvent(ComponentEvent ce)
-                    {
-                        okBtn.setEnabled(reason.isValid());
-                    }
-                });
-            add(reason);
+            super(data, invoker);
         }
 
         @Override
-        protected void onButtonPressed(Button button)
+        protected void executeConfirmedAction()
         {
-            super.onButtonPressed(button);
-            if (button.getItemId().equals(Dialog.OK) && reason.isValid())
-            {
-                viewContext.getCommonService().deleteDataSets(dataSetCodes, reason.getValue(),
-                        new DeletionCallback(viewContext, invoker));
-            }
+            viewContext.getCommonService().deleteDataSets(getDataSetCodes(data), reason.getValue(),
+                    new DeletionCallback(viewContext, invoker));
         }
+
+        @Override
+        protected String getEntityName()
+        {
+            return EntityKind.DATA_SET.getDescription();
+        }
+
+        @Override
+        protected String getWarning()
+        {
+            return "";
+        }
+
     }
 
     static final class UploadCallback extends AbstractAsyncCallback<String>
@@ -170,15 +111,15 @@ public abstract class AbstractExternalDataGrid
         }
     }
 
-    private static final class UploadConfirmationDialog extends AbstractConfirmationDialog
+    private final class UploadConfirmationDialog extends AbstractConfirmationDialog
     {
         private static final int FIELD_WIDTH_IN_UPLOAD_DIALOG = 200;
 
         private static final int LABEL_WIDTH_IN_UPLOAD_DIALOG = 120;
 
-        private final String cifexURL;
+        private String cifexURL;
 
-        private final TextField<String> passwordField;
+        private TextField<String> passwordField;
 
         private TextField<String> fileNameField;
 
@@ -186,50 +127,52 @@ public abstract class AbstractExternalDataGrid
 
         private TextField<String> userField;
 
-        private FormPanel form;
-
-        public UploadConfirmationDialog(IViewContext<?> viewContext, List<ExternalData> dataSets,
+        public UploadConfirmationDialog(List<ExternalData> dataSets,
                 IBrowserGridActionInvoker invoker)
         {
-            super(viewContext, dataSets, invoker, Dict.CONFIRM_DATASET_UPLOAD_TITLE);
-            cifexURL = viewContext.getModel().getApplicationInfo().getCIFEXURL();
-            addText(viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_MSG, dataSets.size(),
-                    cifexURL));
-            form = new FormPanel();
-            form.setLabelWidth(LABEL_WIDTH_IN_UPLOAD_DIALOG);
-            form.setFieldWidth(FIELD_WIDTH_IN_UPLOAD_DIALOG);
-            form.setBodyBorder(false);
-            form.setHeaderVisible(false);
+            super(dataSets, invoker, Dict.CONFIRM_DATASET_UPLOAD_TITLE);
+            setWidth(LABEL_WIDTH_IN_UPLOAD_DIALOG + FIELD_WIDTH_IN_UPLOAD_DIALOG + 100);
+        }
+
+        @Override
+        protected String createMessage()
+        {
+            return viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_MSG, data.size(), cifexURL);
+        }
+
+        @Override
+        protected final void extendForm()
+        {
+            formPanel.setLabelWidth(LABEL_WIDTH_IN_UPLOAD_DIALOG);
+            formPanel.setFieldWidth(FIELD_WIDTH_IN_UPLOAD_DIALOG);
+            formPanel.setBodyBorder(false);
+            formPanel.setHeaderVisible(false);
+
             fileNameField = new TextField<String>();
             fileNameField.setFieldLabel(viewContext
                     .getMessage(Dict.CONFIRM_DATASET_UPLOAD_FILE_NAME_FIELD));
             fileNameField.setSelectOnFocus(true);
             fileNameField.setMaxLength(BasicConstant.MAX_LENGTH_OF_FILE_NAME + ".zip".length());
             fileNameField.setAutoValidate(true);
-            KeyListener keyListener = new KeyListener()
-                {
-                    @Override
-                    public void handleEvent(ComponentEvent ce)
-                    {
-                        okBtn.setEnabled(form.isValid());
-                    }
-                };
             fileNameField.addKeyListener(keyListener);
-            form.add(fileNameField);
+            formPanel.add(fileNameField);
+
             commentField = new TextArea();
             commentField.setMaxLength(BasicConstant.MAX_LENGTH_OF_CIFEX_COMMENT);
             commentField.setFieldLabel(viewContext
                     .getMessage(Dict.CONFIRM_DATASET_UPLOAD_COMMENT_FIELD));
             commentField.addKeyListener(keyListener);
             commentField.setAutoValidate(true);
-            form.add(commentField);
+            formPanel.add(commentField);
+
             userField = new TextField<String>();
             userField.setFieldLabel(viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_USER_FIELD));
             userField.setValue(viewContext.getModel().getSessionContext().getUser().getUserName());
             FieldUtil.setMandatoryFlag(userField, true);
             userField.addKeyListener(keyListener);
             userField.setAutoValidate(true);
-            form.add(userField);
+            formPanel.add(userField);
+
             passwordField = new TextField<String>();
             passwordField.setPassword(true);
             passwordField.setFieldLabel(viewContext
@@ -237,56 +180,31 @@ public abstract class AbstractExternalDataGrid
             FieldUtil.setMandatoryFlag(passwordField, true);
             passwordField.addKeyListener(keyListener);
             passwordField.setAutoValidate(true);
-            form.add(passwordField);
-            add(form);
-            setWidth(LABEL_WIDTH_IN_UPLOAD_DIALOG + FIELD_WIDTH_IN_UPLOAD_DIALOG + 50);
+            formPanel.add(passwordField);
         }
 
         @Override
-        protected void onRender(Element parent, int pos)
+        protected void executeConfirmedAction()
         {
-            super.onRender(parent, pos);
-            okBtn.setEnabled(false);
-        }
-
-        @Override
-        protected void onButtonPressed(Button button)
-        {
-            super.onButtonPressed(button);
-            if (button.getItemId().equals(Dialog.OK) && form.isValid())
-            {
-                DataSetUploadParameters parameters = new DataSetUploadParameters();
-                parameters.setCifexURL(cifexURL);
-                parameters.setFileName(fileNameField.getValue());
-                parameters.setComment(commentField.getValue());
-                parameters.setUserID(userField.getValue());
-                parameters.setPassword(passwordField.getValue());
-                viewContext.getCommonService().uploadDataSets(dataSetCodes, parameters,
-                        new UploadCallback(viewContext));
-            }
+            DataSetUploadParameters parameters = new DataSetUploadParameters();
+            parameters.setCifexURL(cifexURL);
+            parameters.setFileName(fileNameField.getValue());
+            parameters.setComment(commentField.getValue());
+            parameters.setUserID(userField.getValue());
+            parameters.setPassword(passwordField.getValue());
+            viewContext.getCommonService().uploadDataSets(getDataSetCodes(data), parameters,
+                    new UploadCallback(viewContext));
         }
     }
 
-    private abstract class AbstractDataSetAction extends SelectionListener<ButtonEvent>
+    private List<String> getDataSetCodes(List<ExternalData> dataSets)
     {
-        @Override
-        public void componentSelected(ButtonEvent ce)
+        List<String> dataSetCodes = new ArrayList<String>();
+        for (ExternalData externalData : dataSets)
         {
-            List<BaseEntityModel<ExternalData>> items = getSelectedItems();
-            if (items.isEmpty() == false)
-            {
-                List<ExternalData> dataSets = new ArrayList<ExternalData>();
-                for (BaseEntityModel<ExternalData> item : items)
-                {
-                    dataSets.add(item.getBaseObject());
-                }
-                IBrowserGridActionInvoker invoker = asActionInvoker();
-                createDialog(dataSets, invoker).show();
-            }
+            dataSetCodes.add(externalData.getCode());
         }
-
-        protected abstract Dialog createDialog(List<ExternalData> dataSets,
-                IBrowserGridActionInvoker invoker);
+        return dataSetCodes;
     }
 
     /**
@@ -305,33 +223,32 @@ public abstract class AbstractExternalDataGrid
         super.updateCriteriaProviderAndRefresh();
 
         addEntityOperationsLabel();
-        Button browseButton =
-                createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_BROWSE),
-                        asBrowseExternalDataInvoker());
-        browseButton.setId(getId() + "_browse-button");
-        addButton(browseButton);
+        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_BROWSE),
+                asBrowseExternalDataInvoker()));
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
                 asShowEntityInvoker(false)));
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
                 asShowEntityInvoker(true)));
-        addButton(Dict.BUTTON_DELETE_DATASETS, new AbstractDataSetAction()
-            {
-                @Override
-                protected Dialog createDialog(List<ExternalData> dataSets,
-                        IBrowserGridActionInvoker invoker)
-                {
-                    return new DeletionConfirmationDialog(viewContext, dataSets, invoker);
-                }
-            });
-        addButton(Dict.BUTTON_UPLOAD_DATASETS, new AbstractDataSetAction()
-            {
-                @Override
-                protected Dialog createDialog(List<ExternalData> dataSets,
-                        IBrowserGridActionInvoker invoker)
-                {
-                    return new UploadConfirmationDialog(viewContext, dataSets, invoker);
-                }
-            });
+        addButton(createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
+                new AbstractCreateDialogListener()
+                    {
+                        @Override
+                        protected Dialog createDialog(List<ExternalData> dataSets,
+                                IBrowserGridActionInvoker invoker)
+                        {
+                            return new DataSetDeletionConfirmationDialog(dataSets, invoker);
+                        }
+                    }));
+        addButton(createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_UPLOAD_DATASETS),
+                new AbstractCreateDialogListener()
+                    {
+                        @Override
+                        protected Dialog createDialog(List<ExternalData> dataSets,
+                                IBrowserGridActionInvoker invoker)
+                        {
+                            return new UploadConfirmationDialog(dataSets, invoker);
+                        }
+                    }));
         addEntityOperationsSeparator();
         allowMultipleSelection();
 
@@ -358,25 +275,6 @@ public abstract class AbstractExternalDataGrid
     {
         EntityKind entityKindOrNull = displayOnlyDatasetProperties ? EntityKind.DATA_SET : null;
         return new PropertyTypesCriteriaProvider(viewContext, entityKindOrNull);
-    }
-
-    private void addButton(String labelKey, SelectionListener<ButtonEvent> action)
-    {
-        final Button button = createButton(labelKey, action);
-        enableButtonOnSelectedItems(button);
-        addButton(button);
-    }
-
-    private Button createButton(String labelKey, SelectionListener<ButtonEvent> action)
-    {
-        Button button = new Button(viewContext.getMessage(labelKey));
-        button.addSelectionListener(action);
-        return button;
-    }
-
-    private void addButton(Button button)
-    {
-        pagingToolbar.add(new AdapterToolItem(button));
     }
 
     @Override

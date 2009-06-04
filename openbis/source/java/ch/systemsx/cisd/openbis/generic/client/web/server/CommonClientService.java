@@ -1356,6 +1356,32 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public void deleteSamples(List<TechId> sampleIds, String reason)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.deleteSamples(sessionToken, sampleIds, reason);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public void deleteExperiments(List<TechId> experimentIds, String reason)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.deleteExperiments(sessionToken, experimentIds, reason);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
     public LastModificationState getLastModificationState()
     {
         try

@@ -28,6 +28,8 @@ import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
@@ -146,15 +148,20 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
     @Override
     public final String toString()
     {
-        final ToStringBuilder builder =
-                new ToStringBuilder(this,
-                        ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
-        builder.append("eventType", getEventType());
-        builder.append("entityType", getEntityType());
-        builder.append("identifier", getIdentifier());
-        builder.append("description", getDescription());
-        builder.append("reason", getReason());
-        return builder.toString();
+        return ToStringBuilder
+                .reflectionToString(ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        return EqualsBuilder.reflectionEquals(this, obj, true);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return HashCodeBuilder.reflectionHashCode(this, true);
     }
 
 }

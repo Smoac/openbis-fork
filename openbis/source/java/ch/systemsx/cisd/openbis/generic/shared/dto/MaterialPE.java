@@ -191,8 +191,8 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         this.databaseInstance = databaseInstance;
     }
 
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity")
+    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROPERTIES)
     private Set<MaterialPropertyPE> getMaterialProperties()

@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
@@ -91,6 +92,8 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     IPermIdDAO permIdDAO;
 
+    IEventDAO eventDAO;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -115,6 +118,7 @@ public abstract class AbstractBOTest extends AssertJUnit
         locatorTypeDAO = context.mock(ILocatorTypeDAO.class);
         dataStoreDAO = context.mock(IDataStoreDAO.class);
         permIdDAO = context.mock(IPermIdDAO.class);
+        eventDAO = context.mock(IEventDAO.class);
         context.checking(new Expectations()
             {
                 {
@@ -140,6 +144,8 @@ public abstract class AbstractBOTest extends AssertJUnit
                     will(returnValue(dataStoreDAO));
                     allowing(daoFactory).getVocabularyDAO();
                     will(returnValue(vocabularyDAO));
+                    allowing(daoFactory).getEventDAO();
+                    will(returnValue(eventDAO));
                 }
             });
     }

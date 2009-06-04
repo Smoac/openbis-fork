@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
@@ -51,6 +54,22 @@ public class TechId implements IIdHolder, IsSerializable
         {
             return new TechId(idHolder.getId());
         }
+    }
+
+    /**
+     * Convenience method for getting a list of technical ids from given list of objects with
+     * identifiers.
+     * 
+     * @see #create(IIdHolder)
+     */
+    public static List<TechId> createList(List<? extends IIdHolder> idHolders)
+    {
+        List<TechId> results = new ArrayList<TechId>();
+        for (IIdHolder idHolder : idHolders)
+        {
+            results.add(create(idHolder));
+        }
+        return results;
     }
 
     public Long getId()

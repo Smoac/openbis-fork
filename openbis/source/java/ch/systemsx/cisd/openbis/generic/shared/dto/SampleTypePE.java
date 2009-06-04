@@ -26,7 +26,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -66,9 +65,8 @@ public final class SampleTypePE extends EntityTypePE
 
     private Integer containerHierarchyDepth;
 
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "entityTypeInternal")
-    @JoinColumn(name = ColumnNames.SAMPLE_TYPE_COLUMN, updatable = false)
+    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private Set<SampleTypePropertyTypePE> getSampleTypePropertyTypesInternal()
     {
         return sampleTypePropertyTypes;

@@ -371,6 +371,14 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void deleteDataSets(List<String> dataSetCodes, String reason,
             AsyncCallback<Void> asyncCallback);
 
+    /** @see ICommonClientService#deleteSamples(List, String) */
+    public void deleteSamples(List<TechId> sampleIds, String value,
+            AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#deleteExperiments(List, String) */
+    public void deleteExperiments(List<TechId> experimentIds, String value,
+            AsyncCallback<Void> asyncCallback);
+
     /** @see ICommonClientService#listDataSetTypes() */
     public void listDataSetTypes(AsyncCallback<List<DataSetType>> callback);
 

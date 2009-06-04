@@ -27,7 +27,12 @@ var common = {
   table_operations: "Table:",
   entity_operations: "Entity:",
   url: "URL",
-    
+  reason: "Reason",
+  delete_confirmation_message_with_reason: "You are deleting {0} {1}(s).{2}<br><br>Please enter a reason or cancel deletion.",
+  delete_confirmation_warning: "<br><br>Be aware that there may be some objects connected to it that will be deleted too ({0}).",
+  delete_confirmation_warning_part_for_sample: "attachments, data sets, contained and derived samples",
+  delete_confirmation_warning_part_for_experiment: "attachments, data sets, samples",
+  
   //
   // Field
   //
@@ -37,7 +42,8 @@ var common = {
   combo_box_expected_value_from_the_list: "Value from the list required",
   invalid_code_message: "Code contains invalid characters. Allowed characters are: {0}.",
   invalid_term_code_message: "{0} contains invalid characters. Allowed characters are: letters, numbers, hyphen (\"-\"), underscore (\"_\"), colon (\":\") and dot (\".\").",
- 	file_template_label: "Download file template",
+  file_template_label: "Download file template",
+ 
  
   //
   // MessageBox
@@ -156,7 +162,6 @@ var common = {
   edit_type_title_template: "Edit {0} Type {1}",
   delete_confirmation_title: "Confirm Deletion",
   delete_confirmation_message: "Are you sure you want to delete [{0}]?",
- 
    
   //
   // Property Type Browser
@@ -344,9 +349,6 @@ var common = {
  file_format_type: "File Type",
  production_date: "Production Date",
  data_producer_code: "Producer",
- button_delete_datasets: "Delete",
- confirm_dataset_deletion_title: "Data Sets Deletion Confirmation",
- confirm_dataset_deletion_msg: "You are deleting {0} data set(s). Please enter a reason:",
  button_upload_datasets: "Export Data",
  confirm_dataset_upload_title: "Uploading Confirmation and Authentication",
  confirm_dataset_upload_msg: "You are uploading {0} data set(s) to CIFEX ({1}) in a single ZIP file.<br/><br/>Please, enter additional information:", 

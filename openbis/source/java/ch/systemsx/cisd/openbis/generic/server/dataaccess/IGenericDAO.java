@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
@@ -31,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public interface IGenericDAO<T extends IIdHolder>
 {
     /**
-     * @param techId the entity technical identifier.
+     * @param techId the entity technical identifier
      * @return entity with the given technical identifier (and no lazy connections initialized) or
      *         null if it is not found <br>
      *         NOTE: don't rely on T.getId() value because returned value can be a
@@ -59,5 +60,21 @@ public interface IGenericDAO<T extends IIdHolder>
      * @param entity the entity to be validated and updated
      */
     public void validateAndSaveUpdatedEntity(T entity);
+
+    /**
+     * Persists given entity.
+     * 
+     * @param entity the entity to be persisted
+     * @throws DataAccessException if the entity cannot be deleted.
+     */
+    public void persist(final T entity) throws DataAccessException;
+    
+    /**
+     * Deletes given entity from DB with some connected objects.
+     * 
+     * @param entity the entity to be deleted
+     * @throws DataAccessException if the entity cannot be deleted.
+     */
+    public void delete(final T entity) throws DataAccessException;    
 
 }

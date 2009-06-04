@@ -386,8 +386,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
 
     private Set<DataSetPropertyPE> properties = new HashSet<DataSetPropertyPE>();
 
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity")
+    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROPERTIES)
     private Set<DataSetPropertyPE> getDataSetProperties()

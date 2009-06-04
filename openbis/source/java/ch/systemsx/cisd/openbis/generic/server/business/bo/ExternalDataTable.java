@@ -29,6 +29,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.HibernateTransformer;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
@@ -36,10 +37,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -149,20 +154,35 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         Map<DataStorePE, List<ExternalDataPE>> map = groupDataSetsByDataStores();
         assertDataSetsAreKnown(map);
         IExternalDataDAO externalDataDAO = getExternalDataDAO();
+        IEventDAO eventDAO = getEventDAO();
         for (Map.Entry<DataStorePE, List<ExternalDataPE>> entry : map.entrySet())
         {
             DataStorePE dataStore = entry.getKey();
             List<ExternalDataPE> dataSets = entry.getValue();
             for (ExternalDataPE dataSet : dataSets)
             {
-                externalDataDAO.delete(dataSet, session.tryGetPerson(),
-                        getDeletionDescription(dataSet), reason);
+                eventDAO.persist(createDeletionEvent(dataSet, session.tryGetPerson(), reason));
+                externalDataDAO.delete(dataSet);
             }
             deleteDataSets(dataStore, getLocations(dataSets));
         }
     }
 
-    public static String getDeletionDescription(ExternalDataPE dataSet)
+    public static EventPE createDeletionEvent(ExternalDataPE dataSet, PersonPE registrator,
+            String reason)
+    {
+        EventPE event = new EventPE();
+        event.setEventType(EventType.DELETION);
+        event.setEntityType(EntityType.DATASET);
+        event.setIdentifier(dataSet.getCode());
+        event.setDescription(getDeletionDescription(dataSet));
+        event.setReason(reason);
+        event.setRegistrator(registrator);
+
+        return event;
+    }
+
+    private static String getDeletionDescription(ExternalDataPE dataSet)
     {
         return dataSet.getIdentifier();
     }

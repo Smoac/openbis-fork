@@ -19,9 +19,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experi
 import java.util.List;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
@@ -49,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -120,12 +122,24 @@ public class ExperimentBrowserGrid extends
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
         Button showDetailsButton =
                 createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
-        pagingToolbar.add(new AdapterToolItem(showDetailsButton));
+        addButton(showDetailsButton);
 
         String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
         Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
         editButton.setId(GRID_ID + ID_SUFFIX_EDIT_BUTTON);
-        pagingToolbar.add(new AdapterToolItem(editButton));
+        addButton(editButton);
+
+        addButton(createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
+                new AbstractCreateDialogListener()
+                    {
+                        @Override
+                        protected Dialog createDialog(List<Experiment> experiments,
+                                IBrowserGridActionInvoker invoker)
+                        {
+                            return new ExperimentDeletionConfirmationDialog(experiments, invoker);
+                        }
+                    }));
+        allowMultipleSelection(); // we allow deletion of multiple samples
 
         addEntityOperationsSeparator();
     }
@@ -242,5 +256,39 @@ public class ExperimentBrowserGrid extends
     protected Set<DatabaseModificationKind> getGridRelevantModifications()
     {
         return getGridRelevantModifications(ObjectKind.EXPERIMENT);
+    }
+
+    //
+    // Helpers
+    //
+
+    private final class ExperimentDeletionConfirmationDialog extends DeletionConfirmationDialog
+    {
+        public ExperimentDeletionConfirmationDialog(List<Experiment> experiments,
+                IBrowserGridActionInvoker invoker)
+        {
+            super(experiments, invoker);
+        }
+
+        @Override
+        protected void executeConfirmedAction()
+        {
+            viewContext.getCommonService().deleteExperiments(TechId.createList(data),
+                    reason.getValue(), new DeletionCallback(viewContext, invoker));
+        }
+
+        @Override
+        protected String getEntityName()
+        {
+            return EntityKind.DATA_SET.getDescription();
+        }
+
+        @Override
+        protected String getWarning()
+        {
+            return viewContext.getMessage(Dict.DELETE_CONFIRMATION_WARNING, viewContext
+                    .getMessage(Dict.DELETE_CONFIRMATION_WARNING_PART_FOR_EXPERIMENT));
+        }
+
     }
 }

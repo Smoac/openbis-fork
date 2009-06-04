@@ -97,4 +97,12 @@ public interface ISampleBO extends IEntityBusinessObject
 
     /** Adds attachments */
     void enrichWithAttachments();
+
+    /**
+     * Deletes sample for specified reason.
+     * 
+     * @param sampleId sample technical identifier
+     * @throws UserFailureException if sample with given technical identifier is not found.
+     */
+    public void deleteByTechId(TechId sampleId, String reason) throws UserFailureException;
 }

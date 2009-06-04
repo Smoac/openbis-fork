@@ -152,7 +152,6 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     }
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "projectInternal")
-    @JoinColumn(name = ColumnNames.PROJECT_COLUMN, updatable = true)
     @ContainedIn
     private List<ExperimentPE> getExperimentsInternal()
     {

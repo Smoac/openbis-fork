@@ -73,6 +73,12 @@ public class GridTestUtils
         table.fireEvent(Events.CellClick, event);
     }
 
+    public static <T extends ModelData> void fireSelectRow(final Grid<T> table, int rowIndex)
+    {
+        GridEvent event = createGridEvent(table, rowIndex);
+        table.fireEvent(Events.Select, event);
+    }
+
     private static <T extends ModelData> GridEvent createGridEvent(final Grid<T> table,
             String columnId, String columnValue)
     {
@@ -98,6 +104,21 @@ public class GridTestUtils
         Assert.fail("The column with id '" + columnId + "' has never the value '" + columnValue
                 + "'. Following values were found: " + codes);
         return null; // just to make the compiler happy
+    }
+
+    private static <T extends ModelData> GridEvent createGridEvent(final Grid<T> table, int rowIndex)
+    {
+        final ListStore<T> store = table.getStore();
+        if (0 <= rowIndex && rowIndex < store.getCount())
+        {
+            final GridEvent gridEvent = new GridEvent(table);
+            gridEvent.rowIndex = rowIndex;
+            return gridEvent;
+        } else
+        {
+            Assert.fail("invalid rowIndex");
+            return null; // just to make the compiler happy
+        }
     }
 
     public static String getPropertyColumnIdentifier(final String propertyCode,

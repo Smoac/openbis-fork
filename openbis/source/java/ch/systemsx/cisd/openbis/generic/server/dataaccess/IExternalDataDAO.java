@@ -23,7 +23,6 @@ import org.springframework.dao.DataAccessException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -67,11 +66,5 @@ public interface IExternalDataDAO extends IGenericDAO<ExternalDataPE>
      * Updates the specified data set.
      */
     public void updateDataSet(ExternalDataPE dataset);
-
-    /**
-     * Deletes the specified data set and creates an event with specified data.
-     */
-    public void delete(ExternalDataPE dataSet, PersonPE registrator, String description,
-            String reason);
 
 }
