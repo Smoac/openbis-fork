@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,11 +35,13 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -589,6 +593,43 @@ public final class ExperimentBOTest extends AbstractBOTest
             return;
         }
         fail("exception expected with the error msg: " + errorMsg);
+    }
+
+    @Test
+    public void testDelete()
+    {
+        final TechId experimentId = CommonTestUtils.TECH_ID;
+        final ExperimentPE experiment = createExperiment(EXP_CODE);
+        experiment.setId(experimentId.getId());
+        final String reason = "reason";
+
+        prepareAnyDaoCreation();
+        prepareTryToLoadOfExperimentWithId(experiment);
+        context.checking(new Expectations()
+            {
+                {
+                    PersonPE person = EXAMPLE_SESSION.tryGetPerson();
+                    EventPE event = ExperimentBO.createDeletionEvent(experiment, person, reason);
+                    one(eventDAO).persist(event);
+                    one(experimentDAO).delete(experiment);
+                }
+            });
+
+        final ExperimentBO expBO = createExperimentBO();
+        expBO.deleteByTechId(experimentId, reason);
+        context.assertIsSatisfied();
+    }
+
+    private void prepareTryToLoadOfExperimentWithId(final ExperimentPE experiment)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(experimentDAO).tryGetByTechId(with(new TechId(experiment.getId())),
+                            with(any(String[].class)));
+                    will(returnValue(experiment));
+                }
+            });
     }
 
     private static ExperimentPE createExperiment(String code)

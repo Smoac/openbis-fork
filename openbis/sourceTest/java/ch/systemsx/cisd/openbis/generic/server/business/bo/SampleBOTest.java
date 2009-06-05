@@ -46,10 +46,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -108,6 +110,7 @@ public final class SampleBOTest extends AbstractBOTest
             final String sampleTypeCode)
     {
         final SamplePE sample = new SamplePE();
+        sample.setCode(sampleIdentifier.getSampleCode());
         sample.setRegistrator(EXAMPLE_PERSON);
         final SampleTypePE sampleTypeDTO = new SampleTypePE();
         sampleTypeDTO.setCode(sampleTypeCode);
@@ -298,6 +301,29 @@ public final class SampleBOTest extends AbstractBOTest
 
         final SampleBO sampleBO = createSampleBO();
         sampleBO.define(newSharedSample);
+    }
+
+    @Test
+    public void testDelete()
+    {
+        final TechId sampleId = SAMPLE_TECH_ID;
+        final SamplePE sample = createSample(DEFAULT_SAMPLE_CODE);
+        sample.setId(sampleId.getId());
+        final String reason = "reason";
+
+        prepareTryToLoadOfSampleWithId(sample);
+        context.checking(new Expectations()
+            {
+                {
+                    PersonPE person = EXAMPLE_SESSION.tryGetPerson();
+                    EventPE event = SampleBO.createDeletionEvent(sample, person, reason);
+                    one(eventDAO).persist(event);
+                    one(sampleDAO).delete(sample);
+                }
+            });
+        final SampleBO sampleBO = createSampleBO();
+        sampleBO.deleteByTechId(sampleId, reason);
+        context.assertIsSatisfied();
     }
 
     private SampleType createSampleType(final SampleTypeCode sampleTypeCode)
