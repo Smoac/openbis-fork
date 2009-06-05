@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.DataRetrievalFailureException;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -37,7 +37,7 @@ public interface IGenericDAO<T extends IIdHolder>
      *         null if it is not found <br>
      *         NOTE: don't rely on T.getId() value because returned value can be a
      *         {@link HibernateProxy}. Use {@link HibernateUtils#getId(IIdHolder)} instead.
-     * @throws EmptyResultDataAccessException if the entity with given identifier does not exist in
+     * @throws DataRetrievalFailureException if the entity with given identifier does not exist in
      *             the database.
      */
     public T getByTechId(final TechId techId);
@@ -68,13 +68,13 @@ public interface IGenericDAO<T extends IIdHolder>
      * @throws DataAccessException if the entity cannot be deleted.
      */
     public void persist(final T entity) throws DataAccessException;
-    
+
     /**
      * Deletes given entity from DB with some connected objects.
      * 
      * @param entity the entity to be deleted
      * @throws DataAccessException if the entity cannot be deleted.
      */
-    public void delete(final T entity) throws DataAccessException;    
+    public void delete(final T entity) throws DataAccessException;
 
 }

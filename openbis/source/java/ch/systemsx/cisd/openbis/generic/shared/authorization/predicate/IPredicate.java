@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IPredicateFactory;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
@@ -45,7 +46,7 @@ public interface IPredicate<T>
      * @param allowedRoles the person roles that matches the ones required by the method (or task).
      */
     public Status evaluate(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
-            final T valueOrNull);
+            final T valueOrNull) throws UserFailureException;
 
     /**
      * Initialises this predicate with data provided by the specified provider.

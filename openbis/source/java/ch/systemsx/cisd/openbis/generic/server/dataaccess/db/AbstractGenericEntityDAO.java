@@ -16,12 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.Scanner;
+
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -60,7 +63,16 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
     public final T getByTechId(final TechId techId) throws DataAccessException
     {
         assert techId != null : "Technical identifier unspecified.";
-        final T result = getEntity(getHibernateTemplate().load(getEntityClass(), techId.getId()));
+        final Object entity = getHibernateTemplate().get(getEntityClass(), techId.getId());
+        T result = null;
+        if (entity == null)
+        {
+            throw new DataRetrievalFailureException(getEntityDescription() + " with ID "
+                    + techId.getId() + " does not exist. Maybe someone has just deleted it.");
+        } else
+        {
+            result = getEntity(getHibernateTemplate().get(getEntityClass(), techId.getId()));
+        }
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(%s): '%s'.", MethodUtils.getCurrentMethod()
@@ -69,11 +81,16 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
         return result;
     }
 
-    @SuppressWarnings("unused")
-    private void deleteByTechId(TechId techId) throws DataAccessException
+    private String getEntityDescription()
     {
-        T entity = getByTechId(techId);
-        delete(entity);
+        String nameWithoutPE = getEntityClass().getName().replace("PE", "");
+        Scanner scanner = new Scanner(nameWithoutPE);
+        StringBuilder sb = new StringBuilder();
+        while (scanner.hasNext())
+        {
+            sb.append(scanner.findInLine("[A-Z][a-z]*"));
+        }
+        return sb.toString();
     }
 
     // TODO 2009-05-22, Tomasz Pylak: remove connections, it forces BOs to use strings with field
@@ -116,7 +133,7 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
     {
         assert entity != null : "entity unspecified";
 
-        // validation could be added here
+        validatePE(entity);
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
         hibernateTemplate.save(entity);
@@ -128,7 +145,7 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
                     entity));
         }
     }
-    
+
     public void delete(T entity) throws DataAccessException
     {
         assert entity != null : "entity unspecified";

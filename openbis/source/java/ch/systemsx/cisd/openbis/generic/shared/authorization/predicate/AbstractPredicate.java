@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 
 import java.util.List;
 
+import org.springframework.dao.DataAccessException;
+
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
@@ -64,6 +66,12 @@ abstract class AbstractPredicate<T> implements IPredicate<T>
         {
             throw UserFailureException.fromTemplate("No %s specified.", getCandidateDescription());
         }
-        return doEvaluation(person, allowedRoles, valueOrNull);
+        try
+        {
+            return doEvaluation(person, allowedRoles, valueOrNull);
+        } catch (DataAccessException ex)
+        {
+            throw new UserFailureException(ex.getMessage(), ex);
+        }
     }
 }
