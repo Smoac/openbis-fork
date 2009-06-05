@@ -59,6 +59,7 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
@@ -568,10 +569,10 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     /** children of generatedFrom hierarchy - added only to allow cascade deletion */
     private List<SamplePE> derived = new ArrayList<SamplePE>();
 
-    @SuppressWarnings("unused")
+    @Private
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, mappedBy = "container")
     @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
-    private List<SamplePE> getContained()
+    public List<SamplePE> getContained()
     {
         return contained;
     }
@@ -582,10 +583,10 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         this.contained = contained;
     }
 
-    @SuppressWarnings("unused")
+    @Private
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, mappedBy = "generatedFrom")
     @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
-    private List<SamplePE> getDerived()
+    public List<SamplePE> getDerived()
     {
         return derived;
     }

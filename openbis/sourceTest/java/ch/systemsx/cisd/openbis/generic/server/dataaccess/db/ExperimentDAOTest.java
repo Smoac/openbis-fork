@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
@@ -31,11 +33,17 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.ExperimentTypeCode;
 
@@ -170,6 +178,55 @@ public class ExperimentDAOTest extends AbstractDAOTest
     }
 
     @Test
+    public void testDelete()
+    {
+        final IExperimentDAO experimentDAO = daoFactory.getExperimentDAO();
+        List<ExperimentPE> experiments = experimentDAO.listExperiments();
+        assertEqualsOrGreater(8, experiments.size());
+        // deleted experiment has properties, attachments, samples and data sets connected
+        // that should be deleted too
+        final ExperimentPE deletedExperiment =
+                assertExperimentIdentifierPresent(CISD_CISD_NEMO_EXP1, experiments);
+
+        experimentDAO.delete(deletedExperiment);
+
+        // test successful deletion of experiment
+        assertNull(experimentDAO.tryGetByTechId(TechId.create(deletedExperiment)));
+
+        // test successful deletion of connected:
+        // - samples
+        assertEqualsOrGreater(1, deletedExperiment.getDataSets().size());
+        for (SamplePE sample : deletedExperiment.getSamples())
+        {
+            assertNull(daoFactory.getSampleDAO().tryGetByTechId(TechId.create(sample)));
+        }
+        // - data sets
+        assertEqualsOrGreater(1, deletedExperiment.getDataSets().size());
+        for (DataPE data : deletedExperiment.getDataSets())
+        {
+            assertNull(daoFactory.getExternalDataDAO().tryGetByTechId(TechId.create(data)));
+        }
+        // - attachments
+        assertEqualsOrGreater(1, deletedExperiment.getAttachments().size());
+        assertEquals(0, daoFactory.getAttachmentDAO().listAttachments(deletedExperiment).size());
+        for (AttachmentPE attachment : deletedExperiment.getAttachments())
+        {
+            assertNull(daoFactory.getAttachmentDAO().tryGetByTechId(TechId.create(attachment)));
+        }
+        // - properties
+        assertEqualsOrGreater(1, deletedExperiment.getProperties().size());
+        List<EntityTypePropertyTypePE> retrievedPropertyTypes =
+                daoFactory.getEntityPropertyTypeDAO(EntityKind.EXPERIMENT).listEntityPropertyTypes(
+                        deletedExperiment.getEntityType());
+        for (ExperimentPropertyPE property : deletedExperiment.getProperties())
+        {
+            int index = retrievedPropertyTypes.indexOf(property.getEntityTypePropertyType());
+            EntityTypePropertyTypePE retrievedPropertyType = retrievedPropertyTypes.get(index);
+            assertFalse(retrievedPropertyType.getPropertyValues().contains(property));
+        }
+    }
+
+    @Test
     public void testTryFindByCodeAndProjectNonexistent()
     {
         List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listExperiments();
@@ -280,14 +337,6 @@ public class ExperimentDAOTest extends AbstractDAOTest
         fail("Experiment with the identifier '" + experimentIdentifier
                 + "' expected, but not found.");
         return null; // never reached
-    }
-
-    private static void assertEqualsOrGreater(int minimalSize, int actualSize)
-    {
-        if (actualSize < minimalSize)
-        {
-            fail("At least " + minimalSize + " items expected, but only " + actualSize + " found.");
-        }
     }
 
     @Test(dataProvider = "illegalCodesProvider")

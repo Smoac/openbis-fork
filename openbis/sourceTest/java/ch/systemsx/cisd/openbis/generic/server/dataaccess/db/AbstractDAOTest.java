@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.Collections;
 import java.util.Date;
@@ -339,5 +340,13 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
     protected ExperimentTypePE selectFirstExperimentType()
     {
         return selectFirstExperiment().getExperimentType();
+    }
+
+    protected static void assertEqualsOrGreater(int minimalSize, int actualSize)
+    {
+        if (actualSize < minimalSize)
+        {
+            fail("At least " + minimalSize + " items expected, but only " + actualSize + " found.");
+        }
     }
 }

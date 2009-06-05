@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.Date;
@@ -32,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -160,9 +162,8 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         externalDataDAO.delete(data);
 
         assertEquals(0, externalDataDAO.listExternalData(sample).size());
-        DataPE retrievedData = externalDataDAO.tryToFindDataSetByCode(data.getCode());
-        assertEquals(null, retrievedData);
-
+        DataPE retrievedData = externalDataDAO.tryGetByTechId(TechId.create(data));
+        assertNull(retrievedData);
     }
 
     protected VocabularyTermPE pickAStorageFormatVocabularyTerm()
