@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentsSection;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserverWithMainObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -49,7 +49,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
 
     private final TechId experimentId;
 
-    private final CompositeDatabaseModificationObserver modificationObserver;
+    private final CompositeDatabaseModificationObserverWithMainObserver modificationObserver;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> viewContext,
@@ -64,7 +64,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
     {
         super(viewContext, createId(identifiable));
         this.experimentId = TechId.create(identifiable);
-        this.modificationObserver = new CompositeDatabaseModificationObserver();
+        this.modificationObserver = new CompositeDatabaseModificationObserverWithMainObserver();
         reloadAllData();
     }
 
@@ -127,11 +127,11 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
     {
         private final GenericExperimentViewer genericExperimentViewer;
 
-        private final CompositeDatabaseModificationObserver observer;
+        private final CompositeDatabaseModificationObserverWithMainObserver observer;
 
         private ExperimentInfoCallback(final IViewContext<IGenericClientServiceAsync> viewContext,
                 final GenericExperimentViewer genericSampleViewer,
-                final CompositeDatabaseModificationObserver modificationObserver)
+                final CompositeDatabaseModificationObserverWithMainObserver modificationObserver)
         {
             super(viewContext);
             this.genericExperimentViewer = genericSampleViewer;
@@ -158,7 +158,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
             ExperimentPropertiesSection propertiesSection =
                     genericExperimentViewer.createExperimentPropertiesSection(result);
             addSection(genericExperimentViewer, propertiesSection);
-            observer.addObserver(propertiesSection.getDatabaseModificationObserver());
+            observer.addMainObserver(propertiesSection.getDatabaseModificationObserver());
 
             AttachmentsSection<Experiment> attachmentsSection =
                     genericExperimentViewer.createAttachmentsSection(result);

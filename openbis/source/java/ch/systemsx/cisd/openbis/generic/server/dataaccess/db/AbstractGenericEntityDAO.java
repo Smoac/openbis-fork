@@ -16,8 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
-import java.util.Scanner;
-
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
@@ -83,14 +82,9 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
 
     private String getEntityDescription()
     {
-        String nameWithoutPE = getEntityClass().getName().replace("PE", "");
-        Scanner scanner = new Scanner(nameWithoutPE);
-        StringBuilder sb = new StringBuilder();
-        while (scanner.hasNext())
-        {
-            sb.append(scanner.findInLine("[A-Z][a-z]*"));
-        }
-        return sb.toString();
+        String nameWithoutPE = getEntityClass().getSimpleName().replace("PE", "");
+        String words[] = StringUtils.splitByCharacterTypeCamelCase(nameWithoutPE);
+        return StringUtils.join(words, " ");
     }
 
     // TODO 2009-05-22, Tomasz Pylak: remove connections, it forces BOs to use strings with field

@@ -137,6 +137,12 @@ public final class GenericDataSetViewer extends AbstractViewer<IGenericClientSer
             addSection(genericDataSetViewer, new DataSetPropertiesSection(result, viewContext));
             genericDataSetViewer.layout();
         }
+
+        @Override
+        protected void finishOnFailure(Throwable caught)
+        {
+            genericDataSetViewer.setupRemovedEntityView();
+        }
     }
 
     private void updateOriginalData(final ExternalData result)

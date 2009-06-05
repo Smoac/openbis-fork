@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -140,13 +141,32 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
     {
         this.originalData = newData;
         editButton.enable();
-        updateTitle();
+        updateTitle(getOriginalDataDescription());
     }
 
-    private void updateTitle()
+    /** Updates data displayed in the browser when shown data has been removed from DB. */
+    public void setupRemovedEntityView()
     {
-        updateTitle(originalData.getEntityKind().getDescription() + " "
-                + originalData.getIdentifier());
+        removeAll();
+        updateTitle(getOriginalDataDescription() + " does not exist any more.");
+        disableToolBarItemsExceptTitle();
     }
 
+    private void disableToolBarItemsExceptTitle()
+    {
+        // we could hide/remove these items instead of disabling them
+        // but then toolbar shrinks or title moves to the top if height of toolbar is made constant
+        for (ToolItem item : toolBar.getItems())
+        {
+            if (item.equals(titleLabel) == false)
+            {
+                item.disable();
+            }
+        }
+    }
+
+    private String getOriginalDataDescription()
+    {
+        return originalData.getEntityKind().getDescription() + " " + originalData.getIdentifier();
+    }
 }

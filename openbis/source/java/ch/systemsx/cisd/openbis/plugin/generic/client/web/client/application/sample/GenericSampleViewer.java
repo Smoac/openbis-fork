@@ -52,7 +52,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Attachment
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractDatabaseModificationObserverWithCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserverWithMainObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
@@ -398,14 +400,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     }
 
     /**
-     * Load the sample information for property grid.
-     */
-    private void reloadPropertyGridData()
-    {
-        reloadSampleGenerationData(new ReloadPropertyGridCallback(viewContext, this));
-    }
-
-    /**
      * Load the sample information for components panel.
      */
     private void reloadComponentsPanelData()
@@ -495,32 +489,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
             genericSampleViewer.layout();
             genericSampleViewer.loadStores();
         }
-    }
 
-    public static final class ReloadPropertyGridCallback extends
-            AbstractAsyncCallback<SampleGeneration>
-    {
-        private final GenericSampleViewer genericSampleViewer;
-
-        private ReloadPropertyGridCallback(
-                final IViewContext<IGenericClientServiceAsync> viewContext,
-                final GenericSampleViewer genericSampleViewer)
-        {
-            super(viewContext);
-            this.genericSampleViewer = genericSampleViewer;
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        /** This method triggers reloading of the {@link PropertyGrid} data. */
-        @Override
-        protected final void process(final SampleGeneration result)
-        {
-            genericSampleViewer.updateOriginalData(result.getGenerator());
-            genericSampleViewer.updateProperties(result);
-        }
     }
 
     public DatabaseModificationKind[] getRelevantModifications()
@@ -536,14 +505,11 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     private CompositeDatabaseModificationObserver createDatabaseModificationObserver()
     {
         CompositeDatabaseModificationObserver observer =
-                new CompositeDatabaseModificationObserver();
+                new CompositeDatabaseModificationObserverWithMainObserver(
+                        new PropertyGridDatabaseModificationObserver());
         if (disposableBrowser != null)
         {
             observer.addObserver(disposableBrowser);
-        }
-        if (propertyGrid != null)
-        {
-            observer.addObserver(new PropertyGridDatabaseModificationObserver());
         }
         if (attachmentsPanel != null)
         {
@@ -556,7 +522,8 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         return observer;
     }
 
-    private class PropertyGridDatabaseModificationObserver implements IDatabaseModificationObserver
+    private class PropertyGridDatabaseModificationObserver extends
+            AbstractDatabaseModificationObserverWithCallback
     {
 
         public DatabaseModificationKind[] getRelevantModifications()
@@ -571,8 +538,43 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
         public void update(Set<DatabaseModificationKind> observedModifications)
         {
-            reloadPropertyGridData();
+            reloadSampleGenerationData(new ReloadPropertyGridCallback(viewContext,
+                    GenericSampleViewer.this));
         }
+
+        public final class ReloadPropertyGridCallback extends
+                AbstractAsyncCallback<SampleGeneration>
+        {
+            private final GenericSampleViewer genericSampleViewer;
+
+            private ReloadPropertyGridCallback(
+                    final IViewContext<IGenericClientServiceAsync> viewContext,
+                    final GenericSampleViewer genericSampleViewer)
+            {
+                super(viewContext);
+                this.genericSampleViewer = genericSampleViewer;
+            }
+
+            //
+            // AbstractAsyncCallback
+            //
+
+            /** This method triggers reloading of the {@link PropertyGrid} data. */
+            @Override
+            protected final void process(final SampleGeneration result)
+            {
+                genericSampleViewer.updateOriginalData(result.getGenerator());
+                genericSampleViewer.updateProperties(result);
+                executeSuccessfulUpdateCallback();
+            }
+
+            @Override
+            protected void finishOnFailure(Throwable caught)
+            {
+                genericSampleViewer.setupRemovedEntityView();
+            }
+        }
+
     }
 
     private class ComponentsPanelDatabaseModificationObserver implements

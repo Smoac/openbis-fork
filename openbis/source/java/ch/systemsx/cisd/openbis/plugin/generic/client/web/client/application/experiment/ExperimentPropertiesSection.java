@@ -27,7 +27,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPanel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractDatabaseModificationObserverWithCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserverWithCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -141,58 +142,65 @@ public class ExperimentPropertiesSection extends SectionPanel
         updateProperties();
     }
 
-    private void reloadData()
+    private void reloadData(AbstractAsyncCallback<Experiment> callback)
     {
         viewContext.getService().getExperimentInfo(experimentId, GWTUtils.getBaseIndexURL(),
-                new ExperimentInfoCallback(viewContext, this, viewer));
+                callback);
     }
 
-    public IDatabaseModificationObserver getDatabaseModificationObserver()
+    public IDatabaseModificationObserverWithCallback getDatabaseModificationObserver()
     {
-        return new IDatabaseModificationObserver()
+        return new PropertyGridDatabaseModificationObserver();
+    }
+
+    private class PropertyGridDatabaseModificationObserver extends
+            AbstractDatabaseModificationObserverWithCallback
+    {
+        public DatabaseModificationKind[] getRelevantModifications()
+        {
+            return new DatabaseModificationKind[]
+                {
+                        DatabaseModificationKind.edit(ObjectKind.EXPERIMENT),
+                        DatabaseModificationKind
+                                .createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                        DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM) };
+        }
+
+        public void update(Set<DatabaseModificationKind> observedModifications)
+        {
+            reloadData(new ExperimentInfoCallback(viewContext, ExperimentPropertiesSection.this));
+        }
+
+        private final class ExperimentInfoCallback extends AbstractAsyncCallback<Experiment>
+        {
+            private final ExperimentPropertiesSection section;
+
+            private ExperimentInfoCallback(final IViewContext<?> viewContext,
+                    final ExperimentPropertiesSection section)
             {
+                super(viewContext);
+                this.section = section;
+            }
 
-                public DatabaseModificationKind[] getRelevantModifications()
-                {
-                    return new DatabaseModificationKind[]
-                        {
-                                DatabaseModificationKind.edit(ObjectKind.EXPERIMENT),
-                                DatabaseModificationKind
-                                        .createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                                DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM) };
-                }
+            //
+            // AbstractAsyncCallback
+            //
 
-                public void update(Set<DatabaseModificationKind> observedModifications)
-                {
-                    reloadData();
-                }
-            };
-    }
+            /** This method triggers reloading of the {@link ExperimentPropertiesSection} data. */
+            @Override
+            protected final void process(final Experiment result)
+            {
+                viewer.updateOriginalData(result);
+                section.updateData(result);
+                executeSuccessfulUpdateCallback();
+            }
 
-    private static final class ExperimentInfoCallback extends AbstractAsyncCallback<Experiment>
-    {
-        private final ExperimentPropertiesSection section;
-
-        private final GenericExperimentViewer viewer;
-
-        private ExperimentInfoCallback(final IViewContext<?> viewContext,
-                final ExperimentPropertiesSection section, final GenericExperimentViewer viewer)
-        {
-            super(viewContext);
-            this.section = section;
-            this.viewer = viewer;
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        /** This method triggers reloading of the {@link ExperimentPropertiesSection} data. */
-        @Override
-        protected final void process(final Experiment result)
-        {
-            viewer.updateOriginalData(result);
-            section.updateData(result);
+            @Override
+            protected void finishOnFailure(Throwable caught)
+            {
+                viewer.setupRemovedEntityView();
+            }
         }
     }
+
 }

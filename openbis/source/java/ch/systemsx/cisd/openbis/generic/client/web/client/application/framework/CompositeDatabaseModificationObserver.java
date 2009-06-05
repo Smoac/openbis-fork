@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -31,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  */
 public class CompositeDatabaseModificationObserver implements IDatabaseModificationObserver
 {
-    private final List<IDatabaseModificationObserver> registeredObservers;
+    protected final List<IDatabaseModificationObserver> registeredObservers;
 
     public CompositeDatabaseModificationObserver()
     {
@@ -53,8 +54,8 @@ public class CompositeDatabaseModificationObserver implements IDatabaseModificat
 
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        List<DatabaseModificationKind> relevantModifications =
-                new ArrayList<DatabaseModificationKind>();
+        Set<DatabaseModificationKind> relevantModifications =
+                new HashSet<DatabaseModificationKind>();
         for (IDatabaseModificationObserver observer : registeredObservers)
         {
             SetUtils.addAll(relevantModifications, observer.getRelevantModifications());
@@ -62,7 +63,7 @@ public class CompositeDatabaseModificationObserver implements IDatabaseModificat
         return relevantModifications.toArray(DatabaseModificationKind.EMPTY_ARRAY);
     }
 
-    public void update(Set<DatabaseModificationKind> observedModifications)
+    public void update(final Set<DatabaseModificationKind> observedModifications)
     {
         for (IDatabaseModificationObserver observer : registeredObservers)
         {
