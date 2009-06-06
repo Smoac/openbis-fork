@@ -42,8 +42,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
@@ -51,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -252,6 +255,20 @@ public abstract class AbstractExternalDataGrid
         addEntityOperationsSeparator();
         allowMultipleSelection();
 
+        registerLinkClickListenerFor(CommonExternalDataColDefKind.PARENT.id(),
+                new ICellListener<ExternalData>()
+                    {
+                        public void handle(ExternalData rowItem)
+                        {
+                            // don't need to check whether the value is null
+                            // because there will not be a link for null value
+                            final ExternalData parent = rowItem.getParent();
+
+                            final IEntityInformationHolder entity = parent;
+                            new OpenEntityDetailsTabAction(entity, viewContext).execute();
+                        }
+                    });
+
     }
 
     private final ISelectedEntityInvoker<BaseEntityModel<ExternalData>> asBrowseExternalDataInvoker()
@@ -282,6 +299,7 @@ public abstract class AbstractExternalDataGrid
     {
         BaseEntityModel<ExternalData> model = getColumnsFactory().createModel(entity);
         renderCodeAsLink(model);
+        renderParentAsLink(model);
         renderShowDetailsLinkAsLink(model);
         return model;
     }
@@ -291,6 +309,17 @@ public abstract class AbstractExternalDataGrid
         String columnID = CommonExternalDataColDefKind.CODE.id();
         String originalValue = String.valueOf(model.get(columnID));
         model.set(columnID, LinkRenderer.renderAsLink(originalValue));
+    }
+
+    private static void renderParentAsLink(ModelData model)
+    {
+        String parentId = CommonExternalDataColDefKind.PARENT.id();
+        String value = model.get(parentId);
+        if (value.length() > 0)
+        {// only for not null value
+            value = LinkRenderer.renderAsLinkWithAnchor(value);
+        }
+        model.set(parentId, value);
     }
 
     private void renderShowDetailsLinkAsLink(ModelData model)

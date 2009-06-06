@@ -38,7 +38,7 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             }
         }),
 
-    PARENT_CODE(new AbstractColumnDefinitionKind<ExternalData>(Dict.PARENT_CODE, true)
+    PARENT(new AbstractColumnDefinitionKind<ExternalData>(Dict.PARENT, true)
         {
             @Override
             public String tryGetValue(ExternalData entity)

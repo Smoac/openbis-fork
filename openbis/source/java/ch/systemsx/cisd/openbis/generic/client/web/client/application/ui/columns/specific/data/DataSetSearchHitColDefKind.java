@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<ExternalData>
 {
 
-    CODE(new AbstractColumnDefinitionKind<ExternalData>(Dict.CODE, 200)
+    CODE(new AbstractColumnDefinitionKind<ExternalData>(Dict.CODE)
         {
             @Override
             public String tryGetValue(ExternalData entity)
@@ -39,7 +39,7 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<External
             }
         }),
 
-    PARENT_CODE(new AbstractColumnDefinitionKind<ExternalData>(Dict.PARENT_CODE, 200, true)
+    PARENT(new AbstractColumnDefinitionKind<ExternalData>(Dict.PARENT, true)
         {
             @Override
             public String tryGetValue(ExternalData entity)

@@ -46,8 +46,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
@@ -83,53 +81,49 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
     {
         super(viewContext, BROWSER_ID, GRID_ID, false);
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.DATA_SET_SEARCH_RESULT_GRID);
-        registerCellClickListenerFor(DataSetSearchHitColDefKind.EXPERIMENT.id(),
-                new ICellListener<ExternalData>()
+        registerCellClickListenerFor(DataSetSearchHitColDefKind.PARENT.id(),
+                new OpenEntityDetailsTabCellClickListener()
                     {
-                        public void handle(ExternalData rowItem)
+                        @Override
+                        protected IEntityInformationHolder getEntity(ExternalData rowItem)
                         {
-                            final IEntityInformationHolder entity = rowItem.getExperiment();
-                            new OpenEntityDetailsTabAction(entity, viewContext).execute();
+                            return rowItem.getParent();
                         }
                     });
-        ICellListener<ExternalData> sampleClickListener = new ICellListener<ExternalData>()
-            {
-                public void handle(final ExternalData rowItem)
-                {
-                    IEntityInformationHolder entityInformationHolder =
-                            new IEntityInformationHolder()
-                                {
-                                    public String getIdentifier()
-                                    {
-                                        return rowItem.getSampleIdentifier();
-                                    }
-
-                                    public EntityType getEntityType()
-                                    {
-                                        return rowItem.getEntityType();
-                                    }
-
-                                    public EntityKind getEntityKind()
-                                    {
-                                        return EntityKind.SAMPLE;
-                                    }
-
-                                    public String getCode()
-                                    {
-                                        return rowItem.getSampleCode();
-                                    }
-
-                                    public Long getId()
-                                    {
-                                        return rowItem.getSample().getId();
-                                    }
-                                };
-                    new OpenEntityDetailsTabAction(entityInformationHolder, viewContext).execute();
-                }
-            };
+        registerCellClickListenerFor(DataSetSearchHitColDefKind.EXPERIMENT.id(),
+                new OpenEntityDetailsTabCellClickListener()
+                    {
+                        @Override
+                        protected IEntityInformationHolder getEntity(ExternalData rowItem)
+                        {
+                            return rowItem.getExperiment();
+                        }
+                    });
+        ICellListener<ExternalData> sampleClickListener =
+                new OpenEntityDetailsTabCellClickListener()
+                    {
+                        @Override
+                        protected IEntityInformationHolder getEntity(ExternalData rowItem)
+                        {
+                            return rowItem.getSample();
+                        }
+                    };
         registerCellClickListenerFor(DataSetSearchHitColDefKind.SAMPLE.id(), sampleClickListener);
         registerCellClickListenerFor(DataSetSearchHitColDefKind.SAMPLE_IDENTIFIER.id(),
                 sampleClickListener);
+    }
+
+    private abstract class OpenEntityDetailsTabCellClickListener implements
+            ICellListener<ExternalData>
+    {
+        protected abstract IEntityInformationHolder getEntity(ExternalData rowItem);
+
+        public final void handle(ExternalData rowItem)
+        {
+            final IEntityInformationHolder entity = getEntity(rowItem);
+            new OpenEntityDetailsTabAction(entity, viewContext).execute();
+        }
+
     }
 
     @Override
@@ -189,6 +183,7 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
                 DataSetSearchHitModel.createColumnsSchema(viewContext, propertyTypes);
         GridCellRenderer<BaseEntityModel<?>> linkRenderer = LinkRenderer.createGridCellRenderer();
         schema.setGridCellRendererFor(DataSetSearchHitColDefKind.CODE.id(), linkRenderer);
+        schema.setGridCellRendererFor(DataSetSearchHitColDefKind.PARENT.id(), linkRenderer);
         schema.setGridCellRendererFor(DataSetSearchHitColDefKind.SAMPLE.id(), linkRenderer);
         schema.setGridCellRendererFor(DataSetSearchHitColDefKind.SAMPLE_IDENTIFIER.id(),
                 linkRenderer);
