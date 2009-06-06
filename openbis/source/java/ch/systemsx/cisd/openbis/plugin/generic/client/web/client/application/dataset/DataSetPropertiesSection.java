@@ -76,6 +76,8 @@ public class DataSetPropertiesSection extends SectionPanel
                 .createSamplePropertyValueRenderer(viewContext, true));
         propertyGrid.registerPropertyValueRenderer(Experiment.class, PropertyValueRenderers
                 .createExperimentPropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(ExternalData.class, PropertyValueRenderers
+                .createExternalDataPropertyValueRenderer(viewContext));
         propertyGrid.setProperties(properties);
         return propertyGrid;
     }
@@ -84,15 +86,26 @@ public class DataSetPropertiesSection extends SectionPanel
     {
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
         final DataSetType datasetType = dataset.getDataSetType();
+        final Invalidation invalidation = dataset.getInvalidation();
 
         properties.put(messageProvider.getMessage(Dict.DATA_SET), dataset.getCode());
         properties.put(messageProvider.getMessage(Dict.DATA_SET_TYPE), datasetType);
         properties.put(messageProvider.getMessage(Dict.REGISTRATOR), dataset.getRegistrator());
         properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE), dataset
                 .getRegistrationDate());
+        if (invalidation != null)
+        {
+            properties.put(messageProvider.getMessage(Dict.INVALIDATION), invalidation);
+        }
 
         properties.put(messageProvider.getMessage(Dict.SAMPLE), dataset.getSample());
         properties.put(messageProvider.getMessage(Dict.EXPERIMENT), dataset.getExperiment());
+
+        ExternalData parent = dataset.getParent();
+        if (parent != null)
+        {
+            properties.put(messageProvider.getMessage(Dict.PARENT), parent);
+        }
 
         final List<DataSetProperty> datasetProperties = dataset.getProperties();
         Collections.sort(datasetProperties);

@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentTranslator.LoadableFields;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -71,6 +72,7 @@ public class ExternalDataTranslator
             final LoadableFields... withExperimentFields)
     {
         SamplePE sample = externalDataPE.getSample();
+        DataPE parent = tryToGetFirstParent(externalDataPE);
         ExternalData externalData = new ExternalData();
         externalData.setId(externalDataPE.getId());
         externalData.setCode(StringEscapeUtils.escapeHtml(externalDataPE.getCode()));
@@ -85,12 +87,11 @@ public class ExternalDataTranslator
         externalData.setInvalidation(tryToGetInvalidation(sample));
         externalData.setLocation(StringEscapeUtils.escapeHtml(externalDataPE.getLocation()));
         externalData.setLocatorType(TypeTranslator.translate(externalDataPE.getLocatorType()));
-        externalData.setParentCode(StringEscapeUtils
-                .escapeHtml(tryToGetCodeOfFirstParent(externalDataPE)));
+        externalData.setParent(parent == null ? null : fillParent(new ExternalData(), parent));
         externalData.setProductionDate(externalDataPE.getProductionDate());
         externalData.setModificationDate(externalDataPE.getModificationDate());
         externalData.setRegistrationDate(externalDataPE.getRegistrationDate());
-        externalData.setSample(sample == null ? null : fill(new Sample(), sample,
+        externalData.setSample(sample == null ? null : fillSample(new Sample(), sample,
                 loadSampleProperties));
         externalData.setDataStore(DataStoreTranslator.translate(externalDataPE.getDataStore(),
                 defaultDataStoreBaseURL));
@@ -133,13 +134,13 @@ public class ExternalDataTranslator
         return result;
     }
 
-    private static String tryToGetCodeOfFirstParent(ExternalDataPE externalDataPE)
+    private static DataPE tryToGetFirstParent(ExternalDataPE externalDataPE)
     {
         Set<DataPE> parents = externalDataPE.getParents();
-        return parents.isEmpty() ? null : parents.iterator().next().getCode();
+        return parents.isEmpty() ? null : (ExternalDataPE) parents.iterator().next();
     }
 
-    private static Sample fill(Sample sample, SamplePE samplePE, boolean loadSampleProperties)
+    private static Sample fillSample(Sample sample, SamplePE samplePE, boolean loadSampleProperties)
     {
         sample.setId(samplePE.getId());
         sample.setCode(StringEscapeUtils.escapeHtml(samplePE.getCode()));
@@ -154,4 +155,15 @@ public class ExternalDataTranslator
         return sample;
     }
 
+    /**
+     * Fills <var>externalData</var> from <var>data</vra> with all data needed by
+     * {@link IEntityInformationHolder}.
+     */
+    private static ExternalData fillParent(ExternalData externalData, DataPE data)
+    {
+        externalData.setId(data.getId());
+        externalData.setCode(StringEscapeUtils.escapeHtml(data.getCode()));
+        externalData.setDataSetType(DataSetTypeTranslator.translate(data.getDataSetType()));
+        return externalData;
+    }
 }

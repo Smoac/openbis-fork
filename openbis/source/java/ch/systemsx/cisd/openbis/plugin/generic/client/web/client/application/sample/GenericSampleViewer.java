@@ -302,6 +302,10 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         properties.put(messageProvider.getMessage(Dict.REGISTRATOR), sample.getRegistrator());
         properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE), sample
                 .getRegistrationDate());
+        if (invalidation != null)
+        {
+            properties.put(messageProvider.getMessage(Dict.INVALIDATION), invalidation);
+        }
 
         Experiment experiment = sample.getExperiment();
         if (experiment != null)
@@ -312,10 +316,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         if (generated.length > 0)
         {
             properties.put(messageProvider.getMessage(Dict.GENERATED_SAMPLES), generated);
-        }
-        if (invalidation != null)
-        {
-            properties.put(messageProvider.getMessage(Dict.INVALIDATION), invalidation);
         }
         Sample generatedFrom = sample.getGeneratedFrom();
         for (int i = 0; i < sampleType.getGeneratedFromHierarchyDepth() && generatedFrom != null; i++)

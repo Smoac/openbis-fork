@@ -59,7 +59,7 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 
     private String producerCode;
 
-    private String parentCode;
+    private ExternalData parent;
 
     private String location;
 
@@ -210,14 +210,19 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         this.producerCode = producerCode;
     }
 
-    public final String getParentCode()
+    public ExternalData getParent()
     {
-        return parentCode;
+        return parent;
     }
 
-    public final void setParentCode(String parentCode)
+    public void setParent(ExternalData parent)
     {
-        this.parentCode = parentCode;
+        this.parent = parent;
+    }
+
+    public final String getParentCode()
+    {
+        return parent == null ? null : parent.getCode(); 
     }
 
     public final String getLocation()

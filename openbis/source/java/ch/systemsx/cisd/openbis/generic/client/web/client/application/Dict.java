@@ -335,6 +335,8 @@ public abstract class Dict
     // ExternalData Viewer
     //
 
+    public static final String PARENT = "parent";
+
     public static final String PARENT_CODE = "parent_code";
 
     public static final String LOCATION = "location";

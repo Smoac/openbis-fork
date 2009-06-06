@@ -35,6 +35,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IInvalidationProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
@@ -82,7 +84,16 @@ public final class PropertyValueRenderers
     public final static IPropertyValueRenderer<Experiment> createExperimentPropertyValueRenderer(
             final IViewContext<?> viewContext)
     {
-        return new ExperimentPropertyValueRenderer(viewContext);
+        return new EntityInformationHolderPropertyValueRenderer<Experiment>(viewContext);
+    }
+
+    /**
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link ExternalData}.
+     */
+    public final static IPropertyValueRenderer<ExternalData> createExternalDataPropertyValueRenderer(
+            final IViewContext<?> viewContext)
+    {
+        return new EntityInformationHolderPropertyValueRenderer<ExternalData>(viewContext);
     }
 
     /**
@@ -176,48 +187,6 @@ public final class PropertyValueRenderers
             final IMessageProvider messageProvider)
     {
         return new EntityTypePropertyValueRenderer<MaterialType>(messageProvider);
-    }
-
-    /**
-     * Renderer for {@link Sample}.
-     * 
-     * @author Christian Ribeaud
-     */
-    private final static class SamplePropertyValueRenderer extends
-            AbstractPropertyValueRenderer<Sample>
-    {
-        private final boolean withType;
-
-        private final IViewContext<?> viewContext;
-
-        SamplePropertyValueRenderer(final IViewContext<?> viewContext, final boolean withType)
-        {
-            super(viewContext);
-            this.viewContext = viewContext;
-            this.withType = withType;
-        }
-
-        //
-        // AbstractPropertyValueRenderer
-        //
-
-        public Widget getAsWidget(final Sample sample)
-        {
-            final String code = sample.getCode();
-            final boolean invalidate = sample.getInvalidation() != null;
-            final ClickListener listener =
-                    new OpenEntityDetailsTabClickListener(sample, viewContext);
-            final Hyperlink link = LinkRenderer.getLinkWidget(code, listener, invalidate);
-
-            FlowPanel panel = new FlowPanel();
-            panel.add(link);
-            if (withType)
-            {
-                panel.add(new InlineHTML(" [" + sample.getSampleType().getCode() + "]"));
-            }
-            return panel;
-        }
-
     }
 
     /**
@@ -398,7 +367,7 @@ public final class PropertyValueRenderers
                         return identifier;
                     }
 
-					// FIXME 2009-05-15, PB: no id or code to use here yet
+                    // FIXME 2009-05-15, PB: no id or code to use here yet
                     public Long getId()
                     {
                         return null;
@@ -439,17 +408,17 @@ public final class PropertyValueRenderers
     }
 
     /**
-     * Renderer for {@link Experiment}.
+     * Renderer for {@link IEntityInformationHolder}.
      * 
-     * @author Christian Ribeaud
+     * @author Piotr Buczek
      */
-    private final static class ExperimentPropertyValueRenderer extends
-            AbstractPropertyValueRenderer<Experiment>
+    private static class EntityInformationHolderPropertyValueRenderer<T extends IEntityInformationHolder>
+            extends AbstractPropertyValueRenderer<T>
     {
 
         private final IViewContext<?> viewContext;
 
-        ExperimentPropertyValueRenderer(final IViewContext<?> viewContext)
+        EntityInformationHolderPropertyValueRenderer(final IViewContext<?> viewContext)
         {
             super(viewContext);
             this.viewContext = viewContext;
@@ -459,15 +428,62 @@ public final class PropertyValueRenderers
         // AbstractPropertyValueRenderer
         //
 
-        public Widget getAsWidget(final Experiment experiment)
+        public Widget getAsWidget(final T entity)
         {
-            final String code = experiment.getCode();
-            final boolean invalidate = experiment.getInvalidation() != null;
+            final String code = entity.getCode();
+            final boolean invalidate = getInvalidate(entity);
             final ClickListener listener =
-                    new OpenEntityDetailsTabClickListener(experiment, viewContext);
+                    new OpenEntityDetailsTabClickListener(entity, viewContext);
             final Hyperlink link = LinkRenderer.getLinkWidget(code, listener, invalidate);
 
             return link;
+        }
+
+        private boolean getInvalidate(final T entity)
+        {
+            if (entity instanceof IInvalidationProvider)
+            {
+                return ((IInvalidationProvider) entity).getInvalidation() != null;
+            } else
+            {
+                return false;
+            }
+        }
+
+    }
+
+    /**
+     * Renderer for {@link Sample}.
+     * 
+     * @author Piotr Buczek
+     */
+    private final static class SamplePropertyValueRenderer extends
+            EntityInformationHolderPropertyValueRenderer<Sample>
+    {
+        private final boolean withType;
+
+        SamplePropertyValueRenderer(final IViewContext<?> viewContext, final boolean withType)
+        {
+            super(viewContext);
+            this.withType = withType;
+        }
+
+        //
+        // AbstractPropertyValueRenderer
+        //
+
+        @Override
+        public Widget getAsWidget(final Sample sample)
+        {
+            final Widget link = super.getAsWidget(sample);
+
+            FlowPanel panel = new FlowPanel();
+            panel.add(link);
+            if (withType)
+            {
+                panel.add(new InlineHTML(" [" + sample.getSampleType().getCode() + "]"));
+            }
+            return panel;
         }
 
     }
