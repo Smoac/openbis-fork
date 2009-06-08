@@ -428,7 +428,7 @@ public class SampleBrowserGrid extends
         @Override
         protected String getEntityName()
         {
-            return EntityKind.DATA_SET.getDescription();
+            return EntityKind.SAMPLE.getDescription();
         }
 
         @Override

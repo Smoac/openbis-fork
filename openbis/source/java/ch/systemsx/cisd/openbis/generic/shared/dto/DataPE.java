@@ -321,7 +321,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
         this.code = code;
     }
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    // we use cascade PERSIST, not ALL because we don't REMOVE parent when we delete a child
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(name = TableNames.DATA_SET_RELATIONSHIPS_TABLE, joinColumns = @JoinColumn(name = ColumnNames.DATA_CHILD_COLUMN), inverseJoinColumns = @JoinColumn(name = ColumnNames.DATA_PARENT_COLUMN))
     public Set<DataPE> getParents()
     {

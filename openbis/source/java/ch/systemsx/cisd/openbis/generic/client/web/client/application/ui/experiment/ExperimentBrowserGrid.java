@@ -280,7 +280,7 @@ public class ExperimentBrowserGrid extends
         @Override
         protected String getEntityName()
         {
-            return EntityKind.DATA_SET.getDescription();
+            return EntityKind.EXPERIMENT.getDescription();
         }
 
         @Override
