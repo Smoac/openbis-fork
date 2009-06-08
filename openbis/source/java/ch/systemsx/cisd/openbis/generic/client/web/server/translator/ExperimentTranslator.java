@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * A {@link Experiment} &lt;---&gt; {@link ExperimentPE} translator.
@@ -57,7 +58,7 @@ public final class ExperimentTranslator
             return null;
         }
         final Experiment result = new Experiment();
-        result.setId(experiment.getId());
+        result.setId(HibernateUtils.getId(experiment));
         result.setModificationDate(experiment.getModificationDate());
         result.setCode(StringEscapeUtils.escapeHtml(experiment.getCode()));
         result.setPermId(StringEscapeUtils.escapeHtml(experiment.getPermId()));

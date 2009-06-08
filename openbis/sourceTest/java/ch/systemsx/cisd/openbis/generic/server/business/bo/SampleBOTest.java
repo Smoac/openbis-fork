@@ -468,8 +468,7 @@ public final class SampleBOTest extends AbstractBOTest
                                     return false;
                                 }
                                 final SamplePE sample = (SamplePE) item;
-                                assertEquals(EXAMPLE_SESSION.tryGetHomeGroupId(), sample.getGroup()
-                                        .getId());
+                                assertEquals(EXAMPLE_SESSION.tryGetHomeGroup(), sample.getGroup());
                                 assertNull(sample.getDatabaseInstance());
                                 assertEquals(newSample.getIdentifier(), sample
                                         .getSampleIdentifier().toString());

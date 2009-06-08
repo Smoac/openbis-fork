@@ -74,7 +74,7 @@ public class ExternalDataTranslator
         SamplePE sample = externalDataPE.getSample();
         DataPE parent = tryToGetFirstParent(externalDataPE);
         ExternalData externalData = new ExternalData();
-        externalData.setId(externalDataPE.getId());
+        externalData.setId(HibernateUtils.getId(externalDataPE));
         externalData.setCode(StringEscapeUtils.escapeHtml(externalDataPE.getCode()));
         externalData.setComplete(BooleanOrUnknown.tryToResolve(externalDataPE.getComplete()));
         externalData.setDataProducerCode(StringEscapeUtils.escapeHtml(externalDataPE
@@ -142,7 +142,7 @@ public class ExternalDataTranslator
 
     private static Sample fillSample(Sample sample, SamplePE samplePE, boolean loadSampleProperties)
     {
-        sample.setId(samplePE.getId());
+        sample.setId(HibernateUtils.getId(samplePE));
         sample.setCode(StringEscapeUtils.escapeHtml(samplePE.getCode()));
         sample.setInvalidation(tryToGetInvalidation(samplePE));
         sample.setSampleType(TypeTranslator.translate(samplePE.getSampleType()));
@@ -161,7 +161,7 @@ public class ExternalDataTranslator
      */
     private static ExternalData fillParent(ExternalData externalData, DataPE data)
     {
-        externalData.setId(data.getId());
+        externalData.setId(HibernateUtils.getId(data));
         externalData.setCode(StringEscapeUtils.escapeHtml(data.getCode()));
         externalData.setDataSetType(DataSetTypeTranslator.translate(data.getDataSetType()));
         return externalData;

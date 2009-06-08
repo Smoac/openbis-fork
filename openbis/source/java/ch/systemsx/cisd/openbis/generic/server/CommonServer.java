@@ -184,10 +184,10 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         final DatabaseInstancePE databaseInstance =
                 GroupIdentifierHelper.getDatabaseInstance(identifier, getDAOFactory());
         final List<GroupPE> groups = getDAOFactory().getGroupDAO().listGroups(databaseInstance);
-        final Long homeGroupID = session.tryGetHomeGroupId();
+        final GroupPE homeGroupOrNull = session.tryGetHomeGroup();
         for (final GroupPE group : groups)
         {
-            group.setHome(homeGroupID != null && homeGroupID.equals(group.getId()));
+            group.setHome(group.equals(homeGroupOrNull));
         }
         Collections.sort(groups);
         return groups;
@@ -882,7 +882,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         final EntityType entityType =
                 EntityHelper.createEntityType(kind, entityOrNull.getEntityType().getCode());
         final String code = entityOrNull.getCode();
-        final Long id = entityOrNull.getId();
+        final Long id = HibernateUtils.getId(entityOrNull);
         final String identifier = entityOrNull.getIdentifier();
         return new BasicEntityInformationHolder(kind, entityType, identifier, code, id);
     }

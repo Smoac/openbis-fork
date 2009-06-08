@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * A {@link Group} &lt;---&gt; {@link GroupPE} translator.
@@ -41,7 +42,7 @@ public final class GroupTranslator
             return null;
         }
         final Group result = new Group();
-        result.setId(group.getId());
+        result.setId(HibernateUtils.getId(group));
         result.setCode(StringEscapeUtils.escapeHtml(group.getCode()));
         result.setDescription(StringEscapeUtils.escapeHtml(group.getDescription()));
         result.setInstance(DatabaseInstanceTranslator.translate(group.getDatabaseInstance()));

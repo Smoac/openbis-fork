@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * A {@link Person} &lt;---&gt; {@link PersonPE} translator.
@@ -58,7 +59,7 @@ public final class ProjectTranslator
             return null;
         }
         final Project result = new Project();
-        result.setId(project.getId());
+        result.setId(HibernateUtils.getId(project));
         result.setModificationDate(project.getModificationDate());
         result.setCode(StringEscapeUtils.escapeHtml(project.getCode()));
         result.setDescription(StringEscapeUtils.escapeHtml(project.getDescription()));

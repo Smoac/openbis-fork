@@ -245,6 +245,7 @@ public class AttachmentsSection<T extends IAttachmentHolder> extends SectionPane
         methodWithParameters.addParameter(GenericConstants.FILE_NAME_PARAMETER, fileName);
         methodWithParameters.addParameter(GenericConstants.ATTACHMENT_HOLDER_PARAMETER, exp
                 .getAttachmentHolderKind().name());
+        // NOTE: this exp.getId() could be null if exp is a proxy
         methodWithParameters.addParameter(GenericConstants.TECH_ID_PARAMETER, exp.getId());
         return methodWithParameters.toString();
     }

@@ -31,11 +31,11 @@ public final class Session extends BasicSession implements IAuthSession
     private static final long serialVersionUID = 1L;
 
     /**
-     * The {@link PersonPE} represented by this <code>Session</code> or <code>null</code> if it
-     * is not defined.
+     * The {@link PersonPE} represented by this <code>Session</code> or <code>null</code> if it is
+     * not defined.
      */
     private PersonPE personOrNull;
-    
+
     public Session(final String user, final String sessionToken, final Principal principal,
             final String remoteHost, final long sessionStart)
     {
@@ -46,17 +46,6 @@ public final class Session extends BasicSession implements IAuthSession
             long sessionStart, int expirationTime)
     {
         super(sessionToken, userName, principal, remoteHost, sessionStart, expirationTime);
-    }
-
-    /** Returns home group id or <code>null</code>. */
-    public final Long tryGetHomeGroupId()
-    {
-        final GroupPE homeGroup = tryGetHomeGroup();
-        if (homeGroup == null)
-        {
-            return null;
-        }
-        return homeGroup.getId();
     }
 
     public final void setPerson(final PersonPE person)

@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Implementation of {@link IExternalDataDAO} for databases.
@@ -185,7 +186,7 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
         externalData.setCode(CodeConverter.tryToDatabase(externalData.getCode()));
-        Long id = externalData.getId();
+        Long id = HibernateUtils.getId(externalData);
         final DataPE loaded = (DataPE) hibernateTemplate.load(ENTITY_CLASS, id);
         // This just means that we do not have any entry in 'EXTERNAL_DATA' table for this id. It
         // might happen when we work with placeholder data.
@@ -210,5 +211,5 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
             operationLog.info(String.format("UPDATE: external data '%s'.", externalData));
         }
     }
-        
+
 }

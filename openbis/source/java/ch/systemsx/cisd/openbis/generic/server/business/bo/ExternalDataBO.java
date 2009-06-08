@@ -244,7 +244,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
                         + "' can not be updated by data set " + externalData);
             }
             externalData.setPlaceholder(false);
-            externalData.setId(data.getId());
+            externalData.setId(HibernateUtils.getId(data));
             externalData.setRegistrationDate(new Date());
             externalData.setModificationDate(data.getModificationDate());
             externalDataDAO.updateDataSet(externalData);

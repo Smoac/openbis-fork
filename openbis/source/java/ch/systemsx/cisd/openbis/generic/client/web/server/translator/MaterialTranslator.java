@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * A {@link Material} &lt;---&gt; {@link MaterialPE} translator.
@@ -55,7 +56,7 @@ public final class MaterialTranslator
         }
         final Material result = new Material();
         result.setCode(StringEscapeUtils.escapeHtml(materialPE.getCode()));
-        result.setId(materialPE.getId());
+        result.setId(HibernateUtils.getId(materialPE));
         result.setModificationDate(materialPE.getModificationDate());
         if (withDetails)
         {
