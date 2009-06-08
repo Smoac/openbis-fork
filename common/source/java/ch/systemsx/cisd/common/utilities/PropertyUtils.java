@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.utilities;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -423,12 +424,30 @@ public final class PropertyUtils
      */
     public final static Properties loadProperties(final String propertiesFilePath)
     {
-        assert propertiesFilePath != null : "Unspecified file";
-        final Properties properties = new Properties();
-        InputStream is = null;
         try
         {
-            is = new FileInputStream(propertiesFilePath);
+            return loadProperties(new FileInputStream(propertiesFilePath), propertiesFilePath);
+        } catch (FileNotFoundException ex)
+        {
+            final String msg =
+                    String.format("Could not load the properties from given resource '%s'.",
+                            propertiesFilePath);
+            throw new ConfigurationFailureException(msg, ex);
+        }
+    }
+
+    /**
+     * Loads and returns {@link Properties} found in given <var>propertiesFilePath</var>.
+     * 
+     * @throws ConfigurationFailureException If an exception occurs when loading the properties.
+     * @return never <code>null</code> but could return empty properties.
+     */
+    public final static Properties loadProperties(final InputStream is, final String resourceName)
+    {
+        assert is != null : "No input stream specified";
+        final Properties properties = new Properties();
+        try
+        {
             properties.load(is);
             trimProperties(properties);
             return properties;
@@ -436,7 +455,7 @@ public final class PropertyUtils
         {
             final String msg =
                     String.format("Could not load the properties from given resource '%s'.",
-                            propertiesFilePath);
+                            resourceName);
             throw new ConfigurationFailureException(msg, ex);
         } finally
         {
