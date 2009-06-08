@@ -30,9 +30,9 @@
         <target name="compile-javascript"
                 depends="prepare-web-client"
                 description="Compiles the javascript using GWT compiler.">
-                <!--antcall target="compile-gwt-module">
+                <antcall target="compile-gwt-module">
                         <param name="gwt.module.name" value="ch.systemsx.cisd.openbis.plugin.phosphonetx.OpenBIS" />
-                </antcall-->
+                </antcall>
         </target>
 
         <!--
