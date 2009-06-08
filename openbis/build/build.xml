@@ -12,6 +12,7 @@
               value="../${ant.project.name}/tomcat/webapps/ROOT/WEB-INF" />
 
 	<property name="original.server.dist" value="${original.dist}/server" />
+	<property name="original.openbis.server.dist" value="../openbis/dist/server" />
 	<property name="server.folder.name" value="openBIS-server" />
 	<property name="server.dist" value="${dist}/${server.folder.name}" />
 	<property name="server.jar.file.name" value="openBIS.jar" />
@@ -95,13 +96,13 @@
 			</filterchain>
 		</loadfile>
 		<echo file="${server.dist}/tomcat-version.txt">${tomcat.version}</echo>
-		<copy file="${original.server.dist}/server.xml" todir="${server.dist}" />
+		<copy file="${original.openbis.server.dist}/server.xml" todir="${server.dist}" />
 		<copy file="${original.server.dist}/service.properties" todir="${server.dist}" />
-		<copy file="${original.server.dist}/openBIS.keystore" todir="${server.dist}" />
-		<copy file="${original.server.dist}/passwd.sh" todir="${server.dist}" />
+		<copy file="${original.openbis.server.dist}/openBIS.keystore" todir="${server.dist}" />
+		<copy file="${original.openbis.server.dist}/passwd.sh" todir="${server.dist}" />
 		<property name="server.dist.file" value="${server.dist}-${version.number}-r${revision.number}.zip" />
 		<zip basedir="${dist}" destfile="${server.dist.file}" excludes="*.zip">
-			<zipfileset file="${original.server.dist}/install.sh" filemode="777" prefix="${server.folder.name}" />
+			<zipfileset file="${original.openbis.server.dist}/install.sh" filemode="777" prefix="${server.folder.name}" />
 		</zip>
 		<delete dir="${server.dist}" />
 	</target>
@@ -123,19 +124,32 @@
 	<!--
       // Compiles the javascript using GWT compiler.
       -->
-	<target name="compile-javascript" depends="prepare-web-client" description="Compiles the javascript using GWT compiler.">
-		<property name="application.gwt.path" value="ch.systemsx.cisd.openbis.OpenBIS" />
+	<target name="compile-javascript"
+	        depends="prepare-web-client"
+	        description="Compiles the javascript using GWT compiler.">
+		<antcall target="compile-gwt-module">
+			<param name="gwt.module.name" value="ch.systemsx.cisd.openbis.OpenBIS" />
+		</antcall>
+	</target>
+
+	<!--
+	   Compiles a GWT module to Javascript. As a side effect ${webbap.dist} is deleted.
+	   
+	   Parameters:
+	      gwt.module.name: Fully qualified name of the module.
+	-->
+	<target name="compile-gwt-module">
 		<delete dir="${webapp.dist}" />
-		<java classpath="${ecp}:${gwt.dev.lib}:${gwt.user.lib}:${sources}"
-              classname="com.google.gwt.dev.GWTCompiler"
-              fork="true">
+		<java classpath="${ecp}:${gwt.dev.lib}:${gwt.user.lib}:../openbis/${sources}:${sources}"
+		      classname="com.google.gwt.dev.GWTCompiler"
+		      fork="true">
 			<jvmarg value="-Xmx512M" />
 			<arg value="-out" />
 			<arg value="${webapp.dist}" />
-			<arg value="${application.gwt.path}" />
+			<arg value="${gwt.module.name}" />
 		</java>
 		<move todir="${webapp.dist}">
-			<fileset dir="${webapp.dist}/${application.gwt.path}" />
+			<fileset dir="${webapp.dist}/${gwt.module.name}" />
 		</move>
 	</target>
 
@@ -204,7 +218,7 @@
 		<mkdir dir="${server.dist}" />
 		<war warfile="${webapp.file}" webxml="${application.server.resource}/web.xml">
 			<fileset dir="${webapp.dist}" />
-			<classes dir="source">
+			<classes dir="../openbis/source">
 				<include name="**/*.sql" />
 			</classes>
 			<!-- Add 'applicationContext.xml' and related files. -->
@@ -218,9 +232,9 @@
 				<include name="etc/log.xml" />
 				<include name="etc/passwd" />
 			</classes>
-                        <classes dir="${classes}">
-                                <include name="${build.info.filename}" />
-                        </classes>
+			<classes dir="${classes}">
+				<include name="${build.info.filename}" />
+			</classes>
 			<lib dir="${dist}">
 				<include name="${jar.file.name}" />
 			</lib>
@@ -356,18 +370,18 @@
 		</java>
 	</target>
 
-        <!--
+	<!--
         // Replace developer database and index
         -->
-        <target name="replace-database-and-index" 
+	<target name="replace-database-and-index" 
                 description="Replaces developer database and index">
-                <java classpath="${eclipse.cp}" failonerror="true" fork="true" dir="."
+		<java classpath="${eclipse.cp}" failonerror="true" fork="true" dir="."
                       classname="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DatabaseAndIndexReplacer">
-                        <sysproperty key="log4j.configuration" file="etc/log.xml"/>
-                        <arg value="dev"/>
-                        <arg value="${targets}/indices"/>
-                        <arg value="dev_indexed"/>
-                        <arg value="${targets}/dev_indexed-index"/>
-                </java>
-        </target>
+			<sysproperty key="log4j.configuration" file="etc/log.xml"/>
+			<arg value="dev"/>
+			<arg value="${targets}/indices"/>
+			<arg value="dev_indexed"/>
+			<arg value="${targets}/dev_indexed-index"/>
+		</java>
+	</target>
 </project>

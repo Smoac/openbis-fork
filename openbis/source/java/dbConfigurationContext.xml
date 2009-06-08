@@ -8,16 +8,6 @@
             http://www.springframework.org/schema/tx
             http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
 
-    <!--
-        // Replaces ${...} with corresponding values found in 'location' property. A value
-        // can be overridden by setting a corresponding system property.
-    -->
-
-    <bean class="ch.systemsx.cisd.common.spring.PropertyPlaceholderConfigurer">
-        <property name="location" value="classpath:service.properties" />
-        <property name="systemPropertiesModeName" value="${placeholder.resolver.mode}" />
-    </bean>
-
     <bean id="db-configuration-context"
         class="ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext">
         <property name="basicDatabaseName" value="openbis" />
