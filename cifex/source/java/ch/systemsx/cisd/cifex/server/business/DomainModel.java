@@ -49,6 +49,8 @@ public final class DomainModel implements IDomainModel
 
     private IFileManager fileManager;
 
+    private ITriggerManager triggerManager;
+
     private final IDAOFactory daoFactory;
 
     private final BeanPostProcessor processor;
@@ -60,9 +62,9 @@ public final class DomainModel implements IDomainModel
     /**
      * Creates an instance based on the specified DAO Factory and mail client. The specified bean
      * post processor is needed to create proxies for the various manager objects which handle
-     * transactions. Corresponding manager methods are annotated with <code>@Transactional</code>. In the Spring <code>applicationContext.xml</code> it is assumed
-     *                that a the bean post processor is correctly configured with the right
-     *                TransactionInterceptor.
+     * transactions. Corresponding manager methods are annotated with <code>@Transactional</code>.
+     * In the Spring <code>applicationContext.xml</code> it is assumed that a the bean post
+     * processor is correctly configured with the right TransactionInterceptor.
      */
     public DomainModel(final IDAOFactory daoFactory, final IMailClient mailClient,
             final IUserActionLog userActionLog, final BeanPostProcessor processor,
@@ -196,9 +198,22 @@ public final class DomainModel implements IDomainModel
         if (fileManager == null)
         {
             fileManager =
-                    createLoggingProxy(new FileManager(daoFactory, boFactory, businessContext));
+                    createLoggingProxy(new FileManager(daoFactory, boFactory, businessContext,
+                            getTriggerManager()));
         }
         return fileManager;
+    }
+
+    /**
+     * Returns the instance of the {@link ITriggerManager}.
+     */
+    public ITriggerManager getTriggerManager()
+    {
+        if (triggerManager == null)
+        {
+            triggerManager = createLoggingProxy(new TriggerManager(businessContext));
+        }
+        return triggerManager;
     }
 
     /**

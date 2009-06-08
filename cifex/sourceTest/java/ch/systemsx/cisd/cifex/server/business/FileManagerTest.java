@@ -85,6 +85,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
 
     private IFileManager fileManager;
 
+    private ITriggerManager triggerManager;
+
     private File fileStore;
 
     private IBusinessObjectFactory boFactory;
@@ -138,7 +140,17 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(fileDAO));
                 }
             });
-        fileManager = new FileManager(daoFactory, boFactory, businessContext, timeProvider);
+        triggerManager = context.mock(ITriggerManager.class);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(triggerManager).isTriggerUser(with(any(UserDTO.class)));
+                    will(returnValue(false));
+                }
+            });
+        fileManager =
+                new FileManager(daoFactory, boFactory, businessContext, triggerManager,
+                        timeProvider);
 
     }
 
@@ -587,15 +599,15 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(Arrays.asList(requestUser)));
                 }
             });
-        
+
         final List<String> invalidUsers =
-            fileManager.shareFilesWith("", requestUser, Collections
-                    .singleton("hello"), Collections.singleton(file), "");
-        
+                fileManager.shareFilesWith("", requestUser, Collections.singleton("hello"),
+                        Collections.singleton(file), "");
+
         assertEquals("[hello]", invalidUsers.toString());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public final void testGetFile()
     {
@@ -659,7 +671,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
 
     @Transactional
     @Test(dataProvider = "saveFileTestData")
-    public final void testSaveFile(final boolean fileAlreadyExists, final Integer fileRetention) throws FileNotFoundException
+    public final void testSaveFile(final boolean fileAlreadyExists, final Integer fileRetention)
+            throws FileNotFoundException
     {
         final UserDTO user = userAlice;
         user.setFileRetention(fileRetention);
@@ -688,7 +701,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
             {
                 {
                     one(fileDAO).createFile((FileDTO) this.with(new IsInstanceOf(FileDTO.class)));
-                    
+
                     one(timeProvider).getTimeInMilliseconds();
                     will(returnValue(4711L));
                 }
@@ -709,7 +722,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         assertEquals(expectedExpirationDate, createdFileDTO.getExpirationDate().getTime());
         context.assertIsSatisfied();
     }
-    
+
     @SuppressWarnings("unused")
     @DataProvider(name = "fileRetentions")
     private Object[][] provideAllFileRetentions()
@@ -733,15 +746,16 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     userDTO.setFileRetention(fileRetention);
                     file.setRegisterer(userDTO);
                     will(returnValue(file));
-                    
+
                     one(timeProvider).getTimeInMilliseconds();
                     will(returnValue(4711L));
-                    
+
                     one(fileDAO).updateFile(with(new BaseMatcher<FileDTO>()
                         {
                             public void describeTo(Description description)
                             {
                             }
+
                             public boolean matches(Object item)
                             {
                                 if (item instanceof FileDTO == false)
@@ -755,9 +769,9 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                         }));
                 }
             });
-        
+
         fileManager.updateFileExpiration(DEFAULT_FILE_ID);
-        
+
         context.assertIsSatisfied();
     }
 
@@ -791,8 +805,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
 
     private int calculateFileRetention(final Integer fileRetention)
     {
-        return fileRetention == null ? DEFAULT_FILE_RETENTION
-                : fileRetention.intValue();
+        return fileRetention == null ? DEFAULT_FILE_RETENTION : fileRetention.intValue();
     }
 
     final static UserDTO createSampleUserDTO(final long id, final String email)

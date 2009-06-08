@@ -91,19 +91,24 @@ final class FileManager extends AbstractManager implements IFileManager
 
     private final ITimeProvider timeProvider;
 
+    private final ITriggerManager triggerManager;
+
     FileManager(final IDAOFactory daoFactory, final IBusinessObjectFactory boFactory,
-            final IBusinessContext businessContext)
+            final IBusinessContext businessContext, ITriggerManager triggerManager)
     {
-        this(daoFactory, boFactory, businessContext, SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+        this(daoFactory, boFactory, businessContext, triggerManager,
+                SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
 
     FileManager(final IDAOFactory daoFactory, final IBusinessObjectFactory boFactory,
-            final IBusinessContext businessContext, ITimeProvider timeProvider)
+            final IBusinessContext businessContext, ITriggerManager triggerManager,
+            ITimeProvider timeProvider)
     {
         super(daoFactory, boFactory, businessContext);
         this.timeProvider = timeProvider;
+        this.triggerManager = triggerManager;
     }
-    
+
     /**
      * Whether given <var>userDTO</var> could be found in list of sharing users.
      */
@@ -244,8 +249,8 @@ final class FileManager extends AbstractManager implements IFileManager
             if (realFile.exists() == false)
             {
                 return new FileInformation(fileId, String.format(
-                        "Unexpected: File '%s' [id=%d] is missing in CIFEX file store.", realFile.getPath(),
-                        fileId));
+                        "Unexpected: File '%s' [id=%d] is missing in CIFEX file store.", realFile
+                                .getPath(), fileId));
             }
         }
         return new FileInformation(fileId, fileDTOOrNull, realFile);
@@ -257,12 +262,7 @@ final class FileManager extends AbstractManager implements IFileManager
         boolean success = false;
         try
         {
-            final File realFile = new File(businessContext.getFileStore(), fileDTO.getPath());
-            if (realFile.exists() == false)
-            {
-                throw new IllegalStateException(String.format(
-                        "File '%s' does not exist on the file system.", realFile.getAbsolutePath()));
-            }
+            final File realFile = getRealFile(fileDTO);
             try
             {
                 final FileContent content =
@@ -278,6 +278,17 @@ final class FileManager extends AbstractManager implements IFileManager
         {
             businessContext.getUserActionLog().logDownloadFile(fileDTO, success);
         }
+    }
+
+    private File getRealFile(final FileDTO fileDTO)
+    {
+        final File realFile = new File(businessContext.getFileStore(), fileDTO.getPath());
+        if (realFile.exists() == false)
+        {
+            throw new IllegalStateException(String.format(
+                    "File '%s' does not exist on the file system.", realFile.getAbsolutePath()));
+        }
+        return realFile;
     }
 
     @Transactional
@@ -330,6 +341,7 @@ final class FileManager extends AbstractManager implements IFileManager
                 // upload feedback. inputStream = new SlowInputStream(countingInputStream, 100 *
                 // FileUtils.ONE_KB);
                 IOUtils.copy(inputStream, outputStream);
+                outputStream.close();
                 final long byteCount = countingInputStream.getByteCount();
                 if (byteCount > 0)
                 {
@@ -366,7 +378,7 @@ final class FileManager extends AbstractManager implements IFileManager
     public List<String> registerFileLinkAndInformRecipients(UserDTO user, String fileName,
             String comment, String contentType, File file, String[] recipients, String url)
     {
-        FileDTO fileDTO = registerFile(user, fileName, comment, contentType, file, file.length());
+        final FileDTO fileDTO = registerFile(user, fileName, comment, contentType, file, file.length());
         return shareFilesWith(url, user, Arrays.asList(recipients), Collections.singleton(fileDTO),
                 comment);
     }
@@ -428,6 +440,7 @@ final class FileManager extends AbstractManager implements IFileManager
     {
         final Set<UserDTO> allUsers = new HashSet<UserDTO>();
         final List<String> invalidEmailAdresses = new ArrayList<String>();
+        setRegisterer(requestUser, files);
         boolean success = false;
         try
         {
@@ -437,12 +450,13 @@ final class FileManager extends AbstractManager implements IFileManager
                     createTableMapOfExistingUsersWithUserCodeAsKey();
             for (final String identifier : userIdentifiers)
             {
-                Set<UserDTO> users = new LinkedHashSet<UserDTO>();
-                String password =
-                        handlIdentifer(identifier, requestUser, existingUsers, existingUniqueUsers,
-                                invalidEmailAdresses, users);
+                final Set<UserDTO> users = new LinkedHashSet<UserDTO>();
+                final String password =
+                        handleIdentifer(identifier, requestUser, existingUsers,
+                                existingUniqueUsers, invalidEmailAdresses, users);
                 allUsers.addAll(users);
-                createLinksAndSendEmails(users, files, url, comment, requestUser, password);
+                createLinksAndCallTriggersAndSendEmails(users, files, url, comment, requestUser,
+                        password);
             }
             success = true;
             return invalidEmailAdresses;
@@ -452,8 +466,16 @@ final class FileManager extends AbstractManager implements IFileManager
                     invalidEmailAdresses, success);
         }
     }
+    
+    private void setRegisterer(final UserDTO requestUser, final Collection<FileDTO> files)
+    {
+        for (FileDTO file : files)
+        {
+            file.setRegisterer(requestUser);
+        }
+    }
 
-    private String handlIdentifer(final String identifier, final UserDTO requestUser,
+    private String handleIdentifer(final String identifier, final UserDTO requestUser,
             final TableMapNonUniqueKey<String, UserDTO> existingUsers,
             final TableMap<String, UserDTO> existingUniqueUsers,
             final List<String> invalidEmailAdresses, Set<UserDTO> users)
@@ -501,8 +523,9 @@ final class FileManager extends AbstractManager implements IFileManager
         return password;
     }
 
-    private void createLinksAndSendEmails(Set<UserDTO> users, final Collection<FileDTO> files,
-            final String url, final String comment, final UserDTO requestUser, String password)
+    private void createLinksAndCallTriggersAndSendEmails(Set<UserDTO> users,
+            final Collection<FileDTO> files, final String url, final String comment,
+            final UserDTO requestUser, String password)
     {
         final IFileDAO fileDAO = daoFactory.getFileDAO();
         final IMailClient mailClient = businessContext.getMailClient();
@@ -531,16 +554,51 @@ final class FileManager extends AbstractManager implements IFileManager
             throw new UserFailureException(("Cannot share file with the users twice ("
                     + alreadyExistingSharingLinks + "). Operation failed."));
         }
+
+        final Set<FileDTO> filesLeft = new HashSet<FileDTO>(files); 
+        for (final FileDTO fileDTO : files)
+        {
+            boolean dismiss = false;
+            for (final UserDTO userDTO : users)
+            {
+                if (triggerManager.isTriggerUser(userDTO) == false)
+                {
+                    continue;
+                }
+                try
+                {
+                    dismiss |= triggerManager.handle(userDTO, fileDTO, getRealFile(fileDTO), this);
+                } catch (final RuntimeException ex)
+                {
+                    operationLog.error("Error calling trigger for file " + fileDTO.getPath()
+                            + " with trigger user " + userDTO.getUserCode());
+                }
+            }
+            if (dismiss)
+            {
+                filesLeft.remove(fileDTO);
+                deleteFile(fileDTO);
+            }
+        }
+        if (filesLeft.size() == 0)
+        {
+            return;
+        }
+        
         boolean notified = false;
         for (final UserDTO user : users)
         {
-            String email = user.getEmail();
+            if (triggerManager.isTriggerUser(user))
+            {
+                continue;
+            }
+            final String email = user.getEmail();
             final EMailBuilderForUploadedFiles builder =
                     new EMailBuilderForUploadedFiles(mailClient, requestUser, email);
             builder.setURL(url);
             builder.setPassword(password);
             builder.setUserCode(user.getUserCode());
-            for (final FileDTO fileDTO : files)
+            for (final FileDTO fileDTO : filesLeft)
             {
                 builder.addFile(fileDTO);
             }
@@ -692,7 +750,7 @@ final class FileManager extends AbstractManager implements IFileManager
                         : usersFileRetention.intValue();
         return DateUtils.addMinutes(new Date(timeProvider.getTimeInMilliseconds()), fileRetention);
     }
-    
+
     public void updateFile(final FileDTO file)
     {
         daoFactory.getFileDAO().updateFile(file);
