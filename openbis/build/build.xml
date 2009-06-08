@@ -227,6 +227,7 @@
 			</classes>
 			<classes dir="${sources}">
 				<include name="**/*.xml" />
+				<exclude name="**/*.gwt.xml" />
 			</classes>
 			<classes dir="${original.dist}">
 				<include name="etc/log.xml" />
