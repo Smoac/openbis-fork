@@ -177,22 +177,24 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
                                 filenameInStream);
                     }
                 }
-                if (filenameToUpload.equals(filenameInStream) == false)
+                // Note: this is quite a hack. The first condition can be false when there are
+                // special characters in the name, thus we add the check for stream.available().
+                if (filenameToUpload.equals(filenameInStream) == false && stream.available() == 0)
                 {
                     fileManager.throwExceptionOnFileDoesNotExist(pathnameToUpload);
                 }
                 // Blank file name are empty file fields.
-                if (StringUtils.isNotBlank(filenameInStream))
+                if (StringUtils.isNotBlank(filenameToUpload))
                 {
                     if (operationLog.isDebugEnabled())
                     {
                         operationLog.debug(String.format("Handle field '%s' with file '%s'.", item
                                 .getFieldName(), item.getName()));
                     }
-                    String fileName =
-                            FilenameUtilities.ensureMaximumSize(filenameInStream,
+                    final String fileName =
+                            FilenameUtilities.ensureMaximumSize(filenameToUpload,
                                     MAX_FILENAME_LENGTH);
-                    String contentType = item.getContentType();
+                    final String contentType = item.getContentType();
                     final FileDTO file =
                             fileManager.saveFile(requestUser, fileName, comment.toString(),
                                     contentType, stream);
