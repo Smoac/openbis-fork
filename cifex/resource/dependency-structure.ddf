@@ -28,10 +28,12 @@ check [client] independentOf [server]
 ######################################################################
 # Check dependencies between server and client package
 
-[server.business] = ${business}.*
+[server.trigger] = ${server}.trigger.*
+[server.util] = ${server}.util.*
+[server.business] = ${business}.* [server.trigger] [server.util]
 [server.common] = ${server}.common.*
 [server-business-common] = ${server}.* excluding [server.business] [server.common]
-check sets [server.business] [server-business-common] [server.common]
+check sets [server.trigger] [server.business] [server-business-common] [server.common] [server.util]
 
 [client.application] = ${client}.application.*
 [client.dto] = ${client}.dto.*
