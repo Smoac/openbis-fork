@@ -77,8 +77,11 @@
 		<copy file="${lib}/commons-io/commons-io.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/commons-lang/commons-lang.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/commons-logging/commons-logging.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/commons-httpclient/commons-httpclient.jar"
-		      todir="${dist.datastore_server.lib}" />
+		<copy file="${lib}/commons-httpclient/commons-httpclient.jar" todir="${dist.datastore_server.lib}" />
+		<copy file="${lib}/eodsql/eodsql.jar" todir="${dist.datastore_server.lib}" />
+		<copy file="${lib}/jaxb/jaxb-api.jar" todir="${dist.datastore_server.lib}" />
+		<copy file="${lib}/jaxb/jaxb-impl.jar" todir="${dist.datastore_server.lib}" />
+		<copy file="${lib}/jaxb/jsr173_1.0_api.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/spring/spring.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/fast-md5/fast-md5.jar" todir="${dist.datastore_server.lib}" />
 		<property name="dist.file"
