@@ -28,10 +28,10 @@ public interface IMailClient
 
     /**
      * Sends a mail with given <var>subject</var> and <var>content</var> to given <var>recipients</var>.
-     * @param replyTo reply-to part of the email header
+     * @param replyToOrNull reply-to part of the email header. Can be <code>null</code>.
      * @param recipients list of recipients (of type <code>Message.RecipientType.TO</code>)
      */
-    public void sendMessage(String subject, String content, String replyTo, String... recipients)
+    public void sendMessage(String subject, String content, String replyToOrNull, String... recipients)
             throws EnvironmentFailureException;
 
 }
