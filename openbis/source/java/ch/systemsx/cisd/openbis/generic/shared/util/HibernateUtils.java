@@ -85,8 +85,12 @@ public final class HibernateUtils
         }
     }
 
-    /** @return Unproxied <var>proxy</var>. */
-    public final static Object unproxy(final Object proxy)
+    /**
+     * @return Unproxied <var>proxy</var>.
+     */
+    @SuppressWarnings(
+        { "unchecked" })
+    public final static <T> T unproxy(final T proxy)
     {
         if (proxy instanceof HibernateProxy && Hibernate.isInitialized(proxy))
         {
@@ -97,11 +101,11 @@ public final class HibernateUtils
             if (sessionImplementor != null)
             {
                 // use the unproxy method of the persistenceContext class
-                return sessionImplementor.getPersistenceContext().unproxy(proxy);
+                return (T) sessionImplementor.getPersistenceContext().unproxy(proxy);
             } else
             {
                 // return the wrapped bean instance if there's no active session instance available
-                return lazyInitializer.getImplementation();
+                return (T) lazyInitializer.getImplementation();
             }
         } else
         {

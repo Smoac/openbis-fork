@@ -111,6 +111,16 @@ public class DtoConverters
         // BeanUtils.Converter
         //
 
+        public final Long convertToId(final SearchHit matchingEntity)
+        {
+            // SearchHit.entity may be a proxy which always returns null when we want to get 'id'.
+            // HibernateUtils.getId(entity) could be used in SearchHit.getId() instead of this code,
+            // but it is better to keep it undependent of Hibernate (at least until the getter 
+            // is used somewhere else). SearchHit.entity could also be unproxied with
+            // HibernateUtils.unproxy(T) e.g. in HibernateSearchDAO.
+            return HibernateUtils.getId(matchingEntity.getEntity());
+        }
+
         public final EntityKind convertToEntityKind(final SearchHit matchingEntity)
         {
             return EntityKind.valueOf(matchingEntity.getEntityKind().name());
