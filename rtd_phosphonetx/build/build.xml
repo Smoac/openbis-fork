@@ -40,9 +40,9 @@
         -->
         <target name="war" depends="openbis.war" description="Creates project war file.">
         	<war warfile="${webapp.file}" update="true">
-                        <fileset prefix="WEB-INF/classes/phosphonetx" dir="source">
+                        <classes prefix="WEB-INF/classes/phosphonetx" dir="source">
                                 <include name="**/*.sql" />
-                        </fileset>
+                        </classes>
                         <classes dir="../openbis/${sources}">
                                 <include name="**/*.xml" />
                         </classes>
