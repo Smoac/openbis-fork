@@ -27,5 +27,9 @@
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-args4j/cisd-args4j.jar" sourcepath="/libraries/cisd-args4j/cisd-args4j-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/fast-md5/fast-md5.jar" sourcepath="/libraries/fast-md5/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/eodsql/eodsql.jar" sourcepath="/libraries/eodsql/eodsql_src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jaxb/jaxb-api.jar" sourcepath="/libraries/jaxb/jaxb-api-src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jaxb/jaxb-impl.jar"/>
+	<classpathentry kind="lib" path="/libraries/jaxb/jsr173_1.0_api.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
