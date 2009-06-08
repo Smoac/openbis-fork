@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                        http://www.springframework.org/schema/tx
+                        http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+    <import resource="applicationContext.xml"/>
+    
+    <bean id="phosphonetx-db-configuration-context"
+        class="ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext">
+        <property name="basicDatabaseName" value="phosphonetx" />
+        <property name="createFromScratch" value="${phosphonetx.database.create-from-scratch}" />
+        <property name="scriptSingleStepMode" value="${phosphonetx.database.script-single-step-mode}" />
+        <property name="sequenceNameMapper">
+            <bean class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SequenceNameMapper" />
+        </property>
+        <property name="urlHostPart" value="${phosphonetx.database.url-host-part}" />
+        <property name="adminUser" value="${phosphonetx.database.admin-user}" />
+        <property name="owner" value="${phosphonetx.database.owner}" />
+        <property name="readOnlyGroup" value="openbis_readonly" />
+        <property name="password" value="${phosphonetx.database.owner-password}" />
+        <property name="adminPassword" value="${phosphonetx.database.admin-password}" />
+        <property name="databaseKind" value="${phosphonetx.database.kind}" />
+        <property name="databaseEngineCode" value="${phosphonetx.database.engine}" />
+        <property name="scriptFolder" value="${phosphonetx.script-folder}/sql" />
+        <property name="databaseInstance" value="${phosphonetx.database-instance}" />
+    </bean>
+    
+    <bean id="phosphonetx-data-source" factory-bean="phosphonetx-db-configuration-context" factory-method="getDataSource" />
+
+</beans>

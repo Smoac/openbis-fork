@@ -23,4 +23,35 @@
         // Task for continuous integration server.
         -->
         <target name="ci" depends="build-common.ci, dist, check-dependencies"/>
+	
+        <!--
+        // Compiles the javascript using GWT compiler.
+        -->
+        <target name="compile-javascript"
+                depends="prepare-web-client"
+                description="Compiles the javascript using GWT compiler.">
+                <!--antcall target="compile-gwt-module">
+                        <param name="gwt.module.name" value="ch.systemsx.cisd.openbis.plugin.phosphonetx.OpenBIS" />
+                </antcall-->
+        </target>
+
+        <!--
+        // Creates WAR file.
+        -->
+        <target name="war" depends="openbis.war" description="Creates project war file.">
+        	<war warfile="${webapp.file}" update="true">
+                        <fileset prefix="WEB-INF/classes/phosphonetx" dir="source">
+                                <include name="**/*.sql" />
+                        </fileset>
+                        <classes dir="../openbis/${sources}">
+                                <include name="**/*.xml" />
+                        </classes>
+                        <lib dir="${lib}/jaxb">
+                                <include name="*.jar" />
+                        </lib>
+                        <lib dir="${lib}/eodsql">
+                                <include name="*.jar" />
+                        </lib>
+        	</war>
+        </target>
 </project>
