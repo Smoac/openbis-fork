@@ -54,7 +54,7 @@
 			</manifest>
 		</recursive-jar>
 		<jar update="true" destfile="${dss-jar.file}">
-			<fileset dir="${sources}">
+			<fileset dir="../datastore_server/${sources}">
 				<include name="**/*.xml" />
 			</fileset>
 			<zipfileset src="${lib}/gwt/gwt-user.jar"
