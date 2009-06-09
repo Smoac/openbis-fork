@@ -47,7 +47,8 @@
 				           value="datastore_server-plugins.jar cisd-base.jar cifex.jar jetty.jar jetty-util.jar 
                 	          servlet-api-2.5.jar log4j.jar activation.jar mail.jar spring.jar fast-md5.jar
                                   commons-codec.jar commons-lang.jar commons-io.jar commons-logging.jar 
-                	          commons-httpclient.jar eodsql.jar jaxb-api.jar jaxb-impl.jar jsr173_1-0_api.jar" />
+                	          commons-httpclient.jar commons-dbcp.jar eodsql.jar 
+				  jaxb-api.jar jaxb-impl.jar jsr173_1-0_api.jar" />
 				<attribute name="Version" value="${version.number}" />
 				<attribute name="Build-Number"
 				           value="${version.number} (r${revision.number},${clean.flag})" />
@@ -77,6 +78,7 @@
 		<copy file="${lib}/commons-codec/commons-codec.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/commons-io/commons-io.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/commons-lang/commons-lang.jar" todir="${dist.datastore_server.lib}" />
+		<copy file="${lib}/commons-dbcp/commons-dbcp.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/commons-logging/commons-logging.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/commons-httpclient/commons-httpclient.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/eodsql/eodsql.jar" todir="${dist.datastore_server.lib}" />
