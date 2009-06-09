@@ -172,5 +172,10 @@ public interface IFileManager
      */
     @LogAnnotation(logCategory = LogCategory.TRACKING)
     public void deleteSharingLink(long fileId, String userCode);
+    
+    /**
+     * Returns the file on the file system for the given <var>fileDTO</var>. 
+     */
+    public File getRealFile(final FileDTO fileDTO);
 
 }

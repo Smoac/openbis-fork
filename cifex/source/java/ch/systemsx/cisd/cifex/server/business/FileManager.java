@@ -280,7 +280,7 @@ final class FileManager extends AbstractManager implements IFileManager
         }
     }
 
-    private File getRealFile(final FileDTO fileDTO)
+    public File getRealFile(final FileDTO fileDTO)
     {
         final File realFile = new File(businessContext.getFileStore(), fileDTO.getPath());
         if (realFile.exists() == false)
@@ -543,7 +543,7 @@ final class FileManager extends AbstractManager implements IFileManager
                 } catch (final DataIntegrityViolationException ex)
                 {
                     alreadyExistingSharingLinks.add(user.getUserCode());
-                    operationLog.error(String.format(
+                    notificationLog.error(String.format(
                             "Sharing file %s with user %s for the second time.", file.getPath(),
                             user.getUserCode()), ex);
                 }
@@ -567,11 +567,11 @@ final class FileManager extends AbstractManager implements IFileManager
                 }
                 try
                 {
-                    dismiss |= triggerManager.handle(userDTO, fileDTO, getRealFile(fileDTO), this);
+                    dismiss |= triggerManager.handle(userDTO, fileDTO, this);
                 } catch (final RuntimeException ex)
                 {
-                    operationLog.error("Error calling trigger for file " + fileDTO.getPath()
-                            + " with trigger user " + userDTO.getUserCode());
+                    operationLog.error("Error calling trigger for file '" + fileDTO.getPath()
+                            + "' with trigger user '" + userDTO.getUserCode() + "'.", ex);
                 }
             }
             if (dismiss)

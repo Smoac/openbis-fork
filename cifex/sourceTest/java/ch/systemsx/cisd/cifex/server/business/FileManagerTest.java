@@ -55,6 +55,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.PasswordGenerator;
@@ -103,6 +104,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
     @BeforeMethod
     public final void setUp() throws IOException
     {
+        LogInitializer.init();
         super.setUp();
         userAlice = createSampleUserDTO(1L, "alice@users.com");
         imageFile = cerateSampleFileDTO(1L, userAlice, "image.jpg", "image");
@@ -141,13 +143,13 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 }
             });
         triggerManager = context.mock(ITriggerManager.class);
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(triggerManager).isTriggerUser(with(any(UserDTO.class)));
-                    will(returnValue(false));
-                }
-            });
+        // context.checking(new Expectations()
+        // {
+        // {
+        // allowing(triggerManager).isTriggerUser(with(any(UserDTO.class)));
+        // will(returnValue(false));
+        // }
+        // });
         fileManager =
                 new FileManager(daoFactory, boFactory, businessContext, triggerManager,
                         timeProvider);
@@ -383,6 +385,13 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     allowing(userDAO).listUsers();
                     will(returnValue(Arrays.asList(requestUser, receivingUser)));
                     one(fileDAO).createSharingLink(fileId, receivingUserId);
+                    context.checking(new Expectations()
+                        {
+                            {
+                                allowing(triggerManager).isTriggerUser(with(any(UserDTO.class)));
+                                will(returnValue(false));
+                            }
+                        });
                     one(mailClient).sendMessage(
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
@@ -435,6 +444,13 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     allowing(userDAO).listUsers();
                     will(returnValue(Arrays.asList(requestUser, receivingUser)));
                     one(fileDAO).createSharingLink(fileId, receivingUserId);
+                    context.checking(new Expectations()
+                        {
+                            {
+                                allowing(triggerManager).isTriggerUser(with(any(UserDTO.class)));
+                                will(returnValue(false));
+                            }
+                        });
                     one(mailClient).sendMessage(
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
@@ -498,6 +514,13 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                             secondReceivingUser)));
                     one(fileDAO).createSharingLink(fileId, firstReceivingUserId);
                     final String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
+                    context.checking(new Expectations()
+                        {
+                            {
+                                allowing(triggerManager).isTriggerUser(with(any(UserDTO.class)));
+                                will(returnValue(false));
+                            }
+                        });
                     one(mailClient).sendMessage(
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
@@ -563,6 +586,13 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(Arrays.asList(requestUser, receivingUser)));
                     one(fileDAO).createSharingLink(fileId, receivingUserId);
                     String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
+                    context.checking(new Expectations()
+                        {
+                            {
+                                allowing(triggerManager).isTriggerUser(with(any(UserDTO.class)));
+                                will(returnValue(false));
+                            }
+                        });
                     one(mailClient).sendMessage(
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
@@ -775,6 +805,56 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testTrigger() throws IOException
+    {
+        final String url = "https://server/instance";
+        final long requestUserId = 42;
+        final String requestUserCode = "requestuser";
+        final long receivingUserId = 43;
+        final String receivingUserCode = "receivinguser";
+        final String emailOfRequestUser = "request.user@organization.edu";
+        final UserDTO requestUser = new UserDTO();
+        requestUser.setID(requestUserId);
+        requestUser.setUserCode(requestUserCode);
+        requestUser.setPermanent(true);
+        requestUser.setEmail(emailOfRequestUser);
+        final String emailOfUserToShareWith = "receiving.user@organization.edu";
+        final UserDTO receivingUser = new UserDTO();
+        receivingUser.setID(receivingUserId);
+        receivingUser.setUserCode(receivingUserCode);
+        receivingUser.setEmail(emailOfUserToShareWith);
+        final String comment = "some comment";
+        final long fileId = 17;
+        final FileDTO file = new FileDTO(requestUserId);
+        file.setPath("TestFile.dat");
+        createRealFile(file.getPath());
+        final long now = System.currentTimeMillis();
+        final long expirationPeriod = 24 * 3600 * 1000L;
+        final Date expirationDate = new Date(now + expirationPeriod);
+        file.setID(fileId);
+        file.setExpirationDate(expirationDate);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+                    allowing(userDAO).listUsers();
+                    will(returnValue(Arrays.asList(requestUser, receivingUser)));
+                    one(fileDAO).createSharingLink(fileId, receivingUserId);
+                    allowing(triggerManager).isTriggerUser(with(any(UserDTO.class)));
+                    will(returnValue(true));
+                    one(triggerManager).handle(with(equal(receivingUser)), with(equal(file)),
+                            with(equal(fileManager)));
+                }
+            });
+        final List<String> invalidUsers =
+                fileManager.shareFilesWith(url, requestUser, Collections
+                        .singleton(emailOfUserToShareWith), Collections.singleton(file), comment);
+        assertEquals(0, invalidUsers.size());
+        context.assertIsSatisfied();
+    }
+
     private final File createRealFile(final String path)
     {
         final File realFile = new File(fileStore, path);
@@ -788,6 +868,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 directory.mkdirs();
             }
             realFile.createNewFile();
+            realFile.deleteOnExit();
             if (realFile.length() == 0)
             {
                 FileUtilities.writeToFile(realFile, "Lorem ipsum.");

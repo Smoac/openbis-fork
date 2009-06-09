@@ -23,10 +23,13 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -54,18 +57,126 @@ class TriggerManager implements ITriggerManager
 
     private static final String TRIGGERS_FILE = "etc" + TRIGGERS_RESOURCE;
 
+    private final class TriggerConsole implements ITriggerConsole
+    {
+        private final ITrigger trigger;
+
+        private final IFileManager fileManager;
+
+        private final TriggerRequest triggerRequest;
+
+        private final UserDTO triggerUser;
+
+        private final UserDTO requestUser;
+
+        private final Set<FileDTO> toBeDeleted = new HashSet<FileDTO>();
+
+        private TriggerConsole(ITrigger trigger, IFileManager fileManager,
+                TriggerRequest triggerRequest, UserDTO requestUser, UserDTO triggerUser)
+        {
+            this.trigger = trigger;
+            this.fileManager = fileManager;
+            this.triggerRequest = triggerRequest;
+            this.requestUser = requestUser;
+            this.triggerUser = triggerUser;
+        }
+
+        public List<ITriggerRequest> getAllPendingRequests()
+        {
+            return getPendingRequests(null, null);
+        }
+
+        public List<ITriggerRequest> getAllPendingRequests(String fileNameWildCard)
+        {
+            return getPendingRequests(null, fileNameWildCard);
+        }
+
+        public List<ITriggerRequest> getPendingRequests()
+        {
+            return getPendingRequests(requestUser.getID(), null);
+        }
+
+        public List<ITriggerRequest> getPendingRequests(String fileNameWildCard)
+        {
+            return getPendingRequests(requestUser.getID(), fileNameWildCard);
+        }
+
+        private List<ITriggerRequest> getPendingRequests(Long userIdOrNull,
+                String fileNameWildCardOrNull)
+        {
+            final List<FileDTO> files = fileManager.listDownloadFiles(triggerUser.getID());
+            final List<ITriggerRequest> requests = new ArrayList<ITriggerRequest>(files.size());
+            for (FileDTO fileDTO : files)
+            {
+                if (fileDTO.getID() == triggerRequest.getFileID())
+                {
+                    continue;
+                }
+                if (userIdOrNull != null && userIdOrNull != fileDTO.getRegistratorId())
+                {
+                    continue;
+                }
+                if (fileNameWildCardOrNull != null
+                        && FilenameUtils.wildcardMatch(fileDTO.getName(), fileNameWildCardOrNull) == false)
+                {
+                    continue;
+                }
+                final File realFile = fileManager.getRealFile(fileDTO);
+                requests.add(new TriggerRequest(fileDTO, realFile, toBeDeleted));
+            }
+            return requests;
+        }
+
+        public void upload(File fileToUpload, String[] recipients)
+        {
+            upload(fileToUpload, recipients, "Upload by trigger "
+                    + trigger.getClass().getSimpleName());
+        }
+
+        public void upload(File fileToUpload, String[] recipients, String comment)
+        {
+            upload(fileToUpload, FilenameUtilities.getMimeType(fileToUpload.getName()), recipients,
+                    comment);
+        }
+
+        public void upload(File fileToUpload, String mimeType, String[] recipients, String comment)
+        {
+            final File uploadedFile = copy(fileManager, triggerUser, fileToUpload);
+            fileManager.registerFileLinkAndInformRecipients(triggerUser, uploadedFile.getName(),
+                    comment, mimeType, uploadedFile, recipients, url);
+        }
+
+        public void sendMessage(String subject, String content, String replyTo,
+                String... recipients) throws EnvironmentFailureException
+        {
+            mailClient.sendMessage(subject, content, replyTo, recipients);
+        }
+
+        void deleteDismissables()
+        {
+            for (FileDTO fileDTO : toBeDeleted)
+            {
+                fileManager.deleteFile(fileDTO);
+            }
+        }
+
+    }
+
     private static class TriggerRequest implements ITriggerRequest
     {
         private final FileDTO fileDTO;
 
         private final File file;
-        
+
+        private final Set<FileDTO> toBeDeletedOrNull;
+
         private boolean dismiss;
 
-        TriggerRequest(FileDTO fileDTO, File file)
+        TriggerRequest(FileDTO fileDTO, File file, Set<FileDTO> toBeDeletedOrNull)
         {
             this.fileDTO = fileDTO;
             this.file = file;
+            this.toBeDeletedOrNull = toBeDeletedOrNull;
             dismiss = false;
         }
 
@@ -99,9 +210,18 @@ class TriggerManager implements ITriggerManager
             return fileDTO.getRegisterer().getUserFullName();
         }
 
+        public long getFileID()
+        {
+            return fileDTO.getID();
+        }
+
         public void dismiss()
         {
             dismiss = true;
+            if (toBeDeletedOrNull != null)
+            {
+                toBeDeletedOrNull.add(fileDTO);
+            }
         }
 
         public boolean isDismissed()
@@ -239,7 +359,7 @@ class TriggerManager implements ITriggerManager
         return triggers;
     }
 
-    public boolean handle(final UserDTO triggerUser, final FileDTO fileDTO, final File file,
+    public boolean handle(final UserDTO triggerUser, final FileDTO fileDTO,
             final IFileManager fileManager)
     {
         if (isTriggerUser(triggerUser) == false)
@@ -247,36 +367,14 @@ class TriggerManager implements ITriggerManager
             throw new IllegalArgumentException("User " + triggerUser.getUserCode()
                     + " is not a trigger user.");
         }
-        final TriggerRequest request = new TriggerRequest(fileDTO, file); 
+        final File file = fileManager.getRealFile(fileDTO);
+        final TriggerRequest request = new TriggerRequest(fileDTO, file, null);
         final ITrigger trigger = triggerMap.get(triggerUser.getUserCode());
-        trigger.handle(request, new ITriggerConsole()
-            {
-                public void upload(File fileToUpload, String[] recipients)
-                {
-                    upload(fileToUpload, recipients, "Upload by trigger "
-                            + trigger.getClass().getSimpleName());
-                }
-
-                public void upload(File fileToUpload, String[] recipients, String comment)
-                {
-                    upload(fileToUpload, FilenameUtilities.getMimeType(fileToUpload.getName()),
-                            recipients, comment);
-                }
-
-                public void upload(File fileToUpload, String mimeType, String[] recipients,
-                        String comment)
-                {
-                    final File uploadedFile = copy(fileManager, triggerUser, fileToUpload);
-                    fileManager.registerFileLinkAndInformRecipients(triggerUser, uploadedFile
-                            .getName(), comment, mimeType, uploadedFile, recipients, url);
-                }
-
-                public void sendMessage(String subject, String content, String replyTo,
-                        String... recipients) throws EnvironmentFailureException
-                {
-                    mailClient.sendMessage(subject, content, replyTo, recipients);
-                }
-            });
+        final TriggerConsole console =
+                new TriggerConsole(trigger, fileManager, request, fileDTO.getRegisterer(),
+                        triggerUser);
+        trigger.handle(request, console);
+        console.deleteDismissables();
         return request.isDismissed();
     }
 

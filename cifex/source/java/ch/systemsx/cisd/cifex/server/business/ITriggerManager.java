@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
-import java.io.File;
-
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
@@ -40,5 +38,5 @@ public interface ITriggerManager
      * @return <code>true</code>, if the file should be dismissed after running the trigger and
      *         <code>false</code> otherwise.
      */
-    public boolean handle(UserDTO triggerUser, FileDTO fileDTO, File file, IFileManager fileManager);
+    public boolean handle(UserDTO triggerUser, FileDTO fileDTO, IFileManager fileManager);
 }

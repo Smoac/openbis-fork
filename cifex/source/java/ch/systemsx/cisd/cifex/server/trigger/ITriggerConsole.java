@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server.trigger;
 
 import java.io.File;
+import java.util.List;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
 
@@ -29,8 +30,35 @@ public interface ITriggerConsole extends IMailClient
 {
 
     /**
-     * Uploads the <var>file</var> for the <var>recipients</var> with a default comment.
-     * The mime type will be inferred from the file name.
+     * Returns the pending requests of the user that created this request. Note that the current
+     * request is not contained.
+     */
+    public List<ITriggerRequest> getPendingRequests();
+
+    /**
+     * Returns the pending requests of the user that created this request which match the given
+     * <var>fileNameWildCard</var>. Note that the current request is not contained.
+     */
+    public List<ITriggerRequest> getPendingRequests(String fileNameWildCard);
+
+    /**
+     * Returns all pending requests. Note that the current request is not contained. 
+     * <p>
+     * <i>Note: most likely you want to use {@link #getPendingRequests()}</i> instead.
+     */
+    public List<ITriggerRequest> getAllPendingRequests();
+
+    /**
+     * Returns all pending requests which match the given <var>fileNameWildCard</var>. Note that the
+     * current request is not contained.
+     * <p>
+     * <i>Note: most likely you want to use {@link #getPendingRequests(String)}</i> instead.
+     */
+    public List<ITriggerRequest> getAllPendingRequests(String fileNameWildCard);
+
+    /**
+     * Uploads the <var>file</var> for the <var>recipients</var> with a default comment. The mime
+     * type will be inferred from the file name.
      */
     public void upload(File file, String[] recipients);
 
