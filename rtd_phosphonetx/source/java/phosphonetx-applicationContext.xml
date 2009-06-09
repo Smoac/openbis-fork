@@ -29,6 +29,8 @@
         <property name="databaseInstance" value="${phosphonetx.database-instance}" />
     </bean>
     
-    <bean id="phosphonetx-data-source" factory-bean="phosphonetx-db-configuration-context" factory-method="getDataSource" />
-
+    <bean id="phosphonetx-dao-factory"
+          class="ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.db.PhosphoNetXDAOFactory">
+        <constructor-arg ref="phosphonetx-db-configuration-context"/>
+    </bean>
 </beans>
