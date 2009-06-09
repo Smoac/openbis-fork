@@ -125,14 +125,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
 
     protected void resetPanel()
     {
-        try
-        {
-            formPanel.reset();
-        } catch (JavaScriptException e)
-        {
-            // ignored because it might be thrown for file upload field in system tests on CI
-            // server
-        }
+        formPanel.reset();
     }
 
     protected ClickableFormPanel createFormPanel(final IMessageProvider messageProvider)
@@ -218,7 +211,14 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         protected void process(final T result)
         {
             infoBox.displayInfo(createSuccessfullRegistrationInfo(result));
-            resetFieldsAfterSave();
+            try
+            {
+                resetFieldsAfterSave();
+            } catch (JavaScriptException e)
+            {
+                // ignored because it might be thrown for file upload field in system tests on CI
+                // server
+            }
             setUploadEnabled(true);
             saveButton.enable();
         }

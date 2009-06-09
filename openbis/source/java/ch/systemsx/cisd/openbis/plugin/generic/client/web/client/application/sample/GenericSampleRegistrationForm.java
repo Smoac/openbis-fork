@@ -115,13 +115,7 @@ public final class GenericSampleRegistrationForm extends
         codeField.reset();
         for (FileUploadField attachmentField : attachmentManager.getFields())
         {
-            // Reset attachment field only when not empty.
-            // Should prevent failure in system tests due to NS_ERROR_DOM_SECURITY_ERR in Javascript
-            Object value = attachmentField.getValue();
-            if (value != null && "".equals(value) == false) 
-            {
-                attachmentField.reset();
-            }
+            attachmentField.reset();
         }
     }
 
