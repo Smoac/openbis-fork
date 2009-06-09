@@ -29,7 +29,7 @@ public class ServiceProvider
 {
     private static final BeanFactory APPLICATION_CONTEXT =
             new ClassPathXmlApplicationContext(new String[]
-                { "applicationContext.xml" }, true);
+                { "dssApplicationContext.xml" }, true);
 
     /**
      * Returns openBIS service singleton.
