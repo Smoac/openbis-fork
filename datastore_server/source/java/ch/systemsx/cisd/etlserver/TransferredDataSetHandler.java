@@ -23,6 +23,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
@@ -203,7 +204,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         dataSetHandler.handleDataSet(file);
     }
 
-    public void handleDataSet(final File dataSet)
+    public List<DataSetInformation> handleDataSet(final File dataSet)
     {
         final RegistrationHelper registrationHelper = createRegistrationHelper(dataSet);
         registrationHelper.prepare();
@@ -214,7 +215,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         {
             registrationHelper.moveDataSet();
         }
-        // NOTE: now registrationHelper.dataSetInformation stores the information about the dataset
+        return Collections.singletonList(registrationHelper.dataSetInformation);
     }
 
     public boolean isStopped()

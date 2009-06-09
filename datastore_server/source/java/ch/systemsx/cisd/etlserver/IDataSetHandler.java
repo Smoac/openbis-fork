@@ -17,6 +17,9 @@
 package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * Interface implemented by classes which can handle an incoming data set file or directory.
@@ -32,9 +35,9 @@ public interface IDataSetHandler
     public static final String DATASET_HANDLER_KEY = "dataset-handler";
 
     /**
-     * Handles specified data set and returns the data set information which includes the data set
-     * code.
+     * Handles specified data set and returns informations (like data set code) 
+     * of all actually registered data sets.
      */
-    public void handleDataSet(final File dataSet);
+    public List<DataSetInformation> handleDataSet(final File dataSet);
 
 }
