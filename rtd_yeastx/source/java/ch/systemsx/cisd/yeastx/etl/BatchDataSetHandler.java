@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.yeastx.etl.ConstantsYeastX.ERROR_MARKER_FILE;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -29,6 +30,7 @@ import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * {@link IDataSetHandler} implementation which for each dataset directory reads all the files
@@ -49,18 +51,19 @@ public class BatchDataSetHandler implements IDataSetHandler
         this.datasetMappingResolver = new DatasetMappingResolver(properties, openbisService);
     }
 
-    public void handleDataSet(File datasetsParentDir)
+    public List<DataSetInformation> handleDataSet(File datasetsParentDir)
     {
+        List<DataSetInformation> list = new ArrayList<DataSetInformation>();
         if (canBatchBeProcessed(datasetsParentDir) == false)
         {
-            return;
+            return list;
         }
         TableMap<String, DataSetMappingInformation> datasetsMapping =
                 DatasetMappingUtil.tryGetDatasetsMapping(datasetsParentDir);
         if (datasetsMapping == null)
         {
             touchErrorMarkerFile(datasetsParentDir);
-            return;
+            return list;
         }
         Set<String> processedFiles = new HashSet<String>();
         List<File> files = listAll(datasetsParentDir);
@@ -68,12 +71,13 @@ public class BatchDataSetHandler implements IDataSetHandler
         {
             if (canDatasetBeProcessed(file, datasetsMapping))
             {
-                delegator.handleDataSet(file);
+                list.addAll(delegator.handleDataSet(file));
                 processedFiles.add(file.getName().toLowerCase());
             }
         }
         cleanMappingFile(datasetsParentDir, processedFiles);
         finish(datasetsParentDir, datasetsMapping.values().size() - processedFiles.size());
+        return list;
     }
 
     private boolean canBatchBeProcessed(File parentDir)
