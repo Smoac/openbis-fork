@@ -87,9 +87,11 @@ public class DataSetPropertiesSection extends SectionPanel
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
         final DataSetType datasetType = dataset.getDataSetType();
         final Invalidation invalidation = dataset.getInvalidation();
+        final ExternalData[] children = dataset.getChildren().toArray(new ExternalData[0]);
 
         properties.put(messageProvider.getMessage(Dict.DATA_SET), dataset.getCode());
         properties.put(messageProvider.getMessage(Dict.DATA_SET_TYPE), datasetType);
+        properties.put(messageProvider.getMessage(Dict.SOURCE_TYPE), dataset.getSourceType());
         properties.put(messageProvider.getMessage(Dict.REGISTRATOR), dataset.getRegistrator());
         properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE), dataset
                 .getRegistrationDate());
@@ -105,6 +107,10 @@ public class DataSetPropertiesSection extends SectionPanel
         if (parent != null)
         {
             properties.put(messageProvider.getMessage(Dict.PARENT), parent);
+        }
+        if (children.length > 0)
+        {
+            properties.put(messageProvider.getMessage(Dict.CHILDREN_DATASETS), children);
         }
 
         final List<DataSetProperty> datasetProperties = dataset.getProperties();

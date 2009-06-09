@@ -688,7 +688,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         } catch (final DataAccessException ex)
         {
             DataAccessExceptionTranslator.throwException(ex, String.format(
-                    "File format type '%s' ", fileFormatType.getCode()));
+                    "File format type '%s' ", fileFormatType.getCode()), null);
         }
     }
 

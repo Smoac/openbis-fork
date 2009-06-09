@@ -105,6 +105,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
 
     private Set<DataPE> parents = new HashSet<DataPE>();
 
+    private Set<DataPE> children = new HashSet<DataPE>();
+
     private DataStorePE dataStore;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -321,6 +323,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
         this.code = code;
     }
 
+    // TODO 2009-06-09, Piotr Buczek: change to @ManyToOne and remove data_set_relationships table
     // we use cascade PERSIST, not ALL because we don't REMOVE parent when we delete a child
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(name = TableNames.DATA_SET_RELATIONSHIPS_TABLE, joinColumns = @JoinColumn(name = ColumnNames.DATA_CHILD_COLUMN), inverseJoinColumns = @JoinColumn(name = ColumnNames.DATA_PARENT_COLUMN))
@@ -332,6 +335,20 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
     public void setParents(final Set<DataPE> parents)
     {
         this.parents = parents;
+    }
+
+    // TODO 2009-06-09, Piotr Buczek: change to @OneToMany and remove data_set_relationships table
+    // we use cascade PERSIST, not ALL because we don't REMOVE parent when we delete a child
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinTable(name = TableNames.DATA_SET_RELATIONSHIPS_TABLE, joinColumns = @JoinColumn(name = ColumnNames.DATA_PARENT_COLUMN), inverseJoinColumns = @JoinColumn(name = ColumnNames.DATA_CHILD_COLUMN))
+    public Set<DataPE> getChildren()
+    {
+        return children;
+    }
+
+    public void setChildren(final Set<DataPE> children)
+    {
+        this.children = children;
     }
 
     //

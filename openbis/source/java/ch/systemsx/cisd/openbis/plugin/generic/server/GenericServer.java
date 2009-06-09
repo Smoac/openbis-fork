@@ -202,6 +202,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         final IExternalDataBO datasetBO = businessObjectFactory.createExternalDataBO(session);
         datasetBO.loadDataByTechId(datasetId);
         datasetBO.enrichWithParentsAndExperiment();
+        datasetBO.enrichWithChildren();
         datasetBO.enrichWithProperties();
         final ExternalDataPE dataset = datasetBO.getExternalData();
         return dataset;

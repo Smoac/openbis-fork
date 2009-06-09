@@ -89,12 +89,6 @@ public abstract class AbstractExternalDataGrid
             return EntityKind.DATA_SET.getDescription();
         }
 
-        @Override
-        protected String getWarning()
-        {
-            return "";
-        }
-
     }
 
     static final class UploadCallback extends AbstractAsyncCallback<String>

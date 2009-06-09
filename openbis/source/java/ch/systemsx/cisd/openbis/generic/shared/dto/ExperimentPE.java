@@ -304,8 +304,7 @@ public class ExperimentPE extends AttachmentHolderPE implements IEntityPropertie
     }
 
     @Override
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "experimentParentInternal")
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentParentInternal")
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_EXPERIMENT_ATTACHMENTS)
     protected Set<AttachmentPE> getInternalAttachments()
     {
@@ -320,7 +319,6 @@ public class ExperimentPE extends AttachmentHolderPE implements IEntityPropertie
     }
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentInternal")
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     @ContainedIn
     private List<SamplePE> getExperimentSamples()
     {
@@ -367,7 +365,6 @@ public class ExperimentPE extends AttachmentHolderPE implements IEntityPropertie
     }
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentInternal")
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     @ContainedIn
     private List<DataPE> getExperimentDataSets()
     {

@@ -22,8 +22,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractExternalDataBusinessObject extends
@@ -31,8 +29,6 @@ public abstract class AbstractExternalDataBusinessObject extends
 {
 
     /**
-     *
-     *
      * @param daoFactory
      * @param session
      */
@@ -45,6 +41,11 @@ public abstract class AbstractExternalDataBusinessObject extends
     {
         HibernateUtils.initialize(externalDataPE.getParents());
         HibernateUtils.initialize(externalDataPE.getExperiment());
+    }
+
+    protected void enrichWithChildren(ExternalDataPE externalDataPE)
+    {
+        HibernateUtils.initialize(externalDataPE.getChildren());
     }
 
 }

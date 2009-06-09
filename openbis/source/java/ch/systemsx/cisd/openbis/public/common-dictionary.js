@@ -28,10 +28,7 @@ var common = {
   entity_operations: "Entity:",
   url: "URL",
   reason: "Reason",
-  delete_confirmation_message_with_reason: "You are deleting {0} {1}(s).{2}<br><br>Please enter a reason or cancel deletion.",
-  delete_confirmation_warning: "<br><br>Be aware that there may be some objects connected to it that will be deleted too ({0}).",
-  delete_confirmation_warning_part_for_sample: "attachments, data sets, contained and derived samples",
-  delete_confirmation_warning_part_for_experiment: "attachments, data sets, samples",
+  delete_confirmation_message_with_reason: "You are deleting {0} {1}(s).<br><br>Please enter a reason or cancel deletion.",
   
   //
   // Field
@@ -151,6 +148,12 @@ var common = {
   //
   
   experiment_type: "Experiment Type",
+  
+  //
+  // DataSet Browser
+  //
+  
+  children_datasets: "Children",
   
   //
   // Entity Type Browser

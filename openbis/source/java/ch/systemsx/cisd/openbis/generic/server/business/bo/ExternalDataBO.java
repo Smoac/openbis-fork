@@ -112,6 +112,14 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         }
     }
 
+    public void enrichWithChildren()
+    {
+        if (externalData != null)
+        {
+            enrichWithChildren(externalData);
+        }
+    }
+
     public final void enrichWithProperties()
     {
         if (externalData != null)

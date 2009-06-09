@@ -537,8 +537,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     }
 
     @Override
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "sampleParentInternal")
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "sampleParentInternal")
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SAMPLE_ATTACHMENTS)
     protected Set<AttachmentPE> getInternalAttachments()
     {
@@ -560,7 +559,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     }
 
     //
-    // cascade deletion of connected samples (no bidirectional support for connection)
+    // connected samples for use only in tests (no bidirectional support for connection)
     //
 
     /** children of container hierarchy - added only to allow cascade deletion */
@@ -570,8 +569,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     private List<SamplePE> derived = new ArrayList<SamplePE>();
 
     @Private
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, mappedBy = "container")
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "container")
     public List<SamplePE> getContained()
     {
         return contained;
@@ -584,8 +582,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     }
 
     @Private
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, mappedBy = "generatedFrom")
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "generatedFrom")
     public List<SamplePE> getDerived()
     {
         return derived;

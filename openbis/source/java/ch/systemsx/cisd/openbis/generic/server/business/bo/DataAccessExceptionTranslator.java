@@ -23,6 +23,7 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.db.SQLStateUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * This class converts the low-level {@link DataAccessException} into a high-level exception
@@ -47,7 +48,10 @@ public final class DataAccessExceptionTranslator
             "%s already exists in the database and needs to be unique.";
 
     /** Message format for foreign key violation. */
-    public final static String FOREIGN_KEY_VIOLATION_FORMAT = "%s is being used.";
+    public final static String FOREIGN_KEY_VIOLATION_FORMAT =
+            "%s is being used. Delete all connected data %s first. "
+                    + "To find out which exactly objects are connected to this object "
+                    + "go to it's Detail view or use Search.";
 
     private DataAccessExceptionTranslator()
     {
@@ -59,21 +63,23 @@ public final class DataAccessExceptionTranslator
      * <code>UserFailureException</code>.
      * <p>
      * This method is typically used by <i>creator</i> methods (methods which inserts a new object
-     * into the database).
+     * into the database) and <i>deletion</i> methods.
      * </p>
      * 
-     * @param subject short description of the object that got blessed by the unique violation
-     *            constraint.
+     * @param subject short description of the object that got blessed by the unique/foreign key
+     *            violation constraint.
+     * @param entityKindOrNull entity kind of the subject object (if specified can make the error
+     *            message more detailed especially for foreign key violation upon deletion)
      */
     public final static void throwException(final DataAccessException exception,
-            final String subject) throws UserFailureException
+            final String subject, final EntityKind entityKindOrNull) throws UserFailureException
     {
         assert StringUtils.isNotBlank(subject) : "Given subject can not be blank.";
-        throwExceptionWithMsg(exception, StringUtils.capitalize(subject));
+        throwExceptionWithMsg(exception, StringUtils.capitalize(subject), entityKindOrNull);
     }
 
-    public final static void throwExceptionWithMsg(final DataAccessException exception,
-            final String subject) throws UserFailureException
+    private final static void throwExceptionWithMsg(final DataAccessException exception,
+            final String subject, final EntityKind entityKindOrNull) throws UserFailureException
     {
         assert exception != null : "DataAccessException not specified.";
         final SQLException sqlException =
@@ -89,13 +95,46 @@ public final class DataAccessExceptionTranslator
                         exception);
             } else if (SQLStateUtils.isForeignKeyViolation(sqlState))
             {
-                throw new UserFailureException(
-                        String.format(FOREIGN_KEY_VIOLATION_FORMAT, subject), exception);
+                throwForeignKeyViolationException(subject, entityKindOrNull, exception);
             } else
             {
                 throwable = sqlException;
             }
         }
         throw new UserFailureException(throwable.getMessage(), exception);
+    }
+
+    public static void throwForeignKeyViolationException(final String subject,
+            EntityKind entityKindOrNull) throws UserFailureException
+    {
+        throwForeignKeyViolationException(subject, entityKindOrNull, null);
+    }
+
+    private static void throwForeignKeyViolationException(final String subject,
+            EntityKind entityKindOrNull, Exception exception) throws UserFailureException
+    {
+        throw new UserFailureException(String.format(FOREIGN_KEY_VIOLATION_FORMAT, subject,
+                getForeignKeyViolationDetailedDescription(entityKindOrNull)), exception);
+    }
+
+    private static String getForeignKeyViolationDetailedDescription(EntityKind entityKindOrNull)
+    {
+        System.err.println(entityKindOrNull);
+        if (entityKindOrNull == null)
+        {
+            return "";
+        }
+        switch (entityKindOrNull)
+        {
+            case DATA_SET:
+                return "(child data sets)";
+            case EXPERIMENT:
+                return "(attachments, data sets, samples)";
+            case MATERIAL:
+                return "";
+            case SAMPLE:
+                return "(attachments, data sets, contained and generated samples)";
+        }
+        return "";
     }
 }

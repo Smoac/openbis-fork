@@ -428,7 +428,7 @@ public final class PropertyValueRenderers
         // AbstractPropertyValueRenderer
         //
 
-        public Widget getAsWidget(final T entity)
+        public FlowPanel getAsWidget(final T entity)
         {
             final String code = entity.getCode();
             final boolean invalidate = getInvalidate(entity);
@@ -436,7 +436,11 @@ public final class PropertyValueRenderers
                     new OpenEntityDetailsTabClickListener(entity, viewContext);
             final Hyperlink link = LinkRenderer.getLinkWidget(code, listener, invalidate);
 
-            return link;
+            // putting link into a panel makes it a block/row 
+            // which is important if they are rendered as an array
+            final FlowPanel panel = new FlowPanel();
+            panel.add(link);
+            return panel;
         }
 
         private boolean getInvalidate(final T entity)
@@ -473,12 +477,9 @@ public final class PropertyValueRenderers
         //
 
         @Override
-        public Widget getAsWidget(final Sample sample)
+        public FlowPanel getAsWidget(final Sample sample)
         {
-            final Widget link = super.getAsWidget(sample);
-
-            FlowPanel panel = new FlowPanel();
-            panel.add(link);
+            final FlowPanel panel = super.getAsWidget(sample);
             if (withType)
             {
                 panel.add(new InlineHTML(" [" + sample.getSampleType().getCode() + "]"));

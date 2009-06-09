@@ -24,12 +24,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.dao.DataAccessException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.HibernateTransformer;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -153,18 +154,38 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     {
         Map<DataStorePE, List<ExternalDataPE>> map = groupDataSetsByDataStores();
         assertDataSetsAreKnown(map);
-        IExternalDataDAO externalDataDAO = getExternalDataDAO();
-        IEventDAO eventDAO = getEventDAO();
+        PersonPE person = session.tryGetPerson();
         for (Map.Entry<DataStorePE, List<ExternalDataPE>> entry : map.entrySet())
         {
             DataStorePE dataStore = entry.getKey();
             List<ExternalDataPE> dataSets = entry.getValue();
+            // delete locally from DB
             for (ExternalDataPE dataSet : dataSets)
             {
-                eventDAO.persist(createDeletionEvent(dataSet, session.tryGetPerson(), reason));
-                externalDataDAO.delete(dataSet);
+                deleteDataSetLocally(dataSet, person, reason);
             }
+            // delete remotely from Data Store
             deleteDataSets(dataStore, getLocations(dataSets));
+        }
+    }
+
+    private void deleteDataSetLocally(ExternalDataPE dataSet, PersonPE person, String reason)
+            throws UserFailureException
+    {
+        try
+        {
+            if (dataSet.getChildren().size() > 0)
+            {
+                // TODO 2009-06-09, Piotr Buczek: remove if we change many2many -> one2many
+                throwEntityInUseException(String.format("Data Set '%s'", dataSet.getCode()),
+                        EntityKind.DATA_SET);
+            }
+            getExternalDataDAO().delete(dataSet);
+            getEventDAO().persist(createDeletionEvent(dataSet, session.tryGetPerson(), reason));
+        } catch (final DataAccessException ex)
+        {
+            throwException(ex, String.format("Data Set '%s'", dataSet.getCode()),
+                    EntityKind.DATA_SET);
         }
     }
 

@@ -1416,12 +1416,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         protected String createMessage()
         {
             return viewContext.getMessage(Dict.DELETE_CONFIRMATION_MESSAGE_WITH_REASON,
-                    data.size(), getEntityName(), getWarning());
+                    data.size(), getEntityName());
         }
 
         protected abstract String getEntityName();
-
-        protected abstract String getWarning();
 
     }
 

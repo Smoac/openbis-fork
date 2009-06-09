@@ -135,10 +135,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             getEventDAO().persist(createDeletionEvent(sample, session.tryGetPerson(), reason));
         } catch (final DataAccessException ex)
         {
-            throw UserFailureException
-                    .fromTemplate(
-                            "Could not delete sample '%s'. Someone might have already deleted it. Try to refresh data.",
-                            sample.getCode());
+            throwException(ex, String.format("Sample '%s'", sample.getCode()), EntityKind.SAMPLE);
         }
     }
 

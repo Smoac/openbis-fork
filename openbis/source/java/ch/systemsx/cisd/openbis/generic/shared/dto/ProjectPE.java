@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -319,7 +318,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     }
 
     @Override
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "projectParentInternal")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "projectParentInternal")
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROJECT_ATTACHMENTS)
     protected Set<AttachmentPE> getInternalAttachments()
     {

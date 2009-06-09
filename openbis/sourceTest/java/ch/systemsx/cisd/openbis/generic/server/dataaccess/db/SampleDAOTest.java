@@ -26,21 +26,17 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.hibernate.classic.Session;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -166,8 +162,8 @@ public final class SampleDAOTest extends AbstractDAOTest
         assertEquals(320, samples.size());
     }
 
-    @Test
-    public final void testDeleteWithPropertiesDerivedAndContainedSamples()
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
+    public final void testFailDeleteWithPropertiesDerivedAndContainedSamples()
     {
         // deleted sample has properties, derived samples and contained samples connected
         // that should be deleted too
@@ -181,37 +177,38 @@ public final class SampleDAOTest extends AbstractDAOTest
 
         sampleDAO.delete(deletedSample);
 
-        // test successful deletion of sample
-        assertEquals(null, sampleDAO.tryGetByTechId(TechId.create(deletedSample)));
-
-        // test successful deletion of connected:
-        // - derived samples
-        assertEqualsOrGreater(1, deletedSample.getDerived().size());
-        for (SamplePE sample : deletedSample.getDerived())
-        {
-            assertEquals(null, daoFactory.getSampleDAO().tryGetByTechId(TechId.create(sample)));
-        }
-        // - contained samples
-        assertEqualsOrGreater(1, deletedSample.getContained().size());
-        for (SamplePE sample : deletedSample.getContained())
-        {
-            assertEquals(null, daoFactory.getSampleDAO().tryGetByTechId(TechId.create(sample)));
-        }
-        // - properties
-        assertEqualsOrGreater(1, deletedSample.getProperties().size());
-        List<EntityTypePropertyTypePE> retrievedPropertyTypes =
-                daoFactory.getEntityPropertyTypeDAO(EntityKind.SAMPLE).listEntityPropertyTypes(
-                        deletedSample.getEntityType());
-        for (SamplePropertyPE property : deletedSample.getProperties())
-        {
-            int index = retrievedPropertyTypes.indexOf(property.getEntityTypePropertyType());
-            EntityTypePropertyTypePE retrievedPropertyType = retrievedPropertyTypes.get(index);
-            assertFalse(retrievedPropertyType.getPropertyValues().contains(property));
-        }
+        // // test successful deletion of sample
+        // assertEquals(null, sampleDAO.tryGetByTechId(TechId.create(deletedSample)));
+        //
+        // // test successful deletion of connected:
+        // // - derived samples
+        // assertEqualsOrGreater(1, deletedSample.getDerived().size());
+        // for (SamplePE sample : deletedSample.getDerived())
+        // {
+        // assertEquals(null, daoFactory.getSampleDAO().tryGetByTechId(TechId.create(sample)));
+        // }
+        // // - contained samples
+        // assertEqualsOrGreater(1, deletedSample.getContained().size());
+        // for (SamplePE sample : deletedSample.getContained())
+        // {
+        // assertEquals(null, daoFactory.getSampleDAO().tryGetByTechId(TechId.create(sample)));
+        // }
+        // // - properties
+        // assertEqualsOrGreater(1, deletedSample.getProperties().size());
+        // List<EntityTypePropertyTypePE> retrievedPropertyTypes =
+        // daoFactory.getEntityPropertyTypeDAO(EntityKind.SAMPLE).listEntityPropertyTypes(
+        // deletedSample.getEntityType());
+        // for (SamplePropertyPE property : deletedSample.getProperties())
+        // {
+        // int index = retrievedPropertyTypes.indexOf(property.getEntityTypePropertyType());
+        // EntityTypePropertyTypePE retrievedPropertyType = retrievedPropertyTypes.get(index);
+        // assertFalse(retrievedPropertyType.getPropertyValues().contains(property));
+        // }
     }
 
-    @Test
-    public final void testDeleteWithDatasets()
+    // TODO 2009-06-09, Piotr Buczek: write additional tests that check all foreign key violations
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
+    public final void testFailDeleteWithDatasets()
     {
         // deleted sample has properties and data sets connected that should be deleted too
 
@@ -224,22 +221,22 @@ public final class SampleDAOTest extends AbstractDAOTest
 
         sampleDAO.delete(deletedSample);
 
-        // test successful deletion of sample
-        assertNull(sampleDAO.tryGetByTechId(TechId.create(deletedSample)));
-
-        // test successful deletion of connected:
-        // - data sets
-        assertEqualsOrGreater(1, deletedSample.getDatasets().size());
-        for (DataPE data : deletedSample.getDatasets())
-        {
-            assertNull(daoFactory.getExternalDataDAO().tryGetByTechId(TechId.create(data)));
-        }
-
-        // test that parent sample is preserved
-        SamplePE generatedFrom = deletedSample.getGeneratedFrom();
-        assertNotNull(generatedFrom);
-        assertNotNull(daoFactory.getSampleDAO().tryGetByTechId(
-                new TechId(HibernateUtils.getId(generatedFrom))));
+        // // test successful deletion of sample
+        // assertNull(sampleDAO.tryGetByTechId(TechId.create(deletedSample)));
+        //
+        // // test successful deletion of connected:
+        // // - data sets
+        // assertEqualsOrGreater(1, deletedSample.getDatasets().size());
+        // for (DataPE data : deletedSample.getDatasets())
+        // {
+        // assertNull(daoFactory.getExternalDataDAO().tryGetByTechId(TechId.create(data)));
+        // }
+        //
+        // // test that parent sample is preserved
+        // SamplePE generatedFrom = deletedSample.getGeneratedFrom();
+        // assertNotNull(generatedFrom);
+        // assertNotNull(daoFactory.getSampleDAO().tryGetByTechId(
+        // new TechId(HibernateUtils.getId(generatedFrom))));
     }
 
     @Test

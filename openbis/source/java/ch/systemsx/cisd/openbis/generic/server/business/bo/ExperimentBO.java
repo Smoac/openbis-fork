@@ -219,10 +219,8 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
             getEventDAO().persist(createDeletionEvent(experiment, session.tryGetPerson(), reason));
         } catch (final DataAccessException ex)
         {
-            throw UserFailureException
-                    .fromTemplate(
-                            "Could not delete experiment '%s'. Someone might have already deleted it. Try to refresh data.",
-                            experiment.getCode());
+            throwException(ex, String.format("Experiment '%s'", experiment.getCode()),
+                    EntityKind.EXPERIMENT);
         }
     }
 

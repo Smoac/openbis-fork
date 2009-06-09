@@ -101,7 +101,19 @@ abstract class AbstractBusinessObject implements IDAOFactory
     protected final static void throwException(final DataAccessException exception,
             final String subject) throws UserFailureException
     {
-        DataAccessExceptionTranslator.throwException(exception, subject);
+        throwException(exception, subject, null);
+    }
+
+    protected final static void throwException(final DataAccessException exception,
+            final String subject, final EntityKind entityKindOrNull) throws UserFailureException
+    {
+        DataAccessExceptionTranslator.throwException(exception, subject, entityKindOrNull);
+    }
+
+    protected final static void throwEntityInUseException(final String subject,
+            final EntityKind entityKindOrNull) throws UserFailureException
+    {
+        DataAccessExceptionTranslator.throwForeignKeyViolationException(subject, entityKindOrNull);
     }
 
     private static final String ERR_MODIFIED_ENTITY =

@@ -220,6 +220,12 @@ public abstract class Dict
     public static final String EXPERIMENT_TYPE = "experiment_type";
 
     //
+    // Dataset Browser
+    //
+
+    public static final String CHILDREN_DATASETS = "children_datasets";
+
+    //
     // Entity Type Browser
     //
 

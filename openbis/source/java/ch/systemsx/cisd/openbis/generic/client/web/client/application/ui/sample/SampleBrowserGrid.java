@@ -431,13 +431,6 @@ public class SampleBrowserGrid extends
             return EntityKind.SAMPLE.getDescription();
         }
 
-        @Override
-        protected String getWarning()
-        {
-            return viewContext.getMessage(Dict.DELETE_CONFIRMATION_WARNING, viewContext
-                    .getMessage(Dict.DELETE_CONFIRMATION_WARNING_PART_FOR_SAMPLE));
-        }
-
     }
 
 }

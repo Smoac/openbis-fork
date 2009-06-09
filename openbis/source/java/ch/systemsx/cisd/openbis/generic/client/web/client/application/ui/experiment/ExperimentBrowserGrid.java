@@ -283,12 +283,5 @@ public class ExperimentBrowserGrid extends
             return EntityKind.EXPERIMENT.getDescription();
         }
 
-        @Override
-        protected String getWarning()
-        {
-            return viewContext.getMessage(Dict.DELETE_CONFIRMATION_WARNING, viewContext
-                    .getMessage(Dict.DELETE_CONFIRMATION_WARNING_PART_FOR_EXPERIMENT));
-        }
-
     }
 }

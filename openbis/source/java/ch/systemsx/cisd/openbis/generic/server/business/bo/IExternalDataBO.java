@@ -62,7 +62,12 @@ public interface IExternalDataBO extends IEntityBusinessObject
     public void enrichWithParentsAndExperiment();
 
     /**
-     * Entich external data with properties.
+     * Enrich external data with children and experiment.
+     */
+    public void enrichWithChildren();
+
+    /**
+     * Enrich external data with properties.
      */
     public void enrichWithProperties();
 }

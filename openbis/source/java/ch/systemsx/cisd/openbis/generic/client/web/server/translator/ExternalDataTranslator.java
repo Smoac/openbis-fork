@@ -87,7 +87,9 @@ public class ExternalDataTranslator
         externalData.setInvalidation(tryToGetInvalidation(sample));
         externalData.setLocation(StringEscapeUtils.escapeHtml(externalDataPE.getLocation()));
         externalData.setLocatorType(TypeTranslator.translate(externalDataPE.getLocatorType()));
-        externalData.setParent(parent == null ? null : fillParent(new ExternalData(), parent));
+        externalData
+                .setParent(parent == null ? null : fillExternalData(new ExternalData(), parent));
+        setChildren(externalDataPE, externalData);
         externalData.setProductionDate(externalDataPE.getProductionDate());
         externalData.setModificationDate(externalDataPE.getModificationDate());
         externalData.setRegistrationDate(externalDataPE.getRegistrationDate());
@@ -154,16 +156,29 @@ public class ExternalDataTranslator
         }
         return sample;
     }
-
+        
+    private static void setChildren(ExternalDataPE externalDataPE, ExternalData externalData)
+    {
+        List<ExternalData> children = new ArrayList<ExternalData>();
+        if (HibernateUtils.isInitialized(externalDataPE.getChildren()))
+        {
+            for (DataPE childPE : externalDataPE.getChildren())
+            {
+                children.add(fillExternalData(new ExternalData(), childPE));
+            }
+        }
+        externalData.setChildren(children);
+    }
+    
     /**
      * Fills <var>externalData</var> from <var>data</vra> with all data needed by
      * {@link IEntityInformationHolder}.
      */
-    private static ExternalData fillParent(ExternalData externalData, DataPE data)
+    private static ExternalData fillExternalData(ExternalData externalData, DataPE dataPE)
     {
-        externalData.setId(HibernateUtils.getId(data));
-        externalData.setCode(StringEscapeUtils.escapeHtml(data.getCode()));
-        externalData.setDataSetType(DataSetTypeTranslator.translate(data.getDataSetType()));
+        externalData.setId(HibernateUtils.getId(dataPE));
+        externalData.setCode(StringEscapeUtils.escapeHtml(dataPE.getCode()));
+        externalData.setDataSetType(DataSetTypeTranslator.translate(dataPE.getDataSetType()));
         return externalData;
     }
 }

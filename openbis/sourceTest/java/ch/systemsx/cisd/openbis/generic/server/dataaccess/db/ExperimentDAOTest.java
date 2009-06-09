@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
@@ -34,16 +32,11 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.ExperimentTypeCode;
 
@@ -177,8 +170,9 @@ public class ExperimentDAOTest extends AbstractDAOTest
         assertEquals(2, experiment.getDataSets().size());
     }
 
-    @Test
-    public void testDelete()
+    // TODO 2009-06-09, Piotr Buczek: write additional tests that check all foreign key violations
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
+    public void testFailDelete()
     {
         final IExperimentDAO experimentDAO = daoFactory.getExperimentDAO();
         List<ExperimentPE> experiments = experimentDAO.listExperiments();
@@ -190,40 +184,40 @@ public class ExperimentDAOTest extends AbstractDAOTest
 
         experimentDAO.delete(deletedExperiment);
 
-        // test successful deletion of experiment
-        assertNull(experimentDAO.tryGetByTechId(TechId.create(deletedExperiment)));
-
-        // test successful deletion of connected:
-        // - samples
-        assertEqualsOrGreater(1, deletedExperiment.getDataSets().size());
-        for (SamplePE sample : deletedExperiment.getSamples())
-        {
-            assertNull(daoFactory.getSampleDAO().tryGetByTechId(TechId.create(sample)));
-        }
-        // - data sets
-        assertEqualsOrGreater(1, deletedExperiment.getDataSets().size());
-        for (DataPE data : deletedExperiment.getDataSets())
-        {
-            assertNull(daoFactory.getExternalDataDAO().tryGetByTechId(TechId.create(data)));
-        }
-        // - attachments
-        assertEqualsOrGreater(1, deletedExperiment.getAttachments().size());
-        assertEquals(0, daoFactory.getAttachmentDAO().listAttachments(deletedExperiment).size());
-        for (AttachmentPE attachment : deletedExperiment.getAttachments())
-        {
-            assertNull(daoFactory.getAttachmentDAO().tryGetByTechId(TechId.create(attachment)));
-        }
-        // - properties
-        assertEqualsOrGreater(1, deletedExperiment.getProperties().size());
-        List<EntityTypePropertyTypePE> retrievedPropertyTypes =
-                daoFactory.getEntityPropertyTypeDAO(EntityKind.EXPERIMENT).listEntityPropertyTypes(
-                        deletedExperiment.getEntityType());
-        for (ExperimentPropertyPE property : deletedExperiment.getProperties())
-        {
-            int index = retrievedPropertyTypes.indexOf(property.getEntityTypePropertyType());
-            EntityTypePropertyTypePE retrievedPropertyType = retrievedPropertyTypes.get(index);
-            assertFalse(retrievedPropertyType.getPropertyValues().contains(property));
-        }
+        // // test successful deletion of experiment
+        // assertNull(experimentDAO.tryGetByTechId(TechId.create(deletedExperiment)));
+        //
+        // // test successful deletion of connected:
+        // // - samples
+        // assertEqualsOrGreater(1, deletedExperiment.getDataSets().size());
+        // for (SamplePE sample : deletedExperiment.getSamples())
+        // {
+        // assertNull(daoFactory.getSampleDAO().tryGetByTechId(TechId.create(sample)));
+        // }
+        // // - data sets
+        // assertEqualsOrGreater(1, deletedExperiment.getDataSets().size());
+        // for (DataPE data : deletedExperiment.getDataSets())
+        // {
+        // assertNull(daoFactory.getExternalDataDAO().tryGetByTechId(TechId.create(data)));
+        // }
+        // // - attachments
+        // assertEqualsOrGreater(1, deletedExperiment.getAttachments().size());
+        // assertEquals(0, daoFactory.getAttachmentDAO().listAttachments(deletedExperiment).size());
+        // for (AttachmentPE attachment : deletedExperiment.getAttachments())
+        // {
+        // assertNull(daoFactory.getAttachmentDAO().tryGetByTechId(TechId.create(attachment)));
+        // }
+        // // - properties
+        // assertEqualsOrGreater(1, deletedExperiment.getProperties().size());
+        // List<EntityTypePropertyTypePE> retrievedPropertyTypes =
+        // daoFactory.getEntityPropertyTypeDAO(EntityKind.EXPERIMENT).listEntityPropertyTypes(
+        // deletedExperiment.getEntityType());
+        // for (ExperimentPropertyPE property : deletedExperiment.getProperties())
+        // {
+        // int index = retrievedPropertyTypes.indexOf(property.getEntityTypePropertyType());
+        // EntityTypePropertyTypePE retrievedPropertyType = retrievedPropertyTypes.get(index);
+        // assertFalse(retrievedPropertyType.getPropertyValues().contains(property));
+        // }
     }
 
     @Test

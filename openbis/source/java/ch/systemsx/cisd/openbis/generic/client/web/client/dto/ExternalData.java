@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
@@ -74,6 +75,8 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     private String sampleCode;
 
     private SampleType sampleType;
+
+    private List<ExternalData> children;
 
     private List<SampleProperty> sampleProperties;
 
@@ -138,6 +141,16 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     private final void setSampleType(SampleType sampleType)
     {
         this.sampleType = sampleType;
+    }
+
+    public List<ExternalData> getChildren()
+    {
+        return children;
+    }
+
+    public void setChildren(List<ExternalData> children)
+    {
+        this.children = children;
     }
 
     public List<SampleProperty> getSampleProperties()
@@ -222,7 +235,7 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 
     public final String getParentCode()
     {
-        return parent == null ? null : parent.getCode(); 
+        return parent == null ? null : parent.getCode();
     }
 
     public final String getLocation()
@@ -325,4 +338,10 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         return getCode();
     }
 
+    // 'transient'
+
+    public String getSourceType()
+    {
+        return SourceType.create(isDerived()).name();
+    }
 }
