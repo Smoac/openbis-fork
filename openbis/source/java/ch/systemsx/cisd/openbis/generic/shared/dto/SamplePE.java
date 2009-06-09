@@ -162,8 +162,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         getDatasetsInternal().add(dataset);
     }
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, mappedBy = "sampleInternal")
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "sampleInternal")
     @ContainedIn
     private Set<DataPE> getDatasetsInternal()
     {
@@ -566,7 +565,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     private List<SamplePE> contained = new ArrayList<SamplePE>();
 
     /** children of generatedFrom hierarchy - added only to allow cascade deletion */
-    private List<SamplePE> derived = new ArrayList<SamplePE>();
+    private List<SamplePE> generated = new ArrayList<SamplePE>();
 
     @Private
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "container")
@@ -583,15 +582,15 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     @Private
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "generatedFrom")
-    public List<SamplePE> getDerived()
+    public List<SamplePE> getGenerated()
     {
-        return derived;
+        return generated;
     }
 
     @SuppressWarnings("unused")
-    private void setDerived(List<SamplePE> derived)
+    private void setGenerated(List<SamplePE> generated)
     {
-        this.derived = derived;
+        this.generated = generated;
     }
 
 }

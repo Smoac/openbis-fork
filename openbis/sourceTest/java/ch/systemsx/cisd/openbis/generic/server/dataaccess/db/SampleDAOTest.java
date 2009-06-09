@@ -23,20 +23,29 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.classic.Session;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -162,81 +171,152 @@ public final class SampleDAOTest extends AbstractDAOTest
         assertEquals(320, samples.size());
     }
 
-    @Test(expectedExceptions = DataIntegrityViolationException.class)
-    public final void testFailDeleteWithPropertiesDerivedAndContainedSamples()
+    private final SamplePE findSample(String code, String groupCode)
     {
-        // deleted sample has properties, derived samples and contained samples connected
-        // that should be deleted too
-
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-        final String code = "MP1-MIXED";
         final GroupPE group = findGroup("CISD");
-        final SamplePE deletedSample =
-                sampleDAO.tryFindByCodeAndGroup(code, group, HierarchyType.CHILD);
-        assertNotNull(deletedSample);
+        final SamplePE sample = sampleDAO.tryFindByCodeAndGroup(code, group, HierarchyType.CHILD);
+        assertNotNull(sample);
 
-        sampleDAO.delete(deletedSample);
-
-        // // test successful deletion of sample
-        // assertEquals(null, sampleDAO.tryGetByTechId(TechId.create(deletedSample)));
-        //
-        // // test successful deletion of connected:
-        // // - derived samples
-        // assertEqualsOrGreater(1, deletedSample.getDerived().size());
-        // for (SamplePE sample : deletedSample.getDerived())
-        // {
-        // assertEquals(null, daoFactory.getSampleDAO().tryGetByTechId(TechId.create(sample)));
-        // }
-        // // - contained samples
-        // assertEqualsOrGreater(1, deletedSample.getContained().size());
-        // for (SamplePE sample : deletedSample.getContained())
-        // {
-        // assertEquals(null, daoFactory.getSampleDAO().tryGetByTechId(TechId.create(sample)));
-        // }
-        // // - properties
-        // assertEqualsOrGreater(1, deletedSample.getProperties().size());
-        // List<EntityTypePropertyTypePE> retrievedPropertyTypes =
-        // daoFactory.getEntityPropertyTypeDAO(EntityKind.SAMPLE).listEntityPropertyTypes(
-        // deletedSample.getEntityType());
-        // for (SamplePropertyPE property : deletedSample.getProperties())
-        // {
-        // int index = retrievedPropertyTypes.indexOf(property.getEntityTypePropertyType());
-        // EntityTypePropertyTypePE retrievedPropertyType = retrievedPropertyTypes.get(index);
-        // assertFalse(retrievedPropertyType.getPropertyValues().contains(property));
-        // }
+        return sample;
     }
 
-    // TODO 2009-06-09, Piotr Buczek: write additional tests that check all foreign key violations
-    @Test(expectedExceptions = DataIntegrityViolationException.class)
-    public final void testFailDeleteWithDatasets()
+    private final void deleteSampleWithCollectionsChecked(SamplePE deletedSample,
+            Set<Collection<?>> emptyCollections, Collection<?> nonEmptyCollection)
+            throws DataAccessException
     {
-        // deleted sample has properties and data sets connected that should be deleted too
+        // check collections
+        for (Collection<?> collection : emptyCollections)
+        {
+            assertTrue(collection.isEmpty());
+        }
+        if (nonEmptyCollection != null)
+        {
+            assertFalse(nonEmptyCollection.isEmpty());
+        }
 
+        // delete
+        daoFactory.getSampleDAO().delete(deletedSample);
+    }
+
+    /**
+     * @return Set of all collections that should prevent deletion of given <var>sample</var> if
+     *         they are not empty.
+     */
+    private final Set<Collection<?>> getAllCollectionsThatPreventFromDeletion(SamplePE sample)
+    {
+        // deleted sample can not have: attachments, data sets, derived/contained samples
+        Set<Collection<?>> result = new HashSet<Collection<?>>();
+        result.add(sample.getAttachments());
+        result.add(sample.getDatasets());
+        result.add(sample.getGenerated());
+        result.add(sample.getContained());
+        return result;
+    }
+
+    @Test
+    public final void testDeleteWithParentAndExperimentPreserved()
+    {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-        final String code = "3VCP1";
-        final GroupPE group = findGroup("CISD");
-        final SamplePE deletedSample =
-                sampleDAO.tryFindByCodeAndGroup(code, group, HierarchyType.CHILD);
-        assertNotNull(deletedSample);
+        final SamplePE deletedSample = findSample("3VCP5", "CISD");
+        Set<Collection<?>> emptyCollections =
+                getAllCollectionsThatPreventFromDeletion(deletedSample);
+        deleteSampleWithCollectionsChecked(deletedSample, emptyCollections, null);
 
-        sampleDAO.delete(deletedSample);
+        // test successful deletion of sample
+        assertNull(sampleDAO.tryGetByTechId(TechId.create(deletedSample)));
 
-        // // test successful deletion of sample
-        // assertNull(sampleDAO.tryGetByTechId(TechId.create(deletedSample)));
-        //
-        // // test successful deletion of connected:
-        // // - data sets
-        // assertEqualsOrGreater(1, deletedSample.getDatasets().size());
-        // for (DataPE data : deletedSample.getDatasets())
-        // {
-        // assertNull(daoFactory.getExternalDataDAO().tryGetByTechId(TechId.create(data)));
-        // }
-        //
-        // // test that parent sample is preserved
-        // SamplePE generatedFrom = deletedSample.getGeneratedFrom();
-        // assertNotNull(generatedFrom);
-        // assertNotNull(daoFactory.getSampleDAO().tryGetByTechId(
-        // new TechId(HibernateUtils.getId(generatedFrom))));
+        // deleted sample had objects connected that should not have been deleted:
+        // - a parent
+        SamplePE generatedFrom = deletedSample.getGeneratedFrom();
+        assertNotNull(generatedFrom);
+        assertNotNull(sampleDAO.tryGetByTechId(new TechId(HibernateUtils.getId(generatedFrom))));
+        // - an experiment
+        ExperimentPE experiment = deletedSample.getExperiment();
+        assertNotNull(experiment);
+        assertNotNull(daoFactory.getExperimentDAO().tryGetByTechId(
+                new TechId(HibernateUtils.getId(experiment))));
+    }
+
+    @Test
+    public final void testDeleteWithProperties()
+    {
+        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
+        final SamplePE deletedSample = findSample("EMPTY-MP", "CISD");
+        Set<Collection<?>> emptyCollections =
+                getAllCollectionsThatPreventFromDeletion(deletedSample);
+        deleteSampleWithCollectionsChecked(deletedSample, emptyCollections, null);
+
+        // test successful deletion of sample
+        assertNull(sampleDAO.tryGetByTechId(TechId.create(deletedSample)));
+
+        // test successful deletion of sample properties
+        assertFalse(deletedSample.getProperties().isEmpty());
+        List<EntityTypePropertyTypePE> retrievedPropertyTypes =
+                daoFactory.getEntityPropertyTypeDAO(EntityKind.SAMPLE).listEntityPropertyTypes(
+                        deletedSample.getEntityType());
+        for (SamplePropertyPE property : deletedSample.getProperties())
+        {
+            int index = retrievedPropertyTypes.indexOf(property.getEntityTypePropertyType());
+            EntityTypePropertyTypePE retrievedPropertyType = retrievedPropertyTypes.get(index);
+            assertFalse(retrievedPropertyType.getPropertyValues().contains(property));
+        }
+    }
+
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
+    public final void testDeleteFailWithAttachments()
+    {
+        final SamplePE deletedSample = findSample("3VCP6", "CISD");
+
+        // deleted sample has should have attachments which should prevent it from deletion
+        Collection<?> nonEmptyCollection = deletedSample.getAttachments();
+        Set<Collection<?>> emptyCollections =
+                getAllCollectionsThatPreventFromDeletion(deletedSample);
+        emptyCollections.remove(nonEmptyCollection);
+
+        deleteSampleWithCollectionsChecked(deletedSample, emptyCollections, nonEmptyCollection);
+    }
+
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
+    public final void testDeleteFailWithDatasets()
+    {
+        final SamplePE deletedSample = findSample("CP-TEST-1", "CISD");
+
+        // deleted sample has should have data sets which should prevent it from deletion
+        Collection<?> nonEmptyCollection = deletedSample.getDatasets();
+        Set<Collection<?>> emptyCollections =
+                getAllCollectionsThatPreventFromDeletion(deletedSample);
+        emptyCollections.remove(nonEmptyCollection);
+
+        deleteSampleWithCollectionsChecked(deletedSample, emptyCollections, nonEmptyCollection);
+    }
+
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
+    public final void testDeleteFailWithGeneratedSamples()
+    {
+        final SamplePE deletedSample = findSample("3VCP2", "CISD");
+
+        // deleted sample has should have 'generated' samples which should prevent it from deletion
+        Collection<?> nonEmptyCollection = deletedSample.getGenerated();
+        Set<Collection<?>> emptyCollections =
+                getAllCollectionsThatPreventFromDeletion(deletedSample);
+        emptyCollections.remove(nonEmptyCollection);
+
+        deleteSampleWithCollectionsChecked(deletedSample, emptyCollections, nonEmptyCollection);
+    }
+
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
+    public final void testDeleteFailWithContainedSamples()
+    {
+        final SamplePE deletedSample = findSample("C1", "CISD");
+
+        // deleted sample has should have 'contained' samples which should prevent it from deletion
+        Collection<?> nonEmptyCollection = deletedSample.getContained();
+        Set<Collection<?>> emptyCollections =
+                getAllCollectionsThatPreventFromDeletion(deletedSample);
+        emptyCollections.remove(nonEmptyCollection);
+
+        deleteSampleWithCollectionsChecked(deletedSample, emptyCollections, nonEmptyCollection);
     }
 
     @Test
