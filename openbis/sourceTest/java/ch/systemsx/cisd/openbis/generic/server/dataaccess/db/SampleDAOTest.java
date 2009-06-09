@@ -23,13 +23,9 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.hibernate.classic.Session;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.Test;
 
@@ -181,47 +177,20 @@ public final class SampleDAOTest extends AbstractDAOTest
         return sample;
     }
 
-    private final void deleteSampleWithCollectionsChecked(SamplePE deletedSample,
-            Set<Collection<?>> emptyCollections, Collection<?> nonEmptyCollection)
-            throws DataAccessException
-    {
-        // check collections
-        for (Collection<?> collection : emptyCollections)
-        {
-            assertTrue(collection.isEmpty());
-        }
-        if (nonEmptyCollection != null)
-        {
-            assertFalse(nonEmptyCollection.isEmpty());
-        }
-
-        // delete
-        daoFactory.getSampleDAO().delete(deletedSample);
-    }
-
-    /**
-     * @return Set of all collections that should prevent deletion of given <var>sample</var> if
-     *         they are not empty.
-     */
-    private final Set<Collection<?>> getAllCollectionsThatPreventFromDeletion(SamplePE sample)
-    {
-        // deleted sample can not have: attachments, data sets, derived/contained samples
-        Set<Collection<?>> result = new HashSet<Collection<?>>();
-        result.add(sample.getAttachments());
-        result.add(sample.getDatasets());
-        result.add(sample.getGenerated());
-        result.add(sample.getContained());
-        return result;
-    }
-
     @Test
     public final void testDeleteWithParentAndExperimentPreserved()
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         final SamplePE deletedSample = findSample("3VCP5", "CISD");
-        Set<Collection<?>> emptyCollections =
-                getAllCollectionsThatPreventFromDeletion(deletedSample);
-        deleteSampleWithCollectionsChecked(deletedSample, emptyCollections, null);
+
+        // Deleted sample should have all collections which prevent it from deletion empty.
+        assertTrue(deletedSample.getAttachments().isEmpty());
+        assertTrue(deletedSample.getDatasets().isEmpty());
+        assertTrue(deletedSample.getGenerated().isEmpty());
+        assertTrue(deletedSample.getContained().isEmpty());
+
+        // delete
+        sampleDAO.delete(deletedSample);
 
         // test successful deletion of sample
         assertNull(sampleDAO.tryGetByTechId(TechId.create(deletedSample)));
@@ -243,9 +212,15 @@ public final class SampleDAOTest extends AbstractDAOTest
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         final SamplePE deletedSample = findSample("EMPTY-MP", "CISD");
-        Set<Collection<?>> emptyCollections =
-                getAllCollectionsThatPreventFromDeletion(deletedSample);
-        deleteSampleWithCollectionsChecked(deletedSample, emptyCollections, null);
+
+        // Deleted sample should have all collections which prevent it from deletion empty.
+        assertTrue(deletedSample.getAttachments().isEmpty());
+        assertTrue(deletedSample.getDatasets().isEmpty());
+        assertTrue(deletedSample.getGenerated().isEmpty());
+        assertTrue(deletedSample.getContained().isEmpty());
+
+        // delete
+        sampleDAO.delete(deletedSample);
 
         // test successful deletion of sample
         assertNull(sampleDAO.tryGetByTechId(TechId.create(deletedSample)));
@@ -266,57 +241,69 @@ public final class SampleDAOTest extends AbstractDAOTest
     @Test(expectedExceptions = DataIntegrityViolationException.class)
     public final void testDeleteFailWithAttachments()
     {
+        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         final SamplePE deletedSample = findSample("3VCP6", "CISD");
 
-        // deleted sample has should have attachments which should prevent it from deletion
-        Collection<?> nonEmptyCollection = deletedSample.getAttachments();
-        Set<Collection<?>> emptyCollections =
-                getAllCollectionsThatPreventFromDeletion(deletedSample);
-        emptyCollections.remove(nonEmptyCollection);
+        // Deleted sample should have attachments which prevent it from deletion.
+        // Other connections which also prevent sample deletion should be empty in this test.
+        assertFalse(deletedSample.getAttachments().isEmpty());
+        assertTrue(deletedSample.getDatasets().isEmpty());
+        assertTrue(deletedSample.getGenerated().isEmpty());
+        assertTrue(deletedSample.getContained().isEmpty());
 
-        deleteSampleWithCollectionsChecked(deletedSample, emptyCollections, nonEmptyCollection);
+        // delete
+        sampleDAO.delete(deletedSample);
     }
 
     @Test(expectedExceptions = DataIntegrityViolationException.class)
     public final void testDeleteFailWithDatasets()
     {
+        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         final SamplePE deletedSample = findSample("CP-TEST-1", "CISD");
 
-        // deleted sample has should have data sets which should prevent it from deletion
-        Collection<?> nonEmptyCollection = deletedSample.getDatasets();
-        Set<Collection<?>> emptyCollections =
-                getAllCollectionsThatPreventFromDeletion(deletedSample);
-        emptyCollections.remove(nonEmptyCollection);
+        // Deleted sample should have data sets which prevent it from deletion.
+        // Other connections which also prevent sample deletion should be empty in this test.
+        assertTrue(deletedSample.getAttachments().isEmpty());
+        assertFalse(deletedSample.getDatasets().isEmpty());
+        assertTrue(deletedSample.getGenerated().isEmpty());
+        assertTrue(deletedSample.getContained().isEmpty());
 
-        deleteSampleWithCollectionsChecked(deletedSample, emptyCollections, nonEmptyCollection);
+        // delete
+        sampleDAO.delete(deletedSample);
     }
 
     @Test(expectedExceptions = DataIntegrityViolationException.class)
     public final void testDeleteFailWithGeneratedSamples()
     {
+        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         final SamplePE deletedSample = findSample("3VCP2", "CISD");
 
-        // deleted sample has should have 'generated' samples which should prevent it from deletion
-        Collection<?> nonEmptyCollection = deletedSample.getGenerated();
-        Set<Collection<?>> emptyCollections =
-                getAllCollectionsThatPreventFromDeletion(deletedSample);
-        emptyCollections.remove(nonEmptyCollection);
+        // Deleted sample should have 'generated' samples which prevent it from deletion.
+        // Other connections which also prevent sample deletion should be empty in this test.
+        assertTrue(deletedSample.getAttachments().isEmpty());
+        assertTrue(deletedSample.getDatasets().isEmpty());
+        assertFalse(deletedSample.getGenerated().isEmpty());
+        assertTrue(deletedSample.getContained().isEmpty());
 
-        deleteSampleWithCollectionsChecked(deletedSample, emptyCollections, nonEmptyCollection);
+        // delete
+        sampleDAO.delete(deletedSample);
     }
 
     @Test(expectedExceptions = DataIntegrityViolationException.class)
     public final void testDeleteFailWithContainedSamples()
     {
+        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         final SamplePE deletedSample = findSample("C1", "CISD");
 
-        // deleted sample has should have 'contained' samples which should prevent it from deletion
-        Collection<?> nonEmptyCollection = deletedSample.getContained();
-        Set<Collection<?>> emptyCollections =
-                getAllCollectionsThatPreventFromDeletion(deletedSample);
-        emptyCollections.remove(nonEmptyCollection);
+        // Deleted sample should have 'contained' samples which prevent it from deletion.
+        // Other connections which also prevent sample deletion should be empty in this test.
+        assertTrue(deletedSample.getAttachments().isEmpty());
+        assertTrue(deletedSample.getDatasets().isEmpty());
+        assertTrue(deletedSample.getGenerated().isEmpty());
+        assertFalse(deletedSample.getContained().isEmpty());
 
-        deleteSampleWithCollectionsChecked(deletedSample, emptyCollections, nonEmptyCollection);
+        // delete
+        sampleDAO.delete(deletedSample);
     }
 
     @Test
