@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.phosphonetx.dto;
+package ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import ch.systemsx.cisd.phosphonetx.Constants;
@@ -28,38 +27,38 @@ import ch.systemsx.cisd.phosphonetx.Constants;
  *
  * @author Franz-Josef Elmer
  */
-@XmlRootElement(name = "proteinprophet_details", namespace = Constants.NAMESPACE)
 @XmlType
-public class ProteinProphetDetails
+public class AnnotatedProtein
 {
-    private String occamFlag;
-    private NSPInformation nspInformation;
+    protected String name;
+    protected ProteinAnnotation annotation;
 
-    @XmlAttribute(name = "occam_flag", required = true)
-    public final String getOccamFlag()
+    @XmlAttribute(name = "protein_name", required = true)
+    public final String getName()
     {
-        return occamFlag;
+        return name;
+    }
+    
+    public final void setName(String name)
+    {
+        this.name = name;
+    }
+    
+    @XmlElement(name = "annotation", namespace = Constants.NAMESPACE)
+    public final ProteinAnnotation getAnnotation()
+    {
+        return annotation;
     }
 
-    public final void setOccamFlag(String occamFlag)
+    public final void setAnnotation(ProteinAnnotation annotation)
     {
-        this.occamFlag = occamFlag;
-    }
-
-    @XmlElement(name = "nsp_information", namespace = Constants.NAMESPACE)
-    public final NSPInformation getNspInformation()
-    {
-        return nspInformation;
-    }
-
-    public final void setNspInformation(NSPInformation nspInformation)
-    {
-        this.nspInformation = nspInformation;
+        this.annotation = annotation;
     }
 
     @Override
     public String toString()
     {
-        return "ProteinProphet[occamFlag=" + occamFlag + ", nspInfo=" + nspInformation + "]";
+        return annotation == null ? name : name + "[" + annotation.getDescription() + "]";
     }
+
 }

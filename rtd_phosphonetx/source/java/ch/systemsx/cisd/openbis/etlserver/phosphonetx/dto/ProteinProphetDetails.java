@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.phosphonetx.dto;
+package ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import ch.systemsx.cisd.phosphonetx.Constants;
@@ -27,38 +28,38 @@ import ch.systemsx.cisd.phosphonetx.Constants;
  *
  * @author Franz-Josef Elmer
  */
+@XmlRootElement(name = "proteinprophet_details", namespace = Constants.NAMESPACE)
 @XmlType
-public class AnnotatedProtein
+public class ProteinProphetDetails
 {
-    protected String name;
-    protected ProteinAnnotation annotation;
+    private String occamFlag;
+    private NSPInformation nspInformation;
 
-    @XmlAttribute(name = "protein_name", required = true)
-    public final String getName()
+    @XmlAttribute(name = "occam_flag", required = true)
+    public final String getOccamFlag()
     {
-        return name;
-    }
-    
-    public final void setName(String name)
-    {
-        this.name = name;
-    }
-    
-    @XmlElement(name = "annotation", namespace = Constants.NAMESPACE)
-    public final ProteinAnnotation getAnnotation()
-    {
-        return annotation;
+        return occamFlag;
     }
 
-    public final void setAnnotation(ProteinAnnotation annotation)
+    public final void setOccamFlag(String occamFlag)
     {
-        this.annotation = annotation;
+        this.occamFlag = occamFlag;
+    }
+
+    @XmlElement(name = "nsp_information", namespace = Constants.NAMESPACE)
+    public final NSPInformation getNspInformation()
+    {
+        return nspInformation;
+    }
+
+    public final void setNspInformation(NSPInformation nspInformation)
+    {
+        this.nspInformation = nspInformation;
     }
 
     @Override
     public String toString()
     {
-        return annotation == null ? name : name + "[" + annotation.getDescription() + "]";
+        return "ProteinProphet[occamFlag=" + occamFlag + ", nspInfo=" + nspInformation + "]";
     }
-
 }

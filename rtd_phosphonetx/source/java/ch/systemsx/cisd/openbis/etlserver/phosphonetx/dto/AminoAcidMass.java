@@ -14,35 +14,43 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.phosphonetx.dto;
+package ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlType;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-@XmlType
-public class NSPInformation
+public class AminoAcidMass
 {
-    private String neighboringBinSmoothing;
-
-    @XmlAttribute(name = "neighboring_bin_smoothing", required = true)
-    public final String getNeighboringBinSmoothing()
+    private int position;
+    private double mass;
+    
+    @XmlAttribute(name = "position", required = true)
+    public final int getPosition()
     {
-        return neighboringBinSmoothing;
+        return position;
     }
-
-    public final void setNeighboringBinSmoothing(String neighboringBinSmoothing)
+    public final void setPosition(int position)
     {
-        this.neighboringBinSmoothing = neighboringBinSmoothing;
+        this.position = position;
     }
-
+    
+    @XmlAttribute(name = "mass", required = true)
+    public final double getMass()
+    {
+        return mass;
+    }
+    public final void setMass(double mass)
+    {
+        this.mass = mass;
+    }
+    
     @Override
     public String toString()
     {
-        return "[neighboringBinSmoothing=" + neighboringBinSmoothing + "]";
+        return mass + "@" + position;
     }
 }

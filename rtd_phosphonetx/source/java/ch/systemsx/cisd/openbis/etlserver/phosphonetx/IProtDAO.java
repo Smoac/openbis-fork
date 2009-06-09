@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.phosphonetx.db;
+package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
 import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.DataSet;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.Update;
 
-import ch.systemsx.cisd.phosphonetx.db.dto.ModificationType;
-import ch.systemsx.cisd.phosphonetx.db.dto.Sequence;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ModificationType;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sequence;
 
 /**
  * 
