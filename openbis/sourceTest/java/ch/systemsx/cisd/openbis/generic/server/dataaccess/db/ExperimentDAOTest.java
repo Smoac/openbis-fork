@@ -34,13 +34,16 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
+import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.ExperimentTypeCode;
@@ -213,6 +216,51 @@ public class ExperimentDAOTest extends AbstractDAOTest
             EntityTypePropertyTypePE retrievedPropertyType = retrievedPropertyTypes.get(index);
             assertFalse(retrievedPropertyType.getPropertyValues().contains(property));
         }
+    }
+
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
+    public final void testDeleteFailWithAttachments()
+    {
+        final IExperimentDAO experimentDAO = daoFactory.getExperimentDAO();
+        final ExperimentPE deletedExperiment = findExperiment("/CISD/DEFAULT/EXP-X");
+
+        // Deleted experiment should have attachments which prevent it from deletion.
+        // Other connections which also prevent sample deletion should be empty in this test.
+
+        // Currently there is no such experiment in test DB so we first add an attachment
+        // to an experiment empty experiment (with no connections).
+        AttachmentPE attachment = CommonTestUtils.createAttachment();
+        daoFactory.getAttachmentDAO().createAttachment(attachment, deletedExperiment);
+
+        assertFalse(deletedExperiment.getAttachments().isEmpty());
+        assertTrue(deletedExperiment.getDataSets().isEmpty());
+        assertTrue(deletedExperiment.getSamples().isEmpty());
+
+        // delete
+        experimentDAO.delete(deletedExperiment);
+    }
+
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
+    public final void testDeleteFailWithDataSets()
+    {
+        final IExperimentDAO experimentDAO = daoFactory.getExperimentDAO();
+        final ExperimentPE deletedExperiment = findExperiment("/CISD/DEFAULT/EXP-X");
+
+        // Deleted experiment should have data sets which prevent it from deletion.
+        // Other connections which also prevent sample deletion should be empty in this test.
+
+        // Currently there is no such experiment in test DB so we first add a data set
+        // to an empty experiment (with no connections).
+        final ExternalDataPE dataSet = findExternalData("20081105092158673-1");
+        dataSet.setExperiment(deletedExperiment);
+        daoFactory.getExternalDataDAO().validateAndSaveUpdatedEntity(dataSet);
+
+        assertTrue(deletedExperiment.getAttachments().isEmpty());
+        assertFalse(deletedExperiment.getDataSets().isEmpty());
+        assertTrue(deletedExperiment.getSamples().isEmpty());
+
+        // delete
+        experimentDAO.delete(deletedExperiment);
     }
 
     @Test(expectedExceptions = DataIntegrityViolationException.class)

@@ -40,6 +40,7 @@ import org.testng.annotations.BeforeMethod;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -47,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
@@ -242,6 +244,16 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
         group.setRegistrator(getSystemPerson());
         daoFactory.getGroupDAO().createGroup(group);
         return group;
+    }
+
+    protected ExternalDataPE findExternalData(String code)
+    {
+        final IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
+        ExternalDataPE externalData = externalDataDAO.tryToFindFullDataSetByCode(code);
+
+        assertNotNull(externalData);
+
+        return externalData;
     }
 
     protected ProjectPE findProject(String db, String group, String project)

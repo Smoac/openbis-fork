@@ -20,11 +20,13 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
@@ -35,9 +37,11 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
@@ -47,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 
 /**
@@ -150,20 +155,56 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         assertFalse(externalData.getModificationDate().equals(modificationTimestamp));
     }
 
+    private final String PARENT_CODE = "20081105092158673-1";
+
+    private final String CHILD_CODE = "20081105092159188-3";
+
     @Test
-    public void testDelete()
+    public final void testDeleteWithPropertiesButParentPreserved()
     {
-        testCreateDataSet();
         final IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
-        SamplePE sample = pickASample();
-        List<ExternalDataPE> list = externalDataDAO.listExternalData(sample);
-        ExternalDataPE data = list.get(0);
+        final ExternalDataPE deletedData = findExternalData(CHILD_CODE);
 
-        externalDataDAO.delete(data);
+        // Deleted data set should have all collections which prevent it from deletion empty.
+        assertTrue(deletedData.getChildren().isEmpty());
 
-        assertEquals(0, externalDataDAO.listExternalData(sample).size());
-        DataPE retrievedData = externalDataDAO.tryGetByTechId(TechId.create(data));
-        assertNull(retrievedData);
+        // delete
+        externalDataDAO.delete(deletedData);
+
+        // test successful deletion of data set
+        assertNull(externalDataDAO.tryGetByTechId(TechId.create(deletedData)));
+
+        // test successful deletion of data set properties
+        assertFalse(deletedData.getProperties().isEmpty());
+        List<EntityTypePropertyTypePE> retrievedPropertyTypes =
+                daoFactory.getEntityPropertyTypeDAO(EntityKind.DATA_SET).listEntityPropertyTypes(
+                        deletedData.getEntityType());
+        for (DataSetPropertyPE property : deletedData.getProperties())
+        {
+            int index = retrievedPropertyTypes.indexOf(property.getEntityTypePropertyType());
+            EntityTypePropertyTypePE retrievedPropertyType = retrievedPropertyTypes.get(index);
+            assertFalse(retrievedPropertyType.getPropertyValues().contains(property));
+        }
+
+        // deleted sample had parent connected that should not have been deleted
+        // NOTE: somehow cannot get parents even though connection is the same as with children
+        // DataPE parent = deletedData.tryGetParent();
+        // assertNotNull(parent);
+        // assertNotNull(externalDataDAO.tryGetByTechId(new TechId(HibernateUtils.getId(parent))));
+        findExternalData(PARENT_CODE);
+    }
+
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
+    public final void testDeleteFailWithChildrenDatasets()
+    {
+        final IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
+        final ExternalDataPE deletedData = findExternalData(PARENT_CODE);
+
+        // Deleted data set should have 'child' data sets which prevent it from deletion.
+        assertFalse(deletedData.getChildren().isEmpty());
+
+        // delete
+        externalDataDAO.delete(deletedData);
     }
 
     protected VocabularyTermPE pickAStorageFormatVocabularyTerm()

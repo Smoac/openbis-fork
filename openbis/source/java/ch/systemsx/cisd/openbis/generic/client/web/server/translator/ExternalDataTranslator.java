@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -72,7 +71,7 @@ public class ExternalDataTranslator
             final LoadableFields... withExperimentFields)
     {
         SamplePE sample = externalDataPE.getSample();
-        DataPE parent = tryToGetFirstParent(externalDataPE);
+        DataPE parent = externalDataPE.tryGetParent();
         ExternalData externalData = new ExternalData();
         externalData.setId(HibernateUtils.getId(externalDataPE));
         externalData.setCode(StringEscapeUtils.escapeHtml(externalDataPE.getCode()));
@@ -136,12 +135,6 @@ public class ExternalDataTranslator
         return result;
     }
 
-    private static DataPE tryToGetFirstParent(ExternalDataPE externalDataPE)
-    {
-        Set<DataPE> parents = externalDataPE.getParents();
-        return parents.isEmpty() ? null : (ExternalDataPE) parents.iterator().next();
-    }
-
     private static Sample fillSample(Sample sample, SamplePE samplePE, boolean loadSampleProperties)
     {
         sample.setId(HibernateUtils.getId(samplePE));
@@ -156,7 +149,7 @@ public class ExternalDataTranslator
         }
         return sample;
     }
-        
+
     private static void setChildren(ExternalDataPE externalDataPE, ExternalData externalData)
     {
         List<ExternalData> children = new ArrayList<ExternalData>();
@@ -169,7 +162,7 @@ public class ExternalDataTranslator
         }
         externalData.setChildren(children);
     }
-    
+
     /**
      * Fills <var>externalData</var> from <var>data</vra> with all data needed by
      * {@link IEntityInformationHolder}.

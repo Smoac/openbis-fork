@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -174,14 +175,13 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     {
         try
         {
-            if (dataSet.getChildren().size() > 0)
-            {
-                // TODO 2009-06-09, Piotr Buczek: remove if we change many2many -> one2many
-                throwEntityInUseException(String.format("Data Set '%s'", dataSet.getCode()),
-                        EntityKind.DATA_SET);
-            }
             getExternalDataDAO().delete(dataSet);
             getEventDAO().persist(createDeletionEvent(dataSet, session.tryGetPerson(), reason));
+        } catch (final DataIntegrityViolationException ex)
+        {
+            // TODO 2009-06-09, Piotr Buczek: remove if we change many2many -> one2many
+            throwEntityInUseException(String.format("Data Set '%s'", dataSet.getCode()),
+                    EntityKind.DATA_SET);
         } catch (final DataAccessException ex)
         {
             throwException(ex, String.format("Data Set '%s'", dataSet.getCode()),

@@ -337,6 +337,18 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
         this.parents = parents;
     }
 
+    @Transient
+    public DataPE tryGetParent()
+    {
+        if (getParents() == null || getParents().size() == 0)
+        {
+            return null;
+        } else
+        {
+            return getParents().iterator().next();
+        }
+    }
+
     // TODO 2009-06-09, Piotr Buczek: change to @OneToMany and remove data_set_relationships table
     // we use cascade PERSIST, not ALL because we don't REMOVE parent when we delete a child
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)

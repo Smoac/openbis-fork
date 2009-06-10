@@ -27,6 +27,7 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -210,6 +211,19 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         {
             operationLog.info(String.format("UPDATE: external data '%s'.", externalData));
         }
+    }
+
+    @Override
+    public void delete(ExternalDataPE entity) throws DataAccessException
+    {
+        assert entity != null : "entity unspecified";
+        // TODO 2009-06-09, Piotr Buczek: remove this check if we change many2many -> one2many
+        if (entity.getChildren().size() > 0)
+        {
+            throw new DataIntegrityViolationException(
+                    "Entity cannot be deleted because children datasets are connected.");
+        }
+        super.delete(entity);
     }
 
 }
