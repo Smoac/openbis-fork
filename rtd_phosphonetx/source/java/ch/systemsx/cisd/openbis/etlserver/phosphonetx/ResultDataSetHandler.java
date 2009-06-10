@@ -36,6 +36,7 @@ import ch.systemsx.cisd.etlserver.IDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.AminoAcidMass;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.AnnotatedProtein;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ModificationType;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Peptide;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.PeptideModification;
@@ -149,6 +150,11 @@ public class ResultDataSetHandler implements IDataSetHandler
             for (Protein protein : proteins)
             {
                 long proteinID = dao.createProtein(dataSetCode);
+                dao.createAnnotion(proteinID, protein.getAnnotation());
+                for (AnnotatedProtein annotatedProtein : protein.getIndistinguishableProteins())
+                {
+                    dao.createAnnotion(proteinID, annotatedProtein.getAnnotation());
+                }
                 List<Peptide> peptides = protein.getPeptides();
                 for (Peptide peptide : peptides)
                 {

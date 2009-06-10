@@ -22,6 +22,7 @@ import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.Update;
 
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ModificationType;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinAnnotation;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sequence;
 
 /**
@@ -54,4 +55,10 @@ public interface IProtDAO extends BaseQuery
             + "values (?{1}, ?{2}, ?{3}, ?{4})")
     public void createModification(long modifiedPeptideID, long modificationTypeID, int position,
             double mass);
+
+    @Update("insert into annotations (prot_id, protein_description, ipi_name, refseq_name, "
+            + "swissprot_name, ensembl_name, trembl_name, locus_link_name, flybase) "
+            + "values (?{1}, ?{2.description}, ?{2.ipiName}, ?{2.refseqName}, ?{2.swissprotName}, "
+            + "?{2.ensemblName}, ?{2.tremblName}, ?{2.locusLinkName}, ?{2.flybase})")
+    public void createAnnotion(long proteinID, ProteinAnnotation annotation);
 }
