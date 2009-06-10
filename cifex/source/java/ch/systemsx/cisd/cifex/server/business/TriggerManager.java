@@ -40,6 +40,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.trigger.ITrigger;
 import ch.systemsx.cisd.cifex.server.trigger.ITriggerConsole;
 import ch.systemsx.cisd.cifex.server.trigger.ITriggerRequest;
+import ch.systemsx.cisd.cifex.server.trigger.StatelessTrigger;
 import ch.systemsx.cisd.cifex.server.util.FilenameUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -239,16 +240,83 @@ class TriggerManager implements ITriggerManager
 
         final String triggerPropertyFileOrNull;
 
+        final ITrigger triggerObjectOrNull;
+
         TriggerDescription(String triggerUser, String triggerClassName,
                 String triggerPropertyFileOrNull)
         {
             this.triggerUser = triggerUser;
             this.triggerClassName = triggerClassName;
             this.triggerPropertyFileOrNull = triggerPropertyFileOrNull;
+            try
+            {
+                final Class triggerClass = Class.forName(triggerClassName);
+                if (triggerClass.getAnnotation(StatelessTrigger.class) != null)
+                {
+                    this.triggerObjectOrNull = createTrigger();
+                } else
+                {
+                    this.triggerObjectOrNull = null;
+                }
+            } catch (ClassNotFoundException ex)
+            {
+                throw new ConfigurationFailureException("Class '" + triggerClassName
+                        + "' not found", ex);
+            }
         }
+
+        ITrigger getTrigger()
+        {
+            if (triggerObjectOrNull != null)
+            {
+                return triggerObjectOrNull;
+            } else
+            {
+                return createTrigger();
+            }
+        }
+
+        private ITrigger createTrigger()
+        {
+            try
+            {
+                if (triggerPropertyFileOrNull == null)
+                {
+                    return ClassUtils.create(ITrigger.class, triggerClassName);
+                } else
+                {
+                    final Properties props = getProperties(triggerPropertyFileOrNull);
+                    return ClassUtils.create(ITrigger.class, triggerClassName, props);
+                }
+            } catch (Exception ex)
+            {
+                throw new ConfigurationFailureException("Cannot create trigger '"
+                        + triggerClassName + "'", CheckedExceptionTunnel.unwrapIfNecessary(ex));
+            }
+        }
+
+        private Properties getProperties(String triggerPropertyFile)
+        {
+            final File propFile = new File(triggerPropertyFile);
+            if (propFile.exists())
+            {
+                return PropertyUtils.loadProperties(propFile.getPath());
+            } else
+            {
+                final InputStream is =
+                        TriggerManager.class.getResourceAsStream("/" + triggerPropertyFile);
+                if (is == null)
+                {
+                    throw new ConfigurationFailureException(
+                            "Cannot find trigger configuration file '" + triggerPropertyFile + "'.");
+                }
+                return PropertyUtils.loadProperties(is, triggerPropertyFile);
+            }
+        }
+
     }
 
-    private final Map<String, ITrigger> triggerMap = new HashMap<String, ITrigger>();
+    private final Map<String, TriggerDescription> triggerMap;
 
     private final IMailClient mailClient;
 
@@ -267,55 +335,10 @@ class TriggerManager implements ITriggerManager
         {
             throw new EnvironmentFailureException("Cannot determine ip address of local host.", ex);
         }
-        final List<TriggerDescription> triggers = getTriggerDescriptions();
-        for (TriggerDescription triggerDescription : triggers)
-        {
-            triggerMap.put(triggerDescription.triggerUser, createTrigger(triggerDescription));
-        }
+        triggerMap = getTriggers();
     }
 
-    private ITrigger createTrigger(TriggerDescription triggerDescription)
-    {
-        try
-        {
-            if (triggerDescription.triggerPropertyFileOrNull == null)
-            {
-                return ClassUtils.create(ITrigger.class, triggerDescription.triggerClassName);
-            } else
-            {
-                final Properties props =
-                        getProperties(triggerDescription.triggerPropertyFileOrNull);
-                return ClassUtils
-                        .create(ITrigger.class, triggerDescription.triggerClassName, props);
-            }
-        } catch (Exception ex)
-        {
-            throw new ConfigurationFailureException("Cannot create trigger '"
-                    + triggerDescription.triggerClassName + "'", CheckedExceptionTunnel
-                    .unwrapIfNecessary(ex));
-        }
-    }
-
-    private Properties getProperties(String triggerPropertyFile)
-    {
-        final File propFile = new File(triggerPropertyFile);
-        if (propFile.exists())
-        {
-            return PropertyUtils.loadProperties(propFile.getPath());
-        } else
-        {
-            final InputStream is =
-                    TriggerManager.class.getResourceAsStream("/" + triggerPropertyFile);
-            if (is == null)
-            {
-                throw new ConfigurationFailureException("Cannot find trigger configuration file '"
-                        + triggerPropertyFile + "'.");
-            }
-            return PropertyUtils.loadProperties(is, triggerPropertyFile);
-        }
-    }
-
-    private List<TriggerDescription> getTriggerDescriptions()
+    private Map<String, TriggerDescription> getTriggers()
     {
         List<String> triggerLines = null;
         final File triggersFile = new File(TRIGGERS_FILE);
@@ -332,10 +355,10 @@ class TriggerManager implements ITriggerManager
         }
         if (triggerLines == null)
         {
-            return Collections.<TriggerDescription> emptyList();
+            return Collections.<String, TriggerDescription> emptyMap();
         }
-        final ArrayList<TriggerDescription> triggers =
-                new ArrayList<TriggerDescription>(triggerLines.size());
+
+        final Map<String, TriggerDescription> triggers = new HashMap<String, TriggerDescription>();
         for (String triggerLine : triggerLines)
         {
             if (StringUtils.isBlank(triggerLine) || triggerLine.startsWith("#"))
@@ -345,10 +368,11 @@ class TriggerManager implements ITriggerManager
             String[] splitted = StringUtils.split(triggerLine.trim(), '\t');
             if (splitted.length == 2)
             {
-                triggers.add(new TriggerDescription(splitted[0], splitted[1], null));
+                triggers.put(splitted[0], new TriggerDescription(splitted[0], splitted[1], null));
             } else if (splitted.length == 3)
             {
-                triggers.add(new TriggerDescription(splitted[0], splitted[1], splitted[2]));
+                triggers.put(splitted[0], new TriggerDescription(splitted[0], splitted[1],
+                        splitted[2]));
             } else
             {
                 throw new ConfigurationFailureException("Illegal line in file " + TRIGGERS_RESOURCE
@@ -369,7 +393,7 @@ class TriggerManager implements ITriggerManager
         }
         final File file = fileManager.getRealFile(fileDTO);
         final TriggerRequest request = new TriggerRequest(fileDTO, file, null);
-        final ITrigger trigger = triggerMap.get(triggerUser.getUserCode());
+        final ITrigger trigger = triggerMap.get(triggerUser.getUserCode()).getTrigger();
         final TriggerConsole console =
                 new TriggerConsole(trigger, fileManager, request, fileDTO.getRegisterer(),
                         triggerUser);
