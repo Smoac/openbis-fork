@@ -19,6 +19,9 @@ UPDATE events SET
 		identifier = data_id,
 		description = data_id;
 
+ALTER TABLE events
+    DROP COLUMN data_id;
+
 -- remove deleted data sets with their properties and relations to other data sets
 
 CREATE VIEW deleted_data_ids AS
@@ -35,8 +38,6 @@ DROP VIEW deleted_data_ids;
 
 -- remove old columns
 
-ALTER TABLE events
-    DROP COLUMN data_id;
 ALTER TABLE data
 		DROP COLUMN is_deleted;
 		
