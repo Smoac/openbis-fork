@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -165,8 +164,7 @@ public class UploadingCommandTest extends AssertJUnit
         dataSetTypePE.setCode("D");
         externalData.setDataSetType(dataSetTypePE);
         externalData.setExperiment(createExperiment());
-        List<DataPE> parents = Arrays.asList(createParent("p1"), createParent("p2"));
-        externalData.setParents(new LinkedHashSet<DataPE>(parents));
+        externalData.setParent(createParent("parent"));
         return externalData;
     }
 
