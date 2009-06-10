@@ -100,7 +100,7 @@ public final class FileUtilities
      * @param destinationFile File to whom content of <code>sourceFile</code> is copied.
      * @param preservesLastModifiedDate If <code>true</code> the last modified date of
      *            <code>sourceFile</code> will be transfered to <code>destinationFile</code>.
-     * @throws EnvironmentFailureException if a {@link IOException} occured.
+     * @throws EnvironmentFailureException if a {@link IOException} occurred.
      */
     public static void copyFileTo(final File sourceFile, final File destinationFile,
             final boolean preservesLastModifiedDate) throws IOExceptionUnchecked
