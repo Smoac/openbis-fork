@@ -351,7 +351,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
 
     // TODO 2009-06-09, Piotr Buczek: change to @OneToMany and remove data_set_relationships table
     // we use cascade PERSIST, not ALL because we don't REMOVE parent when we delete a child
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = TableNames.DATA_SET_RELATIONSHIPS_TABLE, joinColumns = @JoinColumn(name = ColumnNames.DATA_PARENT_COLUMN), inverseJoinColumns = @JoinColumn(name = ColumnNames.DATA_CHILD_COLUMN))
     public Set<DataPE> getChildren()
     {
