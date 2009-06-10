@@ -13,7 +13,7 @@ CREATE DOMAIN BINARY_DATA AS Bytea
 CREATE DOMAIN CHECKSUM AS Character varying(8)
 ;
 
-CREATE DOMAIN CODE AS Character varying(40)
+CREATE DOMAIN CODE AS Character varying(400)
 ;
 
 CREATE DOMAIN DESCRIPTION AS Character varying(2000)
