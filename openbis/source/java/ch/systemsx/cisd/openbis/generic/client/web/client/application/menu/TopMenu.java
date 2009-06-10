@@ -106,9 +106,9 @@ public class TopMenu extends LayoutContainer
     {
         toolBar.removeAll();
 
-        toolBar.add(new DataSetMenu(viewContext, componentProvider));
         toolBar.add(new ExperimentMenu(viewContext, componentProvider));
         toolBar.add(new SampleMenu(viewContext, componentProvider));
+        toolBar.add(new DataSetMenu(viewContext, componentProvider));
         toolBar.add(new MaterialMenu(viewContext, componentProvider));
         toolBar.add(new AdministrationMenu(viewContext, componentProvider));
 
