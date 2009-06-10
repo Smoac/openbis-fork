@@ -76,6 +76,8 @@ import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
  */
 final class FileManager extends AbstractManager implements IFileManager
 {
+    private static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
+
     private static final Pattern USER_CODE_WITH_ID_PREFIX_PATTERN =
             Pattern.compile(Constants.USER_CODE_WITH_ID_PREFIX_REGEX);
 
@@ -318,14 +320,15 @@ final class FileManager extends AbstractManager implements IFileManager
 
     @Transactional
     public final FileDTO saveFile(final UserDTO user, final String fileName, final String comment,
-            final String contentType, final InputStream input)
+            final String contentTypeOrNull, final InputStream input)
     {
         assert user != null : "Unspecified user.";
         assert user.getEmail() != null : "Unspecified email of user " + user;
         assert StringUtils.isNotBlank(fileName) : "Unspecified file name.";
-        assert StringUtils.isNotBlank(contentType) : "Unspecified content type.";
         assert input != null : "Unspecified input stream.";
 
+        final String contentType =
+            (contentTypeOrNull != null) ? contentTypeOrNull : DEFAULT_CONTENT_TYPE;
         final File file = createFile(user, fileName);
         boolean success = false;
         try
@@ -376,9 +379,12 @@ final class FileManager extends AbstractManager implements IFileManager
 
     @Transactional
     public List<String> registerFileLinkAndInformRecipients(UserDTO user, String fileName,
-            String comment, String contentType, File file, String[] recipients, String url)
+            String comment, String contentTypeOrNull, File file, String[] recipients, String url)
     {
-        final FileDTO fileDTO = registerFile(user, fileName, comment, contentType, file, file.length());
+        final String contentType =
+                (contentTypeOrNull != null) ? contentTypeOrNull : DEFAULT_CONTENT_TYPE;
+        final FileDTO fileDTO =
+                registerFile(user, fileName, comment, contentType, file, file.length());
         return shareFilesWith(url, user, Arrays.asList(recipients), Collections.singleton(fileDTO),
                 comment);
     }
@@ -466,7 +472,7 @@ final class FileManager extends AbstractManager implements IFileManager
                     invalidEmailAdresses, success);
         }
     }
-    
+
     private void setRegisterer(final UserDTO requestUser, final Collection<FileDTO> files)
     {
         for (FileDTO file : files)
@@ -555,7 +561,7 @@ final class FileManager extends AbstractManager implements IFileManager
                     + alreadyExistingSharingLinks + "). Operation failed."));
         }
 
-        final Set<FileDTO> filesLeft = new HashSet<FileDTO>(files); 
+        final Set<FileDTO> filesLeft = new HashSet<FileDTO>(files);
         for (final FileDTO fileDTO : files)
         {
             boolean dismiss = false;
@@ -584,7 +590,7 @@ final class FileManager extends AbstractManager implements IFileManager
         {
             return;
         }
-        
+
         boolean notified = false;
         for (final UserDTO user : users)
         {
