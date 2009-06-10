@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAttribute;
