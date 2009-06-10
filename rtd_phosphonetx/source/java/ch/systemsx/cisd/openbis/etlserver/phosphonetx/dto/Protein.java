@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -41,7 +43,7 @@ public class Protein extends AnnotatedProtein
     private int totalNumberOfPeptides;
     private String subsumingProtein;
     private String fractionOfCorrectPeptideIdentifications;
-    private List<AnnotatedProtein> indistinguishableProteins;
+    private List<AnnotatedProtein> indistinguishableProteins = new ArrayList<AnnotatedProtein>();
     private List<Peptide> peptides;
     
     @XmlAttribute(name = "probability", required = true)
