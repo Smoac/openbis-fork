@@ -16,16 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
-import java.util.Arrays;
 import java.util.Date;
-import java.util.LinkedHashSet;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -86,13 +83,10 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         locatorTypePE.setCode("locatorTypeCode");
         locatorTypePE.setDescription("locatorTypeDescription");
         externalDataPE.setLocatorType(locatorTypePE);
-        ExternalDataPE parent1 = new ExternalDataPE();
-        parent1.setCode("parent1");
-        parent1.setDataStore(new DataStorePE());
-        ExternalDataPE parent2 = new ExternalDataPE();
-        parent2.setCode("parent2");
-        parent2.setDataStore(new DataStorePE());
-        externalDataPE.setParents(new LinkedHashSet<DataPE>(Arrays.asList(parent1, parent2)));
+        ExternalDataPE parent = new ExternalDataPE();
+        parent.setCode("parent");
+        parent.setDataStore(new DataStorePE());
+        externalDataPE.setParent(parent);
         ExperimentPE experimentPE = new ExperimentPE();
         experimentPE.setCode("my-experiment");
         experimentPE.setExperimentType(new ExperimentTypePE());
@@ -137,7 +131,7 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         assertEquals("location", externalData.getLocation());
         assertEquals("locatorTypeCode", externalData.getLocatorType().getCode());
         assertEquals("locatorTypeDescription", externalData.getLocatorType().getDescription());
-        assertEquals("parent1", externalData.getParentCode());
+        assertEquals("parent", externalData.getParentCode());
         assertEquals("my-experiment", externalData.getExperiment().getCode());
         assertEquals(1, externalData.getProductionDate().getTime());
         assertEquals(2, externalData.getRegistrationDate().getTime());

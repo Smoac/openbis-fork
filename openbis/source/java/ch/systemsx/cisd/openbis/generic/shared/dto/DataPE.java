@@ -323,6 +323,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
         this.code = code;
     }
 
+    // bidirectional connection children-parents
+
     // TODO 2009-06-09, Piotr Buczek: change to @ManyToOne and remove data_set_relationships table
     // we use cascade PERSIST, not ALL because we don't REMOVE parent when we delete a child
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
@@ -332,9 +334,18 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
         return parents;
     }
 
-    public void setParents(final Set<DataPE> parents)
+    @SuppressWarnings("unused")
+    private void setParents(final Set<DataPE> parents)
     {
         this.parents = parents;
+    }
+
+    /** sets one parent (we don't support many parents currently) */
+    public void setParent(final DataPE parent)
+    {
+        this.parents.clear();
+        this.parents.add(parent);
+        parent.addChild(this);
     }
 
     @Transient
@@ -349,18 +360,21 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
         }
     }
 
-    // TODO 2009-06-09, Piotr Buczek: change to @OneToMany and remove data_set_relationships table
-    // we use cascade PERSIST, not ALL because we don't REMOVE parent when we delete a child
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = TableNames.DATA_SET_RELATIONSHIPS_TABLE, joinColumns = @JoinColumn(name = ColumnNames.DATA_PARENT_COLUMN), inverseJoinColumns = @JoinColumn(name = ColumnNames.DATA_CHILD_COLUMN))
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "parents")
     public Set<DataPE> getChildren()
     {
         return children;
     }
 
-    public void setChildren(final Set<DataPE> children)
+    @SuppressWarnings("unused")
+    private void setChildren(final Set<DataPE> children)
     {
         this.children = children;
+    }
+
+    private void addChild(final DataPE child)
+    {
+        this.children.add(child);
     }
 
     //

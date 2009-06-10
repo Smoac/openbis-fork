@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -162,9 +161,8 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         final String parentDataSetCode = data.getParentDataSetCode();
         if (parentDataSetCode != null)
         {
-            final Set<DataPE> parents = new HashSet<DataPE>();
-            parents.add(getOrCreateParentData(parentDataSetCode, dataStore, sample));
-            externalData.setParents(parents);
+            final DataPE parent = getOrCreateParentData(parentDataSetCode, dataStore, sample);
+            externalData.setParent(parent);
         }
 
         externalData.setSample(sample);
