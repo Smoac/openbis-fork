@@ -28,15 +28,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Semaphore;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.cifex.server.trigger.AsynchronousTrigger;
 import ch.systemsx.cisd.cifex.server.trigger.ITrigger;
 import ch.systemsx.cisd.cifex.server.trigger.ITriggerConsole;
 import ch.systemsx.cisd.cifex.server.trigger.ITriggerRequest;
@@ -50,6 +54,8 @@ import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
 /**
+ * A class that manages the initialization and call of {@link ITrigger}s.
+ * 
  * @author Bernd Rinn
  */
 class TriggerManager implements ITriggerManager
@@ -76,6 +82,7 @@ class TriggerManager implements ITriggerManager
                 TriggerRequest triggerRequest, UserDTO requestUser, UserDTO triggerUser)
         {
             this.trigger = trigger;
+            triggerRequest.setToBeDeletedOrNull(toBeDeleted);
             this.fileManager = fileManager;
             this.triggerRequest = triggerRequest;
             this.requestUser = requestUser;
@@ -169,7 +176,7 @@ class TriggerManager implements ITriggerManager
 
         private final File file;
 
-        private final Set<FileDTO> toBeDeletedOrNull;
+        private Set<FileDTO> toBeDeletedOrNull;
 
         private boolean dismiss;
 
@@ -179,6 +186,11 @@ class TriggerManager implements ITriggerManager
             this.file = file;
             this.toBeDeletedOrNull = toBeDeletedOrNull;
             dismiss = false;
+        }
+
+        void setToBeDeletedOrNull(Set<FileDTO> toBeDeletedOrNull)
+        {
+            this.toBeDeletedOrNull = toBeDeletedOrNull;
         }
 
         public String getComment()
@@ -225,6 +237,21 @@ class TriggerManager implements ITriggerManager
             }
         }
 
+        public void setDismiss(boolean dismiss)
+        {
+            this.dismiss = dismiss;
+            if (toBeDeletedOrNull != null)
+            {
+                if (dismiss)
+                {
+                    toBeDeletedOrNull.add(fileDTO);
+                } else
+                {
+                    toBeDeletedOrNull.remove(fileDTO);
+                }
+            }
+        }
+
         public boolean isDismissed()
         {
             return dismiss;
@@ -234,35 +261,72 @@ class TriggerManager implements ITriggerManager
 
     private static class TriggerDescription
     {
-        final String triggerUser;
+        private final String triggerClassName;
 
-        final String triggerClassName;
+        private final String triggerPropertyFileOrNull;
 
-        final String triggerPropertyFileOrNull;
+        private final ITrigger triggerObjectOrNull;
 
-        final ITrigger triggerObjectOrNull;
+        private final boolean asynchronous;
 
-        TriggerDescription(String triggerUser, String triggerClassName,
-                String triggerPropertyFileOrNull)
+        private final boolean willDismiss;
+
+        private final int permitsNeeded;
+
+        static boolean hasAsyncTriggers(Map<String, TriggerDescription> triggerMap)
         {
-            this.triggerUser = triggerUser;
+            for (TriggerDescription desc : triggerMap.values())
+            {
+                if (desc.isAsync())
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        TriggerDescription(String triggerClassName, String triggerPropertyFileOrNull)
+        {
             this.triggerClassName = triggerClassName;
             this.triggerPropertyFileOrNull = triggerPropertyFileOrNull;
             try
             {
                 final Class triggerClass = Class.forName(triggerClassName);
-                if (triggerClass.getAnnotation(StatelessTrigger.class) != null)
+                if (triggerClass.isAnnotationPresent(StatelessTrigger.class))
                 {
                     this.triggerObjectOrNull = createTrigger();
                 } else
                 {
                     this.triggerObjectOrNull = null;
                 }
+                final AsynchronousTrigger asyncTrigger =
+                        (AsynchronousTrigger) triggerClass.getAnnotation(AsynchronousTrigger.class);
+                if (asyncTrigger != null)
+                {
+                    asynchronous = true;
+                    willDismiss = asyncTrigger.willDismissRequest();
+                    permitsNeeded = asyncTrigger.triggerPermits();
+                } else
+                {
+                    asynchronous = false;
+                    willDismiss = false;
+                    permitsNeeded = 0;
+                }
             } catch (ClassNotFoundException ex)
             {
                 throw new ConfigurationFailureException("Class '" + triggerClassName
                         + "' not found", ex);
             }
+        }
+
+        String getTriggerClassName()
+        {
+            return triggerClassName;
+        }
+
+        String getTriggerPropertyFileOrNull()
+        {
+            return triggerPropertyFileOrNull;
         }
 
         ITrigger getTrigger()
@@ -276,22 +340,37 @@ class TriggerManager implements ITriggerManager
             }
         }
 
+        boolean isAsync()
+        {
+            return asynchronous;
+        }
+
+        boolean willDismissRequest()
+        {
+            return willDismiss;
+        }
+
+        int getPermitsNeeded()
+        {
+            return permitsNeeded;
+        }
+
         private ITrigger createTrigger()
         {
             try
             {
-                if (triggerPropertyFileOrNull == null)
+                if (getTriggerPropertyFileOrNull() == null)
                 {
-                    return ClassUtils.create(ITrigger.class, triggerClassName);
+                    return ClassUtils.create(ITrigger.class, getTriggerClassName());
                 } else
                 {
-                    final Properties props = getProperties(triggerPropertyFileOrNull);
-                    return ClassUtils.create(ITrigger.class, triggerClassName, props);
+                    final Properties props = getProperties(getTriggerPropertyFileOrNull());
+                    return ClassUtils.create(ITrigger.class, getTriggerClassName(), props);
                 }
             } catch (Exception ex)
             {
                 throw new ConfigurationFailureException("Cannot create trigger '"
-                        + triggerClassName + "'", CheckedExceptionTunnel.unwrapIfNecessary(ex));
+                        + getTriggerClassName() + "'", CheckedExceptionTunnel.unwrapIfNecessary(ex));
             }
         }
 
@@ -316,6 +395,15 @@ class TriggerManager implements ITriggerManager
 
     }
 
+    /**
+     * ExecutorService for calling the triggers in a non-blocking way.
+     */
+    private final ExecutorService triggerExecutor;
+
+    private final int maxTriggerPermits;
+
+    private final Semaphore permits;
+
     private final Map<String, TriggerDescription> triggerMap;
 
     private final IMailClient mailClient;
@@ -325,6 +413,17 @@ class TriggerManager implements ITriggerManager
     TriggerManager(BusinessContext context)
     {
         this.mailClient = context.getMailClient();
+        this.maxTriggerPermits = context.getTriggerPermits();
+        this.triggerMap = getTriggers();
+        if (TriggerDescription.hasAsyncTriggers(triggerMap))
+        {
+            this.triggerExecutor = new NamingThreadPoolExecutor("Triggers").corePoolSize(3).daemonize();
+            this.permits = new Semaphore(maxTriggerPermits);
+        } else
+        {
+            this.triggerExecutor = null;
+            this.permits = null;
+        }
         try
         {
             this.url =
@@ -335,7 +434,6 @@ class TriggerManager implements ITriggerManager
         {
             throw new EnvironmentFailureException("Cannot determine ip address of local host.", ex);
         }
-        triggerMap = getTriggers();
     }
 
     private Map<String, TriggerDescription> getTriggers()
@@ -368,11 +466,10 @@ class TriggerManager implements ITriggerManager
             String[] splitted = StringUtils.split(triggerLine.trim(), '\t');
             if (splitted.length == 2)
             {
-                triggers.put(splitted[0], new TriggerDescription(splitted[0], splitted[1], null));
+                triggers.put(splitted[0], new TriggerDescription(splitted[1], null));
             } else if (splitted.length == 3)
             {
-                triggers.put(splitted[0], new TriggerDescription(splitted[0], splitted[1],
-                        splitted[2]));
+                triggers.put(splitted[0], new TriggerDescription(splitted[1], splitted[2]));
             } else
             {
                 throw new ConfigurationFailureException("Illegal line in file " + TRIGGERS_RESOURCE
@@ -393,13 +490,64 @@ class TriggerManager implements ITriggerManager
         }
         final File file = fileManager.getRealFile(fileDTO);
         final TriggerRequest request = new TriggerRequest(fileDTO, file, null);
-        final ITrigger trigger = triggerMap.get(triggerUser.getUserCode()).getTrigger();
+        final TriggerDescription triggerDesc = triggerMap.get(triggerUser.getUserCode());
+        final ITrigger trigger = triggerDesc.getTrigger();
         final TriggerConsole console =
                 new TriggerConsole(trigger, fileManager, request, fileDTO.getRegisterer(),
                         triggerUser);
-        trigger.handle(request, console);
-        console.deleteDismissables();
-        return request.isDismissed();
+        if (triggerDesc.isAsync())
+        {
+            if (triggerDesc.getPermitsNeeded() > maxTriggerPermits)
+            {
+                throw ConfigurationFailureException
+                        .fromTemplate(
+                                "Number of permits needed to run trigger '%s' (%d) is more than all available permits (%d).",
+                                triggerDesc.getTriggerClassName(), triggerDesc.getPermitsNeeded(),
+                                maxTriggerPermits);
+            }
+            triggerExecutor.execute(new Runnable()
+                {
+                    public void run()
+                    {
+                        int permitsHeld = 0;
+                        try
+                        {
+                            permits.acquire(triggerDesc.getPermitsNeeded());
+                            permitsHeld = triggerDesc.getPermitsNeeded();
+                            trigger.handle(request, console);
+                        } catch (Throwable th)
+                        {
+                            final String msg =
+                                    "Your request '" + request.getFileName() + "' to user '"
+                                            + triggerUser.getUserCode() + "' failed:\n"
+                                            + th.getClass().getSimpleName() + ": "
+                                            + th.getMessage();
+                            mailClient.sendMessage("Your request '" + request.getFileName() + "'",
+                                    msg, null, request.getUploadingUserEmail());
+                            throw CheckedExceptionTunnel.wrapIfNecessary(th);
+                        } finally
+                        {
+                            if (permitsHeld > 0)
+                            {
+                                permits.release(permitsHeld);
+                            }
+                            request.setDismiss(triggerDesc.willDismissRequest());
+                            console.deleteDismissables();
+                        }
+                    }
+                });
+            return triggerDesc.willDismissRequest();
+        } else
+        {
+            try
+            {
+                trigger.handle(request, console);
+            } finally
+            {
+                console.deleteDismissables();
+            }
+            return request.isDismissed();
+        }
     }
 
     public boolean isTriggerUser(UserDTO user)

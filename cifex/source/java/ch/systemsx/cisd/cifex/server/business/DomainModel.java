@@ -158,6 +158,16 @@ public final class DomainModel implements IDomainModel
         }
     }
 
+    /**
+     * Sets the number of trigger permits for this server. This determines the number of
+     * asynchronous triggers that can run in parallel. (More expensive triggers may use up more than
+     * one permit.)
+     */
+    public void setTriggerPermits(int triggerPermits)
+    {
+        businessContext.setTriggerPermits(triggerPermits);
+    }
+
     private final <T> T createLoggingProxy(final T manager)
     {
         final Object proxy =

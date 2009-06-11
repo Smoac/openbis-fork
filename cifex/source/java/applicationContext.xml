@@ -55,6 +55,7 @@
         <property name="fileRetention" value="${file-retention}" />
         <property name="userRetention" value="${user-retention}" />
         <property name="maxRequestUploadSizeInMB" value="${max-upload-size}" />
+        <property name="triggerPermits" value="${trigger-permits}" />
         <property name="administratorEmail" value="${administrator.email}" />
     </bean>
 

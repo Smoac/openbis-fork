@@ -328,7 +328,7 @@ final class FileManager extends AbstractManager implements IFileManager
         assert input != null : "Unspecified input stream.";
 
         final String contentType =
-            (contentTypeOrNull != null) ? contentTypeOrNull : DEFAULT_CONTENT_TYPE;
+                (contentTypeOrNull != null) ? contentTypeOrNull : DEFAULT_CONTENT_TYPE;
         final File file = createFile(user, fileName);
         boolean success = false;
         try
@@ -439,7 +439,6 @@ final class FileManager extends AbstractManager implements IFileManager
         return folder;
     }
 
-    @Transactional
     public final List<String> shareFilesWith(final String url, final UserDTO requestUser,
             final Collection<String> userIdentifiers, final Collection<FileDTO> files,
             final String comment) throws UserFailureException
@@ -448,6 +447,7 @@ final class FileManager extends AbstractManager implements IFileManager
         final List<String> invalidEmailAdresses = new ArrayList<String>();
         setRegisterer(requestUser, files);
         boolean success = false;
+        RuntimeException firstExceptionOrNull = null;
         try
         {
             final TableMapNonUniqueKey<String, UserDTO> existingUsers =
@@ -461,10 +461,19 @@ final class FileManager extends AbstractManager implements IFileManager
                         handleIdentifer(identifier, requestUser, existingUsers,
                                 existingUniqueUsers, invalidEmailAdresses, users);
                 allUsers.addAll(users);
-                createLinksAndCallTriggersAndSendEmails(users, files, url, comment, requestUser,
-                        password);
+                final RuntimeException ex =
+                        createLinksAndCallTriggersAndSendEmails(users, files, url, comment,
+                                requestUser, password);
+                if (firstExceptionOrNull == null && ex != null)
+                {
+                    firstExceptionOrNull = ex;
+                }
             }
-            success = true;
+            success = (firstExceptionOrNull == null);
+            if (firstExceptionOrNull != null)
+            {
+                throw firstExceptionOrNull;
+            }
             return invalidEmailAdresses;
         } finally
         {
@@ -529,7 +538,7 @@ final class FileManager extends AbstractManager implements IFileManager
         return password;
     }
 
-    private void createLinksAndCallTriggersAndSendEmails(Set<UserDTO> users,
+    private RuntimeException createLinksAndCallTriggersAndSendEmails(Set<UserDTO> users,
             final Collection<FileDTO> files, final String url, final String comment,
             final UserDTO requestUser, String password)
     {
@@ -562,6 +571,7 @@ final class FileManager extends AbstractManager implements IFileManager
         }
 
         final Set<FileDTO> filesLeft = new HashSet<FileDTO>(files);
+        RuntimeException firstExceptionOrNull = null;
         for (final FileDTO fileDTO : files)
         {
             boolean dismiss = false;
@@ -576,19 +586,26 @@ final class FileManager extends AbstractManager implements IFileManager
                     dismiss |= triggerManager.handle(userDTO, fileDTO, this);
                 } catch (final RuntimeException ex)
                 {
-                    operationLog.error("Error calling trigger for file '" + fileDTO.getPath()
-                            + "' with trigger user '" + userDTO.getUserCode() + "'.", ex);
+                    final String msg =
+                            "Error calling trigger for file '" + fileDTO.getPath()
+                                    + "' with trigger user '" + userDTO.getUserCode() + "'.";
+                    operationLog.error(msg, ex);
+                    if (firstExceptionOrNull == null)
+                    {
+                        firstExceptionOrNull =
+                                new RuntimeException(msg + " [" + ex.getClass().getSimpleName()
+                                        + ":" + ex.getMessage() + "]", ex);
+                    }
                 }
             }
             if (dismiss)
             {
                 filesLeft.remove(fileDTO);
-                deleteFile(fileDTO);
             }
         }
         if (filesLeft.size() == 0)
         {
-            return;
+            return null;
         }
 
         boolean notified = false;
@@ -628,6 +645,7 @@ final class FileManager extends AbstractManager implements IFileManager
                 }
             }
         }
+        return firstExceptionOrNull;
     }
 
     private TableMapNonUniqueKey<String, UserDTO> createTableMapOfExistingUsersWithEmailAsKey()

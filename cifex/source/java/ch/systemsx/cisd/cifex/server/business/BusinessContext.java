@@ -57,6 +57,18 @@ class BusinessContext implements IBusinessContext
     private String overrideURL;
     
     private String systemVersion;
+    
+    private int triggerPermits;
+
+    public int getTriggerPermits()
+    {
+        return triggerPermits;
+    }
+
+    public void setTriggerPermits(int triggerPermits)
+    {
+        this.triggerPermits = triggerPermits;
+    }
 
     public final IUserSessionInvalidator getUserSessionInvalidator()
     {

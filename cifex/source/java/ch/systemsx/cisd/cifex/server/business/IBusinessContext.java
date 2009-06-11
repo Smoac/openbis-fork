@@ -49,6 +49,13 @@ public interface IBusinessContext
     public int getMaxUploadRequestSizeInMB();
 
     /**
+     * Returns the number of trigger permits for this server. This determines the number of
+     * asynchronous triggers that can run in parallel. (More expensive triggers may use up more than
+     * one permit.)
+     */
+    public int getTriggerPermits();
+
+    /**
      * Returns the mail client.
      */
     public IMailClient getMailClient();
@@ -74,8 +81,8 @@ public interface IBusinessContext
     public String getAdministratorEmail();
 
     /**
-     * Returns the URL to be used for links in emails, or an empty String, if the base URL from
-     * the HTTP request should be used.
+     * Returns the URL to be used for links in emails, or an empty String, if the base URL from the
+     * HTTP request should be used.
      */
     public String getOverrideURL();
 
