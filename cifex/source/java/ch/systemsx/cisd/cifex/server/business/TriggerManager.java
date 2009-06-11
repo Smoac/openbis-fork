@@ -297,6 +297,7 @@ class TriggerManager implements ITriggerManager
                     this.triggerObjectOrNull = createTrigger();
                 } else
                 {
+                    createTrigger(); // We create the trigger anyway to check whether it works. 
                     this.triggerObjectOrNull = null;
                 }
                 final AsynchronousTrigger asyncTrigger =
