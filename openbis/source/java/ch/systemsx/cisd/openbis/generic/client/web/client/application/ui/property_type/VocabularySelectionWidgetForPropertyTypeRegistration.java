@@ -42,18 +42,25 @@ final class VocabularySelectionWidgetForPropertyTypeRegistration extends Vocabul
                 @Override
                 public final void selectionChanged(final SelectionChangedEvent<BaseModelData> se)
                 {
-                    final BaseModelData selectedItem = se.getSelectedItem();
-                    final boolean visible;
-                    if (selectedItem != null)
+                    // NOTE: Somehow this SelectionChangedEvent is fired when
+                    // Property Registration Form and Data Type is not yet selected or even visible.
+                    // It happens only if there are no Controlled Vocabularies registered
+                    // and the only ComboBox item is '(New Vocabulary)'.
+                    if (VocabularySelectionWidgetForPropertyTypeRegistration.this.isVisible())
                     {
-                        visible =
-                                selectedItem.get(ModelDataPropertyNames.CODE).equals(
-                                        NEW_VOCABULARY_CODE);
-                    } else
-                    {
-                        visible = false;
+                        final BaseModelData selectedItem = se.getSelectedItem();
+                        final boolean visible;
+                        if (selectedItem != null)
+                        {
+                            visible =
+                                    selectedItem.get(ModelDataPropertyNames.CODE).equals(
+                                            NEW_VOCABULARY_CODE);
+                        } else
+                        {
+                            visible = false;
+                        }
+                        vocabularyRegistrationFieldSet.setVisible(visible);
                     }
-                    vocabularyRegistrationFieldSet.setVisible(visible);
                 }
             });
 
