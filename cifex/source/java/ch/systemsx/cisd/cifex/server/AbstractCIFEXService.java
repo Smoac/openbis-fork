@@ -116,9 +116,16 @@ abstract public class AbstractCIFEXService
     }
 
     /** Returns the rpc session for an <var>httpSession</var>, if any. */
-    public static Session tryGetRPCSession(HttpSession httpSession)
+    public static Session tryGetRPCSession(HttpSession httpSessionOrNull)
     {
-        return (Session) httpSession.getAttribute(CIFEXRPCService.SESSION_ATTRIBUTE_RPC_SESSION);
+        if (httpSessionOrNull != null)
+        {
+            return (Session) httpSessionOrNull
+                    .getAttribute(CIFEXRPCService.SESSION_ATTRIBUTE_RPC_SESSION);
+        } else
+        {
+            return null;
+        }
     }
 
     private void checkAuthentication() throws HighLevelException
