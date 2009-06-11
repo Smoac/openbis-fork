@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
  * Serves the template files for entity batch registration.
- *
+ * 
  * @author Izabela Adamczyk
  */
 @Controller
@@ -54,7 +54,7 @@ public class FileTemplateServiceServlet extends AbstractFileDownloadServlet
                     service.getTemplate(EntityKind.valueOf(kind), type, Boolean
                             .parseBoolean(autoGenerate));
             byte[] value = fileContent.getBytes();
-            String fileName = kind + "-" + type + "-template.txt";
+            String fileName = kind + "-" + type + "-template.tsv";
             return new FileContent(value, fileName);
         } else
         {
