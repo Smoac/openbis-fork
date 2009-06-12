@@ -54,7 +54,7 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
 
     protected final IViewContext<T> viewContext;
 
-    private final Button editButton;
+    protected final Button editButton;
 
     private final LabelToolItem titleLabel;
 

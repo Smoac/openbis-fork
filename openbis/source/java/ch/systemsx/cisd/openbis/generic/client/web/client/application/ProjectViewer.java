@@ -134,6 +134,7 @@ public final class ProjectViewer extends AbstractViewer<ICommonClientServiceAsyn
     private void updateOriginalProject(Project result)
     {
         this.originalProject = result;
+        editButton.enable();
         updateTitle();
     }
 
