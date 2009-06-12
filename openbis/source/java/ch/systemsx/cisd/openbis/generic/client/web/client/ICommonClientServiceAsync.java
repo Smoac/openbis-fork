@@ -21,6 +21,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
@@ -378,6 +379,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#deleteExperiments(List, String) */
     public void deleteExperiments(List<TechId> experimentIds, String value,
             AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#deleteAttachments(TechId, AttachmentHolderKind, List, String) */
+    public void deleteAttachments(TechId holderId, AttachmentHolderKind holderKind,
+            List<String> fileNames, String reason, AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#listDataSetTypes() */
     public void listDataSetTypes(AsyncCallback<List<DataSetType>> callback);

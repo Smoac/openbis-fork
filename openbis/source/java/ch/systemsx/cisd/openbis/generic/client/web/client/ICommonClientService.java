@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client;
 import java.util.Date;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
@@ -440,6 +441,13 @@ public interface ICommonClientService extends IClientService
     /** Deletes the specified experiments. */
     public void deleteExperiments(List<TechId> experimentIds, String reason)
             throws UserFailureException;
+
+    /**
+     * Deletes specified attachments (all versions with given file names) of specified attachment
+     * holder.
+     */
+    public void deleteAttachments(TechId holderId, AttachmentHolderKind holderKind,
+            List<String> fileNames, String reason) throws UserFailureException;
 
     /**
      * Returns a list of all available data set types.

@@ -27,6 +27,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public interface ICommonBusinessObjectFactory
 {
+    public IAttachmentBO createAttachmentBO(final Session session);
+
     public IGroupBO createGroupBO(final Session session);
 
     public IRoleAssignmentTable createRoleAssignmentTable(final Session session);

@@ -406,6 +406,27 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logTracking(sessionToken, "delete_experiments", "IDS(%s) REASON(%s)", experimentIds, reason);
     }
 
+    public void deleteExperimentAttachments(String sessionToken, TechId experimentId,
+            List<String> fileNames, String reason)
+    {
+        logTracking(sessionToken, "delete_experiment_attachments", "ID(%s) FILES(%s) REASON(%s)",
+                experimentId, fileNames, reason);
+    }
+
+    public void deleteSampleAttachments(String sessionToken, TechId experimentId,
+            List<String> fileNames, String reason)
+    {
+        logTracking(sessionToken, "delete_sample_attachments", "ID(%s) FILES(%s) REASON(%s)",
+                experimentId, fileNames, reason);
+    }
+
+    public void deleteProjectAttachments(String sessionToken, TechId experimentId,
+            List<String> fileNames, String reason)
+    {
+        logTracking(sessionToken, "delete_project_attachments", "ID(%s) FILES(%s) REASON(%s)",
+                experimentId, fileNames, reason);
+    }
+
     public String uploadDataSets(String sessionToken, List<String> dataSetCodes,
             DataSetUploadContext uploadContext)
     {

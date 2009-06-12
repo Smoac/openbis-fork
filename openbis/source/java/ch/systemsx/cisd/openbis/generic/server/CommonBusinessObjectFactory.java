@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AbstractBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.AttachmentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ExperimentBO;
@@ -25,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.GroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IAttachmentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
@@ -67,6 +69,11 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     public CommonBusinessObjectFactory(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory)
     {
         super(daoFactory, dssFactory);
+    }
+
+    public final IAttachmentBO createAttachmentBO(final Session session)
+    {
+        return new AttachmentBO(getDaoFactory(), session);
     }
 
     public final IGroupBO createGroupBO(final Session session)

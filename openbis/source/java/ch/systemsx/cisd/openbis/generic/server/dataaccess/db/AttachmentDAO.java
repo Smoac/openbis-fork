@@ -162,4 +162,27 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
         return attachment;
     }
 
+    public int deleteByOwnerAndFileName(final AttachmentHolderPE owner, final String fileName)
+            throws DataAccessException
+    {
+        assert owner != null : "Unspecified attachment holder.";
+        assert fileName != null : "Unspecified file name.";
+
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+
+        final String query =
+                String.format("delete from %s where " + getParentName(owner)
+                        + " = ? and fileName = ?", TABLE_NAME);
+        final int deletedRows = hibernateTemplate.bulkUpdate(query, toArray(owner, fileName));
+        hibernateTemplate.flush();
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.debug(String.format(
+                    "%s attachment(s) deleted for %s '%s' and file name '%s'.", deletedRows, owner
+                            .getHolderName(), owner, fileName));
+        }
+
+        return deletedRows;
+    }
+
 }

@@ -33,7 +33,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * @author Izabela Adamczyk
  */
 @MappedSuperclass
-public abstract class AttachmentHolderPE implements Serializable
+public abstract class AttachmentHolderPE implements Serializable, IIdentifierHolder
+
 {
     //
     // Version

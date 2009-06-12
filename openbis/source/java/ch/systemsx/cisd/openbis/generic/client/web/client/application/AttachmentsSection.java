@@ -237,16 +237,16 @@ public class AttachmentsSection<T extends IAttachmentHolder> extends SectionPane
     }
 
     private final static String createURL(final int version, final String fileName,
-            final IAttachmentHolder exp)
+            final IAttachmentHolder holder)
     {
         URLMethodWithParameters methodWithParameters =
                 new URLMethodWithParameters(GenericConstants.ATTACHMENT_DOWNLOAD_SERVLET_NAME);
         methodWithParameters.addParameter(GenericConstants.VERSION_PARAMETER, version);
         methodWithParameters.addParameter(GenericConstants.FILE_NAME_PARAMETER, fileName);
-        methodWithParameters.addParameter(GenericConstants.ATTACHMENT_HOLDER_PARAMETER, exp
+        methodWithParameters.addParameter(GenericConstants.ATTACHMENT_HOLDER_PARAMETER, holder
                 .getAttachmentHolderKind().name());
         // NOTE: this exp.getId() could be null if exp is a proxy
-        methodWithParameters.addParameter(GenericConstants.TECH_ID_PARAMETER, exp.getId());
+        methodWithParameters.addParameter(GenericConstants.TECH_ID_PARAMETER, holder.getId());
         return methodWithParameters.toString();
     }
 

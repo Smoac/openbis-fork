@@ -475,8 +475,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.GROUP_ADMIN)
-    @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
     public void deleteSamples(String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) List<TechId> sampleIds,
             String reason);
@@ -486,12 +485,41 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.GROUP_ADMIN)
-    @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT)
     public void deleteExperiments(
             String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) List<TechId> experimentIds,
             String reason);
+
+    /**
+     * Deletes specified attachments (all versions with given file names) of specified experiment.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.GROUP_ADMIN)
+    @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
+    public void deleteExperimentAttachments(String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId,
+            List<String> fileNames, String reason);
+
+    /**
+     * Deletes specified attachments (all versions with given file names) of specified sample.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.GROUP_ADMIN)
+    @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
+    public void deleteSampleAttachments(String sessionToken,
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId,
+            List<String> fileNames, String reason);
+
+    /**
+     * Deletes specified attachments (all versions with given file names) of specified project.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.GROUP_ADMIN)
+    @DatabaseUpdateModification(value = ObjectKind.PROJECT)
+    public void deleteProjectAttachments(String sessionToken,
+            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId,
+            List<String> fileNames, String reason);
 
     /**
      * Uploads specified data sets to CIFEX server of specified URL with specified password.
@@ -611,4 +639,5 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.OBSERVER)
     public List<String> getTemplateColumns(String sessionToken, EntityKind kind, String type,
             boolean autoGenerate);
+
 }

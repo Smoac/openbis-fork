@@ -34,7 +34,7 @@ public interface IAttachmentDAO extends IGenericDAO<AttachmentPE>
      * Returns a list of the descriptions of all {@link AttachmentPE} object associated with the
      * specified {@link AttachmentHolderPE}. The result is detached from the hibernate session.
      * 
-     * @param owner Technical ID of the {@link AttachmentHolderPE} whose properties are requested.
+     * @param owner Persistent {@link AttachmentHolderPE} whose properties are requested.
      */
     public List<AttachmentPE> listAttachments(AttachmentHolderPE owner) throws DataAccessException;
 
@@ -53,7 +53,7 @@ public interface IAttachmentDAO extends IGenericDAO<AttachmentPE>
      * name. If multiple versions of this attachment exist, this will always return the latest
      * version.
      * 
-     * @param owner technical ID of the associated {@link AttachmentHolderPE}.
+     * @param owner Persistent {@link AttachmentHolderPE} whose properties are requested.
      * @return <code>null</code> if no attachment is found. The result is detached from the
      *         hibernate session.
      */
@@ -64,10 +64,20 @@ public interface IAttachmentDAO extends IGenericDAO<AttachmentPE>
      * Finds the attachment requested by the specified {@link AttachmentHolderPE} code, file name
      * and version.
      * 
-     * @param owner technical ID of the associated {@link AttachmentHolderPE}.
+     * @param owner Persistent {@link AttachmentHolderPE} whose properties are requested.
      * @return <code>null</code> if no attachment is found. The result is detached from the
      *         hibernate session.
      */
     public AttachmentPE tryFindAttachmentByOwnerAndFileNameAndVersion(AttachmentHolderPE owner,
             String fileName, int version) throws DataAccessException;
+
+    /**
+     * Deletes all attachment versions with specified <var>fileName</var> and <var>owner</var>.
+     * There will be no error if no such attachment exist.
+     * 
+     * @return number of attachments deleted
+     */
+    public int deleteByOwnerAndFileName(final AttachmentHolderPE owner, final String fileName)
+            throws DataAccessException;
+
 }

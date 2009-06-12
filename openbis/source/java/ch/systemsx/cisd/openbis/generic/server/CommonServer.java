@@ -32,6 +32,7 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IAttachmentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
@@ -71,6 +72,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
@@ -791,6 +793,58 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         {
             throw createUserFailureException(ex);
         }
+    }
+
+    public void deleteExperimentAttachments(String sessionToken, TechId experimentId,
+            List<String> fileNames, String reason)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+            experimentBO.loadDataByTechId(experimentId);
+            deleteHolderAttachments(session, experimentBO.getExperiment(), fileNames, reason);
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
+    public void deleteSampleAttachments(String sessionToken, TechId sampleId,
+            List<String> fileNames, String reason)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+            sampleBO.loadDataByTechId(sampleId);
+            deleteHolderAttachments(session, sampleBO.getSample(), fileNames, reason);
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
+    public void deleteProjectAttachments(String sessionToken, TechId projectId,
+            List<String> fileNames, String reason)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
+            projectBO.loadDataByTechId(projectId);
+            deleteHolderAttachments(session, projectBO.getProject(), fileNames, reason);
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
+    private void deleteHolderAttachments(Session session, AttachmentHolderPE holder,
+            List<String> fileNames, String reason) throws DataAccessException
+    {
+        IAttachmentBO attachmentBO = businessObjectFactory.createAttachmentBO(session);
+        attachmentBO.deleteHolderAttachments(holder, fileNames, reason);
     }
 
     public String uploadDataSets(String sessionToken, List<String> dataSetCodes,

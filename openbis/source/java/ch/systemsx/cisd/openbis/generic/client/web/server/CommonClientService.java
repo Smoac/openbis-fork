@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
@@ -1376,6 +1377,33 @@ public final class CommonClientService extends AbstractClientService implements
         {
             final String sessionToken = getSessionToken();
             commonServer.deleteExperiments(sessionToken, experimentIds, reason);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public void deleteAttachments(TechId holderId, AttachmentHolderKind holderKind,
+            List<String> fileNames, String reason)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+        try
+        {
+            switch (holderKind)
+            {
+                case EXPERIMENT:
+                    commonServer.deleteExperimentAttachments(sessionToken, holderId, fileNames,
+                            reason);
+                    break;
+                case SAMPLE:
+                    commonServer.deleteSampleAttachments(sessionToken, holderId, fileNames, reason);
+                    break;
+                case PROJECT:
+                    commonServer
+                            .deleteProjectAttachments(sessionToken, holderId, fileNames, reason);
+                    break;
+            }
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
