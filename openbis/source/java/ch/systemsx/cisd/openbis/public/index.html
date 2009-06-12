@@ -7,7 +7,13 @@
 // This script loads your compiled module. If you add any GWT meta tags, they must be added before this line.
 -->
 <script language="javascript" src="ch.systemsx.cisd.openbis.OpenBIS.nocache.js"></script>
-
+<script language="JavaScript">
+  window.onbeforeunload = confirmExit;
+  function confirmExit()
+  {
+    return "WARNING: By doing this you will in fact leave openBIS!"
+  }
+</script>
 <link rel="shortcut icon" href="images/favicon.ico" />
 <link rel="icon" type="image/png" href="images/favicon.png" />
 <link rel="stylesheet" type="text/css" href="css/ext-all.css" />
