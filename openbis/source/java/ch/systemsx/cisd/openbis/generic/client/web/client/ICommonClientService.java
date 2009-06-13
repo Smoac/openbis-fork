@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client;
 import java.util.Date;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -296,7 +297,16 @@ public interface ICommonClientService extends IClientService
     public ResultSet<? extends AbstractType> listFileTypes(
             DefaultResultSetConfig<String, AbstractType> criteria) throws UserFailureException;
 
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for FileType.
+     */
     public String prepareExportFileTypes(TableExportCriteria<FileFormatType> criteria)
+            throws UserFailureException;
+
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for Attachment.
+     */
+    public String prepareExportAttachments(TableExportCriteria<Attachment> criteria)
             throws UserFailureException;
 
     /**

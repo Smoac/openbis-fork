@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
  */
 public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 {
+    ATTACHMENT_BROWSER_GRID("attachment-browser-grid"),
     ENTITY_BROWSER_GRID("entity-browser-grid"), 
     EXPERIMENT_DETAILS_GRID("experiment-details-grid"),
     SAMPLE_DETAILS_GRID("sample-details-grid"),

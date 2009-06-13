@@ -21,6 +21,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -248,6 +249,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /** @see ICommonClientService#prepareExportFileTypes(TableExportCriteria) */
     public void prepareExportFileTypes(TableExportCriteria<AbstractType> criteria,
+            AsyncCallback<String> callback)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+
+    /** @see ICommonClientService#prepareExportAttachments(TableExportCriteria) */
+    public void prepareExportAttachments(TableExportCriteria<Attachment> criteria,
             AsyncCallback<String> callback)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 

@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -565,6 +566,12 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public String prepareExportFileTypes(TableExportCriteria<FileFormatType> criteria)
+            throws UserFailureException
+    {
+        return prepareExportEntities(criteria);
+    }
+
+    public String prepareExportAttachments(TableExportCriteria<Attachment> criteria)
             throws UserFailureException
     {
         return prepareExportEntities(criteria);

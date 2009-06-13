@@ -39,6 +39,23 @@ public interface IAttachmentDAO extends IGenericDAO<AttachmentPE>
     public List<AttachmentPE> listAttachments(AttachmentHolderPE owner) throws DataAccessException;
 
     /**
+     * Returns a list of the descriptions of all latest versions of {@link AttachmentPE} object
+     * associated with the specified {@link AttachmentHolderPE}. The result is detached from the
+     * hibernate session.
+     * 
+     * @param owner Persistent {@link AttachmentHolderPE} whose properties are requested.
+     */
+    public List<AttachmentPE> listLatestAttachments(AttachmentHolderPE owner)
+            throws DataAccessException;
+
+    /**
+     * Like {@link #tryFindAttachmentByOwnerAndFileName(AttachmentHolderPE, String)} but returns a
+     * list of all versions of attachment or empty list if no version is found.
+     */
+    public List<AttachmentPE> listAttachmentsByOwnerAndFileName(final AttachmentHolderPE owner,
+            final String fileName) throws DataAccessException;
+
+    /**
      * Creates a persistent version of the specified attachment. Registrator and version are not
      * needed.
      * 

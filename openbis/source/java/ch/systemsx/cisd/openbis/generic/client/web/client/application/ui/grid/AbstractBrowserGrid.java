@@ -113,7 +113,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     abstract protected void listEntities(DefaultResultSetConfig<String, T> resultSetConfig,
             AbstractAsyncCallback<ResultSet<T>> callback);
 
-    /** Converts specified list of entities into a list of grid rows models */
+    /** Converts specified entity into a grid row model */
     abstract protected M createModel(T entity);
 
     /**
@@ -613,12 +613,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
     }
 
-    private List<M> createModels(final List<T> projects)
+    private List<M> createModels(final List<T> entities)
     {
         final List<M> result = new ArrayList<M>();
-        for (final T p : projects)
+        for (final T entity : entities)
         {
-            result.add(createModel(p));
+            result.add(createModel(entity));
         }
         return result;
     }

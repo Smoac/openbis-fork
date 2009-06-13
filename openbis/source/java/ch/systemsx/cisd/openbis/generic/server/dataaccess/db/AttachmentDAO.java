@@ -64,9 +64,14 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
 
     private final static String createFindLastVersionQuery(AttachmentHolderPE owner)
     {
+        return createFindLastVersionQuery(owner, "?");
+    }
+
+    private final static String createFindLastVersionQuery(AttachmentHolderPE owner, String fileName)
+    {
         String ownerAsParent = getParentName(owner);
         return String.format("select max(version) from %s where " + ownerAsParent
-                + " = ? and fileName = ?", TABLE_NAME);
+                + " = ? and fileName = %s", TABLE_NAME, fileName);
     }
 
     private static String getParentName(AttachmentHolderPE owner)
@@ -116,6 +121,25 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
         return result;
     }
 
+    public final List<AttachmentPE> listLatestAttachments(final AttachmentHolderPE owner)
+            throws DataAccessException
+    {
+        assert owner != null : "Unspecified attachment holder.";
+
+        final String query =
+                String.format("from %s a where " + getParentName(owner) + " = ? and version = ("
+                        + createFindLastVersionQuery(owner, "a.fileName") + ")", TABLE_NAME);
+        final List<AttachmentPE> result =
+                cast(getHibernateTemplate().find(query, toArray(owner, owner)));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%d attachment(s) found for " + owner.getHolderName()
+                    + " '%s'.", result.size(), owner));
+        }
+
+        return result;
+    }
+
     public final AttachmentPE tryFindAttachmentByOwnerAndFileName(final AttachmentHolderPE owner,
             final String fileName) throws DataAccessException
     {
@@ -136,6 +160,25 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
                     : "Attachment '" + attachment + "'", owner, fileName));
         }
         return attachment;
+    }
+
+    public final List<AttachmentPE> listAttachmentsByOwnerAndFileName(
+            final AttachmentHolderPE owner, final String fileName) throws DataAccessException
+    {
+        assert fileName != null : "Unspecified file name.";
+        assert owner != null : "Unspecified parent attachment holder.";
+
+        final String query =
+                String.format("from %s where " + getParentName(owner) + " = ? and fileName = ?",
+                        TABLE_NAME);
+        final List<AttachmentPE> result =
+                cast(getHibernateTemplate().find(query, toArray(owner, fileName)));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%d attachment(s) found for " + owner.getHolderName()
+                    + " '%s' and file name '%s'.", result.size(), owner, fileName));
+        }
+        return result;
     }
 
     public final AttachmentPE tryFindAttachmentByOwnerAndFileNameAndVersion(

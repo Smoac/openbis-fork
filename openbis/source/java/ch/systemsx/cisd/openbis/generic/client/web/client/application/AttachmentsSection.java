@@ -431,4 +431,5 @@ public class AttachmentsSection<T extends IAttachmentHolder> extends SectionPane
             section.updateData(result);
         }
     }
+
 }
