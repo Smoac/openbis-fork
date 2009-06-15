@@ -74,6 +74,8 @@ public final class ColumnNames
 
     public static final String FILE_NAME_COLUMN = "file_name";
 
+    public static final String TITLE_COLUMN = "title";
+
     public final static String FIRST_NAME_COLUMN = "first_name";
 
     public static final String GENERATED_FROM_DEPTH = "generated_from_depth";

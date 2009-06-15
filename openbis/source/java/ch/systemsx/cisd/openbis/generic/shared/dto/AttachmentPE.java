@@ -96,6 +96,10 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
 
     private ProjectPE projectParent;
 
+    private String description;
+
+    private String title;
+
     /**
      * This bridge allows to save in the search index not only the content of the attachment, but
      * also corresponding file name and version.
@@ -207,6 +211,30 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
     public void setAttachmentContent(final AttachmentContentPE attachmentContent)
     {
         this.attachmentContent = attachmentContent;
+    }
+
+    @Column(name = ColumnNames.TITLE_COLUMN)
+    @Length(max = 100, message = ValidationMessages.TITLE_LENGTH_MESSAGE)
+    public String getTitle()
+    {
+        return title;
+    }
+
+    public void setTitle(final String title)
+    {
+        this.title = title;
+    }
+
+    @Column(name = ColumnNames.DESCRIPTION_COLUMN)
+    @Length(max = 1000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
+    public final String getDescription()
+    {
+        return description;
+    }
+
+    public final void setDescription(final String description)
+    {
+        this.description = description;
     }
 
     @Override

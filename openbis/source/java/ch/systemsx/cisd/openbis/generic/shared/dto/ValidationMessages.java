@@ -91,6 +91,8 @@ public final class ValidationMessages
 
     public static final String FILE_NAME_NOT_NULL_MESSAGE = "File name" + CAN_NOT_BE_NULL;
 
+    public static final String TITLE_LENGTH_MESSAGE = LENGTH_PREFIX + "title" + LENGTH_SUFFIX;
+
     public static final String FIRST_NAME_LENGTH_MESSAGE =
             LENGTH_PREFIX + "first name" + LENGTH_SUFFIX;
 
