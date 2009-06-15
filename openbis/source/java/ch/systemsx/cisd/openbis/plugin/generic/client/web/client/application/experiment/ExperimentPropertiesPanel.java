@@ -22,11 +22,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractDatabaseModificationObserverWithCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserverWithCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
@@ -44,11 +45,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
- * {@link SectionPanel} containing experiment properties.
+ * {@link ContentPanel} containing experiment properties.
  * 
  * @author Izabela Adamczyk
  */
-public class ExperimentPropertiesSection extends SectionPanel
+public class ExperimentPropertiesPanel extends ContentPanel
 {
     public static final String PROPERTIES_ID_PREFIX =
             GenericConstants.ID_PREFIX + "experiment-properties-section_";
@@ -63,11 +64,11 @@ public class ExperimentPropertiesSection extends SectionPanel
 
     private final GenericExperimentViewer viewer;
 
-    public ExperimentPropertiesSection(final Experiment experiment,
+    public ExperimentPropertiesPanel(final Experiment experiment,
             final IViewContext<IGenericClientServiceAsync> viewContext,
             final GenericExperimentViewer viewer)
     {
-        super("Experiment Properties");
+        setHeading("Experiment Properties");
         this.experimentId = TechId.create(experiment);
         this.experiment = experiment;
         this.viewContext = viewContext;
@@ -168,15 +169,15 @@ public class ExperimentPropertiesSection extends SectionPanel
 
         public void update(Set<DatabaseModificationKind> observedModifications)
         {
-            reloadData(new ExperimentInfoCallback(viewContext, ExperimentPropertiesSection.this));
+            reloadData(new ExperimentInfoCallback(viewContext, ExperimentPropertiesPanel.this));
         }
 
         private final class ExperimentInfoCallback extends AbstractAsyncCallback<Experiment>
         {
-            private final ExperimentPropertiesSection section;
+            private final ExperimentPropertiesPanel section;
 
             private ExperimentInfoCallback(final IViewContext<?> viewContext,
-                    final ExperimentPropertiesSection section)
+                    final ExperimentPropertiesPanel section)
             {
                 super(viewContext);
                 this.section = section;
@@ -186,7 +187,7 @@ public class ExperimentPropertiesSection extends SectionPanel
             // AbstractAsyncCallback
             //
 
-            /** This method triggers reloading of the {@link ExperimentPropertiesSection} data. */
+            /** This method triggers reloading of the {@link ExperimentPropertiesPanel} data. */
             @Override
             protected final void process(final Experiment result)
             {

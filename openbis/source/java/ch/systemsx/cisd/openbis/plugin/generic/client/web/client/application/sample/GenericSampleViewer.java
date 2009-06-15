@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseListLoadConfig;
@@ -41,7 +40,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
@@ -144,12 +142,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         return ID_PREFIX + sampleId;
     }
 
-    private final static BorderLayoutData createRightBorderLayoutData()
-    {
-        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.CENTER);
-        return data;
-    }
-
     private final Component createRightPanel(SampleGeneration sampleGeneration)
     {
         final LayoutContainer container = new LayoutContainer();
@@ -194,6 +186,8 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
                 }
 
             };
+
+        container.layout();
         return container;
     }
 
@@ -269,16 +263,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         configs.add(ColumnConfigFactory.createRegistratorColumnConfig(viewContext,
                 CommonSampleColDefKind.REGISTRATOR.id()));
         return new ColumnModel(configs);
-    }
-
-    private final static BorderLayoutData createLeftBorderLayoutData()
-    {
-        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.WEST, 300, 100, 500);
-        data.setMargins(new Margins(0, 5, 0, 0));
-        data.setSplit(true);
-        data.setCollapsible(true);
-        data.setFloatable(false);
-        return data;
     }
 
     private final static Map<String, Object> createProperties(
@@ -466,10 +450,10 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
             genericSampleViewer.setLayout(new BorderLayout());
             // Left panel
             final Component leftPanel = genericSampleViewer.createLeftPanel(result);
-            genericSampleViewer.add(leftPanel, GenericSampleViewer.createLeftBorderLayoutData());
+            genericSampleViewer.add(leftPanel, createLeftBorderLayoutData());
             // Right panel
             final Component rightPanel = genericSampleViewer.createRightPanel(result);
-            genericSampleViewer.add(rightPanel, GenericSampleViewer.createRightBorderLayoutData());
+            genericSampleViewer.add(rightPanel, createRightBorderLayoutData());
             genericSampleViewer.layout();
             genericSampleViewer.loadStores();
         }

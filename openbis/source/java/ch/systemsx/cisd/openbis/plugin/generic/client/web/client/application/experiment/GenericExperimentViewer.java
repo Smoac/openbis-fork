@@ -18,8 +18,11 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ex
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -101,10 +104,18 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
         super.updateOriginalData(newData);
     }
 
-    private ExperimentPropertiesSection createExperimentPropertiesSection(
-            final Experiment experiment)
+    private final Component createLeftPanel(final Experiment experiment,
+            final CompositeDatabaseModificationObserverWithMainObserver observer)
     {
-        return new ExperimentPropertiesSection(experiment, viewContext, this);
+        final ExperimentPropertiesPanel panel = createExperimentPropertiesPanel(experiment);
+        panel.setScrollMode(Scroll.AUTOY);
+        observer.addMainObserver(panel.getDatabaseModificationObserver());
+        return panel;
+    }
+
+    private ExperimentPropertiesPanel createExperimentPropertiesPanel(final Experiment experiment)
+    {
+        return new ExperimentPropertiesPanel(experiment, viewContext, this);
     }
 
     private AttachmentVersionsSection<Experiment> createAttachmentsSection(
@@ -144,30 +155,38 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
         {
             genericExperimentViewer.updateOriginalData(result);
             genericExperimentViewer.removeAll();
-            genericExperimentViewer.setScrollMode(Scroll.AUTO);
+            genericExperimentViewer.setLayout(new BorderLayout());
 
-            ExperimentPropertiesSection propertiesSection =
-                    genericExperimentViewer.createExperimentPropertiesSection(result);
-            addSection(genericExperimentViewer, propertiesSection);
-            observer.addMainObserver(propertiesSection.getDatabaseModificationObserver());
-
-            AttachmentVersionsSection<Experiment> attachmentsSection =
-                    genericExperimentViewer.createAttachmentsSection(result);
-            addSection(genericExperimentViewer, attachmentsSection);
-            observer.addObserver(attachmentsSection.getDatabaseModificationObserver());
-
-            ExperimentSamplesSection sampleSection =
-                    new ExperimentSamplesSection(result, viewContext);
-            addSection(genericExperimentViewer, sampleSection);
-            observer.addObserver(sampleSection.getDatabaseModificationObserver());
-
-            ExperimentDataSetSection dataSection =
-                    new ExperimentDataSetSection(result, viewContext);
-            addSection(genericExperimentViewer, dataSection);
-            observer.addObserver(dataSection.getDatabaseModificationObserver());
+            // Left panel
+            final Component leftPanel = genericExperimentViewer.createLeftPanel(result, observer);
+            genericExperimentViewer.add(leftPanel, createLeftBorderLayoutData());
+            // Right panel
+            final Component rightPanel = genericExperimentViewer.createRightPanel(result, observer);
+            genericExperimentViewer.add(rightPanel, createRightBorderLayoutData());
 
             genericExperimentViewer.layout();
         }
     }
 
+    public Component createRightPanel(Experiment result,
+            CompositeDatabaseModificationObserverWithMainObserver observer)
+    {
+        final LayoutContainer container = new LayoutContainer();
+        container.setLayout(new RowLayout());
+
+        AttachmentVersionsSection<Experiment> attachmentsSection = createAttachmentsSection(result);
+        addSection(container, attachmentsSection);
+        observer.addObserver(attachmentsSection.getDatabaseModificationObserver());
+
+        ExperimentSamplesSection sampleSection = new ExperimentSamplesSection(result, viewContext);
+        addSection(container, sampleSection);
+        observer.addObserver(sampleSection.getDatabaseModificationObserver());
+
+        ExperimentDataSetSection dataSection = new ExperimentDataSetSection(result, viewContext);
+        addSection(container, dataSection);
+        observer.addObserver(dataSection.getDatabaseModificationObserver());
+
+        container.layout();
+        return container;
+    }
 }

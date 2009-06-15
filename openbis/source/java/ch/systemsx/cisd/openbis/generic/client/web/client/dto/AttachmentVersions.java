@@ -39,7 +39,7 @@ public class AttachmentVersions implements Comparable<AttachmentVersions>, IsSer
         assert versions.isEmpty() == false : "versions empty!";
         Collections.sort(versions);
         this.versions = versions;
-        this.current = versions.get(0);
+        this.current = versions.get(versions.size() - 1);
     }
 
     public int compareTo(final AttachmentVersions o)

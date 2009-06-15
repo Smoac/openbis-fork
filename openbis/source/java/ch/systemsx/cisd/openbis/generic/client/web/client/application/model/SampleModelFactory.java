@@ -54,7 +54,7 @@ public final class SampleModelFactory
         List<IColumnDefinitionUI<Sample>> allColumnsDefinition =
                 new SampleModelFactory().createColumnsSchemaForRendering(entity);
         BaseEntityModel<Sample> model = new BaseEntityModel<Sample>(entity, allColumnsDefinition);
-        model.renderAsLink(CommonSampleColDefKind.EXPERIMENT.id());
+        model.renderAsLinkWithAnchor(CommonSampleColDefKind.EXPERIMENT.id());
         return model;
     }
 

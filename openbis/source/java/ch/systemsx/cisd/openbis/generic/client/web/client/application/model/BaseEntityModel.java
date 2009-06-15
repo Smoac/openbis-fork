@@ -68,8 +68,19 @@ public class BaseEntityModel<T> extends BaseModelData
         return get(ModelDataPropertyNames.OBJECT);
     }
 
-    /** render specified column as a link */
+    /** render specified column as a link (using div) */
     public void renderAsLink(String columnId)
+    {
+        String value = this.get(columnId);
+        if (value.length() > 0)
+        {// only for not null value
+            value = LinkRenderer.renderAsLink(value);
+        }
+        this.set(columnId, value);
+    }
+
+    /** render specified column as a link with anchor */
+    public void renderAsLinkWithAnchor(String columnId)
     {
         String value = this.get(columnId);
         if (value.length() > 0)

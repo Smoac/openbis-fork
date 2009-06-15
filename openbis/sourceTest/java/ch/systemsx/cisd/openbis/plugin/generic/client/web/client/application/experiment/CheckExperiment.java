@@ -70,7 +70,7 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
 
     public void execute()
     {
-        propertyCheckingManager.assertPropertiesOf(ExperimentPropertiesSection.PROPERTIES_ID_PREFIX
+        propertyCheckingManager.assertPropertiesOf(ExperimentPropertiesPanel.PROPERTIES_ID_PREFIX
                 + experimentId);
 
         if (sampleSection != null)

@@ -29,11 +29,10 @@ public class SectionPanel extends ContentPanel
     public SectionPanel(final String header)
     {
         setHeaderVisible(true);
-        setBorders(true);
         setHeading(header);
         setCollapsible(true);
         setAnimCollapse(false);
-        setBodyBorder(false);
+        setBodyBorder(true);
         setScrollMode(Scroll.AUTO);
     }
 }

@@ -20,7 +20,6 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.attachment.AttachmentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.AttachmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
@@ -57,7 +56,6 @@ public class ClickDownloadAttachmentCmdTest extends AbstractDefaultTestCommand
         final Widget widget = GWTTestUtil.getWidgetWithID(attachmentGridId);
         final Grid<BaseEntityModel<AttachmentVersions>> table =
                 (Grid<BaseEntityModel<AttachmentVersions>>) widget;
-        GridTestUtils.fireSingleClick(table, AttachmentColDefKind.FILE_NAME.id(), LinkRenderer
-                .renderAsLinkWithAnchor(fileName));
+        GridTestUtils.fireSingleClick(table, AttachmentColDefKind.FILE_NAME.id(), fileName);
     }
 }

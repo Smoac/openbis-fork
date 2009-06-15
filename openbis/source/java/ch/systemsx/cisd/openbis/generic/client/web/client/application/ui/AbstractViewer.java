@@ -17,10 +17,13 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
@@ -168,5 +171,21 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
     private String getOriginalDataDescription()
     {
         return originalData.getEntityKind().getDescription() + " " + originalData.getIdentifier();
+    }
+
+    protected final static BorderLayoutData createLeftBorderLayoutData()
+    {
+        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.WEST, 300, 100, 500);
+        data.setMargins(new Margins(0, 5, 0, 0));
+        data.setSplit(true);
+        data.setCollapsible(true);
+        data.setFloatable(false);
+        return data;
+    }
+
+    protected final static BorderLayoutData createRightBorderLayoutData()
+    {
+        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.CENTER);
+        return data;
     }
 }
