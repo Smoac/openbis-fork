@@ -1,2 +1,0 @@
-Mon Jun 15 14:41:27 CEST 2009 WARNING: Cannot process the directory '/Users/tpylak/main/src/workspace/datastore_server/targets/incoming/faulty-to-many-mapping-files' because a file with extension '[tsv]' which contains dataset descriptions does not exist or there is more than one.
-Mon Jun 15 14:41:27 CEST 2009 WARNING: Correct the errors and delete the '_delete_me_after_correcting_errors' file to start processing again.

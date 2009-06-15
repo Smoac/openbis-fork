@@ -1,4 +1,0 @@
-Mon Jun 15 14:41:28 CEST 2009 ERROR: Error for file 'file1.mzXML'. Conversion column cannot be empty for this type of file.
-Mon Jun 15 14:41:28 CEST 2009 ERROR: Error for file 'file2.eicML'. Conversion column must be empty for this type of file.
-Mon Jun 15 14:41:28 CEST 2009 ERROR: Error for file 'file2.fiaML'. Conversion column must be empty for this type of file.
-Mon Jun 15 14:41:32 CEST 2009 WARNING: Correct the errors and delete the '_delete_me_after_correcting_errors' file to start processing again.
