@@ -23,16 +23,18 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * If a trigger is annotated with {@link StatelessTrigger}, it will be considered stateless and thus
- * one object can be used safely in multiple threads at the same time. If this annotation is not
- * given, a new trigger object will be created each time the trigger is called.
+ * If a trigger is annotated with {@link ThreadSafeTrigger}, it will be considered safe to use the
+ * same class and run the {@link ITrigger#handle(ITriggerRequest, ITriggerConsole)} method in
+ * multiple threads at the same time. So, in order not to create race conditions, classes annoted
+ * with {@link ThreadSafeTrigger} should be stateless. If this annotation is <i>not</i> given, a new
+ * trigger object will be created each time the trigger is called.
  * 
  * @author Bernd Rinn
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface StatelessTrigger
+public @interface ThreadSafeTrigger
 {
     // Tag annotation.
 }
