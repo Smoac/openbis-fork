@@ -146,7 +146,7 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
     }
 
     @Column(name = ColumnNames.DESCRIPTION_COLUMN)
-    @Length(max = 80, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
+    @Length(max = 250, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
     public String getDescription()
     {
         return description;

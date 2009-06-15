@@ -188,7 +188,7 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
 
     @NotNull(message = ValidationMessages.DESCRIPTION_NOT_NULL_MESSAGE)
     @Column(name = ColumnNames.DESCRIPTION_COLUMN)
-    @Length(max = 80, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
+    @Length(max = 250, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
     public final String getDescription()
     {
         return description;
