@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.server;
+package ch.systemsx.cisd.openbis.plugin.demo.server;
 
 import java.util.List;
 
@@ -26,42 +26,42 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
+import ch.systemsx.cisd.openbis.plugin.demo.shared.IDemoServer;
 
 /**
- * The <i>screening</i> specific {@link AbstractServerLogger} extension.
+ * The <i>demo</i> specific {@link AbstractServerLogger} extension.
  * 
  * @author Christian Ribeaud
  */
-final class ScreeningServerLogger extends AbstractServerLogger implements IScreeningServer
+final class DemoServerLogger extends AbstractServerLogger implements IDemoServer
 {
-    ScreeningServerLogger(final ISessionManager<Session> sessionManager,
+    DemoServerLogger(final ISessionManager<Session> sessionManager,
             final boolean invocationSuccessful)
     {
         super(sessionManager, invocationSuccessful);
     }
 
     //
-    // IScreeningServer
+    // IDemoServer
     //
 
     public final SampleGenerationDTO getSampleInfo(final String sessionToken,
             final SampleIdentifier identifier)
     {
-        logAccess(sessionToken, "get_plate_info", "CODE(%s)", identifier);
+        logAccess(sessionToken, "get_sample_info", "CODE(%s)", identifier);
         return null;
     }
 
     public final SampleGenerationDTO getSampleInfo(final String sessionToken, final TechId sampleId)
     {
-        logAccess(sessionToken, "get_plate_info", "ID(%s)", sampleId);
+        logAccess(sessionToken, "get_sample_info", "ID(%s)", sampleId);
         return null;
     }
 
     public void registerSample(final String sessionToken, final NewSample newSample,
             List<AttachmentPE> attachments)
     {
-        logTracking(sessionToken, "register_plate", "PLATE_TYPE(%s) PLATE(%s) ATTACHMENTS(%s)",
+        logTracking(sessionToken, "register_sample", "SAMPLE_TYPE(%s) SAMPLE(%s) ATTACHMENTS(%s)",
                 newSample.getSampleType(), newSample.getIdentifier(), attachments.size());
     }
 }

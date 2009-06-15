@@ -80,7 +80,7 @@ public final class WebClientFilesUpdaterTest extends AbstractFileSystemTestCase
                 new File(workingDirectory, WebClientFilesUpdater.OPENBIS_PACKAGE_NAME + "/"
                         + WebClientFilesUpdater.PLUGIN_PACKAGE_NAME);
         assertTrue(pluginDir.mkdir());
-        assertTrue(new File(pluginDir, "screening").mkdir());
+        assertTrue(new File(pluginDir, "demo").mkdir());
         filesUpdater = new WebClientFilesUpdater(workingDirectory.getPath());
     }
 

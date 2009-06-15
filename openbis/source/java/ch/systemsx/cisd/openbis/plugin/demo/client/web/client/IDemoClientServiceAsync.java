@@ -14,36 +14,32 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
+package ch.systemsx.cisd.openbis.plugin.demo.client.web.client;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 
 /**
- * Service interface for the <i>generic</i> <i>GWT</i> client.
- * <p>
- * Each method should throw {@link UserFailureException}. The authorization framework can throw it
- * when the user has insufficient privileges. If it is not marked, the GWT client will report
- * unexpected exception.
- * </p>
+ * Service interface for the <i>demo</i> <i>GWT</i> client.
  * 
  * @author Christian Ribeaud
  */
-public interface IScreeningClientService extends IClientService
+public interface IDemoClientServiceAsync extends IClientServiceAsync
 {
 
-    /**
-     * For given {@link TechId} returns corresponding {@link SampleGeneration}.
-     */
-    public SampleGeneration getSampleGenerationInfo(final TechId sampleId, String baseIndexURL)
-            throws UserFailureException;
+    /** @see IDemoClientService#getSampleGenerationInfo(TechId, String) */
+    public void getSampleGenerationInfo(final TechId sampleId, String baseIndexUrl,
+            final AsyncCallback<SampleGeneration> callback);
 
     /**
-     * Registers a new sample.
+     * @see IGenericClientService#registerSample(String, NewSample)
      */
-    public void registerSample(final String sessionKey, final NewSample sample)
-            throws UserFailureException;
+    public void registerSample(final String sessionKey, final NewSample sample,
+            final AsyncCallback<Void> asyncCallback) throws UserFailureException;
 }

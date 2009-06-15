@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
+package ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application;
 
 import java.util.Collections;
 import java.util.Set;
@@ -39,11 +39,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.SampleTypeCode;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
+import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.IDemoClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationForm;
 
 /**
- * {@link IClientPluginFactory} implementation for <i>Screening</i> technology.
+ * {@link IClientPluginFactory} implementation for <i>demo</i> plugin.
  * <p>
  * Currently, this implementation only runs for a sample of type {@link SampleTypeCode#CELL_PLATE}.
  * </p>
@@ -51,7 +53,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
  * @author Christian Ribeaud
  */
 public final class ClientPluginFactory extends
-        AbstractClientPluginFactory<IScreeningClientServiceAsync>
+        AbstractClientPluginFactory<IDemoClientServiceAsync>
 {
 
     public ClientPluginFactory(final IViewContext<ICommonClientServiceAsync> originalViewContext)
@@ -64,10 +66,10 @@ public final class ClientPluginFactory extends
     //
 
     @Override
-    protected final IViewContext<IScreeningClientServiceAsync> createViewContext(
+    protected final IViewContext<IDemoClientServiceAsync> createViewContext(
             final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
-        return new ScreeningViewContext(originalViewContext);
+        return new DemoViewContext(originalViewContext);
     }
 
     //
@@ -78,7 +80,7 @@ public final class ClientPluginFactory extends
     {
         if (entityKind == EntityKind.SAMPLE)
         {
-            return Collections.singleton(SampleTypeCode.MASTER_PLATE.getCode());
+            return Collections.singleton("DEMO_PLUGIN");
         }
         return Collections.emptySet();
     }
@@ -116,15 +118,15 @@ public final class ClientPluginFactory extends
                 {
                     public ITabItem create()
                     {
-                        final ScreeningSampleViewer sampleViewer =
-                                new ScreeningSampleViewer(getViewContext(), sampleId);
+                        final DemoSampleViewer sampleViewer =
+                                new DemoSampleViewer(getViewContext(), sampleId);
                         return DefaultTabItem.createUnaware(identifiable.getCode(), sampleViewer,
                                 false);
                     }
 
                     public String getId()
                     {
-                        return ScreeningSampleViewer.createId(sampleId);
+                        return DemoSampleViewer.createId(sampleId);
                     }
                 };
         }
@@ -132,7 +134,10 @@ public final class ClientPluginFactory extends
         public final DatabaseModificationAwareWidget createRegistrationForEntityType(
                 final SampleType sampleTypeCode)
         {
-            return DatabaseModificationAwareWidget.wrapUnaware(new DummyComponent());
+            GenericSampleRegistrationForm form =
+                    new GenericSampleRegistrationForm(new GenericViewContext(getViewContext()
+                            .getCommonViewContext()), sampleTypeCode);
+            return new DatabaseModificationAwareWidget(form, form);
         }
 
         public final Widget createBatchRegistrationForEntityType(final SampleType sampleType)

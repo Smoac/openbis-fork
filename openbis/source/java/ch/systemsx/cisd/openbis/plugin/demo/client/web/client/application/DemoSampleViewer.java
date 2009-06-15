@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
+package ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application;
 
 import com.google.gwt.user.client.ui.Widget;
 
@@ -24,23 +24,23 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.IDemoClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 
 /**
- * The <i>screening</i> sample viewer.
+ * The <i>demo</i> sample viewer.
  * 
  * @author Christian Ribeaud
  */
-public final class ScreeningSampleViewer extends AbstractViewer<IScreeningClientServiceAsync>
+public final class DemoSampleViewer extends AbstractViewer<IDemoClientServiceAsync>
 {
-    private static final String PREFIX = "screening-sample-viewer_";
+    private static final String PREFIX = "demo-sample-viewer_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
     private final TechId sampleId;
 
-    public ScreeningSampleViewer(final IViewContext<IScreeningClientServiceAsync> viewContext,
+    public DemoSampleViewer(final IViewContext<IDemoClientServiceAsync> viewContext,
             final TechId sampleId)
     {
         super(viewContext, createId(sampleId));
@@ -73,13 +73,13 @@ public final class ScreeningSampleViewer extends AbstractViewer<IScreeningClient
 
     public final class SampleInfoCallback extends AbstractAsyncCallback<SampleGeneration>
     {
-        private final ScreeningSampleViewer screeningSampleViewer;
+        private final DemoSampleViewer sampleViewer;
 
-        private SampleInfoCallback(final IViewContext<IScreeningClientServiceAsync> viewContext,
-                ScreeningSampleViewer screeningSampleViewer)
+        private SampleInfoCallback(final IViewContext<IDemoClientServiceAsync> viewContext,
+                DemoSampleViewer sampleViewer)
         {
             super(viewContext);
-            this.screeningSampleViewer = screeningSampleViewer;
+            this.sampleViewer = sampleViewer;
         }
 
         //
@@ -95,10 +95,10 @@ public final class ScreeningSampleViewer extends AbstractViewer<IScreeningClient
         @Override
         protected final void process(final SampleGeneration result)
         {
-            screeningSampleViewer.updateOriginalData(result.getGenerator());
-            screeningSampleViewer.removeAll();
-            screeningSampleViewer.add(screeningSampleViewer.createUI(result));
-            screeningSampleViewer.layout();
+            sampleViewer.updateOriginalData(result.getGenerator());
+            sampleViewer.removeAll();
+            sampleViewer.add(sampleViewer.createUI(result));
+            sampleViewer.layout();
         }
     }
 

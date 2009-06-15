@@ -14,15 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared;
+package ch.systemsx.cisd.openbis.plugin.demo.shared;
 
-import ch.systemsx.cisd.openbis.generic.shared.IPluginCommonServer;
+import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.openbis.generic.shared.RegressionTestCase;
+import ch.systemsx.cisd.openbis.plugin.demo.shared.IDemoServer;
 
 /**
- * The <i>screening</i> server.
- * 
- * @author Christian Ribeaud
+ * @author Franz-Josef Elmer
  */
-public interface IScreeningServer extends IPluginCommonServer
+public class ServerInterfaceRegressionTest extends RegressionTestCase
 {
+    @Test
+    public void testIGenericServer()
+    {
+        assertMandatoryMethodAnnotations(IDemoServer.class);
+        assertNormalizedSourceFilesAreEqual(IDemoServer.class);
+    }
 }

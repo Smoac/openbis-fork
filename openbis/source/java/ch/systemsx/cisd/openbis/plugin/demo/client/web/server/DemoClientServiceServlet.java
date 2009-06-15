@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.server;
+package ch.systemsx.cisd.openbis.plugin.demo.client.web.server;
 
 import javax.annotation.Resource;
 
@@ -23,28 +23,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import ch.systemsx.cisd.common.servlet.GWTRPCServiceExporter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.IDemoClientService;
+import ch.systemsx.cisd.openbis.plugin.demo.shared.ResourceNames;
 
 /**
- * The {@link GWTRPCServiceExporter} for the <i>screening</i> service.
+ * The {@link GWTRPCServiceExporter} for the <i>demo</i> service.
  * <p>
- * <i>URL</i> mappings are: <code>/screening</code> and <code>/genericopenbis/screening</code>. The
+ * <i>URL</i> mappings are: <code>/demo</code> and <code>/openbis/demo</code>. The
  * encapsulated {@link ICommonClientService} service implementation is expected to be defined as
- * bean with name <code>screening-service</code>.
+ * bean with name <code>demo-service</code>.
  * </p>
  * 
  * @author Christian Ribeaud
  */
 @Controller
 @RequestMapping(
-    { "/screening", "/openbis/screening" })
-public final class ScreeningClientServiceServlet extends GWTRPCServiceExporter
+    { "/demo", "/openbis/demo" })
+public final class DemoClientServiceServlet extends GWTRPCServiceExporter
 {
     private static final long serialVersionUID = 1L;
 
-    @Resource(name = ResourceNames.SCREENING_PLUGIN_SERVICE)
-    private IScreeningClientService service;
+    @Resource(name = ResourceNames.DEMO_PLUGIN_SERVICE)
+    private IDemoClientService service;
 
     //
     // GWTRPCServiceExporter

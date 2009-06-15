@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.server;
+package ch.systemsx.cisd.openbis.plugin.demo.server;
 
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
@@ -28,25 +28,27 @@ import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
+import ch.systemsx.cisd.openbis.plugin.demo.server.IDemoBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.plugin.demo.server.DemoServer;
+import ch.systemsx.cisd.openbis.plugin.demo.shared.IDemoServer;
 
 /**
- * Test cases for corresponding {@link ScreeningServer} class.
+ * Test cases for corresponding {@link DemoServer} class.
  * 
  * @author Christian Ribeaud
  */
-@Friend(toClasses = ScreeningServer.class)
-public final class ScreeningServerTest extends AbstractServerTestCase
+@Friend(toClasses = DemoServer.class)
+public final class DemoServerTest extends AbstractServerTestCase
 {
-    private IScreeningBusinessObjectFactory screeningBusinessObjectFactory;
+    private IDemoBusinessObjectFactory demoBusinessObjectFactory;
 
     private ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin;
 
     private IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin;
     
-    private final IScreeningServer createServer()
+    private final IDemoServer createServer()
     {
-        return new ScreeningServer(sessionManager, daoFactory, screeningBusinessObjectFactory,
+        return new DemoServer(sessionManager, daoFactory, demoBusinessObjectFactory,
                 sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
     }
 
@@ -60,7 +62,7 @@ public final class ScreeningServerTest extends AbstractServerTestCase
     {
         super.setUp();
         sampleTypeSlaveServerPlugin = context.mock(ISampleTypeSlaveServerPlugin.class);
-        screeningBusinessObjectFactory = context.mock(IScreeningBusinessObjectFactory.class);
+        demoBusinessObjectFactory = context.mock(IDemoBusinessObjectFactory.class);
         dataSetTypeSlaveServerPlugin = context.mock(IDataSetTypeSlaveServerPlugin.class);
     }
 
@@ -75,7 +77,7 @@ public final class ScreeningServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(screeningBusinessObjectFactory).createSampleBO(SESSION);
+                    one(demoBusinessObjectFactory).createSampleBO(SESSION);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).loadBySampleIdentifier(sampleIdentifier);

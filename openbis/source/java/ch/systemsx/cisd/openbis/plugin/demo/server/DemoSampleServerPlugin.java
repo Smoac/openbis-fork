@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.server;
+package ch.systemsx.cisd.openbis.plugin.demo.server;
 
 import java.util.Collections;
 import java.util.Set;
@@ -26,10 +26,10 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.server.plugin.SampleServerPluginRegistry;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.AbstractSampleServerPlugin;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.demo.shared.ResourceNames;
 
 /**
- * The {@link ISampleServerPlugin} implementation for plates of type <code>MASTER_PLATE</code>.
+ * The {@link ISampleServerPlugin} implementation for plates of type <code>DEMO_PLUGIN</code>.
  * <p>
  * This class is annotated with {@link Component} so that it automatically gets registered to
  * {@link SampleServerPluginRegistry} by <i>Spring</i>.
@@ -37,12 +37,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
  * 
  * @author Christian Ribeaud
  */
-@Component(ResourceNames.MASTER_PLATE_SAMPLE_SERVER_PLUGIN)
-public final class MasterPlateSampleServerPlugin extends AbstractSampleServerPlugin
+@Component(ResourceNames.DEMO_SAMPLE_SERVER_PLUGIN)
+public final class DemoSampleServerPlugin extends AbstractSampleServerPlugin
 {
-    private static final String MASTER_PLATE_TYPE_CODE = "MASTER_PLATE";
+    private static final String DEMO_PLUGIN_TYPE_CODE = "DEMO_PLUGIN";
 
-    private MasterPlateSampleServerPlugin()
+    private DemoSampleServerPlugin()
     {
     }
 
@@ -54,7 +54,7 @@ public final class MasterPlateSampleServerPlugin extends AbstractSampleServerPlu
     {
         if (entityKind == EntityKind.SAMPLE)
         {
-            return Collections.singleton(MASTER_PLATE_TYPE_CODE);
+            return Collections.singleton(DEMO_PLUGIN_TYPE_CODE);
         }
         return Collections.emptySet();
     }

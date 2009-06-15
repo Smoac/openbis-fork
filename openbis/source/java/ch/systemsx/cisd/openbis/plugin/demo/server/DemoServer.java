@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.server;
+package ch.systemsx.cisd.openbis.plugin.demo.server;
 
 import java.util.List;
 
@@ -37,28 +37,28 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.demo.shared.IDemoServer;
+import ch.systemsx.cisd.openbis.plugin.demo.shared.ResourceNames;
 
 /**
- * The concrete {@link IScreeningServer} implementation.
+ * The concrete {@link IDemoServer} implementation.
  * 
  * @author Christian Ribeaud
  */
-@Component(ResourceNames.SCREENING_PLUGIN_SERVER)
-public final class ScreeningServer extends AbstractServer<IScreeningServer> implements
-        IScreeningServer
+@Component(ResourceNames.DEMO_PLUGIN_SERVER)
+public final class DemoServer extends AbstractServer<IDemoServer> implements
+        IDemoServer
 {
-    @Resource(name = ResourceNames.SCREENING_BUSINESS_OBJECT_FACTORY)
-    private IScreeningBusinessObjectFactory businessObjectFactory;
+    @Resource(name = ResourceNames.DEMO_BUSINESS_OBJECT_FACTORY)
+    private IDemoBusinessObjectFactory businessObjectFactory;
 
-    public ScreeningServer()
+    public DemoServer()
     {
     }
 
     @Private
-    ScreeningServer(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
-            final IScreeningBusinessObjectFactory businessObjectFactory,
+    DemoServer(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
+            final IDemoBusinessObjectFactory businessObjectFactory,
             final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin,
             final IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin)
     {
@@ -71,9 +71,9 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     //
 
     @Override
-    protected final Class<IScreeningServer> getProxyInterface()
+    protected final Class<IDemoServer> getProxyInterface()
     {
-        return IScreeningServer.class;
+        return IDemoServer.class;
     }
 
     //
@@ -83,13 +83,13 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     /**
      * Creates a logger used to log invocations of objects of this class.
      */
-    public final IScreeningServer createLogger(final boolean invocationSuccessful)
+    public final IDemoServer createLogger(final boolean invocationSuccessful)
     {
-        return new ScreeningServerLogger(getSessionManager(), invocationSuccessful);
+        return new DemoServerLogger(getSessionManager(), invocationSuccessful);
     }
 
     //
-    // IScreeningServer
+    // IDemoServer
     //
 
     public final SampleGenerationDTO getSampleInfo(final String sessionToken,

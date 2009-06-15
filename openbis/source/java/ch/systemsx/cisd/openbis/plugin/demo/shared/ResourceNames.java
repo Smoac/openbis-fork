@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared;
+package ch.systemsx.cisd.openbis.plugin.demo.shared;
 
 /**
- * Resource name used in <i>screening</i> plug-in.
+ * Resource name used in <i>demo</i> plug-in.
  * <p>
  * Be aware about the uniqueness of the bean names loaded by <i>Spring</i>. Names defined here
  * should not conflict with already existing bean names. Look for other <code>ResourceNames</code>
@@ -33,13 +33,13 @@ public final class ResourceNames
         // Can not be instantiated.
     }
 
-    public final static String SCREENING_PLUGIN_SERVICE = "screening-plugin-service";
+    public final static String DEMO_PLUGIN_SERVICE = "demo-plugin-service";
 
-    public final static String SCREENING_PLUGIN_SERVER = "screening-plugin-server";
+    public final static String DEMO_PLUGIN_SERVER = "demo-plugin-server";
 
-    public final static String SCREENING_BUSINESS_OBJECT_FACTORY =
-            "screening-business-object-factory";
+    public final static String DEMO_BUSINESS_OBJECT_FACTORY =
+            "demo-business-object-factory";
 
-    public final static String MASTER_PLATE_SAMPLE_SERVER_PLUGIN =
-            "master-plate-sample-server-plugin";
+    public final static String DEMO_SAMPLE_SERVER_PLUGIN =
+            "demo-sample-server-plugin";
 }

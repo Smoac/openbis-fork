@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
+package ch.systemsx.cisd.openbis.plugin.demo.shared;
+
+import ch.systemsx.cisd.openbis.generic.shared.IPluginCommonServer;
 
 /**
- * An {@link ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict} extension for
- * <i>Screening</i> specific message keys.
+ * The <i>demo</i> server.
  * 
  * @author Christian Ribeaud
  */
-public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict
+public interface IDemoServer extends IPluginCommonServer
 {
-    private Dict()
-    {
-        // Can not be instantiated.
-    }
 }

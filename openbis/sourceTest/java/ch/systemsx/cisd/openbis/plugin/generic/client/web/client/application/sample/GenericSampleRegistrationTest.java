@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 import ch.systemsx.cisd.openbis.generic.shared.IPluginCommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.SampleTypeCode;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test {@link GenericSampleRegistrationForm}.
@@ -44,7 +43,11 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Sam
  */
 public class GenericSampleRegistrationTest extends AbstractGWTTestCase
 {
-
+    private static final String CONTROL_LAYOUT = "CONTROL_LAYOUT";
+    private static final String DILUTION_PLATE = "DILUTION_PLATE";
+    private static final String CELL_PLATE = "CELL_PLATE";
+    private static final String WELL = "WELL";
+    
     private static final String GROUP_CL = "GROUP_CL";
 
     private static final String SHARED_CL = "SHARED_CL";
@@ -57,7 +60,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
 
     public final void testRegisterGroupSample()
     {
-        final String sampleTypeCode = SampleTypeCode.CONTROL_LAYOUT.getCode();
+        final String sampleTypeCode = CONTROL_LAYOUT;
         loginAndPreprareRegistration(sampleTypeCode);
         remoteConsole.prepare(new FillSampleRegistrationForm("CISD", GROUP_CL)
                 .addProperty(new PropertyField(GenericSampleRegistrationForm.ID + "plate-geometry",
@@ -77,7 +80,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
     public final void testRegisterSampleByAnUnauthorizedUser()
     {
         loginAndInvokeAction("observer", "observer", ActionMenuKind.SAMPLE_MENU_NEW);
-        remoteConsole.prepare(new ChooseTypeOfNewSample(SampleTypeCode.CONTROL_LAYOUT.getCode()));
+        remoteConsole.prepare(new ChooseTypeOfNewSample(CONTROL_LAYOUT));
         remoteConsole.prepare(new FillSampleRegistrationForm("TESTGROUP", GROUP_CL + "1")
                 .addProperty(new PropertyField(GenericSampleRegistrationForm.ID + "plate-geometry",
                         "1536_WELLS_32X48")));
@@ -93,7 +96,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
     public final void testRegisterGroupSampleWithParent()
     {
         final String sampleCode = "dp4";
-        final String sampleTypeCode = SampleTypeCode.DILUTION_PLATE.getCode();
+        final String sampleTypeCode = DILUTION_PLATE;
         loginAndPreprareRegistration(sampleTypeCode);
         remoteConsole.prepare(new FillSampleRegistrationForm("CISD", sampleCode)
                 .parent("MP1-MIXED"));
@@ -108,14 +111,14 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
     public final void testRegisterGroupSampleWithContainer()
     {
         final String sampleCode = "W12";
-        final String sampleTypeCode = SampleTypeCode.WELL.getCode();
+        final String sampleTypeCode = WELL;
         final String containerCode = "3VCP5";
         loginAndPreprareRegistration(sampleTypeCode);
         remoteConsole.prepare(new FillSampleRegistrationForm("CISD", sampleCode)
                 .container(containerCode));
         remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE,
                 GenericSampleRegistrationForm.RegisterSampleCallback.class));
-        remoteConsole.prepare(new ListSamples("CISD", SampleTypeCode.CELL_PLATE.getCode()));
+        remoteConsole.prepare(new ListSamples("CISD", CELL_PLATE));
         remoteConsole.prepare(new ShowSample(containerCode));
         final CheckSample checkSample = new CheckSample();
         checkSample.property("Sample").asString(containerCode);
@@ -128,7 +131,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
 
     public final void testRegisterSharedSample()
     {
-        final String sampleTypeCode = SampleTypeCode.CONTROL_LAYOUT.getCode();
+        final String sampleTypeCode = CONTROL_LAYOUT;
         loginAndInvokeAction(ActionMenuKind.SAMPLE_MENU_NEW);
         remoteConsole.prepare(new ChooseTypeOfNewSample(sampleTypeCode));
         final String description = "A very nice control layout.";

@@ -2,6 +2,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared;
 
 import ch.systemsx.cisd.openbis.generic.shared.IPluginCommonServer;
 
-public interface IScreeningServer extends IPluginCommonServer
+public interface IDemoServer extends IPluginCommonServer
 {
 }

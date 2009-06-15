@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared;
+package ch.systemsx.cisd.openbis.plugin.demo.server;
 
-import org.testng.annotations.Test;
-
-import ch.systemsx.cisd.openbis.generic.shared.RegressionTestCase;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
- * @author Franz-Josef Elmer
+ * A <i>demo</i> plugin specific business object factory.
+ * 
+ * @author Christian Ribeaud
  */
-public class ServerInterfaceRegressionTest extends RegressionTestCase
+public interface IDemoBusinessObjectFactory
 {
-    @Test
-    public void testIGenericServer()
-    {
-        assertMandatoryMethodAnnotations(IScreeningServer.class);
-        assertNormalizedSourceFilesAreEqual(IScreeningServer.class);
-    }
+
+    /**
+     * Creates a {@link ISampleBO} <i>Business Object</i>.
+     */
+    public ISampleBO createSampleBO(final Session session);
+
 }
