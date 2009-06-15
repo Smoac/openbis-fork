@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.plugin.screening.shared;
+package ch.systemsx.cisd.openbis.plugin.demo.shared;
 
 import ch.systemsx.cisd.openbis.generic.shared.IPluginCommonServer;
 

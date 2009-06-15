@@ -103,7 +103,7 @@ public final class WebClientFilesUpdaterTest extends AbstractFileSystemTestCase
             fail("IllegalArgumentException expected.");
         } catch (final IllegalArgumentException ex)
         {
-            assertEquals("Technology 'dummy' must be one of '[screening]'.", ex.getMessage());
+            assertEquals("Technology 'dummy' must be one of '[demo]'.", ex.getMessage());
         }
     }
 
@@ -112,14 +112,13 @@ public final class WebClientFilesUpdaterTest extends AbstractFileSystemTestCase
     {
         assertEquals(OPENBIS_GWT_XML_FILE_CONTENT, FileUtils.readFileToString(openBISGwtXmlFile));
         filesUpdater.updateOpenBISGwtXmlFile();
-        assertEquals("<!-- Automatically generated part - START -->" + OSUtilities.LINE_SEPARATOR
-                + "    <!-- Screening plugin -->" + OSUtilities.LINE_SEPARATOR
-                + "    <script src=\"screening-dictionary.js\"/>" + OSUtilities.LINE_SEPARATOR
-                + "    <public path=\"plugin/screening/client/web/public\"/>"
-                + OSUtilities.LINE_SEPARATOR
-                + "    <source path=\"plugin/screening/client/web/client\"/>"
-                + OSUtilities.LINE_SEPARATOR + "    <!-- Automatically generated part - END -->"
-                + OSUtilities.LINE_SEPARATOR, FileUtils.readFileToString(openBISGwtXmlFile));
+        assertEquals("<!-- Automatically generated part - START -->\n"
+                + "    <!-- Demo plugin -->\n"
+                + "    <script src=\"demo-dictionary.js\"/>\n"
+                + "    <public path=\"plugin/demo/client/web/public\"/>\n"
+                + "    <source path=\"plugin/demo/client/web/client\"/>\n"
+                + "    <!-- Automatically generated part - END -->\n",
+                FileUtils.readFileToString(openBISGwtXmlFile));
     }
 
     @Test
@@ -128,14 +127,10 @@ public final class WebClientFilesUpdaterTest extends AbstractFileSystemTestCase
         assertEquals(CLIENT_PLUGIN_PROVIDER_JAVA_FILE_CONTENT, FileUtils
                 .readFileToString(clientPluginProviderJavaFile));
         filesUpdater.updateClientPluginProvider();
-        assertEquals(
-                "// Automatically generated part - START"
-                        + OSUtilities.LINE_SEPARATOR
-                        + "        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin."
-                        + "screening.client.web.client.application.ClientPluginFactory(originalViewContext));"
-                        + OSUtilities.LINE_SEPARATOR
-                        + "        // Automatically generated part - END"
-                        + OSUtilities.LINE_SEPARATOR, FileUtils
-                        .readFileToString(clientPluginProviderJavaFile));
+        assertEquals("// Automatically generated part - START\n"
+                + "        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.demo."
+                + "client.web.client.application.ClientPluginFactory(originalViewContext));\n"
+                + "        // Automatically generated part - END\n", FileUtils
+                .readFileToString(clientPluginProviderJavaFile));
     }
 }

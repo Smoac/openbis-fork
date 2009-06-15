@@ -32,7 +32,7 @@
     <public path="plugin/generic/client/web/public"/>
     <source path="plugin/generic/client/web/client"/>
 
-    <!-- Screening plugin -->
+    <!-- Demo plugin -->
     <script src="demo-dictionary.js"/>
     <public path="plugin/demo/client/web/public"/>
     <source path="plugin/demo/client/web/client"/>
