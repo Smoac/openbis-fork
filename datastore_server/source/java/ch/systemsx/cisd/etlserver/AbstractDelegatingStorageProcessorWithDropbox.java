@@ -50,6 +50,12 @@ abstract public class AbstractDelegatingStorageProcessorWithDropbox extends
     abstract protected File tryGetDropboxDir(File originalData,
             DataSetInformation dataSetInformation);
 
+    /**
+     * @return the name of the dataset copy file
+     */
+    abstract protected String createDropboxDestinationFileName(
+            DataSetInformation dataSetInformation, File incomingDataSetDirectory);
+
     // --------
 
     private static final String DEFAULT_DATASET_CODE_SEPARATOR = ".";
@@ -60,9 +66,9 @@ abstract public class AbstractDelegatingStorageProcessorWithDropbox extends
      */
     public final static String DATASET_CODE_SEPARATOR_PROPERTY = "entity-separator";
 
-    private final IFileOperations fileOperations;
+    protected final String datasetCodeSeparator;
 
-    private final String datasetCodeSeparator;
+    private final IFileOperations fileOperations;
 
     private File recentlyStoredDropboxDataset;
 
@@ -117,8 +123,7 @@ abstract public class AbstractDelegatingStorageProcessorWithDropbox extends
         if (dropboxDir != null)
         {
             String destinationFileName =
-                    createDropboxDestinationFileName(dataSetInformation, originalData,
-                            datasetCodeSeparator);
+                    createDropboxDestinationFileName(dataSetInformation, originalData);
             copy(originalData, dropboxDir, destinationFileName);
         }
         return storeData;
@@ -139,42 +144,6 @@ abstract public class AbstractDelegatingStorageProcessorWithDropbox extends
                     originalData.getPath(), destFile.getPath(), ex.getMessage());
         }
         this.recentlyStoredDropboxDataset = destFile;
-    }
-
-    private static String createDropboxDestinationFileName(DataSetInformation dataSetInformation,
-            File incomingDataSetDirectory, String datasetCodeSeparator)
-    {
-        String dataSetCode = dataSetInformation.getDataSetCode();
-        String originalName = incomingDataSetDirectory.getName();
-        String newFileName =
-                stripFileName(originalName) + datasetCodeSeparator + dataSetCode
-                        + stripFileExtension(originalName);
-        return newFileName;
-    }
-
-    // returns file extension with the "." at the beginning or empty string if file has no extension
-    private static String stripFileExtension(String originalName)
-    {
-        int ix = originalName.lastIndexOf(".");
-        if (ix == -1)
-        {
-            return "";
-        } else
-        {
-            return originalName.substring(ix);
-        }
-    }
-
-    private static String stripFileName(String originalName)
-    {
-        int ix = originalName.lastIndexOf(".");
-        if (ix == -1)
-        {
-            return originalName;
-        } else
-        {
-            return originalName.substring(0, ix);
-        }
     }
 
     @Override

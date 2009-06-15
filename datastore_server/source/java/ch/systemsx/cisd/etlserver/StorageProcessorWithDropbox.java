@@ -16,17 +16,9 @@
 
 package ch.systemsx.cisd.etlserver;
 
-
 import java.io.File;
 import java.util.Properties;
 
-import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.filesystem.FileOperations;
-import ch.systemsx.cisd.common.filesystem.IFileOperations;
-import ch.systemsx.cisd.common.utilities.ClassUtils;
-import ch.systemsx.cisd.common.utilities.ExtendedProperties;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -52,42 +44,8 @@ public class StorageProcessorWithDropbox extends AbstractDelegatingStorageProces
 
     public StorageProcessorWithDropbox(Properties properties)
     {
-        this(properties, createDelegateStorageProcessor(properties), FileOperations.getInstance());
-    }
-
-    @Private
-    StorageProcessorWithDropbox(Properties properties, IStorageProcessor delegateStorageProcessor,
-            IFileOperations fileOperations)
-    {
-        super(properties, delegateStorageProcessor, fileOperations);
+        super(properties);
         this.dropboxIncomingDir = tryGetDirectory(DROPBOX_INCOMING_DIRECTORY_PROPERTY, properties);
-    }
-
-    @Private
-    static IStorageProcessor createDelegateStorageProcessor(Properties properties)
-    {
-        String delegateClass = getMandatoryProperty(properties, DELEGATE_PROCESSOR_CLASS_PROPERTY);
-        Properties p =
-                ExtendedProperties.getSubset(properties, DELEGATE_PROCESSOR_CLASS_PROPERTY + ".",
-                        true);
-        return createClass(IStorageProcessor.class, delegateClass, p);
-    }
-
-    private static final String getMandatoryProperty(Properties properties, final String propertyKey)
-    {
-        return PropertyUtils.getMandatoryProperty(properties, propertyKey);
-    }
-
-    private final static <T> T createClass(final Class<T> superClazz, String className,
-            Object... argumentsOrNull)
-    {
-        try
-        {
-            return ClassUtils.create(superClazz, className, argumentsOrNull);
-        } catch (IllegalArgumentException ex)
-        {
-            throw new ConfigurationFailureException(ex.getMessage());
-        }
     }
 
     //
@@ -100,4 +58,47 @@ public class StorageProcessorWithDropbox extends AbstractDelegatingStorageProces
         return dropboxIncomingDir;
     }
 
+    @Override
+    protected String createDropboxDestinationFileName(DataSetInformation dataSetInformation,
+            File incomingDataSetDirectory)
+    {
+        return createDropboxDestinationFileName(dataSetInformation, incomingDataSetDirectory,
+                datasetCodeSeparator);
+    }
+
+    private static String createDropboxDestinationFileName(DataSetInformation dataSetInformation,
+            File incomingDataSetDirectory, String datasetCodeSeparator)
+    {
+        String dataSetCode = dataSetInformation.getDataSetCode();
+        String originalName = incomingDataSetDirectory.getName();
+        String newFileName =
+                stripFileName(originalName) + datasetCodeSeparator + dataSetCode
+                        + stripFileExtension(originalName);
+        return newFileName;
+    }
+
+    // returns file extension with the "." at the beginning or empty string if file has no extension
+    private static String stripFileExtension(String originalName)
+    {
+        int ix = originalName.lastIndexOf(".");
+        if (ix == -1)
+        {
+            return "";
+        } else
+        {
+            return originalName.substring(ix);
+        }
+    }
+
+    private static String stripFileName(String originalName)
+    {
+        int ix = originalName.lastIndexOf(".");
+        if (ix == -1)
+        {
+            return originalName;
+        } else
+        {
+            return originalName.substring(0, ix);
+        }
+    }
 }

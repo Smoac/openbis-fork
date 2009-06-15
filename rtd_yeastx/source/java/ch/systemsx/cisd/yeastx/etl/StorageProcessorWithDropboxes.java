@@ -82,4 +82,33 @@ public class StorageProcessorWithDropboxes extends AbstractDelegatingStorageProc
             return null;
         }
     }
+
+    // sampleCode-groupCode-datasetCode.originalFileExtension
+    @Override
+    protected final String createDropboxDestinationFileName(DataSetInformation dataSetInformation,
+            File incomingDataSetDirectory)
+    {
+        String dataSetCode = dataSetInformation.getDataSetCode();
+        String originalName = incomingDataSetDirectory.getName();
+        String sampleCode = dataSetInformation.getSampleCode();
+        String groupCode = dataSetInformation.getGroupCode();
+        String newFileName =
+                sampleCode + datasetCodeSeparator + groupCode + datasetCodeSeparator + dataSetCode
+                        + stripFileExtension(originalName);
+        return newFileName;
+    }
+
+    // returns file extension with the "." at the beginning or empty string if file has no extension
+    private static String stripFileExtension(String originalName)
+    {
+        int ix = originalName.lastIndexOf(".");
+        if (ix == -1)
+        {
+            return "";
+        } else
+        {
+            return originalName.substring(ix);
+        }
+    }
+
 }

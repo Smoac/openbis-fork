@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.etlserver;
 
+import static ch.systemsx.cisd.etlserver.AbstractDataSetInfoExtractor.GROUP_CODE;
+import static ch.systemsx.cisd.etlserver.DefaultDataSetInfoExtractor.INDEX_OF_GROUP_CODE;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
@@ -87,6 +89,62 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
         assertEquals(producerCode, dsInfo.getProducerCode());
         final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         assertEquals(productionDate, dateFormat.format(dsInfo.getProductionDate()));
+    }
+
+    @Test
+    // set group code as the global settings for all datasets
+    public void testGroupCodeGlobal()
+    {
+        final Properties properties = new Properties();
+        properties.setProperty(asPropertyName(INDEX_OF_GROUP_CODE), "");
+        String globalGroupCode = "g1";
+        properties.setProperty(asPropertyName(GROUP_CODE), globalGroupCode);
+
+        final DataSetInformation dsInfo = extractDatasetInfo(properties, "sampleCode");
+
+        assertEquals(globalGroupCode, dsInfo.getGroupCode());
+    }
+
+    private static String asPropertyName(String propertyName)
+    {
+        return IDataSetInfoExtractor.EXTRACTOR_KEY + "." + propertyName;
+    }
+
+    @Test
+    // set group code as the local setting for one datasets. It should override the global setting.
+    public void testGroupCodeDatasetSpecific()
+    {
+        final Properties properties = new Properties();
+        properties.setProperty(asPropertyName(INDEX_OF_GROUP_CODE), "-2");
+        String globalGroupCode = "globalGroup";
+
+        properties.setProperty(asPropertyName(GROUP_CODE), globalGroupCode);
+
+        String localGroupCode = "localGroup";
+        String fileName =
+                localGroupCode + DefaultDataSetInfoExtractor.DEFAULT_ENTITY_SEPARATOR
+                        + "sampleCode";
+        final DataSetInformation dsInfo = extractDatasetInfo(properties, fileName);
+
+        assertEquals(localGroupCode, dsInfo.getGroupCode());
+    }
+
+    @Test(expectedExceptions = UserFailureException.class)
+    // missing group code for a datasets if it's required for each dataset causes failure
+    public void testGroupCodeDatasetSpecificMissingFails()
+    {
+        final Properties properties = new Properties();
+        properties.setProperty(asPropertyName(INDEX_OF_GROUP_CODE), "-2");
+        properties.setProperty(asPropertyName(GROUP_CODE), "any");
+
+        extractDatasetInfo(properties, "sampleCode");
+    }
+
+    private static DataSetInformation extractDatasetInfo(final Properties properties,
+            String fileName)
+    {
+        final IDataSetInfoExtractor extractor = new DefaultDataSetInfoExtractor(properties);
+        return extractor.getDataSetInformation(new File(fileName), null);
     }
 
     @Test

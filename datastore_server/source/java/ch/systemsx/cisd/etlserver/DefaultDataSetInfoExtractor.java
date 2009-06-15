@@ -24,6 +24,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -40,13 +42,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
  * Default implementation which assumes that the information can be extracted from the file name.
- * Following information can be extracted:
+ * Following information can be extracted for each dataset:
  * <ul>
  * <li>Sample code
+ * <li>Sample group code
  * <li>Parent data set code
  * <li>Data producer code
  * <li>Data production date
- * <li>Data set properties file name
  * </ul>
  * The name is split into entities separated by the property {@link #ENTITY_SEPARATOR_PROPERTY_NAME}
  * . It is assumed that each of the above-mentioned pieces of information is one of these entities.
@@ -69,9 +71,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
  * <td>Character which separates entities in the file name. Whitespace characters are not allowed.</td>
  * </tr>
  * <tr>
+ * <td><code>index-of-group-code</code></td>
+ * <td><code>null</code></td>
+ * <td>This should be a group to which the sample connected with the dataset belongs. If not
+ * specified, the default group code will be used if given, otherwise a sample will be assumed to be
+ * shared.</td>
+ * </tr>
+ * <tr>
  * <td><code>group-code</code></td>
  * <td><code>null</code></td>
- * <td>Group code of the sample. If unspecified a shared sample is assumed.</td>
+ * <td>Default group code of the sample. If unspecified and group code for a specific dataset is
+ * also unspecified, a shared sample is assumed.</td>
  * </tr>
  * <tr>
  * <td><code>index-of-sample-code</code></td>
@@ -144,6 +154,18 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
 
     /**
      * Name of the property specifying the index of the entity which should be interpreted as the
+     * group code. This should be a group to which the sample connected with the dataset belongs. If
+     * not specified, the default group code will be used if given, otherwise a sample will be
+     * assumed to be shared.
+     * <p>
+     * Use a negative number to count from the end.
+     * </p>
+     */
+    @Private
+    static final String INDEX_OF_GROUP_CODE = "index-of-group-code";
+
+    /**
+     * Name of the property specifying the index of the entity which should be interpreted as the
      * data producer code.
      * <p>
      * Use a negative number to count from the end, e.g. <code>-1</code> to use the last entity as
@@ -178,6 +200,10 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
 
     private final int indexOfSampleCode;
 
+    private final boolean noGroupCode; // no specific settings, use global group settings
+
+    private final int indexOfGroupCode;
+
     private final boolean noParentDataSetCode;
 
     private final int indexOfParentDataSetCode;
@@ -204,17 +230,26 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
         indexOfSampleCode =
                 PropertyUtils
                         .getInt(properties, INDEX_OF_SAMPLE_CODE, DEFAULT_INDEX_OF_SAMPLE_CODE);
-        String indexAsString = properties.getProperty(INDEX_OF_PARENT_DATA_SET_CODE);
+        String indexAsString;
+
+        indexAsString = properties.getProperty(INDEX_OF_GROUP_CODE);
+        noGroupCode = StringUtils.isBlank(indexAsString);
+        indexOfGroupCode = PropertyUtils.getInt(properties, INDEX_OF_GROUP_CODE, 0);
+
+        indexAsString = properties.getProperty(INDEX_OF_PARENT_DATA_SET_CODE);
         noParentDataSetCode = indexAsString == null;
         indexOfParentDataSetCode =
                 PropertyUtils.getInt(properties, INDEX_OF_PARENT_DATA_SET_CODE, 0);
+
         indexAsString = properties.getProperty(INDEX_OF_DATA_PRODUCER_CODE);
         noDataProducerCode = indexAsString == null;
         indexOfDataProducerCode = PropertyUtils.getInt(properties, INDEX_OF_DATA_PRODUCER_CODE, 0);
+
         indexAsString = properties.getProperty(INDEX_OF_DATA_PRODUCTION_DATE);
         noDataProductionDate = indexAsString == null;
         indexOfDataProductionDate =
                 PropertyUtils.getInt(properties, INDEX_OF_DATA_PRODUCTION_DATE, 0);
+
         dateFormat =
                 new SimpleDateFormat(properties.getProperty(DATA_PRODUCTION_DATE_FORMAT,
                         DEFAULT_DATA_PRODUCTION_DATE_FORMAT));
@@ -240,8 +275,19 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
         dataSetInformation.setProductionDate(tryGetDataProductionDate(entitiesProvider));
         dataSetInformation.setDataSetProperties(extractDataSetProperties(incomingDataSetPath,
                 dataSetPropertiesFileName));
-        dataSetInformation.setGroupCode(getGroupCode());
+        dataSetInformation.setGroupCode(extractGroupCode(entitiesProvider));
         return dataSetInformation;
+    }
+
+    private String extractGroupCode(DataSetNameEntitiesProvider entitiesProvider)
+    {
+        if (noGroupCode)
+        {
+            return super.getGroupCode();
+        } else
+        {
+            return entitiesProvider.getEntity(indexOfGroupCode);
+        }
     }
 
     private String tryGetParentDataSetCode(

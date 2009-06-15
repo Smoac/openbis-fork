@@ -184,6 +184,11 @@ public class DataSetInformation implements Serializable
                 sampleCode);
     }
 
+    public final String getSampleCode()
+    {
+        return sampleCode;
+    }
+
     public final void setSampleCode(final String sampleCode)
     {
         this.sampleCode = sampleCode;

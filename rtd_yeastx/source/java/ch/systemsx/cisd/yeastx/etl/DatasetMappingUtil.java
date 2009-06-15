@@ -84,12 +84,7 @@ class DatasetMappingUtil
             TableMap<String, DataSetMappingInformation> datasetsMapping)
     {
         String datasetFileName = datasetFile.getName();
-        DataSetMappingInformation mapping = datasetsMapping.tryGet(datasetFileName.toLowerCase());
-        if (mapping != null)
-        {
-            return null;
-        }
-        return mapping;
+        return datasetsMapping.tryGet(datasetFileName.toLowerCase());
     }
 
     public static TableMap<String/* file name in lowercase */, DataSetMappingInformation> tryGetDatasetsMapping(

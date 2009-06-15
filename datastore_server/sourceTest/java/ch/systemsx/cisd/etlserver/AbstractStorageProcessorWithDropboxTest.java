@@ -69,7 +69,7 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
                     will(returnValue(dataset));
 
                     one(fileOperations).copyToDirectoryAs(dataset, dropboxIncomingDir,
-                            "incomingData.datasetCode.xml");
+                            StorageProcessorWithDropboxTest.COPY_NAME);
 
                 }
             });
@@ -85,9 +85,12 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
         context.assertIsSatisfied();
     }
 
-    public static class StorageProcessorWithDropboxTest extends AbstractDelegatingStorageProcessorWithDropbox
+    public static class StorageProcessorWithDropboxTest extends
+            AbstractDelegatingStorageProcessorWithDropbox
     {
         public final static String DROPBOX_INCOMING_DIRECTORY_PROPERTY = "dropbox-dir";
+
+        public final static String COPY_NAME = "datasetCopy";
 
         private final File dropboxDir;
 
@@ -114,6 +117,13 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
         {
             return dropboxDir;
         }
+
+        @Override
+        protected String createDropboxDestinationFileName(DataSetInformation dataSetInformation,
+                File incomingDataSetDirectory)
+        {
+            return COPY_NAME;
+        }
     }
 
     @Test
@@ -131,7 +141,8 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
         String expectedErrorMsg = "Given key 'processor' not found in properties '[]'";
         try
         {
-            AbstractDelegatingStorageProcessorWithDropbox.createDelegateStorageProcessor(new Properties());
+            AbstractDelegatingStorageProcessorWithDropbox
+                    .createDelegateStorageProcessor(new Properties());
         } catch (ConfigurationFailureException e)
         {
             assertEquals(expectedErrorMsg, e.getMessage());
@@ -175,10 +186,10 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
         File storeData = new File(store, "original/data.txt");
         assertEquals(true, storeData.exists());
         assertEquals("hello world", FileUtilities.loadToString(storeData).trim());
-        File data1 = new File(dropbox1, "data.1234-1.txt");
+        File data1 = new File(dropbox1, StorageProcessorWithDropboxTest.COPY_NAME);
         assertEquals(true, data1.exists());
         assertEquals("hello world", FileUtilities.loadToString(data1).trim());
-        File data2 = new File(dropbox2, "data-1234-1.txt");
+        File data2 = new File(dropbox2, StorageProcessorWithDropboxTest.COPY_NAME);
         assertEquals(true, data2.exists());
         assertEquals("hello world", FileUtilities.loadToString(data2).trim());
     }
