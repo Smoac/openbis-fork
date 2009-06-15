@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningSampleViewer;
 
 /**
  * 
@@ -93,6 +92,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<IPhosphoNet
 
         public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
         {
+            
             final TechId sampleId = TechId.create(identifiable);
             return new ITabItemFactory()
                 {
@@ -104,7 +104,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<IPhosphoNet
 
                     public String getId()
                     {
-                        return ScreeningSampleViewer.createId(sampleId);
+                        return "phosphonetx-viewer-" + sampleId;
                     }
                 };
         }
