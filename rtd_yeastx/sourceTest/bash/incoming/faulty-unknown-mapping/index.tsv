@@ -1,0 +1,5 @@
+file_name	sample	experiment	project	conversion	comment
+file1.mzXML	unknown			eicML	x
+file2.mzXML	x	unknown	unknown	eicML	x
+file3.mzXML	x	without-proj		eicML	x
+file4.mzXML	x		without-exp	eicML	x

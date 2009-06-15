@@ -1,0 +1,4 @@
+file_name	sample	conversion
+file1.mzXML	s1	
+file2.eicML	s1	fiaML
+file2.fiaML	s1	eicML

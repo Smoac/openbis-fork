@@ -1,0 +1,4 @@
+Mon Jun 15 14:41:27 CEST 2009 ERROR: Mapping for file file1.mzXML is incorrect: there is no sample which matches the criteria <Samples from the group 'IMSB_ZAMBONI' with property 'USER.name' set to 'my sample2' in any experiment>
+Mon Jun 15 14:41:27 CEST 2009 ERROR: Mapping for file file2.mzXML is incorrect: No project 'NEMO' could be found in the 'IMSB_ZAMBONI' group!
+Mon Jun 15 14:41:27 CEST 2009 ERROR: Mapping for file file3.mzXML is incorrect: there is no sample which matches the criteria <Samples from the group 'IMSB_ZAMBONI' with property 'USER.name' set to '3VCP3' in any experiment>
+Mon Jun 15 14:41:27 CEST 2009 WARNING: Correct the errors and delete the '_delete_me_after_correcting_errors' file to start processing again.

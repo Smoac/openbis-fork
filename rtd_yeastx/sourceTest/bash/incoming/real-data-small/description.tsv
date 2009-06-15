@@ -1,0 +1,4 @@
+file_name	sample	experiment	project	conversion
+file1.mzXML	s1			fiaML
+file2.eicML	PGI23			
+file3.mzXML	PGI23	e1	p1	eicML
