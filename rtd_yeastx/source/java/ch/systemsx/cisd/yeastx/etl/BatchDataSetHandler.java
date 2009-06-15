@@ -53,17 +53,17 @@ public class BatchDataSetHandler implements IDataSetHandler
 
     public List<DataSetInformation> handleDataSet(File datasetsParentDir)
     {
-        List<DataSetInformation> list = new ArrayList<DataSetInformation>();
+        List<DataSetInformation> processedDatasetFiles = new ArrayList<DataSetInformation>();
         if (canBatchBeProcessed(datasetsParentDir) == false)
         {
-            return list;
+            return processedDatasetFiles;
         }
         TableMap<String, DataSetMappingInformation> datasetsMapping =
                 DatasetMappingUtil.tryGetDatasetsMapping(datasetsParentDir);
         if (datasetsMapping == null)
         {
             touchErrorMarkerFile(datasetsParentDir);
-            return list;
+            return processedDatasetFiles;
         }
         Set<String> processedFiles = new HashSet<String>();
         List<File> files = listAll(datasetsParentDir);
@@ -71,13 +71,13 @@ public class BatchDataSetHandler implements IDataSetHandler
         {
             if (canDatasetBeProcessed(file, datasetsMapping))
             {
-                list.addAll(delegator.handleDataSet(file));
+                processedDatasetFiles.addAll(delegator.handleDataSet(file));
                 processedFiles.add(file.getName().toLowerCase());
             }
         }
         cleanMappingFile(datasetsParentDir, processedFiles);
         finish(datasetsParentDir, datasetsMapping.values().size() - processedFiles.size());
-        return list;
+        return processedDatasetFiles;
     }
 
     private boolean canBatchBeProcessed(File parentDir)
@@ -92,7 +92,7 @@ public class BatchDataSetHandler implements IDataSetHandler
         }
         List<File> files = listAll(parentDir);
         // Do not treat empty directories as faulty.
-        
+
         // The other reason of this check is that this handler is sometimes no able to delete
         // processed directories. It happens when they are mounted on NAS and there are some
         // hidden .nfs* files.
