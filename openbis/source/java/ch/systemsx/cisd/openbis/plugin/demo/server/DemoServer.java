@@ -46,8 +46,7 @@ import ch.systemsx.cisd.openbis.plugin.demo.shared.ResourceNames;
  * @author Christian Ribeaud
  */
 @Component(ResourceNames.DEMO_PLUGIN_SERVER)
-public final class DemoServer extends AbstractServer<IDemoServer> implements
-        IDemoServer
+public final class DemoServer extends AbstractServer<IDemoServer> implements IDemoServer
 {
     @Resource(name = ResourceNames.DEMO_BUSINESS_OBJECT_FACTORY)
     private IDemoBusinessObjectFactory businessObjectFactory;
@@ -117,6 +116,11 @@ public final class DemoServer extends AbstractServer<IDemoServer> implements
             List<AttachmentPE> attachments)
     {
         throw new NotImplementedException();
+    }
+
+    public int getNumberOfExperiments(String sessionToken)
+    {
+        return getDAOFactory().getExperimentDAO().listExperiments().size();
     }
 
 }

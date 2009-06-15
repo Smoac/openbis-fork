@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.openbis.plugin.demo.shared;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import ch.systemsx.cisd.openbis.generic.shared.IPluginCommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 
 /**
  * The <i>demo</i> server.
@@ -25,4 +29,10 @@ import ch.systemsx.cisd.openbis.generic.shared.IPluginCommonServer;
  */
 public interface IDemoServer extends IPluginCommonServer
 {
+    /**
+     * Returns number of experiments.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.OBSERVER)
+    public int getNumberOfExperiments(String sessionToken);
 }

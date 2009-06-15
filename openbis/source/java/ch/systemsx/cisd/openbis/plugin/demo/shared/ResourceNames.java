@@ -37,9 +37,7 @@ public final class ResourceNames
 
     public final static String DEMO_PLUGIN_SERVER = "demo-plugin-server";
 
-    public final static String DEMO_BUSINESS_OBJECT_FACTORY =
-            "demo-business-object-factory";
+    public final static String DEMO_BUSINESS_OBJECT_FACTORY = "demo-business-object-factory";
 
-    public final static String DEMO_SAMPLE_SERVER_PLUGIN =
-            "demo-sample-server-plugin";
+    public final static String DEMO_SAMPLE_SERVER_PLUGIN = "demo-sample-server-plugin";
 }

@@ -45,8 +45,7 @@ import ch.systemsx.cisd.openbis.plugin.demo.shared.ResourceNames;
  * @author Christian Ribeaud
  */
 @Component(value = ResourceNames.DEMO_PLUGIN_SERVICE)
-public final class DemoClientService extends AbstractClientService implements
-        IDemoClientService
+public final class DemoClientService extends AbstractClientService implements IDemoClientService
 {
 
     @Resource(name = ResourceNames.DEMO_PLUGIN_SERVER)
@@ -84,7 +83,7 @@ public final class DemoClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-          final SampleGenerationDTO sampleGenerationDTO =
+            final SampleGenerationDTO sampleGenerationDTO =
                     demoServer.getSampleInfo(sessionToken, sampleId);
             return SampleTranslator.translate(sampleGenerationDTO, baseIndexURL);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
@@ -106,5 +105,11 @@ public final class DemoClientService extends AbstractClientService implements
                     demoServer.registerSample(sessionToken, sample, attachments);
                 }
             }.process(sessionKey, getHttpSession());
+    }
+
+    public int getNumberOfExperiments() throws UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+        return demoServer.getNumberOfExperiments(sessionToken);
     }
 }

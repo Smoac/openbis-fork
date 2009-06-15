@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.exper
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.material.MaterialMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.sample.SampleMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.LoggedUserMenu;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
@@ -49,7 +50,7 @@ public class TopMenu extends LayoutContainer
     public static final String ICON_STYLE = "icon-menu-show";
 
     /** {@link ActionMenu} kind enum with names matching dictionary keys */
-    public static enum ActionMenuKind
+    public static enum ActionMenuKind implements IActionMenuItem
     {
         ADMINISTRATION_MENU_MANAGE_GROUPS,
 
@@ -111,6 +112,11 @@ public class TopMenu extends LayoutContainer
         toolBar.add(new DataSetMenu(viewContext, componentProvider));
         toolBar.add(new MaterialMenu(viewContext, componentProvider));
         toolBar.add(new AdministrationMenu(viewContext, componentProvider));
+
+        for (IModule m : viewContext.getClientPluginFactoryProvider().getModules())
+        {
+            toolBar.add(new AdapterToolItem(m.getMenu()));
+        }
 
         toolBar.add(new FillToolItem());
         toolBar.add(new AdapterToolItem(new SearchWidget(viewContext)));

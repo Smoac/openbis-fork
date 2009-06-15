@@ -46,4 +46,9 @@ public interface IDemoClientService extends IClientService
      */
     public void registerSample(final String sessionKey, final NewSample sample)
             throws UserFailureException;
+
+    /**
+     * Get number of experiments.
+     */
+    public int getNumberOfExperiments() throws UserFailureException;
 }

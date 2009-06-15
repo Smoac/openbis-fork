@@ -64,4 +64,10 @@ final class DemoServerLogger extends AbstractServerLogger implements IDemoServer
         logTracking(sessionToken, "register_sample", "SAMPLE_TYPE(%s) SAMPLE(%s) ATTACHMENTS(%s)",
                 newSample.getSampleType(), newSample.getIdentifier(), attachments.size());
     }
+
+    public int getNumberOfExperiments(String sessionToken)
+    {
+        logTracking(sessionToken, "get_number_of_experiments", "");
+        return 0;
+    }
 }

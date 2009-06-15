@@ -13,8 +13,7 @@ import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.IDemoClientService
  * 
  * @author Christian Ribeaud
  */
-public final class DemoViewContext extends
-        AbstractPluginViewContext<IDemoClientServiceAsync>
+public final class DemoViewContext extends AbstractPluginViewContext<IDemoClientServiceAsync>
 {
     private static final String TECHNOLOGY_NAME = "demo";
 
@@ -22,7 +21,7 @@ public final class DemoViewContext extends
     {
         super(commonViewContext);
     }
-    
+
     @Override
     protected String getTechnology()
     {

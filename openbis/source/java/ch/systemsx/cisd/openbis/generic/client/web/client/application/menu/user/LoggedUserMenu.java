@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user
 
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
@@ -36,9 +37,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
 public final class LoggedUserMenu extends TopMenuItem
 {
 
-    private final IViewContext<?> viewContext;
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    public LoggedUserMenu(final IViewContext<?> viewContext)
+    public LoggedUserMenu(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(null); // menu title is set later
         setIconStyle(TopMenu.ICON_STYLE);

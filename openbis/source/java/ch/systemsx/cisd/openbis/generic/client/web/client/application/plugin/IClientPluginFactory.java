@@ -41,4 +41,10 @@ public interface IClientPluginFactory
      */
     public <T extends EntityType, I extends IIdentifiable> IClientPlugin<T, I> createClientPlugin(
             final EntityKind entityKind);
+
+    /**
+     * Returns {@link IModule} defined for given 'technology' or null if no module should be
+     * created.
+     */
+    public IModule tryGetModule();
 }

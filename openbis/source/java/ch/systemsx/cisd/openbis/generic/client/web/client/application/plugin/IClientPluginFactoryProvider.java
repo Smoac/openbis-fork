@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
@@ -34,4 +36,10 @@ public interface IClientPluginFactoryProvider
      */
     public IClientPluginFactory getClientPluginFactory(final EntityKind entityKind,
             final BasicEntityType entityType);
+
+    /**
+     * Returns a list of all defined 'technology' modules.
+     */
+    public List<IModule> getModules();
+
 }

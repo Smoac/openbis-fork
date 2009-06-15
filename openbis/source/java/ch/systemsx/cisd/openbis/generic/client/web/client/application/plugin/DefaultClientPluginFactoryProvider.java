@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -92,5 +94,19 @@ public class DefaultClientPluginFactoryProvider implements IClientPluginFactoryP
             return pluginFactory;
         }
         return genericPluginFactory;
+    }
+
+    public final List<IModule> getModules()
+    {
+        ArrayList<IModule> modules = new ArrayList<IModule>();
+        for (IClientPluginFactory factory : pluginFactoryByEntityKindAndTypeCode.values())
+        {
+            IModule m = factory.tryGetModule();
+            if (m != null)
+            {
+                modules.add(m);
+            }
+        }
+        return modules;
     }
 }
