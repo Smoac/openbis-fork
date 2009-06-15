@@ -20,6 +20,9 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.FilenameUtils;
+
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -166,7 +169,50 @@ class DatasetMappingResolver
         {
             return false;
         }
-        return existsAndBelongsToExperiment(mapping, logDir, sampleCode);
+        return isConversionColumnValid(mapping, logDir)
+                && existsAndBelongsToExperiment(mapping, logDir, sampleCode);
+    }
+
+    private static boolean isConversionColumnValid(final DataSetMappingInformation mapping,
+            File logDir)
+    {
+        String conversionText = mapping.getConversion();
+        MLConversionType conversion = MLConversionType.tryCreate(conversionText);
+        if (conversion == null)
+        {
+            LogUtils.error(logDir, String.format(
+                    "Error for file '%s'. Unexpected value '%s' in 'conversion' column. "
+                            + "Leave the column empty or use one of the allowed values: %s.",
+                    mapping.getFileName(), conversionText, CollectionUtils.abbreviate(
+                            MLConversionType.values(), MLConversionType.values().length)));
+            return false;
+        }
+
+        boolean conversionRequired = isConversionRequired(mapping);
+        if (conversion == MLConversionType.NONE && conversionRequired)
+        {
+            LogUtils
+                    .error(
+                            logDir,
+                            "Error for file '%s'. Conversion column cannot be empty for this type of file.",
+                            mapping.getFileName());
+            return false;
+        }
+        if (conversion != MLConversionType.NONE && conversionRequired == false)
+        {
+            LogUtils.error(logDir,
+                    "Error for file '%s'. Conversion column must be empty for this type of file.",
+                    mapping.getFileName());
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean isConversionRequired(final DataSetMappingInformation dataset)
+    {
+        String extension = FilenameUtils.getExtension(dataset.getFileName());
+        boolean conversionRequired = extension.equalsIgnoreCase(ConstantsYeastX.MZXML_EXT);
+        return conversionRequired;
     }
 
     private boolean existsAndBelongsToExperiment(DataSetMappingInformation mapping, File logDir,
