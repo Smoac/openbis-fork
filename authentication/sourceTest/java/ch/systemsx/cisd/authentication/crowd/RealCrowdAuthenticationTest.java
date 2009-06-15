@@ -67,9 +67,9 @@ public class RealCrowdAuthenticationTest
         final String token = as.authenticateApplication();
         assertNotNull(token);
         assertTrue(as.authenticateUser(token, NAME_OF_TEST_USER, PASSWORD_OF_TEST_USER));
-        final Principal p = as.getPrincipal(token, NAME_OF_TEST_APPLICATION);
+        final Principal p = as.getPrincipal(token, NAME_OF_TEST_USER);
         assertNotNull(token);
-        assertEquals(NAME_OF_TEST_APPLICATION, p.getUserId());
+        assertEquals(NAME_OF_TEST_USER, p.getUserId());
         System.out.println("firstName=" + p.getFirstName());
         System.out.println("lastName=" + p.getLastName());
         System.out.println("email=" + p.getEmail());
