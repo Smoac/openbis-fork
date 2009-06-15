@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client;
 import java.util.Date;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
@@ -304,9 +304,9 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for Attachment.
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for AttachmentVersions.
      */
-    public String prepareExportAttachments(TableExportCriteria<Attachment> criteria)
+    public String prepareExportAttachmentVersions(TableExportCriteria<AttachmentVersions> criteria)
             throws UserFailureException;
 
     /**
@@ -458,6 +458,15 @@ public interface ICommonClientService extends IClientService
      */
     public void deleteAttachments(TechId holderId, AttachmentHolderKind holderKind,
             List<String> fileNames, String reason) throws UserFailureException;
+
+    /**
+     * Returns a list of all attachments which belong to the specified holder grouped in
+     * {@link AttachmentVersions}.
+     */
+    public ResultSet<AttachmentVersions> listAttachmentVersions(TechId holderId,
+            AttachmentHolderKind holderKind,
+            DefaultResultSetConfig<String, AttachmentVersions> criteria)
+            throws UserFailureException;
 
     /**
      * Returns a list of all available data set types.

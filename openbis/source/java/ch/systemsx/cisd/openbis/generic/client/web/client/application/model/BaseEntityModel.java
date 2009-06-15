@@ -24,6 +24,7 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.InvalidableWithCodeRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.CommonColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
@@ -65,6 +66,17 @@ public class BaseEntityModel<T> extends BaseModelData
     public final T getBaseObject()
     {
         return get(ModelDataPropertyNames.OBJECT);
+    }
+
+    /** render specified column as a link */
+    public void renderAsLink(String columnId)
+    {
+        String value = this.get(columnId);
+        if (value.length() > 0)
+        {// only for not null value
+            value = LinkRenderer.renderAsLinkWithAnchor(value);
+        }
+        this.set(columnId, value);
     }
 
     // ugly, ugly, ugly!

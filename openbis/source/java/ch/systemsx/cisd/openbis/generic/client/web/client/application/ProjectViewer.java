@@ -27,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
@@ -88,18 +87,9 @@ public final class ProjectViewer extends AbstractViewer<ICommonClientServiceAsyn
         viewContext.getService().getProjectInfo(projectId, callback);
     }
 
-    private AttachmentsSection<Project> createAttachmentsSection(final Project project)
+    private AttachmentVersionsSection<Project> createAttachmentsSection(final Project project)
     {
-        final AttachmentsSection<Project> attachmentsSection =
-                new AttachmentsSection<Project>(project, viewContext);
-        attachmentsSection.setReloadDataAction(new IDelegatedAction()
-            {
-                public void execute()
-                {
-                    reloadData(attachmentsSection.getReloadDataCallback());
-                }
-            });
-        return attachmentsSection;
+        return new AttachmentVersionsSection<Project>(viewContext.getCommonViewContext(), project);
     }
 
     public static final class ProjectInfoCallback extends AbstractAsyncCallback<Project>
@@ -123,7 +113,7 @@ public final class ProjectViewer extends AbstractViewer<ICommonClientServiceAsyn
             viewer.updateOriginalProject(result);
             viewer.removeAll();
             viewer.setScrollMode(Scroll.AUTO);
-            AttachmentsSection<Project> attachmentsSection =
+            AttachmentVersionsSection<Project> attachmentsSection =
                     viewer.createAttachmentsSection(result);
             addSection(viewer, attachmentsSection);
             modificationObserver.addObserver(attachmentsSection.getDatabaseModificationObserver());

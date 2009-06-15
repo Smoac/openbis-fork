@@ -21,8 +21,8 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
@@ -252,8 +252,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> callback)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
-    /** @see ICommonClientService#prepareExportAttachments(TableExportCriteria) */
-    public void prepareExportAttachments(TableExportCriteria<Attachment> criteria,
+    /** @see ICommonClientService#prepareExportAttachmentVersions(TableExportCriteria) */
+    public void prepareExportAttachmentVersions(TableExportCriteria<AttachmentVersions> criteria,
             AsyncCallback<String> callback)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
@@ -389,6 +389,14 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#deleteAttachments(TechId, AttachmentHolderKind, List, String) */
     public void deleteAttachments(TechId holderId, AttachmentHolderKind holderKind,
             List<String> fileNames, String reason, AsyncCallback<Void> asyncCallback);
+
+    /**
+     * @see ICommonClientService#listAttachmentVersions(TechId, AttachmentHolderKind,
+     *      DefaultResultSetConfig)
+     */
+    public void listAttachmentVersions(TechId holderId, AttachmentHolderKind holderKind,
+            DefaultResultSetConfig<String, AttachmentVersions> criteria,
+            AsyncCallback<ResultSet<AttachmentVersions>> asyncCallback);
 
     /** @see ICommonClientService#listDataSetTypes() */
     public void listDataSetTypes(AsyncCallback<List<DataSetType>> callback);

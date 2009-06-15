@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
  * @author Izabela Adamczyk
  */
-public enum AttachmentHolderKind
+public enum AttachmentHolderKind implements IsSerializable
 {
     PROJECT, EXPERIMENT, SAMPLE
 }

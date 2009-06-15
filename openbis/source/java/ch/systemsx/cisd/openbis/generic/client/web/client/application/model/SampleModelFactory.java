@@ -22,7 +22,6 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.ParentContainerSampleColDef;
@@ -55,7 +54,7 @@ public final class SampleModelFactory
         List<IColumnDefinitionUI<Sample>> allColumnsDefinition =
                 new SampleModelFactory().createColumnsSchemaForRendering(entity);
         BaseEntityModel<Sample> model = new BaseEntityModel<Sample>(entity, allColumnsDefinition);
-        renderExperimentLink(model);
+        model.renderAsLink(CommonSampleColDefKind.EXPERIMENT.id());
         return model;
     }
 
@@ -91,18 +90,6 @@ public final class SampleModelFactory
             columns.addColumns(parentColumnsSchema);
         }
         return columns;
-    }
-
-    // add a link for experiment
-    private static void renderExperimentLink(BaseEntityModel<Sample> model)
-    {
-        String experimentId = CommonSampleColDefKind.EXPERIMENT.id();
-        String value = model.get(experimentId);
-        if (value.length() > 0)
-        {// only for not null value
-            value = LinkRenderer.renderAsLinkWithAnchor(value);
-        }
-        model.set(experimentId, value);
     }
 
     private static List<IColumnDefinitionUI<Sample>> createParentColumnsSchema(

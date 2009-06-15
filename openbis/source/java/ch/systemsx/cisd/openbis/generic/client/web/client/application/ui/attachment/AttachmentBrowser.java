@@ -20,9 +20,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.grid.CellSelectionModel;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -30,35 +40,48 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.AttachmentVersionModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.AttachmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IAttachmentHolder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
+ * Grid displaying {@link AttachmentVersions}.
+ * 
  * @author Piotr Buczek
  */
-public class AttachmentBrowser extends AbstractSimpleBrowserGrid<Attachment>
+public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersions>
 {
+    private static final String PREFIX = "attachment-browser_";
 
-    public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "attachment-browser";
-
-    public static final String GRID_ID = BROWSER_ID + "_grid";
+    private static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext,
@@ -73,10 +96,57 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<Attachment>
     public AttachmentBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
             final IAttachmentHolder attachmentHolder)
     {
-        super(viewContext, BROWSER_ID, GRID_ID);
+        super(viewContext, createBrowserId(attachmentHolder), createGridId(attachmentHolder));
         this.attachmentHolder = attachmentHolder;
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.ATTACHMENT_BROWSER_GRID);
         extendBottomToolbar();
+
+        registerCellClickListenerFor(AttachmentColDefKind.FILE_NAME.id(),
+                new ICellListener<AttachmentVersions>()
+                    {
+                        public void handle(AttachmentVersions rowItem)
+                        {
+                            // don't need to check whether the value is null
+                            // because there will not be a link for null value
+                            final String fileName = rowItem.getCurrent().getFileName();
+                            final int version = rowItem.getCurrent().getVersion();
+
+                            downloadAttachment(fileName, version, attachmentHolder);
+                        }
+                    });
+        registerLinkClickListenerFor(AttachmentColDefKind.VERSION.id(),
+                new ICellListener<AttachmentVersions>()
+                    {
+                        public void handle(AttachmentVersions rowItem)
+                        {
+                            // don't need to check whether the value is null
+                            // because there will not be a link for null value
+                            final String fileName = rowItem.getCurrent().getFileName();
+                            List<Attachment> versions = rowItem.getVersions();
+
+                            showVersionsPanel(fileName, versions);
+                        }
+                    });
+    }
+
+    private static String createGridId(final IAttachmentHolder holder)
+    {
+        return createGridId(TechId.create(holder), holder.getAttachmentHolderKind());
+    }
+
+    private static String createBrowserId(final IAttachmentHolder holder)
+    {
+        return createBrowserId(TechId.create(holder), holder.getAttachmentHolderKind());
+    }
+
+    public static String createGridId(TechId id, AttachmentHolderKind kind)
+    {
+        return createBrowserId(id, kind) + "-grid";
+    }
+
+    public static String createBrowserId(TechId id, AttachmentHolderKind kind)
+    {
+        return ID_PREFIX + kind.name() + "-" + id;
     }
 
     private void extendBottomToolbar()
@@ -87,10 +157,11 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<Attachment>
                 new AbstractCreateDialogListener()
                     {
                         @Override
-                        protected Dialog createDialog(List<Attachment> attachments,
+                        protected Dialog createDialog(List<AttachmentVersions> attachmentVersions,
                                 IBrowserGridActionInvoker invoker)
                         {
-                            return new AttachmentDeletionConfirmationDialog(attachments, invoker);
+                            return new AttachmentDeletionConfirmationDialog(attachmentVersions,
+                                    invoker);
                         }
                     }));
         allowMultipleSelection(); // we allow deletion of multiple attachments
@@ -98,57 +169,92 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<Attachment>
         addEntityOperationsSeparator();
     }
 
+    private static void downloadAttachment(String fileName, int version, IAttachmentHolder holder)
+    {
+        WindowUtils.openWindow(createURL(version, fileName, holder));
+    }
+
+    private final static String createURL(final int version, final String fileName,
+            final IAttachmentHolder attachmentHolder)
+    {
+        URLMethodWithParameters methodWithParameters =
+                new URLMethodWithParameters(GenericConstants.ATTACHMENT_DOWNLOAD_SERVLET_NAME);
+        methodWithParameters.addParameter(GenericConstants.VERSION_PARAMETER, version);
+        methodWithParameters.addParameter(GenericConstants.FILE_NAME_PARAMETER, fileName);
+        methodWithParameters.addParameter(GenericConstants.ATTACHMENT_HOLDER_PARAMETER,
+                attachmentHolder.getAttachmentHolderKind().name());
+        // NOTE: this exp.getId() could be null if exp is a proxy
+        methodWithParameters.addParameter(GenericConstants.TECH_ID_PARAMETER, attachmentHolder
+                .getId());
+        return methodWithParameters.toString();
+    }
+
+    private void showVersionsPanel(final String fileName, final List<Attachment> versions)
+    {
+        assert versions != null : "versions not set!";
+
+        final VersionsPanelHelper helper =
+                new VersionsPanelHelper(fileName, attachmentHolder, viewContext);
+        final ITabItemFactory tabFactory = new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    final String tabTitle = helper.createTabTitle();
+                    final Component component = helper.createVersionsPanel(versions);
+                    return DefaultTabItem.createUnaware(tabTitle, component, false);
+                }
+
+                public String getId()
+                {
+                    return helper.createTabId();
+                }
+            };
+        DispatcherHelper.dispatchNaviEvent(tabFactory);
+    }
+
     @Override
-    protected IColumnDefinitionKind<Attachment>[] getStaticColumnsDefinition()
+    protected IColumnDefinitionKind<AttachmentVersions>[] getStaticColumnsDefinition()
     {
         return AttachmentColDefKind.values();
     }
 
     @Override
-    protected ColumnDefsAndConfigs<Attachment> createColumnsDefinition()
+    protected BaseEntityModel<AttachmentVersions> createModel(AttachmentVersions entity)
     {
-        ColumnDefsAndConfigs<Attachment> schema = super.createColumnsDefinition();
-        schema.setGridCellRendererFor(AttachmentColDefKind.FILE_NAME.id(), LinkRenderer
-                .createGridCellRenderer());
-        schema.setGridCellRendererFor(AttachmentColDefKind.VERSIONS.id(),
-                createVersionsLinkCellRenderer());
-        return schema;
+        BaseEntityModel<AttachmentVersions> model = super.createModel(entity);
+        model.renderAsLink(AttachmentColDefKind.FILE_NAME.id());
+        renderVersionAsLink(model);
+        return model;
     }
 
-    private GridCellRenderer<BaseEntityModel<?>> createVersionsLinkCellRenderer()
+    private void renderVersionAsLink(ModelData model)
     {
-        return new GridCellRenderer<BaseEntityModel<?>>()
-            {
-
-                public String render(BaseEntityModel<?> model, String property, ColumnData config,
-                        int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store)
-                {
-                    String originalValue = String.valueOf(model.get(property));
-                    String text = viewContext.getMessage(Dict.VERSIONS_TEMPLATE, originalValue);
-                    return LinkRenderer.renderAsLinkWithAnchor(text, originalValue, true);
-                }
-
-            };
+        String versionId = AttachmentColDefKind.VERSION.id();
+        String originalValue = model.get(versionId);
+        String linkText = viewContext.getMessage(Dict.SHOW_ALL_VERSIONS);
+        String link = LinkRenderer.renderAsLinkWithAnchor(linkText);
+        model.set(versionId, originalValue + " (" + link + ")");
     }
 
     @Override
-    protected List<IColumnDefinition<Attachment>> getInitialFilters()
+    protected List<IColumnDefinition<AttachmentVersions>> getInitialFilters()
     {
         return Collections.emptyList();
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, Attachment> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<Attachment>> callback)
+    protected void listEntities(DefaultResultSetConfig<String, AttachmentVersions> resultSetConfig,
+            AbstractAsyncCallback<ResultSet<AttachmentVersions>> callback)
     {
-        // TODO 2009-06-12, Piotr Buczek: implement listHolderAttachments
+        viewContext.getService().listAttachmentVersions(TechId.create(attachmentHolder),
+                attachmentHolder.getAttachmentHolderKind(), resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<Attachment> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<AttachmentVersions> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
-        viewContext.getService().prepareExportAttachments(exportCriteria, callback);
+        viewContext.getService().prepareExportAttachmentVersions(exportCriteria, callback);
     }
 
     public DatabaseModificationKind[] getRelevantModifications()
@@ -168,7 +274,7 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<Attachment>
 
     private final class AttachmentDeletionConfirmationDialog extends DeletionConfirmationDialog
     {
-        public AttachmentDeletionConfirmationDialog(List<Attachment> attachments,
+        public AttachmentDeletionConfirmationDialog(List<AttachmentVersions> attachments,
                 IBrowserGridActionInvoker invoker)
         {
             super(attachments, invoker);
@@ -188,14 +294,119 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<Attachment>
             return EntityKind.SAMPLE.getDescription();
         }
 
-        private List<String> getAttachmentFileNames(List<Attachment> attachments)
+        private List<String> getAttachmentFileNames(List<AttachmentVersions> attachmentVersions)
         {
             List<String> fileNames = new ArrayList<String>();
-            for (Attachment attachment : attachments)
+            for (AttachmentVersions attachmentVersion : attachmentVersions)
             {
-                fileNames.add(attachment.getFileName());
+                fileNames.add(attachmentVersion.getCurrent().getFileName());
             }
             return fileNames;
+        }
+
+    }
+
+    private final static class VersionsPanelHelper
+    {
+        private final String fileName;
+
+        private final IAttachmentHolder attachmentHolder;
+
+        private final IMessageProvider messageProvider;
+
+        public VersionsPanelHelper(String fileName, IAttachmentHolder attachmentHolder,
+                IMessageProvider messageProvider)
+        {
+            this.fileName = fileName;
+            this.attachmentHolder = attachmentHolder;
+            this.messageProvider = messageProvider;
+        }
+
+        public ContentPanel createVersionsPanel(final List<Attachment> oldVersions)
+        {
+            ContentPanel panel = new ContentPanel();
+            panel.setHeading("Versions of file '" + fileName + "' from "
+                    + attachmentHolder.getAttachmentHolderKind().name().toLowerCase() + " '"
+                    + attachmentHolder.getCode() + "'");
+            final ListStore<AttachmentVersionModel> attachmentStore =
+                    new ListStore<AttachmentVersionModel>();
+            attachmentStore.add(AttachmentVersionModel.convert(oldVersions));
+            final Grid<AttachmentVersionModel> attachmentGrid =
+                    new Grid<AttachmentVersionModel>(attachmentStore, new ColumnModel(
+                            defineAttachmentVersionsColumns()));
+            final CellSelectionModel<AttachmentVersionModel> selectionModel =
+                    new CellSelectionModel<AttachmentVersionModel>();
+            attachmentGrid.setSelectionModel(selectionModel);
+            selectionModel.bindGrid(attachmentGrid);
+            attachmentGrid.addListener(Events.CellClick, new Listener<GridEvent>()
+                {
+                    public void handleEvent(final GridEvent be)
+                    {
+                        String column =
+                                attachmentGrid.getColumnModel().getColumn(be.colIndex).getId();
+                        if (ModelDataPropertyNames.VERSION_FILE_NAME.equals(column))
+                        {
+                            final AttachmentVersionModel selectedItem =
+                                    (AttachmentVersionModel) be.grid.getStore().getAt(be.rowIndex);
+                            Attachment selectedAttachment =
+                                    (Attachment) selectedItem.get(ModelDataPropertyNames.OBJECT);
+                            int version = selectedAttachment.getVersion();
+                            downloadAttachment(fileName, version, attachmentHolder);
+                        }
+                        attachmentGrid.getSelectionModel().deselectAll();
+                    }
+                });
+            panel.setId(createTabId());
+            panel.add(attachmentGrid);
+            return panel;
+        }
+
+        // @Private
+        public String createTabId()
+        {
+            return GenericConstants.ID_PREFIX + "attachment-versions-" + attachmentHolder.getId()
+                    + "_" + fileName;
+        }
+
+        // @Private
+        public String createTabTitle()
+        {
+            return "Attachment " + attachmentHolder.getCode() + "/" + fileName;
+        }
+
+        private List<ColumnConfig> defineAttachmentVersionsColumns()
+        {
+            final ArrayList<ColumnConfig> columns = new ArrayList<ColumnConfig>();
+            columns.add(createVersionFileNameColumn());
+            columns.add(ColumnConfigFactory.createRegistrationDateColumnConfig(messageProvider));
+            columns.add(ColumnConfigFactory.createRegistratorColumnConfig(messageProvider));
+            return columns;
+        }
+
+        private ColumnConfig createVersionFileNameColumn()
+        {
+            final ColumnConfig column =
+                    ColumnConfigFactory.createDefaultColumnConfig(messageProvider
+                            .getMessage(Dict.VERSION_FILE_NAME),
+                            ModelDataPropertyNames.VERSION_FILE_NAME);
+            column.setWidth(200);
+            column.setRenderer(new GridCellRenderer<AttachmentVersionModel>()
+                {
+
+                    public String render(final AttachmentVersionModel model, final String property,
+                            final ColumnData config, final int rowIndex, final int colIndex,
+                            final ListStore<AttachmentVersionModel> store)
+                    {
+                        Object value = model.get(property);
+                        if (value == null)
+                        {
+                            return "";
+                        }
+                        return LinkRenderer.renderAsLink((String) value);
+                    }
+                });
+            return column;
+
         }
 
     }

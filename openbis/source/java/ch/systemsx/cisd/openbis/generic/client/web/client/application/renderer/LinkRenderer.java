@@ -77,16 +77,15 @@ public class LinkRenderer
     public static String renderAsLinkWithAnchor(final String text, final String href,
             final boolean openInNewWindow)
     {
-        final Element div = DOM.createDiv();
         final Element anchor = DOM.createAnchor();
-        DOM.appendChild(div, anchor);
         DOM.setInnerText(anchor, text);
+
         DOM.setElementProperty(anchor, "href", href);
         if (openInNewWindow)
         {
             DOM.setElementProperty(anchor, "target", "blank");
         }
-        return DOM.toString(div);
+        return DOM.toString(anchor);
     }
 
     /**

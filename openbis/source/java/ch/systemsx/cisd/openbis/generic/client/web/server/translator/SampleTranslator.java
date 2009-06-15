@@ -91,7 +91,7 @@ public final class SampleTranslator
                 attachments = DtoConverters.createUnmodifiableEmptyList();
             } else
             {
-                attachments = ExperimentTranslator.translate(samplePE.getAttachments());
+                attachments = AttachmentTranslator.translate(samplePE.getAttachments());
             }
             result.setAttachments(attachments);
         }

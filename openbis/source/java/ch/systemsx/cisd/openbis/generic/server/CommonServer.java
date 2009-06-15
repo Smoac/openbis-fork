@@ -847,6 +847,53 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         attachmentBO.deleteHolderAttachments(holder, fileNames, reason);
     }
 
+    public List<AttachmentPE> listExperimentAttachments(String sessionToken, TechId experimentId)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+            experimentBO.loadDataByTechId(experimentId);
+            return listHolderAttachments(session, experimentBO.getExperiment());
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
+    public List<AttachmentPE> listSampleAttachments(String sessionToken, TechId sampleId)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+            sampleBO.loadDataByTechId(sampleId);
+            return listHolderAttachments(session, sampleBO.getSample());
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
+    public List<AttachmentPE> listProjectAttachments(String sessionToken, TechId projectId)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
+            projectBO.loadDataByTechId(projectId);
+            return listHolderAttachments(session, projectBO.getProject());
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
+    private List<AttachmentPE> listHolderAttachments(Session session, AttachmentHolderPE holder)
+    {
+        return getDAOFactory().getAttachmentDAO().listAttachments(holder);
+    }
+
     public String uploadDataSets(String sessionToken, List<String> dataSetCodes,
             DataSetUploadContext uploadContext)
     {

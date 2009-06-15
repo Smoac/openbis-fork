@@ -23,13 +23,12 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentsSection;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentVersionsSection;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserverWithMainObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
@@ -108,19 +107,11 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
         return new ExperimentPropertiesSection(experiment, viewContext, this);
     }
 
-    private AttachmentsSection<Experiment> createAttachmentsSection(final Experiment experiment)
+    private AttachmentVersionsSection<Experiment> createAttachmentsSection(
+            final Experiment experiment)
     {
-        final AttachmentsSection<Experiment> attachmentsSection =
-                new AttachmentsSection<Experiment>(experiment, viewContext);
-        attachmentsSection.setReloadDataAction(new IDelegatedAction()
-            {
-
-                public void execute()
-                {
-                    reloadData(attachmentsSection.getReloadDataCallback());
-                }
-            });
-        return attachmentsSection;
+        return new AttachmentVersionsSection<Experiment>(viewContext.getCommonViewContext(),
+                experiment);
     }
 
     public static final class ExperimentInfoCallback extends AbstractAsyncCallback<Experiment>
@@ -160,7 +151,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
             addSection(genericExperimentViewer, propertiesSection);
             observer.addMainObserver(propertiesSection.getDatabaseModificationObserver());
 
-            AttachmentsSection<Experiment> attachmentsSection =
+            AttachmentVersionsSection<Experiment> attachmentsSection =
                     genericExperimentViewer.createAttachmentsSection(result);
             addSection(genericExperimentViewer, attachmentsSection);
             observer.addObserver(attachmentsSection.getDatabaseModificationObserver());

@@ -303,11 +303,11 @@ public abstract class Dict
     public static final String UNASSIGNMENT_CONFIRMATION_TEMPLATE_WITH_PROPERTIES =
             "unassignment_confirmation_template_with_properties";
 
-    // -------- generic plugin dictionary -------------------
+    //
+    // Attachments Browser
+    //
 
-    //
-    // Experiment Viewer
-    //
+    public static final String ATTACHMENTS = "attachments";
 
     public static final String FILE_NAME = "file_name";
 
@@ -315,13 +315,13 @@ public abstract class Dict
 
     public static final String VERSION = "version";
 
-    public static final String VERSIONS = "versions";
-
-    public static final String VERSIONS_TEMPLATE = "versions_template";
+    public static final String SHOW_ALL_VERSIONS = "show_all_versions";
 
     public static final String NO_ATTACHMENTS_FOUND = "no_attachments_found";
 
     public static final String NO_SAMPLES_FOUND = "no_samples_found";
+
+    // -------- generic plugin dictionary -------------------
 
     //
     // Sample Viewer

@@ -522,6 +522,30 @@ public interface ICommonServer extends IServer
             List<String> fileNames, String reason);
 
     /**
+     * Returns all attachments (all versions) of specified experiment.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<AttachmentPE> listExperimentAttachments(String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId);
+
+    /**
+     * Returns all attachments (all versions) of specified sample.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<AttachmentPE> listSampleAttachments(String sessionToken,
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId);
+
+    /**
+     * Returns all attachments (all versions) of specified project.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<AttachmentPE> listProjectAttachments(String sessionToken,
+            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId);
+
+    /**
      * Uploads specified data sets to CIFEX server of specified URL with specified password.
      * 
      * @return a message or an empty string

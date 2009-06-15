@@ -75,7 +75,7 @@ public final class ProjectTranslator
             attachments = DtoConverters.createUnmodifiableEmptyList();
         } else
         {
-            attachments = ExperimentTranslator.translate(project.getAttachments());
+            attachments = AttachmentTranslator.translate(project.getAttachments());
         }
         result.setAttachments(attachments);
         return result;

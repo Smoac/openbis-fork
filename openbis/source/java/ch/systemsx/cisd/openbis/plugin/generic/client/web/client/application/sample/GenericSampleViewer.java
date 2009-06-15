@@ -48,7 +48,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentsSection;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentVersionsSection;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -108,11 +108,11 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
     private final TechId sampleId;
 
-    private IDisposableComponent disposableBrowser;
+    private AttachmentVersionsSection<Sample> attachmentsSection;
+
+    private IDisposableComponent dataSetBrowser;
 
     private PropertyGrid propertyGrid;
-
-    private AttachmentsSection<Sample> attachmentsPanel;
 
     public static DatabaseModificationAwareComponent create(
             IViewContext<IGenericClientServiceAsync> viewContext, final IIdentifiable identifiable)
@@ -153,10 +153,11 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     private final Component createRightPanel(SampleGeneration sampleGeneration)
     {
         final LayoutContainer container = new LayoutContainer();
-        final double defaultHeight = 1.0 / 3; // all child panels have the same height as default
-        attachmentsPanel = createAttachmentsSection(sampleGeneration.getGenerator());
-        container.add(attachmentsPanel, new RowData(1, defaultHeight, new Margins(5, 5, 0, 0)));
         container.setLayout(new RowLayout());
+        final double defaultHeight = 1.0 / 3; // all child panels have the same height as default
+        // Attachments
+        attachmentsSection = createAttachmentsSection(sampleGeneration.getGenerator());
+        container.add(attachmentsSection, new RowData(1, defaultHeight, new Margins(5, 5, 0, 0)));
         // 'Part of' samples
         final ContentPanel componentsPanel =
                 createContentPanel(viewContext.getMessage(Dict.PART_OF_HEADING));
@@ -176,9 +177,9 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         // External data
         final ContentPanel externalDataPanel =
                 createContentPanel(viewContext.getMessage(Dict.EXTERNAL_DATA_HEADING));
-        disposableBrowser = SampleDataSetBrowser.create(viewContext, sampleId);
+        dataSetBrowser = SampleDataSetBrowser.create(viewContext, sampleId);
         // external data panel has the height doubled when components panel is not visible
-        externalDataPanel.add(disposableBrowser.getComponent());
+        externalDataPanel.add(dataSetBrowser.getComponent());
         final RowData externalDataRow = new RowData(1, 2 * defaultHeight, new Margins(5, 5, 0, 0));
         container.add(externalDataPanel, externalDataRow);
 
@@ -196,26 +197,17 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         return container;
     }
 
-    private AttachmentsSection<Sample> createAttachmentsSection(final Sample sample)
+    private AttachmentVersionsSection<Sample> createAttachmentsSection(final Sample sample)
     {
-        final AttachmentsSection<Sample> attachmentsSection =
-                new AttachmentsSection<Sample>(sample, viewContext);
-        attachmentsSection.setReloadDataAction(new IDelegatedAction()
-            {
-                public void execute()
-                {
-                    reloadSampleData(attachmentsSection.getReloadDataCallback());
-                }
-            });
-        return attachmentsSection;
+        return new AttachmentVersionsSection<Sample>(viewContext.getCommonViewContext(), sample);
     }
 
     @Override
     protected void onDetach()
     {
-        if (disposableBrowser != null)
+        if (dataSetBrowser != null)
         {
-            disposableBrowser.dispose();
+            dataSetBrowser.dispose();
         }
         super.onDetach();
     }
@@ -392,14 +384,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     }
 
     /**
-     * Load the {@link Sample} information.
-     */
-    protected void reloadSampleData(AbstractAsyncCallback<Sample> callback)
-    {
-        viewContext.getService().getSampleInfo(sampleId, getBaseIndexURL(), callback);
-    }
-
-    /**
      * Load the sample information for components panel.
      */
     private void reloadComponentsPanelData()
@@ -507,13 +491,13 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         CompositeDatabaseModificationObserver observer =
                 new CompositeDatabaseModificationObserverWithMainObserver(
                         new PropertyGridDatabaseModificationObserver());
-        if (disposableBrowser != null)
+        if (dataSetBrowser != null)
         {
-            observer.addObserver(disposableBrowser);
+            observer.addObserver(dataSetBrowser);
         }
-        if (attachmentsPanel != null)
+        if (attachmentsSection != null)
         {
-            observer.addObserver(attachmentsPanel.getDatabaseModificationObserver());
+            observer.addObserver(attachmentsSection.getDatabaseModificationObserver());
         }
         if (partOfSamplesGrid != null)
         {

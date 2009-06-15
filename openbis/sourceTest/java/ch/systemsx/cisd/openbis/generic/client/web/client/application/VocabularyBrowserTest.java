@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyTermColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
@@ -30,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.RemoteConsole;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test <i>Vocabulary Browser</i>.
@@ -87,10 +89,13 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
             this.code = code;
         }
 
+        @SuppressWarnings("unchecked")
         public void execute()
         {
             final Widget widget = GWTTestUtil.getWidgetWithID(VocabularyGrid.GRID_ID);
-            GridTestUtils.fireSingleClick((Grid<?>) widget, VocabularyColDefKind.CODE.id(), code);
+            final Grid<BaseEntityModel<Vocabulary>> table =
+                    (Grid<BaseEntityModel<Vocabulary>>) widget;
+            GridTestUtils.fireSingleClick(table, VocabularyColDefKind.CODE.id(), code);
         }
     }
 }

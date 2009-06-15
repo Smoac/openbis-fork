@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experim
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ShowExperiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
  * @author Tomasz Pylak
@@ -58,7 +59,7 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
         //
         // Assumption: technicalId(CISD:/CISD/DEFAULT/EXP_REUSE) = 8
         //
-        remoteConsole.prepare(new ClickDownloadAttachmentCmdTest("cellPlates.txt", 8L));
+        remoteConsole.prepare(new ClickDownloadAttachmentCmdTest("cellPlates.txt", new TechId(8L)));
 
         // this callback will be used when the attempt to open an URL will occur
         OpenedUrlCallback openedUrlCallback = new OpenedUrlCallback(client.tryToGetViewContext());

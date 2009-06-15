@@ -427,6 +427,24 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 experimentId, fileNames, reason);
     }
 
+    public List<AttachmentPE> listExperimentAttachments(String sessionToken, TechId experimentId)
+    {
+        logAccess(sessionToken, "list_experiment_attachments", "ID(%s)", experimentId);
+        return null;
+    }
+
+    public List<AttachmentPE> listSampleAttachments(String sessionToken, TechId sampleId)
+    {
+        logAccess(sessionToken, "list_sample_attachments", "ID(%s)", sampleId);
+        return null;
+    }
+
+    public List<AttachmentPE> listProjectAttachments(String sessionToken, TechId projectId)
+    {
+        logAccess(sessionToken, "list_project_attachments", "ID(%s)", projectId);
+        return null;
+    }
+
     public String uploadDataSets(String sessionToken, List<String> dataSetCodes,
             DataSetUploadContext uploadContext)
     {

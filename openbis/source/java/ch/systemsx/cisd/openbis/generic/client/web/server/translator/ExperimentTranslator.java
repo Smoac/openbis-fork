@@ -16,18 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.lang.StringEscapeUtils;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -79,7 +73,8 @@ public final class ExperimentTranslator
                             .getProperties()));
                     break;
                 case ATTACHMENTS:
-                    result.setAttachments(translate(experiment.getAttachments()));
+                    result.setAttachments(AttachmentTranslator.translate(experiment
+                            .getAttachments()));
                     break;
                 default:
                     break;
@@ -97,30 +92,6 @@ public final class ExperimentTranslator
                 .getDatabaseInstance()));
         result.setExperimentTypePropertyTypes(ExperimentTypePropertyTypeTranslator.translate(
                 experimentType.getExperimentTypePropertyTypes(), result));
-        return result;
-    }
-
-    public final static Attachment translate(final AttachmentPE attachment)
-    {
-        final Attachment result = new Attachment();
-        result.setRegistrator(PersonTranslator.translate(attachment.getRegistrator()));
-        result.setFileName(StringEscapeUtils.escapeHtml(attachment.getFileName()));
-        result.setVersion(attachment.getVersion());
-        result.setRegistrationDate(attachment.getRegistrationDate());
-        return result;
-    }
-
-    public final static List<Attachment> translate(final Set<AttachmentPE> set)
-    {
-        if (set == null)
-        {
-            return null;
-        }
-        final List<Attachment> result = new ArrayList<Attachment>();
-        for (final AttachmentPE attachment : set)
-        {
-            result.add(translate(attachment));
-        }
         return result;
     }
 

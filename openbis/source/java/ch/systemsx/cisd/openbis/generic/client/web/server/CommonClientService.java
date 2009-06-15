@@ -23,7 +23,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpSession;
@@ -41,6 +43,7 @@ import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
@@ -65,6 +68,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.DataSetTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentTranslator;
@@ -571,7 +575,7 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
-    public String prepareExportAttachments(TableExportCriteria<Attachment> criteria)
+    public String prepareExportAttachmentVersions(TableExportCriteria<AttachmentVersions> criteria)
             throws UserFailureException
     {
         return prepareExportEntities(criteria);
@@ -1415,6 +1419,74 @@ public final class CommonClientService extends AbstractClientService implements
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
+    }
+
+    public ResultSet<AttachmentVersions> listAttachmentVersions(final TechId holderId,
+            final AttachmentHolderKind holderKind,
+            final DefaultResultSetConfig<String, AttachmentVersions> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return listEntities(criteria, new IOriginalDataProvider<AttachmentVersions>()
+            {
+                public List<AttachmentVersions> getOriginalData() throws UserFailureException
+                {
+                    return listAttachmentVersions(holderId, holderKind);
+                }
+            });
+    }
+
+    private List<AttachmentVersions> listAttachmentVersions(TechId holderId,
+            AttachmentHolderKind holderKind)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        List<Attachment> attachments = listAttachments(holderId, holderKind);
+        List<AttachmentVersions> result = convert(attachments);
+        return result;
+    }
+
+    private List<Attachment> listAttachments(TechId holderId, AttachmentHolderKind holderKind)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+        try
+        {
+            List<AttachmentPE> attachments = null;
+            switch (holderKind)
+            {
+                case EXPERIMENT:
+                    attachments = commonServer.listExperimentAttachments(sessionToken, holderId);
+                    break;
+                case SAMPLE:
+                    attachments = commonServer.listSampleAttachments(sessionToken, holderId);
+                    break;
+                case PROJECT:
+                    attachments = commonServer.listProjectAttachments(sessionToken, holderId);
+                    break;
+            }
+            return AttachmentTranslator.translate(attachments);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    private List<AttachmentVersions> convert(final List<Attachment> attachments)
+    {
+        Map<String, List<Attachment>> map = new HashMap<String, List<Attachment>>();
+        for (Attachment a : attachments)
+        {
+            if (false == map.containsKey(a.getFileName()))
+            {
+                map.put(a.getFileName(), new ArrayList<Attachment>());
+            }
+            map.get(a.getFileName()).add(a);
+        }
+        final List<AttachmentVersions> result = new ArrayList<AttachmentVersions>(map.size());
+        for (List<Attachment> versions : map.values())
+        {
+            result.add(new AttachmentVersions(versions));
+        }
+        return result;
     }
 
     public LastModificationState getLastModificationState()

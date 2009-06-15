@@ -19,57 +19,54 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
 
 /**
  * @author Piotr Buczek
  */
-public enum AttachmentColDefKind implements IColumnDefinitionKind<Attachment>
+public enum AttachmentColDefKind implements IColumnDefinitionKind<AttachmentVersions>
 {
-    FILE_NAME(new AbstractColumnDefinitionKind<Attachment>(Dict.FILE_NAME, 200)
+    FILE_NAME(new AbstractColumnDefinitionKind<AttachmentVersions>(Dict.FILE_NAME, 200)
         {
             @Override
-            public String tryGetValue(Attachment entity)
+            public String tryGetValue(AttachmentVersions entity)
             {
-                return entity.getFileName();
-                // return LinkRenderer.renderAsLink(message);
+                return entity.getCurrent().getFileName();
             }
         }),
 
-    REGISTRATOR(new AbstractColumnDefinitionKind<Attachment>(Dict.REGISTRATOR)
+    REGISTRATOR(new AbstractColumnDefinitionKind<AttachmentVersions>(Dict.REGISTRATOR)
         {
             @Override
-            public String tryGetValue(Attachment entity)
+            public String tryGetValue(AttachmentVersions entity)
             {
-                return renderRegistrator(entity);
+                return renderRegistrator(entity.getCurrent());
             }
         }),
 
-    REGISTRATION_DATE(new AbstractColumnDefinitionKind<Attachment>(Dict.REGISTRATION_DATE,
+    REGISTRATION_DATE(new AbstractColumnDefinitionKind<AttachmentVersions>(Dict.REGISTRATION_DATE,
             AbstractColumnDefinitionKind.DATE_COLUMN_WIDTH)
         {
             @Override
-            public String tryGetValue(Attachment entity)
+            public String tryGetValue(AttachmentVersions entity)
             {
-                return renderRegistrationDate(entity);
+                return renderRegistrationDate(entity.getCurrent());
             }
         }),
 
-    VERSIONS(new AbstractColumnDefinitionKind<Attachment>(Dict.VERSIONS, 180)
+    VERSION(new AbstractColumnDefinitionKind<AttachmentVersions>(Dict.VERSION, 180)
         {
             @Override
-            public String tryGetValue(Attachment entity)
+            public String tryGetValue(AttachmentVersions entity)
             {
-                return String.valueOf(entity.getVersion());
-                // final String message =
-                // messageProvider.getMessage(Dict.VERSIONS_TEMPLATE, versions.size());
-                // return LinkRenderer.renderAsLink(message);
+                return String.valueOf(entity.getCurrent().getVersion());
             }
         });
 
-    private final AbstractColumnDefinitionKind<Attachment> columnDefinitionKind;
+    private final AbstractColumnDefinitionKind<AttachmentVersions> columnDefinitionKind;
 
-    private AttachmentColDefKind(AbstractColumnDefinitionKind<Attachment> columnDefinitionKind)
+    private AttachmentColDefKind(
+            AbstractColumnDefinitionKind<AttachmentVersions> columnDefinitionKind)
     {
         this.columnDefinitionKind = columnDefinitionKind;
     }
@@ -79,7 +76,7 @@ public enum AttachmentColDefKind implements IColumnDefinitionKind<Attachment>
         return name();
     }
 
-    public AbstractColumnDefinitionKind<Attachment> getDescriptor()
+    public AbstractColumnDefinitionKind<AttachmentVersions> getDescriptor()
     {
         return columnDefinitionKind;
     }

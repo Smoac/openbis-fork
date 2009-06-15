@@ -293,33 +293,22 @@ public abstract class AbstractExternalDataGrid
     {
         BaseEntityModel<ExternalData> model = getColumnsFactory().createModel(entity);
         renderCodeAsLink(model);
-        renderParentAsLink(model);
         renderShowDetailsLinkAsLink(model);
+        model.renderAsLink(CommonExternalDataColDefKind.PARENT.id());
         return model;
     }
 
-    private void renderCodeAsLink(ModelData model)
+	private void renderCodeAsLink(ModelData model)
     {
         String columnID = CommonExternalDataColDefKind.CODE.id();
         String originalValue = String.valueOf(model.get(columnID));
         model.set(columnID, LinkRenderer.renderAsLink(originalValue));
     }
 
-    private static void renderParentAsLink(ModelData model)
-    {
-        String parentId = CommonExternalDataColDefKind.PARENT.id();
-        String value = model.get(parentId);
-        if (value.length() > 0)
-        {// only for not null value
-            value = LinkRenderer.renderAsLinkWithAnchor(value);
-        }
-        model.set(parentId, value);
-    }
-
     private void renderShowDetailsLinkAsLink(ModelData model)
     {
         String showDetailsLinkID = CommonExternalDataColDefKind.SHOW_DETAILS_LINK.id();
-        String originalValue = String.valueOf(model.get(showDetailsLinkID));
+        String originalValue = model.get(showDetailsLinkID);
         model.set(showDetailsLinkID, LinkRenderer.renderAsLinkWithAnchor(viewContext
                 .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE), originalValue, true));
     }

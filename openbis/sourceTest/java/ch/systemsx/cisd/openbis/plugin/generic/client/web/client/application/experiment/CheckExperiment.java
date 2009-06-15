@@ -16,8 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentsSection;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.attachment.AttachmentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider.ListPropertyTypesCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IPropertyChecker;
@@ -81,7 +82,8 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
     public CheckTableCommand attachmentsTable()
     {
         attachmentsSection =
-                new CheckTableCommand(AttachmentsSection.ATTACHMENTS_ID_PREFIX + experimentId);
+                new CheckTableCommand(AttachmentBrowser.createGridId(experimentId,
+                        AttachmentHolderKind.EXPERIMENT));
         return attachmentsSection;
     }
 
