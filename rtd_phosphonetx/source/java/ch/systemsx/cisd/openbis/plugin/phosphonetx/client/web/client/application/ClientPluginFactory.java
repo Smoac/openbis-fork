@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -48,15 +49,19 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<IPhosphoNet
     public ClientPluginFactory(IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
         super(originalViewContext);
-        // TODO Auto-generated constructor stub
     }
 
     @Override
     protected IViewContext<IPhosphoNetXClientServiceAsync> createViewContext(
             IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
-        // TODO Auto-generated method stub
-        return null;
+        return new ViewContext(originalViewContext);
+    }
+
+    @Override
+    public IModule tryGetModule()
+    {
+        return new PhosphoNetXModule(getViewContext());
     }
 
     public Set<String> getEntityTypeCodes(EntityKind entityKind)

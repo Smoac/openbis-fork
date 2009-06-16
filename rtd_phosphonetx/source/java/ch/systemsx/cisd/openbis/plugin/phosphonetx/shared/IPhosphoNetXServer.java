@@ -16,7 +16,18 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared;
 
+import java.util.List;
+
+import org.springframework.transaction.annotation.Transactional;
+
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Protein;
 
 /**
  * 
@@ -25,5 +36,9 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  */
 public interface IPhosphoNetXServer extends IServer
 {
-
+    @Transactional
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<Protein> listProteinsByExperiment(String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
+            TechId experimentId) throws UserFailureException;
 }

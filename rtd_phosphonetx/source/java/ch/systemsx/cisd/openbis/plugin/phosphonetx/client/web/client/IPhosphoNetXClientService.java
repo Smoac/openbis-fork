@@ -17,6 +17,11 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Protein;
 
 /**
  * 
@@ -25,5 +30,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
  */
 public interface IPhosphoNetXClientService extends IClientService
 {
+    public ResultSet<Protein> listProteinsByExperiment(ListProteinByExperimentCriteria criteria)
+            throws UserFailureException;
+
+    public String prepareExportProteins(TableExportCriteria<Protein> exportCriteria)
+            throws UserFailureException;
 
 }

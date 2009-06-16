@@ -42,7 +42,7 @@ public interface IProtDAO extends BaseQuery
             + "values (?{1.sequence}, ?{1.checksum}) returning id")
     public long createSequence(Sequence sequence);
     
-    @Select("insert into proteins (data_set_code) values (?{1}) returning id")
+    @Select("insert into proteins (data_set_perm_id) values (?{1}) returning id")
     public long createProtein(String dataSetCode);
     
     @Select("insert into peptides (prot_id, sequ_id) values (?{1}, ?{2}) returning id")

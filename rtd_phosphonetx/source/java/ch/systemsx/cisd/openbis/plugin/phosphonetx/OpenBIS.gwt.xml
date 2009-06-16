@@ -9,5 +9,6 @@
     <script src="phosphonetx-dictionary.js"/>
     <public path="client/web/public"/>
     <source path="client/web/client"/>
+    <source path="shared/basic" />
     
 </module>

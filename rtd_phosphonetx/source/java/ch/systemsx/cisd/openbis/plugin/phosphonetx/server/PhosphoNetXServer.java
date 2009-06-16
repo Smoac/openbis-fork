@@ -16,17 +16,23 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Protein;
 
 /**
  * @author Franz-Josef Elmer
@@ -57,6 +63,13 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     public IPhosphoNetXServer createLogger(boolean invocationSuccessful)
     {
         return new PhosphoNetXServerLogger(getSessionManager(), invocationSuccessful);
+    }
+
+    public List<Protein> listProteinsByExperiment(String sessionToken, TechId experimentId)
+            throws UserFailureException
+    {
+        ArrayList<Protein> proteins = new ArrayList<Protein>();
+        return proteins;
     }
     
 }
