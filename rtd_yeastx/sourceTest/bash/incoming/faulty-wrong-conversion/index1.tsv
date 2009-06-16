@@ -1,0 +1,7 @@
+# openbis-user@mailinator.pl
+file_name	sample	group	conversion
+file1.mzXML	s32	IMSB_ZAMBONI	
+file2.eicML	s32	IMSB_ZAMBONI	fiaML
+file2.fiaML	s32	IMSB_ZAMBONI	eicML
+file3.mzXML	s32	IMSB_ZAMBONI	fiaML
+file4.mzXML	s32	IMSB_ZAMBONI	eicML

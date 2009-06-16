@@ -1,0 +1,5 @@
+# openbis-user@mailinator.pl
+file_name	sample	group	experiment	project	conversion
+file1.mzXML	s32	IMSB_ZAMBONI			fiaML
+file2.eicML	glucose 1	IMSB_ZAMBONI			
+file3.mzXML	glucose 2	IMSB_ZAMBONI	e2	bacteria	eicML
