@@ -28,7 +28,19 @@ public abstract class EntityProperty<T extends EntityType, P extends EntityTypeP
 {
     private String value;
 
+    private VocabularyTerm vocabularyTermOrNull;
+
     private P entityTypePropertyType;
+
+    public VocabularyTerm getVocabularyTerm()
+    {
+        return vocabularyTermOrNull;
+    }
+
+    public void setVocabularyTerm(VocabularyTerm vocabularyTerm)
+    {
+        this.vocabularyTermOrNull = vocabularyTerm;
+    }
 
     public final String getValue()
     {

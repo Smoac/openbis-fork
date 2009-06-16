@@ -42,6 +42,9 @@ public final class DataSetPropertyTranslator
     {
         final DataSetProperty result = new DataSetProperty();
         result.setValue(StringEscapeUtils.escapeHtml(propertyPE.tryGetUntypedValue()));
+        result
+                .setVocabularyTerm(VocabularyTermTranslator.translate(propertyPE
+                        .getVocabularyTerm()));
         result.setEntityTypePropertyType(DataSetTypePropertyTypeTranslator
                 .translate((DataSetTypePropertyTypePE) propertyPE.getEntityTypePropertyType()));
         return result;

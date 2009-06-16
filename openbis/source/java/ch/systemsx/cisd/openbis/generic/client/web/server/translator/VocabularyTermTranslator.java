@@ -35,6 +35,10 @@ public class VocabularyTermTranslator
 
     public static VocabularyTerm translate(VocabularyTermPE vt)
     {
+        if (vt == null)
+        {
+            return null;
+        }
         VocabularyTerm result = new VocabularyTerm();
         result.setCode(StringEscapeUtils.escapeHtml(vt.getCode()));
         result.setUrl(StringEscapeUtils.escapeHtml(vt.getUrl()));

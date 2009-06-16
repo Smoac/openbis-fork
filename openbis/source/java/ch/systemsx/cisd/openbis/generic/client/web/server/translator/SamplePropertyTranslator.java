@@ -42,6 +42,8 @@ public final class SamplePropertyTranslator
     {
         final SampleProperty result = new SampleProperty();
         result.setValue(StringEscapeUtils.escapeHtml(samplePropertyPE.tryGetUntypedValue()));
+        result.setVocabularyTerm(VocabularyTermTranslator.translate(samplePropertyPE
+                .getVocabularyTerm()));
         result
                 .setEntityTypePropertyType(SampleTypePropertyTypeTranslator
                         .translate((SampleTypePropertyTypePE) samplePropertyPE

@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 /**
  * Some {@link IPropertyValueRenderer} implementations.
@@ -278,6 +279,8 @@ public final class PropertyValueRenderers
             {
                 case MATERIAL:
                     return createLinkToMaterial(object);
+                case CONTROLLEDVOCABULARY:
+                    return createVocabularyTermWidget(object);
                 case HYPERLINK:
                     return createHyperlink(object);
                 case MULTILINE_VARCHAR:
@@ -334,6 +337,23 @@ public final class PropertyValueRenderers
         {
             String value = object.getValue();
             return new ExternalHyperlink(value, value);
+        }
+
+        private Widget createVocabularyTermWidget(T object)
+        {
+            VocabularyTerm term = object.getVocabularyTerm();
+            String code = null;
+            String url = null;
+            if (term != null)
+            {
+                code = term.getCode();
+                url = term.getUrl();
+            }
+            if (code != null && url != null)
+            {
+                return new ExternalHyperlink(code, url);
+            }
+            return createHtmlWidget(object);
         }
 
         private boolean isAllowedMaterialTypeUnspecified(T property)
@@ -436,7 +456,7 @@ public final class PropertyValueRenderers
                     new OpenEntityDetailsTabClickListener(entity, viewContext);
             final Hyperlink link = LinkRenderer.getLinkWidget(code, listener, invalidate);
 
-            // putting link into a panel makes it a block/row 
+            // putting link into a panel makes it a block/row
             // which is important if they are rendered as an array
             final FlowPanel panel = new FlowPanel();
             panel.add(link);

@@ -43,6 +43,8 @@ public final class MaterialPropertyTranslator
     {
         final MaterialProperty result = new MaterialProperty();
         result.setValue(StringEscapeUtils.escapeHtml(materialPropertyPE.tryGetUntypedValue()));
+        result.setVocabularyTerm(VocabularyTermTranslator.translate(materialPropertyPE
+                .getVocabularyTerm()));
         result.setEntityTypePropertyType(MaterialTypePropertyTypeTranslator
                 .translate((MaterialTypePropertyTypePE) materialPropertyPE
                         .getEntityTypePropertyType()));
