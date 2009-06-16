@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.CellSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
@@ -122,7 +123,7 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                             // don't need to check whether the value is null
                             // because there will not be a link for null value
                             final String fileName = rowItem.getCurrent().getFileName();
-                            List<Attachment> versions = rowItem.getVersions();
+                            final List<Attachment> versions = rowItem.getVersions();
 
                             showVersionsPanel(fileName, versions);
                         }
@@ -153,6 +154,11 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
     {
         addEntityOperationsLabel();
 
+        String showAllVersionsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_ALL_VERSIONS);
+        Button showAllVersionsButton =
+                createSelectedItemButton(showAllVersionsTitle, asShowEntityInvoker(false));
+        addButton(showAllVersionsButton);
+
         addButton(createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
                 new AbstractCreateDialogListener()
                     {
@@ -167,6 +173,18 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
         allowMultipleSelection(); // we allow deletion of multiple attachments
 
         addEntityOperationsSeparator();
+    }
+
+    @Override
+    protected void showEntityViewer(AttachmentVersions entity, boolean editMode)
+    {
+        assert editMode == false : "edit mode is not implemented";
+
+        // detail view of AttachmentVersions is a view that shows all versions of an attachment
+        final String fileName = entity.getCurrent().getFileName();
+        final List<Attachment> versions = entity.getVersions();
+
+        showVersionsPanel(fileName, versions);
     }
 
     private static void downloadAttachment(String fileName, int version, IAttachmentHolder holder)

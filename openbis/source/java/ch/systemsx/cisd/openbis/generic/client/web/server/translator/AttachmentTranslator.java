@@ -45,10 +45,12 @@ public final class AttachmentTranslator
             return null;
         }
         final Attachment result = new Attachment();
-        result.setRegistrator(PersonTranslator.translate(attachment.getRegistrator()));
         result.setFileName(StringEscapeUtils.escapeHtml(attachment.getFileName()));
-        result.setVersion(attachment.getVersion());
+        result.setTitle(StringEscapeUtils.escapeHtml(attachment.getTitle()));
+        result.setDescription(StringEscapeUtils.escapeHtml(attachment.getDescription()));
+        result.setRegistrator(PersonTranslator.translate(attachment.getRegistrator()));
         result.setRegistrationDate(attachment.getRegistrationDate());
+        result.setVersion(attachment.getVersion());
         return result;
     }
 

@@ -28,6 +28,10 @@ public class Attachment extends AbstractRegistrationHolder implements Comparable
 {
     private String fileName;
 
+    private String title;
+
+    private String description;
+
     private int version;
 
     public Attachment()
@@ -48,6 +52,26 @@ public class Attachment extends AbstractRegistrationHolder implements Comparable
     public void setFileName(final String fileName)
     {
         this.fileName = fileName;
+    }
+
+    public String getTitle()
+    {
+        return title;
+    }
+
+    public void setTitle(String title)
+    {
+        this.title = title;
+    }
+
+    public String getDescription()
+    {
+        return description;
+    }
+
+    public void setDescription(String description)
+    {
+        this.description = description;
     }
 
     public int getVersion()

@@ -311,11 +311,15 @@ public abstract class Dict
 
     public static final String FILE_NAME = "file_name";
 
+    public static final String TITLE = "title";
+
     public static final String VERSION_FILE_NAME = "version_file_name";
 
     public static final String VERSION = "version";
 
     public static final String SHOW_ALL_VERSIONS = "show_all_versions";
+
+    public static final String BUTTON_SHOW_ALL_VERSIONS = "button_show_all_versions";
 
     public static final String NO_ATTACHMENTS_FOUND = "no_attachments_found";
 

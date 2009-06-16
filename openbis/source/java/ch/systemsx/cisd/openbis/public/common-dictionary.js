@@ -394,9 +394,11 @@ incorrect_experiment_syntax: "Incorrect experiment specification. Please provide
  attachments: "Attachments",
  no_attachments_found: "There are no attachments in this {0}",
  file_name: "File Name",
+ title: "Title",
  version_file_name: "File Version",
  version: "Version",
  show_all_versions: "show all versions",
+ button_show_all_versions: "Show All Versions",
  
 //
 // Grid Column Chooser

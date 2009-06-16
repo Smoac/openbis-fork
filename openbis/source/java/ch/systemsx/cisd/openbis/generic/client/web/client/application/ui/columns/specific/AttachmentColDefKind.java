@@ -35,6 +35,33 @@ public enum AttachmentColDefKind implements IColumnDefinitionKind<AttachmentVers
             }
         }),
 
+    VERSION(new AbstractColumnDefinitionKind<AttachmentVersions>(Dict.VERSION)
+        {
+            @Override
+            public String tryGetValue(AttachmentVersions entity)
+            {
+                return String.valueOf(entity.getCurrent().getVersion());
+            }
+        }),
+
+    TITLE(new AbstractColumnDefinitionKind<AttachmentVersions>(Dict.TITLE, 200)
+        {
+            @Override
+            public String tryGetValue(AttachmentVersions entity)
+            {
+                return entity.getCurrent().getTitle();
+            }
+        }),
+
+    DESCRIPTION(new AbstractColumnDefinitionKind<AttachmentVersions>(Dict.DESCRIPTION, 300, true)
+        {
+            @Override
+            public String tryGetValue(AttachmentVersions entity)
+            {
+                return entity.getCurrent().getDescription();
+            }
+        }),
+
     REGISTRATOR(new AbstractColumnDefinitionKind<AttachmentVersions>(Dict.REGISTRATOR)
         {
             @Override
@@ -51,15 +78,6 @@ public enum AttachmentColDefKind implements IColumnDefinitionKind<AttachmentVers
             public String tryGetValue(AttachmentVersions entity)
             {
                 return renderRegistrationDate(entity.getCurrent());
-            }
-        }),
-
-    VERSION(new AbstractColumnDefinitionKind<AttachmentVersions>(Dict.VERSION, 180)
-        {
-            @Override
-            public String tryGetValue(AttachmentVersions entity)
-            {
-                return String.valueOf(entity.getCurrent().getVersion());
             }
         });
 

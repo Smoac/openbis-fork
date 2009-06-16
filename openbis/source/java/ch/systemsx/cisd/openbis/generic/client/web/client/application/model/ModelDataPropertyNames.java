@@ -42,6 +42,8 @@ public final class ModelDataPropertyNames
 
     public static final String VERSION = "version";
 
+    public static final String TITLE = "title";
+
     public static final String DESCRIPTION = "description";
 
     public static final String EMAIL = "email";
