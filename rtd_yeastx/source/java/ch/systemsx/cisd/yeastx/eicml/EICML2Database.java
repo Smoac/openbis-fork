@@ -52,7 +52,7 @@ public class EICML2Database
     private static void addChromatograms(IEICMSRunDAO dao, long eicMLId,
             List<ChromatogramDTO> chromatograms, int threshold)
     {
-        if (chromatograms.size() >= CHROMATOGRAM_BATCH_SIZE)
+        if (chromatograms.size() >= threshold)
         {
             dao.addChromatograms(eicMLId, chromatograms);
             chromatograms.clear();
@@ -75,8 +75,9 @@ public class EICML2Database
                 {
                     public void observe(EICMSRunDTO run)
                     {
-                        eicMLId[0] = dao.addMSRun(run);
+                        // add chromatograms from the last run to the database before setting the new run id
                         addChromatograms(dao, eicMLId[0], chromatograms, 1);
+                        eicMLId[0] = dao.addMSRun(run);
                     }
                 }, new IChromatogramObserver()
                 {
