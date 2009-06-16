@@ -153,7 +153,7 @@ public class ExperimentBrowserGrid extends
     protected void listEntities(DefaultResultSetConfig<String, Experiment> resultSetConfig,
             AbstractAsyncCallback<ResultSet<Experiment>> callback)
     {
-        copyPagingConfig(resultSetConfig);
+        criteria.copyPagingConfig(resultSetConfig);
         viewContext.getService().listExperiments(criteria, callback);
     }
 

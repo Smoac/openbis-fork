@@ -73,6 +73,16 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
     {
         return filterInfos;
     }
+    
+    public final void copyPagingConfig(DefaultResultSetConfig<K, T> resultSetConfig)
+    {
+        setLimit(resultSetConfig.getLimit());
+        setOffset(resultSetConfig.getOffset());
+        setSortInfo(resultSetConfig.getSortInfo());
+        setFilterInfos(resultSetConfig.getFilterInfos());
+        setResultSetKey(resultSetConfig.getResultSetKey());
+    }
+
 
     //
     // IResultSetConfig

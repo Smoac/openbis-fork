@@ -270,7 +270,7 @@ public class SampleBrowserGrid extends
     protected void listEntities(DefaultResultSetConfig<String, Sample> resultSetConfig,
             AbstractAsyncCallback<ResultSet<Sample>> callback)
     {
-        copyPagingConfig(resultSetConfig);
+        criteria.copyPagingConfig(resultSetConfig);
         viewContext.getService().listSamples(criteria, callback);
     }
 

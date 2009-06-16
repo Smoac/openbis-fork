@@ -176,19 +176,6 @@ public final class CommonClientService extends AbstractClientService implements
     // ----------- export and listing with cache generic functionality
 
     @SuppressWarnings("unchecked")
-    private final <K> IResultSetManager<K> getResultSetManager()
-    {
-        HttpSession httpSession = getHttpSession();
-        if (httpSession == null)
-        {
-            throw new ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException(
-                    "Your session has expired, please log in again.");
-        }
-        return (IResultSetManager<K>) httpSession
-                .getAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
-    }
-
-    @SuppressWarnings("unchecked")
     private final <T> CacheManager<String, T> getExportManager()
     {
         return (CacheManager<String, T>) getHttpSession().getAttribute(
@@ -237,22 +224,6 @@ public final class CommonClientService extends AbstractClientService implements
         criteria.setFilterInfos(exportCriteria.getFilterInfos());
         criteria.setResultSetKey(exportCriteria.getResultSetKey());
         return criteria;
-    }
-
-    private <T> ResultSet<T> listEntities(final IResultSetConfig<String, T> criteria,
-            IOriginalDataProvider<T> dataProvider)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        try
-        {
-            final IResultSetManager<String> resultSetManager = getResultSetManager();
-            final IResultSet<String, T> result =
-                    resultSetManager.getResultSet(criteria, dataProvider);
-            return ResultSetTranslator.translate(result);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
     }
 
     /**

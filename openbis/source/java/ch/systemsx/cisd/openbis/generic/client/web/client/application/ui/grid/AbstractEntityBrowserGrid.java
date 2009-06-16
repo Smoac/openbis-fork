@@ -184,15 +184,6 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
         return entityTypeRefreshCallback;
     }
 
-    protected final void copyPagingConfig(DefaultResultSetConfig<String, T> resultSetConfig)
-    {
-        criteria.setLimit(resultSetConfig.getLimit());
-        criteria.setOffset(resultSetConfig.getOffset());
-        criteria.setSortInfo(resultSetConfig.getSortInfo());
-        criteria.setFilterInfos(resultSetConfig.getFilterInfos());
-        criteria.setResultSetKey(resultSetConfig.getResultSetKey());
-    }
-
     protected final GridCellRenderer<BaseEntityModel<?>> createShowDetailsLinkCellRenderer()
     {
         return new ShowDetailsLinkCellRenderer(viewContext

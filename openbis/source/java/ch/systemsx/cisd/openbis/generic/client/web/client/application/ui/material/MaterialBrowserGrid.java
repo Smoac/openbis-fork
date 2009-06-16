@@ -176,7 +176,7 @@ public class MaterialBrowserGrid extends
     protected void listEntities(DefaultResultSetConfig<String, Material> resultSetConfig,
             AbstractAsyncCallback<ResultSet<Material>> callback)
     {
-        copyPagingConfig(resultSetConfig);
+        criteria.copyPagingConfig(resultSetConfig);
         viewContext.getService().listMaterials(criteria, callback);
     }
 

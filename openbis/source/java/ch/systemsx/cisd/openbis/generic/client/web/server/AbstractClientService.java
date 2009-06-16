@@ -28,12 +28,18 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CachedResultSetManager;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager.TokenBasedResultSetKeyGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -73,6 +79,35 @@ public abstract class AbstractClientService implements IClientService
     protected String getDataStoreBaseURL()
     {
         return dataStoreBaseURLProvider.getDataStoreBaseURL();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected final <K> IResultSetManager<K> getResultSetManager()
+    {
+        HttpSession httpSession = getHttpSession();
+        if (httpSession == null)
+        {
+            throw new ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException(
+                    "Your session has expired, please log in again.");
+        }
+        return (IResultSetManager<K>) httpSession
+                .getAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
+    }
+
+    protected <T> ResultSet<T> listEntities(final IResultSetConfig<String, T> criteria,
+            IOriginalDataProvider<T> dataProvider)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final IResultSetManager<String> resultSetManager = getResultSetManager();
+            final IResultSet<String, T> result =
+                    resultSetManager.getResultSet(criteria, dataProvider);
+            return ResultSetTranslator.translate(result);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
     }
 
     public final void setCifexURL(String cifexURL)
