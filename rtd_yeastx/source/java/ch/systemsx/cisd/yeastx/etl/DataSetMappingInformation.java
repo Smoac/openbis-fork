@@ -39,6 +39,8 @@ public class DataSetMappingInformation
 
     private String projectCode;
 
+    private String groupCode;
+
     private String conversion;
 
     private List<NewProperty> properties;
@@ -85,6 +87,17 @@ public class DataSetMappingInformation
     public void setProjectCode(String projectCode)
     {
         this.projectCode = StringUtils.trimToNull(projectCode);
+    }
+
+    public String getGroupCode()
+    {
+        return groupCode;
+    }
+
+    @BeanProperty(label = "group")
+    public void setGroupCode(String groupCode)
+    {
+        this.groupCode = groupCode;
     }
 
     public String getConversion()

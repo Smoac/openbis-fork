@@ -71,7 +71,7 @@ class DataSetMappingInformationParser
         {
             causeMsg = "\nThe exception was caused by: " + cause.getMessage();
         }
-        LogUtils.error(mappingFile.getParentFile(),
+        LogUtils.basicError(mappingFile.getParentFile(),
                 "The datasets cannot be processed because the mapping file '%s' has incorrect format."
                         + " The following exception occured:\n%s%s", mappingFile.getPath(), e
                         .getMessage(), causeMsg);

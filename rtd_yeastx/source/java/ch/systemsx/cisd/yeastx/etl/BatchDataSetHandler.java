@@ -58,25 +58,26 @@ public class BatchDataSetHandler implements IDataSetHandler
         {
             return processedDatasetFiles;
         }
+        LogUtils log = new LogUtils(datasetsParentDir);
         TableMap<String, DataSetMappingInformation> datasetsMapping =
                 DatasetMappingUtil.tryGetDatasetsMapping(datasetsParentDir);
         if (datasetsMapping == null)
         {
-            touchErrorMarkerFile(datasetsParentDir);
+            touchErrorMarkerFile(datasetsParentDir, log);
             return processedDatasetFiles;
         }
         Set<String> processedFiles = new HashSet<String>();
         List<File> files = listAll(datasetsParentDir);
         for (File file : files)
         {
-            if (canDatasetBeProcessed(file, datasetsMapping))
+            if (canDatasetBeProcessed(file, datasetsMapping, log))
             {
                 processedDatasetFiles.addAll(delegator.handleDataSet(file));
                 processedFiles.add(file.getName().toLowerCase());
             }
         }
-        cleanMappingFile(datasetsParentDir, processedFiles);
-        finish(datasetsParentDir, datasetsMapping.values().size() - processedFiles.size());
+        clean(datasetsParentDir, processedFiles, log, datasetsMapping.values().size());
+        log.sendNotificationsIfNecessary();
         return processedDatasetFiles;
     }
 
@@ -108,30 +109,33 @@ public class BatchDataSetHandler implements IDataSetHandler
         return new File(datasetsParentDir, ERROR_MARKER_FILE).isFile();
     }
 
-    private void cleanMappingFile(File datasetsParentDir, Set<String> processedFiles)
+    private void cleanMappingFile(File datasetsParentDir, Set<String> processedFiles, LogUtils log)
     {
         try
         {
             DatasetMappingUtil.cleanMappingFile(datasetsParentDir, processedFiles);
         } catch (IOException ex)
         {
-            LogUtils.error(datasetsParentDir, "Cannot clean dataset mappings file: "
-                    + ex.getMessage());
+            log.userError("Cannot clean dataset mappings file: " + ex.getMessage());
         }
     }
 
-    private void finish(File datasetsParentDir, int unprocessedDatasetsCounter)
+    private void clean(File datasetsParentDir, Set<String> processedFiles, LogUtils log,
+            int datasetMappingsNumber)
     {
+        cleanMappingFile(datasetsParentDir, processedFiles, log);
+
+        int unprocessedDatasetsCounter = datasetMappingsNumber - processedFiles.size();
         if (unprocessedDatasetsCounter == 0 && hasNoPotentialDatasetFiles(datasetsParentDir))
         {
-            clean(datasetsParentDir);
+            cleanDatasetsDir(datasetsParentDir);
         } else
         {
-            touchErrorMarkerFile(datasetsParentDir);
+            touchErrorMarkerFile(datasetsParentDir, log);
         }
     }
 
-    private static void touchErrorMarkerFile(File parentDir)
+    private static void touchErrorMarkerFile(File parentDir, LogUtils log)
     {
         File errorMarkerFile = new File(parentDir, ERROR_MARKER_FILE);
         if (errorMarkerFile.isFile())
@@ -151,13 +155,13 @@ public class BatchDataSetHandler implements IDataSetHandler
                     .getPath());
         } else
         {
-            LogUtils.warn(parentDir,
+            log.userWarning(
                     "Correct the errors and delete the '%s' file to start processing again.",
                     ERROR_MARKER_FILE);
         }
     }
 
-    private void clean(File datasetsParentDir)
+    private void cleanDatasetsDir(File datasetsParentDir)
     {
         LogUtils.deleteUserLog(datasetsParentDir);
         DatasetMappingUtil.deleteMappingFile(datasetsParentDir);
@@ -167,7 +171,7 @@ public class BatchDataSetHandler implements IDataSetHandler
     // Checks that the sample from the mapping exists and is assigned to the experiment - we do not
     // want to move datasets to unidentified directory in this case.
     private boolean canDatasetBeProcessed(File file,
-            TableMap<String, DataSetMappingInformation> datasetsMapping)
+            TableMap<String, DataSetMappingInformation> datasetsMapping, LogUtils log)
     {
         if (DatasetMappingUtil.isMappingFile(file))
         {
@@ -179,7 +183,7 @@ public class BatchDataSetHandler implements IDataSetHandler
         {
             return false;
         }
-        return datasetMappingResolver.isMappingCorrect(mapping, file.getParentFile());
+        return datasetMappingResolver.isMappingCorrect(mapping, log);
     }
 
     private void deleteEmptyDir(File dir)

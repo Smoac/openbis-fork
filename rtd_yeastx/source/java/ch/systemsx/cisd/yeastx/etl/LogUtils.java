@@ -40,32 +40,73 @@ class LogUtils
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, LogUtils.class);
 
-    public static void error(File loggingDir, String messageFormat, Object... arguments)
+    private final File loggingDir;
+
+    private final StringBuffer messageToSend;
+
+    public LogUtils(File loggingDir)
     {
-        notifyUser(loggingDir, "ERROR", messageFormat, arguments);
-        adminError(messageFormat, arguments);
+        this.loggingDir = loggingDir;
+        this.messageToSend = new StringBuffer();
     }
 
-    public static void warn(File loggingDir, String messageFormat, Object... arguments)
+    public void userError(String messageFormat, Object... arguments)
     {
-        notifyUser(loggingDir, "WARNING", messageFormat, arguments);
-        adminWarn(messageFormat, arguments);
+        String message = basicError(loggingDir, messageFormat, arguments);
+        messageToSend.append(message);
     }
 
-    private static void notifyUser(File loggingDir, String messageKind, String messageFormat,
-            Object... arguments)
+    public void userWarning(String messageFormat, Object... arguments)
     {
-        String now = new Date().toString();
-        String message = now + " " + messageKind + ": " + format(messageFormat, arguments);
+        String message = basicWarn(loggingDir, messageFormat, arguments);
+        messageToSend.append(message);
+    }
+
+    public void sendNotificationsIfNecessary()
+    {
+        // TODO 2009-06-16, Tomasz Pylak: add email notification
+        if (messageToSend.length() > 0)
+        {
+            System.out.println("Email content: ");
+            System.out.println(messageToSend);
+        }
+    }
+
+    /** Adds an entry about an error to the user log file. Does not send an email. */
+    public static String basicError(File loggingDir, String messageFormat, Object... arguments)
+    {
+        String message = createUserMessage("ERROR", messageFormat, arguments);
+        notifyUserByLogFile(loggingDir, message);
+        return message;
+    }
+
+    /** Adds an entry about a warning to the user log file. Does not send an email. */
+    public static String basicWarn(File loggingDir, String messageFormat, Object... arguments)
+    {
+        String message = createUserMessage("WARNING", messageFormat, arguments);
+        notifyUserByLogFile(loggingDir, message);
+        return message;
+    }
+
+    private static void notifyUserByLogFile(File loggingDir, String message)
+    {
         OutputStream output;
         try
         {
             output = new FileOutputStream(getUserLogFile(loggingDir), true);
-            IOUtils.writeLines(Arrays.asList(message), "\n", output);
+            IOUtils.writeLines(Arrays.asList(message), "", output);
         } catch (IOException ex)
         {
             adminError("Cannot notify a user: " + ex.getMessage());
         }
+    }
+
+    private static String createUserMessage(String messageKind, String messageFormat,
+            Object... arguments)
+    {
+        String now = new Date().toString();
+        String message = now + " " + messageKind + ": " + format(messageFormat, arguments) + "\n";
+        return message;
     }
 
     private static File getUserLogFile(File loggingDir)
@@ -83,7 +124,7 @@ class LogUtils
         operationLog.warn(format(messageFormat, arguments));
     }
 
-    public static void info(String messageFormat, Object... arguments)
+    public static void adminInfo(String messageFormat, Object... arguments)
     {
         operationLog.info(format(messageFormat, arguments));
     }

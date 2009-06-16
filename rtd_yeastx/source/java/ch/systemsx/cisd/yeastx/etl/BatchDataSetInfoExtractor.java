@@ -33,12 +33,9 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
 {
     private final Properties properties;
 
-    private final String groupCode;
-
     public BatchDataSetInfoExtractor(final Properties globalProperties)
     {
         this.properties = ExtendedProperties.getSubset(globalProperties, EXTRACTOR_KEY + '.', true);
-        this.groupCode = DatasetMappingResolver.getGroupCode(properties);
     }
 
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,
@@ -55,7 +52,7 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
             String sampleCode =
                     getSampleCode(plainInfo, openbisService, incomingDataSetPath.getParentFile());
             info.setSampleCode(sampleCode);
-            info.setGroupCode(groupCode);
+            info.setGroupCode(plainInfo.getGroupCode());
             MLConversionType conversion = getConversion(plainInfo.getConversion());
             info.setConversion(conversion);
             return info;
@@ -83,7 +80,7 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
     {
         String sampleCode =
                 new DatasetMappingResolver(properties, openbisService).tryFigureSampleCode(mapping,
-                        logDir);
+                        new LogUtils(logDir));
         if (sampleCode == null)
         {
             // should not happen, the dataset handler should skip datasets with incorrect mapping

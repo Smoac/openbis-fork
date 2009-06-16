@@ -16,14 +16,12 @@
 
 package ch.systemsx.cisd.yeastx.etl;
 
-import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.FilenameUtils;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -48,22 +46,7 @@ class DatasetMappingResolver
      */
     private final static String PROPERTY_TYPE_CODE_PROPERTY_NAME = "unique-property-type-code";
 
-    private static final String GROUP_CODE_PROPERTY_NAME = "group-code";
-
     private static final String PROPERTIES_PREFIX = "USER.";
-
-    public static String getGroupCode(Properties properties)
-    {
-        String groupCode = properties.getProperty(GROUP_CODE_PROPERTY_NAME);
-        if (groupCode == null)
-        {
-            throw ConfigurationFailureException
-                    .fromTemplate(
-                            "No group code defined in server configuration. Use '%s' property to specify it.",
-                            GROUP_CODE_PROPERTY_NAME);
-        }
-        return groupCode;
-    }
 
     public static String tryGetUniquePropertyTypeCode(Properties properties)
     {
@@ -72,15 +55,12 @@ class DatasetMappingResolver
 
     private final IEncapsulatedOpenBISService openbisService;
 
-    private final String groupCode;
-
     private final String propertyCodeOrNull;
 
     public DatasetMappingResolver(Properties properties, IEncapsulatedOpenBISService openbisService)
     {
         this.openbisService = openbisService;
         this.propertyCodeOrNull = tryGetPropertyTypeCode(properties);
-        this.groupCode = properties.getProperty(GROUP_CODE_PROPERTY_NAME);
     }
 
     private static String tryGetPropertyTypeCode(Properties properties)
@@ -95,7 +75,7 @@ class DatasetMappingResolver
         }
     }
 
-    public String tryFigureSampleCode(DataSetMappingInformation mapping, File logDir)
+    public String tryFigureSampleCode(DataSetMappingInformation mapping, LogUtils log)
     {
         String sampleCodeOrLabel = mapping.getSampleCodeOrLabel();
         if (propertyCodeOrNull == null)
@@ -107,21 +87,21 @@ class DatasetMappingResolver
             // The main purpose of this checks is to ensure that sample with the given code exists.
             // If it is not a case, we will try to check if the specified sample label is unique (in
             // all experiments).
-            if (tryFigureExperiment(sampleCodeOrLabel) != null)
+            if (tryFigureExperiment(sampleCodeOrLabel, mapping, log) != null)
             {
                 return sampleCodeOrLabel;
             }
         }
         ListSamplesByPropertyCriteria criteria =
-                new ListSamplesByPropertyCriteria(propertyCodeOrNull, sampleCodeOrLabel, groupCode,
-                        tryGetExperimentIdentifier(mapping));
+                new ListSamplesByPropertyCriteria(propertyCodeOrNull, sampleCodeOrLabel, mapping
+                        .getGroupCode(), tryGetExperimentIdentifier(mapping));
         List<String> samples;
         try
         {
             samples = openbisService.listSamplesByCriteria(criteria);
         } catch (UserFailureException e)
         {
-            logMappingError(mapping, logDir, e.getMessage());
+            logMappingError(mapping, log, e.getMessage());
             return null;
         }
         if (samples.size() == 1)
@@ -129,7 +109,7 @@ class DatasetMappingResolver
             return samples.get(0);
         } else if (samples.size() == 0)
         {
-            logMappingError(mapping, logDir, "there is no sample which matches the criteria <"
+            logMappingError(mapping, log, "there is no sample which matches the criteria <"
                     + criteria + ">");
             return null;
         } else
@@ -139,7 +119,7 @@ class DatasetMappingResolver
                             "there should be exacty one sample which matches the criteria '%s', but %d of them were found."
                                     + " Consider using the unique sample code.", criteria, samples
                                     .size());
-            logMappingError(mapping, logDir, errMsg);
+            logMappingError(mapping, log, errMsg);
             return null;
         }
     }
@@ -158,29 +138,29 @@ class DatasetMappingResolver
         }
     }
 
-    public boolean isMappingCorrect(DataSetMappingInformation mapping, File logDir)
+    public boolean isMappingCorrect(DataSetMappingInformation mapping, LogUtils log)
     {
-        if (isExperimentColumnCorrect(mapping, logDir) == false)
+        if (isExperimentColumnCorrect(mapping, log) == false)
         {
             return false;
         }
-        String sampleCode = tryFigureSampleCode(mapping, logDir);
+        String sampleCode = tryFigureSampleCode(mapping, log);
         if (sampleCode == null)
         {
             return false;
         }
-        return isConversionColumnValid(mapping, logDir)
-                && existsAndBelongsToExperiment(mapping, logDir, sampleCode);
+        return isConversionColumnValid(mapping, log)
+                && existsAndBelongsToExperiment(mapping, log, sampleCode);
     }
 
     private static boolean isConversionColumnValid(final DataSetMappingInformation mapping,
-            File logDir)
+            LogUtils log)
     {
         String conversionText = mapping.getConversion();
         MLConversionType conversion = MLConversionType.tryCreate(conversionText);
         if (conversion == null)
         {
-            LogUtils.error(logDir, String.format(
+            log.userError(String.format(
                     "Error for file '%s'. Unexpected value '%s' in 'conversion' column. "
                             + "Leave the column empty or use one of the allowed values: %s.",
                     mapping.getFileName(), conversionText, CollectionUtils.abbreviate(
@@ -191,18 +171,14 @@ class DatasetMappingResolver
         boolean conversionRequired = isConversionRequired(mapping);
         if (conversion == MLConversionType.NONE && conversionRequired)
         {
-            LogUtils
-                    .error(
-                            logDir,
-                            "Error for file '%s'. Conversion column cannot be empty for this type of file.",
-                            mapping.getFileName());
+            log.userError("Error for file '%s'. Conversion column cannot be empty "
+                    + "for this type of file.", mapping.getFileName());
             return false;
         }
         if (conversion != MLConversionType.NONE && conversionRequired == false)
         {
-            LogUtils.error(logDir,
-                    "Error for file '%s'. Conversion column must be empty for this type of file.",
-                    mapping.getFileName());
+            log.userError("Error for file '%s'. Conversion column must be empty "
+                    + "for this type of file.", mapping.getFileName());
             return false;
         }
         return true;
@@ -215,36 +191,46 @@ class DatasetMappingResolver
         return conversionRequired;
     }
 
-    private boolean existsAndBelongsToExperiment(DataSetMappingInformation mapping, File logDir,
+    private boolean existsAndBelongsToExperiment(DataSetMappingInformation mapping, LogUtils log,
             String sampleCode)
     {
-        ExperimentPE experiment = tryFigureExperiment(sampleCode);
+        ExperimentPE experiment = tryFigureExperiment(sampleCode, mapping, log);
         if (experiment == null)
         {
-            logMappingError(mapping, logDir, String.format(
-                    "sample with the code '%s' does not exist"
-                            + " or is not connected to any experiment", sampleCode));
+            logMappingError(mapping, log, String.format("sample with the code '%s' does not exist"
+                    + " or is not connected to any experiment", sampleCode));
             return false;
         }
         return true;
     }
 
-    private ExperimentPE tryFigureExperiment(String sampleCode)
+    private ExperimentPE tryFigureExperiment(String sampleCode, DataSetMappingInformation mapping,
+            LogUtils log)
     {
-        SampleIdentifier sampleIdentifier = createSampleIdentifier(sampleCode);
-        return openbisService.getBaseExperiment(sampleIdentifier);
+        SampleIdentifier sampleIdentifier = createSampleIdentifier(sampleCode, mapping);
+        try
+        {
+            return openbisService.getBaseExperiment(sampleIdentifier);
+        } catch (UserFailureException e)
+        {
+            log.userError("Error when checking if sample '%s' belongs to an experiment: %s",
+                    sampleIdentifier, e.getMessage());
+            return null;
+        }
     }
 
-    private SampleIdentifier createSampleIdentifier(String sampleCode)
+    private SampleIdentifier createSampleIdentifier(String sampleCode,
+            DataSetMappingInformation mapping)
     {
-        return new SampleIdentifier(new GroupIdentifier((String) null, groupCode), sampleCode);
+        return new SampleIdentifier(new GroupIdentifier((String) null, mapping.getGroupCode()),
+                sampleCode);
     }
 
-    private boolean isExperimentColumnCorrect(DataSetMappingInformation mapping, File logDir)
+    private boolean isExperimentColumnCorrect(DataSetMappingInformation mapping, LogUtils log)
     {
         if ((mapping.getExperimentCode() == null) != (mapping.getProjectCode() == null))
         {
-            logMappingError(mapping, logDir,
+            logMappingError(mapping, log,
                     "experiment and project columns should be both empty or should be both filled.");
             return false;
         }
@@ -252,7 +238,7 @@ class DatasetMappingResolver
         {
             logMappingError(
                     mapping,
-                    logDir,
+                    log,
                     "openBis is not configured to use the sample label to identify the sample."
                             + " You can still identify the sample by the code (clear the experiment column in this case)."
                             + " You can also contact your administrator to change the server configuration and set the property type code which should be used.");
@@ -261,10 +247,10 @@ class DatasetMappingResolver
         return true;
     }
 
-    private void logMappingError(DataSetMappingInformation mapping, File logDir, String errorMessage)
+    private void logMappingError(DataSetMappingInformation mapping, LogUtils log,
+            String errorMessage)
     {
-        LogUtils.error(logDir, "Mapping for file " + mapping.getFileName() + " is incorrect: "
-                + errorMessage);
+        log.userError("Mapping for file " + mapping.getFileName() + " is incorrect: " + errorMessage);
     }
 
     public static void adaptPropertyCodes(List<DataSetMappingInformation> list)

@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
@@ -34,6 +35,7 @@ import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.collections.TableMap.UniqueKeyViolationException;
 import ch.systemsx.cisd.common.collections.TableMap.UniqueKeyViolationStrategy;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.parser.TabFileLoader;
 
 /**
  * @author Tomasz Pylak
@@ -62,7 +64,8 @@ class DatasetMappingUtil
                     UniqueKeyViolationStrategy.ERROR);
         } catch (UniqueKeyViolationException e)
         {
-            LogUtils.error(logDir,
+            // TODO 2009-06-16, Tomasz Pylak: use email to send notifications
+            LogUtils.basicError(logDir,
                     "The file '%s' appears more than once. No datasets will be processed.", e
                             .getInvalidKey());
             return null;
@@ -87,16 +90,80 @@ class DatasetMappingUtil
         return datasetsMapping.tryGet(datasetFileName.toLowerCase());
     }
 
+    // returns the content of the first line comment or null if there is no comment or it is empty
+    private static String tryGetFirstLineCommentContent(File mappingFile)
+    {
+        List<String> lines;
+        try
+        {
+            lines = readLines(mappingFile);
+        } catch (IOException e)
+        {
+            errorInFile(mappingFile, e.getMessage());
+            return null;
+        }
+        if (lines.size() == 0)
+        {
+            return null;
+        }
+        String firstLine = lines.get(0);
+        if (StringUtils.isBlank(firstLine))
+        {
+            return null;
+        }
+        firstLine = firstLine.trim();
+        if (firstLine.startsWith(TabFileLoader.COMMENT_PREFIX) == false)
+        {
+            return null;
+        }
+        firstLine = firstLine.substring(1).trim();
+        return firstLine;
+    }
+
+    private static void errorInFile(File file, String message)
+    {
+        LogUtils.basicError(file.getParentFile(), "Error while reading the file '%s': %s", file
+                .getPath(), message);
+    }
+
+    // returns email address from the first line of the mapping file or null if there is no emai or
+    // it is invalid
+    private static String tryGetEmail(File mappingFile)
+    {
+        String email = tryGetFirstLineCommentContent(mappingFile);
+        if (email == null)
+        {
+            errorInFile(mappingFile, String.format(
+                    "There should be a '%s' character followed by an email address "
+                            + "in the first line of the file. "
+                            + "The email is needed to send messages about errors.",
+                    TabFileLoader.COMMENT_PREFIX));
+            return null;
+        }
+        if (email.contains("@") == false || email.contains(".") == false)
+        {
+            errorInFile(mappingFile, String.format(
+                    "The text '%s' does not seem to be an email address.", email));
+            return null;
+        }
+        return email;
+    }
+
     public static TableMap<String/* file name in lowercase */, DataSetMappingInformation> tryGetDatasetsMapping(
             File parentDir)
     {
         File mappingFile = tryGetMappingFile(parentDir);
         if (mappingFile == null)
         {
-            LogUtils.warn(parentDir, "Cannot process the directory '%s' "
+            LogUtils.basicWarn(parentDir, "Cannot process the directory '%s' "
                     + "because a file with extension '%s' which contains dataset descriptions "
                     + "does not exist or there is more than one.", parentDir.getPath(),
                     CollectionUtils.abbreviate(MAPPING_FILE_EXTENSIONS, -1));
+            return null;
+        }
+        String notificationEmail = tryGetEmail(mappingFile);
+        if (notificationEmail == null)
+        {
             return null;
         }
         List<DataSetMappingInformation> list =

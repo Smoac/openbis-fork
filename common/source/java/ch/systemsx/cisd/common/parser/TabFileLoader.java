@@ -44,7 +44,6 @@ import ch.systemsx.cisd.common.parser.filter.ILineFilter;
  * <pre>
  *     column1  column2 column2
  * </pre>
- * 
  * <li>Comment section:
  * 
  * <pre>
@@ -53,7 +52,6 @@ import ch.systemsx.cisd.common.parser.filter.ILineFilter;
  *     # ...
  *     column1  column2 column2
  * </pre>
- * 
  * <li>Column headers at the end of the comment section:
  * 
  * <pre>
@@ -71,7 +69,7 @@ import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 public class TabFileLoader<T>
 {
 
-    private static final String PREFIX = "#";
+    public static final String COMMENT_PREFIX = "#";
 
     private final IParserObjectFactoryFactory<T> factory;
 
@@ -129,10 +127,10 @@ public class TabFileLoader<T>
         while (lineIterator.hasNext())
         {
             previousLineHasColumnHeaders =
-                    (previousLine != null) && PREFIX.equals(previousLine.getText());
+                    (previousLine != null) && COMMENT_PREFIX.equals(previousLine.getText());
             previousLine = line;
             line = lineIterator.next();
-            if (line.getText().startsWith(PREFIX) == false)
+            if (line.getText().startsWith(COMMENT_PREFIX) == false)
             {
                 break;
             }
@@ -180,7 +178,8 @@ public class TabFileLoader<T>
      * Note that the search is case-insensitive.
      * </p>
      * 
-     * @throws IllegalArgumentException if there is at least one duplicate in the given <var>tokens</var>.
+     * @throws IllegalArgumentException if there is at least one duplicate in the given
+     *             <var>tokens</var>.
      */
     private final static void notUnique(final String[] tokens)
     {
