@@ -37,17 +37,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 public class DataSetInformationParserTest extends AbstractFileSystemTestCase
 {
     private static final String HEADER =
-            "file_name sample experiment conversion dataset_property_1 dataset_property_2\n";
+    // "# user@gmail.com\n+"+
+            "file_name sample group experiment conversion dataset_property_1 dataset_property_2\n";
 
     private static final String TAB = "\t";
 
     @Test
     public void testLoadIndexFile()
     {
-        File indexFile = writeMappingFile(HEADER + "data.txt sample1 experiment1 fiaML v1 v2");
+        File indexFile =
+                writeMappingFile(HEADER + "data.txt sample1 group1 experiment1 fiaML v1 v2");
         List<DataSetMappingInformation> list = DataSetMappingInformationParser.tryParse(indexFile);
         AssertJUnit.assertEquals(1, list.size());
         DataSetMappingInformation elem = list.get(0);
+        AssertJUnit.assertEquals("group1", elem.getGroupCode());
         AssertJUnit.assertEquals("data.txt", elem.getFileName());
         AssertJUnit.assertEquals(2, elem.getProperties().size());
         NewProperty prop1 = elem.getProperties().get(0);
@@ -59,14 +62,14 @@ public class DataSetInformationParserTest extends AbstractFileSystemTestCase
     public void testLoadIndexFileWithMissingFieldValueFails() throws FileNotFoundException,
             IOException
     {
-        File indexFile = writeMappingFile(HEADER + TAB + TAB + TAB + TAB + TAB);
+        File indexFile = writeMappingFile(HEADER + TAB + TAB + TAB + TAB + TAB + TAB);
         List<DataSetMappingInformation> result =
                 DataSetMappingInformationParser.tryParse(indexFile);
         AssertJUnit.assertNull("error during parsing expected", result);
         List<String> logLines = readLogFile();
         System.out.println(logLines);
         AssertJUnit.assertEquals(3, logLines.size());
-        AssertionUtil.assertContains("Missing value for the mandatory column 'sample'", logLines
+        AssertionUtil.assertContains("Missing value for the mandatory column", logLines
                 .get(2));
     }
 
@@ -80,8 +83,8 @@ public class DataSetInformationParserTest extends AbstractFileSystemTestCase
         AssertJUnit.assertNull("error during parsing expected", result);
         List<String> logLines = readLogFile();
         AssertJUnit.assertEquals(2, logLines.size());
-        AssertionUtil.assertContains("Mandatory column(s) 'sample', 'file_name' are missing",
-                logLines.get(1));
+        AssertionUtil.assertContains(
+                "Mandatory column(s) 'group', 'sample', 'file_name' are missing", logLines.get(1));
     }
 
     private List<String> readLogFile() throws IOException, FileNotFoundException
