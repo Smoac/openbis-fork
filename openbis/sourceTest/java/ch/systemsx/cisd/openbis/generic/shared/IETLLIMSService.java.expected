@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Christian Ribeaud
  */
-public interface IETLLIMSService extends IWebService, ISessionProvider
+public interface IETLLIMSService extends IServer, ISessionProvider
 {
     /**
      * Returns the home database instance.
@@ -132,5 +132,12 @@ public interface IETLLIMSService extends IWebService, ISessionProvider
             final String sessionToken,
             @AuthorizationGuard(guardClass = ListSamplesByPropertyPredicate.class) final ListSamplesByPropertyCriteria criteria)
             throws UserFailureException;
+
+    /**
+     * Uses {@link IServer#tryToAuthenticate(String, String)} and returns session token.
+     */
+    @Transactional
+    @RolesAllowed()
+    public String authenticate(String username, String password);
 
 }

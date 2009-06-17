@@ -24,7 +24,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
-import ch.systemsx.cisd.openbis.generic.shared.IWebService;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExtractableData;
@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 public class DataSetInformation implements Serializable
 {
 
-    private static final long serialVersionUID = IWebService.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     /** The sample code (aka <i>barcode</i>). <b>CAN NOT</b> be <code>null</code>. */
     private String sampleCode;

@@ -16,14 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
  * @author Izabela Adamczyk
  */
-public class DataSetSearchCriterion implements IsSerializable
+public class DataSetSearchCriterion implements IsSerializable, Serializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private DataSetSearchField field;
 
     private String value;

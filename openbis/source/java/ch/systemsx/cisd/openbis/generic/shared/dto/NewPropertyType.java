@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import ch.systemsx.cisd.common.annotation.BeanProperty;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * <i>Bean</i> for registering new property type.
@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  */
 public final class NewPropertyType extends Code<NewPropertyType>
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     public static final NewPropertyType[] EMPTY_ARRAY = new NewPropertyType[0];
 

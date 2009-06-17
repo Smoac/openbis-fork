@@ -27,6 +27,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
  */
 public class DataSetType extends EntityType
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private List<DataSetTypePropertyType> dataSetTypePropertyTypes;
 
     @Override

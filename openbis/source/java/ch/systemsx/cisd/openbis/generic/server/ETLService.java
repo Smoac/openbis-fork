@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
-import ch.systemsx.cisd.openbis.generic.shared.IWebService;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -103,7 +103,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     @Override
     public int getVersion()
     {
-        return IWebService.VERSION;
+        return IServer.VERSION;
     }
 
     public DatabaseInstancePE getHomeDatabaseInstance(String sessionToken)
@@ -156,11 +156,6 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     {
         Session session = tryToAuthenticate(user, password);
         return session == null ? null : session.getSessionToken();
-    }
-
-    public void closeSession(String sessionToken) throws UserFailureException
-    {
-        logout(sessionToken);
     }
 
     public String createDataSetCode(String sessionToken) throws UserFailureException
@@ -351,6 +346,11 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
             codes.add(sample.getCode());
         }
         return codes;
+    }
+
+    public String hello(final String sessionToken)
+    {
+        return "Hello World!";
     }
 
 }

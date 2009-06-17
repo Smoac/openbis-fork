@@ -23,7 +23,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
  */
 public class Id implements Serializable, IIdHolder
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     transient private Long id;
 

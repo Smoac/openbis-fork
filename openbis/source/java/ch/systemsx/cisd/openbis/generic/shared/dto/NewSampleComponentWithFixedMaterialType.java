@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import ch.systemsx.cisd.common.annotation.BeanProperty;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * The full description of a new sample component.
@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 public class NewSampleComponentWithFixedMaterialType extends
         Code<NewSampleComponentWithFixedMaterialType>
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     public final static NewSampleComponentWithFixedMaterialType[] EMPTY_ARRAY =
             new NewSampleComponentWithFixedMaterialType[0];

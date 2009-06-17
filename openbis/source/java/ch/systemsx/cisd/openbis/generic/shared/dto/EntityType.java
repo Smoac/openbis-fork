@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * An <i>abstract</i> <code>Code</code> extension for types.
@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  */
 public class EntityType extends Code<EntityType> implements IEntityType
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     private String description;
 

@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto.identifier;
 import java.io.Serializable;
 
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * Identifies a group of samples on the same level (in certain group or on database level)
@@ -30,7 +30,7 @@ public class SampleIdentifierPattern extends AbstractHashable implements Seriali
 {
     public final static SampleIdentifierPattern[] EMPTY_ARRAY = new SampleIdentifierPattern[0];
 
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     private final SampleOwnerIdentifier owner;
 

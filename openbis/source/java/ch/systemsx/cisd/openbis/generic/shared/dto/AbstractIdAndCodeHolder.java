@@ -24,7 +24,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 public abstract class AbstractIdAndCodeHolder<T extends IIdAndCodeHolder> implements
         IIdAndCodeHolder, Comparable<T>, Serializable
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     public final static String CODE_PATTERN = "^[A-Z0-9_\\-]+$";
 

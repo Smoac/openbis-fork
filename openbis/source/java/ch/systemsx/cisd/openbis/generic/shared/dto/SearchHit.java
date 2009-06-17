@@ -16,13 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.io.Serializable;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * @author Tomasz Pylak
  */
-public class SearchHit
+public class SearchHit implements Serializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private final IMatchingEntity entity;
 
     // which entity field matches the query

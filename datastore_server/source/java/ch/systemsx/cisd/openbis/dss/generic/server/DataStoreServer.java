@@ -46,7 +46,7 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.IWebService;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * Main class of the service. Starts up jetty with {@link DatasetDownloadServlet}.
@@ -85,8 +85,7 @@ public class DataStoreServer
                     response.setHeader("Allow", StringUtils.arrayToDelimitedString(
                             supportedMethods, ", "));
                 }
-                response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, ex
-                        .getMessage());
+                response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, ex.getMessage());
             } finally
             {
                 LocaleContextHolder.resetLocaleContext();
@@ -168,8 +167,8 @@ public class DataStoreServer
         final Context context = new Context(thisServer, "/", Context.SESSIONS);
         context.setAttribute(APPLICATION_CONTEXT_KEY, applicationContext);
         String applicationName = "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
-        context.addServlet(new ServletHolder(new DataStoreServlet()),
-                "/" + DATA_STORE_SERVER_SERVICE_NAME + "/*");
+        context.addServlet(new ServletHolder(new DataStoreServlet()), "/"
+                + DATA_STORE_SERVER_SERVICE_NAME + "/*");
         context.addServlet(DatasetDownloadServlet.class, applicationName + "/*");
         return thisServer;
     }
@@ -178,11 +177,11 @@ public class DataStoreServer
     {
         IEncapsulatedOpenBISService dataSetService = applicationContext.getDataSetService();
         final int version = dataSetService.getVersion();
-        if (IWebService.VERSION != version)
+        if (IServer.VERSION != version)
         {
             throw new ConfigurationFailureException(
                     "This client has the wrong service version for the server (client: "
-                            + IWebService.VERSION + ", server: " + version + ").");
+                            + IServer.VERSION + ", server: " + version + ").");
         }
         if (operationLog.isInfoEnabled())
         {

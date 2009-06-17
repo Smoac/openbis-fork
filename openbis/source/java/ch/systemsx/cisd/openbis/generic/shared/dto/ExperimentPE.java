@@ -63,7 +63,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -85,7 +85,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 public class ExperimentPE extends AttachmentHolderPE implements IEntityPropertiesHolder,
         IIdAndCodeHolder, Comparable<ExperimentPE>, IMatchingEntity, Serializable
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     public static final ExperimentPE[] EMPTY_ARRAY = new ExperimentPE[0];
 

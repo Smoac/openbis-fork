@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractRegistrationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Information about invalidation.
@@ -25,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractRegistrationHol
  */
 public final class Invalidation extends AbstractRegistrationHolder
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     /** Reason of invalidation. */
     private String reasonOrNull;

@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * <i>Java Bean</i> which contain information about <i>sample</i>.
@@ -41,6 +42,8 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
         Comparable<Sample>, IEntityInformationHolder, IAttachmentHolder, IEntityPropertiesHolder,
         IIdentifiable, IPermIdHolder
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     public static final Sample[] EMPTY_ARRAY = new Sample[0];
 
     private SampleType sampleType;

@@ -21,7 +21,7 @@ import java.io.Serializable;
 import org.apache.commons.io.FilenameUtils;
 import org.hibernate.validator.Validator;
 
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * Check a specified location.
@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 public final class LocationValidator implements Validator<Location>, Serializable
 {
 
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     private boolean relative;
 

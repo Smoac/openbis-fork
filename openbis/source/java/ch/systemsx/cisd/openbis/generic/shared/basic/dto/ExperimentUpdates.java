@@ -25,6 +25,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
  */
 public class ExperimentUpdates extends BasicExperimentUpdates
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private TechId experimentId;
 
     // ----- the data which should be changed:

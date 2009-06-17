@@ -25,6 +25,8 @@ import java.util.List;
  */
 public final class NewExperiment extends Identifier<NewExperiment>
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private String experimentTypeCode = null;
 
     private String[] samples = new String[0];

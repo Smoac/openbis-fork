@@ -28,6 +28,8 @@ import ch.systemsx.cisd.common.annotation.CollectionMapping;
  */
 public final class Vocabulary extends CodeWithRegistration<Vocabulary>
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private List<VocabularyTerm> terms = new ArrayList<VocabularyTerm>();
 
     private String description;

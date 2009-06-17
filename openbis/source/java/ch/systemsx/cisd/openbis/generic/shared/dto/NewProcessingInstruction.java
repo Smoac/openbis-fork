@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 import ch.systemsx.cisd.common.annotation.BeanProperty;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * Processing instruction is a specific experiment attachment.
@@ -31,7 +31,7 @@ public final class NewProcessingInstruction extends AbstractHashable implements 
 {
     public final static NewProcessingInstruction[] EMPTY_ARRAY = new NewProcessingInstruction[0];
 
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     private String procedureTypeCode;
 

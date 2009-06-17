@@ -22,7 +22,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * Kind of <i>Java Bean</i> or <i>Value Object</i> which transports through Web Service any
@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  */
 public final class ExternalData extends ExtractableData
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     private String location;
 
@@ -49,9 +49,9 @@ public final class ExternalData extends ExtractableData
     private BooleanOrUnknown complete = BooleanOrUnknown.U;
 
     private String associatedSampleCode;
-    
+
     private String dataStoreCode;
-    
+
     private boolean measured;
 
     /** Returns <code>dataSetType</code>. */
@@ -175,12 +175,12 @@ public final class ExternalData extends ExtractableData
     {
         return measured;
     }
-    
+
     public final void setMeasured(boolean measured)
     {
         this.measured = measured;
     }
-    
+
     //
     // Object
     //

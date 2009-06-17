@@ -30,6 +30,8 @@ import ch.systemsx.cisd.common.annotation.CollectionMapping;
  */
 public final class SampleType extends EntityType implements IsSerializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private int generatedFromHierarchyDepth;
 
     private int partOfHierarchyDepth;

@@ -37,7 +37,7 @@ import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 
@@ -53,7 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
         { ColumnNames.CODE_COLUMN }) })
 public final class DataTypePE implements IIdHolder, Serializable, Comparable<DataTypePE>
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     private transient Long id;
 

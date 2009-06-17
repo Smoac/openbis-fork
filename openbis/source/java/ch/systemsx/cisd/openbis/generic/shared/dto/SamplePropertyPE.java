@@ -31,7 +31,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.validator.NotNull;
 
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * Persistence entity representing sample property.
@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class SamplePropertyPE extends EntityPropertyPE
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     public static final SamplePropertyPE[] EMPTY_ARRAY = new SamplePropertyPE[0];
 

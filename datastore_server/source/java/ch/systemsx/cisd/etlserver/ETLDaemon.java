@@ -66,7 +66,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemExit;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.IWebService;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
@@ -157,11 +157,11 @@ public final class ETLDaemon
         {
             checkFullyAccesible(incomingDirectory);
             final int serviceVersion = service.getVersion();
-            if (IWebService.VERSION != serviceVersion)
+            if (IServer.VERSION != serviceVersion)
             {
                 throw new ConfigurationFailureException(
                         "This client has the wrong service version for the server (client: "
-                                + IWebService.VERSION + ", server: " + serviceVersion + ").");
+                                + IServer.VERSION + ", server: " + serviceVersion + ").");
             }
             for (final ISelfTestable selfTestableOrNull : selfTestables)
             {
@@ -511,7 +511,7 @@ public final class ETLDaemon
             return createDummyFaultyPathHandler();
         } else
         {
-            return new FaultyPathDirectoryScanningHandler(incomingDataDirectory, stopSignaler);           
+            return new FaultyPathDirectoryScanningHandler(incomingDataDirectory, stopSignaler);
         }
     }
 

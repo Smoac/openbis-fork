@@ -27,8 +27,7 @@ import javax.persistence.MappedSuperclass;
 
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
-
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * Super class of <i>Persistent Entities</i> which hold registration data.
@@ -42,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 @MappedSuperclass
 public abstract class HibernateAbstractRegistrationHolder implements Serializable
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     /**
      * Person who registered this entity.

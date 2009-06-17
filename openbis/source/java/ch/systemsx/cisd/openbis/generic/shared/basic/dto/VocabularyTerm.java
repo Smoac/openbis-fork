@@ -25,6 +25,8 @@ import ch.systemsx.cisd.common.annotation.BeanProperty;
  */
 public final class VocabularyTerm extends CodeWithRegistration<Vocabulary>
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private String url;
 
     public VocabularyTerm()

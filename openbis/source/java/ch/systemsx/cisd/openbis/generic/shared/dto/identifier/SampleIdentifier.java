@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto.identifier;
 
 import ch.systemsx.cisd.common.exceptions.InternalErr;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * Identifies a sample.
@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  */
 public class SampleIdentifier extends SampleOwnerIdentifier
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     public static final SampleIdentifier[] EMPTY_ARRAY = new SampleIdentifier[0];
 

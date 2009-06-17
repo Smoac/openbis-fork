@@ -41,7 +41,7 @@ import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.InternalNamespace;
 
 /**
@@ -63,7 +63,7 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
 {
     public static final PropertyTypePE[] EMPTY_ARRAY = new PropertyTypePE[0];
 
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     private String simpleCode;
 

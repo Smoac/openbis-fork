@@ -23,6 +23,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  */
 public final class NewMaterial extends Code<NewMaterial>
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private MaterialProperty[] properties = MaterialProperty.EMPTY_ARRAY;
 

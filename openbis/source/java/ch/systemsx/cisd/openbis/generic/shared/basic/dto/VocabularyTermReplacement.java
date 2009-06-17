@@ -16,33 +16,38 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
  * Wrapper of a {@link VocabularyTerm} and its replacement.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public class VocabularyTermReplacement implements IsSerializable
+public class VocabularyTermReplacement implements IsSerializable, Serializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private VocabularyTerm term;
+
     private String replacement;
-    
+
     public final VocabularyTerm getTerm()
     {
         return term;
     }
-    
+
     public final void setTerm(VocabularyTerm term)
     {
         this.term = term;
     }
-    
+
     public final String getReplacement()
     {
         return replacement;
     }
-    
+
     public final void setReplacement(String replacement)
     {
         this.replacement = replacement;

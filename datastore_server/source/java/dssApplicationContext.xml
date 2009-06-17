@@ -18,7 +18,6 @@
         <property name="ignoreUnresolvablePlaceholders" value="true" />
     </bean>
 
-
     <bean id="openBIS-service" class="ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService">
         <constructor-arg ref="session-token-manager"/>
         <constructor-arg value="${server-url}"/>

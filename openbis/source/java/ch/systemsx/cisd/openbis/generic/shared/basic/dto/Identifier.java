@@ -30,8 +30,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
  * @author Christian Ribeaud
  */
 public class Identifier<T extends Identifier<T>> implements IsSerializable, Comparable<T>,
-        IIdentifierHolder
+        IIdentifierHolder, Serializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     public static final String IDENTIFIER_COLUMN = "identifier";
 
     public final static Comparator<IIdentifierHolder> IDENTIFIER_HOLDER_COMPARATOR =

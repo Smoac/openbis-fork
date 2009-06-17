@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto.identifier;
 import java.io.Serializable;
 
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier.Constants;
 
 /**
@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 public class SampleOwnerIdentifier extends AbstractHashable implements Serializable,
         Comparable<SampleOwnerIdentifier>
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     // if not null, sample is defined on the group level
     private GroupIdentifier groupIdentOrNull;

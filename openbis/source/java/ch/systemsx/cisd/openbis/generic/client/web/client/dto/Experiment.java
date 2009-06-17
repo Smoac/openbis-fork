@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
 /**
@@ -39,6 +40,8 @@ public class Experiment extends CodeWithRegistration<Experiment> implements IInv
         IEntityInformationHolder, IAttachmentHolder, IEntityPropertiesHolder, IIdentifiable,
         IPermIdHolder
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private Project project;
 
     private ExperimentType experimentType;

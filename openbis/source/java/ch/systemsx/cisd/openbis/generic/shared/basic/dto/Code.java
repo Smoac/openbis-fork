@@ -29,8 +29,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
  * 
  * @author Christian Ribeaud
  */
-public class Code<T extends Code<T>> implements IsSerializable, ICodeProvider, Comparable<T>
+public class Code<T extends Code<T>> implements IsSerializable, ICodeProvider, Comparable<T>,
+        Serializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     public static final String CODE = "code";
 
     public final static Comparator<ICodeProvider> CODE_PROVIDER_COMPARATOR =

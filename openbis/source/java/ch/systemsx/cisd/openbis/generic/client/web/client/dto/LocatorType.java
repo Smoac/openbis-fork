@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * The <i>GWT</i> equivalent to {@link LocatorType}.
@@ -25,5 +26,5 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
  */
 public final class LocatorType extends AbstractType
 {
-
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 }

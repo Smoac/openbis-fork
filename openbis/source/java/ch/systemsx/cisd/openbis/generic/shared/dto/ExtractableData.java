@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * A basic {@link ExternalData} object.
@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  */
 public class ExtractableData extends Code<ExtractableData>
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     private Date productionDate;
 

@@ -23,7 +23,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import ch.systemsx.cisd.common.utilities.StringUtilities;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * Uniquely identifies a database instance.
@@ -39,7 +39,7 @@ public class DatabaseInstanceIdentifier implements Serializable
         public static final char DATABASE_INSTANCE_SEPARATOR = ':';
     }
 
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     /** see {@link #getDatabaseInstanceCode()} documentation */
     private String databaseInstanceCode;
@@ -59,8 +59,8 @@ public class DatabaseInstanceIdentifier implements Serializable
     /**
      * Usually you should not access database instance code directly. Look for appropriate helpers.
      * 
-     * @return local or <i>UUID</i> of the database instance. It is treated as <i>UUID</i> if it
-     *         has a canonical UUID format.
+     * @return local or <i>UUID</i> of the database instance. It is treated as <i>UUID</i> if it has
+     *         a canonical UUID format.
      */
     public final String getDatabaseInstanceCode()
     {

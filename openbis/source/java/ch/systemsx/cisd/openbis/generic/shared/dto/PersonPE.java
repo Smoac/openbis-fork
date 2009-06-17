@@ -55,7 +55,7 @@ import org.hibernate.validator.Pattern;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
@@ -73,7 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
 public final class PersonPE extends HibernateAbstractRegistrationHolder implements
         Comparable<PersonPE>, IIdHolder, Serializable
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     /** Regular expression for allowed user codes */
     private static final String USER_CODE_REGEX = "^([a-zA-Z0-9_\\.\\-\\@])+$";
@@ -100,11 +100,11 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     private DatabaseInstancePE databaseInstance;
 
     private Set<RoleAssignmentPE> roleAssignments = new HashSet<RoleAssignmentPE>();
-    
+
     private DisplaySettings displaySettings;
 
     private byte[] serializedDisplaySettings;
-    
+
     private final void setSystemUser(final boolean systemUser)
     {
         this.systemUser = systemUser;
@@ -244,7 +244,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
         getRoleAssignmentsInternal().remove(roleAssignment);
         roleAssignment.setPersonInternal(null);
     }
-    
+
     @Transient
     public DisplaySettings getDisplaySettings()
     {
@@ -254,9 +254,11 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
             if (serializedSettings != null)
             {
                 ByteArrayInputStream bais = new ByteArrayInputStream(serializedSettings);
-                try {
+                try
+                {
                     displaySettings = (DisplaySettings) new ObjectInputStream(bais).readObject();
-                } catch (Exception ex) {
+                } catch (Exception ex)
+                {
                     // ignored using default settings
                 }
             }
@@ -267,20 +269,22 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
         }
         return displaySettings;
     }
-    
+
     public void setDisplaySettings(DisplaySettings displaySettings)
     {
         this.displaySettings = displaySettings;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
+        try
+        {
             new ObjectOutputStream(baos).writeObject(displaySettings);
             setSerializedDisplaySettings(baos.toByteArray());
-        } catch (IOException ex) {
+        } catch (IOException ex)
+        {
             setSerializedDisplaySettings(null);
         }
 
     }
-    
+
     @Column(name = ColumnNames.PERSON_DISPLAY_SETTINGS, updatable = true)
     @Type(type = "org.springframework.orm.hibernate3.support.BlobByteArrayType")
     private byte[] getSerializedDisplaySettings()
@@ -349,7 +353,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
         builder.append("systemUser", systemUser);
         if (serializedDisplaySettings != null)
         {
-            builder.append("displaySettings", "<" + serializedDisplaySettings.length + " bytes>"); 
+            builder.append("displaySettings", "<" + serializedDisplaySettings.length + " bytes>");
         }
         builder.append(getDatabaseInstance());
         return builder.toString();

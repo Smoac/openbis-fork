@@ -16,13 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
+
 /**
  * Bean combining {@link EntityKind} with entity type code. It determines plug-ins.
  * 
  * @author Franz-Josef Elmer
  */
-public final class EntityKindAndTypeCode
+public final class EntityKindAndTypeCode implements Serializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private final EntityKind entityKind;
 
     private final String entityTypeCode;

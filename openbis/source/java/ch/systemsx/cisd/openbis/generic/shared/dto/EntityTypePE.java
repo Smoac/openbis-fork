@@ -27,7 +27,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.validator.NotNull;
 
 import ch.systemsx.cisd.common.utilities.ClassUtils;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 @MappedSuperclass
 public abstract class EntityTypePE extends AbstractTypePE
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     private DatabaseInstancePE databaseInstance;
 

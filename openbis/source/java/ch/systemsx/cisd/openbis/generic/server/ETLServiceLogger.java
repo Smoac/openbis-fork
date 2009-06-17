@@ -89,10 +89,6 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
-    public void closeSession(String sessionToken) throws UserFailureException
-    {
-    }
-
     public ExternalDataPE tryGetDataSet(String sessionToken, String dataSetCode)
             throws UserFailureException
     {

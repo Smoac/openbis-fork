@@ -19,17 +19,17 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import java.io.Serializable;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
- * A <code>SampleGeneration</code> encapsulates a generator <code>SampleDTO</code> and its
- * generated <code>SampleDTO</code>s.
+ * A <code>SampleGeneration</code> encapsulates a generator <code>SampleDTO</code> and its generated
+ * <code>SampleDTO</code>s.
  * 
  * @author Christian Ribeaud
  */
 public final class SampleGenerationDTO implements Serializable
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     /**
      * The <code>Sample</code> parent.

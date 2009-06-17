@@ -23,25 +23,25 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * Context data needed for uploading data sets to a CIFEX server.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class DataSetUploadContext implements Serializable
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
-    
+    private static final long serialVersionUID = IServer.VERSION;
+
     private String cifexURL;
-    
+
     private String fileName;
 
     private String userID;
-    
+
     private String password;
-    
+
     private String comment;
 
     private String email;
@@ -95,7 +95,7 @@ public class DataSetUploadContext implements Serializable
     {
         this.comment = comment;
     }
-    
+
     public final String getUserEMail()
     {
         return email;
@@ -105,7 +105,7 @@ public class DataSetUploadContext implements Serializable
     {
         this.email = email;
     }
-    
+
     @Override
     public boolean equals(final Object obj)
     {

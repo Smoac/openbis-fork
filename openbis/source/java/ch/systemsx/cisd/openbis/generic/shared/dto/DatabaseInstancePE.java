@@ -33,7 +33,7 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * A <i>Persistence Entity</i> which represents a database instance.
@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 @Table(name = TableNames.DATABASE_INSTANCES_TABLE)
 public final class DatabaseInstancePE extends AbstractIdAndCodeHolder<DatabaseInstancePE>
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     public final static String SYSTEM_DEFAULT = "SYSTEM_DEFAULT";
 
@@ -58,8 +58,8 @@ public final class DatabaseInstancePE extends AbstractIdAndCodeHolder<DatabaseIn
     /**
      * The local code of this database instance.
      * <p>
-     * If <code>SYSTEM_DEFAULT</code>, then {@link #isSystemDefault()} will return
-     * <code>true</code>.
+     * If <code>SYSTEM_DEFAULT</code>, then {@link #isSystemDefault()} will return <code>true</code>
+     * .
      * </p>
      */
     private String code;

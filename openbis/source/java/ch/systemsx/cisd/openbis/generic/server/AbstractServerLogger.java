@@ -120,7 +120,7 @@ public abstract class AbstractServerLogger implements IServer
 
     public final int getVersion()
     {
-        return 0;
+        return IServer.VERSION;
     }
 
     public final Session tryToAuthenticate(final String user, final String password)

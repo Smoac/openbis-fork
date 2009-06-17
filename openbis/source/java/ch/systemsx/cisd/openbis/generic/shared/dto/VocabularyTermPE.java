@@ -38,7 +38,7 @@ import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
@@ -55,7 +55,7 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
         IIdAndCodeHolder, Comparable<VocabularyTermPE>, Serializable
 {
 
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     public static final VocabularyTermPE[] EMPTY_ARRAY = new VocabularyTermPE[0];
 

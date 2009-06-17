@@ -26,7 +26,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.common.annotation.BeanProperty;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * A class that overrides {@link #equals(Object)}, {@link #hashCode()}, {@link #toString()} for a
@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 public abstract class Code<T extends Code<T>> implements Serializable, Comparable<T>,
         IsSerializable
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     private String code;
 

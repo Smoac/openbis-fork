@@ -26,6 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
 public class CodeWithRegistration<T extends CodeWithRegistration<T>> extends
         AbstractRegistrationHolder implements ICodeProvider, Comparable<T>
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private String code;
 
     public void setCode(final String code)

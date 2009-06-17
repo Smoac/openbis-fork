@@ -34,7 +34,7 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.validator.NotNull;
 
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * Persistence entity representing experiment type - property type relation.
@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 public class ExperimentTypePropertyTypePE extends EntityTypePropertyTypePE
 {
 
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     public static final ExperimentTypePropertyTypePE[] EMPTY_ARRAY =
             new ExperimentTypePropertyTypePE[0];

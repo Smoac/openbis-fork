@@ -22,6 +22,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
@@ -31,6 +32,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  */
 public interface IServer extends ISessionProvider
 {
+    /**
+     * Every time some public class in this package or subpackage is changed, we should increment
+     * the appropriate variable.
+     */
+    public static final int VERSION = ServiceVersionHolder.VERSION;
 
     /**
      * Returns the version of this interface.

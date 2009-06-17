@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 import ch.systemsx.cisd.common.annotation.BeanProperty;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * Used when assigning mandatory property to an entity, which has some instances or when mandatory
@@ -32,7 +32,7 @@ public class EntityPropertyFiller extends AbstractHashable implements Serializab
 {
     public static final EntityPropertyFiller[] EMPTY_ARRAY = new EntityPropertyFiller[0];
 
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     private String entityCode;
 

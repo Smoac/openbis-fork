@@ -25,5 +25,7 @@ import java.util.List;
  */
 abstract public class EntityType extends BasicEntityType
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     abstract public List<? extends EntityTypePropertyType<?>> getAssignedPropertyTypes();
 }

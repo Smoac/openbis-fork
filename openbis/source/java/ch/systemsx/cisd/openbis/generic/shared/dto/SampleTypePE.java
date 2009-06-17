@@ -35,7 +35,7 @@ import javax.persistence.UniqueConstraint;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.Cascade;
 
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
 
 /**
@@ -50,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
         { ColumnNames.CODE_COLUMN, ColumnNames.DATABASE_INSTANCE_COLUMN }) })
 public final class SampleTypePE extends EntityTypePE
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     private Set<SampleTypePropertyTypePE> sampleTypePropertyTypes =
             new HashSet<SampleTypePropertyTypePE>();

@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
  */
 public class MaterialType extends EntityType
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private List<MaterialTypePropertyType> materialTypePropertyTypes;
 

@@ -16,18 +16,24 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
+import java.io.Serializable;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * A basic {@link IEntityInformationHolder} implementation.
  * 
  * @author Piotr Buczek
  */
-public class BasicEntityInformationHolder implements IEntityInformationHolder, IsSerializable
+public class BasicEntityInformationHolder implements IEntityInformationHolder, IsSerializable,
+        Serializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private EntityKind entityKind;
 
     private EntityType entityType;

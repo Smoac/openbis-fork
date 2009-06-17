@@ -29,16 +29,23 @@ package ch.systemsx.cisd.openbis.generic.shared;
 public final class ResourceNames
 {
     public final static String GENERIC_SAMPLE_TYPE_SLAVE_SERVER_PLUGIN =
-    "generic-sample-type-slave-server-plugin";
+            "generic-sample-type-slave-server-plugin";
+
     public final static String GENERIC_SAMPLE_SERVER_PLUGIN = "generic-sample-server-plugin";
+
     public final static String GENERIC_DATA_SET_TYPE_SLAVE_SERVER_PLUGIN =
-    "generic-data-set-type-slave-server-plugin";
+            "generic-data-set-type-slave-server-plugin";
+
     public final static String GENERIC_DATA_SET_SERVER_PLUGIN = "generic-data-set-server-plugin";
+
     private ResourceNames()
     {
         // Can not be instantiated.
     }
 
     public final static String ETL_SERVICE = "etl-service";
+
     public final static String COMMON_SERVICE = "common-service";
+
+    public final static String COMMON_SERVER = "common-server";
 }

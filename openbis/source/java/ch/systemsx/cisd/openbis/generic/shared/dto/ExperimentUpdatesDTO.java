@@ -21,6 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
@@ -30,8 +31,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
  */
 public class ExperimentUpdatesDTO extends BasicExperimentUpdates
 {
-    private TechId experimentId; 
-    
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+    private TechId experimentId;
+
     // ----- the data which should be changed:
 
     // points to the project which will be set for the experiment

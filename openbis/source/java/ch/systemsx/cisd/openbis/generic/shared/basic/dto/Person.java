@@ -25,6 +25,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  */
 public class Person extends AbstractRegistrationHolder implements Comparable<Person>
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private String firstName;
 
     private String lastName;

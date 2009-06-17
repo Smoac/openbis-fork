@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractRegistrationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 
 /**
@@ -26,6 +27,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
  */
 public class Attachment extends AbstractRegistrationHolder implements Comparable<Attachment>
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private String fileName;
 
     private String title;

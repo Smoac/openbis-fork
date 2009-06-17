@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto.identifier;
 
 import java.io.Serializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * Identifies the experiment. This identifier points to an experiment if a group and database
@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  */
 public class LocalExperimentIdentifier implements Serializable
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     private final String projectCode;
 

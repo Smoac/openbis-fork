@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 
 /**
@@ -29,6 +30,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
  */
 public final class Group extends CodeWithRegistration<Group> implements IIdHolder
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private Long id;
 
     private String description;

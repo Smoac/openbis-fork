@@ -19,14 +19,14 @@ package ch.systemsx.cisd.etlserver;
 import java.io.Serializable;
 
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
-import ch.systemsx.cisd.openbis.generic.shared.IWebService;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * @author Tomasz Pylak
  */
 public class PlateDimension extends AbstractHashable implements Serializable
 {
-    private static final long serialVersionUID = IWebService.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     private int rowsNum;
 

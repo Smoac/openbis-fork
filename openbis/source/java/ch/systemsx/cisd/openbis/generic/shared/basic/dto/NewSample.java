@@ -25,6 +25,8 @@ import ch.systemsx.cisd.common.annotation.BeanProperty;
  */
 public final class NewSample extends Identifier<NewSample>
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     public static final String CONTAINER = "container";
 
     public static final String PARENT = "parent";

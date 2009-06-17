@@ -56,7 +56,7 @@ import org.hibernate.validator.Pattern;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -76,7 +76,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPropertiesHolder,
         IEntityInformationHolderDTO
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     public static final DataPE[] EMPTY_ARRAY = new DataPE[0];
 

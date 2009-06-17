@@ -30,6 +30,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 public class Material extends CodeWithRegistration<Material> implements IEntityInformationHolder,
         IEntityPropertiesHolder, IIdentifiable
 {
+
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private DatabaseInstance databaseInstance;
 
     private MaterialType MaterialType;

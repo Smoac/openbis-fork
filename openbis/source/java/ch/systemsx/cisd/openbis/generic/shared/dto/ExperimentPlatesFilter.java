@@ -21,7 +21,7 @@ import java.io.Serializable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * A filter for all Plates which are assigned to a experiment.
@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  */
 public final class ExperimentPlatesFilter implements Serializable
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     /** If <code>true</code> only experiment with valid samples are returned. */
     private boolean hideInvalidated;
@@ -41,8 +41,8 @@ public final class ExperimentPlatesFilter implements Serializable
     }
 
     /**
-     * Returns, if the invalidated plates should filtered out. If <code>true</code> only
-     * experiment with valid samples are returned.
+     * Returns, if the invalidated plates should filtered out. If <code>true</code> only experiment
+     * with valid samples are returned.
      */
     public final boolean isHideInvalidated()
     {

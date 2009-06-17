@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractProjectUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
@@ -28,6 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
  */
 public class ProjectUpdatesDTO extends AbstractProjectUpdates
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private ProjectIdentifier identifier;
 
     // ----- the data which should be changed:

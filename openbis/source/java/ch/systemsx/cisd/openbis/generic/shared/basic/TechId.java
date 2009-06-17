@@ -16,18 +16,23 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Technical identifier of an entity.
  * 
  * @author Piotr Buczek
  */
-public class TechId implements IIdHolder, IsSerializable
+public class TechId implements IIdHolder, IsSerializable, Serializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private Long id;
 
     protected TechId()
@@ -120,6 +125,8 @@ public class TechId implements IIdHolder, IsSerializable
     /** {@link TechId} which string representation matches all technical identifiers. */
     private static class WildcardTechId extends TechId
     {
+        private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
         public WildcardTechId()
         {
             super();

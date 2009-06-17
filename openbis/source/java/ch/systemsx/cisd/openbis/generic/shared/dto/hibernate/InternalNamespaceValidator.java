@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 import org.hibernate.validator.Validator;
 
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * Checks a field annotated with {@link InternalNamespace}.
@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 public final class InternalNamespaceValidator implements Validator<InternalNamespace>, Serializable
 {
 
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     private boolean internalNamespace;
 

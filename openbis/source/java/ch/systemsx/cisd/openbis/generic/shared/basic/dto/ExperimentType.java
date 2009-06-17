@@ -27,6 +27,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
  */
 public class ExperimentType extends EntityType
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private List<ExperimentTypePropertyType> experimentTypePropertyTypes;
 
     @Override

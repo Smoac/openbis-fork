@@ -16,9 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -26,8 +28,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Tomasz Pylak
  */
-public class VocabularyTermWithStats
+public class VocabularyTermWithStats implements Serializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private VocabularyTermPE term;
 
     // how many times is this term used as a value for each entity kind

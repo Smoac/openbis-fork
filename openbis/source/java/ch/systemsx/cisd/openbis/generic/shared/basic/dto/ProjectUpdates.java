@@ -23,6 +23,8 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  */
 public class ProjectUpdates extends AbstractProjectUpdates
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private String projectIdentifier;
 
     // ----- the data which should be changed:

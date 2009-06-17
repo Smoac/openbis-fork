@@ -35,7 +35,7 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.validator.NotNull;
 
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * Persistence entity representing sample type - property type relation.
@@ -43,64 +43,74 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  * @author Izabela Adamczyk
  */
 @Entity
-@Table(name = TableNames.SAMPLE_TYPE_PROPERTY_TYPE_TABLE, uniqueConstraints = { @UniqueConstraint(columnNames = {
-		ColumnNames.SAMPLE_TYPE_COLUMN, ColumnNames.PROPERTY_TYPE_COLUMN }) })
-public class SampleTypePropertyTypePE extends EntityTypePropertyTypePE {
-	private static final long serialVersionUID = GenericSharedConstants.VERSION;
+@Table(name = TableNames.SAMPLE_TYPE_PROPERTY_TYPE_TABLE, uniqueConstraints =
+    { @UniqueConstraint(columnNames =
+        { ColumnNames.SAMPLE_TYPE_COLUMN, ColumnNames.PROPERTY_TYPE_COLUMN }) })
+public class SampleTypePropertyTypePE extends EntityTypePropertyTypePE
+{
+    private static final long serialVersionUID = IServer.VERSION;
 
-	public static final SampleTypePropertyTypePE[] EMPTY_ARRAY = new SampleTypePropertyTypePE[0];
+    public static final SampleTypePropertyTypePE[] EMPTY_ARRAY = new SampleTypePropertyTypePE[0];
 
-	private boolean displayed;
+    private boolean displayed;
 
-	@Column(name = ColumnNames.IS_DISPLAYED)
-	public boolean isDisplayed() {
-		return displayed;
-	}
+    @Column(name = ColumnNames.IS_DISPLAYED)
+    public boolean isDisplayed()
+    {
+        return displayed;
+    }
 
-	public void setDisplayed(final boolean displayed) {
-		this.displayed = displayed;
-	}
+    public void setDisplayed(final boolean displayed)
+    {
+        this.displayed = displayed;
+    }
 
-	@NotNull(message = ValidationMessages.SAMPLE_TYPE_NOT_NULL_MESSAGE)
-	@ManyToOne(fetch = FetchType.EAGER, targetEntity = SampleTypePE.class)
-	@JoinColumn(name = ColumnNames.SAMPLE_TYPE_COLUMN)
-	private EntityTypePE getEntityTypeInternal() {
-		return entityType;
-	}
+    @NotNull(message = ValidationMessages.SAMPLE_TYPE_NOT_NULL_MESSAGE)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = SampleTypePE.class)
+    @JoinColumn(name = ColumnNames.SAMPLE_TYPE_COLUMN)
+    private EntityTypePE getEntityTypeInternal()
+    {
+        return entityType;
+    }
 
-	//
-	// EntityTypePropertyTypePE
-	//
+    //
+    // EntityTypePropertyTypePE
+    //
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entityTypePropertyType", targetEntity = SamplePropertyPE.class)
-	public Set<EntityPropertyPE> getPropertyValues() {
-		return propertyValues;
-	}
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entityTypePropertyType", targetEntity = SamplePropertyPE.class)
+    public Set<EntityPropertyPE> getPropertyValues()
+    {
+        return propertyValues;
+    }
 
-	@Transient
-	public EntityTypePE getEntityType() {
-		return getEntityTypeInternal();
-	}
+    @Transient
+    public EntityTypePE getEntityType()
+    {
+        return getEntityTypeInternal();
+    }
 
-	@Override
-	// This setter sets the bidirectional connection. That's why we must have an
-	// another internal
-	// plain setter for Hibernate.
-	public void setEntityType(EntityTypePE entityType) {
-		((SampleTypePE) entityType).addSampleTypePropertyType(this);
-	}
+    @Override
+    // This setter sets the bidirectional connection. That's why we must have an
+    // another internal
+    // plain setter for Hibernate.
+    public void setEntityType(EntityTypePE entityType)
+    {
+        ((SampleTypePE) entityType).addSampleTypePropertyType(this);
+    }
 
-	@SequenceGenerator(name = SequenceNames.SAMPLE_TYPE_PROPERTY_TYPE_SEQUENCE, sequenceName = SequenceNames.SAMPLE_TYPE_PROPERTY_TYPE_SEQUENCE, allocationSize = 1)
-	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.SAMPLE_TYPE_PROPERTY_TYPE_SEQUENCE)
-	@Column(insertable = false, updatable = false)
-	public Long getId() {
-		return id;
-	}
+    @SequenceGenerator(name = SequenceNames.SAMPLE_TYPE_PROPERTY_TYPE_SEQUENCE, sequenceName = SequenceNames.SAMPLE_TYPE_PROPERTY_TYPE_SEQUENCE, allocationSize = 1)
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.SAMPLE_TYPE_PROPERTY_TYPE_SEQUENCE)
+    @Column(insertable = false, updatable = false)
+    public Long getId()
+    {
+        return id;
+    }
 
-	@Override
-	public void setPropertyType(PropertyTypePE propertyType) {
-		propertyType.addSampleTypePropertyType(this);
-	}
+    @Override
+    public void setPropertyType(PropertyTypePE propertyType)
+    {
+        propertyType.addSampleTypePropertyType(this);
+    }
 
 }

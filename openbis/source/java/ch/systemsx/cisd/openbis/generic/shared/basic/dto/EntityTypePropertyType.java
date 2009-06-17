@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
@@ -24,8 +26,10 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * @author Christian Ribeaud
  */
 public abstract class EntityTypePropertyType<T extends EntityType> implements IsSerializable,
-        Comparable<EntityTypePropertyType<T>>
+        Comparable<EntityTypePropertyType<T>>, Serializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private EntityKind entityKind;
 
     private boolean mandatory;

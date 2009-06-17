@@ -33,7 +33,7 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cascade;
 
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * Persistence Entity representing data set type.
@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
         { ColumnNames.CODE_COLUMN, ColumnNames.DATABASE_INSTANCE_COLUMN }) })
 public class DataSetTypePE extends EntityTypePE
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     private Set<DataSetTypePropertyTypePE> dataSetTypePropertyTypes =
             new HashSet<DataSetTypePropertyTypePE>();

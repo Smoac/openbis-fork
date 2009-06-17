@@ -47,7 +47,7 @@ import org.hibernate.validator.Pattern;
 
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.InternalNamespace;
 
 /**
@@ -67,7 +67,7 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
 
     public final static VocabularyPE[] EMPTY_ARRAY = new VocabularyPE[0];
 
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     private transient Long id;
 

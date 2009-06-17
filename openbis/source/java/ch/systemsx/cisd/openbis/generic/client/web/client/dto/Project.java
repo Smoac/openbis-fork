@@ -22,6 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
@@ -32,6 +33,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 public class Project extends CodeWithRegistration<Project> implements IAttachmentHolder,
         IIdentifiable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private Group group;
 
     private String description;

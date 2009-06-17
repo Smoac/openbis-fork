@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-
 /**
  * The {@link EntityProperty} extension for <i>Experiment</i>.
  * 
@@ -27,5 +26,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public final class ExperimentProperty extends
         EntityProperty<ExperimentType, ExperimentTypePropertyType> implements IsSerializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     public static final ExperimentProperty[] EMPTY_ARRAY = new ExperimentProperty[0];
 }

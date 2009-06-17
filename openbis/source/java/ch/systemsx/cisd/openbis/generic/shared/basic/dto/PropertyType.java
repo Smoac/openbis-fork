@@ -16,19 +16,21 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-
 import com.google.gwt.user.client.rpc.IsSerializable;
+
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**
  * The <i>GWT</i> pendant to {@link PropertyTypePE}.
  * 
  * @author Izabela Adamczyk
  */
-public class PropertyType extends Code<PropertyType> implements IsSerializable
+public class PropertyType extends Code<PropertyType> implements IsSerializable, Serializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     public final static String USER_NAMESPACE_CODE_PREPEND = "USER.";
 
@@ -60,7 +62,7 @@ public class PropertyType extends Code<PropertyType> implements IsSerializable
     private List<MaterialTypePropertyType> materialTypePropertyTypes;
 
     private List<ExperimentTypePropertyType> experimentTypePropertyTypes;
-    
+
     private List<DataSetTypePropertyType> dataSetTypePropertyTypes;
 
     public String getSimpleCode()
@@ -133,15 +135,17 @@ public class PropertyType extends Code<PropertyType> implements IsSerializable
     {
         this.sampleTypePropertyTypes = sampleTypePropertyTypes;
     }
-    
-    public List<DataSetTypePropertyType> getDataSetTypePropertyTypes() {
-		return dataSetTypePropertyTypes;
-	}
 
-	public void setDataSetTypePropertyTypes(
-			final List<DataSetTypePropertyType> dataSetTypePropertyTypes) {
-		this.dataSetTypePropertyTypes = dataSetTypePropertyTypes;
-	}
+    public List<DataSetTypePropertyType> getDataSetTypePropertyTypes()
+    {
+        return dataSetTypePropertyTypes;
+    }
+
+    public void setDataSetTypePropertyTypes(
+            final List<DataSetTypePropertyType> dataSetTypePropertyTypes)
+    {
+        this.dataSetTypePropertyTypes = dataSetTypePropertyTypes;
+    }
 
     public List<MaterialTypePropertyType> getMaterialTypePropertyTypes()
     {

@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
@@ -43,6 +44,8 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         IInvalidationProvider, IEntityInformationHolder, IEntityPropertiesHolder, IIdentifiable,
         IPermIdHolder
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private boolean derived;
 
     private Boolean complete;

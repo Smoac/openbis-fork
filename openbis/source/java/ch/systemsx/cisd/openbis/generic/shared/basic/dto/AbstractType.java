@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-
 /**
  * The <i>GWT</i> equivalent to {@link AbstractType}.
  * 
@@ -24,6 +23,8 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  */
 public abstract class AbstractType extends Code<AbstractType>
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private String description;
 
     public final String getDescription()

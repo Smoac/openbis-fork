@@ -31,7 +31,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.validator.NotNull;
 
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * Persistence entity representing experiment property.
@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ExperimentPropertyPE extends EntityPropertyPE
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     public final static ExperimentPropertyPE[] EMPTY_ARRAY = new ExperimentPropertyPE[0];
 

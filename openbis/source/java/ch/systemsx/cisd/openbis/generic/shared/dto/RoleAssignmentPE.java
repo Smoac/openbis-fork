@@ -41,7 +41,7 @@ import org.hibernate.validator.NotNull;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
@@ -61,7 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder implements
         IIdHolder, Serializable
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     public static final RoleAssignmentPE[] EMPTY_ARRAY = new RoleAssignmentPE[0];
 

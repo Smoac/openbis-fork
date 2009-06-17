@@ -29,7 +29,7 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.validator.NotNull;
 
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * Persistence Entity representing the type of file format.
@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
         { ColumnNames.CODE_COLUMN, ColumnNames.DATABASE_INSTANCE_COLUMN }) })
 public final class FileFormatTypePE extends AbstractTypePE
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     private DatabaseInstancePE databaseInstance;
 

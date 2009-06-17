@@ -36,7 +36,7 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * A <i>Persistence Entity</i> which represents an entry in {@link TableNames#DATA_STORES_TABLE}.
@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 @Table(name = TableNames.DATA_STORES_TABLE)
 public final class DataStorePE extends AbstractIdAndCodeHolder<DataStorePE>
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     private transient Long id;
 
@@ -60,9 +60,9 @@ public final class DataStorePE extends AbstractIdAndCodeHolder<DataStorePE>
     private Date registrationDate;
 
     private String downloadUrl;
-    
+
     private String remoteUrl;
-    
+
     private String sessionToken;
 
     private DatabaseInstancePE databaseInstance;

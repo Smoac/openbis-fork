@@ -23,6 +23,8 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  */
 public class BasicEntityType extends AbstractType
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private DatabaseInstance databaseInstance;
 
     public final DatabaseInstance getDatabaseInstance()

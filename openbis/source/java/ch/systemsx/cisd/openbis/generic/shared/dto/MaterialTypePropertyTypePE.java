@@ -35,7 +35,7 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.validator.NotNull;
 
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * Persistence entity representing material type - property type relation.
@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
         { ColumnNames.MATERIAL_TYPE_COLUMN, ColumnNames.PROPERTY_TYPE_COLUMN }) })
 public class MaterialTypePropertyTypePE extends EntityTypePropertyTypePE
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     public static final MaterialTypePropertyTypePE[] EMPTY_ARRAY =
             new MaterialTypePropertyTypePE[0];

@@ -24,7 +24,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * Persistence Entity representing type of locator.
@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
         { ColumnNames.CODE_COLUMN }) })
 public final class LocatorTypePE extends AbstractTypePE
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     @SequenceGenerator(name = SequenceNames.LOCATOR_TYPE_SEQUENCE, sequenceName = SequenceNames.LOCATOR_TYPE_SEQUENCE, allocationSize = 1)
     @Id

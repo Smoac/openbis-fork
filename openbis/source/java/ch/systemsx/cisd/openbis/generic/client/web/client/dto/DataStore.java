@@ -17,12 +17,15 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * @author Izabela Adamczyk
  */
 public class DataStore extends Code<DataStore>
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private String downloadUrl;
 
     public String getDownloadUrl()

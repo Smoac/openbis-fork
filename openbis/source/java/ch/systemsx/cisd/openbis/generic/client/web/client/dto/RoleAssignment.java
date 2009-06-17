@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
@@ -29,8 +30,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  */
 public final class RoleAssignment extends Code<RoleAssignment>
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private RoleSetCode roleSetCode;
-    
+
     private Person person;
 
     private Group group;

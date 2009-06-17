@@ -36,7 +36,7 @@ import org.hibernate.validator.NotNull;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 @Friend(toClasses = DataPE.class)
 public class EventPE extends HibernateAbstractRegistrationHolder implements IIdHolder, Serializable
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     public enum EntityType
     {

@@ -31,7 +31,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.validator.Length;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 public class InvalidationPE extends HibernateAbstractRegistrationHolder implements IIdHolder,
         Serializable
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     private transient Long id;
 

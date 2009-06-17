@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 import javax.servlet.http.HttpServletRequest;
 
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * Information about a data store server (DSS) needed by openBIS server.
@@ -39,14 +39,14 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  */
 public class DataStoreServerInfo implements Serializable
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     private int port;
-    
+
     private String dataStoreCode;
-    
+
     private String downloadUrl;
-    
+
     private String sessionToken;
 
     public final int getPort()
@@ -88,5 +88,5 @@ public class DataStoreServerInfo implements Serializable
     {
         this.sessionToken = sessionToken;
     }
-    
+
 }
