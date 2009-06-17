@@ -44,7 +44,11 @@ public abstract class Dict
     // Common Labels
     // 
 
+    public static final String ATTACHMENT = "attachment";
+
     public static final String CODE = "code";
+
+    public static final String FILE = "file";
 
     public static final String PERM_ID = "perm_id";
 
@@ -637,6 +641,8 @@ public abstract class Dict
     public static final String URL = "url";
 
     public static final String REASON = "reason";
+
+    public static final String ADD_MORE_ATTACHMENTS = "add_more_attachments";
 
     // ----- end generic ------------------
 }

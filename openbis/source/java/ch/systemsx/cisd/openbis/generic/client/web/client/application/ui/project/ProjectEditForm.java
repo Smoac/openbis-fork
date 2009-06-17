@@ -58,6 +58,7 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
     protected void saveProject()
     {
         ProjectUpdates updates = new ProjectUpdates();
+        updates.setAttachments(extractAttachments());
         updates.setAttachmentSessionKey(sessionKey);
         updates.setDescription(projectDescriptionField.getValue());
         updates.setProjectIdentifier(originalProject.getIdentifier());

@@ -31,6 +31,7 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
@@ -38,13 +39,14 @@ import com.google.gwt.user.client.Event;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.UrlParamsHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.AttachmentsFileFieldManager;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
@@ -69,7 +71,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm
 {
     private static final int DEFAULT_NUMBER_OF_ATTACHMENTS = 3;
 
-    protected FileFieldManager attachmentManager;
+    protected AttachmentsFileFieldManager attachmentsManager;
 
     protected String attachmentsSessionKey;
 
@@ -79,7 +81,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm
 
     protected final String samplesSessionKey;
 
-    protected FileFieldManager importSamplesFileManager;
+    protected BasicFileFieldManager importSamplesFileManager;
 
     private SampleTypeSelectionWidget importSampleTypeSelection;
 
@@ -131,7 +133,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm
                 {
                     if (formPanel.isValid())
                     {
-                        if (attachmentManager.filesDefined() > 0
+                        if (attachmentsManager.filesDefined() > 0
                                 || importSamplesFileManager.filesDefined() > 0)
                         {
                             setUploadEnabled(false);
@@ -199,11 +201,14 @@ abstract public class AbstractGenericExperimentRegisterEditForm
             fields.add(wrapUnaware((Field<?>) samplesFileField));
         }
         fields.add(wrapUnaware(templateField));
-        for (FileUploadField f : attachmentManager.getFields())
-        {
-            fields.add(wrapUnaware(f));
-        }
         return fields;
+    }
+
+    @Override
+    protected void addFormFieldsToPanel(FormPanel panel)
+    {
+        super.addFormFieldsToPanel(panel);
+        attachmentsManager.addAttachmentFieldSetsToPanel(panel);
     }
 
     private static LabelField createTemplateField(String label,
@@ -255,7 +260,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm
 
         samplesArea = new ExperimentSamplesArea(viewContext, simpleId);
 
-        importSamplesFileManager = new FileFieldManager(samplesSessionKey, 1, "File");
+        importSamplesFileManager = new BasicFileFieldManager(samplesSessionKey, 1, "File");
         importSamplesFileManager.setMandatory();
         importSampleTypeSelection = new SampleTypeSelectionWidget(viewContext, simpleId, false);
         FieldUtil.markAsMandatory(importSampleTypeSelection);
@@ -267,9 +272,9 @@ abstract public class AbstractGenericExperimentRegisterEditForm
                 createTemplateField(viewContext.getMessage(Dict.FILE_TEMPLATE_LABEL),
                         importSampleTypeSelection, autoGenerateCodes);
 
-        attachmentManager =
-                new FileFieldManager(attachmentsSessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS,
-                        "Attachment");
+        attachmentsManager =
+                new AttachmentsFileFieldManager(attachmentsSessionKey,
+                        DEFAULT_NUMBER_OF_ATTACHMENTS, viewContext);
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
                 @Override

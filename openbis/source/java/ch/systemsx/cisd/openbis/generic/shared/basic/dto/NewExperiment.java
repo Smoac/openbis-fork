@@ -41,6 +41,8 @@ public final class NewExperiment extends Identifier<NewExperiment>
 
     private List<NewSample> newSamples;
 
+    private List<NewAttachment> attachments;
+
     public NewExperiment()
     {
     }
@@ -125,6 +127,16 @@ public final class NewExperiment extends Identifier<NewExperiment>
     public List<NewSample> getNewSamples()
     {
         return newSamples;
+    }
+
+    public List<NewAttachment> getAttachments()
+    {
+        return attachments;
+    }
+
+    public void setAttachments(List<NewAttachment> attachments)
+    {
+        this.attachments = attachments;
     }
 
 }

@@ -91,6 +91,7 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
         assert attachment.getAttachmentContent() != null : "Unspecified attachment content.";
         validatePE(attachment.getAttachmentContent());
 
+        // TODO 2009-06-17, Piotr Buczek: set previous title and description if nothing was set
         final int version = findLastVersion(attachment, owner) + 1;
         attachment.setVersion(version);
         owner.addAttachment(attachment);

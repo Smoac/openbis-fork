@@ -1153,7 +1153,7 @@ public final class CommonClientService extends AbstractClientService implements
                     commonServer.registerProject(sessionToken, projectIdentifier, project
                             .getDescription(), leaderId, attachments);
                 }
-            }.process(sessionKey, getHttpSession());
+            }.process(sessionKey, getHttpSession(), project.getNewAttachments());
 
     }
 
@@ -1514,7 +1514,9 @@ public final class CommonClientService extends AbstractClientService implements
                     Date date = commonServer.updateProject(sessionToken, updatesDTO);
                     modificationDate.setTime(date.getTime());
                 }
-            }.process(updates.getAttachmentSessionKey(), getHttpSession());
+            }
+                .process(updates.getAttachmentSessionKey(), getHttpSession(), updates
+                        .getAttachments());
         return modificationDate;
     }
 

@@ -30,7 +30,6 @@ import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
@@ -38,11 +37,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.AttachmentsFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
@@ -60,7 +61,7 @@ public final class GenericSampleEditForm extends
 {
     private static final int DEFAULT_NUMBER_OF_ATTACHMENTS = 3;
 
-    private FileFieldManager attachmentManager;
+    private AttachmentsFileFieldManager attachmentsManager;
 
     private String sessionKey;
 
@@ -102,9 +103,10 @@ public final class GenericSampleEditForm extends
     private void save()
     {
         final List<SampleProperty> properties = extractProperties();
+        final List<NewAttachment> attachments = attachmentsManager.extractAttachments();
         ExperimentIdentifier experimentIdent =
                 experimentFieldOrNull != null ? experimentFieldOrNull.getValue() : null;
-        viewContext.getService().updateSample(sessionKey, techIdOrNull, properties,
+        viewContext.getService().updateSample(sessionKey, techIdOrNull, properties, attachments,
                 experimentIdent, originalSample.getModificationDate(),
                 new UpdateSampleCallback(viewContext));
     }
@@ -159,7 +161,7 @@ public final class GenericSampleEditForm extends
         {
             fields.add(wrapUnaware(experimentFieldOrNull.getField()));
         }
-        for (FileUploadField f : attachmentManager.getFields())
+        for (FileUploadField f : attachmentsManager.getFields())
         {
             fields.add(DatabaseModificationAwareField.wrapUnaware(f));
         }
@@ -176,8 +178,9 @@ public final class GenericSampleEditForm extends
     {
         experimentFieldOrNull =
                 canAttachToExperiment(originalSample) ? createExperimentField() : null;
-        attachmentManager =
-                new FileFieldManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS, "New Attachment");
+        attachmentsManager =
+                new AttachmentsFileFieldManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS,
+                        viewContext);
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
                 @Override
@@ -206,7 +209,7 @@ public final class GenericSampleEditForm extends
                 {
                     if (formPanel.isValid())
                     {
-                        if (attachmentManager.filesDefined() > 0)
+                        if (attachmentsManager.filesDefined() > 0)
                         {
                             setUploadEnabled(false);
                             formPanel.submit();

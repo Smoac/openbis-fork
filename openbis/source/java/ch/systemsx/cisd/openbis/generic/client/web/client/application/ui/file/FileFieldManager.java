@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,31 +23,41 @@ import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * Stores and manages {@link FileUploadField} fields.
+ * Stores and manages fields that extend {@link FileUploadField}.
  * 
  * @author Izabela Adamczyk
  */
-public class FileFieldManager
+public abstract class FileFieldManager<T extends FileUploadField>
 {
+    protected IMessageProvider messageProvider;
+
     private final String fieldLabel;
 
     private static final String FIELD_NAME_TEMPLATE = "{0}_{1}";
 
-    private final List<FileUploadField> fileFields;
+    private final List<T> fileFields;
 
     private final String sessionKey;
 
-    public FileFieldManager(String sessionKey, int initialNumberOfFields, String fieldLabel)
+    protected FileFieldManager(String sessionKey, int initialNumberOfFields, String fieldLabel,
+            final IMessageProvider messageProvider)
     {
+        this.messageProvider = messageProvider;
         this.sessionKey = sessionKey;
         this.fieldLabel = fieldLabel;
-        fileFields = new ArrayList<FileUploadField>();
+        fileFields = new ArrayList<T>();
         for (int i = 0; i < initialNumberOfFields; i++)
         {
             fileFields.add(createFileUploadField(i));
         }
+    }
+
+    protected FileFieldManager(String sessionKey, int initialNumberOfFields, String fieldLabel)
+    {
+        this(sessionKey, initialNumberOfFields, fieldLabel, null);
     }
 
     public void setMandatory()
@@ -58,15 +68,16 @@ public class FileFieldManager
         FieldUtil.markAsMandatory(field);
     }
 
-    public List<FileUploadField> getFields()
+    public List<T> getFields()
     {
         return fileFields;
     }
 
-    public FileUploadField addField()
+    @SuppressWarnings("unused")
+    private FileUploadField addField()
     {
         int counter = fileFields.size();
-        FileUploadField field = createFileUploadField(counter);
+        T field = createFileUploadField(counter);
         fileFields.add(field);
         return field;
     }
@@ -85,9 +96,11 @@ public class FileFieldManager
         return i;
     }
 
-    private final FileUploadField createFileUploadField(final int counter)
+    protected abstract T createFileUploadField();
+
+    private final T createFileUploadField(final int counter)
     {
-        final FileUploadField file = new FileUploadField();
+        final T file = createFileUploadField();
         final int number = counter + 1;
         file.setFieldLabel(fieldLabel);
         file.setName(Format.substitute(FIELD_NAME_TEMPLATE, sessionKey, number));

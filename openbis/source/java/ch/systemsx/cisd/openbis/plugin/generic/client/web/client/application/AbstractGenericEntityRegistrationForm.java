@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -227,12 +228,20 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
         createCommonFormFields();
         createEntitySpecificFormFields();
         initializeFormFields();
-        for (DatabaseModificationAwareField<?> field : getAllFormFields())
-        {
-            formPanel.add(field.get());
-        }
+        addFormFieldsToPanel(formPanel);
         layout();
         setLoading(false);
+    }
+
+    /**
+     * Adds previously created and initialized fields to the form.
+     */
+    protected void addFormFieldsToPanel(FormPanel panel)
+    {
+        for (DatabaseModificationAwareField<?> fieldHolder : getAllFormFields())
+        {
+            panel.add(fieldHolder.get());
+        }
     }
 
     /**

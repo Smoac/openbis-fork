@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.List;
+
 import ch.systemsx.cisd.common.annotation.BeanProperty;
 
 /**
@@ -45,6 +47,8 @@ public final class NewSample extends Identifier<NewSample>
 
     private SampleProperty[] properties = SampleProperty.EMPTY_ARRAY;
 
+    private List<NewAttachment> attachments;
+
     public NewSample()
     {
     }
@@ -56,6 +60,16 @@ public final class NewSample extends Identifier<NewSample>
         setSampleType(sampleType);
         setParentIdentifier(parentIdentifier);
         setContainerIdentifier(containerIdentifier);
+    }
+
+    public List<NewAttachment> getAttachments()
+    {
+        return attachments;
+    }
+
+    public void setAttachments(List<NewAttachment> attachments)
+    {
+        this.attachments = attachments;
     }
 
     public final SampleType getSampleType()

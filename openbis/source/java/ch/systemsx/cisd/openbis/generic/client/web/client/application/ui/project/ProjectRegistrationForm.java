@@ -53,6 +53,7 @@ public class ProjectRegistrationForm extends AbstractProjectEditRegisterForm
         project.setDescription(projectDescriptionField.getValue());
         project.setIdentifier(groupField.tryGetSelectedGroup().getIdentifier() + "/"
                 + projectCodeField.getValue());
+        project.setNewAttachments(extractAttachments());
         return project;
     }
 

@@ -24,19 +24,19 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.AttachmentsFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
@@ -79,8 +79,8 @@ public final class GenericSampleRegistrationForm extends
 
     private TextField<String> parent;
 
-    private FileFieldManager attachmentManager =
-            new FileFieldManager(SESSION_KEY, DEFAULT_NUMBER_OF_ATTACHMENTS, "Attachment");
+    private AttachmentsFileFieldManager attachmentsManager =
+            new AttachmentsFileFieldManager(SESSION_KEY, DEFAULT_NUMBER_OF_ATTACHMENTS, viewContext);
 
     public GenericSampleRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
@@ -113,7 +113,7 @@ public final class GenericSampleRegistrationForm extends
     protected void resetFieldsAfterSave()
     {
         codeField.reset();
-        for (FileUploadField attachmentField : attachmentManager.getFields())
+        for (FileUploadField attachmentField : attachmentsManager.getFields())
         {
             attachmentField.reset();
         }
@@ -126,6 +126,7 @@ public final class GenericSampleRegistrationForm extends
                         .getValue()), StringUtils.trimToNull(container.getValue()));
         final List<SampleProperty> properties = extractProperties();
         newSample.setProperties(properties.toArray(SampleProperty.EMPTY_ARRAY));
+        newSample.setAttachments(attachmentsManager.extractAttachments());
         viewContext.getService().registerSample(SESSION_KEY, newSample,
                 new RegisterSampleCallback(viewContext));
     }
@@ -196,7 +197,7 @@ public final class GenericSampleRegistrationForm extends
                 {
                     if (formPanel.isValid())
                     {
-                        if (attachmentManager.filesDefined() > 0)
+                        if (attachmentsManager.filesDefined() > 0)
                         {
                             setUploadEnabled(false);
                             formPanel.submit();
@@ -217,11 +218,14 @@ public final class GenericSampleRegistrationForm extends
         fields.add(groupSelectionWidget.asDatabaseModificationAware());
         fields.add(wrapUnaware(parent));
         fields.add(wrapUnaware(container));
-        for (FileUploadField attachmentField : attachmentManager.getFields())
-        {
-            fields.add(wrapUnaware((Field<?>) attachmentField));
-        }
         return fields;
+    }
+
+    @Override
+    protected void addFormFieldsToPanel(FormPanel panel)
+    {
+        super.addFormFieldsToPanel(panel);
+        attachmentsManager.addAttachmentFieldSetsToPanel(panel);
     }
 
     @Override
@@ -243,4 +247,5 @@ public final class GenericSampleRegistrationForm extends
     {
         initGUI();
     }
+
 }

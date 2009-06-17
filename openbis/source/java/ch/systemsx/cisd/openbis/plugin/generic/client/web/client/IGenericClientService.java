@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
@@ -134,8 +135,9 @@ public interface IGenericClientService extends IClientService
      * Updates sample.
      */
     public Date updateSample(String sessionKey, final TechId sampleId,
-            List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
-            Date version) throws UserFailureException;
+            List<SampleProperty> properties, List<NewAttachment> attachments,
+            ExperimentIdentifier experimentIdentifierOrNull, Date version)
+            throws UserFailureException;
 
     /**
      * Updates data set.

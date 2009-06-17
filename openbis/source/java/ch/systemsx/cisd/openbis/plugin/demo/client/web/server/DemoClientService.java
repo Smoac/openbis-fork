@@ -104,7 +104,7 @@ public final class DemoClientService extends AbstractClientService implements ID
                 {
                     demoServer.registerSample(sessionToken, sample, attachments);
                 }
-            }.process(sessionKey, getHttpSession());
+            }.process(sessionKey, getHttpSession(), sample.getAttachments());
     }
 
     public int getNumberOfExperiments() throws UserFailureException

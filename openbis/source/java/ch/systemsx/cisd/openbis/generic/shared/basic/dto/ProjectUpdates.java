@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.List;
+
 /**
  * Client side description of the updates which should be performed on the project.
  * 
@@ -32,6 +34,8 @@ public class ProjectUpdates extends AbstractProjectUpdates
     // the key in the session at which points to the new attachments which will be added to the old
     // ones.
     private String attachmentSessionKey;
+
+    private List<NewAttachment> attachments;
 
     public String getAttachmentSessionKey()
     {
@@ -51,6 +55,16 @@ public class ProjectUpdates extends AbstractProjectUpdates
     public void setProjectIdentifier(String newProjectIdentifier)
     {
         this.projectIdentifier = newProjectIdentifier;
+    }
+
+    public List<NewAttachment> getAttachments()
+    {
+        return attachments;
+    }
+
+    public void setAttachments(List<NewAttachment> attachments)
+    {
+        this.attachments = attachments;
     }
 
 }

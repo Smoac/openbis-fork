@@ -16,19 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project;
 
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
+import java.util.List;
 
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -37,8 +34,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField.CodeFieldKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.AttachmentsFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 
 /**
  * A {@link LayoutContainer} extension for registering and editing projects.
@@ -58,7 +57,7 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
 
     protected GroupSelectionWidget groupField;
 
-    private FileFieldManager attachmentManager;
+    private AttachmentsFileFieldManager attachmentManager;
 
     protected final String sessionKey;
 
@@ -79,7 +78,8 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
         this.viewContext = viewContext;
         sessionKey = createId(projectIdOrNull);
         attachmentManager =
-                new FileFieldManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS, "Attachment");
+                new AttachmentsFileFieldManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS,
+                        viewContext);
         projectCodeField = createProjectCodeField();
         groupField = createGroupField();
         projectDescriptionField = createProjectDescriptionField();
@@ -128,10 +128,7 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
         formPanel.add(projectCodeField);
         formPanel.add(groupField);
         formPanel.add(projectDescriptionField);
-        for (FileUploadField attachmentField : attachmentManager.getFields())
-        {
-            formPanel.add(wrapUnaware((Field<?>) attachmentField).get());
-        }
+        attachmentManager.addAttachmentFieldSetsToPanel(formPanel);
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
                 @Override
@@ -193,6 +190,11 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
         setValues();
         setLoading(false);
         layout();
+    }
+
+    protected List<NewAttachment> extractAttachments()
+    {
+        return attachmentManager.extractAttachments();
     }
 
 }

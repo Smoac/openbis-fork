@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
@@ -43,6 +45,8 @@ public class ExperimentUpdates extends BasicExperimentUpdates
     private boolean generateCodes;
 
     private String samplesSessionKey;
+
+    private List<NewAttachment> attachments;
 
     public String getAttachmentSessionKey()
     {
@@ -102,5 +106,15 @@ public class ExperimentUpdates extends BasicExperimentUpdates
     public String getSamplesSessionKey()
     {
         return samplesSessionKey;
+    }
+
+    public List<NewAttachment> getAttachments()
+    {
+        return attachments;
+    }
+
+    public void setAttachments(List<NewAttachment> attachments)
+    {
+        this.attachments = attachments;
     }
 }

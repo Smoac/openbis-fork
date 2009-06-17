@@ -103,14 +103,14 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         if (attachments.isEmpty() == false)
         {
             final IAttachmentDAO attachmentDAO = getAttachmentDAO();
-            for (final AttachmentPE property : attachments)
+            for (final AttachmentPE attachment : attachments)
             {
                 try
                 {
-                    attachmentDAO.createAttachment(property, project);
+                    attachmentDAO.createAttachment(attachment, project);
                 } catch (final DataAccessException e)
                 {
-                    final String fileName = property.getFileName();
+                    final String fileName = attachment.getFileName();
                     throwException(e, String.format("Filename '%s' for project '%s'", fileName,
                             project.getIdentifier()));
                 }

@@ -21,6 +21,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -56,6 +57,9 @@ public class Project extends CodeWithRegistration<Project> implements IAttachmen
     }
 
     private List<Attachment> attachments;
+
+    // TODO 2009-06-17, Piotr Buczek: remove and create NewProject with NewAttachments, ...
+    private List<NewAttachment> newAttachments;
 
     private Date modificationDate;
 
@@ -112,6 +116,16 @@ public class Project extends CodeWithRegistration<Project> implements IAttachmen
     public List<Attachment> getAttachments()
     {
         return attachments;
+    }
+
+    public void setNewAttachments(List<NewAttachment> newAttachments)
+    {
+        this.newAttachments = newAttachments;
+    }
+
+    public List<NewAttachment> getNewAttachments()
+    {
+        return newAttachments;
     }
 
     public Date getModificationDate()

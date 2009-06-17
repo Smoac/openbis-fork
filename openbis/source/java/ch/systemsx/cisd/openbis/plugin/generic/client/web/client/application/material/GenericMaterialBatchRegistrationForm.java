@@ -33,13 +33,13 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.UrlParamsHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -62,7 +62,7 @@ public final class GenericMaterialBatchRegistrationForm extends AbstractRegistra
 
     private static final String FIELD_LABEL_TEMPLATE = "File";
 
-    private final FileFieldManager fileFieldsManager;
+    private final BasicFileFieldManager fileFieldsManager;
 
     private static final int NUMBER_OF_FIELDS = 1;
 
@@ -79,7 +79,7 @@ public final class GenericMaterialBatchRegistrationForm extends AbstractRegistra
         this.materialType = materialType;
         setScrollMode(Scroll.AUTO);
         fileFieldsManager =
-                new FileFieldManager(SESSION_KEY, NUMBER_OF_FIELDS, FIELD_LABEL_TEMPLATE);
+                new BasicFileFieldManager(SESSION_KEY, NUMBER_OF_FIELDS, FIELD_LABEL_TEMPLATE);
         fileFieldsManager.setMandatory();
         addUploadFeatures(SESSION_KEY);
     }

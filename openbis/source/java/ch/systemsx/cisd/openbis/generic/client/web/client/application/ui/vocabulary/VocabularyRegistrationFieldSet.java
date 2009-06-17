@@ -32,10 +32,10 @@ import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField.CodeFieldKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
@@ -267,7 +267,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
 
         private FileUploadField createImportFileField()
         {
-            FileFieldManager fileManager = new FileFieldManager(termsSessionKey, 1, "File");
+            BasicFileFieldManager fileManager = new BasicFileFieldManager(termsSessionKey, 1, "File");
             fileManager.setMandatory();
             return fileManager.getFields().get(0);
         }

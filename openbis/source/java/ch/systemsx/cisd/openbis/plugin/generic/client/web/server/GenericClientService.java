@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -151,7 +152,7 @@ public final class GenericClientService extends AbstractClientService implements
                 {
                     genericServer.registerSample(sessionToken, newSample, attachments);
                 }
-            }.process(sessionKey, getHttpSession());
+            }.process(sessionKey, getHttpSession(), newSample.getAttachments());
     }
 
     public final List<BatchRegistrationResult> registerSamples(final SampleType sampleType,
@@ -390,7 +391,7 @@ public final class GenericClientService extends AbstractClientService implements
                 {
                     genericServer.registerExperiment(sessionToken, experiment, attachments);
                 }
-            }.process(attachmentsSessionKey, getHttpSession());
+            }.process(attachmentsSessionKey, getHttpSession(), experiment.getAttachments());
     }
 
     public final List<BatchRegistrationResult> registerMaterials(final MaterialType materialType,
@@ -456,6 +457,7 @@ public final class GenericClientService extends AbstractClientService implements
             String sessionKey,
             final TechId sampleId,
             final List<SampleProperty> properties,
+            final List<NewAttachment> newAttachments,
             final ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier experimentIdentifierOrNull,
             final Date version)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -479,7 +481,7 @@ public final class GenericClientService extends AbstractClientService implements
                                     convExperimentIdentifierOrNull, attachments, version);
                     modificationDate.setTime(date.getTime());
                 }
-            }.process(sessionKey, getHttpSession());
+            }.process(sessionKey, getHttpSession(), newAttachments);
         return modificationDate;
     }
 
@@ -523,7 +525,9 @@ public final class GenericClientService extends AbstractClientService implements
                     BeanUtils.fillBean(ExperimentUpdateResult.class, result, genericServer
                             .updateExperiment(sessionToken, updatesDTO));
                 }
-            }.process(updates.getAttachmentSessionKey(), getHttpSession());
+            }
+                .process(updates.getAttachmentSessionKey(), getHttpSession(), updates
+                        .getAttachments());
         return result;
     }
 
@@ -551,7 +555,6 @@ public final class GenericClientService extends AbstractClientService implements
 
         updatesDTO.setExperimentId(updates.getExperimentId());
 
-        System.err.println(updates.getProjectIdentifier());
         final ProjectIdentifier project =
                 new ProjectIdentifierFactory(updates.getProjectIdentifier()).createIdentifier();
         updatesDTO.setProjectIdentifier(project);
