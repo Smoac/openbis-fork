@@ -101,7 +101,7 @@ public class FIAMLParser extends DefaultHandler
         {
             msRun = new FIAMSRunDTO();
             fiaRunData = new FIAMSRunDataDTO();
-            msRun.setPermId(permIdOrNull);
+            msRun.setDataSetPermId(permIdOrNull);
             parsingMsRun = true;
         }
     }

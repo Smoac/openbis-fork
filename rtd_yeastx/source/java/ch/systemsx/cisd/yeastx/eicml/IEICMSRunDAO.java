@@ -31,58 +31,58 @@ import net.lemnik.eodsql.Update;
 public interface IEICMSRunDAO extends BaseQuery
 {
     final String ALL_EIC_MSRUN_COLUMNS =
-            "eicmsruns.eicMsRunId, eicmsruns.permId, eicmsruns.rawDataFileName, eicmsruns.rawDataFilePath, "
-                    + "eicmsruns.acquisitionDate, eicmsruns.instrumentType, eicmsruns.instrumentManufacturer, "
-                    + "eicmsruns.instrumentModel, eicmsruns.methodIonisation, eicmsruns.methodSeparation, "
-                    + "eicmsruns.setId, eicmsruns.operator, "
-                    + "eicmsruns.startTime, eicmsruns.endTime";
+            "EIC_MS_RUNS.EIC_MS_RUN_ID, EIC_MS_RUNS.DATA_SET_PERM_ID, EIC_MS_RUNS.RAW_DATA_FILE_NAME, EIC_MS_RUNS.RAW_DATA_FILE_PATH, "
+                    + "EIC_MS_RUNS.ACQUISITION_DATE, EIC_MS_RUNS.INSTRUMENT_TYPE, EIC_MS_RUNS.INSTRUMENT_MANUFACTURER, "
+                    + "EIC_MS_RUNS.INSTRUMENT_MODEL, EIC_MS_RUNS.METHOD_IONISATION, EIC_MS_RUNS.METHOD_SEPARATION, "
+                    + "EIC_MS_RUNS.SET_ID, EIC_MS_RUNS.OPERATOR, "
+                    + "EIC_MS_RUNS.START_TIME, EIC_MS_RUNS.END_TIME";
 
-    @Select("INSERT INTO eicmsruns (permId, rawDataFileName, rawDataFilePath, acquisitionDate, "
-            + "instrumentType, instrumentManufacturer, instrumentModel, methodIonisation, "
-            + "methodSeparation, setId, operator, startTime, endTime) values (?{1.permId}, ?{1.rawDataFileName}, "
+    @Select("insert into EIC_MS_RUNS (DATA_SET_PERM_ID, RAW_DATA_FILE_NAME, RAW_DATA_FILE_PATH, ACQUISITION_DATE, "
+            + "INSTRUMENT_TYPE, INSTRUMENT_MANUFACTURER, INSTRUMENT_MODEL, METHOD_IONISATION, "
+            + "METHOD_SEPARATION, SET_ID, OPERATOR, START_TIME, END_TIME) values (?{1.dataSetPermId}, ?{1.rawDataFileName}, "
             + "?{1.rawDataFilePath}, ?{1.acquisitionDate}, ?{1.instrumentType}, "
             + "?{1.instrumentManufacturer}, ?{1.instrumentModel}, ?{1.methodIonisation}, "
-            + "?{1.methodSeparation}, ?{1.setId}, ?{1.operator}, ?{1.startTime}, ?{1.endTime}) returning eicMsRunId")
+            + "?{1.methodSeparation}, ?{1.setId}, ?{1.operator}, ?{1.startTime}, ?{1.endTime}) returning EIC_MS_RUN_ID")
     public long addMSRun(EICMSRunDTO msRun);
 
-    @Update(sql = "INSERT INTO chromatograms (eicMsRunId, Q1MZ, Q3LowMz, Q3HighMz, label, polarity, runTimes, "
+    @Update(sql = "insert into EIC_CHROMATOGRAMS (EIC_MS_RUN_ID, Q1_MZ, Q3_LOW_MZ, Q3_HIGH_MZ, LABEL, POLARITY, RUN_TIMES, "
             + "intensities) values (?{1}, ?{2.q1Mz}, ?{2.q3LowMz}, ?{2.q3HighMz}, ?{2.label}, "
             + "?{2.polarity}, ?{2.runTimes}, ?{2.intensities})", batchUpdate = true, parameterTypes =
         { Long.class, ChromatogramDTO.class })
-    public void addChromatograms(long eicMsRunId, List<ChromatogramDTO> chromatogram);
+    public void addChromatograms(long EIC_MS_RUN_ID, List<ChromatogramDTO> chromatogram);
 
-    @Select(sql = "SELECT * from eicmsruns", rubberstamp = true)
+    @Select(sql = "select EIC_MS_RUNS.*,count(EIC_CHROMATOGRAMS.*) as chromCount from EIC_MS_RUNS "
+            + "left join EIC_CHROMATOGRAMS using(EIC_MS_RUN_ID) group by " + ALL_EIC_MSRUN_COLUMNS)
     public DataIterator<EICMSRunDTO> getMsRuns();
 
-    @Select(sql = "SELECT * from eicmsruns where rawDataFileName=?{1}", rubberstamp = true)
+    @Select(sql = "select * from EIC_MS_RUNS where RAW_DATA_FILE_NAME=?{1}")
     public DataIterator<EICMSRunDTO> getMsRunsForRawDataFile(String rawDataFileName);
 
-    @Select("SELECT eicmsruns.*, count(chromatograms.*) AS chromCount from eicmsruns "
-            + "LEFT JOIN chromatograms USING(eicMsRunId) where eicmsruns.eicMsRunId=?{1} GROUP BY "
+    @Select("select EIC_MS_RUNS.*, count(EIC_CHROMATOGRAMS.*) AS chromCount from EIC_MS_RUNS "
+            + "left join EIC_CHROMATOGRAMS using(EIC_MS_RUN_ID) where EIC_MS_RUNS.EIC_MS_RUN_ID=?{1} group by "
             + ALL_EIC_MSRUN_COLUMNS)
     public EICMSRunDTO getMSRunById(long id);
 
-    @Select("SELECT eicmsruns.*, count(chromatograms.*) AS chromCount from eicmsruns "
-            + "LEFT JOIN chromatograms USING(eicMsRunId) where eicmsruns.permId=?{1} GROUP BY "
+    @Select("select EIC_MS_RUNS.*, count(EIC_CHROMATOGRAMS.*) AS chromCount from EIC_MS_RUNS "
+            + "left join EIC_CHROMATOGRAMS using(EIC_MS_RUN_ID) where EIC_MS_RUNS.DATA_SET_PERM_ID=?{1} group by "
             + ALL_EIC_MSRUN_COLUMNS)
     public EICMSRunDTO getMSRunByPermId(String permId);
 
-    @Select("SELECT eicmsruns.* FROM msrun LEFT JOIN chromatograms USING(eicMsRunId) "
-            + "where chromatograms.chromId = ?{1.chromId}")
+    @Select("select EIC_MS_RUNS.* FROM msrun LEFT JOIN EIC_CHROMATOGRAMS USING(EIC_MS_RUN_ID) "
+            + "where EIC_CHROMATOGRAMS.CHROM_ID = ?{1.chromId}")
     public EICMSRunDTO getMSRunForChromatogram(ChromatogramDTO chromatogram);
 
-    @Select("SELECT chromatograms.* FROM chromatograms where chromId=?{1}")
+    @Select("select EIC_CHROMATOGRAMS.* FROM EIC_CHROMATOGRAMS where CHROM_ID=?{1}")
     public ChromatogramDTO getChromatogramById(long id);
 
-    @Select("SELECT chromatograms.* FROM chromatograms where label=?{1}")
+    @Select("select EIC_CHROMATOGRAMS.* FROM EIC_CHROMATOGRAMS where LABEL=?{1}")
     public ChromatogramDTO getChromatogramByLabel(String label);
 
-    @Select("SELECT chromatograms.* FROM chromatograms LEFT JOIN eicmsruns USING(eicMsRunId) "
-            + "where eicMsRunId=?{1.eicMsRunId}")
+    @Select("select * FROM EIC_CHROMATOGRAMS where EIC_MS_RUN_ID=?{1.eicMsRunId}")
     public DataIterator<ChromatogramDTO> getChromatogramsForRun(EICMSRunDTO msRun);
 
-    @Select(sql = "SELECT chromId, eicMsRunId, Q1Mz, Q3LowMz, Q3HighMz, label, polarity FROM chromatograms "
-            + "LEFT JOIN eicmsruns USING(eicMsRunId) " + "where eicMsRunId=?{1.eicMsRunId}")
+    @Select(sql = "select CHROM_ID, EIC_MS_RUN_ID, Q1_MZ, Q3_LOW_MZ, Q3_HIGH_MZ, LABEL, POLARITY FROM EIC_CHROMATOGRAMS "
+            + "LEFT JOIN EIC_MS_RUNS USING(EIC_MS_RUN_ID) " + "where EIC_MS_RUN_ID=?{1.eicMsRunId}")
     public DataIterator<ChromatogramDTO> getChromatogramsForRunNoData(EICMSRunDTO msRun);
 
 }

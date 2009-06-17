@@ -112,7 +112,7 @@ public class EICMLParser extends DefaultHandler
         if (MS_RUN.equals(name))
         {
             msRun = new EICMSRunDTO();
-            msRun.setPermId(permIdOrNull);
+            msRun.setDataSetPermId(permIdOrNull);
             parsingMsRun = true;
         } else if ("chromatogram".equals(name))
         {

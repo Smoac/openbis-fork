@@ -62,7 +62,8 @@ public class EICML2Database
     /**
      * Method for uploading an <var>eicMLFile</var> to the database.
      */
-    public static void uploadEicMLFile(final Connection conn, final File eicMLFile, String permId)
+    public static void uploadEicMLFile(final Connection conn, final File eicMLFile,
+            String dataSetPermId)
             throws SQLException
     {
         final long[] eicMLId = new long[1];
@@ -71,7 +72,7 @@ public class EICML2Database
         try
         {
             final IEICMSRunDAO dao = getDAO(conn);
-            new EICMLParser(eicMLFile.getPath(), permId, new IMSRunObserver()
+            new EICMLParser(eicMLFile.getPath(), dataSetPermId, new IMSRunObserver()
                 {
                     public void observe(EICMSRunDTO run)
                     {
