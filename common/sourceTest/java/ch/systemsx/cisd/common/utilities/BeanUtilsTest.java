@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
@@ -1240,5 +1241,29 @@ public final class BeanUtilsTest
         assertEquals(1, cyclicBeanB2.getCyclicBeans().size());
         assertEquals("b", cyclicBeanB2.getCyclicBeans().get(0).getName());
         assertSame(cyclicBeanB2, cyclicBeanB2.getCyclicBeans().get(0));
+    }
+    
+    @Test
+    public void testFillBeanFromProperties()
+    {
+        final Properties props = new Properties();
+        props.setProperty("i", "17");
+        props.setProperty("s", "bla");
+        props.setProperty("b", "true");
+        props.setProperty("f", "3.14159");
+        props.setProperty("bb", "1");
+        final Bean2a b = BeanUtils.createBean(Bean2a.class, props, new BeanUtils.Converter()
+        {
+            @SuppressWarnings("unused")
+            public boolean convertToBb(Properties myProps)
+            {
+                return "1".equals(myProps.get("bb"));
+            }
+        });
+        assertEquals(17, b.getI());
+        assertEquals("bla", b.getS());
+        assertTrue(b.isB());
+        assertEquals(3.14159f, b.getF());
+        assertTrue(b.getBb());
     }
 }

@@ -37,6 +37,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -138,8 +139,7 @@ public final class BeanUtils
      * Note:
      * <ul>
      * <li>The declared <code>SourceBeanClass</code> in the converter method can also be a
-     * superclass of <code>sourceBean</code>or an interface implemented by
-     * <code>sourceBean</code>
+     * superclass of <code>sourceBean</code>or an interface implemented by <code>sourceBean</code>
      * <li>If there is a matching method <code>convertToFoo()</code>, it needs to have an
      * appropriate return type or else an {@link IllegalArgumentException} will be thrown.
      * </ul>
@@ -165,8 +165,8 @@ public final class BeanUtils
      * Creates a new list of Beans of type <var>clazz</var>.
      * 
      * @param clazz element type of the new list.
-     * @param source The iterable to fill the new bean list from. Can be <code>null</code>, in
-     *            which case the method returns <code>null</code>.
+     * @param source The iterable to fill the new bean list from. Can be <code>null</code>, in which
+     *            case the method returns <code>null</code>.
      * @return The new list filled from <var>sourceList</var> or <code>null</code>, if
      *         <var>sourceList</var> is <code>null</code>.
      */
@@ -176,8 +176,8 @@ public final class BeanUtils
     }
 
     /**
-     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code>
-     * for parameter specification.
+     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code> for
+     * parameter specification.
      */
     public final static <T, S> T[] createBeanArray(final Class<T> clazz, final Collection<S> source)
     {
@@ -185,8 +185,8 @@ public final class BeanUtils
     }
 
     /**
-     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code>
-     * for parameter specification.
+     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code> for
+     * parameter specification.
      */
     public final static <T, S> T[] createBeanArray(final Class<T> clazz, final S[] source)
     {
@@ -194,8 +194,8 @@ public final class BeanUtils
     }
 
     /**
-     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code>
-     * for parameter specification.
+     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code> for
+     * parameter specification.
      */
     public final static <T, S> T[] createBeanArray(final Class<T> clazz, final S[] source,
             final Converter converter)
@@ -204,8 +204,8 @@ public final class BeanUtils
     }
 
     /**
-     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code>
-     * for parameter specification.
+     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code> for
+     * parameter specification.
      */
     public final static <T, S> T[] createBeanArray(final Class<T> clazz,
             final Collection<S> source, final Converter converter)
@@ -228,8 +228,8 @@ public final class BeanUtils
     }
 
     /**
-     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code>
-     * for parameter specification.
+     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code> for
+     * parameter specification.
      */
     public static <T, S> T[] createBeanArray(final Class<T> clazz, final Iterable<S> source,
             final Converter converter)
@@ -243,8 +243,8 @@ public final class BeanUtils
      * Creates a new list of Beans of type <var>clazz</var>.
      * 
      * @param clazz element type of the new list.
-     * @param source The iterable to fill the new bean list from. Can be <code>null</code>, in
-     *            which case the method returns <code>null</code>.
+     * @param source The iterable to fill the new bean list from. Can be <code>null</code>, in which
+     *            case the method returns <code>null</code>.
      * @param converter The {@link Converter} to use to perform non-standard conversions when
      *            filling the bean. Can be <code>null</code>, in which case only standard
      *            conversions are allowed.
@@ -320,11 +320,13 @@ public final class BeanUtils
 
     /**
      * Creates a new bean of type <var>beanClass</var> and fills it with values from
-     * <var>sourceBean</var>.
+     * <var>sourceBean</var> (which can be a bean or a {@link Properties} object.
      * 
      * @param beanClass The class to create a new instance from.
      * @param sourceBean The bean to get the values from. Can be <code>null</code>, in which case
-     *            the method returns <code>null</code>.
+     *            the method returns <code>null</code>. If this is a {@link Properties} object, the
+     *            bean will be created from the property values. In this case only primitive values
+     *            and Strings are supported.
      * @param converter The {@link Converter} to use to perform non-standard conversions when
      *            filling the bean. Can be <code>null</code>, in which case only standard
      *            conversions are allowed.
@@ -414,7 +416,13 @@ public final class BeanUtils
             } else
             {
                 repository.put(sourceBean, destinationBean);
-                copyBean(destinationBean, repository, sourceBean, converter);
+                if (sourceBean instanceof Properties)
+                {
+                    copyBeanFromProperties(destinationBean, (Properties) sourceBean, converter);
+                } else
+                {
+                    copyBean(destinationBean, repository, sourceBean, converter);
+                }
             }
             return destinationBean;
         } catch (final InvocationTargetException ex)
@@ -713,6 +721,68 @@ public final class BeanUtils
                     + setterAnnotations.getAnnotatedEntity() + "'.");
         }
         return mapping;
+    }
+
+    private static <T> void copyBeanFromProperties(final T destination, final Properties source,
+            final Converter converter) throws IllegalArgumentException, IllegalAccessException,
+            InvocationTargetException
+    {
+        if (destination == null)
+        {
+            return;
+        }
+        final Collection<Method> destinationSetters =
+                scanForPublicMethods(destination, SETTER_PREFIX, 1).values();
+        for (final Method setter : destinationSetters)
+        {
+            Object valueOrNull = null;
+            final Method converterMethod = getConverterMethod(setter, source, converter);
+            if (converterMethod != null)
+            {
+                valueOrNull = converterMethod.invoke(converter, new Object[]
+                    { source });
+            } else
+            {
+                final String propertyKey =
+                        Character.toLowerCase(setter.getName().charAt(3))
+                                + setter.getName().substring("setX".length());
+                final String propertyValueOrNull = (String) source.get(propertyKey);
+                if (propertyValueOrNull != null)
+                {
+                    final Class<?> resultType = setter.getParameterTypes()[0];
+                    if (resultType == String.class)
+                    {
+                        valueOrNull = propertyValueOrNull;
+                    } else if (resultType == boolean.class || resultType == Boolean.class)
+                    {
+                        valueOrNull = Boolean.parseBoolean(propertyValueOrNull); 
+                    } else if (resultType == int.class || resultType == Integer.class)
+                    {
+                        valueOrNull = Integer.parseInt(propertyValueOrNull); 
+                    } else if (resultType == float.class || resultType == Float.class)
+                    {
+                        valueOrNull = Float.parseFloat(propertyValueOrNull);
+                    } else if (resultType == long.class || resultType == Long.class)
+                    {
+                        valueOrNull = Long.parseLong(propertyValueOrNull);
+                    } else if (resultType == double.class || resultType == Double.class)
+                    {
+                        valueOrNull = Double.parseDouble(propertyValueOrNull);
+                    } else if (resultType == short.class || resultType == Short.class)
+                    {
+                        valueOrNull = Short.parseShort(propertyValueOrNull);
+                    } else if (resultType == byte.class || resultType == Byte.class)
+                    {
+                        valueOrNull = Byte.parseByte(propertyValueOrNull);
+                    }
+                }
+            }
+            if (valueOrNull != null)
+            {
+                setter.invoke(destination, new Object[]
+                    { valueOrNull });
+            }
+        }
     }
 
     private static <T> void copyBean(final T destination, final Map<Object, Object> repository,
