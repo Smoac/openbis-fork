@@ -25,6 +25,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -49,17 +50,6 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
     AttachmentDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
     {
         super(sessionFactory, databaseInstance, ATTACHMENT_CLASS);
-    }
-
-    private final int findLastVersion(final AttachmentPE fileAttachment,
-            final AttachmentHolderPE owner)
-    {
-        final String query = createFindLastVersionQuery(owner);
-        final List<Integer> versions =
-                cast(getHibernateTemplate().find(query,
-                        toArray(owner, fileAttachment.getFileName())));
-        final Integer lastVersion = getEntity(versions);
-        return lastVersion == null ? 0 : lastVersion.intValue();
     }
 
     private final static String createFindLastVersionQuery(AttachmentHolderPE owner)
@@ -91,9 +81,10 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
         assert attachment.getAttachmentContent() != null : "Unspecified attachment content.";
         validatePE(attachment.getAttachmentContent());
 
-        // TODO 2009-06-17, Piotr Buczek: set previous title and description if nothing was set
-        final int version = findLastVersion(attachment, owner) + 1;
-        attachment.setVersion(version);
+        final AttachmentPE previousAttachmentVersionOrNull =
+                tryFindAttachmentByOwnerAndFileName(owner, attachment.getFileName());
+        fillAttachmentData(attachment, previousAttachmentVersionOrNull);
+
         owner.addAttachment(attachment);
         validatePE(attachment);
 
@@ -104,6 +95,25 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
         {
             operationLog.info(String.format("ADD: file attachment '%s'.", attachment));
         }
+    }
+
+    private void fillAttachmentData(AttachmentPE attachment,
+            AttachmentPE previousAttachmentVersionOrNull)
+    {
+        int previousVersion = 0;
+        if (previousAttachmentVersionOrNull != null)
+        {
+            previousVersion = previousAttachmentVersionOrNull.getVersion();
+            if (StringUtils.isBlank(attachment.getTitle()))
+            {
+                attachment.setTitle(previousAttachmentVersionOrNull.getTitle());
+            }
+            if (StringUtils.isBlank(attachment.getDescription()))
+            {
+                attachment.setDescription(previousAttachmentVersionOrNull.getDescription());
+            }
+        }
+        attachment.setVersion(previousVersion + 1);
     }
 
     public final List<AttachmentPE> listAttachments(final AttachmentHolderPE owner)
