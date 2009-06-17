@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 
 /**
  * An {@link AbstractPropertyColRenderer} which renders value in a default way (as a simple String).

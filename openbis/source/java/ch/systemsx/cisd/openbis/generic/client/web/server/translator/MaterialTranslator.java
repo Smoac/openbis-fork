@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
