@@ -21,6 +21,7 @@ import java.sql.SQLException;
 
 import net.lemnik.eodsql.QueryTool;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
@@ -60,6 +61,13 @@ public abstract class AbstractDBTest
         conn = new DBFactory(context).getConnection();
     }
 
+    @AfterMethod(alwaysRun = true)
+    public void closeConnection() throws SQLException
+    {
+        conn.close();
+        conn = null;
+    }
+    
     protected IEICMSRunDAO getEICMLDAO()
     {
         return QueryTool.getQuery(conn, IEICMSRunDAO.class);

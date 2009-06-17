@@ -57,6 +57,7 @@ public class FIAMLTest extends AbstractDBTest
         final FIAMSRunDTO run = runs.next();
         assertFalse(runs.hasNext());
         assertEquals(686, run.getProfileCount());
+        runs.close(); // Shoudn't be necessary, just to be sure.
         final DataIterator<ProfileDTO> profiles = fiamsDAO.getProfilesForRun(run);
         int count = 0;
         while (profiles.hasNext())
@@ -67,6 +68,7 @@ public class FIAMLTest extends AbstractDBTest
             ++count;
         }
         assertEquals(686, count);
+        profiles.close(); // Shoudn't be necessary, just to be sure.
         final DataIterator<CentroidDTO> centroids = fiamsDAO.getCentroidsForRun(run);
         count = 0;
         while (centroids.hasNext())
@@ -77,6 +79,7 @@ public class FIAMLTest extends AbstractDBTest
             ++count;
         }
         assertEquals(556, count);
+        centroids.close(); // Shoudn't be necessary, just to be sure.
     }
 
 }

@@ -58,6 +58,7 @@ public class EICMLTest extends AbstractDBTest
         final EICMSRunDTO run = runs.next();
         assertFalse(runs.hasNext());
         assertEquals(22, run.getChromCount());
+        runs.close(); // Shoudn't be necessary, just to be sure.
         final DataIterator<ChromatogramDTO> chromatograms = eicmlDAO.getChromatogramsForRun(run);
         int count = 0;
         while (chromatograms.hasNext())
@@ -66,5 +67,6 @@ public class EICMLTest extends AbstractDBTest
             ++count;
         }
         assertEquals(22, count);
+        chromatograms.close();  // Shoudn't be necessary, just to be sure.
     }
 }
