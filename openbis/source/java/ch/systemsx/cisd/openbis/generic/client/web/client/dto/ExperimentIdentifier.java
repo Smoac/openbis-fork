@@ -30,7 +30,6 @@ public final class ExperimentIdentifier implements IsSerializable
         ExperimentIdentifier identifier = new ExperimentIdentifier();
         identifier.setIdentifier(entity.getIdentifier());
         TechId tid = new TechId(entity.getId());
-        System.out.println(entity.getCode()+" "+tid);
         identifier.setTechID(tid);
         return identifier;
     }
