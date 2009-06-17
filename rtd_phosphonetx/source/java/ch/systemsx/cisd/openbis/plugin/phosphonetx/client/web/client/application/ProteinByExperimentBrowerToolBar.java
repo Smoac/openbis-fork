@@ -54,7 +54,6 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
                     ExperimentIdentifier identifier = chooser.getValue();
                     if (identifier != null)
                     {
-                        System.out.println("Experiment:" + identifier.getIdentifier());
                         browserGrid.update(identifier);
                     }
                 }

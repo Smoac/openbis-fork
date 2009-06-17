@@ -28,8 +28,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.IProtDAO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
 
 /**
  * 
@@ -44,6 +44,8 @@ public class PhosphoNetXDAOFactory implements IPhosphoNetXDAOFactory
     private static final Logger operationLog =
         LogFactory.getLogger(LogCategory.OPERATION, PhosphoNetXDAOFactory.class);
 
+    private IProteinQueryDAO proteinQueryDAO;
+
     public PhosphoNetXDAOFactory(DatabaseConfigurationContext context)
     {
         DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, DATABASE_VERSION);
@@ -55,11 +57,16 @@ public class PhosphoNetXDAOFactory implements IPhosphoNetXDAOFactory
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
-        QueryTool.getQuery(connection, IProtDAO.class);
+        proteinQueryDAO = QueryTool.getQuery(connection, IProteinQueryDAO.class);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("DAO factory for PhosphoNetX created.");
         }
+    }
+
+    public IProteinQueryDAO getProteinQueryDAO()
+    {
+        return proteinQueryDAO;
     }
 
 }

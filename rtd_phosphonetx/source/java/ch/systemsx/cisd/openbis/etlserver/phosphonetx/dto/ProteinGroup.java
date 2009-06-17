@@ -22,7 +22,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-import ch.systemsx.cisd.phosphonetx.Constants;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.Constants;
+
 
 /**
  * 

@@ -16,20 +16,22 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Protein;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-class ListProteinOriginalDataProvider implements IOriginalDataProvider<Protein>
+class ListProteinOriginalDataProvider implements IOriginalDataProvider<ProteinInfo>
 {
     private final IPhosphoNetXServer server;
     private final String sessionToken;
@@ -42,9 +44,18 @@ class ListProteinOriginalDataProvider implements IOriginalDataProvider<Protein>
         this.experimentID = experimentID;
     }
     
-    public List<Protein> getOriginalData() throws UserFailureException
+    public List<ProteinInfo> getOriginalData() throws UserFailureException
     {
-        return server.listProteinsByExperiment(sessionToken, experimentID);
+        List<ProteinReference> references = server.listProteinReferencesByExperiment(sessionToken, experimentID);
+        List<ProteinInfo> infos = new ArrayList<ProteinInfo>(references.size());
+        for (ProteinReference proteinReference : references)
+        {
+            ProteinInfo proteinInfo = new ProteinInfo();
+            proteinInfo.setAnnotationID(new TechId(proteinReference.getAnnotationID()));
+            proteinInfo.setDescription(proteinReference.getDescription());
+            infos.add(proteinInfo);
+        }
+        return infos;
     }
 
 }

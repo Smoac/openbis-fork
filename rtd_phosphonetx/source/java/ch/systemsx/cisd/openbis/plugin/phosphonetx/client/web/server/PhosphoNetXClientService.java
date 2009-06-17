@@ -28,9 +28,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ResourceNames;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Protein;
 
 /**
  * 
@@ -59,14 +59,14 @@ public class PhosphoNetXClientService extends AbstractClientService implements I
         return server;
     }
 
-    public ResultSet<Protein> listProteinsByExperiment(ListProteinByExperimentCriteria criteria) throws UserFailureException
+    public ResultSet<ProteinInfo> listProteinsByExperiment(ListProteinByExperimentCriteria criteria) throws UserFailureException
     {
         final String sessionToken = getSessionToken();
         return listEntities(criteria, new ListProteinOriginalDataProvider(server,
                 sessionToken, criteria.getExperimentID()));
     }
 
-    public String prepareExportProteins(TableExportCriteria<Protein> exportCriteria)
+    public String prepareExportProteins(TableExportCriteria<ProteinInfo> exportCriteria)
             throws UserFailureException
     {
         // TODO Auto-generated method stub

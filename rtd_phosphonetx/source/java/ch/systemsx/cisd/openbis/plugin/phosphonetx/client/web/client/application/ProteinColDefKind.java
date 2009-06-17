@@ -18,26 +18,26 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.applicatio
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Protein;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
 
 /**
  * @author Franz-Josef Elmer
  */
-public enum ProteinColDefKind implements IColumnDefinitionKind<Protein>
+public enum ProteinColDefKind implements IColumnDefinitionKind<ProteinInfo>
 {
-    DESCRIPTION(new AbstractColumnDefinitionKind<Protein>(Dict.PROTEIN_DESCRIPTION, true)
+    DESCRIPTION(new AbstractColumnDefinitionKind<ProteinInfo>(Dict.PROTEIN_DESCRIPTION, true)
         {
             @Override
-            public String tryGetValue(Protein entity)
+            public String tryGetValue(ProteinInfo entity)
             {
                 return entity.getDescription();
             }
         }), 
     ;
 
-    private final AbstractColumnDefinitionKind<Protein> columnDefinitionKind;
+    private final AbstractColumnDefinitionKind<ProteinInfo> columnDefinitionKind;
 
-    private ProteinColDefKind(AbstractColumnDefinitionKind<Protein> columnDefinitionKind)
+    private ProteinColDefKind(AbstractColumnDefinitionKind<ProteinInfo> columnDefinitionKind)
     {
         this.columnDefinitionKind = columnDefinitionKind;
     }
@@ -47,7 +47,7 @@ public enum ProteinColDefKind implements IColumnDefinitionKind<Protein>
         return name();
     }
 
-    public AbstractColumnDefinitionKind<Protein> getDescriptor()
+    public AbstractColumnDefinitionKind<ProteinInfo> getDescriptor()
     {
         return columnDefinitionKind;
     }

@@ -14,14 +14,28 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.phosphonetx;
+package ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto;
+
+import net.lemnik.eodsql.ResultColumn;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class Constants
+abstract class AbstractDTOWithIDAndPermID extends AbstractDTOWithID
 {
-    public static final String NAMESPACE = "http://regis-web.systemsbiology.net/protXML";
+    @ResultColumn("perm_id")
+    private String permID;
+
+    public final String getPermID()
+    {
+        return permID;
+    }
+
+    public final void setPermID(String permID)
+    {
+        this.permID = permID;
+    }
+
 }

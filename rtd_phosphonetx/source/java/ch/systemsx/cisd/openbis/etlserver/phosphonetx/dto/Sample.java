@@ -14,31 +14,27 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto;
+package ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import net.lemnik.eodsql.ResultColumn;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class ListProteinByExperimentCriteria extends DefaultResultSetConfig<String, ProteinInfo> implements IsSerializable
+public class Sample extends AbstractDTOWithIDAndPermID
 {
-    private TechId experimentID;
+    @ResultColumn("expe_id")
+    private Long experimentID;
 
-    public final TechId getExperimentID()
+    public final Long getExperimentID()
     {
         return experimentID;
     }
 
-    public final void setExperimentID(TechId experimentID)
+    public final void setExperimentID(Long experimentID)
     {
         this.experimentID = experimentID;
     }
-    
-    
 }

@@ -14,31 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class ListProteinByExperimentCriteria extends DefaultResultSetConfig<String, ProteinInfo> implements IsSerializable
+public class Constants
 {
-    private TechId experimentID;
-
-    public final TechId getExperimentID()
-    {
-        return experimentID;
-    }
-
-    public final void setExperimentID(TechId experimentID)
-    {
-        this.experimentID = experimentID;
-    }
-    
-    
+    public static final String NAMESPACE = "http://regis-web.systemsbiology.net/protXML";
 }

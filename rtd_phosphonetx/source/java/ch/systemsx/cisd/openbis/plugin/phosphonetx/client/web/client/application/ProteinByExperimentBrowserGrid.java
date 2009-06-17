@@ -33,14 +33,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Protein;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<Protein>
+class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinInfo>
 {
     private static final String PREFIX = GenericConstants.ID_PREFIX + "protein-by-experiment-browser";
 
@@ -79,29 +79,30 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<Protein>
     }
 
     @Override
-    protected IColumnDefinitionKind<Protein>[] getStaticColumnsDefinition()
+    protected IColumnDefinitionKind<ProteinInfo>[] getStaticColumnsDefinition()
     {
         return ProteinColDefKind.values();
     }
 
     @Override
-    protected List<IColumnDefinition<Protein>> getInitialFilters()
+    protected List<IColumnDefinition<ProteinInfo>> getInitialFilters()
     {
         return asColumnFilters(new ProteinColDefKind[] {ProteinColDefKind.DESCRIPTION});
     }
     
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, Protein> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<Protein>> callback)
+    protected void listEntities(DefaultResultSetConfig<String, ProteinInfo> resultSetConfig,
+            AbstractAsyncCallback<ResultSet<ProteinInfo>> callback)
     {
         if (criteria != null)
         {
+            criteria.copyPagingConfig(resultSetConfig);
             specificViewContext.getService().listProteinsByExperiment(criteria, callback);
         }
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<Protein> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<ProteinInfo> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         specificViewContext.getService().prepareExportProteins(exportCriteria, callback);

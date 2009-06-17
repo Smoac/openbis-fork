@@ -21,8 +21,10 @@ import net.lemnik.eodsql.DataSet;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.Update;
 
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Experiment;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ModificationType;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinAnnotation;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sample;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sequence;
 
 /**
@@ -36,14 +38,32 @@ public interface IProtDAO extends BaseQuery
     public DataSet<ModificationType> listModificationTypes();
     
     @Select("select * from sequences where amino_acid_sequence = ?{1}")
-    public Sequence tryToGetBySequence(String sequence);
+    public Sequence tryToGetSequenceBySequenceString(String sequence);
     
     @Select("insert into sequences (amino_acid_sequence, checksum) "
             + "values (?{1.sequence}, ?{1.checksum}) returning id")
     public long createSequence(Sequence sequence);
     
-    @Select("insert into proteins (data_set_perm_id) values (?{1}) returning id")
-    public long createProtein(String dataSetCode);
+    @Select("select * from experiments where perm_id = ?{1}")
+    public Experiment tryToGetExperimentByPermID(String permID);
+    
+    @Select("insert into experiments (perm_id) values (?{1}) returning id")
+    public long createExperiment(String experimentPermID);
+    
+    @Select("select * from samples where perm_id = ?{1}")
+    public Sample tryToGetSampleByPermID(String permID);
+    
+    @Select("insert into samples (expe_id, perm_id) values (?{1}, ?{2}) returning id")
+    public long createSample(long experimentID, String samplePermID);
+    
+    @Select("select * from data_sets where perm_id = ?{1}")
+    public ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.DataSet tryToGetDataSetByPermID(String permID);
+    
+    @Select("insert into data_sets (expe_id, samp_id, perm_id) values (?{1}, ?{2}, ?{3}) returning id")
+    public long createDataSet(long experimentID, Long sampleID, String dataSetPermID);
+    
+    @Select("insert into proteins (dase_id) values (?{1}) returning id")
+    public long createProtein(long dataSetID);
     
     @Select("insert into peptides (prot_id, sequ_id) values (?{1}, ?{2}) returning id")
     public long createPeptide(long proteinID, long sequenceID);

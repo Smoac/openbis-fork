@@ -30,6 +30,7 @@ import net.lemnik.eodsql.QueryTool;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
@@ -37,6 +38,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.AminoAcidMass;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.AnnotatedProtein;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.DataSet;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Experiment;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ModificationType;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Peptide;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.PeptideModification;
@@ -77,7 +80,10 @@ public class ResultDataSetHandler implements IDataSetHandler
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
-        Connection connection = createDatabaseConnection(properties);
+        ExtendedProperties dataSetHandlerProperties =
+                ExtendedProperties.getSubset(properties, IDataSetHandler.DATASET_HANDLER_KEY + '.',
+                        true);
+        Connection connection = createDatabaseConnection(dataSetHandlerProperties);
         dao = QueryTool.getQuery(connection, IProtDAO.class);
     }
 
@@ -111,8 +117,37 @@ public class ResultDataSetHandler implements IDataSetHandler
                     "Only data set handlers (like the primary one) " +
                     "registering exactly one data set are allowed.");
         }
-        addToDatabase(dataSets.get(0).getDataSetCode(), summary);
+        DataSetInformation dataSetInfo = dataSets.get(0);
+        Experiment experiment = getOrCreateExperiment(dataSetInfo.getExperiment().getPermId());
+        DataSet ds = getOrCreateDataSet(experiment, dataSetInfo.getDataSetCode());
+        addToDatabase(ds, summary);
         return dataSets;
+    }
+
+    private DataSet getOrCreateDataSet(Experiment experiment, String dataSetPermID)
+    {
+        DataSet dataSet = dao.tryToGetDataSetByPermID(dataSetPermID);
+        if (dataSet == null)
+        {
+            dataSet = new DataSet();
+            dataSet.setPermID(dataSetPermID);
+            long experimentID = experiment.getId();
+            dataSet.setExperimentID(experimentID);
+            dataSet.setId(dao.createDataSet(experimentID, null, dataSetPermID));
+        }
+        return dataSet;
+    }
+
+    private Experiment getOrCreateExperiment(String experimentPermID)
+    {
+        Experiment experiment = dao.tryToGetExperimentByPermID(experimentPermID);
+        if (experiment == null)
+        {
+            experiment = new Experiment();
+            experiment.setPermID(experimentPermID);
+            experiment.setId(dao.createExperiment(experimentPermID));
+        }
+        return experiment;
     }
 
     private ProteinSummary readProtXML(File dataSet)
@@ -132,8 +167,7 @@ public class ResultDataSetHandler implements IDataSetHandler
         }
     }
 
-    private void addToDatabase(String dataSetCode,
-            ProteinSummary summary)
+    private void addToDatabase(DataSet dataSet, ProteinSummary summary)
     {
         Iterable<ModificationType> modificationTypes = dao.listModificationTypes();
         List<ProteinGroup> proteinGroups = summary.getProteinGroups();
@@ -149,7 +183,7 @@ public class ResultDataSetHandler implements IDataSetHandler
             }
             for (Protein protein : proteins)
             {
-                long proteinID = dao.createProtein(dataSetCode);
+                long proteinID = dao.createProtein(dataSet.getId());
                 dao.createAnnotion(proteinID, protein.getAnnotation());
                 for (AnnotatedProtein annotatedProtein : protein.getIndistinguishableProteins())
                 {
@@ -184,7 +218,7 @@ public class ResultDataSetHandler implements IDataSetHandler
     private Sequence getOrCreateSequence(Peptide peptide)
     {
         String s = peptide.getSequence();
-        Sequence sequence = dao.tryToGetBySequence(s);
+        Sequence sequence = dao.tryToGetSequenceBySequenceString(s);
         if (sequence == null)
         {
             sequence = new Sequence(s);
