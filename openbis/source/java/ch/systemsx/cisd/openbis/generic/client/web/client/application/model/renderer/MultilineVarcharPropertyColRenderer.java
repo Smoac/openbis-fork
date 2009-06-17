@@ -35,8 +35,9 @@ class MultilineVarcharPropertyColRenderer<T extends IEntityPropertiesHolder> ext
     }
 
     @Override
-    protected String renderValue(String value)
+    protected String renderValue(T entity)
     {
+        String value = colDef.getValue(entity);
         return (new MultilineHTML(value)).toString();
     }
 

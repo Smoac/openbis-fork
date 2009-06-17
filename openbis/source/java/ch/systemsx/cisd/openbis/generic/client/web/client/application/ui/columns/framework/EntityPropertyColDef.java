@@ -107,6 +107,18 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
         return null;
     }
 
+    public EntityProperty<?, ?> tryGetProperty(T entity)
+    {
+        for (EntityProperty<?, ?> prop : getProperties(entity))
+        {
+            if (isMatching(prop))
+            {
+                return prop;
+            }
+        }
+        return null;
+    }
+
     protected List<? extends EntityProperty<?, ?>> getProperties(T entity)
     {
         return entity.getProperties();

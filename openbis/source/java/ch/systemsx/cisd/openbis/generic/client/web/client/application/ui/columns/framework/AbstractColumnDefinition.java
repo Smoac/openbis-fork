@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework;
 
-
 /**
  * @author Tomasz Pylak
  */
@@ -67,4 +66,5 @@ public abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI
         String value = tryGetValue(entity);
         return value != null ? value : "";
     }
+
 }

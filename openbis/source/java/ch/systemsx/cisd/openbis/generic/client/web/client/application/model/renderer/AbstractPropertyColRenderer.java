@@ -24,9 +24,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder
 /**
  * An abstract decorator for {@link EntityPropertyColDef} to be used in grids for rendering values
  * in a different way in grids than in export. <br>
- * It changes {@link EntityPropertyColDef#getValue(Object)} behavior distinguishing certain
- * property types so in grid there can be e.g. a link displayed for hyperlink property. Other
- * methods are delegated without any change.
+ * It changes {@link EntityPropertyColDef#getValue(Object)} behavior distinguishing certain property
+ * types so in grid there can be e.g. a link displayed for hyperlink property. Other methods are
+ * delegated without any change.
  * 
  * @author Piotr Buczek
  */
@@ -46,6 +46,8 @@ public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHol
                 return new HyperlinkPropertyColRenderer<S>(colDef);
             case MULTILINE_VARCHAR:
                 return new MultilineVarcharPropertyColRenderer<S>(colDef);
+            case CONTROLLEDVOCABULARY:
+                return new VocabularyPropertyColRenderer<S>(colDef);
             default:
                 return new DefaultPropertyColRenderer<S>(colDef);
         }
@@ -61,11 +63,13 @@ public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHol
 
     public String getValue(T entity)
     {
-        return renderValue(colDef.getValue(entity));
+        return renderValue(entity);
     }
 
-    /** @return given <var>value</var> rendered depending on property type */
-    protected abstract String renderValue(String value);
+    /**
+     * @return given <var>value</var> rendered depending on property type
+     */
+    protected abstract String renderValue(T entity);
 
     // default delegate methods
 

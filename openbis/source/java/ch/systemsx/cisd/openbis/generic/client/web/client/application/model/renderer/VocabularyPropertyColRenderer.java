@@ -18,18 +18,19 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ren
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 /**
- * An {@link AbstractPropertyColRenderer} which renders value as an external hyperlink.
+ * An {@link AbstractPropertyColRenderer} which renders vocabulary term with link.
  * 
- * @author Piotr Buczek
+ * @author Izabela Adamczyk
  */
-class HyperlinkPropertyColRenderer<T extends IEntityPropertiesHolder> extends
+class VocabularyPropertyColRenderer<T extends IEntityPropertiesHolder> extends
         AbstractPropertyColRenderer<T>
 {
-
-    public HyperlinkPropertyColRenderer(EntityPropertyColDef<T> colDef)
+    public VocabularyPropertyColRenderer(EntityPropertyColDef<T> colDef)
     {
         super(colDef);
     }
@@ -37,8 +38,26 @@ class HyperlinkPropertyColRenderer<T extends IEntityPropertiesHolder> extends
     @Override
     protected String renderValue(T entity)
     {
-        String value = colDef.getValue(entity);
-        return ExternalHyperlink.createAnchorString(value, value);
-    }
+        EntityProperty<?, ?> property = colDef.tryGetProperty(entity);
+        if (property != null)
+        {
+            VocabularyTerm term = property.getVocabularyTerm();
+            String code = null;
+            String url = null;
+            if (term != null)
+            {
+                code = term.getCode();
+                url = term.getUrl();
+            }
+            if (code != null && url != null)
+            {
 
+                return ExternalHyperlink.createAnchorString(code, url);
+            } else if (code != null)
+            {
+                return code;
+            }
+        }
+        return "";
+    }
 }

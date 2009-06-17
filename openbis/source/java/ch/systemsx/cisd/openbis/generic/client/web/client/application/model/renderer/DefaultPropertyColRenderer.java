@@ -34,9 +34,9 @@ class DefaultPropertyColRenderer<T extends IEntityPropertiesHolder> extends
     }
 
     @Override
-    protected String renderValue(String value)
+    protected String renderValue(T entity)
     {
-        return value;
+        return colDef.getValue(entity);
     }
 
 }
