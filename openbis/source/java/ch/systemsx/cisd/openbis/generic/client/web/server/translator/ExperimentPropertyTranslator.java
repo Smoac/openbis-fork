@@ -44,6 +44,8 @@ public final class ExperimentPropertyTranslator
         result.setValue(StringEscapeUtils.escapeHtml(experimentPropertyPE.tryGetUntypedValue()));
         result.setVocabularyTerm(VocabularyTermTranslator.translate(experimentPropertyPE
                 .getVocabularyTerm()));
+        result.setMaterial(MaterialTranslator.translate(experimentPropertyPE.getMaterialValue(),
+                false));
         result.setEntityTypePropertyType(ExperimentTypePropertyTypeTranslator
                 .translate((ExperimentTypePropertyTypePE) experimentPropertyPE
                         .getEntityTypePropertyType()));

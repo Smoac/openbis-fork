@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
+
 /**
  * An <i>abstract</i> entity property.
  * 
@@ -30,7 +32,19 @@ public abstract class EntityProperty<T extends EntityType, P extends EntityTypeP
 
     private VocabularyTerm vocabularyTermOrNull;
 
+    private Material materialOrNull;
+
     private P entityTypePropertyType;
+
+    public Material getMaterial()
+    {
+        return materialOrNull;
+    }
+
+    public void setMaterial(Material material)
+    {
+        this.materialOrNull = material;
+    }
 
     public VocabularyTerm getVocabularyTerm()
     {

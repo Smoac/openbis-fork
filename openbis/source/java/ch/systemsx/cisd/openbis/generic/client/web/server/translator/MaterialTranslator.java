@@ -43,12 +43,17 @@ public final class MaterialTranslator
         final List<Material> result = new ArrayList<Material>();
         for (final MaterialPE material : materials)
         {
-            result.add(MaterialTranslator.translate(material, true));
+            result.add(MaterialTranslator.translate(material));
         }
         return result;
     }
 
-    public final static Material translate(final MaterialPE materialPE, final boolean withDetails)
+    public final static Material translate(final MaterialPE materialPE)
+    {
+        return translate(materialPE, true);
+    }
+
+    public final static Material translate(final MaterialPE materialPE, final boolean withProperties)
     {
         if (materialPE == null)
         {
@@ -58,13 +63,13 @@ public final class MaterialTranslator
         result.setCode(StringEscapeUtils.escapeHtml(materialPE.getCode()));
         result.setId(HibernateUtils.getId(materialPE));
         result.setModificationDate(materialPE.getModificationDate());
-        if (withDetails)
+        result.setMaterialType(MaterialTypeTranslator.translate(materialPE.getMaterialType()));
+        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(materialPE
+                .getDatabaseInstance()));
+        result.setRegistrator(PersonTranslator.translate(materialPE.getRegistrator()));
+        result.setRegistrationDate(materialPE.getRegistrationDate());
+        if (withProperties)
         {
-            result.setMaterialType(MaterialTypeTranslator.translate(materialPE.getMaterialType()));
-            result.setDatabaseInstance(DatabaseInstanceTranslator.translate(materialPE
-                    .getDatabaseInstance()));
-            result.setRegistrator(PersonTranslator.translate(materialPE.getRegistrator()));
-            result.setRegistrationDate(materialPE.getRegistrationDate());
             result.setProperties(MaterialPropertyTranslator.translate(materialPE.getProperties()));
         }
         return result;

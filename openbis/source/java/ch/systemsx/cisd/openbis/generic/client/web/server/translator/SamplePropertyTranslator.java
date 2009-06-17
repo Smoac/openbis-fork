@@ -45,6 +45,9 @@ public final class SamplePropertyTranslator
         result.setVocabularyTerm(VocabularyTermTranslator.translate(samplePropertyPE
                 .getVocabularyTerm()));
         result
+                .setMaterial(MaterialTranslator.translate(samplePropertyPE.getMaterialValue(),
+                        false));
+        result
                 .setEntityTypePropertyType(SampleTypePropertyTypeTranslator
                         .translate((SampleTypePropertyTypePE) samplePropertyPE
                                 .getEntityTypePropertyType()));

@@ -38,17 +38,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IInvalidationProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -280,7 +279,7 @@ public final class PropertyValueRenderers
                 case MATERIAL:
                     return createLinkToMaterial(object);
                 case CONTROLLEDVOCABULARY:
-                    return createVocabularyTermWidget(object);
+                    return createVocabularyTermLink(object);
                 case HYPERLINK:
                     return createHyperlink(object);
                 case MULTILINE_VARCHAR:
@@ -297,30 +296,26 @@ public final class PropertyValueRenderers
 
         private Widget createLinkToMaterial(T object)
         {
-            String value = object.getValue();
-            MaterialIdentifier materialIdentifier = MaterialIdentifier.tryParseIdentifier(value);
-
-            final EntityKind entityKind = EntityKind.MATERIAL;
-            final EntityType entityType = new MaterialType();
-            entityType.setCode(materialIdentifier.getTypeCode());
-            final String identifier = value;
-
-            final IEntityInformationHolder entity =
-                    createEntityInformationHolder(entityKind, entityType, identifier);
-            final String code = materialIdentifier.getCode();
-            final ClickListener listener =
-                    new OpenEntityDetailsTabClickListener(entity, viewContext);
-
-            final Hyperlink link = LinkRenderer.getLinkWidget(code, listener);
-
-            FlowPanel panel = new FlowPanel();
-            panel.add(link);
-            // if all material types are allowed material type will be displayed too
-            if (isAllowedMaterialTypeUnspecified(object))
+            Material material = object.getMaterial();
+            if (material != null)
             {
-                panel.add(new InlineHTML(" [" + materialIdentifier.getTypeCode() + "]"));
+                final ClickListener listener =
+                        new OpenEntityDetailsTabClickListener(material, viewContext);
+
+                final Hyperlink link = LinkRenderer.getLinkWidget(material.getCode(), listener);
+
+                FlowPanel panel = new FlowPanel();
+                panel.add(link);
+                // if all material types are allowed material type will be displayed too
+                if (isAllowedMaterialTypeUnspecified(object))
+                {
+                    panel.add(new InlineHTML(" [" + material.getMaterialType().getCode() + "]"));
+                }
+                return panel;
+            } else
+            {
+                return createHtmlWidget(object);
             }
-            return panel;
         }
 
         private Widget createMultilineHtmlWidget(T object)
@@ -339,7 +334,7 @@ public final class PropertyValueRenderers
             return new ExternalHyperlink(value, value);
         }
 
-        private Widget createVocabularyTermWidget(T object)
+        private Widget createVocabularyTermLink(T object)
         {
             VocabularyTerm term = object.getVocabularyTerm();
             String code = null;
@@ -366,40 +361,6 @@ public final class PropertyValueRenderers
             return property.getEntityTypePropertyType().getPropertyType();
         }
 
-        private IEntityInformationHolder createEntityInformationHolder(final EntityKind entityKind,
-                final EntityType entityType, final String identifier)
-        {
-            return new IEntityInformationHolder()
-                {
-
-                    public EntityKind getEntityKind()
-                    {
-                        return entityKind;
-                    }
-
-                    public EntityType getEntityType()
-                    {
-                        return entityType;
-                    }
-
-                    public String getIdentifier()
-                    {
-                        return identifier;
-                    }
-
-                    // FIXME 2009-05-15, PB: no id or code to use here yet
-                    public Long getId()
-                    {
-                        return null;
-                    }
-
-                    public String getCode()
-                    {
-                        return null;
-                    }
-
-                };
-        }
     }
 
     /**

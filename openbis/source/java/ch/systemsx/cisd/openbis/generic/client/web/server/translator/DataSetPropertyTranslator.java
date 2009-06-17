@@ -45,6 +45,7 @@ public final class DataSetPropertyTranslator
         result
                 .setVocabularyTerm(VocabularyTermTranslator.translate(propertyPE
                         .getVocabularyTerm()));
+        result.setMaterial(MaterialTranslator.translate(propertyPE.getMaterialValue(), false));
         result.setEntityTypePropertyType(DataSetTypePropertyTypeTranslator
                 .translate((DataSetTypePropertyTypePE) propertyPE.getEntityTypePropertyType()));
         return result;
