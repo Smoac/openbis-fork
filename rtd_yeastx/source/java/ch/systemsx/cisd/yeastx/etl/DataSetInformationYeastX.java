@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.yeastx.etl;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.IWebService;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * {@link DataSetInformation} extension for YeastX.
@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IWebService;
  */
 public class DataSetInformationYeastX extends DataSetInformation
 {
-    private static final long serialVersionUID = IWebService.VERSION;
+    private static final long serialVersionUID = IServer.VERSION;
 
     private MLConversionType conversion;
 
