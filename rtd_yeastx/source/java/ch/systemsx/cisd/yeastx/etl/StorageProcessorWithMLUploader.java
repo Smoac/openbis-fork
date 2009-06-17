@@ -35,7 +35,7 @@ public class StorageProcessorWithMLUploader extends AbstractDelegatingStoragePro
     public StorageProcessorWithMLUploader(Properties properties)
     {
         super(properties);
-        this.uploader = new ML2DatabaseUploader();
+        this.uploader = new ML2DatabaseUploader(properties);
     }
 
     @Override

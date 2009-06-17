@@ -19,10 +19,14 @@ package ch.systemsx.cisd.yeastx.etl;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import org.apache.commons.io.FilenameUtils;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.utilities.BeanUtils;
+import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.yeastx.db.DBFactory;
 import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
@@ -37,20 +41,26 @@ import ch.systemsx.cisd.yeastx.fiaml.FIAML2Database;
  */
 public class ML2DatabaseUploader
 {
+    private static final String DATABASE_PROPERTIES_PREFIX = "database.";
+    
     private final Connection connection;
 
-    public ML2DatabaseUploader()
+    public ML2DatabaseUploader(Properties props)
     {
-        this.connection = getDatabaseConnection();
+        final Properties dbProps =
+                ExtendedProperties.getSubset(props, DATABASE_PROPERTIES_PREFIX, true);
+        final DatabaseConfigurationContext dbContext =
+                (dbProps.isEmpty() ? DBFactory.createDefaultDBContext() : BeanUtils.createBean(
+                        DatabaseConfigurationContext.class, dbProps));
+        this.connection = getDatabaseConnection(dbContext);
     }
 
-    private static Connection getDatabaseConnection() throws EnvironmentFailureException
+    private static Connection getDatabaseConnection(DatabaseConfigurationContext dbContext)
+            throws EnvironmentFailureException
     {
         try
         {
-            // TODO 2009-06-17, Bernd Rinn: Get the DatabaseConfigurationContext from Spring instead
-            // of using the default one.
-            return new DBFactory(DBFactory.createDefaultDBContext()).getConnection();
+            return new DBFactory(dbContext).getConnection();
         } catch (SQLException e)
         {
             throw EnvironmentFailureException.fromTemplate(e,
