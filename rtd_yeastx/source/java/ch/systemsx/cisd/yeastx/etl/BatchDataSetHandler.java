@@ -28,9 +28,13 @@ import java.util.Set;
 
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.mail.MailClient;
+import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.yeastx.etl.DatasetMappingUtil.DataSetMappingInformationFile;
 
 /**
  * {@link IDataSetHandler} implementation which for each dataset directory reads all the files
@@ -42,46 +46,81 @@ public class BatchDataSetHandler implements IDataSetHandler
 {
     private final IDataSetHandler delegator;
 
+    private final IMailClient mailClient;
+
     private final DatasetMappingResolver datasetMappingResolver;
 
-    public BatchDataSetHandler(Properties properties, IDataSetHandler delegator,
+    public BatchDataSetHandler(Properties parentProperties, IDataSetHandler delegator,
             IEncapsulatedOpenBISService openbisService)
     {
         this.delegator = delegator;
-        this.datasetMappingResolver = new DatasetMappingResolver(properties, openbisService);
+        this.mailClient = new MailClient(parentProperties);
+        this.datasetMappingResolver =
+                new DatasetMappingResolver(getSpecificProperties(parentProperties), openbisService);
+    }
+
+    private static Properties getSpecificProperties(Properties properties)
+    {
+        return ExtendedProperties.getSubset(properties, IDataSetHandler.DATASET_HANDLER_KEY + '.',
+                true);
     }
 
     public List<DataSetInformation> handleDataSet(File datasetsParentDir)
     {
-        List<DataSetInformation> processedDatasetFiles = new ArrayList<DataSetInformation>();
         if (canBatchBeProcessed(datasetsParentDir) == false)
         {
-            return processedDatasetFiles;
+            return createEmptyResult();
         }
         LogUtils log = new LogUtils(datasetsParentDir);
-        TableMap<String, DataSetMappingInformation> datasetsMapping =
-                DatasetMappingUtil.tryGetDatasetsMapping(datasetsParentDir);
-        if (datasetsMapping == null)
+        DataSetMappingInformationFile datasetMappingFile =
+                DatasetMappingUtil.tryGetDatasetsMapping(datasetsParentDir, log);
+        if (datasetMappingFile == null || datasetMappingFile.tryGetMappings() == null)
         {
             touchErrorMarkerFile(datasetsParentDir, log);
-            return processedDatasetFiles;
+            sendNotificationsIfNecessary(log, tryGetEmail(datasetMappingFile));
+            return createEmptyResult();
         }
+        return processDatasets(datasetsParentDir, log, datasetMappingFile.tryGetMappings(),
+                datasetMappingFile.getNotificationEmail());
+    }
+
+    private List<DataSetInformation> processDatasets(File datasetsParentDir, LogUtils log,
+            TableMap<String, DataSetMappingInformation> mappings, String notificationEmail)
+    {
+        List<DataSetInformation> processedDatasetFiles = createEmptyResult();
+
         Set<String> processedFiles = new HashSet<String>();
         List<File> files = listAll(datasetsParentDir);
         for (File file : files)
         {
-            if (canDatasetBeProcessed(file, datasetsMapping, log))
+            if (canDatasetBeProcessed(file, mappings, log))
             {
                 processedDatasetFiles.addAll(delegator.handleDataSet(file));
                 processedFiles.add(file.getName().toLowerCase());
             }
         }
-        clean(datasetsParentDir, processedFiles, log, datasetsMapping.values().size());
-        log.sendNotificationsIfNecessary();
+        clean(datasetsParentDir, processedFiles, log, mappings.values().size());
+        sendNotificationsIfNecessary(log, notificationEmail);
         return processedDatasetFiles;
     }
 
-    private boolean canBatchBeProcessed(File parentDir)
+    private void sendNotificationsIfNecessary(LogUtils log, String email)
+    {
+        log.sendNotificationsIfNecessary(mailClient, email);
+    }
+
+    private static String tryGetEmail(DataSetMappingInformationFile datasetMappingFileOrNull)
+    {
+        return datasetMappingFileOrNull == null ? null : datasetMappingFileOrNull
+                .getNotificationEmail();
+    }
+
+    private static ArrayList<DataSetInformation> createEmptyResult()
+    {
+        return new ArrayList<DataSetInformation>();
+    }
+
+    private static boolean canBatchBeProcessed(File parentDir)
     {
         if (parentDir.isDirectory() == false)
         {
@@ -109,18 +148,13 @@ public class BatchDataSetHandler implements IDataSetHandler
         return new File(datasetsParentDir, ERROR_MARKER_FILE).isFile();
     }
 
-    private void cleanMappingFile(File datasetsParentDir, Set<String> processedFiles, LogUtils log)
+    private static void cleanMappingFile(File datasetsParentDir, Set<String> processedFiles,
+            LogUtils log)
     {
-        try
-        {
-            DatasetMappingUtil.cleanMappingFile(datasetsParentDir, processedFiles);
-        } catch (IOException ex)
-        {
-            log.userError("Cannot clean dataset mappings file: " + ex.getMessage());
-        }
+        DatasetMappingUtil.cleanMappingFile(datasetsParentDir, processedFiles, log);
     }
 
-    private void clean(File datasetsParentDir, Set<String> processedFiles, LogUtils log,
+    private static void clean(File datasetsParentDir, Set<String> processedFiles, LogUtils log,
             int datasetMappingsNumber)
     {
         cleanMappingFile(datasetsParentDir, processedFiles, log);
@@ -155,13 +189,13 @@ public class BatchDataSetHandler implements IDataSetHandler
                     .getPath());
         } else
         {
-            log.userWarning(
+            log.warning(
                     "Correct the errors and delete the '%s' file to start processing again.",
                     ERROR_MARKER_FILE);
         }
     }
 
-    private void cleanDatasetsDir(File datasetsParentDir)
+    private static void cleanDatasetsDir(File datasetsParentDir)
     {
         LogUtils.deleteUserLog(datasetsParentDir);
         DatasetMappingUtil.deleteMappingFile(datasetsParentDir);
@@ -186,7 +220,7 @@ public class BatchDataSetHandler implements IDataSetHandler
         return datasetMappingResolver.isMappingCorrect(mapping, log);
     }
 
-    private void deleteEmptyDir(File dir)
+    private static void deleteEmptyDir(File dir)
     {
         boolean ok = dir.delete();
         if (ok == false)
@@ -197,7 +231,7 @@ public class BatchDataSetHandler implements IDataSetHandler
         }
     }
 
-    private boolean hasNoPotentialDatasetFiles(File dir)
+    private static boolean hasNoPotentialDatasetFiles(File dir)
     {
         List<File> files = listAll(dir);
         int datasetsCounter = files.size();
@@ -211,7 +245,7 @@ public class BatchDataSetHandler implements IDataSetHandler
         return datasetsCounter == 0;
     }
 
-    private List<File> listAll(File dataSet)
+    private static List<File> listAll(File dataSet)
     {
         return FileUtilities.listFilesAndDirectories(dataSet, false, null);
     }

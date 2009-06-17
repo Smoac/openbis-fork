@@ -28,12 +28,16 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.mail.IMailClient;
 
 /**
  * @author Tomasz Pylak
  */
 class LogUtils
 {
+    private static final String ERROR_NOTIFICATION_EMAIL_SUBJECT =
+            "[openBIS] problems with datasets upload in directory: %s";
+
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, LogUtils.class);
 
@@ -42,50 +46,97 @@ class LogUtils
 
     private final File loggingDir;
 
-    private final StringBuffer messageToSend;
+    private final StringBuffer errorMessages;
 
     public LogUtils(File loggingDir)
     {
         this.loggingDir = loggingDir;
-        this.messageToSend = new StringBuffer();
+        this.errorMessages = new StringBuffer();
     }
 
-    public void userError(String messageFormat, Object... arguments)
+    /** Logs errors about one dataset mapping. Uses user log file and email notification. */
+    public void datasetMappingError(DataSetMappingInformation mapping, String errorMessageFormat,
+            Object... arguments)
     {
-        String message = basicError(loggingDir, messageFormat, arguments);
-        messageToSend.append(message);
+        String errorMessage = String.format(errorMessageFormat, arguments);
+        error("Cannot upload the file " + mapping.getFileName() + ": " + errorMessage);
     }
 
-    public void userWarning(String messageFormat, Object... arguments)
+    /**
+     * Logs an error about the syntax of the mapping file. Uses user log file and email
+     * notification.
+     */
+    public void mappingFileError(File mappingFile, String messageFormat, Object... arguments)
     {
-        String message = basicWarn(loggingDir, messageFormat, arguments);
-        messageToSend.append(message);
+        String errorMessage = String.format(messageFormat, arguments);
+        error("No datasets could be processed, because there is an error in the mapping file "
+                + mappingFile.getName() + ": " + errorMessage);
     }
 
-    public void sendNotificationsIfNecessary()
+    /** Uses user log file and email notification to log an error. */
+    public void error(String messageFormat, Object... arguments)
     {
-        // TODO 2009-06-16, Tomasz Pylak: add email notification
-        if (messageToSend.length() > 0)
+        logError(loggingDir, messageFormat, arguments);
+        appendNotification(messageFormat, arguments);
+    }
+
+    /** Uses user log file and email notification to log a warning. */
+    public void warning(String messageFormat, Object... arguments)
+    {
+        logWarning(loggingDir, messageFormat, arguments);
+        appendNotification(messageFormat, arguments);
+    }
+
+    private void appendNotification(String messageFormat, Object... arguments)
+    {
+        errorMessages.append(String.format(messageFormat, arguments));
+        errorMessages.append("\n");
+    }
+
+    /** has to be called at the end to send all notifications in one email */
+    public void sendNotificationsIfNecessary(IMailClient mailClient, String notificationEmailOrNull)
+    {
+        if (notificationEmailOrNull != null && errorMessages.length() > 0)
         {
-            System.out.println("Email content: ");
-            System.out.println(messageToSend);
+            sendErrorMessage(mailClient, notificationEmailOrNull);
         }
     }
 
+    private void sendErrorMessage(IMailClient mailClient, String notificationEmail)
+    {
+        String subject = String.format(ERROR_NOTIFICATION_EMAIL_SUBJECT, loggingDir.getName());
+        mailClient.sendMessage(subject, createErrorNotificationContent(), null, notificationEmail);
+    }
+
+    private String createErrorNotificationContent()
+    {
+        StringBuffer sb = new StringBuffer();
+        sb.append("Hello,\n");
+        sb.append("This email has been generated automatically by openBIS.\n");
+        sb.append("The upload of some datasets from '");
+        sb.append(loggingDir.getName());
+        sb.append("' directory has failed. There are following errors:\n");
+        sb.append(errorMessages);
+        sb.append("\n");
+        sb.append("If you are not sure how to correct the errors and you cannot find the answer"
+                + " in the documentation, ask for help your openBIS administrator.\n");
+        sb.append("Kind regards,\n");
+        sb.append("   openBIS Team");
+        return sb.toString();
+    }
+
     /** Adds an entry about an error to the user log file. Does not send an email. */
-    public static String basicError(File loggingDir, String messageFormat, Object... arguments)
+    private static void logError(File loggingDir, String messageFormat, Object... arguments)
     {
         String message = createUserMessage("ERROR", messageFormat, arguments);
         notifyUserByLogFile(loggingDir, message);
-        return message;
     }
 
     /** Adds an entry about a warning to the user log file. Does not send an email. */
-    public static String basicWarn(File loggingDir, String messageFormat, Object... arguments)
+    private static void logWarning(File loggingDir, String messageFormat, Object... arguments)
     {
         String message = createUserMessage("WARNING", messageFormat, arguments);
         notifyUserByLogFile(loggingDir, message);
-        return message;
     }
 
     private static void notifyUserByLogFile(File loggingDir, String message)

@@ -47,7 +47,7 @@ public class DataSetInformationParserTest extends AbstractFileSystemTestCase
     {
         File indexFile =
                 writeMappingFile(HEADER + "data.txt sample1 group1 experiment1 fiaML v1 v2");
-        List<DataSetMappingInformation> list = DataSetMappingInformationParser.tryParse(indexFile);
+        List<DataSetMappingInformation> list = tryParse(indexFile);
         AssertJUnit.assertEquals(1, list.size());
         DataSetMappingInformation elem = list.get(0);
         AssertJUnit.assertEquals("group1", elem.getGroupCode());
@@ -63,14 +63,12 @@ public class DataSetInformationParserTest extends AbstractFileSystemTestCase
             IOException
     {
         File indexFile = writeMappingFile(HEADER + TAB + TAB + TAB + TAB + TAB + TAB);
-        List<DataSetMappingInformation> result =
-                DataSetMappingInformationParser.tryParse(indexFile);
+        List<DataSetMappingInformation> result = tryParse(indexFile);
         AssertJUnit.assertNull("error during parsing expected", result);
         List<String> logLines = readLogFile();
         System.out.println(logLines);
         AssertJUnit.assertEquals(3, logLines.size());
-        AssertionUtil.assertContains("Missing value for the mandatory column", logLines
-                .get(2));
+        AssertionUtil.assertContains("Missing value for the mandatory column", logLines.get(2));
     }
 
     @Test
@@ -78,13 +76,18 @@ public class DataSetInformationParserTest extends AbstractFileSystemTestCase
             IOException
     {
         File indexFile = writeMappingFile("xxx");
-        List<DataSetMappingInformation> result =
-                DataSetMappingInformationParser.tryParse(indexFile);
+        List<DataSetMappingInformation> result = tryParse(indexFile);
         AssertJUnit.assertNull("error during parsing expected", result);
         List<String> logLines = readLogFile();
         AssertJUnit.assertEquals(2, logLines.size());
         AssertionUtil.assertContains(
                 "Mandatory column(s) 'group', 'sample', 'file_name' are missing", logLines.get(1));
+    }
+
+    private List<DataSetMappingInformation> tryParse(File indexFile)
+    {
+        LogUtils log = new LogUtils(indexFile.getParentFile());
+        return DataSetMappingInformationParser.tryParse(indexFile, log);
     }
 
     private List<String> readLogFile() throws IOException, FileNotFoundException

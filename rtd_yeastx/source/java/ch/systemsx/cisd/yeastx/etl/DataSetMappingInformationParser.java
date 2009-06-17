@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
  */
 class DataSetMappingInformationParser
 {
-    public static List<DataSetMappingInformation> tryParse(File mappingFile)
+    public static List<DataSetMappingInformation> tryParse(File mappingFile, LogUtils log)
     {
         TabFileLoader<DataSetMappingInformation> tabFileLoader =
                 new TabFileLoader<DataSetMappingInformation>(
@@ -54,16 +54,16 @@ class DataSetMappingInformationParser
             return tabFileLoader.load(mappingFile);
         } catch (final IllegalArgumentException e)
         {
-            logParsingError(e, mappingFile);
+            logParsingError(log, e, mappingFile);
             return null;
         } catch (final Exception e)
         {
-            logParsingError(e, mappingFile);
+            logParsingError(log, e, mappingFile);
             return null;
         }
     }
 
-    private static void logParsingError(Exception e, File mappingFile)
+    private static void logParsingError(LogUtils log, Exception e, File mappingFile)
     {
         Throwable cause = e.getCause();
         String causeMsg = "";
@@ -71,10 +71,8 @@ class DataSetMappingInformationParser
         {
             causeMsg = "\nThe exception was caused by: " + cause.getMessage();
         }
-        LogUtils.basicError(mappingFile.getParentFile(),
-                "The datasets cannot be processed because the mapping file '%s' has incorrect format."
-                        + " The following exception occured:\n%s%s", mappingFile.getPath(), e
-                        .getMessage(), causeMsg);
+        log.mappingFileError(mappingFile, "the mapping file '%s' has incorrect format."
+                + " The problem is:\n%s%s", mappingFile.getPath(), e.getMessage(), causeMsg);
     }
 
     private static final class NewPropertyParserObjectFactory extends

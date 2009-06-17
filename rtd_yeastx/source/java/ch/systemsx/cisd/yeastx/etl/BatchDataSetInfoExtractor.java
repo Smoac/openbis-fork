@@ -42,15 +42,15 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
             IEncapsulatedOpenBISService openbisService) throws UserFailureException,
             EnvironmentFailureException
     {
+        LogUtils log = new LogUtils(incomingDataSetPath.getParentFile());
         DataSetMappingInformation plainInfo =
-                DatasetMappingUtil.tryGetDatasetMapping(incomingDataSetPath);
+                DatasetMappingUtil.tryGetDatasetMapping(incomingDataSetPath, log);
         if (plainInfo != null)
         {
             DataSetInformationYeastX info = new DataSetInformationYeastX();
             info.setComplete(true);
             info.setDataSetProperties(plainInfo.getProperties());
-            String sampleCode =
-                    getSampleCode(plainInfo, openbisService, incomingDataSetPath.getParentFile());
+            String sampleCode = getSampleCode(plainInfo, openbisService, log);
             info.setSampleCode(sampleCode);
             info.setGroupCode(plainInfo.getGroupCode());
             MLConversionType conversion = getConversion(plainInfo.getConversion());
@@ -76,11 +76,11 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
     }
 
     private String getSampleCode(DataSetMappingInformation mapping,
-            IEncapsulatedOpenBISService openbisService, File logDir)
+            IEncapsulatedOpenBISService openbisService, LogUtils log)
     {
         String sampleCode =
                 new DatasetMappingResolver(properties, openbisService).tryFigureSampleCode(mapping,
-                        new LogUtils(logDir));
+                        log);
         if (sampleCode == null)
         {
             // should not happen, the dataset handler should skip datasets with incorrect mapping

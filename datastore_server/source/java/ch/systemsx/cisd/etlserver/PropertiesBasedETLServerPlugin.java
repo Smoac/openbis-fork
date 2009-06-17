@@ -155,7 +155,7 @@ public class PropertiesBasedETLServerPlugin extends ETLServerPlugin
         } else
         {
             return create(IDataSetHandler.class, properties, IDataSetHandler.DATASET_HANDLER_KEY,
-                    true, primaryDataSetHandler, openbisService);
+                    false, primaryDataSetHandler, openbisService);
         }
     }
 

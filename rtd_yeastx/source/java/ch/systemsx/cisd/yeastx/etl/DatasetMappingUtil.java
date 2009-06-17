@@ -48,7 +48,7 @@ class DatasetMappingUtil
         { "tsv" };
 
     private static TableMap<String, DataSetMappingInformation> tryAsFileMap(
-            List<DataSetMappingInformation> list, File logDir)
+            List<DataSetMappingInformation> list, LogUtils log, File mappingFile)
     {
         IKeyExtractor<String, DataSetMappingInformation> extractor =
                 new IKeyExtractor<String, DataSetMappingInformation>()
@@ -64,23 +64,21 @@ class DatasetMappingUtil
                     UniqueKeyViolationStrategy.ERROR);
         } catch (UniqueKeyViolationException e)
         {
-            // TODO 2009-06-16, Tomasz Pylak: use email to send notifications
-            LogUtils.basicError(logDir,
-                    "The file '%s' appears more than once. No datasets will be processed.", e
-                            .getInvalidKey());
+            log.mappingFileError(mappingFile, "the file '%s' appears more than once.", e
+                    .getInvalidKey());
             return null;
         }
     }
 
-    public static DataSetMappingInformation tryGetDatasetMapping(File datasetFile)
+    public static DataSetMappingInformation tryGetDatasetMapping(File datasetFile, LogUtils log)
     {
-        TableMap<String, DataSetMappingInformation> datasetsMapping =
-                tryGetDatasetsMapping(datasetFile.getParentFile());
-        if (datasetsMapping == null)
+        DataSetMappingInformationFile datasetsMappings =
+                tryGetDatasetsMapping(datasetFile.getParentFile(), log);
+        if (datasetsMappings == null || datasetsMappings.tryGetMappings() == null)
         {
             return null;
         }
-        return tryGetDatasetMapping(datasetFile, datasetsMapping);
+        return tryGetDatasetMapping(datasetFile, datasetsMappings.tryGetMappings());
     }
 
     public static DataSetMappingInformation tryGetDatasetMapping(File datasetFile,
@@ -91,7 +89,7 @@ class DatasetMappingUtil
     }
 
     // returns the content of the first line comment or null if there is no comment or it is empty
-    private static String tryGetFirstLineCommentContent(File mappingFile)
+    private static String tryGetFirstLineCommentContent(File mappingFile, LogUtils log)
     {
         List<String> lines;
         try
@@ -99,7 +97,8 @@ class DatasetMappingUtil
             lines = readLines(mappingFile);
         } catch (IOException e)
         {
-            errorInFile(mappingFile, e.getMessage());
+            Object[] arguments = {};
+            log.mappingFileError(mappingFile, e.getMessage(), arguments);
             return null;
         }
         if (lines.size() == 0)
@@ -120,60 +119,80 @@ class DatasetMappingUtil
         return firstLine;
     }
 
-    private static void errorInFile(File file, String message)
+    /**
+     * @return email address from the first line of the mapping file or null if there is no emai or
+     *         it is invalid.
+     */
+    private static String tryGetEmail(File mappingFile, LogUtils log)
     {
-        LogUtils.basicError(file.getParentFile(), "Error while reading the file '%s': %s", file
-                .getPath(), message);
-    }
-
-    // returns email address from the first line of the mapping file or null if there is no emai or
-    // it is invalid
-    private static String tryGetEmail(File mappingFile)
-    {
-        String email = tryGetFirstLineCommentContent(mappingFile);
+        String email = tryGetFirstLineCommentContent(mappingFile, log);
         if (email == null)
         {
-            errorInFile(mappingFile, String.format(
+            log.mappingFileError(mappingFile,
                     "There should be a '%s' character followed by an email address "
                             + "in the first line of the file. "
                             + "The email is needed to send messages about errors.",
-                    TabFileLoader.COMMENT_PREFIX));
+                    TabFileLoader.COMMENT_PREFIX);
             return null;
         }
         if (email.contains("@") == false || email.contains(".") == false)
         {
-            errorInFile(mappingFile, String.format(
-                    "The text '%s' does not seem to be an email address.", email));
+            log.mappingFileError(mappingFile,
+                    "The text '%s' does not seem to be an email address.", email);
             return null;
         }
         return email;
     }
 
-    public static TableMap<String/* file name in lowercase */, DataSetMappingInformation> tryGetDatasetsMapping(
-            File parentDir)
+    static class DataSetMappingInformationFile
+    {
+        private final TableMap<String/* file name in lowercase */, DataSetMappingInformation> mappingsOrNull;
+
+        private final String notificationEmail;
+
+        public DataSetMappingInformationFile(
+                TableMap<String, DataSetMappingInformation> mappingsOrNull, String notificationEmail)
+        {
+            this.mappingsOrNull = mappingsOrNull;
+            this.notificationEmail = notificationEmail;
+        }
+
+        public TableMap<String, DataSetMappingInformation> tryGetMappings()
+        {
+            return mappingsOrNull;
+        }
+
+        public String getNotificationEmail()
+        {
+            return notificationEmail;
+        }
+    }
+
+    public static DataSetMappingInformationFile tryGetDatasetsMapping(File parentDir, LogUtils log)
     {
         File mappingFile = tryGetMappingFile(parentDir);
         if (mappingFile == null)
         {
-            LogUtils.basicWarn(parentDir, "Cannot process the directory '%s' "
+            log.error("No datasets from the directory '%s' can be processed "
                     + "because a file with extension '%s' which contains dataset descriptions "
-                    + "does not exist or there is more than one.", parentDir.getPath(),
-                    CollectionUtils.abbreviate(MAPPING_FILE_EXTENSIONS, -1));
+                    + "does not exist or there is more than one file with taht extension.",
+                    parentDir.getName(), CollectionUtils.abbreviate(MAPPING_FILE_EXTENSIONS, -1));
             return null;
         }
-        String notificationEmail = tryGetEmail(mappingFile);
+        String notificationEmail = tryGetEmail(mappingFile, log);
         if (notificationEmail == null)
         {
-            return null;
+            return null; // email has to be provided always
         }
+        TableMap<String, DataSetMappingInformation> mappingsOrNull = null;
         List<DataSetMappingInformation> list =
-                DataSetMappingInformationParser.tryParse(mappingFile);
-        if (list == null)
+                DataSetMappingInformationParser.tryParse(mappingFile, log);
+        if (list != null)
         {
-            return null;
+            DatasetMappingResolver.adaptPropertyCodes(list);
+            mappingsOrNull = tryAsFileMap(list, log, mappingFile);
         }
-        DatasetMappingResolver.adaptPropertyCodes(list);
-        return tryAsFileMap(list, parentDir);
+        return new DataSetMappingInformationFile(mappingsOrNull, notificationEmail);
     }
 
     public static boolean isMappingFile(File file)
@@ -228,25 +247,31 @@ class DatasetMappingUtil
      * 
      * @param processedFiles files which should be removed from the mapping file
      */
-    public static void cleanMappingFile(File parentDir, Set<String> processedFiles)
-            throws IOException
+    public static void cleanMappingFile(File parentDir, Set<String> processedFiles, LogUtils log)
     {
         File mappingFile = tryGetMappingFile(parentDir);
         if (mappingFile == null)
         {
             return;
         }
-        List<String> lines = readLines(mappingFile);
-        List<String> unprocessedLines = new ArrayList<String>();
-        for (String line : lines)
+        try
         {
-            String tokens[] = line.trim().split("\t");
-            if (tokens.length == 0 || processedFiles.contains(tokens[0].toLowerCase()) == false)
+            List<String> lines = readLines(mappingFile);
+            List<String> unprocessedLines = new ArrayList<String>();
+            for (String line : lines)
             {
-                unprocessedLines.add(line);
+                String tokens[] = line.trim().split("\t");
+                if (tokens.length == 0 || processedFiles.contains(tokens[0].toLowerCase()) == false)
+                {
+                    unprocessedLines.add(line);
+                }
             }
+            IOUtils.writeLines(unprocessedLines, "\n", new FileOutputStream(mappingFile));
+        } catch (IOException ex)
+        {
+            log.mappingFileError(mappingFile, "cannot clean dataset mappings file: "
+                    + ex.getMessage());
         }
-        IOUtils.writeLines(unprocessedLines, "\n", new FileOutputStream(mappingFile));
     }
 
     @SuppressWarnings("unchecked")
