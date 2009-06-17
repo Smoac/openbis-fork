@@ -34,8 +34,6 @@ import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
@@ -50,8 +48,6 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -79,7 +75,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.GridDisplaySettings;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -1285,8 +1280,14 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return selectedColumnDefs;
     }
 
+    /** Creates deletion callback that refreshes the grid. */
+    protected AbstractAsyncCallback<Void> createDeletionCallback(IBrowserGridActionInvoker invoker)
+    {
+        return new DeletionCallback(viewContext, invoker);
+    }
+
     /** Deletion callback that refreshes the grid. */
-    protected static final class DeletionCallback extends AbstractAsyncCallback<Void>
+    private static final class DeletionCallback extends AbstractAsyncCallback<Void>
     {
         private final IBrowserGridActionInvoker invoker;
 
@@ -1301,126 +1302,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         {
             invoker.refresh();
         }
-    }
-
-    /** Abstract dialog that executes an action with a list of data on confirm. */
-    protected abstract class AbstractConfirmationDialog extends Dialog
-    {
-        protected final List<T> data;
-
-        protected final IBrowserGridActionInvoker invoker;
-
-        protected final FormPanel formPanel;
-
-        protected final KeyListener keyListener;
-
-        protected AbstractConfirmationDialog(List<T> data, IBrowserGridActionInvoker invoker,
-                String titleKey)
-        {
-            this.invoker = invoker;
-            this.data = data;
-            setHeading(viewContext.getMessage(titleKey));
-            setButtons(Dialog.OKCANCEL);
-            setHideOnButtonClick(true);
-            setModal(true);
-            this.formPanel = createForm();
-            this.keyListener = new KeyListener()
-                {
-                    @Override
-                    public void handleEvent(ComponentEvent ce)
-                    {
-                        updateOkButtonState();
-                    }
-
-                };
-            extendForm();
-            addText(createMessage());
-            add(formPanel);
-        }
-
-        protected abstract String createMessage();
-
-        protected abstract void extendForm();
-
-        protected abstract void executeConfirmedAction();
-
-        private void updateOkButtonState()
-        {
-            okBtn.setEnabled(formPanel.isValid());
-        }
-
-        private FormPanel createForm()
-        {
-            FormPanel form = new FormPanel();
-            form.setBodyBorder(false);
-            form.setHeaderVisible(false);
-            return form;
-        }
-
-        @Override
-        protected final void onButtonPressed(Button button)
-        {
-            if (button.getItemId().equals(Dialog.OK))
-            {
-                if (formPanel.isValid())
-                {
-                    super.onButtonPressed(button);
-                    executeConfirmedAction();
-                }
-            } else
-            {
-                super.onButtonPressed(button);
-            }
-        }
-
-        @Override
-        protected void onRender(Element parent, int pos)
-        {
-            super.onRender(parent, pos);
-            updateOkButtonState();
-        }
-
-    }
-
-    /**
-     * {@link AbstractConfirmationDialog} abstract implementation for deleting given data on
-     * confirm.
-     */
-    protected abstract class DeletionConfirmationDialog extends AbstractConfirmationDialog
-    {
-        private static final int LABEL_WIDTH = 60;
-
-        private static final int FIELD_WIDTH = 180;
-
-        protected TextField<String> reason;
-
-        public DeletionConfirmationDialog(List<T> data, IBrowserGridActionInvoker invoker)
-        {
-            super(data, invoker, Dict.DELETE_CONFIRMATION_TITLE);
-        }
-
-        @Override
-        protected final void extendForm()
-        {
-            formPanel.setLabelWidth(LABEL_WIDTH);
-            formPanel.setFieldWidth(FIELD_WIDTH);
-
-            reason = new VarcharField(viewContext.getMessage(Dict.REASON), true);
-            reason.focus();
-            reason.setMaxLength(250);
-            reason.addKeyListener(keyListener);
-            formPanel.add(reason);
-        }
-
-        @Override
-        protected String createMessage()
-        {
-            return viewContext.getMessage(Dict.DELETE_CONFIRMATION_MESSAGE_WITH_REASON,
-                    data.size(), getEntityName());
-        }
-
-        protected abstract String getEntityName();
-
     }
 
     /** {@link SelectionListener} that creates a dialog with selected data items. */

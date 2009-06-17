@@ -70,7 +70,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
@@ -166,8 +165,9 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                         protected Dialog createDialog(List<AttachmentVersions> attachmentVersions,
                                 IBrowserGridActionInvoker invoker)
                         {
-                            return new AttachmentDeletionConfirmationDialog(attachmentVersions,
-                                    invoker);
+                            return new AttachmentListDeletionConfirmationDialog(viewContext,
+                                    attachmentVersions, createDeletionCallback(invoker),
+                                    attachmentHolder);
                         }
                     }));
         allowMultipleSelection(); // we allow deletion of multiple attachments
@@ -289,40 +289,6 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
     //
     // Helpers
     //
-
-    private final class AttachmentDeletionConfirmationDialog extends DeletionConfirmationDialog
-    {
-        public AttachmentDeletionConfirmationDialog(List<AttachmentVersions> attachments,
-                IBrowserGridActionInvoker invoker)
-        {
-            super(attachments, invoker);
-        }
-
-        @Override
-        protected void executeConfirmedAction()
-        {
-            viewContext.getCommonService().deleteAttachments(TechId.create(attachmentHolder),
-                    attachmentHolder.getAttachmentHolderKind(), getAttachmentFileNames(data),
-                    reason.getValue(), new DeletionCallback(viewContext, invoker));
-        }
-
-        @Override
-        protected String getEntityName()
-        {
-            return EntityKind.SAMPLE.getDescription();
-        }
-
-        private List<String> getAttachmentFileNames(List<AttachmentVersions> attachmentVersions)
-        {
-            List<String> fileNames = new ArrayList<String>();
-            for (AttachmentVersions attachmentVersion : attachmentVersions)
-            {
-                fileNames.add(attachmentVersion.getCurrent().getFileName());
-            }
-            return fileNames;
-        }
-
-    }
 
     private final static class VersionsPanelHelper
     {

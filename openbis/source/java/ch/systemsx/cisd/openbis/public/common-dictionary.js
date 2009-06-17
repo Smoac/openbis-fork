@@ -9,7 +9,9 @@ var common = {
   // Common Labels
   // 
   
+  attachment: "Attachment",
   code: "Code",
+  file: "File",
   perm_id: "PermID",
   registrator: "Registrator",
   registration_date: "Registration Date",
@@ -29,6 +31,7 @@ var common = {
   url: "URL",
   reason: "Reason",
   delete_confirmation_message_with_reason: "You are deleting {0} {1}(s).<br><br>Please enter a reason or cancel deletion.",
+  add_more_attachments: "Add more attachments",
   
   //
   // Field

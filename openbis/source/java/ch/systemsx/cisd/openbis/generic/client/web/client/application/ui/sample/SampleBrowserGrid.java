@@ -247,7 +247,8 @@ public class SampleBrowserGrid extends
                         protected Dialog createDialog(List<Sample> samples,
                                 IBrowserGridActionInvoker invoker)
                         {
-                            return new SampleDeletionConfirmationDialog(samples, invoker);
+                            return new SampleListDeletionConfirmationDialog(viewContext, samples,
+                                    createDeletionCallback(invoker));
                         }
                     }));
         allowMultipleSelection(); // we allow deletion of multiple samples
@@ -404,33 +405,6 @@ public class SampleBrowserGrid extends
     protected IColumnDefinitionKind<Sample>[] getStaticColumnsDefinition()
     {
         return CommonSampleColDefKind.values();
-    }
-
-    //
-    // Helpers
-    //
-
-    private final class SampleDeletionConfirmationDialog extends DeletionConfirmationDialog
-    {
-        public SampleDeletionConfirmationDialog(List<Sample> samples,
-                IBrowserGridActionInvoker invoker)
-        {
-            super(samples, invoker);
-        }
-
-        @Override
-        protected void executeConfirmedAction()
-        {
-            viewContext.getCommonService().deleteSamples(TechId.createList(data),
-                    reason.getValue(), new DeletionCallback(viewContext, invoker));
-        }
-
-        @Override
-        protected String getEntityName()
-        {
-            return EntityKind.SAMPLE.getDescription();
-        }
-
     }
 
 }

@@ -1,0 +1,109 @@
+/*
+ * Copyright 2009 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget;
+
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.KeyListener;
+import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.google.gwt.user.client.Element;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+
+/**
+ * Abstract {@link Dialog} that executes an action with specified data on confirm.
+ * 
+ * @author Piotr Buczek
+ */
+public abstract class AbstractDataConfirmationDialog<T> extends Dialog
+{
+    protected final IMessageProvider messageProvider;
+
+    protected final T data;
+
+    protected final FormPanel formPanel;
+
+    protected final KeyListener keyListener;
+
+    protected AbstractDataConfirmationDialog(IMessageProvider messageProvider, T data,
+            String titleKey)
+    {
+        this.messageProvider = messageProvider;
+        this.data = data;
+        setHeading(messageProvider.getMessage(titleKey));
+        setButtons(Dialog.OKCANCEL);
+        setHideOnButtonClick(true);
+        setModal(true);
+        this.formPanel = createForm();
+        this.keyListener = new KeyListener()
+            {
+                @Override
+                public void handleEvent(ComponentEvent ce)
+                {
+                    updateOkButtonState();
+                }
+
+            };
+        extendForm();
+        addText(createMessage());
+        add(formPanel);
+    }
+
+    protected abstract String createMessage();
+
+    protected abstract void extendForm();
+
+    protected abstract void executeConfirmedAction();
+
+    private void updateOkButtonState()
+    {
+        okBtn.setEnabled(formPanel.isValid());
+    }
+
+    private FormPanel createForm()
+    {
+        FormPanel form = new FormPanel();
+        form.setBodyBorder(false);
+        form.setHeaderVisible(false);
+        return form;
+    }
+
+    @Override
+    protected final void onButtonPressed(Button button)
+    {
+        if (button.getItemId().equals(Dialog.OK))
+        {
+            if (formPanel.isValid())
+            {
+                super.onButtonPressed(button);
+                executeConfirmedAction();
+            }
+        } else
+        {
+            super.onButtonPressed(button);
+        }
+    }
+
+    @Override
+    protected void onRender(Element parent, int pos)
+    {
+        super.onRender(parent, pos);
+        updateOkButtonState();
+    }
+
+}

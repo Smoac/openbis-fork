@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
@@ -68,29 +69,6 @@ public abstract class AbstractExternalDataGrid
         extends
         AbstractEntityBrowserGrid<ExternalData, BaseEntityModel<ExternalData>, PropertyTypesCriteria>
 {
-    private final class DataSetDeletionConfirmationDialog extends DeletionConfirmationDialog
-    {
-        public DataSetDeletionConfirmationDialog(List<ExternalData> data,
-                IBrowserGridActionInvoker invoker)
-        {
-            super(data, invoker);
-        }
-
-        @Override
-        protected void executeConfirmedAction()
-        {
-            viewContext.getCommonService().deleteDataSets(getDataSetCodes(data), reason.getValue(),
-                    new DeletionCallback(viewContext, invoker));
-        }
-
-        @Override
-        protected String getEntityName()
-        {
-            return EntityKind.DATA_SET.getDescription();
-        }
-
-    }
-
     static final class UploadCallback extends AbstractAsyncCallback<String>
     {
         private UploadCallback(IViewContext<?> viewContext)
@@ -108,7 +86,8 @@ public abstract class AbstractExternalDataGrid
         }
     }
 
-    private final class UploadConfirmationDialog extends AbstractConfirmationDialog
+    private final class UploadConfirmationDialog extends
+            AbstractDataConfirmationDialog<List<ExternalData>>
     {
         private static final int FIELD_WIDTH_IN_UPLOAD_DIALOG = 200;
 
@@ -124,10 +103,9 @@ public abstract class AbstractExternalDataGrid
 
         private TextField<String> userField;
 
-        public UploadConfirmationDialog(List<ExternalData> dataSets,
-                IBrowserGridActionInvoker invoker)
+        public UploadConfirmationDialog(List<ExternalData> dataSets)
         {
-            super(dataSets, invoker, Dict.CONFIRM_DATASET_UPLOAD_TITLE);
+            super(viewContext, dataSets, Dict.CONFIRM_DATASET_UPLOAD_TITLE);
             setWidth(LABEL_WIDTH_IN_UPLOAD_DIALOG + FIELD_WIDTH_IN_UPLOAD_DIALOG + 50);
         }
 
@@ -233,7 +211,8 @@ public abstract class AbstractExternalDataGrid
                         protected Dialog createDialog(List<ExternalData> dataSets,
                                 IBrowserGridActionInvoker invoker)
                         {
-                            return new DataSetDeletionConfirmationDialog(dataSets, invoker);
+                            return new DataSetListDeletionConfirmationDialog(viewContext, dataSets,
+                                    createDeletionCallback(invoker));
                         }
                     }));
         addButton(createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_UPLOAD_DATASETS),
@@ -243,7 +222,7 @@ public abstract class AbstractExternalDataGrid
                         protected Dialog createDialog(List<ExternalData> dataSets,
                                 IBrowserGridActionInvoker invoker)
                         {
-                            return new UploadConfirmationDialog(dataSets, invoker);
+                            return new UploadConfirmationDialog(dataSets);
                         }
                     }));
         addEntityOperationsSeparator();

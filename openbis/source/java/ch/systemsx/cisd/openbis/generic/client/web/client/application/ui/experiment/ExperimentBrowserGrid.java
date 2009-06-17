@@ -50,7 +50,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -136,7 +135,8 @@ public class ExperimentBrowserGrid extends
                         protected Dialog createDialog(List<Experiment> experiments,
                                 IBrowserGridActionInvoker invoker)
                         {
-                            return new ExperimentDeletionConfirmationDialog(experiments, invoker);
+                            return new ExperimentListDeletionConfirmationDialog(viewContext,
+                                    experiments, createDeletionCallback(invoker));
                         }
                     }));
         allowMultipleSelection(); // we allow deletion of multiple samples
@@ -258,30 +258,4 @@ public class ExperimentBrowserGrid extends
         return getGridRelevantModifications(ObjectKind.EXPERIMENT);
     }
 
-    //
-    // Helpers
-    //
-
-    private final class ExperimentDeletionConfirmationDialog extends DeletionConfirmationDialog
-    {
-        public ExperimentDeletionConfirmationDialog(List<Experiment> experiments,
-                IBrowserGridActionInvoker invoker)
-        {
-            super(experiments, invoker);
-        }
-
-        @Override
-        protected void executeConfirmedAction()
-        {
-            viewContext.getCommonService().deleteExperiments(TechId.createList(data),
-                    reason.getValue(), new DeletionCallback(viewContext, invoker));
-        }
-
-        @Override
-        protected String getEntityName()
-        {
-            return EntityKind.EXPERIMENT.getDescription();
-        }
-
-    }
 }
