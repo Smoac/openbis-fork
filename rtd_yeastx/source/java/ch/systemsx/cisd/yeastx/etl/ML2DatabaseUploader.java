@@ -25,6 +25,7 @@ import org.apache.commons.io.FilenameUtils;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.yeastx.db.DBFactory;
+import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
 import ch.systemsx.cisd.yeastx.eicml.EICML2Database;
 import ch.systemsx.cisd.yeastx.fiaml.FIAML2Database;
 
@@ -85,12 +86,14 @@ public class ML2DatabaseUploader
 
     private void translateEIC(File dataSet, String datasetPermId) throws SQLException
     {
-        EICML2Database.uploadEicMLFile(connection, dataSet, datasetPermId);
+        EICML2Database.uploadEicMLFile(connection, dataSet, new DMDataSetDTO(datasetPermId,
+                "sample perm id", "sample name", "experiment perm id", "eperiment name"));
     }
 
     private void translateFIA(File dataSet, String datasetPermId) throws SQLException
     {
-        FIAML2Database.uploadFiaMLFile(connection, dataSet, datasetPermId);
+        FIAML2Database.uploadFiaMLFile(connection, dataSet, new DMDataSetDTO(datasetPermId,
+                "sample perm id", "sample name", "experiment perm id", "experiment name"));
     }
 
     private static String getExtension(final File incomingDataSetPath)

@@ -70,4 +70,43 @@ public class DBFactory
         return context;
     }
 
+    /**
+     * Returns the data access object for the generic tables of the data mart.
+     */
+    public static IGenericDAO getDAO(Connection conn)
+    {
+        return QueryTool.getQuery(conn, IGenericDAO.class);
+    }
+
+    /**
+     * Creates the data set based on the information given in <var>dataSet</var>. The sample and
+     * experiment of the data set may already exist in the database. If they don't, they are created
+     * as well.
+     */
+    public static void createDataSet(IGenericDAO dao, DMDataSetDTO dataSet)
+    {
+        DMSampleDTO sample = dao.getSample(dataSet.getSample().getPermId());
+        if (sample == null)
+        {
+            DMExperimentDTO experiment = dao.getExperiment(dataSet.getExperiment().getPermId());
+            if (experiment == null)
+            {
+                experiment = dataSet.getExperiment();
+                final long experimentId = dao.addExperiment(experiment);
+                experiment.setId(experimentId);
+            }
+            sample = dataSet.getSample();
+            sample.setExperiment(experiment);
+            final long sampleId = dao.addSample(sample);
+            sample.setId(sampleId);
+            dataSet.setSample(sample); // make sure all the ids are set correctly.
+        } else
+        {
+            dataSet.setSample(sample);
+            sample.setExperiment(dao.getExperiment(sample.getExperimentId()));
+        }
+        long dataSetId = dao.addDataSet(dataSet);
+        dataSet.setId(dataSetId);
+    }
+
 }

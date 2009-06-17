@@ -64,8 +64,6 @@ public class FIAMLParser extends DefaultHandler
 
     private StringBuilder buffer = new StringBuilder();
 
-    private String permIdOrNull;
-
     private FIAMSRunDTO msRun;
     
     private FIAMSRunDataDTO fiaRunData;
@@ -74,12 +72,11 @@ public class FIAMLParser extends DefaultHandler
 
     private final IMSRunObserver msRunObserverOrNull;
 
-    public FIAMLParser(String fileName, String permIdOrNull, IMSRunObserver msRunObserverOrNull)
+    public FIAMLParser(String fileName, IMSRunObserver msRunObserverOrNull)
             throws ParserConfigurationException, SAXException, IOException
     {
         assert fileName != null;
 
-        this.permIdOrNull = permIdOrNull;
         this.msRunObserverOrNull = msRunObserverOrNull;
         parseDocument(fileName);
     }
@@ -101,7 +98,6 @@ public class FIAMLParser extends DefaultHandler
         {
             msRun = new FIAMSRunDTO();
             fiaRunData = new FIAMSRunDataDTO();
-            msRun.setDataSetPermId(permIdOrNull);
             parsingMsRun = true;
         }
     }

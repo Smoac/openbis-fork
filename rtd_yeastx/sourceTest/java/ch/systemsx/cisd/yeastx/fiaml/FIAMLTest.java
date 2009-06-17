@@ -25,6 +25,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.yeastx.db.AbstractDBTest;
+import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
 
 import static org.testng.AssertJUnit.*;
 
@@ -47,9 +48,10 @@ public class FIAMLTest extends AbstractDBTest
     public void testUploadFiaML() throws SQLException
     {
         FIAML2Database.uploadFiaMLFile(conn, new File("resource/examples/example.fiaML"),
-                "some perm id");
+                new DMDataSetDTO("data set perm id", "sample perm id", "sample name",
+                        "experiment perm id", "experiment name"));
     }
-    
+
     @Test(dependsOnMethods = "testUploadFiaML")
     public void testGetMsRuns()
     {
@@ -63,8 +65,8 @@ public class FIAMLTest extends AbstractDBTest
         while (profiles.hasNext())
         {
             final ProfileDTO prof = profiles.next();
-            assertFalse(prof.getProfileId() == 0);
-            assertEquals(run.getFiaMsRunId(), prof.getFiaMsRunId());
+            assertFalse(prof.getId() == 0);
+            assertEquals(run.getId(), prof.getFiaMsRunId());
             ++count;
         }
         assertEquals(686, count);
@@ -74,8 +76,8 @@ public class FIAMLTest extends AbstractDBTest
         while (centroids.hasNext())
         {
             final CentroidDTO cent = centroids.next();
-            assertFalse(cent.getCentroidId() == 0);
-            assertEquals(run.getFiaMsRunId(), cent.getFiaMsRunId());
+            assertFalse(cent.getId() == 0);
+            assertEquals(run.getId(), cent.getFiaMsRunId());
             ++count;
         }
         assertEquals(556, count);

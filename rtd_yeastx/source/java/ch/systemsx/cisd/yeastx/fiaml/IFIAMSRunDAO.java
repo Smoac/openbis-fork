@@ -29,20 +29,22 @@ import net.lemnik.eodsql.Update;
 public interface IFIAMSRunDAO extends BaseQuery
 {
     final String ALL_FIA_MSRUN_COLUMNS =
-            "FIA_MS_RUNS.FIA_MS_RUN_ID, FIA_MS_RUNS.DATA_SET_PERM_ID, FIA_MS_RUNS.RAW_DATA_FILE_NAME, "
+            "FIA_MS_RUNS.ID, FIA_MS_RUNS.EXPE_ID, "
+                    + "FIA_MS_RUNS.SAMP_ID, FIA_MS_RUNS.DS_ID, FIA_MS_RUNS.RAW_DATA_FILE_NAME, "
                     + "FIA_MS_RUNS.RAW_DATA_FILE_PATH, FIA_MS_RUNS.ACQUISITION_DATE, "
                     + "FIA_MS_RUNS.INSTRUMENT_TYPE, FIA_MS_RUNS.INSTRUMENT_MANUFACTURER, "
                     + "FIA_MS_RUNS.INSTRUMENT_MODEL, FIA_MS_RUNS.METHOD_IONISATION, "
                     + "FIA_MS_RUNS.METHOD_SEPARATION, FIA_MS_RUNS.POLARITY, FIA_MS_RUNS.LOW_MZ, "
                     + "FIA_MS_RUNS.HIGH_MZ, FIA_MS_RUNS.INTERNAL_STANDARD, FIA_MS_RUNS.od, FIA_MS_RUNS.OPERATOR";
 
-    @Select("insert into FIA_MS_RUNS (DATA_SET_PERM_ID, RAW_DATA_FILE_NAME, RAW_DATA_FILE_PATH, ACQUISITION_DATE, "
-            + "INSTRUMENT_TYPE, INSTRUMENT_MANUFACTURER, INSTRUMENT_MODEL, METHOD_IONISATION, "
+    @Select("insert into FIA_MS_RUNS (EXPE_ID, SAMP_ID, DS_ID, RAW_DATA_FILE_NAME, RAW_DATA_FILE_PATH, "
+            + "ACQUISITION_DATE, INSTRUMENT_TYPE, INSTRUMENT_MANUFACTURER, INSTRUMENT_MODEL, METHOD_IONISATION, "
             + "METHOD_SEPARATION, POLARITY, LOW_MZ, HIGH_MZ, INTERNAL_STANDARD, od, OPERATOR) values "
-            + "(?{1.dataSetPermId}, ?{1.rawDataFileName}, ?{1.rawDataFilePath}, ?{1.acquisitionDate}, "
+            + "(?{1.experimentId}, ?{1.sampleId}, ?{1.dataSetId}, ?{1.rawDataFileName}, "
+            + "?{1.rawDataFilePath}, ?{1.acquisitionDate}, "
             + "?{1.instrumentType}, ?{1.instrumentManufacturer}, ?{1.instrumentModel}, "
             + "?{1.methodIonisation}, ?{1.methodSeparation}, ?{1.polarity}, ?{1.lowMz}, ?{1.highMz}, "
-            + "?{1.internalStandard}, ?{1.od}, ?{1.operator}) returning FIA_MS_RUN_ID")
+            + "?{1.internalStandard}, ?{1.od}, ?{1.operator}) returning ID")
     public long addMSRun(FIAMSRunDTO msRun);
 
     @Update(sql = "insert into FIA_CENTROIDS (FIA_MS_RUN_ID, MZ, INTENSITY, CORRELATION) "
@@ -55,13 +57,14 @@ public interface IFIAMSRunDAO extends BaseQuery
     public void addProfiles(long fiaMsRunId, Iterable<ProfileDTO> profiles);
 
     @Select(sql = "select FIA_MS_RUNS.*,count(FIA_PROFILES.*) as profileCount from FIA_MS_RUNS "
-            + "left join FIA_PROFILES using(FIA_MS_RUN_ID) group by " + ALL_FIA_MSRUN_COLUMNS)
+            + "left join FIA_PROFILES on FIA_MS_RUN_ID = FIA_MS_RUNS.ID group by "
+            + ALL_FIA_MSRUN_COLUMNS)
     public DataIterator<FIAMSRunDTO> getMsRuns();
 
-    @Select("select * from FIA_PROFILES where FIA_MS_RUN_ID=?{1.fiaMsRunId}")
+    @Select("select * from FIA_PROFILES where FIA_MS_RUN_ID=?{1.id}")
     public DataIterator<ProfileDTO> getProfilesForRun(FIAMSRunDTO msRun);
 
-    @Select("select * from FIA_CENTROIDS where FIA_MS_RUN_ID=?{1.fiaMsRunId}")
+    @Select("select * from FIA_CENTROIDS where FIA_MS_RUN_ID=?{1.id}")
     public DataIterator<CentroidDTO> getCentroidsForRun(FIAMSRunDTO msRun);
 
 }

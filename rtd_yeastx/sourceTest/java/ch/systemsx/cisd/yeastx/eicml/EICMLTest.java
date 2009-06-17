@@ -25,6 +25,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.yeastx.db.AbstractDBTest;
+import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
 
 import static org.testng.AssertJUnit.*;
 
@@ -37,7 +38,7 @@ public class EICMLTest extends AbstractDBTest
 {
 
     private IEICMSRunDAO eicmlDAO;
-    
+
     @BeforeMethod(alwaysRun = true)
     public void setDAO() throws SQLException
     {
@@ -48,9 +49,10 @@ public class EICMLTest extends AbstractDBTest
     public void testUploadEicML() throws SQLException
     {
         EICML2Database.uploadEicMLFile(conn, new File("resource/examples/example.eicML"),
-                "some perm id");
+                new DMDataSetDTO("data set perm id", "sample perm id", "sample name",
+                        "experiment perm id", "experiment name"));
     }
-    
+
     @Test(dependsOnMethods = "testUploadEicML")
     public void testGetMsRuns()
     {
@@ -67,6 +69,6 @@ public class EICMLTest extends AbstractDBTest
             ++count;
         }
         assertEquals(22, count);
-        chromatograms.close();  // Shoudn't be necessary, just to be sure.
+        chromatograms.close(); // Shoudn't be necessary, just to be sure.
     }
 }

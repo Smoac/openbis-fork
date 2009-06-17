@@ -41,7 +41,7 @@ public class EICML2TabConverter
         for (String f : new File(dir).list(new EICMLFilenameFilter()))
         {
             final String[] msRunName = new String[1];
-            new EICMLParser(dir + "/" + f, null, new EICMLParser.IMSRunObserver()
+            new EICMLParser(dir + "/" + f, new EICMLParser.IMSRunObserver()
                 {
                     public void observe(EICMSRunDTO run)
                     {
@@ -104,9 +104,9 @@ public class EICML2TabConverter
                             {
                                 out.println("endTime\t" + run.getEndTime());
                             }
-                            if (run.getEicMsRunId() >= 0)
+                            if (run.getId() >= 0)
                             {
-                                out.println("msRunId\t" + run.getEicMsRunId());
+                                out.println("msRunId\t" + run.getId());
                             }
                             out.close();
                         } catch (FileNotFoundException ex)

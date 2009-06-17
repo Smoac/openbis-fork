@@ -31,6 +31,7 @@ import org.xml.sax.SAXException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.yeastx.db.DBFactory;
+import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
 import ch.systemsx.cisd.yeastx.eicml.EICMLParser.IChromatogramObserver;
 import ch.systemsx.cisd.yeastx.eicml.EICMLParser.IMSRunObserver;
 
@@ -63,21 +64,25 @@ public class EICML2Database
      * Method for uploading an <var>eicMLFile</var> to the database.
      */
     public static void uploadEicMLFile(final Connection conn, final File eicMLFile,
-            String dataSetPermId)
-            throws SQLException
+            final DMDataSetDTO dataSet) throws SQLException
     {
         final long[] eicMLId = new long[1];
         final List<ChromatogramDTO> chromatograms =
                 new ArrayList<ChromatogramDTO>(CHROMATOGRAM_BATCH_SIZE);
         try
         {
+            DBFactory.createDataSet(DBFactory.getDAO(conn), dataSet);
             final IEICMSRunDAO dao = getDAO(conn);
-            new EICMLParser(eicMLFile.getPath(), dataSetPermId, new IMSRunObserver()
+            new EICMLParser(eicMLFile.getPath(), new IMSRunObserver()
                 {
                     public void observe(EICMSRunDTO run)
                     {
-                        // add chromatograms from the last run to the database before setting the new run id
+                        // add chromatograms from the last run to the database before setting the
+                        // new run id
                         addChromatograms(dao, eicMLId[0], chromatograms, 1);
+                        run.setExperimentId(dataSet.getExperimentId());
+                        run.setSampleId(dataSet.getSampleId());
+                        run.setDataSetId(dataSet.getId());
                         eicMLId[0] = dao.addMSRun(run);
                     }
                 }, new IChromatogramObserver()
@@ -114,7 +119,9 @@ public class EICML2Database
             int permId = 0;
             for (String f : new File(dir).list(new EICMLFilenameFilter()))
             {
-                uploadEicMLFile(conn, new File(dir, f), Integer.toString(++permId));
+                uploadEicMLFile(conn, new File(dir, f), new DMDataSetDTO(
+                        Integer.toString(++permId), "sample1", "the sample name", "experiment1",
+                        "the experiment name"));
             }
         } finally
         {

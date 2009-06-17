@@ -25,6 +25,7 @@ import net.lemnik.eodsql.QueryTool;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.yeastx.db.DBFactory;
+import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
 import ch.systemsx.cisd.yeastx.fiaml.FIAMLParser.IMSRunObserver;
 
 /**
@@ -81,15 +82,19 @@ public class FIAML2Database
      * Method for uploading an <var>fiaMLFile</var> to the database.
      */
     public static void uploadFiaMLFile(final Connection conn, final File fiaMLFile,
-            final String permId) throws SQLException
+            final DMDataSetDTO dataSet) throws SQLException
     {
         try
         {
+            DBFactory.createDataSet(DBFactory.getDAO(conn), dataSet);
             final IFIAMSRunDAO dao = getDAO(conn);
-            new FIAMLParser(fiaMLFile.getPath(), permId, new IMSRunObserver()
+            new FIAMLParser(fiaMLFile.getPath(), new IMSRunObserver()
                 {
                     public void observe(FIAMSRunDTO run, FIAMSRunDataDTO runData)
                     {
+                        run.setExperimentId(dataSet.getExperimentId());
+                        run.setSampleId(dataSet.getSampleId());
+                        run.setDataSetId(dataSet.getId());
                         final long fiaMsRunId = dao.addMSRun(run);
                         getDAO(conn).addProfiles(fiaMsRunId, profileChunk(runData));
                         getDAO(conn)
@@ -123,7 +128,8 @@ public class FIAML2Database
             for (String f : new File(dir).list(new FIAMLFilenameFilter()))
             {
                 System.out.println(f);
-                uploadFiaMLFile(conn, new File(dir, f), Integer.toString(++permId));
+                uploadFiaMLFile(conn, new File(dir, f), new DMDataSetDTO(Integer.toString(++permId),
+                        "sample perm id", "sample name", "experiment perm id", "experiment name"));
             }
         } finally
         {

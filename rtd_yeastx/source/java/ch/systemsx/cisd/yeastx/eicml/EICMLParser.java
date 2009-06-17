@@ -70,8 +70,6 @@ public class EICMLParser extends DefaultHandler
     
     private StringBuilder buffer = new StringBuilder();
 
-    private String permIdOrNull;
-
     private EICMSRunDTO msRun;
 
     private ChromatogramDTO chromatogram;
@@ -84,13 +82,12 @@ public class EICMLParser extends DefaultHandler
 
     private final IChromatogramObserver chromatogramObserverOrNull;
 
-    public EICMLParser(String fileName, String permIdOrNull, IMSRunObserver msRunObserverOrNull,
+    public EICMLParser(String fileName, IMSRunObserver msRunObserverOrNull,
             IChromatogramObserver chromatogramObserverOrNull) throws ParserConfigurationException,
             SAXException, IOException
     {
         assert fileName != null;
 
-        this.permIdOrNull = permIdOrNull;
         this.msRunObserverOrNull = msRunObserverOrNull;
         this.chromatogramObserverOrNull = chromatogramObserverOrNull;
         parseDocument(fileName);
@@ -112,7 +109,6 @@ public class EICMLParser extends DefaultHandler
         if (MS_RUN.equals(name))
         {
             msRun = new EICMSRunDTO();
-            msRun.setDataSetPermId(permIdOrNull);
             parsingMsRun = true;
         } else if ("chromatogram".equals(name))
         {
@@ -164,7 +160,7 @@ public class EICMLParser extends DefaultHandler
             msRun.setChromCount(Integer.parseInt(value));
         } else if ("msRunId".equals(name) && value.length() > 0)
         {
-            msRun.setEicMsRunId(Long.parseLong(value));
+            msRun.setId(Long.parseLong(value));
         } else if ("startTime".equals(name) && value.length() > 0)
         {
             msRun.setStartTime(Float.parseFloat(value));
