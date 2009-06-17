@@ -48,6 +48,8 @@ public class ML2DatabaseUploader
     {
         try
         {
+            // TODO 2009-06-17, Bernd Rinn: Get the DatabaseConfigurationContext from Spring instead
+            // of using the default one.
             return new DBFactory(DBFactory.createDefaultDBContext()).getConnection();
         } catch (SQLException e)
         {

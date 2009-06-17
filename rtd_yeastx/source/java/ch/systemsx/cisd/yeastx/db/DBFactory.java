@@ -61,10 +61,6 @@ public class DBFactory
         context.setBasicDatabaseName("metabol");
         context.setReadOnlyGroup("metabol_readonly");
         context.setReadWriteGroup("metabol_readwrite");
-        // TODO 2009-06-03, Tomasz Pylak: move to external file. Change for productive usage
-        // context.setDatabaseKind("productive");
-        // context.setScriptFolder("."); // or "sql" ???
-
         context.setDatabaseKind("dev");
         context.setScriptFolder("source/sql");
         return context;
