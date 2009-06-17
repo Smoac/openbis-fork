@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
@@ -25,7 +26,6 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
