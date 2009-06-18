@@ -29,13 +29,14 @@ public class BasicConstant
     /** Maximum length of a comment for uploading data sets to CIFEX. */
     public static final int MAX_LENGTH_OF_CIFEX_COMMENT = 1000;
 
-    private BasicConstant()
-    {
-    }
-
     /** Cifex URL parameter 'comment' */
     public static final String CIFEX_URL_PARAMETER_COMMENT = "comment";
 
     /** Cifex URL parameter 'recipient' */
-    public static final String CIFEX_URL_PARAMETER_RECIPIENT = "recipient";
+    public static final String CIFEX_URL_PARAMETER_RECIPIENT = "recipients";
+
+    private BasicConstant()
+    {
+    }
+
 }

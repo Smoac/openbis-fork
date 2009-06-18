@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
+import com.google.gwt.http.client.URL;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -116,7 +118,7 @@ public class DataSetUploadForm extends AbstractRegistrationForm
         URLMethodWithParameters url = new URLMethodWithParameters(cifexUrl);
         url.addParameter(BasicConstant.CIFEX_URL_PARAMETER_COMMENT, comment);
         url.addParameter(BasicConstant.CIFEX_URL_PARAMETER_RECIPIENT, recipient);
-        return url.toString();
+        return URL.encode(url.toString());
     }
 
 }
