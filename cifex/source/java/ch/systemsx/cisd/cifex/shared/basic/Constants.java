@@ -61,6 +61,12 @@ public final class Constants
     /** The HTTP URL parameter used to specify the email. */
     public static final String USERCODE_PARAMETER = "user";
 
+    /** The HTTP URL parameter used to specify the comment. */
+    public static final String COMMENT_PARAMETER = "comment";
+
+    /** The HTTP URL parameter used to specify the recipients. */
+    public static final String RECIPIENTS_PARAMETER = "recipients";
+
     /** The table <code>null</code> value representation (<code>-</code>). */
     public static final String TABLE_NULL_VALUE = "-";
 

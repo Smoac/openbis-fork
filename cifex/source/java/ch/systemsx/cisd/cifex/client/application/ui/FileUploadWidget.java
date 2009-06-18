@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.client.application.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.http.client.URL;
 import com.gwtext.client.core.Connection;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.Ext;
@@ -26,6 +27,7 @@ import com.gwtext.client.core.Position;
 import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.form.ColumnConfig;
+import com.gwtext.client.widgets.form.FieldConfig;
 import com.gwtext.client.widgets.form.Form;
 import com.gwtext.client.widgets.form.FormConfig;
 import com.gwtext.client.widgets.form.TextArea;
@@ -252,6 +254,7 @@ public final class FileUploadWidget extends Form
         textAreaConfig.setWidth(FIELD_WIDTH);
         textAreaConfig.setValidator(CifexValidator.getUserFieldValidator());
         textAreaConfig.setInvalidText(messageResources.getRecipientFieldInvalidText());
+        trySetInitialValueFromURL(textAreaConfig, Constants.RECIPIENTS_PARAMETER);
         return textAreaConfig;
     }
 
@@ -265,8 +268,8 @@ public final class FileUploadWidget extends Form
         textAreaConfig.setGrow(true);
         textAreaConfig.setPreventScrollbars(true);
         textAreaConfig.setWidth(FIELD_WIDTH);
+        trySetInitialValueFromURL(textAreaConfig, Constants.COMMENT_PARAMETER);
         return textAreaConfig;
-
     }
 
     private final TextFieldConfig createFileFieldConfig(final int index)
@@ -280,6 +283,21 @@ public final class FileUploadWidget extends Form
         fileFieldConfig.setAllowBlank(index > 0);
         fileFieldConfig.setValidateOnBlur(false);
         return fileFieldConfig;
+    }
+
+    private void trySetInitialValueFromURL(FieldConfig fieldConfig, String paramKey)
+    {
+        String initialValueOrNull = tryGetUrlParamValue(paramKey);
+        if (StringUtils.isBlank(initialValueOrNull) == false)
+        {
+            fieldConfig.setValue(URL.decode(initialValueOrNull));
+            fieldConfig.setReadOnly(true);
+        }
+    }
+
+    private String tryGetUrlParamValue(String paramKey)
+    {
+        return (String) context.getModel().getUrlParams().get(paramKey);
     }
 
     private final static String getFilenameFieldName(final int index)
