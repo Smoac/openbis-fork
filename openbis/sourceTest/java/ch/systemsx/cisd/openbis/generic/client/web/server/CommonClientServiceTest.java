@@ -71,6 +71,8 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
 
     private static final String CIFEX_URL = "cifexURL";
 
+    private static final String CIFEX_RECIPIENT = "cifexRecipient";
+
     private static final String TERMS_SESSION_KEY = "termsSessionKey";
 
     private CommonClientService commonClientService;
@@ -135,6 +137,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         commonClientService = new CommonClientService(commonServer, requestContextProvider);
         commonClientService.setDataStoreBaseURL(DATA_STORE_BASE_URL);
         commonClientService.setCifexURL(CIFEX_URL);
+        commonClientService.setCifexRecipient(CIFEX_RECIPIENT);
     }
 
     @Test

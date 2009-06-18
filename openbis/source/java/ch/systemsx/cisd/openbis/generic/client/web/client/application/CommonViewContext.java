@@ -47,9 +47,9 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     private final Timer timer;
     
     private IClientPluginFactoryProvider clientPluginFactoryProvider;
-    
+
     private IMessageProvider messageProvider;
-    
+
     CommonViewContext(final ICommonClientServiceAsync service,
             final IMessageProvider messageProvider, final IGenericImageBundle imageBundle,
             final IPageController pageController)
@@ -78,7 +78,7 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
                 }
             };
     }
-    
+
     final void setClientPluginFactoryProvider(
             IClientPluginFactoryProvider clientPluginFactoryProvider)
     {
@@ -153,6 +153,7 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     {
         return getService();
     }
+
 
     public void addMessageSource(String messageSource)
     {

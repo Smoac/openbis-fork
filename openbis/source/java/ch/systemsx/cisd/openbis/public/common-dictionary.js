@@ -70,6 +70,7 @@ var common = {
   button_browse: "Browse",
   button_delete: "Delete",
   button_configure: "Columns",  
+  button_upload_data_via_cifex: "Upload Data",
   
   tooltip_refresh_disabled: "To activate select appropriate criteria first.",
   tooltip_refresh_enabled: "Load or update the table.",
@@ -222,6 +223,7 @@ var common = {
   DATA_SET_MENU_SEARCH: "Search",
   DATA_SET_MENU_TYPES: "Types",
   DATA_SET_MENU_FILE_FORMATS: "File Types",
+  DATA_SET_MENU_UPLOAD: "Upload",
   
   menu_experiment: "Experiment",
   EXPERIMENT_MENU_BROWSE: "Browse",
@@ -264,6 +266,7 @@ var common = {
   // Tab Titles
   //
 
+  data_set_upload: "Data Set Upload",
   assign_data_set_property_type: "Assign Data Set Property Type",
   assign_material_property_type: "Assign Material Property Type",  
   assign_experiment_property_type: "Assign Experiment Property Type",
@@ -407,11 +410,13 @@ incorrect_experiment_syntax: "Incorrect experiment specification. Please provide
 // Grid Column Chooser
 //
 
-GRID_COLUMN_CHOOSER_TITLE: "Configure grid columns",
-GRID_COLUMN_NAME_HEADER: "Column",
-GRID_IS_COLUMN_VISIBLE_HEADER: "Visible?",
-GRID_COLUMN_HAS_FILTER_HEADER: "Has Filter?",
+  GRID_COLUMN_CHOOSER_TITLE: "Configure grid columns",
+  GRID_COLUMN_NAME_HEADER: "Column",
+  GRID_IS_COLUMN_VISIBLE_HEADER: "Visible?",
+  GRID_COLUMN_HAS_FILTER_HEADER: "Has Filter?",
     
+
+  message_no_external_upload_service: "External upload service (CIFEX) has not been configured. Ask the administrator for more details.",
  
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

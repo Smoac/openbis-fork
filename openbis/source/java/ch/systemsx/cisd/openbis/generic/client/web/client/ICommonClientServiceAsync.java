@@ -105,6 +105,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#listSampleTypes() */
     public void listSampleTypes(AsyncCallback<List<SampleType>> asyncCallback);
 
+    /** @see ICommonClientService#listFileTypes() */
+    public void listFileTypes(AsyncCallback<List<FileFormatType>> asyncCallback);
+
     /**
      * @see ICommonClientService#listSamples(ListSampleCriteria)
      */

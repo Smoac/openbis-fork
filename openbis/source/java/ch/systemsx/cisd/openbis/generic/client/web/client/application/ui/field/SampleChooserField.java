@@ -124,7 +124,7 @@ public final class SampleChooserField extends ChosenEntitySetter<Sample>
         }
     }
 
-    private SampleChooserField(boolean mandatory, String initialValueOrNull,
+    public SampleChooserField(boolean mandatory, String initialValueOrNull,
             IViewContext<ICommonClientServiceAsync> viewContext)
     {
         this.mandatory = mandatory;

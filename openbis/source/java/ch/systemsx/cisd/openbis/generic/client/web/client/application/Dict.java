@@ -644,5 +644,12 @@ public abstract class Dict
 
     public static final String ADD_MORE_ATTACHMENTS = "add_more_attachments";
 
+    public static final String DATA_SET_UPLOAD = "data_set_upload";
+
+    public static final String BUTTON_UPLOAD_DATA_VIA_CIFEX = "button_upload_data_via_cifex";
+
+    public static final String MESSAGE_NO_EXTERNAL_UPLOAD_SERVICE =
+            "message_no_external_upload_service";
+
     // ----- end generic ------------------
 }

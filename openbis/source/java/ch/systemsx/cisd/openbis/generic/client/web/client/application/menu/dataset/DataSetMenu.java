@@ -18,12 +18,14 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.data
 
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 
 /**
  * Data Set top menu.
@@ -33,16 +35,27 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 public class DataSetMenu extends TopMenuItem
 {
 
-    public DataSetMenu(IMessageProvider messageProvider, ComponentProvider componentProvider)
+    public DataSetMenu(final CommonViewContext viewContext, ComponentProvider componentProvider)
     {
-        super(messageProvider.getMessage(Dict.MENU_DATA_SET));
+        super(viewContext.getMessage(Dict.MENU_DATA_SET));
         setIconStyle(TopMenu.ICON_STYLE);
 
         Menu menu = new Menu();
+        IMessageProvider messageProvider = viewContext;
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_SEARCH, messageProvider,
                 componentProvider.getDataSetSearch()));
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_TYPES, messageProvider,
                 componentProvider.getDataSetTypeBrowser()));
+        boolean cifexConfigured =
+                StringUtils
+                        .isBlank(viewContext.getModel().getApplicationInfo().getCifexRecipient()) == false
+                        && StringUtils.isBlank(viewContext.getModel().getApplicationInfo()
+                                .getCIFEXURL()) == false;
+        if (cifexConfigured)
+        {
+            menu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_UPLOAD, messageProvider,
+                    componentProvider.getDataSetUploadTab()));
+        }
         setMenu(menu);
     }
 }

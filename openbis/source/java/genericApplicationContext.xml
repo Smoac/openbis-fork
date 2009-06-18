@@ -87,6 +87,7 @@
         <constructor-arg ref="request-context-provider" />
         <property name="dataStoreBaseURL" value="${data-store-server-base-url}"/>
         <property name="cifexURL" value="${cifex-url}"/>
+        <property name="cifexRecipient" value="${cifex-recipient}"/>
     </bean>
     
     <!-- 

@@ -67,6 +67,8 @@ public abstract class AbstractClientService implements IClientService
 
     private String cifexURL;
 
+    private String cifexRecipient;
+
     protected AbstractClientService()
     {
     }
@@ -113,6 +115,11 @@ public abstract class AbstractClientService implements IClientService
     public final void setCifexURL(String cifexURL)
     {
         this.cifexURL = cifexURL;
+    }
+
+    public final void setCifexRecipient(String cifexRecipient)
+    {
+        this.cifexRecipient = cifexRecipient;
     }
 
     private final SessionContext createSessionContext(final Session session)
@@ -199,6 +206,7 @@ public abstract class AbstractClientService implements IClientService
         final ApplicationInfo applicationInfo = new ApplicationInfo();
         applicationInfo.setVersion(BuildAndEnvironmentInfo.INSTANCE.getFullVersion());
         applicationInfo.setCIFEXURL(cifexURL);
+        applicationInfo.setCifexRecipient(cifexRecipient);
         return applicationInfo;
     }
 

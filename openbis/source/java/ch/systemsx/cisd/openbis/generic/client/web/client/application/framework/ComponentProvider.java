@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.PersonsVie
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetTypeGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetUploadForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FileFormatTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRegistrationPanel;
@@ -509,6 +510,24 @@ public final class ComponentProvider
                 public String getId()
                 {
                     return DataSetTypeGrid.BROWSER_ID;
+                }
+            };
+    }
+
+    public ITabItemFactory getDataSetUploadTab()
+    {
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    DatabaseModificationAwareComponent component =
+                            DataSetUploadForm.create(viewContext);
+                    return createRegistrationTab(Dict.DATA_SET_UPLOAD, component);
+                }
+
+                public String getId()
+                {
+                    return DataSetUploadForm.ID;
                 }
             };
     }

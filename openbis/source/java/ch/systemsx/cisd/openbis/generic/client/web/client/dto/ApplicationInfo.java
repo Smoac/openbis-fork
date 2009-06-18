@@ -26,7 +26,20 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public final class ApplicationInfo implements IsSerializable
 {
     private String version;
+
     private String cifexURL;
+
+    private String cifexRecipient;
+
+    public String getCifexRecipient()
+    {
+        return cifexRecipient;
+    }
+
+    public void setCifexRecipient(String cifexRecipient)
+    {
+        this.cifexRecipient = cifexRecipient;
+    }
 
     public final String getVersion()
     {

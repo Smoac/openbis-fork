@@ -91,7 +91,6 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
@@ -772,29 +771,15 @@ public final class CommonClientService extends AbstractClientService implements
             });
     }
 
-    public ResultSet<? extends AbstractType> listFileTypes(
-            DefaultResultSetConfig<String, AbstractType> criteria)
+    public ResultSet<FileFormatType> listFileTypes(
+            DefaultResultSetConfig<String, FileFormatType> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new IOriginalDataProvider<AbstractType>()
+        return listEntities(criteria, new IOriginalDataProvider<FileFormatType>()
             {
-                public List<AbstractType> getOriginalData() throws UserFailureException
+                public List<FileFormatType> getOriginalData() throws UserFailureException
                 {
-                    try
-                    {
-                        final String sessionToken = getSessionToken();
-                        final List<AbstractType> result = new ArrayList<AbstractType>();
-                        final List<FileFormatTypePE> types =
-                                commonServer.listFileFormatTypes(sessionToken);
-                        for (final FileFormatTypePE type : types)
-                        {
-                            result.add(TypeTranslator.translate(type));
-                        }
-                        return result;
-                    } catch (final UserFailureException e)
-                    {
-                        throw UserFailureExceptionTranslator.translate(e);
-                    }
+                    return listFileTypes();
                 }
             });
     }
@@ -1591,6 +1576,24 @@ public final class CommonClientService extends AbstractClientService implements
                 sb.append(column);
             }
             return sb.toString();
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public List<FileFormatType> listFileTypes()
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final List<FileFormatType> result = new ArrayList<FileFormatType>();
+            final List<FileFormatTypePE> types = commonServer.listFileFormatTypes(sessionToken);
+            for (final FileFormatTypePE type : types)
+            {
+                result.add(TypeTranslator.translate(type));
+            }
+            return result;
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
