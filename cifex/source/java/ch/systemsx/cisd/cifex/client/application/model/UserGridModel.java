@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.client.application.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.gwtext.client.data.BooleanFieldDef;
 import com.gwtext.client.data.StringFieldDef;
 
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
@@ -51,6 +52,7 @@ public final class UserGridModel extends AbstractUserGridModel
         configs.add(createUserEmailColumnConfig());
         configs.add(createFullNameColumnConfig());
         configs.add(createStatusColumnConfig());
+        configs.add(createActiveColumnConfig());
         configs.add(createRegistratorColumnConfig());
         configs.add(createActionColumnConfig());
         return configs;
@@ -67,6 +69,7 @@ public final class UserGridModel extends AbstractUserGridModel
             final Object[] objects =
                     new Object[]
                         { user.getUserCode(), user.getEmail(), user.getUserFullName(), stateField,
+                                new Boolean(user.isActive()),
                                 UserRenderer.createUserAnchor(user.getRegistrator()), actions };
             list.add(objects);
         }
@@ -80,6 +83,7 @@ public final class UserGridModel extends AbstractUserGridModel
         fieldDefs.add(new StringFieldDef(USER_EMAIL));
         fieldDefs.add(new StringFieldDef(FULL_NAME));
         fieldDefs.add(new StringFieldDef(STATUS));
+        fieldDefs.add(new BooleanFieldDef(ACTIVE));
         fieldDefs.add(new StringFieldDef(REGISTRATOR));
         fieldDefs.add(new StringFieldDef(ACTION));
         return fieldDefs;

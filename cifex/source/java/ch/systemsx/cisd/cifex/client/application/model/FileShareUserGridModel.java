@@ -76,7 +76,7 @@ public final class FileShareUserGridModel extends AbstractUserGridModel
                         new Object[]
                             { new Boolean(checkedUser), user.getUserCode(), user.getEmail(),
                                     user.getUserFullName(), registratorAnchor,
-                                    getUserRoleDescription(user) };
+                                    getUserRoleDescription(user), new Boolean(user.isActive()) };
                 list.add(objects);
             }
         }
@@ -92,6 +92,7 @@ public final class FileShareUserGridModel extends AbstractUserGridModel
         fieldDefs.add(new StringFieldDef(FULL_NAME));
         fieldDefs.add(new StringFieldDef(REGISTRATOR));
         fieldDefs.add(new StringFieldDef(STATUS));
+        fieldDefs.add(new BooleanFieldDef(ACTIVE));
         return fieldDefs;
     }
 

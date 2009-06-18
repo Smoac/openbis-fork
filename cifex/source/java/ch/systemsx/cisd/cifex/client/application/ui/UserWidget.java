@@ -91,6 +91,8 @@ public abstract class UserWidget extends Form
 
     protected Checkbox sendUpdateInformation;
     
+    protected Checkbox userIsActiveField;
+    
     protected TextField maxUploadSizeField;
 
     protected TextField fileRetentionField;
@@ -145,6 +147,7 @@ public abstract class UserWidget extends Form
             user.setFileRetention(editUser.getFileRetention());
             user.setMaxUploadRequestSizeInMB(editUser.getMaxUploadRequestSizeInMB());
             user.setPermanent(editUser.isPermanent());
+            user.setActive(editUser.isActive());
             user.setRegistrator(editUser.getRegistrator());
         }
         user.setEmail(emailField.getText());
@@ -159,6 +162,10 @@ public abstract class UserWidget extends Form
         {
             String text = maxUploadSizeField.getText();
             user.setMaxUploadRequestSizeInMB(text.length() == 0 ? null : new Long(text));
+        }
+        if (userIsActiveField != null)
+        {
+            user.setActive(userIsActiveField.getValue());
         }
         if (fileRetentionField != null)
         {
@@ -203,6 +210,12 @@ public abstract class UserWidget extends Form
             maxUploadSizeField = createMaxUploadSizeField();
             add(maxUploadSizeField);
         }
+        // For editing we have more space on the left side.
+        if (editUser != null && editingMyself() == false && context.getModel().getUser().isAdmin())
+        {
+            userIsActiveField = createUserIsActiveCheckbox();
+            add(userIsActiveField);
+        }
 
         end();
 
@@ -229,6 +242,12 @@ public abstract class UserWidget extends Form
         {
             statusField = createStatusComboBox();
             add(statusField);
+        }
+        // For creation we have more space on the right side.
+        if (editUser == null && context.getModel().getUser().isAdmin())
+        {
+            userIsActiveField = createUserIsActiveCheckbox();
+            add(userIsActiveField);
         }
 
         end();
@@ -481,6 +500,23 @@ public abstract class UserWidget extends Form
         checkboxConfig.setChecked(true);
         checkboxConfig.setName("send-user-information");
         checkboxConfig.setFieldLabel(getMessageResources().getSendUserUpdateInformationLabel());
+        checkboxConfig.setWidth(FIELD_WIDTH);
+        return new Checkbox(checkboxConfig);
+    }
+
+    private final Checkbox createUserIsActiveCheckbox()
+    {
+        final CheckboxConfig checkboxConfig = new CheckboxConfig();
+        if (editUser != null)
+        {
+            checkboxConfig.setChecked(editUser.isActive());
+
+        } else
+        {
+            checkboxConfig.setChecked(true);
+        }
+        checkboxConfig.setName("user-is-active");
+        checkboxConfig.setFieldLabel(getMessageResources().getUserActiveLabel());
         checkboxConfig.setWidth(FIELD_WIDTH);
         return new Checkbox(checkboxConfig);
     }

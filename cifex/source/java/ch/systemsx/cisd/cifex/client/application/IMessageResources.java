@@ -889,6 +889,13 @@ public interface IMessageResources extends Messages
      * @gwt.key user.status.label
      */
     public String getUserStatusLabel();
+    
+    /**
+     * Returns user "Is Active" label.
+     * 
+     * @gwt.key usercreation.role.active
+     */
+    public String getUserActiveLabel();
 
     /**
      * Returns label for the validate Password field.

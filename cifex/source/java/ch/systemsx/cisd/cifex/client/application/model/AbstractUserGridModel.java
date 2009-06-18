@@ -40,6 +40,8 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
     public static final String FULL_NAME = "fullName";
 
     public static final String STATUS = "status";
+    
+    public static final String ACTIVE = "active";
 
     public static final String REGISTRATOR = "registrator";
 
@@ -98,6 +100,11 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
     protected final ColumnConfig createStatusColumnConfig()
     {
         return createSortableColumnConfig(STATUS, messageResources.getStatusLabel(), 250);
+    }
+
+    protected final ColumnConfig createActiveColumnConfig()
+    {
+        return createSortableColumnConfig(ACTIVE, messageResources.getUserActiveLabel(), 100);
     }
 
     protected final ColumnConfig createFullNameColumnConfig()

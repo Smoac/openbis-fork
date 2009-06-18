@@ -44,6 +44,11 @@ public final class UserInfoDTO extends BasicUserInfoDTO
      * </p>
      */
     private boolean permanent;
+    
+    /**
+     * Whether this user is currently active (set to false to deactivate a user).
+     */
+    private boolean active = true;
 
     private Date expirationDate;
 
@@ -73,6 +78,16 @@ public final class UserInfoDTO extends BasicUserInfoDTO
     public final void setPermanent(final boolean permanent)
     {
         this.permanent = permanent;
+    }
+
+    public boolean isActive()
+    {
+        return active;
+    }
+
+    public void setActive(boolean active)
+    {
+        this.active = active;
     }
 
     public final Date getExpirationDate()
