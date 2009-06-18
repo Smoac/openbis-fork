@@ -193,19 +193,18 @@ public class ResultDataSetHandler implements IDataSetHandler
                 for (Peptide peptide : peptides)
                 {
                     Sequence sequence = getOrCreateSequence(peptide);
-                    long peptideID = dao.createPeptide(proteinID, sequence.getId());
                     int charge = peptide.getCharge();
+                    long peptideID = dao.createPeptide(proteinID, sequence.getId(), charge);
                     List<PeptideModification> modifications = peptide.getModifications();
                     for (PeptideModification modification : modifications)
                     {
-                        long modifiedPeptideID = dao.createModifiedPeptide(peptideID, charge);
                         List<AminoAcidMass> aminoAcidMasses = modification.getAminoAcidMasses();
                         for (AminoAcidMass aminoAcidMass : aminoAcidMasses)
                         {
                             double mass = aminoAcidMass.getMass();
                             ModificationType modificationType =
                                     findModificationType(modificationTypes, mass);
-                            dao.createModification(modifiedPeptideID, modificationType.getId(),
+                            dao.createModification(peptideID, modificationType.getId(),
                                     aminoAcidMass.getPosition(), mass);
                         }
                     }
