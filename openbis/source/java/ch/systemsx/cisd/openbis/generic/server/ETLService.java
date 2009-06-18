@@ -158,26 +158,35 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         return daoFactory.getPermIdDAO().createPermId();
     }
 
-    public ExperimentPE tryToGetBaseExperiment(String sessionToken,
+    public SamplePE tryGetSampleWithExperiment(String sessionToken,
             SampleIdentifier sampleIdentifier) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         assert sampleIdentifier != null : "Unspecified sample identifier.";
 
         final Session session = sessionManager.getSession(sessionToken);
-        ExperimentPE experiment = tryToLoadExperimentBySampleIdentifier(session, sampleIdentifier);
-        enrichWithPropertiesAndProcessingInstructions(experiment);
-        return experiment;
-
+        SamplePE sample = tryLoadSample(session, sampleIdentifier);
+        if (sample != null)
+        {
+            HibernateUtils.initialize(sample.getProperties());
+            enrichWithPropertiesAndProcessingInstructions(sample.getExperiment());
+        }
+        return sample;
     }
 
-    private ExperimentPE tryToLoadExperimentBySampleIdentifier(final Session session,
+    private ExperimentPE tryLoadExperimentBySampleIdentifier(final Session session,
             SampleIdentifier sampleIdentifier)
+    {
+        final SamplePE sample = tryLoadSample(session, sampleIdentifier);
+        return sample == null ? null : sample.getExperiment();
+    }
+
+    private SamplePE tryLoadSample(final Session session, SampleIdentifier sampleIdentifier)
     {
         final ISampleBO sampleBO = boFactory.createSampleBO(session);
         sampleBO.tryToLoadBySampleIdentifier(sampleIdentifier);
         final SamplePE sample = sampleBO.tryToGetSample();
-        return sample == null ? null : sample.getExperiment();
+        return sample;
     }
 
     private void enrichWithPropertiesAndProcessingInstructions(ExperimentPE experiment)
@@ -284,7 +293,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         assert sampleIdentifier != null : "Unspecified sample identifier.";
 
         final Session session = sessionManager.getSession(sessionToken);
-        ExperimentPE experiment = tryToLoadExperimentBySampleIdentifier(session, sampleIdentifier);
+        ExperimentPE experiment = tryLoadExperimentBySampleIdentifier(session, sampleIdentifier);
         if (experiment == null)
         {
             throw new UserFailureException("No experiment found for sample " + sampleIdentifier);

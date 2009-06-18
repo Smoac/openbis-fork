@@ -70,7 +70,8 @@ public class EncapsulatedOpenBISServiceTest
         exp.will(Expectations.returnValue(createSession()));
         exp.one(limsService).registerDataStoreServer(exp.with(Expectations.equal("")),
                 exp.with(Expectations.any(DataStoreServerInfo.class)));
-        exp.one(limsService).tryToGetBaseExperiment("", dataSetInformation.getSampleIdentifier());
+        exp.one(limsService).tryGetSampleWithExperiment("",
+                dataSetInformation.getSampleIdentifier());
     }
 
     private Session createSession()
@@ -137,13 +138,14 @@ public class EncapsulatedOpenBISServiceTest
         context.checking(new Expectations()
             {
                 {
-                    one(limsService).tryToGetBaseExperiment("",
+                    one(limsService).tryGetSampleWithExperiment("",
                             dataSetInformation.getSampleIdentifier());
                     will(throwException(new InvalidSessionException("error")));
                     prepareCallGetBaseExperiment(this, dataSetInformation);
                 }
             });
-        encapsulatedLimsService.getBaseExperiment(dataSetInformation.getSampleIdentifier());
+        encapsulatedLimsService
+                .tryGetSampleWithExperiment(dataSetInformation.getSampleIdentifier());
         context.assertIsSatisfied();
     }
 
@@ -154,11 +156,12 @@ public class EncapsulatedOpenBISServiceTest
         context.checking(new Expectations()
             {
                 {
-                    one(limsService).tryToGetBaseExperiment("",
+                    one(limsService).tryGetSampleWithExperiment("",
                             dataSetInformation.getSampleIdentifier());
                 }
             });
-        encapsulatedLimsService.getBaseExperiment(dataSetInformation.getSampleIdentifier());
+        encapsulatedLimsService
+                .tryGetSampleWithExperiment(dataSetInformation.getSampleIdentifier());
         context.assertIsSatisfied();
     }
 

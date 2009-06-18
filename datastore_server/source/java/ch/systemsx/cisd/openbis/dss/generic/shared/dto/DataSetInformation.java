@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExtractableData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -68,8 +69,8 @@ public class DataSetInformation implements Serializable
     /** An object that uniquely identifies the experiment. Can be <code>null</code>. */
     private ExperimentIdentifier experimentIdentifier;
 
-    /** Required information about the experiment. */
-    private transient ExperimentPE experiment;
+    /** sample with properties, enriched with connected experiment with properties. */
+    private transient SamplePE sample;
 
     private BooleanOrUnknown isCompleteFlag = BooleanOrUnknown.U;
 
@@ -152,15 +153,17 @@ public class DataSetInformation implements Serializable
      */
     public ExperimentPE getExperiment()
     {
-        return experiment;
+        return sample == null ? null : sample.getExperiment();
     }
 
-    /**
-     * Sets the basic information about the experiment.
-     */
-    public void setExperiment(final ExperimentPE experiment)
+    public SamplePE getSample()
     {
-        this.experiment = experiment;
+        return sample;
+    }
+
+    public void setSample(final SamplePE sample)
+    {
+        this.sample = sample;
     }
 
     /**

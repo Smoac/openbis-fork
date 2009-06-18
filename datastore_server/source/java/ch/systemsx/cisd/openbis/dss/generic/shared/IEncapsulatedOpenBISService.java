@@ -22,10 +22,10 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -45,10 +45,12 @@ public interface IEncapsulatedOpenBISService
             throws UserFailureException;
 
     /**
-     * For given <var>dataSetInfo</var> returns the <code>BaseExperiment</code> object or null if it
-     * does not exist.
+     * Gets a sample with the specified identifier. Sample is enriched with properties and the
+     * experiment with properties.
+     * 
+     * @return <code>null</code> if no sample could be found for given <var>sampleIdentifier</var>.
      */
-    public ExperimentPE getBaseExperiment(final SampleIdentifier sampleIdentifier)
+    public SamplePE tryGetSampleWithExperiment(final SampleIdentifier sampleIdentifier)
             throws UserFailureException;
 
     /**

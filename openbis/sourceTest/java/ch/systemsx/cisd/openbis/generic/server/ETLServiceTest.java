@@ -233,35 +233,37 @@ public class ETLServiceTest extends AbstractServerTestCase
     }
 
     @Test
-    public void testTryToGetBaseExperimentForAnUnknownSample()
+    public void testTryGetSampleWithExperimentForAnUnknownSample()
     {
         final SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
         prepareTryToLoadSample(sampleIdentifier, null);
 
-        ExperimentPE experiment =
-                createService().tryToGetBaseExperiment(SESSION_TOKEN, sampleIdentifier);
+        SamplePE sample =
+                createService().tryGetSampleWithExperiment(SESSION_TOKEN, sampleIdentifier);
 
-        assertEquals(null, experiment);
+        assertEquals(null, sample);
         context.assertIsSatisfied();
     }
 
     @Test
-    public void testTryToGetBaseExperimentForSampleWithNoValidProcedure()
+    public void testTryGetSampleWithExperimentForSampleWithNoValidProcedure()
     {
         final SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
-        prepareTryToLoadSample(sampleIdentifier, new SamplePE());
+        SamplePE sample = new SamplePE();
+        prepareTryToLoadSample(sampleIdentifier, sample);
 
-        ExperimentPE experiment =
-                createService().tryToGetBaseExperiment(SESSION_TOKEN, sampleIdentifier);
+        SamplePE actualSample =
+                createService().tryGetSampleWithExperiment(SESSION_TOKEN, sampleIdentifier);
 
-        assertEquals(null, experiment);
+        assertSame(sample, actualSample);
+        assertEquals(null, actualSample.getExperiment());
         context.assertIsSatisfied();
     }
 
     @Test
-    public void testTryToGetBaseExperimentWithoutAttachment()
+    public void testGetSampleWithExperimentWithoutAttachment()
     {
         final SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
@@ -276,16 +278,18 @@ public class ETLServiceTest extends AbstractServerTestCase
                 }
             });
 
+        SamplePE actualSample =
+                createService().tryGetSampleWithExperiment(SESSION_TOKEN, sampleIdentifier);
         ExperimentPE actualExperiment =
-                createService().tryToGetBaseExperiment(SESSION_TOKEN, sampleIdentifier);
-
+                (actualSample == null) ? null : actualSample.getExperiment();
+        assertSame(sample, actualSample);
         assertSame(experiment, actualExperiment);
         assertEquals(0, actualExperiment.getProcessingInstructions().length);
         context.assertIsSatisfied();
     }
 
     @Test
-    public void testTryToGetBaseExperimentWithAProcessingInstruction()
+    public void testGetSampleWithExperimentWithAProcessingInstruction()
     {
         final SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
@@ -324,9 +328,12 @@ public class ETLServiceTest extends AbstractServerTestCase
                 }
             });
 
+        SamplePE actualSample =
+                createService().tryGetSampleWithExperiment(SESSION_TOKEN, sampleIdentifier);
         ExperimentPE actualExperiment =
-                createService().tryToGetBaseExperiment(SESSION_TOKEN, sampleIdentifier);
+                (actualSample == null) ? null : actualSample.getExperiment();
 
+        assertSame(sample, actualSample);
         assertSame(experiment, actualExperiment);
         ProcessingInstructionDTO[] processingInstructions =
                 actualExperiment.getProcessingInstructions();

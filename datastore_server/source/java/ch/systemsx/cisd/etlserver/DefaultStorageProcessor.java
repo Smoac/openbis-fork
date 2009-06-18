@@ -24,7 +24,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
@@ -48,9 +48,9 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
     // AbstractStorageProcessor
     //
 
-    public final File storeData(final ExperimentPE experiment,
-            final DataSetInformation dataSetInformation, final ITypeExtractor typeExtractor,
-            final IMailClient mailClient, final File incomingDataSetDirectory, final File rootDir)
+    public final File storeData(final SamplePE sample, final DataSetInformation dataSetInformation,
+            final ITypeExtractor typeExtractor, final IMailClient mailClient,
+            final File incomingDataSetDirectory, final File rootDir)
     {
         checkParameters(incomingDataSetDirectory, rootDir);
         File originalDir = getOriginalDirectory(rootDir);

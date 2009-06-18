@@ -32,10 +32,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -163,9 +163,9 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
-    private final ExperimentPE primGetBaseExperiment(final SampleIdentifier sampleIdentifier)
+    private final SamplePE primTryGetSampleWithExperiment(final SampleIdentifier sampleIdentifier)
     {
-        return service.tryToGetBaseExperiment(sessionToken, sampleIdentifier);
+        return service.tryGetSampleWithExperiment(sessionToken, sampleIdentifier);
     }
 
     private final void primRegisterDataSet(final DataSetInformation dataSetInformation,
@@ -195,18 +195,19 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     // IEncapsulatedLimsService
     //
 
-    synchronized public final ExperimentPE getBaseExperiment(final SampleIdentifier sampleIdentifier)
+    synchronized public final SamplePE tryGetSampleWithExperiment(
+            final SampleIdentifier sampleIdentifier)
     {
         assert sampleIdentifier != null : "Given sample identifier can not be null.";
 
         checkSessionToken();
         try
         {
-            return primGetBaseExperiment(sampleIdentifier);
+            return primTryGetSampleWithExperiment(sampleIdentifier);
         } catch (final InvalidSessionException ex)
         {
             authenticate();
-            return primGetBaseExperiment(sampleIdentifier);
+            return primTryGetSampleWithExperiment(sampleIdentifier);
         }
     }
 

@@ -24,9 +24,9 @@ import org.apache.commons.io.FilenameUtils;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.LocalExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -87,7 +87,7 @@ class DatasetMappingResolver
             // The main purpose of this checks is to ensure that sample with the given code exists.
             // If it is not a case, we will try to check if the specified sample label is unique (in
             // all experiments).
-            if (tryFigureExperiment(sampleCodeOrLabel, mapping, log) != null)
+            if (isConnectedToExperiment(sampleCodeOrLabel, mapping, log))
             {
                 return sampleCodeOrLabel;
             }
@@ -195,8 +195,7 @@ class DatasetMappingResolver
     private boolean existsAndBelongsToExperiment(DataSetMappingInformation mapping, LogUtils log,
             String sampleCode)
     {
-        ExperimentPE experiment = tryFigureExperiment(sampleCode, mapping, log);
-        if (experiment == null)
+        if (isConnectedToExperiment(sampleCode, mapping, log) == false)
         {
             log.datasetMappingError(mapping, "sample with the code '%s' does not exist"
                     + " or is not connected to any experiment", sampleCode);
@@ -205,19 +204,20 @@ class DatasetMappingResolver
         return true;
     }
 
-    private ExperimentPE tryFigureExperiment(String sampleCode, DataSetMappingInformation mapping,
+    private boolean isConnectedToExperiment(String sampleCode, DataSetMappingInformation mapping,
             LogUtils log)
     {
         SampleIdentifier sampleIdentifier = createSampleIdentifier(sampleCode, mapping);
         try
         {
-            return openbisService.getBaseExperiment(sampleIdentifier);
+            SamplePE sample = openbisService.tryGetSampleWithExperiment(sampleIdentifier);
+            return sample != null && sample.getExperiment() != null;
         } catch (UserFailureException e)
         {
             log.datasetMappingError(mapping,
                     "error when checking if sample '%s' belongs to an experiment: %s",
                     sampleIdentifier, e.getMessage());
-            return null;
+            return false;
         }
     }
 

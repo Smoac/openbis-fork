@@ -29,10 +29,10 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSampl
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -59,16 +59,16 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     public void registerDataStoreServer(String sessionToken, DataStoreServerInfo dataStoreServerInfo);
 
     /**
-     * Gets an {@link ExperimentPE} object specified by experiment ID and sample code.
+     * Gets a sample with the specified identifier. Sample is enriched with properties and the
+     * experiment with properties.
      * 
      * @param sessionToken the user authentication token. Must not be <code>null</code>.
      * @param sampleIdentifier an identifier which uniquely identifies the sample.
-     * @return <code>null</code> if no experiment could be found for given
-     *         <var>sampleIdentifier</var>.
+     * @return <code>null</code> if no sample could be found for given <var>sampleIdentifier</var>.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)
-    public ExperimentPE tryToGetBaseExperiment(
+    public SamplePE tryGetSampleWithExperiment(
             final String sessionToken,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) final SampleIdentifier sampleIdentifier)
             throws UserFailureException;

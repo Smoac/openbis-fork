@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -65,7 +66,14 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
 
     private BufferedAppender logRecorder;
 
-    private final static ExperimentPE createBaseExperiment()
+    private final static SamplePE createSampleWithExperiment()
+    {
+        SamplePE sample = new SamplePE();
+        sample.setExperiment(createExperiment());
+        return sample;
+    }
+
+    private final static ExperimentPE createExperiment()
     {
         final ExperimentPE baseExperiment = new ExperimentPE();
         baseExperiment.setCode(EXPERIMENT_CODE);
@@ -131,12 +139,12 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
         final File incomingDataSetPath = createIncomingDataSetPath();
         final DataSetInformation dataSetInfo = IdentifiedDataStrategyTest.createDataSetInfo();
         final SampleIdentifier sampleIdentifier = dataSetInfo.getSampleIdentifier();
-        final ExperimentPE baseExperiment = createBaseExperiment();
+        final SamplePE baseSample = createSampleWithExperiment();
         context.checking(new Expectations()
             {
                 {
-                    one(limsService).getBaseExperiment(sampleIdentifier);
-                    will(returnValue(baseExperiment));
+                    one(limsService).tryGetSampleWithExperiment(sampleIdentifier);
+                    will(returnValue(baseSample));
 
                     one(limsService).getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
                     will(returnValue(new SamplePropertyPE[0]));
@@ -154,13 +162,13 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
         final File incomingDataSetPath = createIncomingDataSetPath();
         final DataSetInformation dataSetInfo = IdentifiedDataStrategyTest.createDataSetInfo();
         dataSetInfo.setExperimentIdentifier(null);
-        final ExperimentPE baseExperiment = createBaseExperiment();
+        final SamplePE baseSample = createSampleWithExperiment();
         final SampleIdentifier sampleIdentifier = dataSetInfo.getSampleIdentifier();
         context.checking(new Expectations()
             {
                 {
-                    one(limsService).getBaseExperiment(sampleIdentifier);
-                    will(returnValue(baseExperiment));
+                    one(limsService).tryGetSampleWithExperiment(sampleIdentifier);
+                    will(returnValue(baseSample));
 
                     one(limsService).getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
                     will(returnValue(new SamplePropertyPE[0]));
@@ -180,7 +188,7 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(limsService).getBaseExperiment(dataSetInfo.getSampleIdentifier());
+                    one(limsService).tryGetSampleWithExperiment(dataSetInfo.getSampleIdentifier());
                     will(returnValue(null));
                 }
             });
@@ -201,13 +209,13 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
     {
         final File incomingDataSetPath = createIncomingDataSetPath();
         final DataSetInformation dataSetInfo = IdentifiedDataStrategyTest.createDataSetInfo();
-        final ExperimentPE baseExperiment = createBaseExperiment();
-        baseExperiment.setInvalidation(new InvalidationPE());
+        final SamplePE baseSample = createSampleWithExperiment();
+        baseSample.getExperiment().setInvalidation(new InvalidationPE());
         context.checking(new Expectations()
             {
                 {
-                    one(limsService).getBaseExperiment(dataSetInfo.getSampleIdentifier());
-                    will(returnValue(baseExperiment));
+                    one(limsService).tryGetSampleWithExperiment(dataSetInfo.getSampleIdentifier());
+                    will(returnValue(baseSample));
                 }
             });
         final IDataStoreStrategy dataStoreStrategy =
@@ -226,16 +234,16 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
     {
         final File incomingDataSetPath = createIncomingDataSetPath();
         final DataSetInformation dataSetInfo = IdentifiedDataStrategyTest.createDataSetInfo();
-        final ExperimentPE baseExperiment = createBaseExperiment();
+        final SamplePE baseSample = createSampleWithExperiment();
         final PersonPE person = new PersonPE();
         final String email = "john.doe@freemail.org";
         person.setEmail(email);
-        baseExperiment.setRegistrator(person);
+        baseSample.getExperiment().setRegistrator(person);
         context.checking(new Expectations()
             {
                 {
-                    one(limsService).getBaseExperiment(dataSetInfo.getSampleIdentifier());
-                    will(returnValue(baseExperiment));
+                    one(limsService).tryGetSampleWithExperiment(dataSetInfo.getSampleIdentifier());
+                    will(returnValue(baseSample));
 
                     one(limsService).getPropertiesOfTopSampleRegisteredFor(
                             dataSetInfo.getSampleIdentifier());

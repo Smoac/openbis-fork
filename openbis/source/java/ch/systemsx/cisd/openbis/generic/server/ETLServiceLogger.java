@@ -22,10 +22,10 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -70,10 +70,10 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
                 externalData);
     }
 
-    public ExperimentPE tryToGetBaseExperiment(String sessionToken,
+    public SamplePE tryGetSampleWithExperiment(String sessionToken,
             SampleIdentifier sampleIdentifier) throws UserFailureException
     {
-        logAccess(sessionToken, "get_experiment", "SAMPLE(%s)", sampleIdentifier);
+        logAccess(sessionToken, "get_sample_with_experiment", "SAMPLE(%s)", sampleIdentifier);
         return null;
     }
 

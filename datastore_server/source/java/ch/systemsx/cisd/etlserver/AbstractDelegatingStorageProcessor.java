@@ -30,7 +30,7 @@ import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
@@ -93,11 +93,11 @@ abstract public class AbstractDelegatingStorageProcessor implements IStorageProc
     // delegation
     //
 
-    public File storeData(final ExperimentPE experiment,
-            final DataSetInformation dataSetInformation, final ITypeExtractor typeExtractor,
-            final IMailClient mailClient, final File incomingDataSetDirectory, final File rootDir)
+    public File storeData(final SamplePE sample, final DataSetInformation dataSetInformation,
+            final ITypeExtractor typeExtractor, final IMailClient mailClient,
+            final File incomingDataSetDirectory, final File rootDir)
     {
-        return delegate.storeData(experiment, dataSetInformation, typeExtractor, mailClient,
+        return delegate.storeData(sample, dataSetInformation, typeExtractor, mailClient,
                 incomingDataSetDirectory, rootDir);
     }
 

@@ -70,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -196,6 +197,13 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         final File originalData = new File(dir, ORIGINAL_DATA_TXT);
         FileUtilities.writeToFile(originalData, EXAMPLE_DATA);
         return dir;
+    }
+
+    static final SamplePE createSample()
+    {
+        SamplePE sample = new SamplePE();
+        sample.setExperiment(createExperiment());
+        return sample;
     }
 
     static final ExperimentPE createExperiment()
@@ -346,11 +354,12 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         assertEquals(0, workingDirectory.list().length);
         final File incomingDataSetDirectory = createOriginalDataInDir();
         assertEquals(true, incomingDataSetDirectory.exists());
-        final ExperimentPE baseExperiment = createExperiment();
+        final SamplePE baseSample = createSample();
+        final ExperimentPE baseExperiment = baseSample.getExperiment();
         final DataSetInformation dataSetInformation = createDataSetInformation();
         prepareMailClient(format);
         final File dataFile =
-                storageProcessor.storeData(baseExperiment, dataSetInformation, TYPE_EXTRACTOR,
+                storageProcessor.storeData(baseSample, dataSetInformation, TYPE_EXTRACTOR,
                         mailClient, incomingDataSetDirectory, new File(workingDirectory,
                                 STORE_ROOT_DIR));
         assertEquals(new File(workingDirectory, STORE_ROOT_DIR).getAbsolutePath(), dataFile
@@ -402,13 +411,13 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         final File incomingDirectoryData = createOriginalDataInDir();
         // incoming/NEMO.EXP1==CP001A-3AB in 'workingDirectory'
         assert incomingDirectoryData.exists();
-        final ExperimentPE baseExperiment = createExperiment();
+        final SamplePE baseSample = createSample();
         final DataSetInformation dataSetInformation = createDataSetInformation();
         // NEMO.EXP1==CP001A-3AB in 'workingDirectory'
         prepareMailClient(format);
         final File storeRootDir = new File(workingDirectory, STORE_ROOT_DIR);
         final File dataStore =
-                storageAdapter.storeData(baseExperiment, dataSetInformation, TYPE_EXTRACTOR,
+                storageAdapter.storeData(baseSample, dataSetInformation, TYPE_EXTRACTOR,
                         mailClient, incomingDirectoryData, storeRootDir);
         assertEquals(true, dataStore.isDirectory());
         assertEquals(false, incomingDirectoryData.exists());
@@ -425,11 +434,11 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         final Properties properties = createProperties(format);
         final BDSStorageProcessor storageProcessor = new BDSStorageProcessor(properties);
         final File incomingDirectoryData = createOriginalDataInDir();
-        final ExperimentPE baseExperiment = createExperiment();
+        final SamplePE baseSample = createSample();
         final DataSetInformation dataSetInformation = createDataSetInformation();
         prepareMailClient(format);
         final File storeData =
-                storageProcessor.storeData(baseExperiment, dataSetInformation, TYPE_EXTRACTOR,
+                storageProcessor.storeData(baseSample, dataSetInformation, TYPE_EXTRACTOR,
                         mailClient, incomingDirectoryData, workingDirectory);
         final File originalDataSet = storageProcessor.tryGetProprietaryData(storeData);
         assertNotNull(originalDataSet);
@@ -454,11 +463,11 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         properties.setProperty(CONTAINS_ORIGINAL_DATA_KEY, Utilities.Boolean.FALSE.toString());
         final BDSStorageProcessor storageProcessor = new BDSStorageProcessor(properties);
         final File incomingDirectoryData = createOriginalDataInDir();
-        final ExperimentPE baseExperiment = createExperiment();
+        final SamplePE baseSample = createSample();
         final DataSetInformation dataSetInformation = createDataSetInformation();
         prepareMailClient(HCSImageFormatV1_0.HCS_IMAGE_1_0);
         final File storeData =
-                storageProcessor.storeData(baseExperiment, dataSetInformation, TYPE_EXTRACTOR,
+                storageProcessor.storeData(baseSample, dataSetInformation, TYPE_EXTRACTOR,
                         mailClient, incomingDirectoryData, workingDirectory);
         logRecorder.resetLogContent();
         final File originalDataSet = storageProcessor.tryGetProprietaryData(storeData);

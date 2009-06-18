@@ -74,6 +74,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
@@ -242,9 +243,8 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
     }
 
     private final IDataStructureV1_1 createDataStructure(final ExperimentPE experiment,
-            final DataSetInformation dataSetInformation,
-            final ITypeExtractor typeExtractor, final File incomingDataSetPath,
-            final File rootDir)
+            final DataSetInformation dataSetInformation, final ITypeExtractor typeExtractor,
+            final File incomingDataSetPath, final File rootDir)
     {
         final FileStorage storage = new FileStorage(rootDir);
         final IDataStructureV1_1 structure =
@@ -414,8 +414,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
     // AbstractStorageProcessor
     //
 
-    public final File storeData(final ExperimentPE experiment,
-            final DataSetInformation dataSetInformation,
+    public final File storeData(final SamplePE sample, final DataSetInformation dataSetInformation,
             final ITypeExtractor typeExtractor, final IMailClient mailClient,
             final File incomingDataSetDirectory, final File rootDirectory)
     {
@@ -427,7 +426,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
         dataStructureDir = rootDirectory;
         dataStructureDir.mkdirs();
         dataStructure =
-                createDataStructure(experiment, dataSetInformation, typeExtractor,
+                createDataStructure(sample.getExperiment(), dataSetInformation, typeExtractor,
                         incomingDataSetDirectory, dataStructureDir);
         final IFormattedData formattedData = dataStructure.getFormattedData();
         if (formattedData instanceof IHCSImageFormattedData)

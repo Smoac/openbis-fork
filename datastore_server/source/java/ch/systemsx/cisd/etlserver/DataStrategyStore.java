@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -129,7 +130,8 @@ final class DataStrategyStore implements IDataStrategyStore
             return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
         }
         final SampleIdentifier sampleIdentifier = dataSetInfo.getSampleIdentifier();
-        final ExperimentPE experiment = limsService.getBaseExperiment(sampleIdentifier);
+        final SamplePE sample = limsService.tryGetSampleWithExperiment(sampleIdentifier);
+        final ExperimentPE experiment = (sample == null) ? null : sample.getExperiment();
         if (experiment == null)
         {
             notificationLog.error(createNotificationMessage(dataSetInfo, incomingDataSetPath));
@@ -141,7 +143,7 @@ final class DataStrategyStore implements IDataStrategyStore
                     + "' has been invalidated.");
             return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
         }
-        dataSetInfo.setExperiment(experiment);
+        dataSetInfo.setSample(sample);
         final ExperimentIdentifier experimentIdentifier = createExperimentIdentifier(experiment);
         dataSetInfo.setExperimentIdentifier(experimentIdentifier);
 

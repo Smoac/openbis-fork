@@ -21,7 +21,7 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
@@ -46,7 +46,8 @@ public interface IStorageProcessor extends IStoreRootDirectoryHolder
      * them.
      * </p>
      * 
-     * @param experiment information about the related experiment.
+     * @param sample Sample connected to a dataset, enriched with properties, connected experiment
+     *            and its properties.
      * @param dataSetInformation Information about the data set.
      * @param typeExtractor the {@link ITypeExtractor} implementation.
      * @param mailClient mail client.
@@ -54,18 +55,17 @@ public interface IStorageProcessor extends IStoreRootDirectoryHolder
      *            has finished processing. {@link TransferredDataSetHandler} takes care of this.
      * @param rootDir directory to whom the data will be stored.
      * @return folder which contains the stored data. This folder <i>must</i> be below the
-     *         <var>rootDir</var>. Never returns <code>null</code> but prefers to throw an
-     *         exception in case of unexpected behavior.
+     *         <var>rootDir</var>. Never returns <code>null</code> but prefers to throw an exception
+     *         in case of unexpected behavior.
      */
-    public File storeData(final ExperimentPE experiment,
-            final DataSetInformation dataSetInformation,
+    public File storeData(final SamplePE sample, final DataSetInformation dataSetInformation,
             final ITypeExtractor typeExtractor, final IMailClient mailClient,
             final File incomingDataSetDirectory, final File rootDir);
 
     /**
      * Performs a rollback of
-     * {@link #storeData(ExperimentPE, DataSetInformation, ITypeExtractor, IMailClient, File, File)}
-     * The data created in <code>directory</code> will also be removed.
+     * {@link #storeData(SamplePE, DataSetInformation, ITypeExtractor, IMailClient, File, File)} The
+     * data created in <code>directory</code> will also be removed.
      * <p>
      * Call to this method is safe as implementations should try/catch exceptions that could occur
      * here.

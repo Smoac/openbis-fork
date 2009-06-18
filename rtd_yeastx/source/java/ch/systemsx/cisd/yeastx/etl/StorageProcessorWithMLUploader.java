@@ -23,7 +23,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author Tomasz Pylak
@@ -39,12 +39,12 @@ public class StorageProcessorWithMLUploader extends AbstractDelegatingStoragePro
     }
 
     @Override
-    public File storeData(final ExperimentPE experiment,
-            final DataSetInformation dataSetInformation, final ITypeExtractor typeExtractor,
-            final IMailClient mailClient, final File incomingDataSetDirectory, final File rootDir)
+    public File storeData(final SamplePE sample, final DataSetInformation dataSetInformation,
+            final ITypeExtractor typeExtractor, final IMailClient mailClient,
+            final File incomingDataSetDirectory, final File rootDir)
     {
         File storeData =
-                super.storeData(experiment, dataSetInformation, typeExtractor, mailClient,
+                super.storeData(sample, dataSetInformation, typeExtractor, mailClient,
                         incomingDataSetDirectory, rootDir);
         File originalData = super.tryGetProprietaryData(storeData);
         uploader.upload(originalData, dataSetInformation);

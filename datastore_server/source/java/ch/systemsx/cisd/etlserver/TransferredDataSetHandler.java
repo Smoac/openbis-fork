@@ -59,10 +59,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExtractableData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
@@ -420,13 +420,14 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
          */
         final void registerDataSet()
         {
-            final ExperimentPE experiment = dataSetInformation.getExperiment();
+            final SamplePE sample = dataSetInformation.getSample();
             String processorID = typeExtractor.getProcessorType(incomingDataSetFile);
             final IProcessor processorOrNull = tryCreateProcessor(processorID);
             try
             {
-                registerDataSetAndInitiateProcessing(experiment, processorID, processorOrNull);
-                logAndNotifySuccessfulRegistration(experiment.getRegistrator().getEmail());
+                registerDataSetAndInitiateProcessing(sample, processorID, processorOrNull);
+                logAndNotifySuccessfulRegistration(sample.getExperiment().getRegistrator()
+                        .getEmail());
                 if (fileOperations.exists(incomingDataSetFile)
                         && fileOperations.removeRecursivelyQueueing(incomingDataSetFile) == false)
                 {
@@ -483,7 +484,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         /**
          * Registers the data set and, if possible, initiates the processing.
          */
-        private void registerDataSetAndInitiateProcessing(final ExperimentPE experiment,
+        private void registerDataSetAndInitiateProcessing(final SamplePE sample,
                 final String procedureTypeCode, final IProcessor processorOrNull)
         {
             final File markerFile = createProcessingMarkerFile();
@@ -497,7 +498,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                 final StopWatch watch = new StopWatch();
                 watch.start();
                 File dataFile =
-                        storageProcessor.storeData(experiment, dataSetInformation, typeExtractor,
+                        storageProcessor.storeData(sample, dataSetInformation, typeExtractor,
                                 mailClient, incomingDataSetFile, baseDirectoryHolder
                                         .getBaseDirectory());
                 if (operationLog.isInfoEnabled())
@@ -551,7 +552,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                         return;
                     }
                     final ProcessingInstructionDTO processingInstructionOrNull =
-                            tryToGetAppropriateProcessingInstruction(experiment
+                            tryToGetAppropriateProcessingInstruction(sample.getExperiment()
                                     .getProcessingInstructions(), procedureTypeCode);
                     if (processingInstructionOrNull != null)
                     {
