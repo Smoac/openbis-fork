@@ -64,6 +64,9 @@ public class EICMSRunDTO
     @ResultColumn("ACQUISITION_DATE")
     private Date acquisitionDate;
     
+    @ResultColumn("MS_RUN_ID")
+    private Long msRunId;
+    
     @ResultColumn("SET_ID")
     private Long setId;
     
@@ -195,6 +198,16 @@ public class EICMSRunDTO
     public void setAcquisitionDate(Date acquisitionDate)
     {
         this.acquisitionDate = acquisitionDate;
+    }
+
+    public Long getMsRunId()
+    {
+        return msRunId;
+    }
+
+    public void setMsRunId(Long msRunId)
+    {
+        this.msRunId = msRunId;
     }
 
     public Long getSetId()

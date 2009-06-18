@@ -28,29 +28,29 @@ public interface IGenericDAO extends BaseQuery
 {
 
     @Select("select * from EXPERIMENTS where PERM_ID = ?{1}")
-    public DMExperimentDTO getExperiment(String experimentPermId);
+    public DMExperimentDTO getExperimentByPermId(String experimentPermId);
 
     @Select("select * from EXPERIMENTS where ID = ?{1}")
-    public DMExperimentDTO getExperiment(long id);
+    public DMExperimentDTO getExperimentById(long id);
 
     @Select("insert into EXPERIMENTS (PERM_ID, NAME) values (?{1.permId}, ?{1.name}) returning ID")
     public long addExperiment(DMExperimentDTO experiment);
 
     @Select("select * from SAMPLES where PERM_ID = ?{1}")
-    public DMSampleDTO getSample(String samplePermId);
+    public DMSampleDTO getSampleByPermId(String samplePermId);
 
     @Select("select * from SAMPLES where ID = ?{1}")
-    public DMSampleDTO getSample(long id);
+    public DMSampleDTO getSampleById(long id);
 
     @Select("insert into SAMPLES (PERM_ID, NAME, EXPE_ID) values (?{1.permId}, ?{1.name}, ?{1.experiment.id}) "
             + "returning ID")
     public long addSample(DMSampleDTO sample);
 
     @Select("select * from DATA_SETS where PERM_ID = ?{1}")
-    public DMDataSetDTO getDataSet(String dataSetPermId);
+    public DMDataSetDTO getDataSetByPermId(String dataSetPermId);
 
     @Select("select * from DATA_SETS where ID = ?{1}")
-    public DMDataSetDTO getDataSet(long id);
+    public DMDataSetDTO getDataSetById(long id);
 
     @Select("insert into DATA_SETS (PERM_ID, EXPE_ID, SAMP_ID) values "
             + "(?{1.permId}, ?{1.experiment.id}, ?{1.sample.id}) returning ID")

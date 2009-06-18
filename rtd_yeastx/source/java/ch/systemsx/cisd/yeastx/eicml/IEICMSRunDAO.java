@@ -35,17 +35,18 @@ public interface IEICMSRunDAO extends BaseQuery
                     + "EIC_MS_RUNS.RAW_DATA_FILE_NAME, EIC_MS_RUNS.RAW_DATA_FILE_PATH, "
                     + "EIC_MS_RUNS.ACQUISITION_DATE, EIC_MS_RUNS.INSTRUMENT_TYPE, EIC_MS_RUNS.INSTRUMENT_MANUFACTURER, "
                     + "EIC_MS_RUNS.INSTRUMENT_MODEL, EIC_MS_RUNS.METHOD_IONISATION, EIC_MS_RUNS.METHOD_SEPARATION, "
-                    + "EIC_MS_RUNS.SET_ID, EIC_MS_RUNS.OPERATOR, "
+                    + "EIC_MS_RUNS.MS_RUN_ID, EIC_MS_RUNS.SET_ID, EIC_MS_RUNS.OPERATOR, "
                     + "EIC_MS_RUNS.START_TIME, EIC_MS_RUNS.END_TIME";
 
     @Select("insert into EIC_MS_RUNS (EXPE_ID, SAMP_ID, DS_ID, "
             + "RAW_DATA_FILE_NAME, RAW_DATA_FILE_PATH, ACQUISITION_DATE, "
             + "INSTRUMENT_TYPE, INSTRUMENT_MANUFACTURER, INSTRUMENT_MODEL, METHOD_IONISATION, "
-            + "METHOD_SEPARATION, SET_ID, OPERATOR, START_TIME, END_TIME) values "
+            + "METHOD_SEPARATION, MS_RUN_ID, SET_ID, OPERATOR, START_TIME, END_TIME) values "
             + "(?{1.experimentId}, ?{1.sampleId}, ?{1.dataSetId}, ?{1.rawDataFileName}, "
             + "?{1.rawDataFilePath}, ?{1.acquisitionDate}, ?{1.instrumentType}, "
             + "?{1.instrumentManufacturer}, ?{1.instrumentModel}, ?{1.methodIonisation}, "
-            + "?{1.methodSeparation}, ?{1.setId}, ?{1.operator}, ?{1.startTime}, ?{1.endTime}) returning ID")
+            + "?{1.methodSeparation}, ?{1.msRunId}, ?{1.setId}, ?{1.operator}, "
+            + "?{1.startTime}, ?{1.endTime}) returning ID")
     public long addMSRun(EICMSRunDTO msRun);
 
     @Update(sql = "insert into EIC_CHROMATOGRAMS (EIC_MS_RUN_ID, Q1_MZ, Q3_LOW_MZ, Q3_HIGH_MZ, LABEL, POLARITY, RUN_TIMES, "
@@ -55,7 +56,8 @@ public interface IEICMSRunDAO extends BaseQuery
     public void addChromatograms(long EIC_MS_RUN_ID, List<ChromatogramDTO> chromatogram);
 
     @Select(sql = "select EIC_MS_RUNS.*,count(EIC_CHROMATOGRAMS.*) as chromCount from EIC_MS_RUNS "
-            + "left join EIC_CHROMATOGRAMS on EIC_MS_RUN_ID = EIC_MS_RUNS.ID group by " + ALL_EIC_MSRUN_COLUMNS)
+            + "left join EIC_CHROMATOGRAMS on EIC_MS_RUN_ID = EIC_MS_RUNS.ID group by "
+            + ALL_EIC_MSRUN_COLUMNS)
     public DataIterator<EICMSRunDTO> getMsRuns();
 
     @Select(sql = "select * from EIC_MS_RUNS where RAW_DATA_FILE_NAME=?{1}")

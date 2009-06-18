@@ -81,10 +81,10 @@ public class DBFactory
      */
     public static void createDataSet(IGenericDAO dao, DMDataSetDTO dataSet)
     {
-        DMSampleDTO sample = dao.getSample(dataSet.getSample().getPermId());
+        DMSampleDTO sample = dao.getSampleByPermId(dataSet.getSample().getPermId());
         if (sample == null)
         {
-            DMExperimentDTO experiment = dao.getExperiment(dataSet.getExperiment().getPermId());
+            DMExperimentDTO experiment = dao.getExperimentByPermId(dataSet.getExperiment().getPermId());
             if (experiment == null)
             {
                 experiment = dataSet.getExperiment();
@@ -99,7 +99,7 @@ public class DBFactory
         } else
         {
             dataSet.setSample(sample);
-            sample.setExperiment(dao.getExperiment(sample.getExperimentId()));
+            sample.setExperiment(dao.getExperimentById(sample.getExperimentId()));
         }
         long dataSetId = dao.addDataSet(dataSet);
         dataSet.setId(dataSetId);

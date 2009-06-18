@@ -160,7 +160,7 @@ public class EICMLParser extends DefaultHandler
             msRun.setChromCount(Integer.parseInt(value));
         } else if ("msRunId".equals(name) && value.length() > 0)
         {
-            msRun.setId(Long.parseLong(value));
+            msRun.setMsRunId(Long.parseLong(value));
         } else if ("startTime".equals(name) && value.length() > 0)
         {
             msRun.setStartTime(Float.parseFloat(value));
