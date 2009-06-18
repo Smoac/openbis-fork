@@ -57,6 +57,11 @@ public class UserDTO extends ID
      * </p>
      */
     private boolean permanent;
+    
+    /**
+     * Whether this user is currently active (set to false to deactivate a user).
+     */
+    private boolean active;
 
     private boolean externallyAuthenticated;
 
@@ -137,6 +142,16 @@ public class UserDTO extends ID
     public final void setPermanent(final boolean permanent)
     {
         this.permanent = permanent;
+    }
+
+    public boolean isActive()
+    {
+        return active;
+    }
+
+    public void setActive(boolean active)
+    {
+        this.active = active;
     }
 
     public final String getUserFullName()

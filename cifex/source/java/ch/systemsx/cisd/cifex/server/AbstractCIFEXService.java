@@ -222,11 +222,12 @@ abstract public class AbstractCIFEXService
         } else
         {
             final Password password = new Password(plainPassword);
-            if (password.matches(userDTOOrNull.getPasswordHash()))
+            if (userDTOOrNull.isActive() && password.matches(userDTOOrNull.getPasswordHash()))
             {
                 return finishLogin(userDTOOrNull, doUserActionLog);
             }
-
+            operationLog.info("User '" + userDTOOrNull.getUserCode()
+                    + "' which is deactivated tried to login.");
         }
         if (doUserActionLog && userBehaviorLogOrNull != null)
         {
@@ -306,6 +307,7 @@ abstract public class AbstractCIFEXService
                 userDTO.setExternallyAuthenticated(true);
                 userDTO.setAdmin(false);
                 userDTO.setPermanent(true);
+                userDTO.setActive(true);
                 try
                 {
                     userManager.createUser(userDTO);
@@ -343,6 +345,10 @@ abstract public class AbstractCIFEXService
                         throw new EnvironmentFailureException(msg);
                     }
                 }
+            }
+            if (userDTO.isActive() == false)
+            {
+                return null;
             }
             return userDTO;
         } else
