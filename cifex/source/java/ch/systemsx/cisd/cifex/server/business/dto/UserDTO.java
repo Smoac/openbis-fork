@@ -61,7 +61,7 @@ public class UserDTO extends ID
     /**
      * Whether this user is currently active (set to false to deactivate a user).
      */
-    private boolean active;
+    private boolean active = true;
 
     private boolean externallyAuthenticated;
 

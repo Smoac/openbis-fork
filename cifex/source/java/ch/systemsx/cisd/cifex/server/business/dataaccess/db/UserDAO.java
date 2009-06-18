@@ -204,7 +204,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
             template.update("insert into users (id, user_id, email, full_name, "
                     + "is_externally_authenticated, is_admin,"
                     + "is_permanent, is_active, user_id_registrator, expiration_timestamp,"
-                    + "max_upload_size, file_retention) " + "values (?,?,?,?,?,?,?,?,?,?,?)", id,
+                    + "max_upload_size, file_retention) " + "values (?,?,?,?,?,?,?,?,?,?,?,?)", id,
                     user.getUserCode(), user.getEmail(), user.getUserFullName(), user
                             .isExternallyAuthenticated(), user.isAdmin(), user.isPermanent(),
                     user.isActive(), registratorIdOrNull, user.getExpirationDate(), user
@@ -214,7 +214,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
             template.update("insert into users (id, user_id, email, full_name, password_hash, "
                     + "is_externally_authenticated, is_admin,"
                     + "is_permanent, is_active, user_id_registrator, expiration_timestamp,"
-                    + "max_upload_size, file_retention) " + "values (?,?,?,?,?,?,?,?,?,?,?,?)", id,
+                    + "max_upload_size, file_retention) " + "values (?,?,?,?,?,?,?,?,?,?,?,?,?)", id,
                     user.getUserCode(), user.getEmail(), user.getUserFullName(), user.getPassword()
                             .createPasswordHash(), user.isExternallyAuthenticated(),
                     user.isAdmin(), user.isPermanent(), user.isActive(), registratorIdOrNull, user
