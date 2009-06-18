@@ -22,20 +22,31 @@ import org.apache.commons.lang.time.DateFormatUtils;
 
 /**
  * Basic session object.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class BasicSession implements Serializable
 {
     protected static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss";
+
     private static final long serialVersionUID = 1L;
-    
-    private final String sessionToken;
-    private final String userName;
-    private final Principal principal;
-    private final String remoteHost;
-    private final long sessionStart;
-    private final int sessionExpirationTime;
+
+    private String sessionToken;
+
+    private String userName;
+
+    private Principal principal;
+
+    private String remoteHost;
+
+    private long sessionStart;
+
+    private int sessionExpirationTime;
+
+    @Deprecated
+    public BasicSession()
+    {
+    }
 
     /**
      * Creates an instance from the specified session token, user name, principal, remoteHost, and
@@ -50,7 +61,7 @@ public class BasicSession implements Serializable
         assert sessionStart > 0 : "Given session start must be larger than zero.";
         assert remoteHost != null : "Given remote host can not be null";
         assert sessionExpirationTime >= 0;
-        
+
         this.sessionToken = sessionToken;
         this.userName = userName;
         this.principal = principal;
@@ -66,7 +77,7 @@ public class BasicSession implements Serializable
     {
         return sessionToken;
     }
-    
+
     /**
      * Returns the owner of the session.
      */
@@ -74,7 +85,7 @@ public class BasicSession implements Serializable
     {
         return userName;
     }
-    
+
     /**
      * Returns full information about the user.
      */
@@ -82,7 +93,7 @@ public class BasicSession implements Serializable
     {
         return principal;
     }
-    
+
     /**
      * Returns the remote host.
      */
@@ -90,7 +101,7 @@ public class BasicSession implements Serializable
     {
         return remoteHost;
     }
-    
+
     /**
      * Returns the time when the session has been started (in milliseconds since start of the
      * epoch).
@@ -108,6 +119,42 @@ public class BasicSession implements Serializable
         return sessionExpirationTime;
     }
 
+    @Deprecated
+    public void setSessionToken(String sessionToken)
+    {
+        this.sessionToken = sessionToken;
+    }
+
+    @Deprecated
+    public void setUserName(String userName)
+    {
+        this.userName = userName;
+    }
+
+    @Deprecated
+    public void setPrincipal(Principal principal)
+    {
+        this.principal = principal;
+    }
+
+    @Deprecated
+    public void setRemoteHost(String remoteHost)
+    {
+        this.remoteHost = remoteHost;
+    }
+
+    @Deprecated
+    public void setSessionStart(long sessionStart)
+    {
+        this.sessionStart = sessionStart;
+    }
+
+    @Deprecated
+    public void setSessionExpirationTime(int sessionExpirationTime)
+    {
+        this.sessionExpirationTime = sessionExpirationTime;
+    }
+
     @Override
     public String toString()
     {
@@ -115,4 +162,3 @@ public class BasicSession implements Serializable
                 + DateFormatUtils.format(sessionStart, DATE_FORMAT_PATTERN) + "}";
     }
 }
-

@@ -39,15 +39,21 @@ public final class Principal extends AbstractHashable implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private final String userId;
+    private String userId;
 
-    private final String firstName;
+    private String firstName;
 
-    private final String lastName;
+    private String lastName;
 
-    private final String email;
+    private String email;
 
-    private final Map<String, String> properties;
+    private Map<String, String> properties;
+
+    // for serialization only
+    @Deprecated
+    public Principal()
+    {
+    }
 
     /**
      * Constructor which accepts mandatory parameters but no properties
@@ -121,8 +127,8 @@ public final class Principal extends AbstractHashable implements Serializable
     }
 
     /**
-     * Returns the property for given <var>key</var>, or <code>null</code>, if no property
-     * exists for this <var>key</var>.
+     * Returns the property for given <var>key</var>, or <code>null</code>, if no property exists
+     * for this <var>key</var>.
      */
     public final String getProperty(final String key)
     {
@@ -133,6 +139,42 @@ public final class Principal extends AbstractHashable implements Serializable
     public final Set<String> getPropertyNames()
     {
         return Collections.unmodifiableSet(properties.keySet());
+    }
+
+    @Deprecated
+    public Map<String, String> getProperties()
+    {
+        return properties;
+    }
+
+    @Deprecated
+    public void setUserId(String userId)
+    {
+        this.userId = userId;
+    }
+
+    @Deprecated
+    public void setFirstName(String firstName)
+    {
+        this.firstName = firstName;
+    }
+
+    @Deprecated
+    public void setLastName(String lastName)
+    {
+        this.lastName = lastName;
+    }
+
+    @Deprecated
+    public void setEmail(String email)
+    {
+        this.email = email;
+    }
+
+    @Deprecated
+    public void setProperties(Map<String, String> properties)
+    {
+        this.properties = properties;
     }
 
     //

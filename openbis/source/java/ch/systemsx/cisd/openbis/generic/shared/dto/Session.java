@@ -28,13 +28,19 @@ import ch.systemsx.cisd.authentication.Principal;
  */
 public final class Session extends BasicSession implements IAuthSession
 {
-    private static final long serialVersionUID = 1L;
+    final private static long serialVersionUID = 1L;
 
     /**
      * The {@link PersonPE} represented by this <code>Session</code> or <code>null</code> if it is
      * not defined.
      */
     private PersonPE personOrNull;
+
+    @Deprecated
+    public Session()
+    {
+        super();
+    }
 
     public Session(final String user, final String sessionToken, final Principal principal,
             final String remoteHost, final long sessionStart)
@@ -94,4 +100,9 @@ public final class Session extends BasicSession implements IAuthSession
                 + "}";
     }
 
+	@Deprecated
+    public PersonPE getPerson()
+    {
+        return personOrNull;
+    }
 }
