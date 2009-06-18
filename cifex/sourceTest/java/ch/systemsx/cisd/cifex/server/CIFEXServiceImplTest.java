@@ -49,6 +49,7 @@ import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 import ch.systemsx.cisd.cifex.server.business.DummyUserActionLog;
 import ch.systemsx.cisd.cifex.server.business.FileInformation;
+import ch.systemsx.cisd.cifex.server.business.IBusinessContext;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
 import ch.systemsx.cisd.cifex.server.business.IUserManager;
@@ -90,6 +91,8 @@ public class CIFEXServiceImplTest
     private Mockery context;
 
     private IDomainModel domainModel;
+    
+    private IBusinessContext businessContext;
 
     private IUserManager userManager;
 
@@ -108,6 +111,16 @@ public class CIFEXServiceImplTest
     {
         context = new Mockery();
         domainModel = context.mock(IDomainModel.class);
+        businessContext = context.mock(IBusinessContext.class);
+        context.checking(new Expectations()
+        {
+            {
+                allowing(domainModel).getBusinessContext();
+                will(returnValue(businessContext));
+                allowing(businessContext).isNewExternallyAuthenticatedUserStartActive();
+                will(returnValue(true));
+            }
+        });
         userManager = context.mock(IUserManager.class);
         fileManager = context.mock(IFileManager.class);
         requestContextProvider = context.mock(IRequestContextProvider.class);
