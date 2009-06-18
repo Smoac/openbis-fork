@@ -159,6 +159,16 @@ public final class DomainModel implements IDomainModel
     }
 
     /**
+     * Sets whether new externally authenticated users should start active or not.
+     */
+    public void setNewExternallyAuthenticatedUserStartActive(
+            boolean newExternallyAuthenticatedUserStartActive)
+    {
+        businessContext
+                .setNewExternallyAuthenticatedUserStartActive(newExternallyAuthenticatedUserStartActive);
+    }
+
+    /**
      * Sets the number of trigger permits for this server. This determines the number of
      * asynchronous triggers that can run in parallel. (More expensive triggers may use up more than
      * one permit.)

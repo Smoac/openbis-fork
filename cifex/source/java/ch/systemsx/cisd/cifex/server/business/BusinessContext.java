@@ -39,6 +39,9 @@ class BusinessContext implements IBusinessContext
 
     /** The maximum size of an upload request in Megabyte. */
     private int maxUploadRequestSizeInMB;
+    
+    /** Whether new externally authenticated users should start active or not. */
+    private boolean newExternallyAuthenticatedUserStartActive;
 
     private IMailClient mailClient;
 
@@ -134,6 +137,17 @@ class BusinessContext implements IBusinessContext
     public final void setMaxUploadRequestSizeInMB(final int maxUploadRequestSizeInMB)
     {
         this.maxUploadRequestSizeInMB = maxUploadRequestSizeInMB;
+    }
+
+    public boolean isNewExternallyAuthenticatedUserStartActive()
+    {
+        return newExternallyAuthenticatedUserStartActive;
+    }
+
+    public void setNewExternallyAuthenticatedUserStartActive(
+            boolean newExternallyAuthenticateUserStartActive)
+    {
+        this.newExternallyAuthenticatedUserStartActive = newExternallyAuthenticateUserStartActive;
     }
 
     public final IMailClient getMailClient()

@@ -47,6 +47,11 @@ public interface IBusinessContext
      * Returns the maximum upload request size in Megabyte.
      */
     public int getMaxUploadRequestSizeInMB();
+    
+    /**
+     * Returns whether new externally authenticated users should start active or not.
+     */
+    public boolean isNewExternallyAuthenticatedUserStartActive();
 
     /**
      * Returns the number of trigger permits for this server. This determines the number of

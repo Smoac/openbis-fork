@@ -307,7 +307,8 @@ abstract public class AbstractCIFEXService
                 userDTO.setExternallyAuthenticated(true);
                 userDTO.setAdmin(false);
                 userDTO.setPermanent(true);
-                userDTO.setActive(true);
+                userDTO.setActive(domainModel.getBusinessContext()
+                        .isNewExternallyAuthenticatedUserStartActive());
                 try
                 {
                     userManager.createUser(userDTO);
