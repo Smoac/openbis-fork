@@ -84,11 +84,6 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
-    public String authenticate(String user, String password) throws UserFailureException
-    {
-        return null;
-    }
-
     public ExternalDataPE tryGetDataSet(String sessionToken, String dataSetCode)
             throws UserFailureException
     {

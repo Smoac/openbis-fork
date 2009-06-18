@@ -24,11 +24,13 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -64,10 +66,17 @@ public class EncapsulatedOpenBISServiceTest
     private void prepareCallGetBaseExperiment(final Expectations exp,
             final DataSetInformation dataSetInformation)
     {
-        exp.one(limsService).authenticate(LIMS_USER, LIMS_PASSWORD);
+        exp.one(limsService).tryToAuthenticate(LIMS_USER, LIMS_PASSWORD);
+        exp.will(Expectations.returnValue(createSession()));
         exp.one(limsService).registerDataStoreServer(exp.with(Expectations.equal("")),
                 exp.with(Expectations.any(DataStoreServerInfo.class)));
         exp.one(limsService).tryToGetBaseExperiment("", dataSetInformation.getSampleIdentifier());
+    }
+
+    private Session createSession()
+    {
+        return new Session("u", "", new Principal("u", "FirstName", "LastName", "email@users.ch"),
+                "remote-host", System.currentTimeMillis() - 1);
     }
 
     @BeforeMethod
@@ -78,12 +87,13 @@ public class EncapsulatedOpenBISServiceTest
         context.checking(new Expectations()
             {
                 {
-                    one(limsService).authenticate(LIMS_USER, LIMS_PASSWORD);
-                    
-                    one(limsService).registerDataStoreServer(
-                            with(equal("")), with(new BaseMatcher<DataStoreServerInfo>()
+                    one(limsService).tryToAuthenticate(LIMS_USER, LIMS_PASSWORD);
+                    will(returnValue(createSession()));
+
+                    one(limsService).registerDataStoreServer(with(equal("")),
+                            with(new BaseMatcher<DataStoreServerInfo>()
                                 {
-                            
+
                                     public boolean matches(Object item)
                                     {
                                         if (item instanceof DataStoreServerInfo)
@@ -95,11 +105,11 @@ public class EncapsulatedOpenBISServiceTest
                                         }
                                         return false;
                                     }
-                            
+
                                     public void describeTo(Description description)
                                     {
                                     }
-                            
+
                                 }));
                 }
             });
@@ -127,7 +137,8 @@ public class EncapsulatedOpenBISServiceTest
         context.checking(new Expectations()
             {
                 {
-                    one(limsService).tryToGetBaseExperiment("", dataSetInformation.getSampleIdentifier());
+                    one(limsService).tryToGetBaseExperiment("",
+                            dataSetInformation.getSampleIdentifier());
                     will(throwException(new InvalidSessionException("error")));
                     prepareCallGetBaseExperiment(this, dataSetInformation);
                 }
@@ -143,7 +154,8 @@ public class EncapsulatedOpenBISServiceTest
         context.checking(new Expectations()
             {
                 {
-                    one(limsService).tryToGetBaseExperiment("", dataSetInformation.getSampleIdentifier());
+                    one(limsService).tryToGetBaseExperiment("",
+                            dataSetInformation.getSampleIdentifier());
                 }
             });
         encapsulatedLimsService.getBaseExperiment(dataSetInformation.getSampleIdentifier());
@@ -158,8 +170,7 @@ public class EncapsulatedOpenBISServiceTest
         context.checking(new Expectations()
             {
                 {
-                    one(limsService).registerDataSet("", dataSetInfo.getSampleIdentifier(),
-                            data);
+                    one(limsService).registerDataSet("", dataSetInfo.getSampleIdentifier(), data);
                 }
             });
         encapsulatedLimsService.registerDataSet(dataSetInfo, data);

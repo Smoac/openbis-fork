@@ -42,6 +42,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.Constants;
@@ -72,6 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -389,8 +391,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     one(storageProcessor).getStoreRootDirectory();
                     will(returnValue(workingDirectory));
 
-                    one(limsService).authenticate("u", "p");
-                    will(returnValue(SESSION_TOKEN));
+                    one(limsService).tryToAuthenticate("u", "p");
+                    will(returnValue(createSession()));
 
                     one(limsService).registerDataStoreServer(with(equal(SESSION_TOKEN)),
                             with(any(DataStoreServerInfo.class)));
@@ -902,5 +904,11 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         appender2.verifyLogHasHappened();
 
         context.assertIsSatisfied();
+    }
+
+    private Session createSession()
+    {
+        return new Session("u", SESSION_TOKEN, new Principal("u", "FirstName", "LastName",
+                "email@users.ch"), "remote-host", System.currentTimeMillis() - 1);
     }
 }

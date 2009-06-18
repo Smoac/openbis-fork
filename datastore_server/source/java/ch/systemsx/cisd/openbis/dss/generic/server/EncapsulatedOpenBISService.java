@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -138,7 +139,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         {
             operationLog.debug("Authenticating to openBIS server as user '" + username + "'.");
         }
-        sessionToken = service.authenticate(username, password);
+        Session session = service.tryToAuthenticate(username, password);
+        sessionToken = session == null ? null : session.getSessionToken();
         if (sessionToken == null)
         {
             final String msg =

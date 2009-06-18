@@ -152,12 +152,6 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         dataStoreDAO.createOrUpdateDataStore(dataStore);
     }
 
-    public String authenticate(String user, String password) throws UserFailureException
-    {
-        Session session = tryToAuthenticate(user, password);
-        return session == null ? null : session.getSessionToken();
-    }
-
     public String createDataSetCode(String sessionToken) throws UserFailureException
     {
         sessionManager.getSession(sessionToken); // throws exception if invalid sessionToken
