@@ -41,8 +41,9 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Piotr Buczek
  */
-public final class GenericMaterialViewer extends AbstractViewer<IGenericClientServiceAsync>
-        implements IDatabaseModificationObserver
+public final class GenericMaterialViewer extends
+        AbstractViewer<IGenericClientServiceAsync, Material> implements
+        IDatabaseModificationObserver
 {
     private static final String PREFIX = "generic-material-viewer_";
 

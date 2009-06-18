@@ -32,8 +32,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserverWithMainObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentListDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -43,7 +44,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Izabela Adamczyk
  */
-public final class GenericExperimentViewer extends AbstractViewer<IGenericClientServiceAsync>
+public final class GenericExperimentViewer extends
+        AbstractViewer<IGenericClientServiceAsync, Experiment>
 {
     private static final String PREFIX = "generic-experiment-viewer_";
 
@@ -67,7 +69,21 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
         super(viewContext, createId(identifiable));
         this.experimentId = TechId.create(identifiable);
         this.modificationObserver = new CompositeDatabaseModificationObserverWithMainObserver();
+        extendToolBar();
         reloadAllData();
+    }
+
+    private void extendToolBar()
+    {
+        addToolBarButton(createDeleteButton(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    new ExperimentListDeletionConfirmationDialog(
+                            viewContext.getCommonViewContext(), getOriginalDataAsSingleton(),
+                            createDeletionCallback()).show();
+                }
+            }));
     }
 
     private void reloadAllData()
@@ -99,7 +115,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
     }
 
     @Override
-    public void updateOriginalData(IEntityInformationHolder newData)
+    public void updateOriginalData(Experiment newData)
     {
         super.updateOriginalData(newData);
     }

@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.IDemoClientServiceAsync;
@@ -32,7 +33,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sam
  * 
  * @author Christian Ribeaud
  */
-public final class DemoSampleViewer extends AbstractViewer<IDemoClientServiceAsync>
+public final class DemoSampleViewer extends AbstractViewer<IDemoClientServiceAsync, Sample>
 {
     private static final String PREFIX = "demo-sample-viewer_";
 

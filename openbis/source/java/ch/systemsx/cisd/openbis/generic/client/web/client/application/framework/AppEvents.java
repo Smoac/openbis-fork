@@ -37,7 +37,7 @@ public class AppEvents
      * >GWT event constants</a>, <a href="http://extjs.com/deploy/gxtdocs/constant-values.html">GXT
      * event constants</a>
      */
-    private final static int STARTING_VALUE = 1000000;
+    private final static int STARTING_VALUE = Events.GXT_MAX_EVENT * 10;
 
     // opens the main application window
     public final static int INIT = STARTING_VALUE + 20;
@@ -52,4 +52,6 @@ public class AppEvents
     public static final int OPEN_URL_EVENT = STARTING_VALUE + 50;
 
     public static final int ColumnMove = STARTING_VALUE + 60;
+
+    public static final int CloseViewer = STARTING_VALUE + 70;
 }

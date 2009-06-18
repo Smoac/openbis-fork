@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -60,6 +61,7 @@ public class MainTabPanel extends TabPanel
         setTabScroll(true);
         add(createWelcomePanel());
         setId(ID);
+
     }
 
     private final MainTabItem createWelcomePanel()
@@ -120,24 +122,58 @@ public class MainTabPanel extends TabPanel
 
     private final class MainTabItem extends TabItem
     {
+        private final ITabItem tabItem;
+
+        private final String idPrefix;
+
         public MainTabItem(final ITabItem tabItem, final String idPrefix)
         {
+            System.err.println("MainTabItem()");
+            this.tabItem = tabItem;
+            this.idPrefix = idPrefix;
             setId(idPrefix + TAB_SUFFIX);
             setClosable(true);
             setLayout(new FitLayout());
-            tabItem.getTabTitleUpdater().bind(this);
             addStyleName("pad-text");
             add(tabItem.getComponent());
+            tabItem.getComponent().addListener(AppEvents.CloseViewer, createCloseViewerListener());
+            tabItem.getTabTitleUpdater().bind(this);
             if (tabItem.isCloseConfirmationNeeded())
             {
-                addListener(Events.BeforeClose, createBeforeCloseListener(this, idPrefix));
+                addListener(Events.BeforeClose, createBeforeCloseListener());
             }
-            addListener(Events.Close, createCloseTabListener(tabItem, idPrefix));
-            addListener(Events.Select, createActivateTabListener(tabItem));
+            addListener(Events.Close, createCloseTabListener());
+            addListener(Events.Select, createActivateTabListener());
         }
 
-        private Listener<TabPanelEvent> createCloseTabListener(final ITabItem tabItem,
-                final String id)
+        @Override
+        public void close()
+        {
+            super.close();
+            cleanup();
+        }
+
+        private void cleanup()
+        {
+            tabItem.onClose();
+            openTabs.remove(idPrefix);
+        }
+
+        private Listener<ComponentEvent> createCloseViewerListener()
+        {
+            return new Listener<ComponentEvent>()
+                {
+                    public final void handleEvent(final ComponentEvent be)
+                    {
+                        if (be.type == AppEvents.CloseViewer)
+                        {
+                            MainTabItem.this.close();
+                        }
+                    }
+                };
+        }
+
+        private Listener<TabPanelEvent> createCloseTabListener()
         {
             return new Listener<TabPanelEvent>()
                 {
@@ -145,14 +181,13 @@ public class MainTabPanel extends TabPanel
                     {
                         if (be.type == Events.Close)
                         {
-                            tabItem.onClose();
-                            openTabs.remove(id);
+                            cleanup();
                         }
                     }
                 };
         }
 
-        private Listener<TabPanelEvent> createActivateTabListener(final ITabItem tabItem)
+        private Listener<TabPanelEvent> createActivateTabListener()
         {
             return new Listener<TabPanelEvent>()
                 {
@@ -166,8 +201,7 @@ public class MainTabPanel extends TabPanel
                 };
         }
 
-        private Listener<TabPanelEvent> createBeforeCloseListener(final MainTabItem mainTabItem,
-                final String id)
+        private Listener<TabPanelEvent> createBeforeCloseListener()
         {
             return new Listener<TabPanelEvent>()
                 {
@@ -180,8 +214,7 @@ public class MainTabPanel extends TabPanel
                                 @Override
                                 protected void onYes()
                                 {
-                                    mainTabItem.close();
-                                    openTabs.remove(id);
+                                    MainTabItem.this.close();
                                 }
                             }.show();
                     }

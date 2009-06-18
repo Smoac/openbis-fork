@@ -34,7 +34,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -47,8 +49,9 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Piotr Buczek
  */
-public final class GenericDataSetViewer extends AbstractViewer<IGenericClientServiceAsync>
-        implements IDatabaseModificationObserver
+public final class GenericDataSetViewer extends
+        AbstractViewer<IGenericClientServiceAsync, ExternalData> implements
+        IDatabaseModificationObserver
 {
     private static final String PREFIX = "generic-dataset-viewer_";
 
@@ -74,8 +77,23 @@ public final class GenericDataSetViewer extends AbstractViewer<IGenericClientSer
         super(viewContext, createId(identifiable));
         this.datasetId = TechId.create(identifiable);
         this.browseButtonHolder = new BrowseButtonHolder();
-        this.addToolBarButton(browseButtonHolder.getButton());
+        extendToolBar();
         reloadData();
+    }
+
+    private void extendToolBar()
+    {
+        addToolBarButton(browseButtonHolder.getButton());
+
+        addToolBarButton(createDeleteButton(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    new DataSetListDeletionConfirmationDialog(viewContext.getCommonViewContext(),
+                            getOriginalDataAsSingleton(), createDeletionCallback()).show();
+                }
+
+            }));
     }
 
     public static final String createId(final IIdentifiable identifiable)
@@ -145,7 +163,8 @@ public final class GenericDataSetViewer extends AbstractViewer<IGenericClientSer
         }
     }
 
-    private void updateOriginalData(final ExternalData result)
+    @Override
+    protected void updateOriginalData(final ExternalData result)
     {
         super.updateOriginalData(result);
         browseButtonHolder.setupData(result);

@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
@@ -86,8 +87,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Christian Ribeaud
  */
-public final class GenericSampleViewer extends AbstractViewer<IGenericClientServiceAsync> implements
-        IDatabaseModificationObserver
+public final class GenericSampleViewer extends AbstractViewer<IGenericClientServiceAsync, Sample>
+        implements IDatabaseModificationObserver
 {
     private static final String PREFIX = "generic-sample-viewer_";
 
@@ -124,7 +125,20 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     {
         super(viewContext, createId(identifiable));
         this.sampleId = TechId.create(identifiable);
+        extendToolBar();
         reloadAllData();
+    }
+
+    private void extendToolBar()
+    {
+        addToolBarButton(createDeleteButton(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    new SampleListDeletionConfirmationDialog(viewContext.getCommonViewContext(),
+                            getOriginalDataAsSingleton(), createDeletionCallback()).show();
+                }
+            }));
     }
 
     protected void reloadAllData()

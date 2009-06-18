@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
@@ -35,7 +36,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
  * 
  * @author Izabela Adamczyk
  */
-public final class ProjectViewer extends AbstractViewer<ICommonClientServiceAsync>
+public final class ProjectViewer extends
+        AbstractViewer<ICommonClientServiceAsync, IEntityInformationHolder>
 {
     private static final String PREFIX = "project-viewer_";
 

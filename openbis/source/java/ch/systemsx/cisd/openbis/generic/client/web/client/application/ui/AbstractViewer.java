@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -28,16 +32,18 @@ import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
@@ -48,12 +54,17 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 /**
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractViewer<T extends IClientServiceAsync> extends ContentPanel
+public abstract class AbstractViewer<T extends IClientServiceAsync, D extends IEntityInformationHolder>
+        extends ContentPanel
 {
 
     public static final String ID_EDIT_SUFFIX = "_edit";
 
+    public static final String ID_DELETE_SUFFIX = "_edit";
+
     private final ToolBar toolBar;
+
+    private final List<Button> toolBarButtons = new ArrayList<Button>();
 
     protected final IViewContext<T> viewContext;
 
@@ -61,7 +72,7 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
 
     private final LabelToolItem titleLabel;
 
-    private IEntityInformationHolder originalData;
+    private D originalData;
 
     public AbstractViewer(final IViewContext<T> viewContext, String id)
     {
@@ -97,8 +108,24 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
         return result;
     }
 
+    protected Button createDeleteButton(final IDelegatedAction deleteAction)
+    {
+        Button result = new Button(viewContext.getMessage(Dict.BUTTON_DELETE));
+        result.setId(getId() + ID_DELETE_SUFFIX);
+        result.addListener(Events.Select, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    deleteAction.execute();
+                }
+            });
+        result.disable();
+        return result;
+    }
+
     protected final void addToolBarButton(Button button)
     {
+        toolBarButtons.add(button);
         toolBar.add(new AdapterToolItem(button));
     }
 
@@ -110,6 +137,17 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
     protected final String getBaseIndexURL()
     {
         return GWTUtils.getBaseIndexURL();
+    }
+
+    protected D getOriginalData()
+    {
+        assert originalData != null : "data is not yet set";
+        return originalData;
+    }
+
+    protected List<D> getOriginalDataAsSingleton()
+    {
+        return Collections.singletonList(getOriginalData());
     }
 
     protected void showEntityEditor()
@@ -140,11 +178,11 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
     }
 
     /** Updates data displayed in the browser (needed to open editor view). */
-    protected void updateOriginalData(IEntityInformationHolder newData)
+    protected void updateOriginalData(D newData)
     {
         this.originalData = newData;
-        editButton.enable();
         updateTitle(getOriginalDataDescription());
+        setToolBarButtonsEnabled(true);
     }
 
     /** Updates data displayed in the browser when shown data has been removed from DB. */
@@ -152,19 +190,14 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
     {
         removeAll();
         updateTitle(getOriginalDataDescription() + " does not exist any more.");
-        disableToolBarItemsExceptTitle();
+        setToolBarButtonsEnabled(false);
     }
 
-    private void disableToolBarItemsExceptTitle()
+    private void setToolBarButtonsEnabled(boolean enabled)
     {
-        // we could hide/remove these items instead of disabling them
-        // but then toolbar shrinks or title moves to the top if height of toolbar is made constant
-        for (ToolItem item : toolBar.getItems())
+        for (Button button : toolBarButtons)
         {
-            if (item.equals(titleLabel) == false)
-            {
-                item.disable();
-            }
+            button.setEnabled(enabled);
         }
     }
 
@@ -188,4 +221,24 @@ public abstract class AbstractViewer<T extends IClientServiceAsync> extends Cont
         final BorderLayoutData data = new BorderLayoutData(LayoutRegion.CENTER);
         return data;
     }
+
+    protected final AbstractAsyncCallback<Void> createDeletionCallback()
+    {
+        return new CloseViewerCallback(viewContext);
+    }
+
+    private final class CloseViewerCallback extends AbstractAsyncCallback<Void>
+    {
+        public CloseViewerCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        protected void process(Void result)
+        {
+            fireEvent(AppEvents.CloseViewer);
+        }
+    }
+
 }
