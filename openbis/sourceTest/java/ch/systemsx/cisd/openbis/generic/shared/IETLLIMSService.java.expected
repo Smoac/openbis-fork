@@ -133,11 +133,4 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             @AuthorizationGuard(guardClass = ListSamplesByPropertyPredicate.class) final ListSamplesByPropertyCriteria criteria)
             throws UserFailureException;
 
-    /**
-     * Uses {@link IServer#tryToAuthenticate(String, String)} and returns session token.
-     */
-    @Transactional
-    @RolesAllowed()
-    public String authenticate(String username, String password);
-
 }
