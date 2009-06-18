@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IUpdater;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.CompositeMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
@@ -37,18 +38,18 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
 
     private final ICommonClientServiceAsync service;
 
-    private final IMessageProvider messageProvider;
-
     private final IGenericImageBundle imageBundle;
 
     private final GenericViewModel viewModel;
 
     private final IPageController pageController;
 
+    private final Timer timer;
+    
     private IClientPluginFactoryProvider clientPluginFactoryProvider;
     
-    private final Timer timer;
-
+    private IMessageProvider messageProvider;
+    
     CommonViewContext(final ICommonClientServiceAsync service,
             final IMessageProvider messageProvider, final IGenericImageBundle imageBundle,
             final IPageController pageController)
@@ -151,5 +152,12 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     public ICommonClientServiceAsync getCommonService()
     {
         return getService();
+    }
+
+    public void addMessageSource(String messageSource)
+    {
+        messageProvider =
+                new CompositeMessageProvider(new DictonaryBasedMessageProvider(messageSource),
+                        messageProvider);
     }
 }

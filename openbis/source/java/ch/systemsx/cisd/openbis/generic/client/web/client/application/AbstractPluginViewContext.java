@@ -23,8 +23,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.CompositeMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
@@ -38,20 +36,15 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
 {
     private final IViewContext<ICommonClientServiceAsync> commonViewContext;
 
-    private final IMessageProvider messageProvider;
-
     private final T service;
 
     public AbstractPluginViewContext(final IViewContext<ICommonClientServiceAsync> commonViewContext)
     {
         this.commonViewContext = commonViewContext;
-        String technology = getTechnology();
-        messageProvider =
-                new CompositeMessageProvider(new DictonaryBasedMessageProvider(technology),
-                        commonViewContext);
+        addMessageSource(getTechnology());
         service = createClientServiceAsync();
         final ServiceDefTarget endpoint = (ServiceDefTarget) service;
-        endpoint.setServiceEntryPoint(GenericConstants.createServicePath(technology));
+        endpoint.setServiceEntryPoint(GenericConstants.createServicePath(getTechnology()));
     }
 
     /**
@@ -112,19 +105,24 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
     /** @see IMessageProvider#containsKey(String) */
     public boolean containsKey(String key)
     {
-        return messageProvider.containsKey(key);
+        return commonViewContext.containsKey(key);
     }
 
     /** @see IMessageProvider#getMessage(String, Object...) */
     public String getMessage(String key, Object... parameters)
     {
-        return messageProvider.getMessage(key, parameters);
+        return commonViewContext.getMessage(key, parameters);
     }
 
     /** @see IMessageProvider#getName() */
     public String getName()
     {
-        return messageProvider.getName();
+        return commonViewContext.getName();
+    }
+
+    public void addMessageSource(String messageSource)
+    {
+        commonViewContext.addMessageSource(messageSource);
     }
 
 }
