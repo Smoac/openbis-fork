@@ -20,6 +20,7 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -28,6 +29,9 @@ import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.yeastx.db.DBFactory;
 import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
 import ch.systemsx.cisd.yeastx.eicml.EICML2Database;
@@ -42,17 +46,25 @@ import ch.systemsx.cisd.yeastx.fiaml.FIAML2Database;
 public class ML2DatabaseUploader
 {
     private static final String DATABASE_PROPERTIES_PREFIX = "database.";
-    
+
     private final Connection connection;
 
-    public ML2DatabaseUploader(Properties props)
+    private final String uniqueSampleNamePropertyCode;
+
+    private final String uniqueExperimentNamePropertyCode;
+
+    public ML2DatabaseUploader(Properties properties)
     {
         final Properties dbProps =
-                ExtendedProperties.getSubset(props, DATABASE_PROPERTIES_PREFIX, true);
+                ExtendedProperties.getSubset(properties, DATABASE_PROPERTIES_PREFIX, true);
         final DatabaseConfigurationContext dbContext =
                 (dbProps.isEmpty() ? DBFactory.createDefaultDBContext() : BeanUtils.createBean(
                         DatabaseConfigurationContext.class, dbProps));
         this.connection = getDatabaseConnection(dbContext);
+        this.uniqueExperimentNamePropertyCode =
+                DatasetMappingResolver.getUniqueExperimentNamePropertyCode(properties);
+        this.uniqueSampleNamePropertyCode =
+                DatasetMappingResolver.getUniqueSampleNamePropertyCode(properties);
     }
 
     private static Connection getDatabaseConnection(DatabaseConfigurationContext dbContext)
@@ -72,16 +84,15 @@ public class ML2DatabaseUploader
     public void upload(File dataSet, DataSetInformation dataSetInformation)
             throws EnvironmentFailureException
     {
-        String datasetPermId = dataSetInformation.getDataSetCode();
         String extension = getExtension(dataSet);
         try
         {
             if (extension.equalsIgnoreCase(ConstantsYeastX.FIAML_EXT))
             {
-                translateFIA(dataSet, datasetPermId);
+                translateFIA(dataSet, dataSetInformation);
             } else if (extension.equalsIgnoreCase(ConstantsYeastX.EICML_EXT))
             {
-                translateEIC(dataSet, datasetPermId);
+                translateEIC(dataSet, dataSetInformation);
             } else
             {
                 // do nothing
@@ -92,20 +103,62 @@ public class ML2DatabaseUploader
                     .fromTemplate(
                             e,
                             "A database error occured while extracting additional information from '%s' file content for '%s' dataset.",
-                            dataSet.getPath(), datasetPermId);
+                            dataSet.getPath(), dataSetInformation.getDataSetCode());
         }
     }
 
-    private void translateEIC(File dataSet, String datasetPermId) throws SQLException
+    private void translateEIC(File dataSet, DataSetInformation dataSetInformation)
+            throws SQLException
     {
-        EICML2Database.uploadEicMLFile(connection, dataSet, new DMDataSetDTO(datasetPermId,
-                "sample perm id", "sample name", "experiment perm id", "eperiment name"));
+        DMDataSetDTO openbisBacklink = createBacklink(dataSetInformation);
+        EICML2Database.uploadEicMLFile(connection, dataSet, openbisBacklink);
     }
 
-    private void translateFIA(File dataSet, String datasetPermId) throws SQLException
+    private void translateFIA(File dataSet, DataSetInformation dataSetInformation)
+            throws SQLException
     {
-        FIAML2Database.uploadFiaMLFile(connection, dataSet, new DMDataSetDTO(datasetPermId,
-                "sample perm id", "sample name", "experiment perm id", "experiment name"));
+        DMDataSetDTO openbisBacklink = createBacklink(dataSetInformation);
+        FIAML2Database.uploadFiaMLFile(connection, dataSet, openbisBacklink);
+    }
+
+    private DMDataSetDTO createBacklink(DataSetInformation dataSetInformation)
+    {
+        String datasetPermId = dataSetInformation.getDataSetCode();
+        SamplePE sample = dataSetInformation.getSample();
+        ExperimentPE experiment = sample.getExperiment();
+        String experimentName = findExperimentName(experiment.getProperties());
+        String sampleName = findSampleName(sample.getProperties());
+        return new DMDataSetDTO(datasetPermId, sample.getPermId(), sampleName, experiment
+                .getPermId(), experimentName);
+    }
+
+    private String findSampleName(Set<? extends EntityPropertyPE> properties)
+    {
+        return findProperty(properties, uniqueSampleNamePropertyCode);
+    }
+
+    private String findExperimentName(Set<? extends EntityPropertyPE> properties)
+    {
+        return findProperty(properties, uniqueExperimentNamePropertyCode);
+    }
+
+    private static String findProperty(Set<? extends EntityPropertyPE> properties,
+            String propertyTypeCode)
+    {
+        for (EntityPropertyPE property : properties)
+        {
+            String currentPropertyCode =
+                    property.getEntityTypePropertyType().getPropertyType().getCode();
+            if (currentPropertyCode.equalsIgnoreCase(propertyTypeCode))
+            {
+                return property.getValue();
+            }
+        }
+        throw EnvironmentFailureException
+                .fromTemplate(
+                        "Cannot find the property with the code '%s'. "
+                                + "Check your server configuration, the code of the mandatory property should be provided.",
+                        propertyTypeCode);
     }
 
     private static String getExtension(final File incomingDataSetPath)

@@ -22,6 +22,7 @@ import java.util.Properties;
 import org.apache.commons.io.FilenameUtils;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
@@ -44,28 +45,52 @@ class DatasetMappingResolver
      * sample.
      * </p>
      */
-    private final static String PROPERTY_TYPE_CODE_PROPERTY_NAME = "unique-property-type-code";
+    private final static String UNIQUE_SAMPLE_NAME_PROPERTY = "unique-sample-name-property-code";
+
+    /**
+     * The property type code for property which is supposed to have a unique value for all
+     * experiments in one project.
+     */
+    private final static String UNIQUE_EXPERIMENT_NAME_PROPERTY =
+            "unique-experiment-name-property-code";
 
     private static final String PROPERTIES_PREFIX = "USER.";
 
-    public static String tryGetUniquePropertyTypeCode(Properties properties)
+    public static String getUniqueSampleNamePropertyCode(Properties properties)
     {
-        return tryGetPropertyTypeCode(properties);
+        return getUniqueNamePropertyCode(properties, UNIQUE_SAMPLE_NAME_PROPERTY);
     }
 
-    private final IEncapsulatedOpenBISService openbisService;
-
-    private final String propertyCodeOrNull;
-
-    public DatasetMappingResolver(Properties properties, IEncapsulatedOpenBISService openbisService)
+    public static String getUniqueExperimentNamePropertyCode(Properties properties)
     {
-        this.openbisService = openbisService;
-        this.propertyCodeOrNull = tryGetPropertyTypeCode(properties);
+        return getUniqueNamePropertyCode(properties, UNIQUE_EXPERIMENT_NAME_PROPERTY);
     }
 
-    private static String tryGetPropertyTypeCode(Properties properties)
+    private static String tryGetUniqueSampleNamePropertyCode(Properties properties)
     {
-        String code = properties.getProperty(PROPERTY_TYPE_CODE_PROPERTY_NAME);
+        return tryGetUniqueNamePropertyCode(properties, UNIQUE_SAMPLE_NAME_PROPERTY);
+    }
+
+    @SuppressWarnings("unused")
+    private static String tryGetUniqueExperimentNamePropertyCode(Properties properties)
+    {
+        return tryGetUniqueNamePropertyCode(properties, UNIQUE_EXPERIMENT_NAME_PROPERTY);
+    }
+
+    private static String getUniqueNamePropertyCode(Properties properties, String propertyName)
+    {
+        String name = tryGetUniqueNamePropertyCode(properties, propertyName);
+        if (name == null)
+        {
+            throw EnvironmentFailureException.fromTemplate("Property '%s' is not set.",
+                    propertyName);
+        }
+        return name;
+    }
+
+    private static String tryGetUniqueNamePropertyCode(Properties properties, String propertyName)
+    {
+        String code = properties.getProperty(propertyName);
         if (code != null)
         {
             return adaptPropertyCode(code);
@@ -73,6 +98,17 @@ class DatasetMappingResolver
         {
             return null;
         }
+    }
+
+    // ---------------
+    private final IEncapsulatedOpenBISService openbisService;
+
+    private final String propertyCodeOrNull;
+
+    public DatasetMappingResolver(Properties properties, IEncapsulatedOpenBISService openbisService)
+    {
+        this.openbisService = openbisService;
+        this.propertyCodeOrNull = tryGetUniqueSampleNamePropertyCode(properties);
     }
 
     public String tryFigureSampleCode(DataSetMappingInformation mapping, LogUtils log)
