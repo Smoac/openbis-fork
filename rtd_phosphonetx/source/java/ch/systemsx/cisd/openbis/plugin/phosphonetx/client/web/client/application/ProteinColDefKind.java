@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.Protein
  */
 public enum ProteinColDefKind implements IColumnDefinitionKind<ProteinInfo>
 {
-    DESCRIPTION(new AbstractColumnDefinitionKind<ProteinInfo>(Dict.PROTEIN_DESCRIPTION, true)
+    DESCRIPTION(new AbstractColumnDefinitionKind<ProteinInfo>(Dict.PROTEIN_DESCRIPTION, false)
         {
             @Override
             public String tryGetValue(ProteinInfo entity)

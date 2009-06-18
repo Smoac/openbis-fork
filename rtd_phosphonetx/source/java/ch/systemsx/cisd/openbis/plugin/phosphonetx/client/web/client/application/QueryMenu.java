@@ -20,7 +20,6 @@ import com.extjs.gxt.ui.client.widget.menu.Menu;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
@@ -28,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.Actio
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 
@@ -60,14 +60,14 @@ public class QueryMenu extends TopMenuItem
         protected final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
         private final String id;
         private final String tabLabelKey;
-        private final QueryWidget widget;
+        private final IDisposableComponent disposableComponent;
 
         TabItemFactory(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-                String tabLabelKey, QueryWidget widget)
+                String tabLabelKey, IDisposableComponent disposableComponent)
         {
             this.viewContext = viewContext;
             this.tabLabelKey = tabLabelKey;
-            this.widget = widget;
+            this.disposableComponent = disposableComponent;
             this.id = ID + tabLabelKey;
         }
 
@@ -79,9 +79,7 @@ public class QueryMenu extends TopMenuItem
         public ITabItem create()
         {
             String menuItemText = viewContext.getMessage(tabLabelKey);
-            DatabaseModificationAwareComponent component =
-                new DatabaseModificationAwareComponent(widget, widget);
-            return DefaultTabItem.create(menuItemText, component, viewContext, false);
+            return DefaultTabItem.create(menuItemText, disposableComponent, viewContext);
         }
     }
     
@@ -91,9 +89,11 @@ public class QueryMenu extends TopMenuItem
         setIconStyle(TopMenu.ICON_STYLE);
         
         Menu menu = new Menu();
-        QueryWidget widget = new ProteinByExperimentBrowserWidget(viewContext);
+        IDisposableComponent disposableComponent =
+                ProteinByExperimentBrowserGrid.create(viewContext);
         TabItemFactory factory =
-                new TabItemFactory(viewContext, Dict.QUERY_ALL_PROTEINS_BY_EXPERIMENT, widget);
+                new TabItemFactory(viewContext, Dict.QUERY_ALL_PROTEINS_BY_EXPERIMENT,
+                        disposableComponent);
         ActionMenu actionMenu =
                 new ActionMenu(ActionMenuKind.ALL_PROTEINS_OF_AN_EXPERIMENT, viewContext, factory);
         menu.add(actionMenu);
