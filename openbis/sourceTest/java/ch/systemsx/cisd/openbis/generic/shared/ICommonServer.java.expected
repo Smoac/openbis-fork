@@ -464,7 +464,7 @@ public interface ICommonServer extends IServer
      * Deletes specified data sets.
      */
     @Transactional
-    @RolesAllowed(RoleSet.GROUP_ADMIN)
+    @RolesAllowed(RoleSet.POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
     public void deleteDataSets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> dataSetCodes,
@@ -474,7 +474,7 @@ public interface ICommonServer extends IServer
      * Deletes specified samples.
      */
     @Transactional
-    @RolesAllowed(RoleSet.GROUP_ADMIN)
+    @RolesAllowed(RoleSet.POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
     public void deleteSamples(String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) List<TechId> sampleIds,
@@ -484,7 +484,7 @@ public interface ICommonServer extends IServer
      * Deletes specified experiments.
      */
     @Transactional
-    @RolesAllowed(RoleSet.GROUP_ADMIN)
+    @RolesAllowed(RoleSet.POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT)
     public void deleteExperiments(
             String sessionToken,
@@ -495,7 +495,7 @@ public interface ICommonServer extends IServer
      * Deletes specified attachments (all versions with given file names) of specified experiment.
      */
     @Transactional
-    @RolesAllowed(RoleSet.GROUP_ADMIN)
+    @RolesAllowed(RoleSet.POWER_USER)
     @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
     public void deleteExperimentAttachments(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId,
@@ -505,7 +505,7 @@ public interface ICommonServer extends IServer
      * Deletes specified attachments (all versions with given file names) of specified sample.
      */
     @Transactional
-    @RolesAllowed(RoleSet.GROUP_ADMIN)
+    @RolesAllowed(RoleSet.POWER_USER)
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     public void deleteSampleAttachments(String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId,
@@ -515,7 +515,7 @@ public interface ICommonServer extends IServer
      * Deletes specified attachments (all versions with given file names) of specified project.
      */
     @Transactional
-    @RolesAllowed(RoleSet.GROUP_ADMIN)
+    @RolesAllowed(RoleSet.POWER_USER)
     @DatabaseUpdateModification(value = ObjectKind.PROJECT)
     public void deleteProjectAttachments(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId,

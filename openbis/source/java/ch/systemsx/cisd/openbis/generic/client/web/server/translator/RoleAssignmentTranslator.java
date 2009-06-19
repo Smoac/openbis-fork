@@ -66,6 +66,9 @@ public final class RoleAssignmentTranslator
             case USER:
                 code = RoleSetCode.USER;
                 break;
+            case POWER_USER:
+                code = RoleSetCode.POWER_USER;
+                break;
             case ETL_SERVER:
                 if (role.getGroup() == null)
                 {

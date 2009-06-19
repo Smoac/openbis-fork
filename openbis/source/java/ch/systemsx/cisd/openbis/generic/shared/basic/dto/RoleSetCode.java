@@ -19,15 +19,13 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public enum RoleSetCode implements IsSerializable
 {
-    OBSERVER(true), USER(true), GROUP_ETL_SERVER(true), GROUP_ADMIN(true), INSTANCE_ETL_SERVER(
-            false), INSTANCE_ADMIN(false);
-    
+    OBSERVER(true), USER(true), POWER_USER(true), GROUP_ETL_SERVER(true), GROUP_ADMIN(true),
+    INSTANCE_ETL_SERVER(false), INSTANCE_ADMIN(false);
+
     private final boolean groupLevel;
 
     private RoleSetCode(boolean groupLevel)

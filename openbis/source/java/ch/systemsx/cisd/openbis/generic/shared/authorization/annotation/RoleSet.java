@@ -38,7 +38,9 @@ public enum RoleSet
 
     GROUP_ADMIN(INSTANCE_ADMIN, groupRole(RoleCode.ADMIN)),
 
-    USER(GROUP_ADMIN, groupRole(RoleCode.USER)),
+    POWER_USER(GROUP_ADMIN, groupRole(RoleCode.POWER_USER)),
+
+    USER(POWER_USER, groupRole(RoleCode.USER)),
 
     OBSERVER(USER, groupRole(RoleCode.OBSERVER)),
 

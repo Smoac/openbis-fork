@@ -18,3 +18,8 @@ CREATE DOMAIN TITLE_100 AS VARCHAR(100);
 
 ALTER TABLE attachments ADD COLUMN title TITLE_100;
 ALTER TABLE attachments ADD COLUMN description DESCRIPTION_1000;
+
+-- Add 'POWER_USER' to AUTHORIZATION_ROLE domain
+
+ALTER DOMAIN authorization_role DROP CONSTRAINT authorization_role_check;
+ALTER DOMAIN authorization_role ADD CONSTRAINT authorization_role_check CHECK (VALUE IN ('ADMIN', 'POWER_USER', 'USER', 'OBSERVER', 'ETL_SERVER'));

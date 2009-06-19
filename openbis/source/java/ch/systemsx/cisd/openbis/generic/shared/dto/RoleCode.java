@@ -25,5 +25,5 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
  */
 public enum RoleCode
 {
-    ADMIN, USER, OBSERVER, ETL_SERVER;
+    ADMIN, USER, POWER_USER, OBSERVER, ETL_SERVER;
 }
