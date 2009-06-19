@@ -35,6 +35,9 @@ public class BasicConstant
     /** Cifex URL parameter 'recipient' */
     public static final String CIFEX_URL_PARAMETER_RECIPIENT = "recipients";
 
+    /** Prefix of user namespace vocabulary code. */
+    public static final String USER_NAMESPACE_PREFIX = "USER.";
+
     private BasicConstant()
     {
     }

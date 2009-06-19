@@ -26,11 +26,14 @@ import ch.systemsx.cisd.common.annotation.CollectionMapping;
  * 
  * @author Izabela Adamczyk
  */
-public final class Vocabulary extends CodeWithRegistration<Vocabulary>
+public final class Vocabulary extends CodeWithRegistration<Vocabulary> implements
+        IVocabularyUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private List<VocabularyTerm> terms = new ArrayList<VocabularyTerm>();
+
+    private Long id;
 
     private String description;
 
@@ -46,6 +49,16 @@ public final class Vocabulary extends CodeWithRegistration<Vocabulary>
 
     public Vocabulary()
     {
+    }
+
+    public Long getId()
+    {
+        return id;
+    }
+
+    public void setId(Long id)
+    {
+        this.id = id;
     }
 
     public final List<VocabularyTerm> getTerms()

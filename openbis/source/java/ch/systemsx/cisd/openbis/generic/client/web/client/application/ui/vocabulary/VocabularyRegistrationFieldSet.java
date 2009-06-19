@@ -267,7 +267,8 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
 
         private FileUploadField createImportFileField()
         {
-            BasicFileFieldManager fileManager = new BasicFileFieldManager(termsSessionKey, 1, "File");
+            BasicFileFieldManager fileManager =
+                    new BasicFileFieldManager(termsSessionKey, 1, "File");
             fileManager.setMandatory();
             return fileManager.getFields().get(0);
         }
@@ -288,13 +289,12 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
         {
             Boolean useFreeText = freeText.getValue();
             FieldUtil.setVisibility(useFreeText, termsArea);
-            FieldUtil.setVisibility(useFreeText == false, urlTemplateField, uploadFileField);
+            FieldUtil.setVisibility(useFreeText == false, uploadFileField);
         }
 
         public void setValues(Vocabulary vocabulary)
         {
             vocabulary.setUploadedFromFile(fromFile.getValue());
-            // from file
             vocabulary.setURLTemplate(getURLTemplateValue());
             // free text
             final List<VocabularyTerm> vocabularyTerms = new ArrayList<VocabularyTerm>();

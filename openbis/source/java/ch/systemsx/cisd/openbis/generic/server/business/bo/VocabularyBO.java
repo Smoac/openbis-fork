@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataRetrievalFailureException;
 
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
@@ -29,6 +30,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.KeyExtractorFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
@@ -177,6 +180,21 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         }
     }
 
+    public void update(IVocabularyUpdates updates)
+    {
+        loadDataByTechId(TechId.create(updates));
+
+        vocabularyPE.setCode(updates.getCode());
+        vocabularyPE.setDescription(updates.getDescription());
+
+        validateAndSave();
+    }
+
+    private void validateAndSave()
+    {
+        getVocabularyDAO().validateAndSaveUpdatedEntity(vocabularyPE);
+    }
+
     public final VocabularyPE getVocabulary()
     {
         assert vocabularyPE != null : "Unspecified vocabulary";
@@ -215,6 +233,17 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         {
             throw UserFailureException.fromTemplate("Vocabulary '%s' does not exist.",
                     vocabularyCode);
+        }
+    }
+
+    public void loadDataByTechId(TechId vocabularyId)
+    {
+        try
+        {
+            vocabularyPE = getVocabularyDAO().getByTechId(vocabularyId);
+        } catch (DataRetrievalFailureException exception)
+        {
+            throw new UserFailureException(exception.getMessage());
         }
     }
 

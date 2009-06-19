@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant.USER_NAMESPACE_PREFIX;
+
 /**
  * Methods for converter codes from business layer to database and from database to business layer.
  * 
@@ -23,8 +25,6 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
  */
 public final class CodeConverter
 {
-    public static final String USER_PROPERTY_PREFIX = "USER.";
-
     private CodeConverter()
     {
         // Cannot be instantiated.
@@ -43,8 +43,8 @@ public final class CodeConverter
     /**
      * Converts a code from database form to business layer form.
      * <p>
-     * If <var>userNamespace</var> is <code>true</code>, the prefix 'USER.' will be used,
-     * because user properties will be represented as 'NAME' in the database and as USER.NAME in the
+     * If <var>userNamespace</var> is <code>true</code>, the prefix 'USER.' will be used, because
+     * user properties will be represented as 'NAME' in the database and as USER.NAME in the
      * business layer.
      * 
      * @return The code appropriate for the business layer.
@@ -54,7 +54,7 @@ public final class CodeConverter
     {
         if (userNamespace && codeFromDatabaseOrNull != null)
         {
-            return USER_PROPERTY_PREFIX + codeFromDatabaseOrNull;
+            return USER_NAMESPACE_PREFIX + codeFromDatabaseOrNull;
         } else
         {
             return codeFromDatabaseOrNull;
@@ -76,9 +76,9 @@ public final class CodeConverter
             return null;
         }
         final String upperCaseCode = codeFromBusinessLayerOrNull.toUpperCase();
-        if (upperCaseCode.startsWith(USER_PROPERTY_PREFIX))
+        if (upperCaseCode.startsWith(USER_NAMESPACE_PREFIX))
         {
-            return upperCaseCode.substring(USER_PROPERTY_PREFIX.length());
+            return upperCaseCode.substring(USER_NAMESPACE_PREFIX.length());
         } else
         {
             return upperCaseCode;
@@ -86,8 +86,8 @@ public final class CodeConverter
     }
 
     /**
-     * Returns <code>true</code>, if the <var>codeFromBusinessLayerOrNull</var> represents a
-     * user property code.
+     * Returns <code>true</code>, if the <var>codeFromBusinessLayerOrNull</var> represents a user
+     * property code.
      */
     public static boolean isInternalNamespace(final String codeFromBusinessLayerOrNull)
     {
@@ -96,7 +96,7 @@ public final class CodeConverter
             return false;
         } else
         {
-            return codeFromBusinessLayerOrNull.toUpperCase().startsWith(USER_PROPERTY_PREFIX) == false;
+            return codeFromBusinessLayerOrNull.toUpperCase().startsWith(USER_NAMESPACE_PREFIX) == false;
         }
     }
 

@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -333,6 +334,14 @@ public interface ICommonServer extends IServer
     public void registerVocabulary(final String sessionToken, final Vocabulary vocabulary);
 
     /**
+     * Updates a vocabulary.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY)
+    public void updateVocabulary(String sessionToken, IVocabularyUpdates updates);
+
+    /**
      * Adds new terms to a vocabulary.
      */
     @Transactional
@@ -401,7 +410,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL_TYPE)
+    @DatabaseUpdateModification(value = ObjectKind.MATERIAL_TYPE)
     public void updateMaterialType(String sessionToken, EntityType entityType);
 
     /**
@@ -417,7 +426,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE_TYPE)
+    @DatabaseUpdateModification(value = ObjectKind.SAMPLE_TYPE)
     public void updateSampleType(String sessionToken, EntityType entityType);
 
     /**
@@ -433,7 +442,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT_TYPE)
+    @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT_TYPE)
     public void updateExperimentType(String sessionToken, EntityType entityType);
 
     /**

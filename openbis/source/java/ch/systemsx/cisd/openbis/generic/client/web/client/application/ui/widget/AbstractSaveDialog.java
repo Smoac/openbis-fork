@@ -110,8 +110,11 @@ abstract public class AbstractSaveDialog extends Window
                                 @Override
                                 public final void componentSelected(final ComponentEvent ce)
                                 {
-                                    save(new SaveDialogCallback(viewContext));
-                                    hide();
+                                    if (form.isValid())
+                                    {
+                                        save(new SaveDialogCallback(viewContext));
+                                        hide();
+                                    }
                                 }
                             });
         button.setId(SAVE_BUTTON_ID);

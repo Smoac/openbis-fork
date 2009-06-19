@@ -16,10 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant.USER_NAMESPACE_PREFIX;
+
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -35,9 +41,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -59,6 +69,8 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
     public static final String GRID_ID = BROWSER_ID + "_grid";
 
     public static final String SHOW_DETAILS_BUTTON_ID = BROWSER_ID + "-show-details";
+
+    private IDelegatedAction postEditionCallback;
 
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
@@ -84,6 +96,28 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
         showDetailsButton.setId(SHOW_DETAILS_BUTTON_ID);
         pagingToolbar.add(new AdapterToolItem(showDetailsButton));
 
+        Button editButton =
+                createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
+                        new ISelectedEntityInvoker<BaseEntityModel<Vocabulary>>()
+                            {
+
+                                public void invoke(BaseEntityModel<Vocabulary> selectedItem)
+                                {
+                                    Vocabulary vocabulary = selectedItem.getBaseObject();
+                                    if (vocabulary.isInternalNamespace())
+                                    {
+                                        MessageBox.alert("Error",
+                                                "Internally managed vocabulary cannot be edited.",
+                                                null);
+                                    } else
+                                    {
+                                        createEditEntityDialog(vocabulary).show();
+                                    }
+                                }
+
+                            });
+        pagingToolbar.add(new AdapterToolItem(editButton));
+
         addEntityOperationsSeparator();
     }
 
@@ -91,6 +125,13 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
     {
         super(viewContext, BROWSER_ID, GRID_ID);
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.VOCABULARY_BROWSER_GRID);
+        postEditionCallback = new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    refresh();
+                }
+            };
     }
 
     @Override
@@ -150,6 +191,54 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                 }
             };
         DispatcherHelper.dispatchNaviEvent(tabFactory);
+    }
+
+    private Component createEditEntityDialog(final Vocabulary vocabulary)
+    {
+        String title =
+                viewContext.getMessage(Dict.EDIT_TITLE, Dict.VOCABULARY, vocabulary.getCode());
+        return new AbstractRegistrationDialog(viewContext, title, postEditionCallback)
+            {
+                private final TextField<String> codeField;
+
+                private final TextField<String> descriptionField;
+                {
+                    codeField = createMandatoryCodeField();
+                    codeField.setValue(getOldVocabularyCodeWithoutPrefix());
+                    addField(codeField);
+
+                    descriptionField = createDescriptionField();
+                    descriptionField.setValue(StringEscapeUtils.unescapeHtml(vocabulary
+                            .getDescription()));
+                    addField(descriptionField);
+                }
+
+                private CodeField createMandatoryCodeField()
+                {
+                    return new CodeField(viewContext, viewContext.getMessage(Dict.CODE));
+                }
+
+                private String getOldVocabularyCodeWithoutPrefix()
+                {
+                    String code = vocabulary.getCode();
+                    String prefix = getCodePrefix();
+                    assert code.startsWith(prefix) : "code does not start with " + prefix;
+                    return StringEscapeUtils.unescapeHtml(code.substring(prefix.length()));
+                }
+
+                @Override
+                protected void register(AsyncCallback<Void> registrationCallback)
+                {
+                    vocabulary.setCode(getCodePrefix() + codeField.getValue());
+                    vocabulary.setDescription(descriptionField.getValue());
+                    viewContext.getService().updateVocabulary(vocabulary, registrationCallback);
+                }
+
+                private String getCodePrefix()
+                {
+                    return USER_NAMESPACE_PREFIX;
+                }
+            };
     }
 
     public DatabaseModificationKind[] getRelevantModifications()

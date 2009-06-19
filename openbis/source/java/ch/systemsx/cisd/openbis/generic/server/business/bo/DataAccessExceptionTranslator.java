@@ -119,7 +119,6 @@ public final class DataAccessExceptionTranslator
 
     private static String getForeignKeyViolationDetailedDescription(EntityKind entityKindOrNull)
     {
-        System.err.println(entityKindOrNull);
         if (entityKindOrNull == null)
         {
             return "";

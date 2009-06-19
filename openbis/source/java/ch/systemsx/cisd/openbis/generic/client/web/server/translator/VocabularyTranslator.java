@@ -57,6 +57,7 @@ public final class VocabularyTranslator
             }
         }
         result.setTerms(list);
+        result.setId(HibernateUtils.getId(vocabulary));
         result.setCode(StringEscapeUtils.escapeHtml(vocabulary.getCode()));
         result.setDescription(StringEscapeUtils.escapeHtml(vocabulary.getDescription()));
         result.setInternalNamespace(vocabulary.isInternalNamespace());

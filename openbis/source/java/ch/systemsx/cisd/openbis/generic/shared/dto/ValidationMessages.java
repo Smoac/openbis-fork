@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+
 /**
  * This class lists the validation messages.
  * <p>
@@ -114,7 +116,7 @@ public final class ValidationMessages
     public static final String LOCATION_NOT_RELATIVE = "Location is not relative";
 
     public static final String CODE_NOT_USER_NAMESPACE =
-            "Code does not contain '" + CodeConverter.USER_PROPERTY_PREFIX + "' prefix.";
+            "Code does not contain '" + BasicConstant.USER_NAMESPACE_PREFIX + "' prefix.";
 
     public static final String LOCATOR_TYPE_NOT_NULL_MESSAGE = "Locator type" + CAN_NOT_BE_NULL;
 

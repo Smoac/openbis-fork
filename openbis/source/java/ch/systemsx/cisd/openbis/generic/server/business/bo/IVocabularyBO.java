@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
@@ -32,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
  * 
  * @author Christian Ribeaud
  */
-public interface IVocabularyBO extends IBusinessObject
+public interface IVocabularyBO extends IEntityBusinessObject
 {
     /**
      * Defines a new vocabulary.
@@ -73,5 +74,10 @@ public interface IVocabularyBO extends IBusinessObject
      */
     public void delete(List<VocabularyTerm> termsToBeDeleted,
             List<VocabularyTermReplacement> termsToBeReplaced);
+
+    /**
+     * Updates the vocabulary.
+     */
+    public void update(IVocabularyUpdates updates);
 
 }

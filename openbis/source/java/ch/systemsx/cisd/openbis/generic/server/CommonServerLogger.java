@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -303,6 +304,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public final void registerVocabulary(final String sessionToken, final Vocabulary vocabulary)
     {
         logTracking(sessionToken, "register_vocabulary", "VOCABULARY(%s)", vocabulary.getCode());
+    }
+
+    public void updateVocabulary(String sessionToken, IVocabularyUpdates updates)
+    {
+        logTracking(sessionToken, "update_vocabulary", "ID(%s) CODE(%s)", updates.getId(), updates
+                .getCode());
     }
 
     public void addVocabularyTerms(String sessionToken, String vocabularyCode,

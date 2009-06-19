@@ -101,6 +101,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -968,6 +969,21 @@ public final class CommonClientService extends AbstractClientService implements
                 extendVocabularyWithUploadedData(vocabulary, termsSessionKey);
             }
             commonServer.registerVocabulary(sessionToken, vocabulary);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public final void updateVocabulary(final IVocabularyUpdates updates)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        assert updates != null : "Unspecified updates.";
+
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.updateVocabulary(sessionToken, updates);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
