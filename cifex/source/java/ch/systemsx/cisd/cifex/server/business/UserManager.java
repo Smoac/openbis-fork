@@ -273,6 +273,13 @@ class UserManager extends AbstractManager implements IUserManager
     public final void updateUser(final UserDTO userToUpdate, final Password passwordOrNull)
             throws UserFailureException, IllegalArgumentException
     {
+        updateUser(null, userToUpdate, passwordOrNull);
+    }
+
+    @Transactional
+    public final void updateUser(final UserDTO oldUserToUpdateOrNull, final UserDTO userToUpdate,
+            final Password passwordOrNull) throws UserFailureException, IllegalArgumentException
+    {
         assert userToUpdate != null : "Unspecified user";
 
         boolean success = false;
@@ -281,7 +288,9 @@ class UserManager extends AbstractManager implements IUserManager
         {
             final IUserDAO userDAO = daoFactory.getUserDAO();
             // Get old user entry
-            existingUser = getUserByCode(userDAO, userToUpdate.getUserCode());
+            existingUser =
+                    oldUserToUpdateOrNull != null ? oldUserToUpdateOrNull : getUserByCode(userDAO,
+                            userToUpdate.getUserCode());
 
             userToUpdate.setID(existingUser.getID());
 

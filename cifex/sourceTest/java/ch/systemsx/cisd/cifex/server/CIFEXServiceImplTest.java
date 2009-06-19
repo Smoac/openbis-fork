@@ -91,7 +91,7 @@ public class CIFEXServiceImplTest
     private Mockery context;
 
     private IDomainModel domainModel;
-    
+
     private IBusinessContext businessContext;
 
     private IUserManager userManager;
@@ -113,14 +113,14 @@ public class CIFEXServiceImplTest
         domainModel = context.mock(IDomainModel.class);
         businessContext = context.mock(IBusinessContext.class);
         context.checking(new Expectations()
-        {
             {
-                allowing(domainModel).getBusinessContext();
-                will(returnValue(businessContext));
-                allowing(businessContext).isNewExternallyAuthenticatedUserStartActive();
-                will(returnValue(true));
-            }
-        });
+                {
+                    allowing(domainModel).getBusinessContext();
+                    will(returnValue(businessContext));
+                    allowing(businessContext).isNewExternallyAuthenticatedUserStartActive();
+                    will(returnValue(true));
+                }
+            });
         userManager = context.mock(IUserManager.class);
         fileManager = context.mock(IFileManager.class);
         requestContextProvider = context.mock(IRequestContextProvider.class);
@@ -390,9 +390,8 @@ public class CIFEXServiceImplTest
                 }
             });
         final CIFEXServiceImpl service = createService(authenticationService);
-        service
-                .createUser(userToCreate, password, BeanUtils.createBean(UserInfoDTO.class, admin),
-                        comment);
+        service.createUser(userToCreate, password, BeanUtils.createBean(UserInfoDTO.class, admin),
+                comment);
         context.assertIsSatisfied();
     }
 
@@ -429,9 +428,8 @@ public class CIFEXServiceImplTest
                 }
             });
         final CIFEXServiceImpl service = createService(null);
-        service
-                .createUser(userToCreate, password, BeanUtils.createBean(UserInfoDTO.class, admin),
-                        comment);
+        service.createUser(userToCreate, password, BeanUtils.createBean(UserInfoDTO.class, admin),
+                comment);
         context.assertIsSatisfied();
     }
 
@@ -1348,7 +1346,8 @@ public class CIFEXServiceImplTest
             });
         try
         {
-            CIFEXServiceImpl.checkUpdateOfUserIsAllowed(userToUpdate, currentUser, userManager);
+            CIFEXServiceImpl.checkUpdateOfUserIsAllowed(userToUpdate, userToUpdate, currentUser,
+                    userManager);
         } catch (final InvalidSessionException ex)
         {
             invalidSessionExceptionThrown = true;
@@ -1373,6 +1372,44 @@ public class CIFEXServiceImplTest
         assertFalse(unknownExceptionThrown);
 
         context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCheckUpdateOfUserAdminChangeActiveFlag() throws InvalidSessionException,
+            InsufficientPrivilegesException
+    {
+        final UserDTO currentUser = new UserDTO();
+        currentUser.setUserCode("requestUser");
+        currentUser.setPermanent(true);
+        currentUser.setAdmin(true);
+        currentUser.setActive(true);
+        final UserDTO userToUpdate = new UserDTO();
+        userToUpdate.setAdmin(false);
+        userToUpdate.setActive(true);
+        userToUpdate.setUserCode("test");
+        final UserDTO oldUserToUpdate = BeanUtils.createBean(UserDTO.class, userToUpdate);
+        oldUserToUpdate.setActive(false);
+        CIFEXServiceImpl.checkUpdateOfUserIsAllowed(oldUserToUpdate, userToUpdate, currentUser,
+                userManager);
+    }
+
+    @Test(expectedExceptions = InsufficientPrivilegesException.class)
+    public void testCheckUpdateOfUserNonAdminChangeActiveFlag() throws InvalidSessionException,
+            InsufficientPrivilegesException
+    {
+        final UserDTO currentUser = new UserDTO();
+        currentUser.setUserCode("requestUser");
+        currentUser.setPermanent(true);
+        currentUser.setAdmin(false);
+        currentUser.setActive(true);
+        final UserDTO userToUpdate = new UserDTO();
+        userToUpdate.setAdmin(false);
+        userToUpdate.setActive(true);
+        userToUpdate.setUserCode("test");
+        final UserDTO oldUserToUpdate = BeanUtils.createBean(UserDTO.class, userToUpdate);
+        oldUserToUpdate.setActive(false);
+        CIFEXServiceImpl.checkUpdateOfUserIsAllowed(oldUserToUpdate, userToUpdate, currentUser,
+                userManager);
     }
 
 }

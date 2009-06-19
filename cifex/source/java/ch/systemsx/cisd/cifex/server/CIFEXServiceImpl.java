@@ -407,7 +407,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
             InsufficientPrivilegesException, UserNotFoundException
     {
         final UserDTO user = domainModel.getUserManager().tryFindUserByCode(code);
-        checkUpdateOfUserIsAllowed(user);
+        checkUpdateOfUserIsAllowed(user, user);
         try
         {
             domainModel.getUserManager().deleteUser(code);
@@ -475,12 +475,13 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     {
         assert user != null : "User can't be null";
         final IUserManager userManager = domainModel.getUserManager();
-        final UserDTO userDTO = BeanUtils.createBean(UserDTO.class, user);
+        final UserDTO newUserDTO = BeanUtils.createBean(UserDTO.class, user);
+        final UserDTO oldUserDTO = userManager.tryFindUserByCode(user.getUserCode());
+        
+        checkUpdateOfUserIsAllowed(oldUserDTO, newUserDTO);
 
-        checkUpdateOfUserIsAllowed(userDTO);
-
-        userManager.updateUser(userDTO, new Password(plainPassword));
-        updateCurrentUser(userDTO.getUserCode());
+        userManager.updateUser(oldUserDTO, newUserDTO, new Password(plainPassword));
+        updateCurrentUser(newUserDTO.getUserCode());
         if (sendUpdateInformationToUser)
         {
             if (StringUtils.isEmpty(user.getEmail()))
@@ -493,7 +494,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
             {
                 final IMailClient mailClient = domainModel.getMailClient();
                 final EMailBuilderForUpdateUser builder =
-                        new EMailBuilderForUpdateUser(mailClient, privGetCurrentUser(), userDTO);
+                        new EMailBuilderForUpdateUser(mailClient, privGetCurrentUser(), newUserDTO);
                 builder.setURL(getBasicURL());
                 if (StringUtils.isNotBlank(plainPassword))
                 {
@@ -560,10 +561,10 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     }
 
     /** Check if the current user is allowed to update the given user. */
-    private final void checkUpdateOfUserIsAllowed(final UserDTO userToUpdate)
+    private final void checkUpdateOfUserIsAllowed(final UserDTO oldUser, final UserDTO userToUpdate)
             throws InvalidSessionException, InsufficientPrivilegesException
     {
-        checkUpdateOfUserIsAllowed(userToUpdate, privGetCurrentUser(), domainModel.getUserManager());
+        checkUpdateOfUserIsAllowed(oldUser, userToUpdate, privGetCurrentUser(), domainModel.getUserManager());
     }
 
     @Private
@@ -573,15 +574,27 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
 
     /** Check if the current user is allowed to update the given user. */
     @Private
-    static final void checkUpdateOfUserIsAllowed(final UserDTO userToUpdate,
+    static final void checkUpdateOfUserIsAllowed(final UserDTO oldUser, final UserDTO userToUpdate,
             final UserDTO requestUser, final IUserManager userManager)
             throws InvalidSessionException, InsufficientPrivilegesException
     {
+        // Inactive users may not do anything.
+        if (requestUser.isActive() == false)
+        {
+            throw new InsufficientPrivilegesException("Insufficient privileges for "
+                    + describeUser(requestUser) + ".");
+        }
         if (requestUser.isAdmin())
         {
             return;
         }
         if (requestUser.isPermanent() == false)
+        {
+            throw new InsufficientPrivilegesException("Insufficient privileges for "
+                    + describeUser(requestUser) + ".");
+        }
+        // Only admins may change the 'active' flag
+        if (userToUpdate.isActive() != oldUser.isActive())
         {
             throw new InsufficientPrivilegesException("Insufficient privileges for "
                     + describeUser(requestUser) + ".");

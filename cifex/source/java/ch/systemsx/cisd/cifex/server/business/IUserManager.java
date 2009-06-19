@@ -46,7 +46,6 @@ public interface IUserManager
     @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
     public UserDTO tryFindUserByCode(String code);
 
-
     /**
      * Returns a list with all users, which have the given email address.
      */
@@ -107,6 +106,18 @@ public interface IUserManager
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
     public void deleteUser(String userCode) throws UserFailureException;
+
+    /**
+     * Updates the fields of the specified user, providing the old user for comparison. Compared to
+     * {@link #updateUser(UserDTO, Password)}, this avoids getting the old user from the database.
+     * 
+     * @throws UserFailureException If the <var>user</var> was not found in the database.
+     * @throws IllegalArgumentException If the <var>user</var> is regular in the database and now
+     *             should be set temporary.
+     */
+    @LogAnnotation(logCategory = LogCategory.OPERATION)
+    public void updateUser(UserDTO oldUser, UserDTO user, Password passwordOrNull)
+            throws UserFailureException, IllegalArgumentException;
 
     /**
      * Updates the fields of the specified user.
