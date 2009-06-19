@@ -71,7 +71,6 @@ class DatasetMappingResolver
         return tryGetUniqueNamePropertyCode(properties, UNIQUE_SAMPLE_NAME_PROPERTY);
     }
 
-    @SuppressWarnings("unused")
     private static String tryGetUniqueExperimentNamePropertyCode(Properties properties)
     {
         return tryGetUniqueNamePropertyCode(properties, UNIQUE_EXPERIMENT_NAME_PROPERTY);
@@ -103,22 +102,25 @@ class DatasetMappingResolver
     // ---------------
     private final IEncapsulatedOpenBISService openbisService;
 
-    private final String propertyCodeOrNull;
+    private final String samplePropertyCodeOrNull;
+
+    private final String experimentPropertyCodeOrNull;
 
     public DatasetMappingResolver(Properties properties, IEncapsulatedOpenBISService openbisService)
     {
         this.openbisService = openbisService;
-        this.propertyCodeOrNull = tryGetUniqueSampleNamePropertyCode(properties);
+        this.samplePropertyCodeOrNull = tryGetUniqueSampleNamePropertyCode(properties);
+        this.experimentPropertyCodeOrNull = tryGetUniqueExperimentNamePropertyCode(properties);
     }
 
     public String tryFigureSampleCode(DataSetMappingInformation mapping, LogUtils log)
     {
         String sampleCodeOrLabel = mapping.getSampleCodeOrLabel();
-        if (propertyCodeOrNull == null)
+        if (samplePropertyCodeOrNull == null)
         {
             return sampleCodeOrLabel;
         }
-        if (mapping.getExperimentCode() == null)
+        if (mapping.getExperimentName() == null)
         {
             // The main purpose of this checks is to ensure that sample with the given code exists.
             // If it is not a case, we will try to check if the specified sample label is unique (in
@@ -128,9 +130,11 @@ class DatasetMappingResolver
                 return sampleCodeOrLabel;
             }
         }
+        LocalExperimentIdentifier experimentIdentifier =
+                tryGetExperimentIdentifier(mapping, experimentPropertyCodeOrNull);
         ListSamplesByPropertyCriteria criteria =
-                new ListSamplesByPropertyCriteria(propertyCodeOrNull, sampleCodeOrLabel, mapping
-                        .getGroupCode(), tryGetExperimentIdentifier(mapping));
+                new ListSamplesByPropertyCriteria(samplePropertyCodeOrNull, sampleCodeOrLabel,
+                        mapping.getGroupCode(), experimentIdentifier);
         List<String> samples;
         try
         {
@@ -161,13 +165,20 @@ class DatasetMappingResolver
     }
 
     private static LocalExperimentIdentifier tryGetExperimentIdentifier(
-            DataSetMappingInformation mapping)
+            DataSetMappingInformation mapping, String experimentPropertyCodeOrNull)
     {
-        String experimentCode = mapping.getExperimentCode();
+        String experimentName = mapping.getExperimentName();
         String projectCode = mapping.getProjectCode();
-        if (experimentCode != null && projectCode != null)
+        if (experimentName != null && projectCode != null)
         {
-            return new LocalExperimentIdentifier(projectCode, experimentCode);
+            if (experimentPropertyCodeOrNull != null)
+            {
+                return new LocalExperimentIdentifier(projectCode, experimentPropertyCodeOrNull,
+                        experimentName);
+            } else
+            {
+                return new LocalExperimentIdentifier(projectCode, experimentName);
+            }
         } else
         {
             return null;
@@ -266,14 +277,14 @@ class DatasetMappingResolver
 
     private boolean isExperimentColumnCorrect(DataSetMappingInformation mapping, LogUtils log)
     {
-        if ((mapping.getExperimentCode() == null) != (mapping.getProjectCode() == null))
+        if ((mapping.getExperimentName() == null) != (mapping.getProjectCode() == null))
         {
             log
                     .datasetMappingError(mapping,
                             "experiment and project columns should be both empty or should be both filled.");
             return false;
         }
-        if (propertyCodeOrNull == null && mapping.getExperimentCode() != null)
+        if (samplePropertyCodeOrNull == null && mapping.getExperimentName() != null)
         {
             log
                     .datasetMappingError(

@@ -35,7 +35,7 @@ public class DataSetMappingInformation
 
     private String sampleCodeOrLabel;
 
-    private String experimentCode;
+    private String experimentName;
 
     private String projectCode;
 
@@ -67,15 +67,15 @@ public class DataSetMappingInformation
         this.sampleCodeOrLabel = StringUtils.trimToNull(sampleCodeOrLabel);
     }
 
-    public String getExperimentCode()
+    public String getExperimentName()
     {
-        return experimentCode;
+        return experimentName;
     }
 
     @BeanProperty(label = "experiment", optional = true)
-    public void setExperimentCode(String experimentCode)
+    public void setExperimentName(String experimentName)
     {
-        this.experimentCode = StringUtils.trimToNull(experimentCode);
+        this.experimentName = StringUtils.trimToNull(experimentName);
     }
 
     public String getProjectCode()
