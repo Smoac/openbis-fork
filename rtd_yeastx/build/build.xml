@@ -1,4 +1,4 @@
-<project name="yeastx" default="jar" basedir="..">
+<project name="yeastx" default="dist" basedir="..">
 	<import file="../../build_resources/ant/build-common.xml" />
 	<project-classpath name="ecp" classes="${classes}" />
 
@@ -14,6 +14,8 @@
 
 	<target name="compile" depends="build-common.compile, clean" />
 
+	<target name="dist" depends="jar" />
+	
 	<target name="jar" depends="compile">
 		<mkdir dir="${dist}" />
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
