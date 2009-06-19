@@ -44,10 +44,13 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Pro
 public class GenericSampleRegistrationTest extends AbstractGWTTestCase
 {
     private static final String CONTROL_LAYOUT = "CONTROL_LAYOUT";
+
     private static final String DILUTION_PLATE = "DILUTION_PLATE";
+
     private static final String CELL_PLATE = "CELL_PLATE";
+
     private static final String WELL = "WELL";
-    
+
     private static final String GROUP_CL = "GROUP_CL";
 
     private static final String SHARED_CL = "SHARED_CL";
@@ -121,7 +124,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", CELL_PLATE));
         remoteConsole.prepare(new ShowSample(containerCode));
         final CheckSample checkSample = new CheckSample();
-        checkSample.property("Sample").asString(containerCode);
+        checkSample.property("Demo Sample").asString(containerCode);
         final CheckTableCommand componentsTable = checkSample.componentsTable().expectedSize(1);
         final String sampleCodeFieldIdent = CommonSampleColDefKind.CODE.id();
         componentsTable.expectedRow(new Row().withCell(sampleCodeFieldIdent, sampleCode));
