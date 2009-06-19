@@ -128,7 +128,6 @@ public class MainTabPanel extends TabPanel
 
         public MainTabItem(final ITabItem tabItem, final String idPrefix)
         {
-            System.err.println("MainTabItem()");
             this.tabItem = tabItem;
             this.idPrefix = idPrefix;
             setId(idPrefix + TAB_SUFFIX);
