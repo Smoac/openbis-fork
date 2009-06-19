@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import java.io.Serializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.LocalExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -35,9 +34,9 @@ public class ListSamplesByPropertyCriteria implements Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
 
-    private String propertyCode;
+    private String samplePropertyCode;
 
-    private String propertyValue;
+    private String samplePropertyValue;
 
     private String groupCode;
 
@@ -46,46 +45,38 @@ public class ListSamplesByPropertyCriteria implements Serializable
     public ListSamplesByPropertyCriteria(String propertyCode, String propertyValue,
             String groupCode, LocalExperimentIdentifier experimentIdentifierOrNull)
     {
-        this.propertyCode = propertyCode;
-        this.propertyValue = propertyValue;
+        this.samplePropertyCode = propertyCode;
+        this.samplePropertyValue = propertyValue;
         this.groupCode = groupCode;
         this.experimentIdentifierOrNull = experimentIdentifierOrNull;
     }
 
     public String getPropertyCode()
     {
-        return propertyCode;
+        return samplePropertyCode;
     }
 
     public String getPropertyValue()
     {
-        return propertyValue;
+        return samplePropertyValue;
     }
 
-    public String getGroupCode()
+    public ProjectIdentifier getProjectIdentifier()
     {
-        return groupCode;
-    }
-
-    /** can be null */
-    public ExperimentIdentifier getExperimentIdentifier()
-    {
-        if (experimentIdentifierOrNull == null)
-        {
-            return null;
-        } else
-        {
-            ProjectIdentifier projectIdentifier =
-                    new ProjectIdentifier(getGroupIdentifier(), experimentIdentifierOrNull
-                            .getProjectCode());
-            return new ExperimentIdentifier(projectIdentifier, experimentIdentifierOrNull
-                    .getExperimentCode());
-        }
+        ProjectIdentifier projectIdentifier =
+                new ProjectIdentifier(getGroupIdentifier(), experimentIdentifierOrNull
+                        .getProjectCode());
+        return projectIdentifier;
     }
 
     public GroupIdentifier getGroupIdentifier()
     {
         return new GroupIdentifier((String) null, groupCode);
+    }
+
+    public LocalExperimentIdentifier tryGetLocalExperimentIdentifier()
+    {
+        return experimentIdentifierOrNull;
     }
 
     @Override
@@ -95,6 +86,11 @@ public class ListSamplesByPropertyCriteria implements Serializable
                 (experimentIdentifierOrNull == null ? "any" : experimentIdentifierOrNull.toString());
         return String.format(
                 "Samples from the group '%s' with property '%s' set to '%s' in %s experiment",
-                groupCode, propertyCode, propertyValue, expDesc);
+                groupCode, samplePropertyCode, samplePropertyValue, expDesc);
+    }
+
+    public String getGroupCode()
+    {
+        return groupCode;
     }
 }

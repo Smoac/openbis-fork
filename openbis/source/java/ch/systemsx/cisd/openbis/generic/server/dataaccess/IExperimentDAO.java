@@ -49,8 +49,14 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
     public ExperimentPE tryFindByCodeAndProject(ProjectPE project, String experimentCode);
 
     /**
+     * Lists experiments (with minimal additional information) belonging to the given
+     * <code>project</code> and having a property with the specified value.
+     */
+    public List<ExperimentPE> listExperimentsByProjectAndProperty(final String propertyCode,
+            final String propertyValue, final ProjectPE project) throws DataAccessException;
+
+    /**
      * Inserts given {@link ExperimentPE} into the database.
      */
     public void createExperiment(ExperimentPE experiment);
-
 }

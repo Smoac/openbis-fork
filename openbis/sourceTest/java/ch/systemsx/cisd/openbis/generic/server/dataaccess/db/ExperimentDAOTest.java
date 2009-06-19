@@ -407,6 +407,34 @@ public class ExperimentDAOTest extends AbstractDAOTest
         assertTrue(exceptionThrown);
     }
 
+    @Test
+    public final void testListExperimentsBySimpleProperty()
+    {
+        final IExperimentDAO dao = daoFactory.getExperimentDAO();
+        ProjectPE project =
+                findProject(daoFactory.getHomeDatabaseInstance().getCode(), "CISD", "DEFAULT");
+
+        List<ExperimentPE> entities =
+                dao.listExperimentsByProjectAndProperty("USER.DESCRIPTION", "A simple experiment",
+                        project);
+
+        assertEquals(1, entities.size());
+        assertEquals("EXP-X", entities.get(0).getCode());
+    }
+
+    @Test
+    public final void testListExperimentsByVocabularyTermProperty()
+    {
+        final IExperimentDAO dao = daoFactory.getExperimentDAO();
+        ProjectPE project =
+                findProject(daoFactory.getHomeDatabaseInstance().getCode(), "CISD", "NEMO");
+
+        List<ExperimentPE> entities =
+                dao.listExperimentsByProjectAndProperty("USER.GENDER", "MALE", project);
+
+        assertEquals(3, entities.size());
+    }
+
     private void assertExperimentsEqual(ExperimentPE e1, ExperimentPE e2)
     {
         assertEquals(e1.getCode(), e2.getCode());

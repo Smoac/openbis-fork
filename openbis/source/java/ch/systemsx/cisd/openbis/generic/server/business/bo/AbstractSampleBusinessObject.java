@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -139,12 +140,27 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         }
         return sampleType;
     }
-    
-    protected ExperimentPE findExperiment(ExperimentIdentifier identifierOrNull)
+
+    protected ExperimentPE findExperiment(ExperimentIdentifier identifier)
     {
-        String groupCode = identifierOrNull.getGroupCode();
-        String projectCode = identifierOrNull.getProjectCode();
-        String databaseInstanceCode = identifierOrNull.getDatabaseInstanceCode();
+        ProjectPE project = findProject(identifier);
+        String experimentCode = identifier.getExperimentCode();
+        ExperimentPE experiment =
+                getExperimentDAO().tryFindByCodeAndProject(project, experimentCode);
+        if (experiment == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "No experiment '%s' could be found in the '%s/%s' project!", experimentCode,
+                    identifier.getGroupCode(), identifier.getProjectCode());
+        }
+        return experiment;
+    }
+
+    protected ProjectPE findProject(ProjectIdentifier projectIdentifier)
+    {
+        String groupCode = projectIdentifier.getGroupCode();
+        String projectCode = projectIdentifier.getProjectCode();
+        String databaseInstanceCode = projectIdentifier.getDatabaseInstanceCode();
         ProjectPE project =
                 getProjectDAO().tryFindProject(databaseInstanceCode, groupCode, projectCode);
         if (project == null)
@@ -152,17 +168,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             throw UserFailureException.fromTemplate(
                     "No project '%s' could be found in the '%s' group!", projectCode, groupCode);
         }
-        String experimentCode = identifierOrNull.getExperimentCode();
-        ExperimentPE experiment =
-                getExperimentDAO().tryFindByCodeAndProject(project, experimentCode);
-        if (experiment == null)
-        {
-            throw UserFailureException.fromTemplate(
-                    "No experiment '%s' could be found in the '%s/%s' project!", experimentCode,
-                    groupCode, projectCode);
-        }
-        return experiment;
+        return project;
     }
-
 
 }

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -34,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
@@ -119,6 +121,63 @@ public class ExperimentDAO extends AbstractGenericEntityDAO<ExperimentPE> implem
         final HibernateTemplate template = getHibernateTemplate();
         template.saveOrUpdate(experiment);
         template.flush();
+    }
+
+    public List<ExperimentPE> listExperimentsByProjectAndProperty(String propertyCode,
+            String propertyValue, ProjectPE project) throws DataAccessException
+    {
+        assert project != null : "Unspecified group.";
+        assert propertyCode != null : "Unspecified property code";
+        assert propertyValue != null : "Unspecified property value";
+
+        String queryFormat =
+                "from " + ExperimentPropertyPE.class.getSimpleName()
+                        + " where %s = ? and entity.projectInternal = ? "
+                        + " and entityTypePropertyType.propertyTypeInternal.simpleCode = ?"
+                        + " and entityTypePropertyType.propertyTypeInternal.internalNamespace = ?";
+
+        List<ExperimentPE> entities =
+                listByPropertyValue(queryFormat, propertyCode, propertyValue, project);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog
+                    .debug(String
+                            .format(
+                                    "%d experiments have been found for project '%s' and property '%s' equal to '%s'.",
+                                    entities.size(), project, propertyCode, propertyValue));
+        }
+        return entities;
+    }
+
+    private List<ExperimentPE> listByPropertyValue(String queryFormat, String propertyCode,
+            String propertyValue, ProjectPE project)
+    {
+        String simplePropertyCode = CodeConverter.tryToDatabase(propertyCode);
+        boolean isInternalNamespace = CodeConverter.isInternalNamespace(propertyCode);
+        Object[] arguments =
+                toArray(propertyValue, project, simplePropertyCode, isInternalNamespace);
+
+        String queryPropertySimpleValue = String.format(queryFormat, "value");
+        List<ExperimentPropertyPE> properties1 =
+                cast(getHibernateTemplate().find(queryPropertySimpleValue, arguments));
+
+        String queryPropertyVocabularyTerm = String.format(queryFormat, "vocabularyTerm.code");
+        List<ExperimentPropertyPE> properties2 =
+                cast(getHibernateTemplate().find(queryPropertyVocabularyTerm, arguments));
+
+        properties1.addAll(properties2);
+        List<ExperimentPE> entities = extractEntities(properties1);
+        return entities;
+    }
+
+    private static List<ExperimentPE> extractEntities(List<ExperimentPropertyPE> properties)
+    {
+        List<ExperimentPE> samples = new ArrayList<ExperimentPE>();
+        for (ExperimentPropertyPE prop : properties)
+        {
+            samples.add(prop.getEntity());
+        }
+        return samples;
     }
 
 }

@@ -31,10 +31,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.LocalExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -79,18 +82,64 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         List<SamplePE> foundSamples =
                 getSampleDAO().listSamplesByGroupAndProperty(criteria.getPropertyCode(),
                         criteria.getPropertyValue(), group);
-        if (criteria.getExperimentIdentifier() != null)
+        LocalExperimentIdentifier localExperimentIdentifier =
+                criteria.tryGetLocalExperimentIdentifier();
+        if (localExperimentIdentifier != null)
         {
-            foundSamples =
-                    filterSamplesByExperiment(foundSamples, criteria.getExperimentIdentifier());
+            String experimentPropertyCode = localExperimentIdentifier.tryGetPropertyCode();
+            if (experimentPropertyCode != null)
+            {
+                foundSamples =
+                        filterSamplesByExperiment(foundSamples, criteria.getProjectIdentifier(),
+                                experimentPropertyCode, localExperimentIdentifier
+                                        .getPropertyValue());
+            } else
+            {
+                ExperimentIdentifier ident =
+                        new ExperimentIdentifier(criteria.getProjectIdentifier(),
+                                localExperimentIdentifier.getExperimentCode());
+                foundSamples = filterSamplesByExperiment(foundSamples, ident);
+            }
         }
         samples = foundSamples;
+    }
+
+    private List<SamplePE> filterSamplesByExperiment(List<SamplePE> foundSamples,
+            ProjectIdentifier projectIdentifier, String experimentPropertyCode, String propertyValue)
+    {
+        ProjectPE project = findProject(projectIdentifier);
+        ExperimentPE expectedExperiment =
+                findExperiment(project, experimentPropertyCode, propertyValue);
+        return filterSamplesByExperiment(foundSamples, expectedExperiment);
+    }
+
+    private ExperimentPE findExperiment(ProjectPE project, String propertyCode, String propertyValue)
+    {
+        List<ExperimentPE> experiments =
+                getExperimentDAO().listExperimentsByProjectAndProperty(propertyCode, propertyValue,
+                        project);
+        if (experiments.size() != 1)
+        {
+            throw UserFailureException
+                    .fromTemplate(
+                            "It was expected that there is exactly one experiment "
+                                    + "in the '%s/%s' project with property '%s' set to '%s', but %d were found!",
+                            project.getGroup().getCode(), project.getCode(), propertyCode,
+                            propertyValue, experiments.size());
+        }
+        return experiments.get(0);
     }
 
     private List<SamplePE> filterSamplesByExperiment(List<SamplePE> foundSamples,
             ExperimentIdentifier experimentIdentifier)
     {
         ExperimentPE expectedExperiment = findExperiment(experimentIdentifier);
+        return filterSamplesByExperiment(foundSamples, expectedExperiment);
+    }
+
+    private static List<SamplePE> filterSamplesByExperiment(List<SamplePE> foundSamples,
+            ExperimentPE expectedExperiment)
+    {
         List<SamplePE> filteredSamples = new ArrayList<SamplePE>();
         for (SamplePE sample : foundSamples)
         {

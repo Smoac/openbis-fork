@@ -32,11 +32,27 @@ public class LocalExperimentIdentifier implements Serializable
 
     private final String projectCode;
 
-    private final String experimentCode;
+    private String propertyCodeOrNull;
 
+    private String propertyValue; // valid only when propertyCodeOrNull != null
+
+    private String experimentCode; // valid only when propertyCodeOrNull == null
+
+    /** identifies an experiment by the project and the specified property value */
+    public LocalExperimentIdentifier(String projectCode, String propertyCode, String propertyValue)
+    {
+        this.projectCode = projectCode;
+        this.propertyCodeOrNull = propertyCode;
+        this.propertyValue = propertyValue;
+        this.experimentCode = null;
+    }
+
+    /** identifies an experiment by the project and the experiment code */
     public LocalExperimentIdentifier(String projectCode, String experimentCode)
     {
         this.projectCode = projectCode;
+        this.propertyCodeOrNull = null;
+        this.propertyValue = null;
         this.experimentCode = experimentCode;
     }
 
@@ -45,6 +61,18 @@ public class LocalExperimentIdentifier implements Serializable
         return projectCode;
     }
 
+    public String tryGetPropertyCode()
+    {
+        return propertyCodeOrNull;
+    }
+
+    /** valid only when {@link #tryGetPropertyCode} is not null */
+    public String getPropertyValue()
+    {
+        return propertyValue;
+    }
+
+    /** valid only when {@link #tryGetPropertyCode} is null */
     public String getExperimentCode()
     {
         return experimentCode;
@@ -53,6 +81,14 @@ public class LocalExperimentIdentifier implements Serializable
     @Override
     public String toString()
     {
-        return projectCode + "/" + experimentCode;
+        String expDesc;
+        if (propertyCodeOrNull != null)
+        {
+            expDesc = propertyCodeOrNull + " = '" + propertyValue + "'";
+        } else
+        {
+            expDesc = experimentCode;
+        }
+        return "project '" + projectCode + "', experiment " + expDesc;
     }
 }

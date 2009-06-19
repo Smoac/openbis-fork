@@ -276,29 +276,39 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
                         + " where %s = ? and entity.group = ? "
                         + " and entityTypePropertyType.propertyTypeInternal.simpleCode = ?"
                         + " and entityTypePropertyType.propertyTypeInternal.internalNamespace = ?";
-        String queryPropertySimpleValue = String.format(queryFormat, "value");
-        String queryPropertyVocabularyTerm = String.format(queryFormat, "vocabularyTerm.code");
-
-        String simplePropertyCode = CodeConverter.tryToDatabase(propertyCode);
-        boolean isInternalNamespace = CodeConverter.isInternalNamespace(propertyCode);
-        Object[] arguments = toArray(propertyValue, group, simplePropertyCode, isInternalNamespace);
-        List<SamplePropertyPE> properties1 =
-                cast(getHibernateTemplate().find(queryPropertySimpleValue, arguments));
-        List<SamplePropertyPE> properties2 =
-                cast(getHibernateTemplate().find(queryPropertyVocabularyTerm, arguments));
-        properties1.addAll(properties2);
-        List<SamplePE> samples = extractSamples(properties1);
-
+        List<SamplePE> entities =
+                listByPropertyValue(queryFormat, propertyCode, propertyValue, group);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
                     "%d samples have been found for group '%s' and property '%s' equal to '%s'.",
-                    samples.size(), group, propertyCode, propertyValue));
+                    entities.size(), group, propertyCode, propertyValue));
         }
-        return samples;
+        return entities;
     }
 
-    private static List<SamplePE> extractSamples(List<SamplePropertyPE> properties)
+    private List<SamplePE> listByPropertyValue(String queryFormat, String propertyCode,
+            String propertyValue, GroupPE parent)
+    {
+        String simplePropertyCode = CodeConverter.tryToDatabase(propertyCode);
+        boolean isInternalNamespace = CodeConverter.isInternalNamespace(propertyCode);
+        Object[] arguments =
+                toArray(propertyValue, parent, simplePropertyCode, isInternalNamespace);
+
+        String queryPropertySimpleValue = String.format(queryFormat, "value");
+        List<SamplePropertyPE> properties1 =
+                cast(getHibernateTemplate().find(queryPropertySimpleValue, arguments));
+
+        String queryPropertyVocabularyTerm = String.format(queryFormat, "vocabularyTerm.code");
+        List<SamplePropertyPE> properties2 =
+                cast(getHibernateTemplate().find(queryPropertyVocabularyTerm, arguments));
+
+        properties1.addAll(properties2);
+        List<SamplePE> entities = extractEntities(properties1);
+        return entities;
+    }
+
+    private static List<SamplePE> extractEntities(List<SamplePropertyPE> properties)
     {
         List<SamplePE> samples = new ArrayList<SamplePE>();
         for (SamplePropertyPE prop : properties)
