@@ -28,8 +28,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -347,21 +345,12 @@ public final class FileUtilities
     private final static BufferedReader tryGetBufferedReader(final Class<?> clazz,
             final String resource)
     {
-        final URL url = clazz.getResource(resource);
-        if (url == null)
+        final InputStream stream = clazz.getResourceAsStream(resource);
+        if (stream == null)
         {
             return null;
         }
-        try
-        {
-            return new BufferedReader(new FileReader(new File(url.toURI())));
-        } catch (final IOException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        } catch (final URISyntaxException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
+        return new BufferedReader(new InputStreamReader(stream));
     }
 
     private static String readString(final BufferedReader reader) throws IOException
