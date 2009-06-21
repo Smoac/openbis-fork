@@ -28,6 +28,7 @@ import org.jmock.Expectations;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -44,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Christian Ribeaud
  */
+@Friend(toClasses = VocabularyBO.class)
 public final class VocabularyBOTest extends AbstractBOTest
 {
     static final String VOCABULARY_CODE = "USER.COLOR";

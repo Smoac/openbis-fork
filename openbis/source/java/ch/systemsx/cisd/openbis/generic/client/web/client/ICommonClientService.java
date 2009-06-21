@@ -384,13 +384,13 @@ public interface ICommonClientService extends IClientService
     public void updateVocabulary(final IVocabularyUpdates updates) throws UserFailureException;
 
     /** Adds specified terms to the specified vocabulary. */
-    public void addVocabularyTerms(String vocabularyCode, List<String> vocabularyTerms)
+    public void addVocabularyTerms(TechId vocabularyId, List<String> vocabularyTerms)
             throws UserFailureException;
 
     /**
      * Deletes the specified terms of the specified vocabulary. Terms in use will be replaced.
      */
-    public void deleteVocabularyTerms(String vocabularyCode, List<VocabularyTerm> termsToBeDeleted,
+    public void deleteVocabularyTerms(TechId vocabularyId, List<VocabularyTerm> termsToBeDeleted,
             List<VocabularyTermReplacement> termsToBeReplaced) throws UserFailureException;
 
     /** Lists terms of a specified vocabulary */

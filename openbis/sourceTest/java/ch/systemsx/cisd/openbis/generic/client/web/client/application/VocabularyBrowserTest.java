@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.RemoteConsole;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
@@ -66,7 +67,8 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
     {
         remoteConsole.prepare(new ClickOnVocabularyCmd(vocabularyCode));
         CheckTableCommand termsTable =
-                new CheckTableCommand(VocabularyTermGrid.createGridId(vocabularyCode));
+                new CheckTableCommand(VocabularyTermGrid
+                        .createGridId(TechId.createWildcardTechId()));
         for (String expectedTerm : expectedTerms)
         {
             expectTermWithCode(termsTable, expectedTerm);

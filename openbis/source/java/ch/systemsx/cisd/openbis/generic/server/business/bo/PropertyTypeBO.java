@@ -20,9 +20,11 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
@@ -66,15 +68,18 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
 
         if (EntityDataType.CONTROLLEDVOCABULARY.equals(dataTypePE.getCode()))
         {
-            VocabularyPE vocabularyPE =
-                    getVocabularyDAO().tryFindVocabularyByCode(
-                            propertyType.getVocabulary().getCode());
-            if (vocabularyPE == null)
+            Vocabulary vocabulary = propertyType.getVocabulary();
+            if (vocabulary.getId() == null)
             {
-                define(propertyType.getVocabulary());
+                // new vocabulary is not yet persistent
+                define(vocabulary);
                 super.save();
-                vocabularyPE = getVocabulary();
+            } else
+            {
+                // loading existing vocabulary
+                loadDataByTechId(TechId.create(vocabulary));
             }
+            VocabularyPE vocabularyPE = getVocabulary();
             propertyTypePE.setVocabulary(vocabularyPE);
         }
     }

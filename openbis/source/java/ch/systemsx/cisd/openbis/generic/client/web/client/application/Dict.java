@@ -286,6 +286,9 @@ public abstract class Dict
     public static final String VOCABULARY_SHOW_AVAILABLE_TERMS_IN_CHOOSERS =
             "vocabulary_show_available_terms_in_choosers";
 
+    public static final String CONFIRM_VOCABULARY_SHOW_AVAILABLE_TERMS_IN_CHOOSERS_MSG =
+            "confirm_vocabulary_show_available_terms_in_chooosers_msg";
+
     public static final String MANDATORY = "mandatory";
 
     public static final String DEFAULT_VALUE = "default_value";

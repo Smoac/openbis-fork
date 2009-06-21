@@ -54,8 +54,11 @@ public interface IVocabularyBO extends IEntityBusinessObject
     /**
      * Loads specified vocabulary from the database.
      * 
+     * @deprecated Code of a user vocabulary can be modified so it cannot be used as a universal
+     *             vocabulary business identifier.
      * @throws UserFailureException if no vocabulary found for <code>vocabularyCode</code>.
      */
+    @Deprecated
     void load(String vocabularyCode) throws UserFailureException;
 
     /** @return terms with their usage statistics for the loaded vocabulary */

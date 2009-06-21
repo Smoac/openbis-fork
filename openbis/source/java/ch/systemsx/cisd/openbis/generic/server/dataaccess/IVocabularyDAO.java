@@ -37,7 +37,10 @@ public interface IVocabularyDAO extends IGenericDAO<VocabularyPE>
 
     /**
      * Returns the {@link VocabularyPE} object for the given <var>vocabularyCode</var>, or
-     * <code>null</code>, if it doesn't exist.
+     * <code>null</code>, if it doesn't exist.<br>
+     * <br>
+     * NOTE: Only internally managed vocabularies have codes that can be used as business
+     * identifiers (cannot be edited).
      */
     VocabularyPE tryFindVocabularyByCode(final String vocabularyCode);
 

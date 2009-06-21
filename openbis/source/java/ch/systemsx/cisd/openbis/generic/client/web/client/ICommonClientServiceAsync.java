@@ -323,12 +323,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void updateVocabulary(final IVocabularyUpdates updates,
             final AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#addVocabularyTerms(String, List) */
-    public void addVocabularyTerms(String vocabularyCode, List<String> vocabularyTerms,
+    /** @see ICommonClientService#addVocabularyTerms(TechId, List) */
+    public void addVocabularyTerms(TechId vocabularyId, List<String> vocabularyTerms,
             AsyncCallback<Void> callback);
 
-    /** @see ICommonClientService#deleteVocabularyTerms(String, List, List) */
-    public void deleteVocabularyTerms(String vocabularyCode, List<VocabularyTerm> termsToBeDeleted,
+    /** @see ICommonClientService#deleteVocabularyTerms(TechId, List, List) */
+    public void deleteVocabularyTerms(TechId vocabularyId, List<VocabularyTerm> termsToBeDeleted,
             List<VocabularyTermReplacement> termsToBeReplaced, AsyncCallback<Void> callback);
 
     /** @see ICommonClientService#listVocabularyTerms(Vocabulary) */

@@ -60,8 +60,8 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", "CONTROL_LAYOUT"));
         remoteConsole.prepare(new ShowSample(CONTROL_LAYOUT_EXAMPLE));
         final CheckSample checkSample = new CheckSample();
-        checkSample.property("Demo Sample").asString(CONTROL_LAYOUT_EXAMPLE);
-        checkSample.property("Demo Sample Type").asCode("CONTROL_LAYOUT");
+        checkSample.property("Sample").asString(CONTROL_LAYOUT_EXAMPLE);
+        checkSample.property("Sample Type").asCode("CONTROL_LAYOUT");
         checkSample.property("Registrator").asPerson("Doe, John");
         checkSample.property("Plate Geometry").asProperty("384_WELLS_16X24");
         checkSample.property("Description").asProperty("test control layout");
@@ -83,9 +83,9 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
         remoteConsole.prepare(new ShowSample(CELL_PLATE_EXAMPLE));
         final CheckSample checkSample = new CheckSample();
-        checkSample.property("Demo Sample").asString(CELL_PLATE_EXAMPLE);
-        checkSample.property("Demo Sample Type").asCode("CELL_PLATE");
-        checkSample.property("Derived Demo Samples").asGeneratedSamples("3VRP1A [REINFECT_PLATE]",
+        checkSample.property("Sample").asString(CELL_PLATE_EXAMPLE);
+        checkSample.property("Sample Type").asCode("CELL_PLATE");
+        checkSample.property("Derived Samples").asGeneratedSamples("3VRP1A [REINFECT_PLATE]",
                 "3VRP1B [REINFECT_PLATE]");
         checkSample.property("Invalidation").by(new IValueAssertion<Invalidation>()
             {

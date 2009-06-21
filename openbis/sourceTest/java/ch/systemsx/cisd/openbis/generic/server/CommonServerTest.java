@@ -708,6 +708,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     public void testAddVocabularyTerms()
     {
         final List<String> terms = Arrays.asList("a", "b");
+        final TechId vocabularyId = CommonTestUtils.TECH_ID;
         prepareGetSession();
         context.checking(new Expectations()
             {
@@ -715,13 +716,13 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(commonBusinessObjectFactory).createVocabularyBO(SESSION);
                     will(returnValue(vocabularyBO));
 
-                    one(vocabularyBO).load("v-code");
+                    one(vocabularyBO).loadDataByTechId(vocabularyId);
                     one(vocabularyBO).addNewTerms(terms);
                     one(vocabularyBO).save();
                 }
             });
 
-        createServer().addVocabularyTerms(SESSION_TOKEN, "v-code", terms);
+        createServer().addVocabularyTerms(SESSION_TOKEN, vocabularyId, terms);
 
         context.assertIsSatisfied();
     }
@@ -729,6 +730,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public void testDeleteVocabularyTerms()
     {
+        final TechId vocabularyId = CommonTestUtils.TECH_ID;
         final List<VocabularyTerm> termToBeDeleted = Arrays.asList(new VocabularyTerm());
         final List<VocabularyTermReplacement> termsToBeReplaced =
                 Arrays.asList(new VocabularyTermReplacement());
@@ -739,13 +741,13 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(commonBusinessObjectFactory).createVocabularyBO(SESSION);
                     will(returnValue(vocabularyBO));
 
-                    one(vocabularyBO).load("v-code");
+                    one(vocabularyBO).loadDataByTechId(vocabularyId);
                     one(vocabularyBO).delete(termToBeDeleted, termsToBeReplaced);
                     one(vocabularyBO).save();
                 }
             });
 
-        createServer().deleteVocabularyTerms(SESSION_TOKEN, "v-code", termToBeDeleted,
+        createServer().deleteVocabularyTerms(SESSION_TOKEN, vocabularyId, termToBeDeleted,
                 termsToBeReplaced);
 
         context.assertIsSatisfied();

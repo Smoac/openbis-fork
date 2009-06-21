@@ -312,18 +312,18 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 .getCode());
     }
 
-    public void addVocabularyTerms(String sessionToken, String vocabularyCode,
+    public void addVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<String> vocabularyTerms)
     {
-        logTracking(sessionToken, "add_vocabulary_terms", "VOCABULARY(%s) NUMBER_OF_TERMS(%s)",
-                vocabularyCode, Integer.toString(vocabularyTerms.size()));
+        logTracking(sessionToken, "add_vocabulary_terms", "ID(%s) NUMBER_OF_TERMS(%s)",
+                vocabularyId, Integer.toString(vocabularyTerms.size()));
     }
 
-    public void deleteVocabularyTerms(String sessionToken, String vocabularyCode,
+    public void deleteVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<VocabularyTerm> termsToBeDeleted, List<VocabularyTermReplacement> termsToBeReplaced)
     {
         logTracking(sessionToken, "delete_vocabulary_terms",
-                "VOCABULARY(%s) NUMBER_OF_TERMS(%s) REPLACEMENTS(%s)", vocabularyCode,
+                "VOCABULARY_ID(%s) NUMBER_OF_TERMS(%s) REPLACEMENTS(%s)", vocabularyId,
                 termsToBeDeleted.size() + termsToBeReplaced.size(), termsToBeReplaced);
     }
 

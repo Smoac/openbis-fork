@@ -1084,17 +1084,17 @@ public final class CommonClientService extends AbstractClientService implements
 
     }
 
-    public void addVocabularyTerms(String vocabularyCode, List<String> vocabularyTerms)
+    public void addVocabularyTerms(TechId vocabularyId, List<String> vocabularyTerms)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        assert vocabularyCode != null : "Unspecified vocabulary code.";
+        assert vocabularyId != null : "Unspecified vocabulary id.";
 
         if (vocabularyTerms != null && vocabularyTerms.isEmpty() == false)
         {
             try
             {
                 final String sessionToken = getSessionToken();
-                commonServer.addVocabularyTerms(sessionToken, vocabularyCode, vocabularyTerms);
+                commonServer.addVocabularyTerms(sessionToken, vocabularyId, vocabularyTerms);
             } catch (final UserFailureException e)
             {
                 throw UserFailureExceptionTranslator.translate(e);
@@ -1102,18 +1102,18 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void deleteVocabularyTerms(String vocabularyCode, List<VocabularyTerm> termsToBeDeleted,
+    public void deleteVocabularyTerms(TechId vocabularyId, List<VocabularyTerm> termsToBeDeleted,
             List<VocabularyTermReplacement> termsToBeReplaced)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        assert vocabularyCode != null : "Unspecified vocabulary code.";
+        assert vocabularyId != null : "Unspecified vocabulary id.";
         assert termsToBeDeleted != null : "Unspecified term to be deleted.";
         assert termsToBeReplaced != null : "Unspecified term to be replaced.";
 
         try
         {
             final String sessionToken = getSessionToken();
-            commonServer.deleteVocabularyTerms(sessionToken, vocabularyCode, termsToBeDeleted,
+            commonServer.deleteVocabularyTerms(sessionToken, vocabularyId, termsToBeDeleted,
                     termsToBeReplaced);
         } catch (final UserFailureException e)
         {

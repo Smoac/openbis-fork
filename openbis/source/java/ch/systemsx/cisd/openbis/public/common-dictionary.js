@@ -193,6 +193,8 @@ var common = {
   vocabulary_terms_url_template: "URL Template",
   vocabulary_terms_empty: "Space or comma separated list of terms.",
   vocabulary_show_available_terms_in_choosers: "Show available terms in choosers",
+  confirm_vocabulary_show_available_terms_in_chooosers_msg: "If this vocabulary has many terms (more than 100) application will slow down.<br><br>Are you sure?",
+  vocabulary_show_available_terms_in_choosers: "Show available terms in choosers",
   missing_vocabulary_terms: "Missing vocabulary term.",
   mandatory: "Mandatory",
   default_value: "Initial Value",

@@ -567,28 +567,28 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         vocabularyBO.update(updates);
     }
 
-    public void addVocabularyTerms(String sessionToken, String vocabularyCode,
+    public void addVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<String> vocabularyTerms)
     {
         assert sessionToken != null : "Unspecified session token";
-        assert vocabularyCode != null : "Unspecified vocabulary code";
+        assert vocabularyId != null : "Unspecified vocabulary id";
 
         final Session session = getSessionManager().getSession(sessionToken);
         final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
-        vocabularyBO.load(vocabularyCode);
+        vocabularyBO.loadDataByTechId(vocabularyId);
         vocabularyBO.addNewTerms(vocabularyTerms);
         vocabularyBO.save();
     }
 
-    public void deleteVocabularyTerms(String sessionToken, String vocabularyCode,
+    public void deleteVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<VocabularyTerm> termsToBeDeleted, List<VocabularyTermReplacement> termsToBeReplaced)
     {
         assert sessionToken != null : "Unspecified session token";
-        assert vocabularyCode != null : "Unspecified vocabulary code";
+        assert vocabularyId != null : "Unspecified vocabulary id";
 
         final Session session = getSessionManager().getSession(sessionToken);
         final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
-        vocabularyBO.load(vocabularyCode);
+        vocabularyBO.loadDataByTechId(vocabularyId);
         vocabularyBO.delete(termsToBeDeleted, termsToBeReplaced);
         vocabularyBO.save();
     }
@@ -926,7 +926,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
-        vocabularyBO.load(vocabulary.getCode());
+        vocabularyBO.loadDataByTechId(TechId.create(vocabulary));
         return vocabularyBO.countTermsUsageStatistics();
     }
 
@@ -934,7 +934,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
-        vocabularyBO.load(vocabulary.getCode());
+        vocabularyBO.loadDataByTechId(TechId.create(vocabulary));
         return vocabularyBO.enrichWithTerms();
     }
 

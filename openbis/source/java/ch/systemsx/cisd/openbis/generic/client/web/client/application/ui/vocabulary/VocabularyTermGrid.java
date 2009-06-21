@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWithStats;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -104,7 +105,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
     private VocabularyTermGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             Vocabulary vocabulary)
     {
-        super(viewContext, createBrowserId(vocabulary), createGridId(vocabulary.getCode()));
+        super(viewContext, createBrowserId(vocabulary), createGridId(vocabulary));
         this.vocabulary = vocabulary;
         extendBottomToolbar();
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.VOCABULARY_TERMS_GRID);
@@ -155,19 +156,24 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         button.setTitle(tooltip);
     }
 
-    public static String createGridId(String vocabularyCode)
+    public static String createGridId(Vocabulary vocabulary)
     {
-        return createBrowserId(vocabularyCode) + "-grid";
+        return createGridId(TechId.create(vocabulary));
+    }
+
+    public static String createGridId(TechId vocabularyId)
+    {
+        return createBrowserId(vocabularyId) + "-grid";
     }
 
     public static String createBrowserId(Vocabulary vocabulary)
     {
-        return createBrowserId(vocabulary.getCode());
+        return createBrowserId(TechId.create(vocabulary));
     }
 
-    public static String createBrowserId(String vocabularyCode)
+    public static String createBrowserId(TechId vocabularyId)
     {
-        return BROWSER_ID + "-" + vocabularyCode;
+        return BROWSER_ID + "-" + vocabularyId;
     }
 
     @Override
@@ -237,7 +243,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
             {
                 public void execute()
                 {
-                    viewContext.getCommonService().addVocabularyTerms(vocabulary.getCode(),
+                    viewContext.getCommonService().addVocabularyTerms(TechId.create(vocabulary),
                             VocabularyTermValidator.getTerms(textArea.getValue()),
                             new RefreshCallback(viewContext));
                 }
@@ -395,10 +401,9 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
     private void deleteAndReplace(List<VocabularyTerm> termsToBeDeleted,
             List<VocabularyTermReplacement> termsToBeReplaced)
     {
-        String code = vocabulary.getCode();
         RefreshCallback callback = new RefreshCallback(viewContext);
-        viewContext.getService().deleteVocabularyTerms(code, termsToBeDeleted, termsToBeReplaced,
-                callback);
+        viewContext.getService().deleteVocabularyTerms(TechId.create(vocabulary), termsToBeDeleted,
+                termsToBeReplaced, callback);
 
     }
 }

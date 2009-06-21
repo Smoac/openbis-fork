@@ -23,6 +23,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -41,10 +42,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationFieldSet.CommonVocabularyRegistrationAndEditionFieldsFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
@@ -202,6 +203,11 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                 private final TextField<String> codeField;
 
                 private final TextField<String> descriptionField;
+
+                private final TextField<String> urlTemplateField;
+
+                private final CheckBox chosenFromList;
+
                 {
                     codeField = createMandatoryCodeField();
                     codeField.setValue(getOldVocabularyCodeWithoutPrefix());
@@ -211,11 +217,43 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                     descriptionField.setValue(StringEscapeUtils.unescapeHtml(vocabulary
                             .getDescription()));
                     addField(descriptionField);
+
+                    urlTemplateField = createURLTemplateField();
+                    urlTemplateField.setValue(StringEscapeUtils.unescapeHtml(vocabulary
+                            .getURLTemplate()));
+                    addField(urlTemplateField);
+
+                    chosenFromList = createChosenFromListCheckbox();
+                    chosenFromList.setValue(vocabulary.isChosenFromList());
+                    addField(chosenFromList);
                 }
 
-                private CodeField createMandatoryCodeField()
+                @Override
+                protected void register(AsyncCallback<Void> registrationCallback)
                 {
-                    return new CodeField(viewContext, viewContext.getMessage(Dict.CODE));
+                    vocabulary.setCode(getCodePrefix() + codeField.getValue());
+                    vocabulary.setDescription(descriptionField.getValue());
+                    vocabulary.setURLTemplate(urlTemplateField.getValue());
+                    vocabulary.setChosenFromList(chosenFromList.getValue());
+                    viewContext.getService().updateVocabulary(vocabulary, registrationCallback);
+                }
+
+                private TextField<String> createMandatoryCodeField()
+                {
+                    return CommonVocabularyRegistrationAndEditionFieldsFactory
+                            .createCodeField(viewContext);
+                }
+
+                private TextField<String> createURLTemplateField()
+                {
+                    return CommonVocabularyRegistrationAndEditionFieldsFactory
+                            .createURLTemplateField(viewContext);
+                }
+
+                private CheckBox createChosenFromListCheckbox()
+                {
+                    return CommonVocabularyRegistrationAndEditionFieldsFactory
+                            .createChosenFromListCheckbox(viewContext);
                 }
 
                 private String getOldVocabularyCodeWithoutPrefix()
@@ -224,14 +262,6 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                     String prefix = getCodePrefix();
                     assert code.startsWith(prefix) : "code does not start with " + prefix;
                     return StringEscapeUtils.unescapeHtml(code.substring(prefix.length()));
-                }
-
-                @Override
-                protected void register(AsyncCallback<Void> registrationCallback)
-                {
-                    vocabulary.setCode(getCodePrefix() + codeField.getValue());
-                    vocabulary.setDescription(descriptionField.getValue());
-                    viewContext.getService().updateVocabulary(vocabulary, registrationCallback);
                 }
 
                 private String getCodePrefix()

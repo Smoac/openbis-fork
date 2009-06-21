@@ -24,6 +24,7 @@ import java.util.Set;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -186,6 +187,8 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
 
         vocabularyPE.setCode(updates.getCode());
         vocabularyPE.setDescription(updates.getDescription());
+        vocabularyPE.setURLTemplate(updates.getURLTemplate());
+        vocabularyPE.setChosenFromList(updates.isChosenFromList());
 
         validateAndSave();
     }
@@ -226,6 +229,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         return stats;
     }
 
+    @Private
     public void load(String vocabularyCode) throws UserFailureException
     {
         vocabularyPE = getVocabularyDAO().tryFindVocabularyByCode(vocabularyCode);

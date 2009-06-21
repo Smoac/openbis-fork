@@ -22,6 +22,8 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
+import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -177,6 +179,8 @@ public final class PropertyTypeBOTest extends AbstractBOTest
         final DataTypePE dataTypePE = new DataTypePE();
         dataTypePE.setCode(EntityDataType.CONTROLLEDVOCABULARY);
         final Vocabulary vocabulary = VocabularyBOTest.createVocabulary();
+        final TechId vocabularyId = CommonTestUtils.TECH_ID;
+        vocabulary.setId(vocabularyId.getId());
         context.checking(new Expectations()
             {
                 {
@@ -189,7 +193,7 @@ public final class PropertyTypeBOTest extends AbstractBOTest
                     one(propertyTypeDAO).getDataTypeByCode(EntityDataType.CONTROLLEDVOCABULARY);
                     will(returnValue(dataTypePE));
 
-                    one(vocabularyDAO).tryFindVocabularyByCode(vocabulary.getCode());
+                    one(vocabularyDAO).getByTechId(vocabularyId);
                     will(returnValue(new VocabularyPE()));
                 }
             });
@@ -222,8 +226,6 @@ public final class PropertyTypeBOTest extends AbstractBOTest
 
                     allowing(daoFactory).getVocabularyDAO();
                     will(returnValue(vocabularyDAO));
-
-                    one(vocabularyDAO).tryFindVocabularyByCode(vocabulary.getCode());
 
                     one(vocabularyDAO).createOrUpdateVocabulary(with(aNonNull(VocabularyPE.class)));
                 }

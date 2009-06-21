@@ -22,6 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
@@ -36,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.C
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField.CodeFieldKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
@@ -110,8 +112,8 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
     private final CodeField createCodeField()
     {
         final CodeField codeField =
-                new CodeField(messageProvider, messageProvider.getMessage(Dict.CODE),
-                        CodeFieldKind.CODE_WITH_DOT);
+                CommonVocabularyRegistrationAndEditionFieldsFactory
+                        .createCodeField(messageProvider);
         codeField.setId(idPrefix + "_code");
         return codeField;
     }
@@ -127,10 +129,10 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
 
     private CheckBox createChosenFromListCheckbox()
     {
-        final CheckBox checkBox = new CheckBox();
+        final CheckBox checkBox =
+                CommonVocabularyRegistrationAndEditionFieldsFactory
+                        .createChosenFromListCheckbox(messageProvider);
         checkBox.setId(idPrefix + "_chosen-from-list");
-        checkBox.setFieldLabel(messageProvider
-                .getMessage(Dict.VOCABULARY_SHOW_AVAILABLE_TERMS_IN_CHOOSERS));
         checkBox.setValue(true);
         return checkBox;
     }
@@ -186,6 +188,76 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
     // 
     // Helpers
     // 
+
+    public static class CommonVocabularyRegistrationAndEditionFieldsFactory
+    {
+        public static CodeField createCodeField(final IMessageProvider messageProvider)
+        {
+            return new CodeField(messageProvider, messageProvider.getMessage(Dict.CODE),
+                    CodeFieldKind.CODE_WITH_DOT);
+        }
+
+        public static CheckBox createChosenFromListCheckbox(final IMessageProvider messageProvider)
+        {
+            final CheckBox result = new CheckBox();
+            result.setFieldLabel(messageProvider
+                    .getMessage(Dict.VOCABULARY_SHOW_AVAILABLE_TERMS_IN_CHOOSERS));
+
+            // If user changes value of this checkbox to true a confirmation window will be shown.
+            // Programatic change of the value with setValue(true) doesn't fire Events.Change event.
+            result.addListener(Events.Change, new Listener<FieldEvent>()
+                {
+                    public void handleEvent(FieldEvent be)
+                    {
+                        if (result.getValue() == true)
+                        {
+                            new ConfirmationDialog(
+                                    messageProvider.getMessage(Dict.CONFIRM_TITLE),
+                                    messageProvider
+                                            .getMessage(Dict.CONFIRM_VOCABULARY_SHOW_AVAILABLE_TERMS_IN_CHOOSERS_MSG))
+                                {
+                                    @Override
+                                    protected void onYes()
+                                    {
+                                        // nothing to do - value is already set
+                                    }
+
+                                    @Override
+                                    protected void onNo()
+                                    {
+                                        // revert value to false
+                                        result.setValue(false);
+                                    }
+                                }.show();
+                        }
+                    }
+                });
+            return result;
+        }
+
+        public static VarcharField createURLTemplateField(IMessageProvider messageProvider)
+        {
+            final VarcharField result =
+                    new VarcharField(
+                            messageProvider.getMessage(Dict.VOCABULARY_TERMS_URL_TEMPLATE), false);
+            result.setAutoValidate(false);
+            result.setEmptyText("http://www.ebi.ac.uk/QuickGO/GTerm?id=$term$");
+            result.setRegex(".*\\$term\\$.*");
+            result.getMessages().setRegexText(
+                    "URL template must contain '$term$', "
+                            + "which will be substituted with appropriate term automatically.");
+
+            // manually clear invalid messages on focus (automatic validation is turned off)
+            result.addListener(Events.Focus, new Listener<FieldEvent>()
+                {
+                    public void handleEvent(FieldEvent be)
+                    {
+                        result.clearInvalid();
+                    }
+                });
+            return result;
+        }
+    }
 
     /** Helper class that encapsulate fields that deal with providing vocabulary terms data. */
     private class VocabularyTermsSection
@@ -254,15 +326,8 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
 
         private VarcharField createURLTemplateField()
         {
-            VarcharField result =
-                    new VarcharField(
-                            messageProvider.getMessage(Dict.VOCABULARY_TERMS_URL_TEMPLATE), false);
-            result.setEmptyText("http://www.ebi.ac.uk/QuickGO/GTerm?id=$term$");
-            result.setRegex(".*\\$term\\$.*");
-            result.getMessages().setRegexText(
-                    "URL template must contain '$term$', "
-                            + "which will be substituted with appropriate term automatically.");
-            return result;
+            return CommonVocabularyRegistrationAndEditionFieldsFactory
+                    .createURLTemplateField(messageProvider);
         }
 
         private FileUploadField createImportFileField()
