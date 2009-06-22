@@ -59,7 +59,7 @@ class LogUtils
             Object... arguments)
     {
         String errorMessage = String.format(errorMessageFormat, arguments);
-        error("Cannot upload the file " + mapping.getFileName() + ": " + errorMessage);
+        error(mapping.getFileName() + " - cannot upload the file: " + errorMessage);
     }
 
     /**
@@ -112,14 +112,14 @@ class LogUtils
     {
         StringBuffer sb = new StringBuffer();
         sb.append("Hello,\n");
-        sb.append("This email has been generated automatically by openBIS.\n");
+        sb.append("This email has been generated automatically by openBIS.\n\n");
         sb.append("The upload of some datasets from '");
         sb.append(loggingDir.getName());
-        sb.append("' directory has failed. There are following errors:\n");
+        sb.append("' directory has failed.\nThere are following errors:\n");
         sb.append(errorMessages);
         sb.append("\n");
         sb.append("If you are not sure how to correct the errors and you cannot find the answer"
-                + " in the documentation, ask for help your openBIS administrator.\n");
+                + " in the documentation, ask for help your openBIS administrator.\n\n");
         sb.append("Kind regards,\n");
         sb.append("   openBIS Team");
         return sb.toString();
