@@ -63,9 +63,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryB
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
-import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Implementation of {@link IHibernateSearchDAO} for databases.
@@ -365,29 +363,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
         List<ExternalDataPE> datasets = AbstractDAO.cast(hibernateQuery.list());
         datasets = filterNulls(datasets);
-        // NOTE: there is a limit on the number of JOINs, so we have to initialize sample properties
-        // manually
-        // TODO 2009-05-20, Piotr Buczek: maybe it works now when we removed arc connection with
-        // sample
-//        initSamplesWithProperties(datasets);
         return datasets;
-    }
-
-    private void initSamplesWithProperties(List<ExternalDataPE> datasets)
-    {
-        for (ExternalDataPE dataset : datasets)
-        {
-            initSamplesWithProperties(dataset.getSample());
-        }
-    }
-
-    private void initSamplesWithProperties(SamplePE sampleOrNull)
-    {
-        if (sampleOrNull != null)
-        {
-            HibernateUtils.initialize(sampleOrNull);
-            HibernateUtils.initialize(sampleOrNull.getProperties());
-        }
     }
 
 }
