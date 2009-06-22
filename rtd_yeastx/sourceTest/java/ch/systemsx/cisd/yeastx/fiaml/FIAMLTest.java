@@ -44,7 +44,7 @@ public class FIAMLTest extends AbstractDBTest
         fiamsDAO = getFIAMLDAO();
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testUploadFiaML() throws SQLException
     {
         FIAML2Database.uploadFiaMLFile(conn, new File("resource/examples/example.fiaML"),
@@ -52,7 +52,7 @@ public class FIAMLTest extends AbstractDBTest
                         "experiment perm id", "experiment name"));
     }
 
-    @Test(dependsOnMethods = "testUploadFiaML")
+    @Test(groups = "broken", dependsOnMethods = "testUploadFiaML")
     public void testGetMsRuns()
     {
         final DataIterator<FIAMSRunDTO> runs = fiamsDAO.getMsRuns();
