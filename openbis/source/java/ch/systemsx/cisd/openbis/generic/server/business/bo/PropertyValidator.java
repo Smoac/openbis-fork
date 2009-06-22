@@ -54,6 +54,8 @@ public final class PropertyValidator implements IPropertyValueValidator
     public static final String SECONDS_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     public static final String CANONICAL_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss Z";
+    
+    private static final String US_DATE_PATTERN = "M/d/yy h:mm a";
 
     private final static String[] DATE_PATTERNS = createDatePatterns();
 
@@ -84,6 +86,7 @@ public final class PropertyValidator implements IPropertyValueValidator
         datePatterns.add(SECONDS_DATE_PATTERN);
         datePatterns.add(MINUTES_DATE_PATTERN);
         datePatterns.add(DAYS_DATE_PATTERN);
+        datePatterns.add(US_DATE_PATTERN);
         return datePatterns.toArray(ArrayUtils.EMPTY_STRING_ARRAY);
     }
 
