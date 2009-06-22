@@ -90,6 +90,10 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Is
         this.entityType = entityType;
     }
 
+    //
+    // Object
+    //
+
     @SuppressWarnings("unchecked")
     @Override
     public boolean equals(Object obj)
@@ -100,6 +104,12 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Is
         }
         EntityTypePropertyType<T> that = (EntityTypePropertyType<T>) obj;
         return this.compareTo(that) == 0;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return getPropertyType().hashCode();
     }
 
     //

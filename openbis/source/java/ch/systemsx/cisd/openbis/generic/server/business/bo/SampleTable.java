@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -70,6 +71,35 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             return sampleDAO.listSamplesWithPropertiesByTypeAndDatabaseInstance(sampleType, owner
                     .tryGetDatabaseInstance());
         }
+    }
+
+    private final List<SamplePE> listSamples(final SampleOwner owner)
+    {
+        final ISampleDAO sampleDAO = getSampleDAO();
+        List<SamplePE> allSamples;
+        if (owner.isGroupLevel())
+        {
+            allSamples = sampleDAO.listSamplesWithPropertiesByGroup(owner.tryGetGroup());
+        } else
+        {
+            allSamples =
+                    sampleDAO.listSamplesWithPropertiesByDatabaseInstance(owner
+                            .tryGetDatabaseInstance());
+        }
+        return filterUnlistable(allSamples);
+    }
+
+    private List<SamplePE> filterUnlistable(List<SamplePE> allSamples)
+    {
+        List<SamplePE> result = new ArrayList<SamplePE>();
+        for (SamplePE sample : allSamples)
+        {
+            if (sample.getSampleType().isListable())
+            {
+                result.add(sample);
+            }
+        }
+        return result;
     }
 
     //
@@ -170,32 +200,43 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         final TechId experimentId = criteria.getExperimentId();
         if (experimentId != null)
         {
-            // TODO 2009-05-19, Piotr Buczek: this could be done by one DAO method call with one SQL
-            // question
             ExperimentPE experiment = getExperimentDAO().getByTechId(experimentId);
             samples = getSampleDAO().listSamplesWithPropertiesByExperiment(experiment);
-            enrichWithHierarchy();
         } else if (containerSampleId != null)
         {
-            // TODO 2009-05-19, Piotr Buczek: this could be done by one DAO method call with one SQL
-            // question
             final SamplePE container = getSampleByTechId(containerSampleId);
             samples = getSampleDAO().listSamplesWithPropertiesByContainer(container);
         } else
         {
-            final SampleTypePE sampleType =
-                    getSampleTypeDAO().tryFindSampleTypeByExample(criteria.getSampleType());
-            if (sampleType == null)
+            final SampleTypePE criteriaTypePE = criteria.getSampleType();
+            assert criteriaTypePE != null : "criteria not set";
+            if (EntityType.isAllTypesCode(criteriaTypePE.getCode()))
             {
-                throw new UserFailureException("Cannot find a sample type matching to "
-                        + criteria.getSampleType());
-            }
-            samples = new ArrayList<SamplePE>();
-            for (final SampleOwnerIdentifier sampleOwnerIdentifier : criteria.getOwnerIdentifiers())
+                samples = new ArrayList<SamplePE>();
+                for (final SampleOwnerIdentifier sampleOwnerIdentifier : criteria
+                        .getOwnerIdentifiers())
+                {
+                    final SampleOwner owner =
+                            getSampleOwnerFinder().figureSampleOwner(sampleOwnerIdentifier);
+                    samples.addAll(listSamples(owner));
+                }
+            } else
             {
-                final SampleOwner owner =
-                        getSampleOwnerFinder().figureSampleOwner(sampleOwnerIdentifier);
-                samples.addAll(listSamples(sampleType, owner));
+                final SampleTypePE sampleType =
+                        getSampleTypeDAO().tryFindSampleTypeByExample(criteria.getSampleType());
+                if (sampleType == null)
+                {
+                    throw new UserFailureException("Cannot find a sample type matching to "
+                            + criteria.getSampleType());
+                }
+                samples = new ArrayList<SamplePE>();
+                for (final SampleOwnerIdentifier sampleOwnerIdentifier : criteria
+                        .getOwnerIdentifiers())
+                {
+                    final SampleOwner owner =
+                            getSampleOwnerFinder().figureSampleOwner(sampleOwnerIdentifier);
+                    samples.addAll(listSamples(sampleType, owner));
+                }
             }
         }
     }
@@ -241,9 +282,12 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         }
     }
 
-    // this part rather cannot be optimized with one SQL query (LMS-884)
+    // currently we don't display hierarchy in sample browser where all sample types are displayed 
+    // so we don't have to load hierarchy this way
+    @SuppressWarnings("unused")
     private void enrichWithHierarchy()
     {
+        // this part rather cannot be optimized with one SQL query (LMS-884)
         assert samples != null : "Samples not loaded.";
         for (SamplePE s : samples)
         {

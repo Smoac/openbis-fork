@@ -64,6 +64,8 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
 
     private final boolean reloadWhenRendering;
 
+    private boolean autoSelectFirst;
+
     private final IViewContext<?> viewContextOrNull;
 
     public DropDownList(final IViewContext<?> viewContext, String idSuffix, String labelDictCode,
@@ -100,6 +102,12 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
     public DatabaseModificationAwareField<M> asDatabaseModificationAware()
     {
         return new DatabaseModificationAwareField<M>(this, this);
+    }
+
+    /** if <var>autoSelectFirst</var> and no value is restored, first item will be selected */
+    public void setAutoSelectFirst(boolean autoSelectFirst)
+    {
+        this.autoSelectFirst = autoSelectFirst;
     }
 
     public void update(Set<DatabaseModificationKind> observedModifications)
@@ -183,7 +191,7 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
             setReadOnly(true);
         } else if (termsCount == 1)
         {
-            setSelection(models);
+            selectFirstModel(models);
         } else
         {
             setEmptyText(chooseMsg);
@@ -193,8 +201,17 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
                 validate(); // maybe the value became a valid selection
             }
             restoreSelection(getSelection());
+            if (autoSelectFirst && getSelection().size() == 0)
+            {
+                selectFirstModel(models);
+            }
         }
         applyEmptyText();
+    }
+
+    private void selectFirstModel(final List<M> models)
+    {
+        setSelection(models);
     }
 
     private void restoreSelection(List<M> previousSelection)

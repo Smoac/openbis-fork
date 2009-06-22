@@ -71,7 +71,7 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
     {
         this.viewContext = viewContext;
         this.excludeWithoutExperiment = excludeWithoutExperiment;
-        selectSampleTypeCombo = new SampleTypeSelectionWidget(viewContext, ID, true);
+        selectSampleTypeCombo = new SampleTypeSelectionWidget(viewContext, ID, true, true);
         selectGroupCombo = new GroupSelectionWidget(viewContext, ID, addShared);
         display();
     }

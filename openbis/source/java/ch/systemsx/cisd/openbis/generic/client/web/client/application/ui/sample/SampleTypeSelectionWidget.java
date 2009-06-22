@@ -43,13 +43,24 @@ public final class SampleTypeSelectionWidget extends DropDownList<SampleTypeMode
 
     private final boolean onlyListable;
 
+    private final boolean withAll;
+
     public SampleTypeSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
-            final boolean onlyListable)
+            final boolean onlyListable, final boolean withAll)
     {
         super(viewContext, SUFFIX + idSuffix, Dict.SAMPLE_TYPE, ModelDataPropertyNames.CODE,
                 "sample type", "sample types");
         this.viewContext = viewContext;
         this.onlyListable = onlyListable;
+        this.withAll = withAll;
+        // TODO 2009-06-22, Piotr Buczek: uncomment this to select all types by default
+        // setAutoSelectFirst(withAll);
+    }
+
+    public SampleTypeSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
+            final boolean onlyListable)
+    {
+        this(viewContext, idSuffix, onlyListable, false);
     }
 
     /**
@@ -65,7 +76,7 @@ public final class SampleTypeSelectionWidget extends DropDownList<SampleTypeMode
     @Override
     protected List<SampleTypeModel> convertItems(List<SampleType> result)
     {
-        return SampleTypeModel.convert(result, onlyListable);
+        return SampleTypeModel.convert(result, onlyListable, withAll);
     }
 
     @Override

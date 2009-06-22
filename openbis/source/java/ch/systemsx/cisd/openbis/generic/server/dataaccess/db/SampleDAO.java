@@ -124,6 +124,22 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         return listSamplesByCriteria(true, criterions);
     }
 
+    private List<SamplePE> listSamplesWithPropertiesByCriterion(String propertyName, Object value)
+            throws DataAccessException
+    {
+        assert propertyName != null : "Unspecified property name.";
+        assert value != null : "Unspecified value.";
+
+        final Criterion criterion = Restrictions.eq(propertyName, value);
+        final List<SamplePE> list = listSamplesWithPropertiesByCriteria(criterion);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%d samples have been found for \"%s\" '%s'.", list
+                    .size(), propertyName, value));
+        }
+        return list;
+    }
+
     /**
      * Obtains an explicit exclusive lock on 'samples' table. This function should always be
      * executed before saving a sample because we have a complex unique code check in a trigger and
@@ -171,46 +187,31 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
     public List<SamplePE> listSamplesWithPropertiesByExperiment(final ExperimentPE experiment)
             throws DataAccessException
     {
-        assert experiment != null : "Unspecified experiment.";
-
-        final Criterion criterion = Restrictions.eq("experimentInternal", experiment);
-        final List<SamplePE> list = listSamplesWithPropertiesByCriteria(criterion);
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug(String.format("%d samples have been found for experiment '%s'.",
-                    list.size(), experiment));
-        }
-        return list;
+        return listSamplesWithPropertiesByCriterion("experimentInternal", experiment);
     }
 
     public List<SamplePE> listSamplesWithPropertiesByContainer(final SamplePE container)
             throws DataAccessException
     {
-        assert container != null : "Unspecified container.";
-
-        final Criterion criterion = Restrictions.eq("container", container);
-        final List<SamplePE> list = listSamplesWithPropertiesByCriteria(criterion);
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug(String.format("%d samples have been found for \"partOf\" sample.",
-                    list.size(), container));
-        }
-        return list;
+        return listSamplesWithPropertiesByCriterion("container", container);
     }
 
-    public final List<SamplePE> listSamplesWithPropertiesByGeneratedFrom(final SamplePE sample)
+    public final List<SamplePE> listSamplesWithPropertiesByGeneratedFrom(
+            final SamplePE generatedFrom) throws DataAccessException
     {
-        assert sample != null : "Unspecified sample.";
+        return listSamplesWithPropertiesByCriterion("generatedFrom", generatedFrom);
+    }
 
-        final Criterion criterion = Restrictions.eq("generatedFrom", sample);
-        final List<SamplePE> list = listSamplesWithPropertiesByCriteria(criterion);
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug(String
-                    .format("%d samples have been found for \"generatedFrom\" sample.",
-                            list.size(), sample));
-        }
-        return list;
+    public final List<SamplePE> listSamplesWithPropertiesByGroup(final GroupPE group)
+            throws DataAccessException
+    {
+        return listSamplesWithPropertiesByCriterion("group", group);
+    }
+
+    public final List<SamplePE> listSamplesWithPropertiesByDatabaseInstance(
+            final DatabaseInstancePE databaseInstance) throws DataAccessException
+    {
+        return listSamplesWithPropertiesByCriterion("databaseInstance", databaseInstance);
     }
 
     public final List<SamplePE> listSamplesWithPropertiesByTypeAndGroup(

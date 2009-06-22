@@ -83,6 +83,18 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
             throws DataAccessException;
 
     /**
+     * Lists {@link SamplePE}s of given group. Fetches also properties and experiment.
+     */
+    List<SamplePE> listSamplesWithPropertiesByGroup(final GroupPE group) throws DataAccessException;
+
+    /**
+     * The same as {@link #listSamplesWithPropertiesByGroup(GroupPE)}, but lists samples from the
+     * database instance instead of the group.
+     */
+    List<SamplePE> listSamplesWithPropertiesByDatabaseInstance(
+            final DatabaseInstancePE databaseInstance) throws DataAccessException;
+
+    /**
      * Lists {@link SamplePE}s of given type from the given group. Fetches also properties and
      * experiment.
      */
