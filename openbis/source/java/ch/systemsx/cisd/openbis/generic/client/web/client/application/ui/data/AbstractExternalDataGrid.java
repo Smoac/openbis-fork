@@ -23,6 +23,7 @@ import java.util.Set;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
@@ -198,8 +199,7 @@ public abstract class AbstractExternalDataGrid
         super.updateCriteriaProviderAndRefresh();
 
         addEntityOperationsLabel();
-        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_BROWSE),
-                asBrowseExternalDataInvoker()));
+        addButton(createBrowseExternalDataButton());
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
                 asShowEntityInvoker(false)));
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
@@ -242,6 +242,16 @@ public abstract class AbstractExternalDataGrid
                         }
                     });
 
+    }
+
+    private Button createBrowseExternalDataButton()
+    {
+        String text = viewContext.getMessage(Dict.BUTTON_VIEW);
+        String title = viewContext.getMessage(Dict.TOOLTIP_VIEW_DATASET);
+
+        Button result = createSelectedItemButton(text, asBrowseExternalDataInvoker());
+        result.setTitle(title);
+        return result;
     }
 
     private final ISelectedEntityInvoker<BaseEntityModel<ExternalData>> asBrowseExternalDataInvoker()

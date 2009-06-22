@@ -62,7 +62,7 @@ public final class BrowseDataSet extends AbstractDefaultTestCommand
         dispatcher.addDispatcherListener(dispatcherListener);
 
         GWTTestUtil.clickButtonWithID(GenericDataSetViewer.createId(id)
-                + GenericDataSetViewer.BROWSE_BUTTON_ID_SUFFIX);
+                + GenericDataSetViewer.VIEW_BUTTON_ID_SUFFIX);
 
         dispatcher.removeDispatcherListener(dispatcherListener);
     }

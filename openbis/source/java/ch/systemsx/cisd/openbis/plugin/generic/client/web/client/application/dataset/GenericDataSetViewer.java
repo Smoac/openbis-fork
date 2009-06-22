@@ -57,7 +57,7 @@ public final class GenericDataSetViewer extends
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    public static final String BROWSE_BUTTON_ID_SUFFIX = "_browse-button";
+    public static final String VIEW_BUTTON_ID_SUFFIX = "_view-button";
 
     private final BrowseButtonHolder browseButtonHolder;
 
@@ -185,8 +185,9 @@ public final class GenericDataSetViewer extends
 
         private Button createBrowseButton()
         {
-            Button result = new Button(viewContext.getMessage(Dict.BUTTON_BROWSE));
-            result.setId(createChildId(BROWSE_BUTTON_ID_SUFFIX));
+            Button result = new Button(viewContext.getMessage(Dict.BUTTON_VIEW));
+            result.setTitle(viewContext.getMessage(Dict.TOOLTIP_VIEW_DATASET));
+            result.setId(createChildId(VIEW_BUTTON_ID_SUFFIX));
             result.disable();
             return result;
         }

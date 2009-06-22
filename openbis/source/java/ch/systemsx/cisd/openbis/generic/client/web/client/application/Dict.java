@@ -103,6 +103,8 @@ public abstract class Dict
     public static final String TOOLTIP_VOCABULARY_MANAGED_INTERNALLY =
             "tooltip_vocabulary_managed_internally";
 
+    public static final String TOOLTIP_VIEW_DATASET = "tooltip_view_dataset";
+
     public static final String BUTTON_SAVE = "button_save";
 
     public static final String BUTTON_CHOOSE = "button_choose";
@@ -118,6 +120,8 @@ public abstract class Dict
     public static final String BUTTON_SHOW = "button_show";
 
     public static final String BUTTON_BROWSE = "button_browse";
+
+    public static final String BUTTON_VIEW = "button_view";
 
     public static final String BUTTON_SHOW_DETAILS = "button_show_details";
 
