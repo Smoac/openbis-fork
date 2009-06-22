@@ -42,7 +42,7 @@ public interface ITriggerConsole extends IMailClient
     public List<ITriggerRequest> getPendingRequests(String fileNameWildCard);
 
     /**
-     * Returns all pending requests. Note that the current request is not contained. 
+     * Returns all pending requests. Note that the current request is not contained.
      * <p>
      * <i>Note: most likely you want to use {@link #getPendingRequests()}</i> instead.
      */
@@ -59,18 +59,36 @@ public interface ITriggerConsole extends IMailClient
     /**
      * Uploads the <var>file</var> for the <var>recipients</var> with a default comment. The mime
      * type will be inferred from the file name.
+     * 
+     * @param file The file to upload.
+     * @param recipients An array of recipients that the uploaded file is shared with. Each
+     *            recipient has to either be an email address (an unknown email address will create
+     *            a temporary user) or a valid user id, prefixed with "<code>id:</code>.
      */
     public void upload(File file, String[] recipients);
 
     /**
      * Uploads the <var>file</var> for the <var>recipients</var> with the given <var>comment</var>.
      * The mime type will be inferred from the file name.
+     * 
+     * @param file The file to upload.
+     * @param recipients An array of recipients that the uploaded file is shared with. Each
+     *            recipient has to either be an email address (an unknown email address will create
+     *            a temporary user) or a valid user id, prefixed with "<code>id:</code>.
+     * @param comment The comment mailed to the user and stored for the uploaded file.
      */
     public void upload(File file, String[] recipients, String comment);
 
     /**
      * Uploads the <var>file</var> with <var>mimeType</var> for the <var>recipients</var> with the
      * given <var>comment</var>.
+     * 
+     * @param file The file to upload.
+     * @param mimeType The mime type of the file, e.g. "<code>plain/text</code>".
+     * @param recipients An array of recipients that the uploaded file is shared with. Each
+     *            recipient has to either be an email address (an unknown email address will create
+     *            a temporary user) or a valid user id, prefixed with "<code>id:</code>.
+     * @param comment The comment mailed to the user and stored for the uploaded file.
      */
     public void upload(File file, String mimeType, String[] recipients, String comment);
 
