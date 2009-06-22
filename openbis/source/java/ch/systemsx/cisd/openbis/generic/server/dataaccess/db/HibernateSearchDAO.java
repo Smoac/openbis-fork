@@ -359,6 +359,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         criteria.setFetchMode("parents", FetchMode.JOIN);
         criteria.setFetchMode("experimentInternal", FetchMode.JOIN);
         criteria.setFetchMode("experimentInternal.experimentProperties", FetchMode.JOIN);
+        criteria.setFetchMode("sampleInternal", FetchMode.JOIN);
+        criteria.setFetchMode("sampleInternal.sampleProperties", FetchMode.JOIN);
         hibernateQuery.setCriteriaQuery(criteria);
 
         List<ExternalDataPE> datasets = AbstractDAO.cast(hibernateQuery.list());
@@ -367,7 +369,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         // manually
         // TODO 2009-05-20, Piotr Buczek: maybe it works now when we removed arc connection with
         // sample
-        initSamplesWithProperties(datasets);
+//        initSamplesWithProperties(datasets);
         return datasets;
     }
 

@@ -68,6 +68,7 @@ var common = {
   button_add_group: "Add Group",
   button_show_details: "Show Details",
   button_browse: "Browse",
+  button_view: "View",
   button_delete: "Delete",
   button_configure: "Columns",  
   button_upload_data_via_cifex: "Upload Data",
