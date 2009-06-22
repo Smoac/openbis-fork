@@ -43,12 +43,23 @@ public final class ExperimentTypeSelectionWidget extends
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
+    private final boolean withAll;
+
     public ExperimentTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final String idSuffix)
+            final String idSuffix, final boolean withAll)
     {
         super(viewContext, SUFFIX + idSuffix, Dict.EXPERIMENT_TYPE, ModelDataPropertyNames.CODE,
                 "experiment type", "experiment types");
         this.viewContext = viewContext;
+        this.withAll = withAll;
+        // TODO 2009-06-22, Piotr Buczek: uncomment this to select all types by default
+        // setAutoSelectFirst(withAll);
+    }
+
+    public ExperimentTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
+            final String idSuffix)
+    {
+        this(viewContext, idSuffix, false);
     }
 
     /**
@@ -64,7 +75,7 @@ public final class ExperimentTypeSelectionWidget extends
     @Override
     protected List<ExperimentTypeModel> convertItems(List<ExperimentType> result)
     {
-        return ExperimentTypeModel.convert(result);
+        return ExperimentTypeModel.convert(result, withAll);
     }
 
     @Override
@@ -72,7 +83,7 @@ public final class ExperimentTypeSelectionWidget extends
     {
         viewContext.getService().listExperimentTypes(callback);
     }
-    
+
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.any(ObjectKind.EXPERIMENT_TYPE);

@@ -56,23 +56,32 @@ public class ExperimentDAO extends AbstractGenericEntityDAO<ExperimentPE> implem
         super(sessionFactory, databaseInstance, ExperimentPE.class);
     }
 
-    public List<ExperimentPE> listExperimentsWithProperties(final ExperimentTypePE experimentType,
-            final ProjectPE project) throws DataAccessException
+    public List<ExperimentPE> listExperimentsWithProperties(final ProjectPE project)
+            throws DataAccessException
     {
-        assert experimentType != null : "Unspecified experiment type.";
+        return listExperimentsWithProperties(null, project);
+    }
+
+    public List<ExperimentPE> listExperimentsWithProperties(
+            final ExperimentTypePE experimentTypeOrNull, final ProjectPE project)
+            throws DataAccessException
+    {
         assert project != null : "Unspecified project.";
 
         final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
-        criteria.add(Restrictions.eq("experimentType", experimentType));
+        if (experimentTypeOrNull != null)
+        {
+            criteria.add(Restrictions.eq("experimentType", experimentTypeOrNull));
+        }
         criteria.add(Restrictions.eq("projectInternal", project));
         criteria.setFetchMode("experimentProperties", FetchMode.JOIN);
         criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         final List<ExperimentPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format(
-                    "%d experiments have been found for experiment type '%s' and project '%s'.",
-                    list.size(), experimentType, project));
+            operationLog.debug(String.format("%d experiments have been found for project '%s'%s.",
+                    list.size(), project, (experimentTypeOrNull == null) ? ""
+                            : " and experiment type '" + experimentTypeOrNull + "'"));
         }
         return list;
     }

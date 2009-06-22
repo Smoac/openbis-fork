@@ -60,7 +60,7 @@ class ExperimentBrowserToolbar extends ToolBar implements
             ProjectSelectionTreeWidget tree)
     {
         this.viewContext = viewContext;
-        selectExperimentTypeCombo = new ExperimentTypeSelectionWidget(viewContext, ID);
+        selectExperimentTypeCombo = new ExperimentTypeSelectionWidget(viewContext, ID, true);
         selectProjectTree = tree;
         display();
     }

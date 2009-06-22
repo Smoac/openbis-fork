@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -50,18 +51,24 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
             final ProjectIdentifier projectIdentifier)
     {
         checkNotNull(experimentTypeCode, projectIdentifier);
-        final EntityTypePE entityType =
-                getEntityTypeDAO(EntityKind.EXPERIMENT).tryToFindEntityTypeByCode(
-                        experimentTypeCode);
-        checkNotNull(experimentTypeCode, entityType);
         fillGroupIdentifier(projectIdentifier);
         final ProjectPE project =
                 getProjectDAO().tryFindProject(projectIdentifier.getDatabaseInstanceCode(),
                         projectIdentifier.getGroupCode(), projectIdentifier.getProjectCode());
         checkNotNull(projectIdentifier, project);
-        experiments =
-                getExperimentDAO().listExperimentsWithProperties((ExperimentTypePE) entityType,
-                        project);
+        if (EntityType.isAllTypesCode(experimentTypeCode))
+        {
+            experiments = getExperimentDAO().listExperimentsWithProperties(project);
+        } else
+        {
+            final EntityTypePE entityType =
+                    getEntityTypeDAO(EntityKind.EXPERIMENT).tryToFindEntityTypeByCode(
+                            experimentTypeCode);
+            checkNotNull(experimentTypeCode, entityType);
+            experiments =
+                    getExperimentDAO().listExperimentsWithProperties((ExperimentTypePE) entityType,
+                            project);
+        }
     }
 
     private void checkNotNull(final ProjectIdentifier projectIdentifier, final ProjectPE project)

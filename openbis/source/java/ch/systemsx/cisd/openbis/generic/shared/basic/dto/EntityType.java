@@ -27,7 +27,7 @@ abstract public class EntityType extends BasicEntityType
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    public static final String ALL_TYPES_CODE = "(ALL)";
+    public static final String ALL_TYPES_CODE = "(all)";
 
     abstract public List<? extends EntityTypePropertyType<?>> getAssignedPropertyTypes();
 
