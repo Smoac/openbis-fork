@@ -696,6 +696,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
          */
         private final DataSetInformation extractDataSetInformation(final File incomingDataSetPath)
         {
+            String errorMessage = "Error when trying to identify data set '"
+                    + incomingDataSetPath.getAbsolutePath() + "'.";
             try
             {
                 final DataSetInformation dataSetInfo =
@@ -720,11 +722,16 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                 return dataSetInfo;
             } catch (final HighLevelException e)
             {
+                String email = dataSetInformation.tryGetUploadingUserEmail();
+                if (StringUtils.isBlank(email) == false)
+                {
+                    mailClient.sendMessage(errorMessage, e.getMessage(), null,
+                            email);
+                }
                 throw e;
             } catch (final RuntimeException ex)
             {
-                throw new EnvironmentFailureException("Error when trying to identify data set '"
-                        + incomingDataSetPath.getAbsolutePath() + "'.", ex);
+                throw new EnvironmentFailureException(errorMessage, ex);
             }
         }
 
