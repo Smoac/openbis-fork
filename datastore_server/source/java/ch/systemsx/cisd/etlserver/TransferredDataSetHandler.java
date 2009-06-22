@@ -127,6 +127,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
 
     private boolean stopped = false;
 
+    private boolean deleteUnidentified = false;
+
     private Map<String, IProcessorFactory> processorFactories =
             Collections.<String, IProcessorFactory> emptyMap();
 
@@ -142,18 +144,20 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
     public TransferredDataSetHandler(String dssCode, final IETLServerPlugin plugin,
             final IEncapsulatedOpenBISService limsService, final Properties mailProperties,
             final HighwaterMarkWatcher highwaterMarkWatcher,
-            final boolean notifySuccessfulRegistration, boolean useIsFinishedMarkerFile)
+            final boolean notifySuccessfulRegistration, boolean useIsFinishedMarkerFile,
+            boolean deleteUnidentified)
 
     {
         this(dssCode, plugin.getStorageProcessor(), plugin, limsService, new MailClient(
-                mailProperties), notifySuccessfulRegistration, useIsFinishedMarkerFile);
+                mailProperties), notifySuccessfulRegistration, useIsFinishedMarkerFile,
+                deleteUnidentified);
     }
 
     TransferredDataSetHandler(String dssCode,
             final IStoreRootDirectoryHolder storeRootDirectoryHolder,
             final IETLServerPlugin plugin, final IEncapsulatedOpenBISService limsService,
             final IMailClient mailClient, final boolean notifySuccessfulRegistration,
-            boolean useIsFinishedMarkerFile)
+            boolean useIsFinishedMarkerFile, boolean deleteUnidentified)
 
     {
         assert dssCode != null : "Unspecified data store code";
@@ -175,6 +179,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         this.registrationLock = new ReentrantLock();
         this.fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
         this.useIsFinishedMarkerFile = useIsFinishedMarkerFile;
+        this.deleteUnidentified = deleteUnidentified;
     }
 
     public final void setProcessorFactories(final Map<String, IProcessorFactory> processorFactories)
@@ -497,6 +502,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                 }
                 final StopWatch watch = new StopWatch();
                 watch.start();
+                ExternalData data = createExternalData();
                 File dataFile =
                         storageProcessor.storeData(sample, dataSetInformation, typeExtractor,
                                 mailClient, incomingDataSetFile, baseDirectoryHolder
@@ -518,7 +524,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                 try
                 {
                     errorMessageTemplate = DATA_SET_REGISTRATION_FAILURE_TEMPLATE;
-                    plainRegisterDataSet(relativePath, availableFormat, isCompleteFlag);
+                    plainRegisterDataSet(data, relativePath, availableFormat, isCompleteFlag);
                     clean();
                     clean();
                     if (processorOrNull == null)
@@ -612,19 +618,19 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         final void moveDataSet()
         {
             final boolean ok =
-                    FileRenamer.renameAndLog(incomingDataSetFile, baseDirectoryHolder
-                            .getTargetFile());
+                    deleteUnidentified ? (FileUtilities.deleteRecursively(incomingDataSetFile))
+                            : FileRenamer.renameAndLog(incomingDataSetFile, baseDirectoryHolder
+                                    .getTargetFile());
             if (ok)
             {
                 clean();
             }
         }
 
-        private final void plainRegisterDataSet(final String relativePath,
+        private final void plainRegisterDataSet(ExternalData data, final String relativePath,
                 final StorageFormat storageFormat, final BooleanOrUnknown isCompleteFlag)
         {
-            final ExternalData data =
-                    createExternalData(relativePath, storageFormat, isCompleteFlag);
+            updateExternalData(data, relativePath, storageFormat, isCompleteFlag);
             // Finally: register the data set in the database.
             limsService.registerDataSet(dataSetInformation, data);
         }
@@ -763,18 +769,23 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             return null;
         }
 
-        private final ExternalData createExternalData(final String relativePath,
+        private final ExternalData updateExternalData(ExternalData data, final String relativePath,
                 final StorageFormat storageFormat, final BooleanOrUnknown isCompleteFlag)
+        {
+            data.setComplete(isCompleteFlag);
+            data.setLocation(relativePath);
+            data.setStorageFormat(storageFormat);
+            return data;
+        }
+
+        private ExternalData createExternalData()
         {
             final ExtractableData extractableData = dataSetInformation.getExtractableData();
             final ExternalData data = BeanUtils.createBean(ExternalData.class, extractableData);
-            data.setLocation(relativePath);
             data.setLocatorType(typeExtractor.getLocatorType(incomingDataSetFile));
             data.setDataSetType(typeExtractor.getDataSetType(incomingDataSetFile));
             data.setFileFormatType(typeExtractor.getFileFormatType(incomingDataSetFile));
             data.setMeasured(typeExtractor.isMeasuredData(incomingDataSetFile));
-            data.setStorageFormat(storageFormat);
-            data.setComplete(isCompleteFlag);
             data.setDataStoreCode(dssCode);
             return data;
         }

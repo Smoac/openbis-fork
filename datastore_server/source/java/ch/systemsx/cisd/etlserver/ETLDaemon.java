@@ -356,7 +356,8 @@ public final class ETLDaemon
         final TransferredDataSetHandler pathHandler =
                 new TransferredDataSetHandler(dssCode, plugin, authorizedLimsService,
                         mailProperties, highwaterMarkWatcher, notifySuccessfulRegistration,
-                        threadParameters.useIsFinishedMarkerFile());
+                        threadParameters.useIsFinishedMarkerFile(), threadParameters
+                                .deleteUnidentified());
         pathHandler.setProcessorFactories(processorFactories);
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
                 createDirectoryScanningHandler(pathHandler, highwaterMarkWatcher,

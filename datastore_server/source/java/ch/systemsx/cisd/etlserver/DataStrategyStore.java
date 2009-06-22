@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -130,7 +131,7 @@ final class DataStrategyStore implements IDataStrategyStore
             return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
         }
         final SampleIdentifier sampleIdentifier = dataSetInfo.getSampleIdentifier();
-        final SamplePE sample = limsService.tryGetSampleWithExperiment(sampleIdentifier);
+        final SamplePE sample = tryGetSample(sampleIdentifier);
         final ExperimentPE experiment = (sample == null) ? null : sample.getExperiment();
         if (experiment == null)
         {
@@ -179,6 +180,17 @@ final class DataStrategyStore implements IDataStrategyStore
                     + "' and sample '" + sampleIdentifier + "'.");
         }
         return dataStoreStrategies.get(DataStoreStrategyKey.IDENTIFIED);
+    }
+
+    private SamplePE tryGetSample(final SampleIdentifier sampleIdentifier)
+    {
+        try
+        {
+            return limsService.tryGetSampleWithExperiment(sampleIdentifier);
+        } catch (UserFailureException ex)
+        {
+            return null;
+        }
     }
 
     private void sendEmail(final String message, final ExperimentIdentifier experimentIdentifier,

@@ -56,6 +56,8 @@ public final class ThreadParameters
 
     private static final String INCOMING_DIR = "incoming-dir";
 
+    private static final String DELETE_UNIDENTIFIED_KEY = "delete-unidentified";
+
     /**
      * The (local) directory to monitor for new files and directories to move to the remote side.
      * The directory where data to be processed by the ETL server become available.
@@ -70,6 +72,8 @@ public final class ThreadParameters
 
     private final boolean useIsFinishedMarkerFile;
 
+    private final boolean deleteUnidentified;
+
     /**
      * @param threadProperties parameters for one processing thread together with general
      *            parameters.
@@ -83,6 +87,8 @@ public final class ThreadParameters
                 PropertyUtils.getProperty(threadProperties, INCOMING_DATA_COMPLETENESS_CONDITION,
                         INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE);
         this.useIsFinishedMarkerFile = parseCompletenessCondition(completenessCondition);
+        this.deleteUnidentified =
+                "true".equals(threadProperties.getProperty(DELETE_UNIDENTIFIED_KEY, "false"));
         this.threadName = threadName;
     }
 
@@ -185,6 +191,7 @@ public final class ThreadParameters
                     useIsFinishedMarkerFile ? "marker file exists"
                             : "no write access for some period";
             logLine("Condition of incoming data completeness: %s.", completenessCond);
+            logLine("Delete unidentified: '%s'.", deleteUnidentified);
         }
     }
 
@@ -199,5 +206,10 @@ public final class ThreadParameters
     public String getThreadName()
     {
         return threadName;
+    }
+
+    public boolean deleteUnidentified()
+    {
+        return deleteUnidentified;
     }
 }

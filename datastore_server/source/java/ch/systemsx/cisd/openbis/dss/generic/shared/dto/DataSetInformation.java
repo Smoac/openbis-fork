@@ -82,9 +82,24 @@ public class DataSetInformation implements Serializable
      */
     private ExtractableData extractableData = new ExtractableData();
 
+    /**
+     * Email of uploading user.
+     */
+    private String uploadingUserEmailOrNull;
+
     /** This constructor is for serialization. */
     public DataSetInformation()
     {
+    }
+
+    public String tryGetUploadingUserEmail()
+    {
+        return uploadingUserEmailOrNull;
+    }
+
+    public void setUploadingUserEmail(String uploadingUserEmail)
+    {
+        this.uploadingUserEmailOrNull = uploadingUserEmail;
     }
 
     public final BooleanOrUnknown getIsCompleteFlag()

@@ -328,7 +328,8 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
         }
     }
 
-    private List<NewProperty> extractDataSetProperties(File incomingDataSetPath, String fileName)
+    private static List<NewProperty> extractDataSetProperties(File incomingDataSetPath,
+            String fileName)
     {
         List<NewProperty> result = new ArrayList<NewProperty>();
         if (fileName != null && incomingDataSetPath.isDirectory())

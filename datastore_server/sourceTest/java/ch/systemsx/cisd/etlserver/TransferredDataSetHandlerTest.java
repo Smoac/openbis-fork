@@ -277,7 +277,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         authorizedLimsService.setPassword("p");
         handler =
                 new TransferredDataSetHandler("dss", storageProcessor, plugin,
-                        authorizedLimsService, mailClient, true, true);
+                        authorizedLimsService, mailClient, true, true, false);
 
         handler.setProcessorFactories(map);
         dataSetInformation = new DataSetInformation();
@@ -842,6 +842,11 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     will(throwException(new Exception("Could store data by storage processor")));
 
                     one(storageProcessor).unstoreData(with(equal(folder)), with(equal(baseDir)));
+
+                    allowing(typeExtractor).getLocatorType(folder);
+                    allowing(typeExtractor).getDataSetType(folder);
+                    allowing(typeExtractor).getFileFormatType(folder);
+                    allowing(typeExtractor).isMeasuredData(folder);
                 }
             });
         final LogMonitoringAppender appender =
