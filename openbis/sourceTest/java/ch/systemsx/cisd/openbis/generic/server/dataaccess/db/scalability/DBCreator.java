@@ -25,6 +25,7 @@ import java.util.Date;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.annotation.Rollback;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
@@ -52,11 +53,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
- * A class that uses features of {@link AbstractDAOTest} but is not a real test of openbis (it is
- * excluded from all suites). It has one test method though called main witch should be run as a
- * TestNG test using "create scalability DB" run configuration in eclipse (it sets an environment
- * property that is needed for initialization) and creates a DB for scalability testing. No rollback
- * is done after this method. <br>
+ * This class has one test method called main that can be run as a TestNG test using
+ * "create scalability DB" run configuration in eclipse and creates a DB for scalability testing.
+ * The test is in "scalability" group which is included in nightly builds. No rollback is done after
+ * this test. <br>
  * <br>
  * At the beginning it creates a TSV file with materials in a given TSV directory that will be used
  * in the next step. Then the DB is created from scratch (with new materials added from the TSV
@@ -77,8 +77,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * <li>commenting out flush() in create methods for in {@link IExternalDataDAO} and
  * {@link SampleDAO}
  * <li>turning off logging (doesn't make a big difference) - change root logging priority in log.xml
- * from "info" to "error" and also change static variable LOG value to false.
+ * from "info" to "error".
  * </ul>
+ * To log the current state of particular entity creation change static LOG variable value to true.
  * 
  * @author Piotr Buczek
  */
@@ -126,22 +127,7 @@ public final class DBCreator extends AbstractDAOTest
 
     private static boolean initialized = false;
 
-    static
-    {
-        // we don't want this code to be executed when DBCreator.class is loaded by TestNG
-        // which happens for all test configurations
-        if (System.getenv("initializeDBCreator") != null)
-        {
-            System.setProperty("database.kind", DB_KIND);
-            System.setProperty("database.create-from-scratch", "true");
-            System.setProperty("authorization-component-factory", "no-authorization");
-            MaterialHelper.createMaterialsTSVFile(TSV_DIRECTORY, MATERIALS_NO);
-            log("created materials TSV file");
-            initialized = true;
-        }
-    }
-
-    private static final boolean LOG = true;
+    private static final boolean LOG = false;
 
     private static void log(String format, Object... objects)
     {
@@ -149,6 +135,18 @@ public final class DBCreator extends AbstractDAOTest
         {
             System.err.println(String.format(format, objects));
         }
+    }
+
+    @BeforeTest()
+    public void beforeTest()
+    {
+        // changes DB configuration to create a new DB
+        System.setProperty("database.kind", DB_KIND);
+        System.setProperty("database.create-from-scratch", "true");
+        System.setProperty("authorization-component-factory", "no-authorization");
+        MaterialHelper.createMaterialsTSVFile(TSV_DIRECTORY, MATERIALS_NO);
+        log("created materials TSV file");
+        initialized = true;
     }
 
     @Test
@@ -164,7 +162,7 @@ public final class DBCreator extends AbstractDAOTest
         hibernateTemplate = new HibernateTemplate(sessionFactory);
 
         createAndSetDefaultEntities();
-        createExperimentsWithSamplesAndDataSets();       
+        createExperimentsWithSamplesAndDataSets();
     }
 
     // Hibernate Session
