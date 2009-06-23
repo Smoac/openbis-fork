@@ -454,4 +454,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void getTemplate(EntityKind kind, String type, boolean autoGenerate,
             AsyncCallback<String> callback);
 
+    /**
+     * @see ICommonClientService#updateFileFormatType(AbstractType type)
+     */
+    public void updateFileFormatType(AbstractType type, AsyncCallback<Void> registrationCallback);
+
 }

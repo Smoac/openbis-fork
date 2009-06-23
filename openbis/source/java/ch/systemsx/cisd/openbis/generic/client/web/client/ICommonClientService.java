@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWith
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -526,5 +527,10 @@ public interface ICommonClientService extends IClientService
      * Returns example file format of new entities.
      */
     public String getTemplate(EntityKind kind, String type, boolean autoGenerate);
+
+    /**
+     * Updates the file format.
+     */
+    public void updateFileFormatType(AbstractType type);
 
 }

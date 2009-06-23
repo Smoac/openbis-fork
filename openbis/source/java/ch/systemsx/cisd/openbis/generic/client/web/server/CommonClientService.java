@@ -91,6 +91,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
@@ -1623,6 +1624,18 @@ public final class CommonClientService extends AbstractClientService implements
         {
             final String sessionToken = getSessionToken();
             commonServer.deleteFileFormatTypes(sessionToken, fileFormatTypeCodes);
+        } catch (UserFailureException ex)
+        {
+            throw UserFailureExceptionTranslator.translate(ex);
+        }
+    }
+
+    public void updateFileFormatType(AbstractType type)
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.updateFileFormatType(sessionToken, type);
         } catch (UserFailureException ex)
         {
             throw UserFailureExceptionTranslator.translate(ex);

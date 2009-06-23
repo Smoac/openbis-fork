@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.ToolBarEvent;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -41,9 +42,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AddTypeDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -102,6 +105,19 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
                             });
         createItem.setId(ADD_NEW_TYPE_BUTTON_ID);
         pagingToolbar.add(createItem);
+        Button editButton =
+                createSelectedItemButton(viewContext.getMessage(Dict.EDIT_TYPE_BUTTON),
+                        new ISelectedEntityInvoker<BaseEntityModel<AbstractType>>()
+                            {
+
+                                public void invoke(BaseEntityModel<AbstractType> selectedItem)
+                                {
+                                    AbstractType entityType = selectedItem.getBaseObject();
+                                    createEditEntityTypeDialog(entityType).show();
+                                }
+
+                            });
+        pagingToolbar.add(new AdapterToolItem(editButton));
 
         Button deleteButton = createDeleteButton(viewContext);
         enableButtonOnSelectedItems(deleteButton);
@@ -164,6 +180,31 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
                 }
             });
         return deleteButton;
+    }
+
+    private Window createEditEntityTypeDialog(final AbstractType type)
+    {
+        final String code = type.getCode();
+        String title =
+                viewContext.getMessage(Dict.EDIT_TYPE_TITLE_TEMPLATE, type.getDescription(), code);
+        return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
+            {
+                private final TextField<String> descriptionField;
+                {
+                    descriptionField = createDescriptionField();
+                    descriptionField
+                            .setValue(StringEscapeUtils.unescapeHtml(type.getDescription()));
+                    addField(descriptionField);
+
+                }
+
+                @Override
+                protected void register(AsyncCallback<Void> registrationCallback)
+                {
+                    type.setDescription(descriptionField.getValue());
+                    viewContext.getService().updateFileFormatType(type, registrationCallback);
+                }
+            };
     }
 
     final class RefreshCallback extends AbstractAsyncCallback<Void>

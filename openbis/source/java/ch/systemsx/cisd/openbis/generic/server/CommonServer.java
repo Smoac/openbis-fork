@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -1121,6 +1122,22 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
                 break;
         }
         return result;
+    }
+
+    public void updateFileFormatType(String sessionToken, AbstractType type)
+    {
+        checkSession(sessionToken);
+        try
+        {
+            IFileFormatTypeDAO dao = getDAOFactory().getFileFormatTypeDAO();
+            FileFormatTypePE typePE = dao.tryToFindFileFormatTypeByCode(type.getCode());
+            typePE.setDescription(type.getDescription());
+            dao.createOrUpdate(typePE);
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+
     }
 
 }
