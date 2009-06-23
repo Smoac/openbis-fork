@@ -188,7 +188,7 @@ public final class GenericDataSetViewer extends
             Button result = new Button(viewContext.getMessage(Dict.BUTTON_VIEW));
             result.setTitle(viewContext.getMessage(Dict.TOOLTIP_VIEW_DATASET));
             result.setId(createChildId(VIEW_BUTTON_ID_SUFFIX));
-            result.disable();
+            result.setEnabled(false);
             return result;
         }
 
@@ -200,18 +200,15 @@ public final class GenericDataSetViewer extends
         /** @param data external data that will be browsed after selection */
         public void setupData(final ExternalData data)
         {
-            if (button.isEnabled() == false)
-            {
-                button.addSelectionListener(new SelectionListener<ButtonEvent>()
+            button.addSelectionListener(new SelectionListener<ButtonEvent>()
+                {
+                    @Override
+                    public void componentSelected(ButtonEvent ce)
                     {
-                        @Override
-                        public void componentSelected(ButtonEvent ce)
-                        {
-                            DataSetUtils.showDataSet(data, viewContext.getModel());
-                        }
-                    });
-                button.enable();
-            }
+                        DataSetUtils.showDataSet(data, viewContext.getModel());
+                    }
+                });
+            button.enable();
         }
     }
 
