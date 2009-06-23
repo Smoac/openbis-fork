@@ -10,15 +10,4 @@
       <package name="ch.systemsx.cisd.openbis.*" />
     </packages>
   </test>
-  <test name="scalability" annotations="JDK">
-    <groups>
-      <run>
-        <include name="scalability"/>
-        <exclude name="broken" />
-      </run>
-    </groups>
-    <packages>
-      <package name="ch.systemsx.cisd.openbis.*" />
-    </packages>
-  </test>
 </suite>
