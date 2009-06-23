@@ -8,6 +8,7 @@ import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -15,8 +16,16 @@ import com.extjs.gxt.ui.client.widget.grid.CheckColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.ui.ClickListener;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
@@ -78,21 +87,72 @@ class ColumnSettingsChooser
     public Component getComponent()
     {
         ContentPanel cp = new ContentPanel();
-        cp.getButtonBar().setButtonWidth(110);
         cp.setHeaderVisible(false);
-        Button up = new Button("Move Up");
-        up.setTitle("Move selected column to the left");
-        up.addSelectionListener(moveSelectedItem(-1));
-        cp.addButton(up);
-        Button down = new Button("Move Down");
-        down.setTitle("Move selected column to the right");
-        down.addSelectionListener(moveSelectedItem(+1));
-        cp.addButton(down);
+        cp.setBottomComponent(new BottomToolbar());
         grid.setAutoWidth(true);
         grid.setAutoHeight(true);
         cp.add(grid);
         cp.setScrollMode(Scroll.AUTOY);
         return cp;
+    }
+
+    class BottomToolbar extends ToolBar
+    {
+
+        public BottomToolbar()
+        {
+            add(new LabelToolItem("Select:"));
+            add(new AdapterToolItem(createLink(Selectable.VISIBLE, true)));
+            add(new SeparatorToolItem());
+            add(new AdapterToolItem(createLink(Selectable.VISIBLE, false)));
+            add(new SeparatorToolItem());
+            add(new AdapterToolItem(createLink(Selectable.FILTER, true)));
+            add(new SeparatorToolItem());
+            add(new AdapterToolItem(createLink(Selectable.FILTER, false)));
+            add(new FillToolItem());
+            Button up = new Button("Move Up");
+            up.setTitle("Move selected column to the left");
+            up.addSelectionListener(moveSelectedItem(-1));
+            add(new AdapterToolItem(up));
+            Button down = new Button("Move Down");
+            down.setTitle("Move selected column to the right");
+            down.addSelectionListener(moveSelectedItem(+1));
+            add(new AdapterToolItem(down));
+        }
+
+        private Widget createLink(final Selectable selectable, final boolean select)
+        {
+            String prefix = select ? "All" : "No";
+            String suffix = selectable.title + "s";
+            String title = prefix + " " + suffix;
+            return LinkRenderer.getLinkWidget(title, new ClickListener()
+                {
+                    public void onClick(Widget sender)
+                    {
+                        for (ColumnDataModel m : grid.getStore().getModels())
+                        {
+                            Record r = grid.getStore().getRecord(m);
+                            r.set(selectable.columnName, select);
+                        }
+                    }
+                });
+        }
+
+    }
+
+    private enum Selectable
+    {
+        VISIBLE(ColumnDataModel.IS_VISIBLE, "Column"), FILTER(ColumnDataModel.HAS_FILTER, "Filter");
+
+        private final String columnName;
+
+        private final String title;
+
+        private Selectable(String columnName, String title)
+        {
+            this.columnName = columnName;
+            this.title = title;
+        }
     }
 
     private SelectionListener<ComponentEvent> moveSelectedItem(final int delta)
