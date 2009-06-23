@@ -179,6 +179,10 @@ public class QueueingPathRemoverService
      */
     public static synchronized final void stop()
     {
+        if (thread == null)
+        {
+            return;
+        }
         thread.interrupt();
         close();
         thread = null;
@@ -195,6 +199,10 @@ public class QueueingPathRemoverService
      */
     public static synchronized final boolean stopAndWait(long timeoutMillis)
     {
+        if (thread == null)
+        {
+            return true;
+        }
         thread.interrupt();
         try
         {
