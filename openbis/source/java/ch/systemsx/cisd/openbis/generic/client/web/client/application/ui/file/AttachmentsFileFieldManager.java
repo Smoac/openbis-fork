@@ -21,7 +21,6 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.google.gwt.user.client.Event;
@@ -38,12 +37,25 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
  */
 public class AttachmentsFileFieldManager extends FileFieldManager<AttachmentFileUploadField>
 {
+    // by default there are no attachment field sets created
+    private static final int DEFAULT_NUMBER_OF_ATTACHMENTS = 0;
 
-    public AttachmentsFileFieldManager(final String sessionKey, final int initialNumberOfFields,
+    private final int initialNumberOfFields;
+
+    private LabelField addAttachmentLink;
+
+    public AttachmentsFileFieldManager(final String sessionKey,
+            final IMessageProvider messageProvider)
+    {
+        this(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS, messageProvider);
+    }
+
+    private AttachmentsFileFieldManager(final String sessionKey, final int initialNumberOfFields,
             final IMessageProvider messageProvider)
     {
         super(sessionKey, initialNumberOfFields, messageProvider.getMessage(Dict.FILE),
                 messageProvider);
+        this.initialNumberOfFields = initialNumberOfFields;
     }
 
     @Override
@@ -54,21 +66,39 @@ public class AttachmentsFileFieldManager extends FileFieldManager<AttachmentFile
 
     public void addAttachmentFieldSetsToPanel(FormPanel panel)
     {
-        boolean first = true;
-        for (AttachmentFileUploadField attachmentField : this.getFields())
+        addAttachmentLink =
+                createAddAttachmentLink(messageProvider.getMessage(Dict.ADD_ATTACHMENT), panel);
+        panel.add(addAttachmentLink);
+        for (AttachmentFileUploadField attachmentField : getFields())
         {
-            FieldSet fieldSet = attachmentField.getFieldSet();
-            if (first)
-            {
-                fieldSet.add(createAddMoreAttachmentsLink(messageProvider
-                        .getMessage(Dict.ADD_MORE_ATTACHMENTS)));
-                first = false;
-            } else
-            {
-                fieldSet.hide();
-            }
-            panel.add(fieldSet);
+            addFileFieldsetToPanel(attachmentField, panel);
         }
+    }
+
+    public void resetAttachmentFieldSetsInPanel(FormPanel panel)
+    {
+        for (AttachmentFileUploadField attachmentField : getFields())
+        {
+            removeFileFieldsetFromPanel(attachmentField, panel);
+        }
+        getFields().clear();
+        for (int i = 0; i < initialNumberOfFields; i++)
+        {
+            AttachmentFileUploadField newField = addField();
+            addFileFieldsetToPanel(newField, panel);
+        }
+        panel.layout();
+    }
+
+    private void removeFileFieldsetFromPanel(AttachmentFileUploadField attachmentField,
+            FormPanel panel)
+    {
+        panel.remove(attachmentField.getFieldSet());
+    }
+
+    private void addFileFieldsetToPanel(AttachmentFileUploadField attachmentField, FormPanel panel)
+    {
+        panel.add(attachmentField.getFieldSet());
     }
 
     public List<NewAttachment> extractAttachments()
@@ -85,19 +115,20 @@ public class AttachmentsFileFieldManager extends FileFieldManager<AttachmentFile
         return result;
     }
 
-    private LabelField createAddMoreAttachmentsLink(String label)
+    @SuppressWarnings("unchecked")
+    private LabelField createAddAttachmentLink(final String label, final FormPanel panel)
     {
-        final LabelField result = new LabelField(LinkRenderer.renderAsLink(label));
+        final String link = LinkRenderer.renderAsLink(label);
+        final LabelField result = new LabelField(link);
+        result.setOriginalValue(link);
         result.sinkEvents(Event.ONCLICK);
         result.addListener(Event.ONCLICK, new Listener<BaseEvent>()
             {
                 public void handleEvent(BaseEvent be)
                 {
-                    for (AttachmentFileUploadField attachmentField : getFields())
-                    {
-                        attachmentField.getFieldSet().show();
-                    }
-                    result.hide();
+                    AttachmentFileUploadField newField = addField();
+                    addFileFieldsetToPanel(newField, panel);
+                    panel.layout();
                 }
             });
         return result;

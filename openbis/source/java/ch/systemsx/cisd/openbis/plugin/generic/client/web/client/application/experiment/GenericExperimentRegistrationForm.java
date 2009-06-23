@@ -53,10 +53,7 @@ public final class GenericExperimentRegistrationForm extends
     protected void resetFieldsAfterSave()
     {
         codeField.reset();
-        for (FileUploadField attachmentField : attachmentsManager.getFields())
-        {
-            attachmentField.reset();
-        }
+        attachmentsManager.resetAttachmentFieldSetsInPanel(formPanel);
         for (FileUploadField importSamplesField : importSamplesFileManager.getFields())
         {
             importSamplesField.reset();
@@ -87,12 +84,6 @@ public final class GenericExperimentRegistrationForm extends
             return "Experiment <b>" + createExperimentIdentifier() + "</b> successfully registered";
         }
 
-    }
-
-    @Override
-    protected void resetPanel()
-    {
-        super.resetPanel();
     }
 
     @Override

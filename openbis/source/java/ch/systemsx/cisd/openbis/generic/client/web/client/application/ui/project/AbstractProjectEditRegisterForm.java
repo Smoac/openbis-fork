@@ -47,8 +47,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
 {
 
-    private static final int DEFAULT_NUMBER_OF_ATTACHMENTS = 3;
-
     final IViewContext<ICommonClientServiceAsync> viewContext;
 
     protected CodeField projectCodeField;
@@ -57,7 +55,7 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
 
     protected GroupSelectionWidget groupField;
 
-    private AttachmentsFileFieldManager attachmentManager;
+    private AttachmentsFileFieldManager attachmentsManager;
 
     protected final String sessionKey;
 
@@ -77,9 +75,7 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
         super(viewContext, createId(projectIdOrNull), DEFAULT_LABEL_WIDTH + 20, DEFAULT_FIELD_WIDTH);
         this.viewContext = viewContext;
         sessionKey = createId(projectIdOrNull);
-        attachmentManager =
-                new AttachmentsFileFieldManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS,
-                        viewContext);
+        attachmentsManager = new AttachmentsFileFieldManager(sessionKey, viewContext);
         projectCodeField = createProjectCodeField();
         groupField = createGroupField();
         projectDescriptionField = createProjectDescriptionField();
@@ -123,12 +119,19 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
         return field;
     }
 
+    @Override
+    protected void resetPanel()
+    {
+        super.resetPanel();
+        attachmentsManager.resetAttachmentFieldSetsInPanel(formPanel);
+    }
+
     private final void addFormFields()
     {
         formPanel.add(projectCodeField);
         formPanel.add(groupField);
         formPanel.add(projectDescriptionField);
-        attachmentManager.addAttachmentFieldSetsToPanel(formPanel);
+        attachmentsManager.addAttachmentFieldSetsToPanel(formPanel);
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
                 @Override
@@ -156,7 +159,7 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
                 {
                     if (formPanel.isValid())
                     {
-                        if (attachmentManager.filesDefined() > 0)
+                        if (attachmentsManager.filesDefined() > 0)
                         {
                             setUploadEnabled(false);
                             formPanel.submit();
@@ -194,7 +197,7 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
 
     protected List<NewAttachment> extractAttachments()
     {
-        return attachmentManager.extractAttachments();
+        return attachmentsManager.extractAttachments();
     }
 
 }

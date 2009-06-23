@@ -172,7 +172,7 @@ public final class GenericDataSetViewer extends
 
     /**
      * Holder of a {@link Button} that goes to external data browsing on selection. The button is
-     * disabled until this holder is set up with {@link #setupData(ExternalData)}.
+     * disabled until data is successfully loaded by the viewer.
      */
     private class BrowseButtonHolder
     {
@@ -188,7 +188,7 @@ public final class GenericDataSetViewer extends
             Button result = new Button(viewContext.getMessage(Dict.BUTTON_VIEW));
             result.setTitle(viewContext.getMessage(Dict.TOOLTIP_VIEW_DATASET));
             result.setId(createChildId(VIEW_BUTTON_ID_SUFFIX));
-            result.setEnabled(false);
+            result.disable();
             return result;
         }
 
@@ -208,7 +208,6 @@ public final class GenericDataSetViewer extends
                         DataSetUtils.showDataSet(data, viewContext.getModel());
                     }
                 });
-            button.enable();
         }
     }
 

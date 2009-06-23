@@ -649,7 +649,7 @@ public abstract class Dict
 
     public static final String REASON = "reason";
 
-    public static final String ADD_MORE_ATTACHMENTS = "add_more_attachments";
+    public static final String ADD_ATTACHMENT = "add_attachment";
 
     public static final String DATA_SET_UPLOAD = "data_set_upload";
 

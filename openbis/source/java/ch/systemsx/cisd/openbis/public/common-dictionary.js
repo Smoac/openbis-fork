@@ -31,7 +31,7 @@ var common = {
   url: "URL",
   reason: "Reason",
   delete_confirmation_message_with_reason: "You are deleting {0} {1}(s).<br><br>Please enter a reason or cancel deletion.",
-  add_more_attachments: "Add more attachments",
+  add_attachment: "Add attachment",
   
   //
   // Field

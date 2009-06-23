@@ -73,8 +73,7 @@ public abstract class FileFieldManager<T extends FileUploadField>
         return fileFields;
     }
 
-    @SuppressWarnings("unused")
-    private FileUploadField addField()
+    protected T addField()
     {
         int counter = fileFields.size();
         T field = createFileUploadField(counter);

@@ -24,7 +24,6 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
@@ -66,8 +65,6 @@ public final class GenericSampleRegistrationForm extends
 
     public static final String ID_SUFFIX_PARENT = "parent";
 
-    private static final int DEFAULT_NUMBER_OF_ATTACHMENTS = 3;
-
     public static final String SESSION_KEY =
             createSimpleId(REGISTRATION_IDENTIFIER, EntityKind.SAMPLE);
 
@@ -80,7 +77,7 @@ public final class GenericSampleRegistrationForm extends
     private TextField<String> parent;
 
     private AttachmentsFileFieldManager attachmentsManager =
-            new AttachmentsFileFieldManager(SESSION_KEY, DEFAULT_NUMBER_OF_ATTACHMENTS, viewContext);
+            new AttachmentsFileFieldManager(SESSION_KEY, viewContext);
 
     public GenericSampleRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
@@ -113,10 +110,7 @@ public final class GenericSampleRegistrationForm extends
     protected void resetFieldsAfterSave()
     {
         codeField.reset();
-        for (FileUploadField attachmentField : attachmentsManager.getFields())
-        {
-            attachmentField.reset();
-        }
+        attachmentsManager.resetAttachmentFieldSetsInPanel(formPanel);
     }
 
     public final void registerSample()
@@ -226,6 +220,13 @@ public final class GenericSampleRegistrationForm extends
     {
         super.addFormFieldsToPanel(panel);
         attachmentsManager.addAttachmentFieldSetsToPanel(panel);
+    }
+
+    @Override
+    protected void resetPanel()
+    {
+        super.resetPanel();
+        attachmentsManager.resetAttachmentFieldSetsInPanel(formPanel);
     }
 
     @Override

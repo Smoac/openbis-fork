@@ -69,8 +69,6 @@ abstract public class AbstractGenericExperimentRegisterEditForm
         extends
         AbstractGenericEntityRegistrationForm<ExperimentType, ExperimentTypePropertyType, ExperimentProperty>
 {
-    private static final int DEFAULT_NUMBER_OF_ATTACHMENTS = 3;
-
     protected AttachmentsFileFieldManager attachmentsManager;
 
     protected String attachmentsSessionKey;
@@ -211,6 +209,13 @@ abstract public class AbstractGenericExperimentRegisterEditForm
         attachmentsManager.addAttachmentFieldSetsToPanel(panel);
     }
 
+    @Override
+    protected void resetPanel()
+    {
+        super.resetPanel();
+        attachmentsManager.resetAttachmentFieldSetsInPanel(formPanel);
+    }
+
     private static LabelField createTemplateField(String label,
             final SampleTypeSelectionWidget typeSelection, final CheckBox autoGenerate)
     {
@@ -272,9 +277,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm
                 createTemplateField(viewContext.getMessage(Dict.FILE_TEMPLATE_LABEL),
                         importSampleTypeSelection, autoGenerateCodes);
 
-        attachmentsManager =
-                new AttachmentsFileFieldManager(attachmentsSessionKey,
-                        DEFAULT_NUMBER_OF_ATTACHMENTS, viewContext);
+        attachmentsManager = new AttachmentsFileFieldManager(attachmentsSessionKey, viewContext);
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
                 @Override

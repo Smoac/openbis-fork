@@ -59,7 +59,6 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.exp
 public final class GenericSampleEditForm extends
         AbstractGenericEntityRegistrationForm<SampleType, SampleTypePropertyType, SampleProperty>
 {
-    private static final int DEFAULT_NUMBER_OF_ATTACHMENTS = 3;
 
     private AttachmentsFileFieldManager attachmentsManager;
 
@@ -178,9 +177,7 @@ public final class GenericSampleEditForm extends
     {
         experimentFieldOrNull =
                 canAttachToExperiment(originalSample) ? createExperimentField() : null;
-        attachmentsManager =
-                new AttachmentsFileFieldManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS,
-                        viewContext);
+        attachmentsManager = new AttachmentsFileFieldManager(sessionKey, viewContext);
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
                 @Override
