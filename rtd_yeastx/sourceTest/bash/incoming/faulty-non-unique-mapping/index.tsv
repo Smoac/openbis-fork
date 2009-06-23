@@ -1,4 +1,4 @@
 # openbis-user@mailinator.pl
 file_name	sample	group	experiment	project	conversion	comment
 file1.mzXML	any	IMSB_ZAMBONI			eicML	xxx1
-file2.mzXML	any	IMSB_ZAMBONI	e2	bacteria	eicML	xxx2
+file2.mzXML	any	IMSB_ZAMBONI	Praktikum Metabolic Networks 2009	bacteria	eicML	xxx2
