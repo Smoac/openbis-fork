@@ -33,9 +33,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
  */
 public class ListExperiments extends AbstractDefaultTestCommand
 {
-    private final String experimentTypeName;
-
     private final String projectCodeOrNull;
+
+    private final String experimentTypeNameOrNull;
 
     public ListExperiments(final String projectNameOrNull, final String experimentTypeNameOrNull)
     {
@@ -46,7 +46,7 @@ public class ListExperiments extends AbstractDefaultTestCommand
             Class<? extends AsyncCallback<?>> callback)
     {
         this.projectCodeOrNull = projectNameOrNull;
-        this.experimentTypeName = experimentTypeNameOrNull;
+        this.experimentTypeNameOrNull = experimentTypeNameOrNull;
         if (callback != null)
         {
             addCallbackClass(callback);
@@ -73,9 +73,12 @@ public class ListExperiments extends AbstractDefaultTestCommand
                                 + ExperimentTypeSelectionWidget.SUFFIX
                                 + ExperimentBrowserToolbar.ID);
 
+        // if 'all' type was initially selected project selection would trigger an unwanted callback
+        GWTUtils.unselect(experimentTypeSelector);
+
         GWTUtils.setSelectedItem(projectSelector,
                 ProjectSelectionTreeWidget.PROJECT_WITH_GROUP_CODE, projectCodeOrNull);
         GWTUtils.setSelectedItem(experimentTypeSelector, ModelDataPropertyNames.CODE,
-                experimentTypeName);
+                experimentTypeNameOrNull);
     }
 }

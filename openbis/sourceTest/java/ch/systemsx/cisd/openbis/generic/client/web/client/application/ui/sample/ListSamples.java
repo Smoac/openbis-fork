@@ -32,9 +32,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
  */
 public class ListSamples extends AbstractDefaultTestCommand
 {
-    private final String sampleTypeNameOrNull;
-
     private final String groupNameOrNull;
+
+    private final String sampleTypeNameOrNull;
 
     public ListSamples(final String groupNameOrNull, final String sampleTypeNameOrNull)
     {
@@ -42,6 +42,8 @@ public class ListSamples extends AbstractDefaultTestCommand
         this.sampleTypeNameOrNull = sampleTypeNameOrNull;
         addCallbackClass(GroupSelectionWidget.ListGroupsCallback.class);
         addCallbackClass(SampleTypeSelectionWidget.ListItemsCallback.class);
+        // grid is displayed automatically as home group and 'all' sample type are selected
+        addCallbackClass(SampleBrowserGrid.GRID_ID);
     }
 
     //
@@ -58,6 +60,9 @@ public class ListSamples extends AbstractDefaultTestCommand
                 (SampleTypeSelectionWidget) GWTTestUtil
                         .getWidgetWithID(SampleTypeSelectionWidget.ID
                                 + SampleTypeSelectionWidget.SUFFIX + SampleBrowserToolbar.ID);
+
+        // if 'all' type was initially selected group selection would trigger an unwanted callback
+        GWTUtils.unselect(sampleTypeSelector);
 
         GWTUtils.setSelectedItem(groupSelector, ModelDataPropertyNames.CODE, groupNameOrNull);
         GWTUtils.setSelectedItem(sampleTypeSelector, ModelDataPropertyNames.CODE,

@@ -68,6 +68,29 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         launchTest(30000);
     }
 
+    public final void testListAllSamples()
+    {
+        loginAndInvokeAction(ActionMenuKind.SAMPLE_MENU_BROWSE);
+        // samples of all types in home group should be automatically displayed
+        CheckSampleTable table = new CheckSampleTable();
+
+        // Test that there are two samples displayed that have different types, and a proper
+        // value is displayed in property columns that are assigned only to one of these types
+        // (union of property values is displayed).
+
+        // 'ORGANISM' is assigned only to 'CELL_PLATE' sample type
+        table.expectedRow(new SampleRow("CP-TEST-1", "CELL_PLATE").identifier("CISD", "CISD")
+                .withUserPropertyCell("ORGANISM", "HUMAN"));
+        // 'PLATE_GEOMETRY' is assigned only to 'CONTROL_LAYOUT' and 'MASTER PLATE' sample types
+        table.expectedRow(new SampleRow("C1", "CONTROL_LAYOUT").identifier("CISD", "CISD")
+                .withInternalPropertyCell("PLATE_GEOMETRY", "384_WELLS_16X24"));
+
+        table.expectedColumnsNumber(19);
+        remoteConsole.prepare(table.expectedSize(40));
+
+        launchTest(20000);
+    }
+
     public final void testListMasterPlates()
     {
         loginAndGotoListSamplesTab();

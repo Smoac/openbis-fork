@@ -116,6 +116,15 @@ public final class GWTUtils
     }
 
     /**
+     * Unselects given <var>comboBox</var>.
+     */
+    public final static <T extends ModelData> void unselect(final ComboBox<T> comboBox)
+    {
+        assert comboBox != null : "Unspecified comboBox.";
+        comboBox.setValue(null);
+    }
+
+    /**
      * Selects given <var>value</var> of given <var>tree</var>.
      */
     public final static void setSelectedItem(final Tree tree, final String property,
@@ -136,7 +145,6 @@ public final class GWTUtils
         assert property != null : "Unspecified model property.";
         assert value != null : "Unspecified model property value.";
         final List<TreeItem> items = tree.getAllItems();
-
         for (TreeItem item : items)
         {
             ModelData model = item.getModel();
@@ -230,9 +238,9 @@ public final class GWTUtils
      * @return something like <code>key1=value1&key2=value2</code>.
      */
     public final static native String getParamString() /*-{
-                                                             var search = $wnd.location.search;
-                                                             return search.indexOf("?") == 0 ? search.substring(1) : search;
-                                                          }-*/;
+                                                                                              var search = $wnd.location.search;
+                                                                                              return search.indexOf("?") == 0 ? search.substring(1) : search;
+                                                                                           }-*/;
 
     /** Returns base URL to the index page of the application. */
     public final static String getBaseIndexURL()

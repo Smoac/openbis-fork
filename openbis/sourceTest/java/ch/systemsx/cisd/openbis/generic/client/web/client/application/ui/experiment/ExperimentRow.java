@@ -33,6 +33,12 @@ public class ExperimentRow extends RowWithProperties
         withCell(CommonExperimentColDefKind.CODE.id(), code);
     }
 
+    public ExperimentRow(final String code, final String typeCode)
+    {
+        this(code);
+        withCell(CommonExperimentColDefKind.EXPERIMENT_TYPE.id(), typeCode);
+    }
+
     public ExperimentRow invalid()
     {
         withInvalidation(true);

@@ -44,7 +44,7 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
 
     private static final String NO_COMMENT = "No comment.";
 
-    private static final String COMPOUND_HCS = "COMPOUND_HCS";
+    private static final String SIRNA_HCS = "SIRNA_HCS";
 
     private static final String HCS_IMAGE = "HCS_IMAGE";
 
@@ -67,13 +67,12 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
                 ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS,
                 PropertyTypeAssignmentForm.AssignPropertyTypeCallback.class));
         CheckPropertyTypeAssignmentTable table = new CheckPropertyTypeAssignmentTable();
-        table.expectedRow(new Row().withCell(
-                PropertyTypeAssignmentColDefKind.LABEL.id(), propertyTypeLabel)
-                .withCell(PropertyTypeAssignmentColDefKind.ENTITY_TYPE_CODE.id(), entityTypeCode)
-                .withCell(PropertyTypeAssignmentColDefKind.ENTITY_KIND.id(),
-                        entityKind.getDescription()).withCell(
-                        PropertyTypeAssignmentColDefKind.IS_MANDATORY.id(),
-                        SimpleYesNoRenderer.render(isMandatory)));
+        table.expectedRow(new Row().withCell(PropertyTypeAssignmentColDefKind.LABEL.id(),
+                propertyTypeLabel).withCell(PropertyTypeAssignmentColDefKind.ENTITY_TYPE_CODE.id(),
+                entityTypeCode).withCell(PropertyTypeAssignmentColDefKind.ENTITY_KIND.id(),
+                entityKind.getDescription()).withCell(
+                PropertyTypeAssignmentColDefKind.IS_MANDATORY.id(),
+                SimpleYesNoRenderer.render(isMandatory)));
         remoteConsole.prepare(table.expectedSize(expectedEntries));
     }
 
@@ -82,8 +81,8 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
         loginAndInvokeAction(ActionMenuKind.PROPERTY_TYPES_MENU_ASSIGN_TO_EXPERIMENT_TYPE);
         final boolean mandatory = true;
         remoteConsole.prepare(new FillPropertyTypeAssignmentForm(mandatory, USER_COMMENT,
-                COMPOUND_HCS, "a comment", EXPERIMENT));
-        prepareListingAfterAssignment(USER_COMMENT, COMPOUND_HCS, EXPERIMENT, 30, mandatory);
+                SIRNA_HCS, "a comment", EXPERIMENT));
+        prepareListingAfterAssignment(USER_COMMENT, SIRNA_HCS, EXPERIMENT, 30, mandatory);
         launchTest(20000);
     }
 

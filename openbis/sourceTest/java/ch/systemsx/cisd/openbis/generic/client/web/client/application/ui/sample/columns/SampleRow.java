@@ -38,6 +38,12 @@ public class SampleRow extends RowWithProperties
         withCell(CommonSampleColDefKind.CODE, code);
     }
 
+    public SampleRow(final String code, final String typeCode)
+    {
+        this(code);
+        withCell(CommonSampleColDefKind.SAMPLE_TYPE.id(), typeCode);
+    }
+
     public SampleRow identifier(final String instanceCode)
     {
         return identifier(instanceCode, null);

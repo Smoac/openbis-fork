@@ -52,8 +52,7 @@ public final class ExperimentTypeSelectionWidget extends
                 "experiment type", "experiment types");
         this.viewContext = viewContext;
         this.withAll = withAll;
-        // TODO 2009-06-22, Piotr Buczek: uncomment this to select all types by default
-        // setAutoSelectFirst(withAll);
+        setAutoSelectFirst(withAll);
     }
 
     public ExperimentTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
