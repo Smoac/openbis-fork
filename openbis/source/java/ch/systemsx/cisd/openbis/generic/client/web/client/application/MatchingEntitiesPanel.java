@@ -82,7 +82,7 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
         setId(createId());
         updateDefaultRefreshButton();
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.SEARCH_RESULT_GRID);
-        registerCellClickListenerFor(MatchingEntityColumnKind.IDENTIFIER.id(),
+        registerLinkClickListenerFor(MatchingEntityColumnKind.IDENTIFIER.id(),
                 new ICellListener<MatchingEntity>()
                     {
                         public void handle(MatchingEntity rowItem)
@@ -137,7 +137,7 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
                 BaseEntityModel.createColumnConfigs(MatchingEntityModel
                         .getStaticColumnsDefinition(), viewContext);
         schema.setGridCellRendererFor(MatchingEntityColumnKind.IDENTIFIER.id(), LinkRenderer
-                .createGridCellRenderer());
+                .createLinkRenderer());
         return schema;
     }
 

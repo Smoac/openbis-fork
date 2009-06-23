@@ -31,16 +31,18 @@ public class InvalidableWithCodeRenderer
 
     public static String render(IInvalidationProvider entity, String code)
     {
-        boolean isInvalid = entity.getInvalidation() != null;
-        if (isInvalid)
+        final Element anchor = DOM.createAnchor();
+        anchor.setInnerText(code);
+        DOM.setElementProperty(anchor, "href", "#");
+        String link = DOM.toString(anchor);
+        boolean isValid = entity.getInvalidation() == null;
+        if (isValid)
         {
-            Element div = DOM.createDiv();
-            div.setAttribute("class", "invalid");
-            div.setInnerText(code);
-            return DOM.toString(div);
-        } else
-        {
-            return code;
+            return link;
         }
+        Element div = DOM.createDiv();
+        div.setAttribute("class", "invalid");
+        div.setInnerHTML(link);
+        return DOM.toString(div);
     }
 }

@@ -281,7 +281,6 @@ public abstract class AbstractExternalDataGrid
     protected BaseEntityModel<ExternalData> createModel(ExternalData entity)
     {
         BaseEntityModel<ExternalData> model = getColumnsFactory().createModel(entity);
-        model.renderAsLink(CommonExternalDataColDefKind.CODE.id());
         model.renderAsLinkWithAnchor(CommonExternalDataColDefKind.PARENT.id());
         renderShowDetailsLinkAsLink(model);
         return model;

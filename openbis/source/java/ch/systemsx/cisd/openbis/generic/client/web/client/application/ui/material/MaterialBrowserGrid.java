@@ -192,7 +192,7 @@ public class MaterialBrowserGrid extends
         ColumnDefsAndConfigs<Material> schema =
                 getColumnsFactory().createColumnsSchema(viewContext, criteria.getMaterialType());
         schema.setGridCellRendererFor(CommonMaterialColDefKind.CODE.id(), LinkRenderer
-                .createGridCellRenderer());
+                .createLinkRenderer());
         return schema;
     }
 

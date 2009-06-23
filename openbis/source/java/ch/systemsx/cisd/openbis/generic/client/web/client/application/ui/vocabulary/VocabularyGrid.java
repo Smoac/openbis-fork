@@ -146,7 +146,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
     {
         ColumnDefsAndConfigs<Vocabulary> schema = super.createColumnsDefinition();
         schema.setGridCellRendererFor(VocabularyColDefKind.CODE.id(), LinkRenderer
-                .createGridCellRenderer());
+                .createLinkRenderer());
         return schema;
     }
 

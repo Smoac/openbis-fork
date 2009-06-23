@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.AttachmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -101,7 +102,7 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.ATTACHMENT_BROWSER_GRID);
         extendBottomToolbar();
 
-        registerCellClickListenerFor(AttachmentColDefKind.FILE_NAME.id(),
+        registerLinkClickListenerFor(AttachmentColDefKind.FILE_NAME.id(),
                 new ICellListener<AttachmentVersions>()
                     {
                         public void handle(AttachmentVersions rowItem)
@@ -240,7 +241,7 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
     protected BaseEntityModel<AttachmentVersions> createModel(AttachmentVersions entity)
     {
         BaseEntityModel<AttachmentVersions> model = super.createModel(entity);
-        model.renderAsLink(AttachmentColDefKind.FILE_NAME.id());
+        model.renderAsLinkWithAnchor(AttachmentColDefKind.FILE_NAME.id());
         renderVersionAsLink(model);
         return model;
     }
@@ -326,18 +327,21 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                 {
                     public void handleEvent(final GridEvent be)
                     {
-                        String column =
-                                attachmentGrid.getColumnModel().getColumn(be.colIndex).getId();
-                        if (ModelDataPropertyNames.VERSION_FILE_NAME.equals(column))
+                        if (ColumnListener.isLinkTarget(be))
                         {
-                            final AttachmentVersionModel selectedItem =
+                            String column =
+                                attachmentGrid.getColumnModel().getColumn(be.colIndex).getId();
+                            if (ModelDataPropertyNames.VERSION_FILE_NAME.equals(column))
+                            {
+                                final AttachmentVersionModel selectedItem =
                                     (AttachmentVersionModel) be.grid.getStore().getAt(be.rowIndex);
-                            Attachment selectedAttachment =
+                                Attachment selectedAttachment =
                                     (Attachment) selectedItem.get(ModelDataPropertyNames.OBJECT);
-                            int version = selectedAttachment.getVersion();
-                            downloadAttachment(fileName, version, attachmentHolder);
+                                int version = selectedAttachment.getVersion();
+                                downloadAttachment(fileName, version, attachmentHolder);
+                            }
+                            attachmentGrid.getSelectionModel().deselectAll();
                         }
-                        attachmentGrid.getSelectionModel().deselectAll();
                     }
                 });
             panel.setId(createTabId());
@@ -386,7 +390,7 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                         {
                             return "";
                         }
-                        return LinkRenderer.renderAsLink((String) value);
+                        return LinkRenderer.renderAsLinkWithAnchor((String) value);
                     }
                 });
             return column;

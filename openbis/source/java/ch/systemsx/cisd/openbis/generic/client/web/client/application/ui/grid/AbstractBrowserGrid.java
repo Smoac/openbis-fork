@@ -211,7 +211,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         contentPanel.setHeaderVisible(showHeader);
         contentPanel.setAutoWidth(true);
         columnListener = new ColumnListener<T, M>(grid);
-        registerCellClickListenerFor(Dict.CODE, new ICellListener<T>()
+        registerLinkClickListenerFor(Dict.CODE, new ICellListener<T>()
             {
                 public void handle(T rowItem)
                 {
@@ -229,18 +229,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         grid.setLoadMask(false);
         refresh();
         grid.setLoadMask(true);
-    }
-
-    /**
-     * Registers the specified listener for clicks on cells in the specified column.
-     * 
-     * @param columnID Column ID. Not case sensitive.
-     * @param listener Listener handle single clicks.
-     */
-    protected final void registerCellClickListenerFor(final String columnID,
-            final ICellListener<T> listener)
-    {
-        columnListener.registerCellClickListener(columnID, listener);
     }
 
     /**

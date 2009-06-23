@@ -123,7 +123,7 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
     {
         ColumnDefsAndConfigs<Project> schema = super.createColumnsDefinition();
         schema.setGridCellRendererFor(ProjectColDefKind.CODE.id(), LinkRenderer
-                .createGridCellRenderer());
+                .createLinkRenderer());
         return schema;
     }
 

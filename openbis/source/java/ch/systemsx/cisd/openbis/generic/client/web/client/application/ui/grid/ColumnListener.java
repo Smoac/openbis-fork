@@ -35,9 +35,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
  */
 public final class ColumnListener<T, M extends BaseEntityModel<T>> implements Listener<GridEvent>
 {
-    private final Map<String, ICellListener<T>> cellListeners =
-            new HashMap<String, ICellListener<T>>();
-
     private final Map<String, ICellListener<T>> linkListeners =
             new HashMap<String, ICellListener<T>>();
 
@@ -50,14 +47,6 @@ public final class ColumnListener<T, M extends BaseEntityModel<T>> implements Li
     {
         this.grid = grid;
         grid.addListener(Events.CellClick, this);
-    }
-
-    /**
-     * Registers the specified cell listener for the specified column.
-     */
-    public void registerCellClickListener(String columnID, ICellListener<T> listener)
-    {
-        cellListeners.put(columnID.toLowerCase(), listener);
     }
 
     /**
@@ -89,15 +78,13 @@ public final class ColumnListener<T, M extends BaseEntityModel<T>> implements Li
     {
         String columnID = grid.getColumnModel().getColumn(event.colIndex).getId().toLowerCase();
 
-        ICellListener<T> listener =
-                (isLinkTarget(event) ? linkListeners.get(columnID) : cellListeners.get(columnID));
-        return listener;
+        return isLinkTarget(event) ? linkListeners.get(columnID) : null;
     }
 
     private static String LINK_TAG_NAME = "A";
 
-    /** @return is the target element for given <var>event</var> a link */
-    private boolean isLinkTarget(GridEvent event)
+    /** @return <code>true</code> if the target element for given <var>event</var> is a link */
+    public static boolean isLinkTarget(GridEvent event)
     {
         // check for null needed because of fake events in system tests
         return event.getTarget() != null && event.getTarget().getTagName().equals(LINK_TAG_NAME);

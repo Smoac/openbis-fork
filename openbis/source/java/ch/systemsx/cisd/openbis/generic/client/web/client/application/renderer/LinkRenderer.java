@@ -33,18 +33,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
  */
 public class LinkRenderer
 {
-    public static GridCellRenderer<BaseEntityModel<?>> createGridCellRenderer()
+    public static GridCellRenderer<BaseEntityModel<?>> createLinkRenderer()
     {
         return new GridCellRenderer<BaseEntityModel<?>>()
+        {
+            public String render(BaseEntityModel<?> model, String property, ColumnData config,
+                    int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store)
             {
-                public String render(BaseEntityModel<?> model, String property, ColumnData config,
-                        int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store)
-                {
-                    return LinkRenderer.renderAsLink(model.get(property).toString());
-                }
-            };
+                return LinkRenderer.renderAsLinkWithAnchor(model.get(property).toString());
+            }
+        };
     }
-
+    
     public static GridCellRenderer<BaseEntityModel<?>> createExternalLinkRenderer()
     {
         return new GridCellRenderer<BaseEntityModel<?>>()

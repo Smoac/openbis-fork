@@ -81,7 +81,7 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
     {
         super(viewContext, BROWSER_ID, GRID_ID, false);
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.DATA_SET_SEARCH_RESULT_GRID);
-        registerCellClickListenerFor(DataSetSearchHitColDefKind.PARENT.id(),
+        registerLinkClickListenerFor(DataSetSearchHitColDefKind.PARENT.id(),
                 new OpenEntityDetailsTabCellClickListener()
                     {
                         @Override
@@ -90,7 +90,7 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
                             return rowItem.getParent();
                         }
                     });
-        registerCellClickListenerFor(DataSetSearchHitColDefKind.EXPERIMENT.id(),
+        registerLinkClickListenerFor(DataSetSearchHitColDefKind.EXPERIMENT.id(),
                 new OpenEntityDetailsTabCellClickListener()
                     {
                         @Override
@@ -108,8 +108,8 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
                             return rowItem.getSample();
                         }
                     };
-        registerCellClickListenerFor(DataSetSearchHitColDefKind.SAMPLE.id(), sampleClickListener);
-        registerCellClickListenerFor(DataSetSearchHitColDefKind.SAMPLE_IDENTIFIER.id(),
+        registerLinkClickListenerFor(DataSetSearchHitColDefKind.SAMPLE.id(), sampleClickListener);
+        registerLinkClickListenerFor(DataSetSearchHitColDefKind.SAMPLE_IDENTIFIER.id(),
                 sampleClickListener);
     }
 
@@ -181,8 +181,7 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
         List<PropertyType> propertyTypes = criteria == null ? null : criteria.tryGetPropertyTypes();
         ColumnDefsAndConfigs<ExternalData> schema =
                 DataSetSearchHitModel.createColumnsSchema(viewContext, propertyTypes);
-        GridCellRenderer<BaseEntityModel<?>> linkRenderer = LinkRenderer.createGridCellRenderer();
-        schema.setGridCellRendererFor(DataSetSearchHitColDefKind.CODE.id(), linkRenderer);
+        GridCellRenderer<BaseEntityModel<?>> linkRenderer = LinkRenderer.createLinkRenderer();
         schema.setGridCellRendererFor(DataSetSearchHitColDefKind.PARENT.id(), linkRenderer);
         schema.setGridCellRendererFor(DataSetSearchHitColDefKind.SAMPLE.id(), linkRenderer);
         schema.setGridCellRendererFor(DataSetSearchHitColDefKind.SAMPLE_IDENTIFIER.id(),
