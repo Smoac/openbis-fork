@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.MatchingE
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -681,5 +682,13 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.OBSERVER)
     public List<String> getTemplateColumns(String sessionToken, EntityKind kind, String type,
             boolean autoGenerate);
+
+    /**
+     * Updates file format type.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseUpdateModification(value = ObjectKind.FILE_FORMAT_TYPE)
+    public void updateFileFormatType(String sessionToken, AbstractType type);
 
 }
