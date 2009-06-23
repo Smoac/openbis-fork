@@ -83,9 +83,9 @@ public class ListSamplesByPropertyCriteria implements Serializable
     public String toString()
     {
         String expDesc =
-                (experimentIdentifierOrNull == null ? "any" : experimentIdentifierOrNull.toString());
-        return String.format(
-                "Samples from the group '%s' with property '%s' set to '%s' in %s",
+                (experimentIdentifierOrNull == null ? "any experiment" : experimentIdentifierOrNull
+                        .toString());
+        return String.format("Samples from the group '%s' with property '%s' set to '%s' in %s",
                 groupCode, samplePropertyCode, samplePropertyValue, expDesc);
     }
 

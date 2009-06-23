@@ -148,7 +148,8 @@ class LogUtils
             IOUtils.writeLines(Arrays.asList(message), "", output);
         } catch (IOException ex)
         {
-            adminError("Cannot notify a user: " + ex.getMessage());
+            adminError("Cannot notify a user because " + ex.getMessage() + "\n The message was: "
+                    + message);
         }
     }
 

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -119,10 +120,12 @@ public class BatchDataSetHandler implements IDataSetHandler
     {
         List<DataSetInformation> processedDatasetFiles = createEmptyResult();
 
+        Set<String> unknownMappings = new HashSet<String>(mappings.keySet());
         Set<String> processedFiles = new HashSet<String>();
         List<File> files = listAll(batchDir);
         for (File file : files)
         {
+            unknownMappings.remove(file.getName().toLowerCase());
             // we have already tries to acquire write access to all files in batch directory,
             // but some new files may have appeared since that time.
             boolean isWritable = acquireWriteAccess(batchDir, file);
@@ -137,9 +140,22 @@ public class BatchDataSetHandler implements IDataSetHandler
                 processedFiles.add(file.getName().toLowerCase());
             }
         }
+        if (unknownMappings.size() > 0)
+        {
+            logUnknownMappings(unknownMappings, log);
+        }
         clean(batchDir, processedFiles, log, mappings.values().size());
         sendNotificationsIfNecessary(log, notificationEmail);
         return processedDatasetFiles;
+    }
+
+    private void logUnknownMappings(Set<String> unknownMappings, LogUtils log)
+    {
+        String unknownFiles = CollectionUtils.abbreviate(unknownMappings, -1);
+        log
+                .error("There are following files mentioned in the mapping file which do not exist:\n"
+                        + unknownFiles
+                        + "\nBrowse the mapping file and check if you have not misspelled some file names.");
     }
 
     private void logNonWritable(File file, LogUtils log)
@@ -229,7 +245,8 @@ public class BatchDataSetHandler implements IDataSetHandler
         cleanMappingFile(batchDir, processedFiles, log);
 
         int unprocessedDatasetsCounter = datasetMappingsNumber - processedFiles.size();
-        if (unprocessedDatasetsCounter == 0 && hasNoPotentialDatasetFiles(batchDir))
+        boolean hasNoPotentialDatasetFiles = hasNoPotentialDatasetFiles(batchDir);
+        if (unprocessedDatasetsCounter == 0 && hasNoPotentialDatasetFiles)
         {
             cleanDatasetsDir(batchDir, log);
         } else
@@ -272,17 +289,18 @@ public class BatchDataSetHandler implements IDataSetHandler
 
     // Checks that the sample from the mapping exists and is assigned to the experiment - we do not
     // want to move datasets to unidentified directory in this case.
-    private boolean canDatasetBeProcessed(File dataset,
+    private boolean canDatasetBeProcessed(File file,
             TableMap<String, DataSetMappingInformation> datasetsMapping, LogUtils log)
     {
-        if (DatasetMappingUtil.isMappingFile(dataset))
+        if (isPotentialDatasetFile(file) == false)
         {
             return false;
         }
         DataSetMappingInformation mapping =
-                DatasetMappingUtil.tryGetDatasetMapping(dataset, datasetsMapping);
+                DatasetMappingUtil.tryGetDatasetMapping(file, datasetsMapping);
         if (mapping == null)
         {
+            log.error(file.getName() + " - no mapping could be found for this dataset");
             return false;
         }
         return datasetMappingResolver.isMappingCorrect(mapping, log);
@@ -306,12 +324,17 @@ public class BatchDataSetHandler implements IDataSetHandler
         int datasetsCounter = files.size();
         for (File file : files)
         {
-            if (LogUtils.isUserLog(file) || DatasetMappingUtil.isMappingFile(file))
+            if (isPotentialDatasetFile(file) == false)
             {
                 datasetsCounter--;
             }
         }
         return datasetsCounter == 0;
+    }
+
+    private static boolean isPotentialDatasetFile(File file)
+    {
+        return LogUtils.isUserLog(file) == false && DatasetMappingUtil.isMappingFile(file) == false;
     }
 
     private static List<File> listAll(File dataSet)

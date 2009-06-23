@@ -317,7 +317,7 @@ class DatasetMappingResolver
 
     private static String adaptPropertyCode(String propertyCode)
     {
-        if (propertyCode.startsWith(PROPERTIES_PREFIX) == false)
+        if (propertyCode.toLowerCase().startsWith(PROPERTIES_PREFIX.toLowerCase()) == false)
         {
             return PROPERTIES_PREFIX + propertyCode;
         } else
