@@ -16,12 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.ToolBarEvent;
 import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -31,12 +35,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.TypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AddTypeDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -96,6 +103,10 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
         createItem.setId(ADD_NEW_TYPE_BUTTON_ID);
         pagingToolbar.add(createItem);
 
+        Button deleteButton = createDeleteButton(viewContext);
+        enableButtonOnSelectedItems(deleteButton);
+        pagingToolbar.add(new AdapterToolItem(deleteButton));
+
         addEntityOperationsSeparator();
     }
 
@@ -114,6 +125,59 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
                     viewContext.getService().registerFileType(type, registrationCallback);
                 }
             };
+    }
+
+    private Button createDeleteButton(final IViewContext<ICommonClientServiceAsync> context)
+    {
+        Button deleteButton = new Button(context.getMessage(Dict.BUTTON_DELETE));
+        deleteButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public void componentSelected(ButtonEvent ce)
+                {
+                    List<BaseEntityModel<AbstractType>> types = getSelectedItems();
+                    if (types.isEmpty())
+                    {
+                        return;
+                    }
+                    final List<String> selectedTypeCodes = new ArrayList<String>();
+                    for (BaseEntityModel<AbstractType> model : types)
+                    {
+                        AbstractType term = model.getBaseObject();
+                        selectedTypeCodes.add(term.getCode());
+                    }
+                    ConfirmationDialog confirmationDialog =
+                            new ConfirmationDialog(context
+                                    .getMessage(Dict.DELETE_CONFIRMATION_TITLE), context
+                                    .getMessage(Dict.DELETE_CONFIRMATION_MESSAGE, StringUtils
+                                            .joinList(selectedTypeCodes)))
+                                {
+                                    @Override
+                                    protected void onYes()
+                                    {
+                                        viewContext.getCommonService()
+                                                .deleteFileFormatTypes(selectedTypeCodes,
+                                                        new RefreshCallback(viewContext));
+                                    }
+                                };
+                    confirmationDialog.show();
+                }
+            });
+        return deleteButton;
+    }
+
+    final class RefreshCallback extends AbstractAsyncCallback<Void>
+    {
+        private RefreshCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        protected void process(Void result)
+        {
+            refresh();
+        }
     }
 
     @Override

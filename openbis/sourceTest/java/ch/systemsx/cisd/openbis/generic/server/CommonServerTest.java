@@ -23,6 +23,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.jmock.Expectations;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -622,6 +623,98 @@ public final class CommonServerTest extends AbstractServerTestCase
         List<FileFormatTypePE> types = createServer().listFileFormatTypes(SESSION_TOKEN);
 
         assertSame(list, types);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDeleteFileFormatsWithNoCodesSpecified() throws Exception
+    {
+        List<String> codes = new ArrayList<String>();
+        prepareGetSession();
+        createServer().deleteFileFormatTypes(SESSION_TOKEN, codes);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDeleteFileFormatsWithCodesSpecified() throws Exception
+    {
+        final List<String> codes = Arrays.asList("code1", "code2");
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    for (String code : codes)
+                    {
+                        one(fileFormatDAO).tryToFindFileFormatTypeByCode(code);
+                        FileFormatTypePE type = createFileFormatType(code);
+                        will(returnValue(type));
+                        one(fileFormatDAO).delete(type);
+                    }
+                }
+            });
+        createServer().deleteFileFormatTypes(SESSION_TOKEN, codes);
+        context.assertIsSatisfied();
+    }
+
+    private static final FileFormatTypePE createFileFormatType(String code)
+    {
+        FileFormatTypePE result = new FileFormatTypePE();
+        result.setCode(code);
+        result.setDatabaseInstance(new DatabaseInstancePE());
+        return result;
+    }
+
+    @Test
+    public void testDeleteUnknownFileFormat() throws Exception
+    {
+        final String code = "unknown-type";
+        final List<String> codes = Arrays.asList(code);
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(fileFormatDAO).tryToFindFileFormatTypeByCode(code);
+                    will(returnValue(null));
+                }
+            });
+        boolean exceptionThrown = false;
+        try
+        {
+            createServer().deleteFileFormatTypes(SESSION_TOKEN, codes);
+        } catch (UserFailureException ex)
+        {
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDeleteFileFormatWithDataSets() throws Exception
+    {
+        final String code = "used-type";
+        final List<String> codes = Arrays.asList(code);
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(fileFormatDAO).tryToFindFileFormatTypeByCode(code);
+                    FileFormatTypePE type = createFileFormatType(code);
+                    will(returnValue(type));
+
+                    one(fileFormatDAO).delete(type);
+                    will(throwException(new DataIntegrityViolationException("")));
+                }
+            });
+        boolean exceptionThrown = false;
+        try
+        {
+            createServer().deleteFileFormatTypes(SESSION_TOKEN, codes);
+        } catch (UserFailureException ex)
+        {
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
         context.assertIsSatisfied();
     }
 

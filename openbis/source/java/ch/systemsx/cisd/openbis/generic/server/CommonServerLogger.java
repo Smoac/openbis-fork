@@ -550,4 +550,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    public void deleteFileFormatTypes(String sessionToken, List<String> codes)
+    {
+        logTracking(sessionToken, "delete_file_format_types", "CODES(%s)", StringUtils.join(codes
+                .toArray(new String[0])));
+
+    }
+
 }

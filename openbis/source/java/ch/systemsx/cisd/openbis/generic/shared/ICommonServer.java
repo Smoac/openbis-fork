@@ -648,6 +648,15 @@ public interface ICommonServer extends IServer
     public void deleteExperimentTypes(String sessionToken, List<String> entityTypesCodes);
 
     /**
+     * Deletes specified file format types.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value =
+        { ObjectKind.FILE_FORMAT_TYPE })
+    public void deleteFileFormatTypes(String sessionToken, List<String> codes);
+
+    /**
      * Deletes specified material types.
      */
     @Transactional

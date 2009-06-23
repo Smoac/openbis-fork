@@ -438,6 +438,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<Void> callback);
 
     /**
+     * @see ICommonClientService#deleteFileFormatTypes(List)
+     */
+    public void deleteFileFormatTypes(List<String> fileFormatTypeCodes, AsyncCallback<Void> callback);
+
+    /**
      * @see ICommonClientService#getEntityInformationHolder(EntityKind, String)
      */
     public void getEntityInformationHolder(EntityKind entityKind, String permId,

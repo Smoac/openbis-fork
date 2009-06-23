@@ -1616,4 +1616,17 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public void deleteFileFormatTypes(List<String> fileFormatTypeCodes)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.deleteFileFormatTypes(sessionToken, fileFormatTypeCodes);
+        } catch (UserFailureException ex)
+        {
+            throw UserFailureExceptionTranslator.translate(ex);
+        }
+    }
+
 }

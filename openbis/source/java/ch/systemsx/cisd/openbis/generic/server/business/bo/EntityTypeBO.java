@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
- * Maniupations on {@link EntityTypePE} subclasses.
+ * Manipulations on {@link EntityTypePE} subclasses.
  * 
  * @author Tomasz Pylak
  */

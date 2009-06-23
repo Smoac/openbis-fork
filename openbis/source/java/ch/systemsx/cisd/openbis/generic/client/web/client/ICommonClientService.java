@@ -511,6 +511,11 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
+     * Delete file format types.
+     */
+    public void deleteFileFormatTypes(List<String> fileFormatTypeCodes) throws UserFailureException;
+
+    /**
      * For given {@link EntityKind} and <var>identifier</var> returns the corresponding
      * {@link IEntityInformationHolder}.
      */

@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
@@ -50,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
@@ -1050,6 +1052,36 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             throws UserFailureException
     {
         deleteEntityTypes(sessionToken, EntityKind.SAMPLE, entityTypesCodes);
+    }
+
+    public void deleteFileFormatTypes(String sessionToken, List<String> codes)
+            throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token";
+        checkSession(sessionToken);
+        IFileFormatTypeDAO dao = getDAOFactory().getFileFormatTypeDAO();
+        for (String code : codes)
+        {
+            FileFormatTypePE type = dao.tryToFindFileFormatTypeByCode(code);
+            if (type == null)
+            {
+                throw new UserFailureException(String.format("File format type '%s' not found.",
+                        code));
+            } else
+            {
+                try
+                {
+                    dao.delete(type);
+                } catch (DataIntegrityViolationException ex)
+                {
+                    throw new UserFailureException(
+                            String
+                                    .format(
+                                            "File format type '%s' is being used. Use 'Data Set Search' to find all connected data sets.",
+                                            code));
+                }
+            }
+        }
     }
 
     public List<String> getTemplateColumns(String sessionToken, EntityKind entityKind, String type,
