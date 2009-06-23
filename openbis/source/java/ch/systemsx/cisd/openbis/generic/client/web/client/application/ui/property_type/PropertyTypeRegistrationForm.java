@@ -134,7 +134,7 @@ public final class PropertyTypeRegistrationForm extends AbstractVocabularyRegist
         final VarcharField varcharField =
                 new VarcharField(viewContext.getMessage(Dict.DESCRIPTION), true);
         varcharField.setId(getId() + "_description");
-        varcharField.setMaxLength(80);
+        varcharField.setMaxLength(GenericConstants.DESCRIPTION_250);
         return varcharField;
     }
 

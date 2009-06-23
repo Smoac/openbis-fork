@@ -33,6 +33,7 @@ import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField.CodeFieldKind;
@@ -122,7 +123,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
             final boolean mandatory)
     {
         final VarcharField varcharField = new VarcharField(descriptionLabel, mandatory);
-        varcharField.setMaxLength(80);
+        varcharField.setMaxLength(GenericConstants.DESCRIPTION_250);
         varcharField.setId(idPrefix + "_description");
         return varcharField;
     }
