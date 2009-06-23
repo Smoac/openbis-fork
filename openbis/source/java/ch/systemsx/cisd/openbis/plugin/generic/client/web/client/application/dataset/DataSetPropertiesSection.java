@@ -91,7 +91,17 @@ public class DataSetPropertiesSection extends SectionPanel
 
         properties.put(messageProvider.getMessage(Dict.DATA_SET), dataset.getCode());
         properties.put(messageProvider.getMessage(Dict.DATA_SET_TYPE), datasetType);
+
         properties.put(messageProvider.getMessage(Dict.SOURCE_TYPE), dataset.getSourceType());
+        properties.put(messageProvider.getMessage(Dict.IS_COMPLETE), dataset.getComplete());
+        properties.put(messageProvider.getMessage(Dict.LOCATION), dataset.getLocation());
+        properties.put(messageProvider.getMessage(Dict.FILE_FORMAT_TYPE), dataset
+                .getFileFormatType().getCode());
+        properties.put(messageProvider.getMessage(Dict.DATA_PRODUCER_CODE), dataset
+                .getDataProducerCode());
+        properties.put(messageProvider.getMessage(Dict.PRODUCTION_DATE), dataset
+                .getProductionDate());
+
         properties.put(messageProvider.getMessage(Dict.REGISTRATOR), dataset.getRegistrator());
         properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE), dataset
                 .getRegistrationDate());
