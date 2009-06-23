@@ -168,15 +168,11 @@ class DatasetMappingUtil
         }
     }
 
-    public static DataSetMappingInformationFile tryGetDatasetsMapping(File parentDir, LogUtils log)
+    public static DataSetMappingInformationFile tryGetDatasetsMapping(File batchDir, LogUtils log)
     {
-        File mappingFile = tryGetMappingFile(parentDir);
+        File mappingFile = tryGetMappingFile(batchDir, log);
         if (mappingFile == null)
         {
-            log.error("No datasets from the directory '%s' can be processed "
-                    + "because a file with extension '%s' which contains dataset descriptions "
-                    + "does not exist or there is more than one file with taht extension.",
-                    parentDir.getName(), CollectionUtils.abbreviate(MAPPING_FILE_EXTENSIONS, -1));
             return null;
         }
         String notificationEmail = tryGetEmail(mappingFile, log);
@@ -208,19 +204,29 @@ class DatasetMappingUtil
         return false;
     }
 
-    private static File tryGetMappingFile(File parentDir)
+    private static File tryGetMappingFile(File batchDir, LogUtils log)
     {
-        List<File> potentialMappingFiles = listPotentialMappingFiles(parentDir);
-        if (potentialMappingFiles.size() != 1)
+        List<File> potentialMappingFiles = listPotentialMappingFiles(batchDir);
+        String errorMsgPrefix = "No datasets from the directory '%s' can be processed because ";
+        String batchDirName = batchDir.getName();
+        if (potentialMappingFiles.size() == 0)
         {
+            log.error(errorMsgPrefix
+                    + "there is no file with extension '%s' which contains dataset descriptions.",
+                    batchDirName, CollectionUtils.abbreviate(MAPPING_FILE_EXTENSIONS, -1));
+            return null;
+        }
+
+        if (potentialMappingFiles.size() > 1)
+        {
+            log.error(errorMsgPrefix + "there is more than one file with extension '%s'.",
+                    batchDirName, CollectionUtils.abbreviate(MAPPING_FILE_EXTENSIONS, -1));
             return null;
         }
         File indexFile = potentialMappingFiles.get(0);
         if (indexFile.isFile() == false)
         {
-            return null;
-        } else if (indexFile.canWrite() == false)
-        {
+            log.error(errorMsgPrefix + "'%s' is not a file.", batchDirName, indexFile.getName());
             return null;
         } else
         {
@@ -233,13 +239,14 @@ class DatasetMappingUtil
         return FileUtilities.listFiles(dataSet, MAPPING_FILE_EXTENSIONS, false, null);
     }
 
-    public static void deleteMappingFile(File parentDir)
+    public static boolean deleteMappingFile(File batchDir, LogUtils log)
     {
-        File mappingFile = tryGetMappingFile(parentDir);
+        File mappingFile = tryGetMappingFile(batchDir, log);
         if (mappingFile != null && mappingFile.isFile())
         {
-            mappingFile.delete();
+            return mappingFile.delete();
         }
+        return true;
     }
 
     /**
@@ -247,9 +254,9 @@ class DatasetMappingUtil
      * 
      * @param processedFiles files which should be removed from the mapping file
      */
-    public static void cleanMappingFile(File parentDir, Set<String> processedFiles, LogUtils log)
+    public static void cleanMappingFile(File batchDir, Set<String> processedFiles, LogUtils log)
     {
-        File mappingFile = tryGetMappingFile(parentDir);
+        File mappingFile = tryGetMappingFile(batchDir, log);
         if (mappingFile == null)
         {
             return;

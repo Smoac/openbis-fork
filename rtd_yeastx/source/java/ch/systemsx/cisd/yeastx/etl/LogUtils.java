@@ -90,7 +90,7 @@ class LogUtils
     private void appendNotification(String messageFormat, Object... arguments)
     {
         errorMessages.append(String.format(messageFormat, arguments));
-        errorMessages.append("\n");
+        errorMessages.append("\r\n");
     }
 
     /** has to be called at the end to send all notifications in one email */
@@ -156,7 +156,7 @@ class LogUtils
             Object... arguments)
     {
         String now = new Date().toString();
-        String message = now + " " + messageKind + ": " + format(messageFormat, arguments) + "\n";
+        String message = now + " " + messageKind + ": " + format(messageFormat, arguments) + "\r\n";
         return message;
     }
 
@@ -190,12 +190,13 @@ class LogUtils
         return file.getName().equals(ConstantsYeastX.USER_LOG_FILE);
     }
 
-    public static void deleteUserLog(File loggingDir)
+    public static boolean deleteUserLog(File loggingDir)
     {
         File file = getUserLogFile(loggingDir);
         if (file.isFile())
         {
-            file.delete();
+            return file.delete();
         }
+        return true;
     }
 }

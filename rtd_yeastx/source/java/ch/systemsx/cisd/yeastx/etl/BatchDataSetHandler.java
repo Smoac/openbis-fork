@@ -38,7 +38,9 @@ import ch.systemsx.cisd.yeastx.etl.DatasetMappingUtil.DataSetMappingInformationF
 
 /**
  * {@link IDataSetHandler} implementation which for each dataset directory reads all the files
- * inside that directory and runs the primary dataset handler for it.
+ * inside that directory and runs the primary dataset handler for it.<br>
+ * Following properties can be configured:<br> {@link PreprocessingExecutor#PREPROCESSING_SCRIPT_PATH} -
+ * the path to the script which acquires write access.
  * 
  * @author Tomasz Pylak
  */
@@ -50,13 +52,18 @@ public class BatchDataSetHandler implements IDataSetHandler
 
     private final DatasetMappingResolver datasetMappingResolver;
 
+    // the script which ensures that we have write access to the datasets
+    private final PreprocessingExecutor writeAccessSetter;
+
     public BatchDataSetHandler(Properties parentProperties, IDataSetHandler delegator,
             IEncapsulatedOpenBISService openbisService)
     {
         this.delegator = delegator;
         this.mailClient = new MailClient(parentProperties);
+        Properties specificProperties = getSpecificProperties(parentProperties);
         this.datasetMappingResolver =
-                new DatasetMappingResolver(getSpecificProperties(parentProperties), openbisService);
+                new DatasetMappingResolver(specificProperties, openbisService);
+        this.writeAccessSetter = PreprocessingExecutor.create(specificProperties);
     }
 
     private static Properties getSpecificProperties(Properties properties)
@@ -65,43 +72,106 @@ public class BatchDataSetHandler implements IDataSetHandler
                 true);
     }
 
-    public List<DataSetInformation> handleDataSet(File datasetsParentDir)
+    public List<DataSetInformation> handleDataSet(File batchDir)
     {
-        if (canBatchBeProcessed(datasetsParentDir) == false)
+        if (canBatchBeProcessed(batchDir) == false)
         {
             return createEmptyResult();
         }
-        LogUtils log = new LogUtils(datasetsParentDir);
-        DataSetMappingInformationFile datasetMappingFile =
-                DatasetMappingUtil.tryGetDatasetsMapping(datasetsParentDir, log);
-        if (datasetMappingFile == null || datasetMappingFile.tryGetMappings() == null)
+        LogUtils log = new LogUtils(batchDir);
+        DataSetMappingInformationFile mappingFile =
+                DatasetMappingUtil.tryGetDatasetsMapping(batchDir, log);
+        if (mappingFile == null || mappingFile.tryGetMappings() == null)
         {
-            touchErrorMarkerFile(datasetsParentDir, log);
-            sendNotificationsIfNecessary(log, tryGetEmail(datasetMappingFile));
-            return createEmptyResult();
+            return flushErrors(batchDir, mappingFile, log);
         }
-        return processDatasets(datasetsParentDir, log, datasetMappingFile.tryGetMappings(),
-                datasetMappingFile.getNotificationEmail());
+        if (callPreprocessingScript(batchDir, log) == false)
+        {
+            return flushErrors(batchDir, mappingFile, log);
+        }
+        return processDatasets(batchDir, log, mappingFile.tryGetMappings(), mappingFile
+                .getNotificationEmail());
     }
 
-    private List<DataSetInformation> processDatasets(File datasetsParentDir, LogUtils log,
+    private ArrayList<DataSetInformation> flushErrors(File batchDir,
+            DataSetMappingInformationFile datasetMappingFileOrNull, LogUtils log)
+    {
+        touchErrorMarkerFile(batchDir, log);
+        sendNotificationsIfNecessary(log, tryGetEmail(datasetMappingFileOrNull));
+        return createEmptyResult();
+    }
+
+    // false if script failed
+    private boolean callPreprocessingScript(File batchDir, LogUtils log)
+    {
+        boolean ok = writeAccessSetter.execute(batchDir.getName());
+        if (ok == false)
+        {
+            log.error("No datasets from '%s' directory can be processed because "
+                    + "the try to acquire write access by openBIS has failed. "
+                    + "Try again or contact your administrator.", batchDir.getName());
+        }
+        return ok;
+    }
+
+    private List<DataSetInformation> processDatasets(File batchDir, LogUtils log,
             TableMap<String, DataSetMappingInformation> mappings, String notificationEmail)
     {
         List<DataSetInformation> processedDatasetFiles = createEmptyResult();
 
         Set<String> processedFiles = new HashSet<String>();
-        List<File> files = listAll(datasetsParentDir);
+        List<File> files = listAll(batchDir);
         for (File file : files)
         {
+            // we have already tries to acquire write access to all files in batch directory,
+            // but some new files may have appeared since that time.
+            boolean isWritable = acquireWriteAccess(batchDir, file);
+            if (isWritable == false)
+            {
+                logNonWritable(file, log);
+                continue;
+            }
             if (canDatasetBeProcessed(file, mappings, log))
             {
                 processedDatasetFiles.addAll(delegator.handleDataSet(file));
                 processedFiles.add(file.getName().toLowerCase());
             }
         }
-        clean(datasetsParentDir, processedFiles, log, mappings.values().size());
+        clean(batchDir, processedFiles, log, mappings.values().size());
         sendNotificationsIfNecessary(log, notificationEmail);
         return processedDatasetFiles;
+    }
+
+    private void logNonWritable(File file, LogUtils log)
+    {
+        log.error("Could not acquire write access to '%s'. "
+                + "Try again or contact your administrator.", file.getPath());
+    }
+
+    // Acquires write access if the file is not writable.
+    // Returns true if file is writable afterwards.
+    private boolean acquireWriteAccess(File batchDir, File file)
+    {
+        if (isWritable(batchDir) == false)
+        {
+            String path =
+                    batchDir.getName() + System.getProperty("file.separator") + file.getName();
+            boolean ok = writeAccessSetter.execute(path);
+            if (ok == false)
+            {
+                LogUtils.adminError("Cannot acquire write access to '%s' "
+                        + "because write access setter failed", path);
+            }
+            return isWritable(batchDir);
+        } else
+        {
+            return true;
+        }
+    }
+
+    private static boolean isWritable(File file)
+    {
+        return file.canWrite();
     }
 
     private void sendNotificationsIfNecessary(LogUtils log, String email)
@@ -120,19 +190,19 @@ public class BatchDataSetHandler implements IDataSetHandler
         return new ArrayList<DataSetInformation>();
     }
 
-    private static boolean canBatchBeProcessed(File parentDir)
+    // true if we deal with a directory which contains no error marker file and is not empty
+    private static boolean canBatchBeProcessed(File batchDir)
     {
-        if (parentDir.isDirectory() == false)
+        if (batchDir.isDirectory() == false)
         {
             return false;
         }
-        if (errorMarkerFileExists(parentDir))
+        if (errorMarkerFileExists(batchDir))
         {
             return false;
         }
-        List<File> files = listAll(parentDir);
+        List<File> files = listAll(batchDir);
         // Do not treat empty directories as faulty.
-
         // The other reason of this check is that this handler is sometimes no able to delete
         // processed directories. It happens when they are mounted on NAS and there are some
         // hidden .nfs* files.
@@ -143,35 +213,34 @@ public class BatchDataSetHandler implements IDataSetHandler
         return true;
     }
 
-    private static boolean errorMarkerFileExists(File datasetsParentDir)
+    private static boolean errorMarkerFileExists(File batchDir)
     {
-        return new File(datasetsParentDir, ERROR_MARKER_FILE).isFile();
+        return new File(batchDir, ERROR_MARKER_FILE).isFile();
     }
 
-    private static void cleanMappingFile(File datasetsParentDir, Set<String> processedFiles,
-            LogUtils log)
+    private static void cleanMappingFile(File batchDir, Set<String> processedFiles, LogUtils log)
     {
-        DatasetMappingUtil.cleanMappingFile(datasetsParentDir, processedFiles, log);
+        DatasetMappingUtil.cleanMappingFile(batchDir, processedFiles, log);
     }
 
-    private static void clean(File datasetsParentDir, Set<String> processedFiles, LogUtils log,
+    private static void clean(File batchDir, Set<String> processedFiles, LogUtils log,
             int datasetMappingsNumber)
     {
-        cleanMappingFile(datasetsParentDir, processedFiles, log);
+        cleanMappingFile(batchDir, processedFiles, log);
 
         int unprocessedDatasetsCounter = datasetMappingsNumber - processedFiles.size();
-        if (unprocessedDatasetsCounter == 0 && hasNoPotentialDatasetFiles(datasetsParentDir))
+        if (unprocessedDatasetsCounter == 0 && hasNoPotentialDatasetFiles(batchDir))
         {
-            cleanDatasetsDir(datasetsParentDir);
+            cleanDatasetsDir(batchDir, log);
         } else
         {
-            touchErrorMarkerFile(datasetsParentDir, log);
+            touchErrorMarkerFile(batchDir, log);
         }
     }
 
-    private static void touchErrorMarkerFile(File parentDir, LogUtils log)
+    private static void touchErrorMarkerFile(File batchDir, LogUtils log)
     {
-        File errorMarkerFile = new File(parentDir, ERROR_MARKER_FILE);
+        File errorMarkerFile = new File(batchDir, ERROR_MARKER_FILE);
         if (errorMarkerFile.isFile())
         {
             return;
@@ -189,30 +258,29 @@ public class BatchDataSetHandler implements IDataSetHandler
                     .getPath());
         } else
         {
-            log.warning(
-                    "Correct the errors and delete the '%s' file to start processing again.",
+            log.warning("Correct the errors and delete the '%s' file to start processing again.",
                     ERROR_MARKER_FILE);
         }
     }
 
-    private static void cleanDatasetsDir(File datasetsParentDir)
+    private static void cleanDatasetsDir(File batchDir, LogUtils log)
     {
-        LogUtils.deleteUserLog(datasetsParentDir);
-        DatasetMappingUtil.deleteMappingFile(datasetsParentDir);
-        deleteEmptyDir(datasetsParentDir);
+        LogUtils.deleteUserLog(batchDir);
+        DatasetMappingUtil.deleteMappingFile(batchDir, log);
+        deleteEmptyDir(batchDir);
     }
 
     // Checks that the sample from the mapping exists and is assigned to the experiment - we do not
     // want to move datasets to unidentified directory in this case.
-    private boolean canDatasetBeProcessed(File file,
+    private boolean canDatasetBeProcessed(File dataset,
             TableMap<String, DataSetMappingInformation> datasetsMapping, LogUtils log)
     {
-        if (DatasetMappingUtil.isMappingFile(file))
+        if (DatasetMappingUtil.isMappingFile(dataset))
         {
             return false;
         }
         DataSetMappingInformation mapping =
-                DatasetMappingUtil.tryGetDatasetMapping(file, datasetsMapping);
+                DatasetMappingUtil.tryGetDatasetMapping(dataset, datasetsMapping);
         if (mapping == null)
         {
             return false;
@@ -220,7 +288,7 @@ public class BatchDataSetHandler implements IDataSetHandler
         return datasetMappingResolver.isMappingCorrect(mapping, log);
     }
 
-    private static void deleteEmptyDir(File dir)
+    private static boolean deleteEmptyDir(File dir)
     {
         boolean ok = dir.delete();
         if (ok == false)
@@ -229,11 +297,12 @@ public class BatchDataSetHandler implements IDataSetHandler
                     "The directory '%s' cannot be deleted although it seems to be empty.", dir
                             .getPath());
         }
+        return ok;
     }
 
-    private static boolean hasNoPotentialDatasetFiles(File dir)
+    private static boolean hasNoPotentialDatasetFiles(File batchDir)
     {
-        List<File> files = listAll(dir);
+        List<File> files = listAll(batchDir);
         int datasetsCounter = files.size();
         for (File file : files)
         {
