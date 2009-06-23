@@ -156,6 +156,17 @@ public class DatasetDownloadServletTest
     }
 
     @Test
+    public void testGetMimetype()
+    {
+        assertEquals("image/tiff", DatasetDownloadServlet.getMimeType(new File("/some/image.tiff"), false));
+        assertEquals("binary", DatasetDownloadServlet.getMimeType(new File("/some/image.tiff"), true));
+        assertEquals("image/tiff", DatasetDownloadServlet.getMimeType(new File("/some/image.TIF"), false));
+        assertEquals("binary", DatasetDownloadServlet.getMimeType(new File("/some/image.TIF"), true));
+        assertEquals("application/pdf", DatasetDownloadServlet.getMimeType(new File("doc.pdf"), false));
+        assertEquals("text/plain", DatasetDownloadServlet.getMimeType(new File("/dir/filewithoutext"), false));
+    }
+
+    @Test
     public void testInitialDoGet() throws Exception
     {
         final StringWriter writer = new StringWriter();
@@ -305,7 +316,7 @@ public class DatasetDownloadServletTest
         context.checking(new Expectations()
             {
                 {
-                    one(response).setContentType(DatasetDownloadServlet.BINARY_CONTENT_TYPE);
+                    one(response).setContentType("text/plain");
                     one(response).setContentLength(EXAMPLE_FILE_CONTENT.length());
                     one(response).setHeader("Content-Disposition",
                             "inline; filename=" + EXAMPLE_FILE_NAME);

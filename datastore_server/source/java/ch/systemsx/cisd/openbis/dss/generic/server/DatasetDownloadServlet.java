@@ -31,6 +31,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -40,6 +41,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -71,6 +73,10 @@ public class DatasetDownloadServlet extends HttpServlet
 
     static final String BINARY_CONTENT_TYPE = "binary";
 
+    static final String PLAIN_TEXT_CONTENT_TYPE = "text/plain";
+
+    private static final MimetypesFileTypeMap MIMETYPES = new MimetypesFileTypeMap();
+
     private static final long serialVersionUID = 1L;
 
     protected static final Logger operationLog =
@@ -78,6 +84,24 @@ public class DatasetDownloadServlet extends HttpServlet
 
     protected static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, DatasetDownloadServlet.class);
+
+    // @Private
+    static String getMimeType(File f, boolean plainTextMode)
+    {
+        if (plainTextMode)
+        {
+             return BINARY_CONTENT_TYPE;
+        } else
+        {
+            if (FilenameUtils.getExtension(f.getName()).length() == 0)
+            {
+                return PLAIN_TEXT_CONTENT_TYPE;
+            } else
+            {
+                return MIMETYPES.getContentType(f.getName().toLowerCase());
+            }
+        }
+    }
 
     private static final Comparator<File> FILE_COMPARATOR = new Comparator<File>()
         {
@@ -214,7 +238,7 @@ public class DatasetDownloadServlet extends HttpServlet
         RenderingContext context =
                 new RenderingContext(rootDir, requestParams.getURLPrefix(), requestParams
                         .getPathInfo());
-        renderPage(rendererFactory, response, dataSet, context);
+        renderPage(rendererFactory, response, dataSet, context, requestParams);
     }
 
     private IRendererFactory createRendererFactory(boolean plainTextMode)
@@ -290,7 +314,8 @@ public class DatasetDownloadServlet extends HttpServlet
     }
 
     private void renderPage(IRendererFactory rendererFactory, HttpServletResponse response,
-            ExternalDataPE dataSet, RenderingContext renderingContext) throws IOException
+            ExternalDataPE dataSet, RenderingContext renderingContext, RequestParams requestParams)
+            throws IOException
     {
         File file = renderingContext.getFile();
         if (file.exists() == false)
@@ -302,7 +327,7 @@ public class DatasetDownloadServlet extends HttpServlet
             createPage(rendererFactory, response, dataSet, renderingContext, file);
         } else
         {
-            deliverFile(response, dataSet, file);
+            deliverFile(response, dataSet, file, requestParams.isPlainTextMode());
         }
     }
 
@@ -354,8 +379,8 @@ public class DatasetDownloadServlet extends HttpServlet
         }
     }
 
-    private void deliverFile(final HttpServletResponse response, ExternalDataPE dataSet, File file)
-            throws IOException, FileNotFoundException
+    private void deliverFile(final HttpServletResponse response, ExternalDataPE dataSet, File file,
+            boolean plainTextMode) throws IOException, FileNotFoundException
     {
         long size = file.length();
         if (operationLog.isInfoEnabled())
@@ -367,7 +392,7 @@ public class DatasetDownloadServlet extends HttpServlet
         response.setHeader("Content-Disposition", "inline; filename=" + file.getName());
         ServletOutputStream outputStream = null;
         FileInputStream fileInputStream = null;
-        response.setContentType(BINARY_CONTENT_TYPE);
+        response.setContentType(getMimeType(file, plainTextMode));
         try
         {
             outputStream = response.getOutputStream();
