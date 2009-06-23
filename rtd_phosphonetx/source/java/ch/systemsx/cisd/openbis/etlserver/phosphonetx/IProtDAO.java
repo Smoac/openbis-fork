@@ -68,9 +68,9 @@ public interface IProtDAO extends BaseQuery
     @Select("insert into peptides (prot_id, sequ_id, charge) values (?{1}, ?{2}, ?{3}) returning id")
     public long createPeptide(long proteinID, long sequenceID, int charge);
     
-    @Update("insert into modifications (mope_id, moty_id, position, mass) "
+    @Update("insert into modifications (pept_id, moty_id, position, mass) "
             + "values (?{1}, ?{2}, ?{3}, ?{4})")
-    public void createModification(long modifiedPeptideID, long modificationTypeID, int position,
+    public void createModification(long peptideID, long modificationTypeID, int position,
             double mass);
 
     @Update("insert into annotations (prot_id, protein_description, ipi_name, refseq_name, "
