@@ -243,8 +243,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
 
     protected DataStorePE pickADataStore()
     {
-        return daoFactory.getExternalDataDAO().tryToFindDataSetByCode("20081105092158673-1")
-                .getDataStore();
+        return daoFactory.getDataStoreDAO().tryToFindDataStoreByCode("STANDARD");
     }
 
     protected DataSetTypePE getDataSetType(DataSetTypeCode type)

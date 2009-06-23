@@ -108,7 +108,6 @@ public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements I
         final HibernateTemplate template = getHibernateTemplate();
         template.saveOrUpdate(project);
         template.flush();
-        template.refresh(project);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("SAVE: project '%s'.", project));

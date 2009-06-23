@@ -96,7 +96,7 @@ public final class DBCreator extends AbstractDAOTest
     // number properties
 
     /** a factor for scaling number of all created entities */
-    private static final int FACTOR = 100;
+    private static final int FACTOR = 1;
 
     /** the overall number of Materials created */
     private static final int MATERIALS_NO = FACTOR * 20000;
@@ -162,16 +162,9 @@ public final class DBCreator extends AbstractDAOTest
         }
 
         hibernateTemplate = new HibernateTemplate(sessionFactory);
-        try
-        {
-            createAndSetDefaultEntities();
-            createExperimentsWithSamplesAndDataSets();
-        } catch (Exception e)
-        {
-            System.err.println("DB creation failed");
-            System.err.println(e.getMessage());
-            e.printStackTrace();
-        }
+
+        createAndSetDefaultEntities();
+        createExperimentsWithSamplesAndDataSets();       
     }
 
     // Hibernate Session
@@ -349,12 +342,17 @@ public final class DBCreator extends AbstractDAOTest
         String location = CodeGenerator.generateCode(CreatedEntityKind.DATA_SET);
         externalData.setLocation(location);
         externalData.setStorageFormatVocabularyTerm(pickAStorageFormatVocabularyTerm());
-        externalData.setDataStore(new DataStorePE());
+        externalData.setDataStore(pickADataStore());
 
         return externalData;
     }
 
     // code from ExternalDataDAOTest
+
+    private DataStorePE pickADataStore()
+    {
+        return daoFactory.getDataStoreDAO().tryToFindDataStoreByCode("STANDARD");
+    }
 
     private LocatorTypePE pickALocatorType()
     {
@@ -469,8 +467,6 @@ public final class DBCreator extends AbstractDAOTest
 
         private static final Integer REGISTRATOR_ID = 1;
 
-        private static final Integer INHIBITOR_ID = null;
-
         private static final String REGISTRATION_TIMESTAMP = "2007-12-04 15:50:54.111";
 
         private static final Integer DB_INSTANCE = 1;
@@ -514,7 +510,6 @@ public final class DBCreator extends AbstractDAOTest
             appendColumn(sb, CodeGenerator.generateCode(CreatedEntityKind.MATERIAL));
             appendColumn(sb, MATERIAL_TYPE_ID);
             appendColumn(sb, REGISTRATOR_ID);
-            appendColumn(sb, INHIBITOR_ID);
             appendColumn(sb, REGISTRATION_TIMESTAMP);
             appendColumn(sb, DB_INSTANCE);
             sb.append(MODIFICATION_TIMESTAMP);
