@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launchConfiguration type="org.testng.eclipse.launchconfig">
-<mapAttribute key="org.eclipse.debug.core.environmentVariables">
-<mapEntry key="initializeDBCreator" value="true"/>
-</mapAttribute>
-<listAttribute key="org.eclipse.debug.ui.favoriteGroups">
-<listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
-</listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.testng.remote.RemoteTestNG"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="openbis"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx384m"/>
