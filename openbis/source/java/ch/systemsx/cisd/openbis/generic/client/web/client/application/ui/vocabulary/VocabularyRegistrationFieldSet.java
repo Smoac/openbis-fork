@@ -242,7 +242,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
                     new VarcharField(
                             messageProvider.getMessage(Dict.VOCABULARY_TERMS_URL_TEMPLATE), false);
             result.setAutoValidate(false);
-            result.setEmptyText("http://www.ebi.ac.uk/QuickGO/GTerm?id=$term$");
+            result.setEmptyText("for example http://www.ebi.ac.uk/QuickGO/GTerm?id=$term$");
             result.setRegex(".*\\$term\\$.*");
             result.getMessages().setRegexText(
                     "URL template must contain '$term$', "
