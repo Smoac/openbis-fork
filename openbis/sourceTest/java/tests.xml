@@ -2,7 +2,6 @@
   <test name="All" annotations="JDK">
     <groups>
       <run>
-        <include name="db" />
         <exclude name="broken" />
         <exclude name="scalability"/>
       </run>
