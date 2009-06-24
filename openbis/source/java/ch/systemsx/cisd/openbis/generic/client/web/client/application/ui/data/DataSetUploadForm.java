@@ -66,7 +66,7 @@ public class DataSetUploadForm extends AbstractRegistrationForm
         saveButton.setText(viewContext.getMessage(Dict.BUTTON_UPLOAD_DATA_VIA_CIFEX));
         sampleChooser =
                 SampleChooserField.create(viewContext.getMessage(Dict.SAMPLE), true, null, false,
-                        false, viewContext);
+                        true, viewContext);
         formPanel.add(sampleChooser.getField());
         formPanel.add(dataSetTypeSelectionWidget =
                 new DataSetTypeSelectionWidget(viewContext, ID_SUFFIX));
