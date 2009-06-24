@@ -25,7 +25,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.form.FileUploadField;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -150,7 +150,6 @@ public final class GenericSampleEditForm extends
         return editor;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected List<DatabaseModificationAwareField<?>> getEntitySpecificFormFields()
     {
@@ -160,11 +159,21 @@ public final class GenericSampleEditForm extends
         {
             fields.add(wrapUnaware(experimentFieldOrNull.getField()));
         }
-        for (FileUploadField f : attachmentsManager.getFields())
-        {
-            fields.add(DatabaseModificationAwareField.wrapUnaware(f));
-        }
         return fields;
+    }
+
+    @Override
+    protected void addFormFieldsToPanel(FormPanel panel)
+    {
+        super.addFormFieldsToPanel(panel);
+        attachmentsManager.addAttachmentFieldSetsToPanel(panel);
+    }
+
+    @Override
+    protected void resetPanel()
+    {
+        super.resetPanel();
+        attachmentsManager.resetAttachmentFieldSetsInPanel(formPanel);
     }
 
     private static boolean canAttachToExperiment(Sample sample)
