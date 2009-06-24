@@ -1,14 +1,4 @@
 <suite name="All" verbose="2" >
-  <test name="Prepare scalability DB" annotations="JDK">
-    <groups>
-      <run>
-        <include name="scalability"/>
-      </run>
-    </groups>
-    <packages>
-      <package name="ch.systemsx.cisd.openbis.*" />
-    </packages>
-  </test>
   <test name="All" annotations="JDK">
     <groups>
       <run>
