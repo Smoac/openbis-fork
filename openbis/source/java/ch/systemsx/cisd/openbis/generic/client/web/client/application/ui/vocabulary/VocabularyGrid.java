@@ -206,9 +206,17 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
 
                 private final TextField<String> urlTemplateField;
 
+                private final static int LABEL_WIDTH = 100;
+
+                private final static int FIELD_WIDTH = 350;
+
                 private final CheckBox chosenFromList;
 
                 {
+                    form.setLabelWidth(LABEL_WIDTH);
+                    form.setFieldWidth(FIELD_WIDTH);
+                    setWidth(LABEL_WIDTH + FIELD_WIDTH + 50);
+
                     codeField = createMandatoryCodeField();
                     codeField.setValue(getOldVocabularyCodeWithoutPrefix());
                     addField(codeField);
@@ -226,6 +234,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                     chosenFromList = createChosenFromListCheckbox();
                     chosenFromList.setValue(vocabulary.isChosenFromList());
                     addField(chosenFromList);
+
                 }
 
                 @Override
