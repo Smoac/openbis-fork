@@ -125,8 +125,6 @@ public final class DBCreator extends AbstractDAOTest
 
     //
 
-    private static boolean initialized = false;
-
     private static final boolean LOG = false;
 
     private static void log(String format, Object... objects)
@@ -146,19 +144,12 @@ public final class DBCreator extends AbstractDAOTest
         System.setProperty("authorization-component-factory", "no-authorization");
         MaterialHelper.createMaterialsTSVFile(TSV_DIRECTORY, MATERIALS_NO);
         log("created materials TSV file");
-        initialized = true;
     }
 
     @Test
     @Rollback(value = false)
     public final void main() throws Exception
     {
-        if (initialized == false)
-        {
-            throw new Exception(
-                    "use 'create scalability DB' run configuration to setup environment and initialize properly");
-        }
-
         hibernateTemplate = new HibernateTemplate(sessionFactory);
 
         createAndSetDefaultEntities();
