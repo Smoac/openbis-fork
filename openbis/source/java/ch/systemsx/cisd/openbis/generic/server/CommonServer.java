@@ -1192,6 +1192,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
     }
 
+    // TODO 2009-06-24 IA: add unit tests to project deletion (all layers)
     public void deleteProjects(String sessionToken, List<TechId> projectIds, String reason)
     {
         Session session = getSessionManager().getSession(sessionToken);
