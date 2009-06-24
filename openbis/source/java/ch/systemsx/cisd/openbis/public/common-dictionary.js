@@ -396,6 +396,7 @@ var common = {
  incorrect_material_syntax: "Incorrect material specification. Please provide the material code followed by the type in brackets: 'code (type)'.",
  TITLE_CHOOSE_EXPERIMENT: "Choose an Experiment",
 incorrect_experiment_syntax: "Incorrect experiment specification. Please provide the experiment group, project and code using the format '/group/project/code'.",
+ title_choose_sample: "Choose a Sample",
 
  //
  // Attachments

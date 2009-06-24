@@ -579,6 +579,8 @@ public abstract class Dict
     public static final String TITLE_CHOOSE_EXPERIMENT = "TITLE_CHOOSE_EXPERIMENT";
 
     public static final String INCORRECT_EXPERIMENT_SYNTAX = "incorrect_experiment_syntax";
+    
+    public static final String TITLE_CHOOSE_SAMPLE = "title_choose_sample";
 
     //
     // Grid Column Chooser

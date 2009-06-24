@@ -107,7 +107,7 @@ public final class SampleChooserField extends ChosenEntitySetter<Sample>
     {
         DisposableEntityChooser<Sample> browser =
                 SampleBrowserGrid.createChooser(viewContext, addShared, excludeWithoutExperiment);
-        String title = viewContext.getMessage(Dict.TITLE_CHOOSE_EXPERIMENT);
+        String title = viewContext.getMessage(Dict.TITLE_CHOOSE_SAMPLE);
         new EntityChooserDialog<Sample>(browser, chosenSampleField, title, viewContext).show();
     }
 
