@@ -59,8 +59,11 @@ public abstract class AttachmentRegistrationHelper
                 byte[] content = multipartFile.getBytes();
                 result.put(fileName, createContentPE(content));
             }
+            if (result.size() != uploadedFiles.size())
+            {
+                throw new UserFailureException("Duplicated file names");
+            }
         }
-
         return result;
     }
 
