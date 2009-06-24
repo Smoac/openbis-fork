@@ -205,7 +205,9 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
     private Window createEditAttachmentDialog(final AttachmentVersions versions)
     {
         final Attachment current = versions.getCurrent();
-        String title = viewContext.getMessage(Dict.EDIT_TITLE) + " " + current.getFileName();
+        String title =
+                viewContext.getMessage(Dict.EDIT_TITLE, "Attachment", "'" + current.getFileName()
+                        + "'");
         return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
             {
                 private final TextField<String> titleField;
