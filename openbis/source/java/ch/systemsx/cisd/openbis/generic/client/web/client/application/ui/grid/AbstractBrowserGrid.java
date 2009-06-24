@@ -671,6 +671,18 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     /**
+     * @return like {@link #createSelectedItemButton(String, ISelectedEntityInvoker)} with button id
+     *         set
+     */
+    protected final Button createSelectedItemButton(final String title, final String id,
+            final ISelectedEntityInvoker<M> invoker)
+    {
+        final Button button = createSelectedItemButton(title, invoker);
+        button.setId(id);
+        return button;
+    }
+
+    /**
      * @return a button which is enabled only when one entity in the grid is selected. When button
      *         is pressed, the specified invoker action is performed.
      */

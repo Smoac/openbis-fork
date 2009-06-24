@@ -69,7 +69,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
 
     public static final String GRID_ID = BROWSER_ID + "_grid";
 
-    public static final String SHOW_DETAILS_BUTTON_ID = BROWSER_ID + "-show-details";
+    public static final String SHOW_DETAILS_BUTTON_ID = BROWSER_ID + "_show-details-button";
 
     private IDelegatedAction postEditionCallback;
 

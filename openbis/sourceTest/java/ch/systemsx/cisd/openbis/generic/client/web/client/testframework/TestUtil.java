@@ -24,7 +24,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 public class TestUtil
 {
     public static final String NULL = "<null>";
-    
+
     private TestUtil()
     {
     }
@@ -47,7 +47,8 @@ public class TestUtil
 
     /**
      * Returns the specified object as a normalised string. Normalization includes trimming,
-     * conversion to lower case, stripping off <code>&lt;div&gt;</code> wrappers.
+     * conversion to lower case, stripping off <code>&lt;div&gt;</code> and <code>&lt;a&gt;</code>
+     * wrappers.
      * 
      * @return {@link #NULL} if <code>objectOrNull == null</code>
      */
@@ -61,6 +62,10 @@ public class TestUtil
         while (value.startsWith("<div"))
         {
             value = value.substring(value.indexOf('>') + 1, value.length() - "</div>".length());
+        }
+        if (value.startsWith("<a"))
+        {
+            value = value.substring(value.indexOf('>') + 1, value.length() - "</a>".length());
         }
         return value;
     }

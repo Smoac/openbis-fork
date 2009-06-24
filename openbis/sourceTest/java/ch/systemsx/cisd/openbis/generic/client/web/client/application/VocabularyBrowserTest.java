@@ -65,7 +65,7 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
     public static void showControlledVocabularyTerms(RemoteConsole remoteConsole,
             String vocabularyCode, Integer expectedSize, String... expectedTerms)
     {
-        remoteConsole.prepare(new ClickOnVocabularyCmd(vocabularyCode));
+        remoteConsole.prepare(new ShowVocabularyTerms(vocabularyCode));
         CheckTableCommand termsTable =
                 new CheckTableCommand(VocabularyTermGrid
                         .createGridId(TechId.createWildcardTechId()));
@@ -81,14 +81,14 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
         termsTable.expectedColumn(VocabularyTermColDefKind.CODE.id(), code);
     }
 
-    public static class ClickOnVocabularyCmd extends AbstractDefaultTestCommand
+    public static class ShowVocabularyTerms extends AbstractDefaultTestCommand
     {
-        private final String code;
+        private final String vocabularyCode;
 
-        public ClickOnVocabularyCmd(final String code)
+        public ShowVocabularyTerms(final String vocabularyCode)
         {
             addCallbackClass(VocabularyGrid.GRID_ID);
-            this.code = code;
+            this.vocabularyCode = vocabularyCode;
         }
 
         @SuppressWarnings("unchecked")
@@ -97,7 +97,8 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
             final Widget widget = GWTTestUtil.getWidgetWithID(VocabularyGrid.GRID_ID);
             final Grid<BaseEntityModel<Vocabulary>> table =
                     (Grid<BaseEntityModel<Vocabulary>>) widget;
-            GridTestUtils.fireSingleClick(table, VocabularyColDefKind.CODE.id(), code);
+            GridTestUtils.fireSelectRow(table, VocabularyColDefKind.CODE.id(), vocabularyCode);
+            GWTTestUtil.clickButtonWithID(VocabularyGrid.SHOW_DETAILS_BUTTON_ID);
         }
     }
 }

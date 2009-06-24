@@ -183,6 +183,8 @@ public abstract class AbstractExternalDataGrid
         return dataSetCodes;
     }
 
+    public static final String SHOW_DETAILS_BUTTON_ID_SUFFIX = "_show-details-button";
+
     /**
      * @param displayOnlyDatasetProperties if false the grid columns will consist of all property
      *            types relevant anyhow to datasets, not only property types directly connected to
@@ -201,7 +203,7 @@ public abstract class AbstractExternalDataGrid
         addEntityOperationsLabel();
         addButton(createBrowseExternalDataButton());
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
-                asShowEntityInvoker(false)));
+                browserId + SHOW_DETAILS_BUTTON_ID_SUFFIX, asShowEntityInvoker(false)));
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
                 asShowEntityInvoker(true)));
         addButton(createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),

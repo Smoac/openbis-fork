@@ -48,6 +48,7 @@ public final class ShowSample extends AbstractDefaultTestCommand
         final Widget widget = GWTTestUtil.getWidgetWithID(SampleBrowserGrid.GRID_ID);
         assertTrue(widget instanceof Grid);
         final Grid<BaseEntityModel<Sample>> table = (Grid<BaseEntityModel<Sample>>) widget;
-        GridTestUtils.fireSingleClick(table, CommonSampleColDefKind.CODE.id(), code);
+        GridTestUtils.fireSelectRow(table, CommonSampleColDefKind.CODE.id(), code);
+        GWTTestUtil.clickButtonWithID(SampleBrowserGrid.SHOW_DETAILS_BUTTON_ID);
     }
 }

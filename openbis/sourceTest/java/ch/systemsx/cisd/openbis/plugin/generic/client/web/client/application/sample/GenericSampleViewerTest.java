@@ -129,8 +129,12 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                                     .getWidgetWithID(SampleDataSetBrowser.createGridId(wildcard));
                     assertTrue(widget instanceof Grid);
                     final Grid<?> table = (Grid<?>) widget;
-                    GridTestUtils.fireSingleClick(table, CommonExternalDataColDefKind.CODE.id(),
+                    GridTestUtils.fireSelectRow(table, CommonExternalDataColDefKind.CODE.id(),
                             DATA_SET_CODE);
+                    String showDetailsButtonId =
+                            SampleDataSetBrowser.createBrowserId(wildcard)
+                                    + SampleDataSetBrowser.SHOW_DETAILS_BUTTON_ID_SUFFIX;
+                    GWTTestUtil.clickButtonWithID(showDetailsButtonId);
                 }
             });
         remoteConsole.prepare(new BrowseDataSet(DATA_SET_CODE));

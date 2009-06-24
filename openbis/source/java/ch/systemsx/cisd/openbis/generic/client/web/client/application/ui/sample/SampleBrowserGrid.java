@@ -83,6 +83,10 @@ public class SampleBrowserGrid extends
 
     public static final String GRID_ID = PREFIX + "_grid";
 
+    public static final String EDIT_BUTTON_ID = BROWSER_ID + "_edit-button";
+
+    public static final String SHOW_DETAILS_BUTTON_ID = BROWSER_ID + "_show-details-button";
+
     /** Creates a grid without additional toolbar buttons. It can serve as a entity chooser. */
     public static DisposableEntityChooser<Sample> createChooser(
             final IViewContext<ICommonClientServiceAsync> viewContext, final boolean addShared,
@@ -233,10 +237,12 @@ public class SampleBrowserGrid extends
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
         Button showDetailsButton =
                 createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
+        showDetailsButton.setId(SHOW_DETAILS_BUTTON_ID);
         addButton(showDetailsButton);
 
         String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
         Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
+        editButton.setId(EDIT_BUTTON_ID);
         addButton(editButton);
 
         addButton(createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),

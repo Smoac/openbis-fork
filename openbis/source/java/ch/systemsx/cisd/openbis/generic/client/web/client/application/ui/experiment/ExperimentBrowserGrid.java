@@ -63,13 +63,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 public class ExperimentBrowserGrid extends
         AbstractEntityBrowserGrid<Experiment, BaseEntityModel<Experiment>, ListExperimentsCriteria>
 {
-    public static final String ID_SUFFIX_EDIT_BUTTON = "_edit-button";
 
     private static final String PREFIX = "experiment-browser";
 
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + PREFIX;
 
     public static final String GRID_ID = BROWSER_ID + "_grid";
+
+    public static final String EDIT_BUTTON_ID = BROWSER_ID + "_edit-button";
+
+    public static final String SHOW_DETAILS_BUTTON_ID = BROWSER_ID + "_show-details-button";
 
     /**
      * Creates a grid without additional toolbar buttons. It can serve as a entity chooser.
@@ -120,11 +123,12 @@ public class ExperimentBrowserGrid extends
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
         Button showDetailsButton =
                 createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
+        showDetailsButton.setId(SHOW_DETAILS_BUTTON_ID);
         addButton(showDetailsButton);
 
         String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
         Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
-        editButton.setId(GRID_ID + ID_SUFFIX_EDIT_BUTTON);
+        editButton.setId(EDIT_BUTTON_ID);
         addButton(editButton);
 
         addButton(createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
