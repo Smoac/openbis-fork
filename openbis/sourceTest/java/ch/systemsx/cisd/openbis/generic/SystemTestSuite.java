@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.SampleBrow
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SearchTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VocabularyBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VocabularyRegistrationTest;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentAttachmentDownloadTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentEditorTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewerTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationTest;

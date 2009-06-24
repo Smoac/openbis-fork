@@ -32,11 +32,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experim
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ShowExperiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
  * @author Tomasz Pylak
  */
-@SuppressWarnings("unused")
 public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
 {
     private static final String DEFAULT = "DEFAULT (CISD)";
@@ -53,34 +53,33 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ShowExperiment(experimentCode));
     }
 
-    // TODO 2009-06-24, Piotr Buczek: fix clicking on cell with anchor or add a download button
-    // public final void testDownloadAttachment()
-    // {
-    // prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_REUSE);
-    // //
-    // // Assumption: technicalId(CISD:/CISD/DEFAULT/EXP_REUSE) = 8
-    // //
-    // remoteConsole.prepare(new ClickDownloadAttachmentCmdTest("cellPlates.txt", new TechId(8L)));
-    //
-    // // this callback will be used when the attempt to open an URL will occur
-    // OpenedUrlCallback openedUrlCallback = new OpenedUrlCallback(client.tryToGetViewContext());
-    // UrlOpenedController controller = new UrlOpenedController(openedUrlCallback);
-    //
-    // remoteConsole.prepare(new CheckUrlContentCmdTest(openedUrlCallback, "3VCP1\n3VCP2\n3VCP3"));
-    //
-    // // wait for the command which fetches URL content to finish
-    // AbstractDefaultTestCommand waitForPrevCmd = new AbstractDefaultTestCommand()
-    // {
-    // public void execute()
-    // {
-    // }
-    // };
-    // waitForPrevCmd.addCallbackClass(CheckStringsEqualCallback.class);
-    // remoteConsole.prepare(waitForPrevCmd);
-    //
-    // remoteConsole.finish(20000);
-    // client.onModuleLoad(controller);
-    // }
+    public final void testDownloadAttachment()
+    {
+        prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_REUSE);
+        //
+        // Assumption: technicalId(CISD:/CISD/DEFAULT/EXP_REUSE) = 8
+        //
+        remoteConsole.prepare(new ClickDownloadAttachmentCmdTest("cellPlates.txt", new TechId(8L)));
+
+        // this callback will be used when the attempt to open an URL will occur
+        OpenedUrlCallback openedUrlCallback = new OpenedUrlCallback(client.tryToGetViewContext());
+        UrlOpenedController controller = new UrlOpenedController(openedUrlCallback);
+
+        remoteConsole.prepare(new CheckUrlContentCmdTest(openedUrlCallback, "3VCP1\n3VCP2\n3VCP3"));
+
+        // wait for the command which fetches URL content to finish
+        AbstractDefaultTestCommand waitForPrevCmd = new AbstractDefaultTestCommand()
+            {
+                public void execute()
+                {
+                }
+            };
+        waitForPrevCmd.addCallbackClass(CheckStringsEqualCallback.class);
+        remoteConsole.prepare(waitForPrevCmd);
+
+        remoteConsole.finish(20000);
+        client.onModuleLoad(controller);
+    }
 
     // called automatically by the controller when any URL is contacted
     private static class OpenedUrlCallback extends AbstractAsyncCallback<String>

@@ -36,6 +36,7 @@ import org.hibernate.validator.NotNull;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
@@ -119,7 +120,7 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
         this.identifier = identifier;
     }
 
-    @Length(max = 250, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
+    @Length(max = GenericConstants.DESCRIPTION_250, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
     public final String getDescription()
     {
         return description;
@@ -130,7 +131,7 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
         this.description = description;
     }
 
-    @Length(max = 250, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
+    @Length(max = GenericConstants.DESCRIPTION_250, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
     public final String getReason()
     {
         return reason;

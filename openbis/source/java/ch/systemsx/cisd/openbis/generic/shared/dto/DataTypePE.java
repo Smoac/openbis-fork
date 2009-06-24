@@ -37,6 +37,7 @@ import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
@@ -91,7 +92,7 @@ public final class DataTypePE implements IIdHolder, Serializable, Comparable<Dat
 
     @NotNull(message = ValidationMessages.DESCRIPTION_NOT_NULL_MESSAGE)
     @Column(name = ColumnNames.DESCRIPTION_COLUMN)
-    @Length(max = 250, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
+    @Length(max = GenericConstants.DESCRIPTION_250, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
     public final String getDescription()
     {
         return description;

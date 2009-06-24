@@ -27,6 +27,7 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
@@ -57,7 +58,7 @@ public abstract class AbstractTypePE extends AbstractIdAndCodeHolder<AbstractTyp
     }
 
     @Column(name = ColumnNames.DESCRIPTION_COLUMN)
-    @Length(max = 250, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
+    @Length(max = GenericConstants.DESCRIPTION_250, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
     public String getDescription()
     {
         return description;

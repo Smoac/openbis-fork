@@ -47,6 +47,7 @@ import org.hibernate.validator.Pattern;
 
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.InternalNamespace;
 
@@ -146,7 +147,7 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
     }
 
     @Column(name = ColumnNames.DESCRIPTION_COLUMN)
-    @Length(max = 250, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
+    @Length(max = GenericConstants.DESCRIPTION_250, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
     public String getDescription()
     {
         return description;

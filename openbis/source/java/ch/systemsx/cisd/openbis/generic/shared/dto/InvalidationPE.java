@@ -31,6 +31,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.validator.Length;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
@@ -63,7 +64,7 @@ public class InvalidationPE extends HibernateAbstractRegistrationHolder implemen
         return id;
     }
 
-    @Length(max = 250, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
+    @Length(max = GenericConstants.DESCRIPTION_250, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
     public String getReason()
     {
         return reason;
