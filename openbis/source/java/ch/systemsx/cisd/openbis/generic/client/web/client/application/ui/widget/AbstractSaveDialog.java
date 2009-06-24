@@ -61,7 +61,7 @@ abstract public class AbstractSaveDialog extends Window
 
     private final IViewContext<?> viewContext;
 
-    private final FormPanel form;
+    protected final FormPanel form;
 
     public AbstractSaveDialog(final IViewContext<?> viewContext, String title,
             final IDelegatedAction postSaveCallback)
