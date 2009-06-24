@@ -317,8 +317,7 @@ public abstract class AbstractExternalDataGrid
     protected List<IColumnDefinition<ExternalData>> getInitialFilters()
     {
         return asColumnFilters(new CommonExternalDataColDefKind[]
-            { CommonExternalDataColDefKind.CODE, CommonExternalDataColDefKind.LOCATION,
-                    CommonExternalDataColDefKind.FILE_FORMAT_TYPE });
+            { CommonExternalDataColDefKind.CODE, CommonExternalDataColDefKind.FILE_FORMAT_TYPE });
     }
 
     @Override
