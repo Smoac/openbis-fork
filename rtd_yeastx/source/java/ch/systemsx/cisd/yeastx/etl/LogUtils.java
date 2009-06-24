@@ -58,8 +58,20 @@ class LogUtils
     public void datasetMappingError(DataSetMappingInformation mapping, String errorMessageFormat,
             Object... arguments)
     {
+        datasetMappingError(mapping.getFileName(), errorMessageFormat, arguments);
+    }
+
+    /** Logs errors about one dataset file. Uses user log file and email notification. */
+    public void datasetFileError(File dataset, String errorMessageFormat, Object... arguments)
+    {
+        datasetMappingError(dataset.getName(), errorMessageFormat, arguments);
+    }
+
+    private void datasetMappingError(String fileName, String errorMessageFormat,
+            Object... arguments)
+    {
         String errorMessage = String.format(errorMessageFormat, arguments);
-        error(mapping.getFileName() + " - cannot upload the file: " + errorMessage);
+        error(fileName + " - cannot upload the file: " + errorMessage);
     }
 
     /**

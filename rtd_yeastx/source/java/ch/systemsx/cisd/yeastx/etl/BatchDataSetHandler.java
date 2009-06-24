@@ -28,6 +28,7 @@ import java.util.Set;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.collections.TableMap;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
@@ -136,7 +137,8 @@ public class BatchDataSetHandler implements IDataSetHandler
             }
             if (canDatasetBeProcessed(file, mappings, log))
             {
-                processedDatasetFiles.addAll(delegator.handleDataSet(file));
+                List<DataSetInformation> processed = delegateProcessing(file, log);
+                processedDatasetFiles.addAll(processed);
                 processedFiles.add(file.getName().toLowerCase());
             }
         }
@@ -147,6 +149,20 @@ public class BatchDataSetHandler implements IDataSetHandler
         clean(batchDir, processedFiles, log, mappings.values().size());
         sendNotificationsIfNecessary(log, notificationEmail);
         return processedDatasetFiles;
+    }
+
+    private List<DataSetInformation> delegateProcessing(File dataset, LogUtils log)
+    {
+        try
+        {
+            return delegator.handleDataSet(dataset);
+        } catch (UserFailureException e)
+        {
+            log.datasetFileError(dataset,
+                    "unexpected error occured, the dataset has been moved to the error directory. The reason is: "
+                            + e.getMessage());
+            return createEmptyResult();
+        }
     }
 
     private void logUnknownMappings(Set<String> unknownMappings, LogUtils log)
