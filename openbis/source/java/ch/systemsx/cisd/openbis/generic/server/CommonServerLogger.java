@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -562,6 +563,33 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "update_file_format_type", "CODE(%s)", type.getCode());
 
+    }
+
+    public void updateExperimentAttachments(String sessionToken, TechId experimentId,
+            Attachment attachment)
+    {
+        logTracking(sessionToken, "update_experiment_attachment",
+                "EXPERIMENT_ID(%s) ATTACHMENT(%s)", experimentId, attachment.getFileName());
+    }
+
+    public void updateProjectAttachments(String sessionToken, TechId projectId,
+            Attachment attachment)
+    {
+        logTracking(sessionToken, "update_project_attachment", "PROJECT_ID(%s) ATTACHMENT(%s)",
+                projectId, attachment.getFileName());
+
+    }
+
+    public void updateSampleAttachments(String sessionToken, TechId sampleId, Attachment attachment)
+    {
+        logTracking(sessionToken, "update_samle_attachment", "SAMPLE_ID(%s) ATTACHMENT(%s)",
+                sampleId, attachment.getFileName());
+
+    }
+
+    public void deleteProjects(String sessionToken, List<TechId> projectIds, String reason)
+    {
+        logTracking(sessionToken, "delete_projects", "IDS(%s) REASON(%s)", projectIds, reason);
     }
 
 }

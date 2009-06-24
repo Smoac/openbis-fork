@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWith
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -394,6 +395,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void deleteExperiments(List<TechId> experimentIds, String value,
             AsyncCallback<Void> asyncCallback);
 
+    /** @see ICommonClientService#deleteProjects(List, String) */
+    public void deleteProjects(List<TechId> projectIds, String value,
+            AsyncCallback<Void> asyncCallback);
+
     /** @see ICommonClientService#deleteAttachments(TechId, AttachmentHolderKind, List, String) */
     public void deleteAttachments(TechId holderId, AttachmentHolderKind holderKind,
             List<String> fileNames, String reason, AsyncCallback<Void> asyncCallback);
@@ -458,5 +463,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#updateFileFormatType(AbstractType type)
      */
     public void updateFileFormatType(AbstractType type, AsyncCallback<Void> registrationCallback);
+
+    /** @see ICommonClientService#updateAttachment(TechId, AttachmentHolderKind, Attachment) */
+    public void updateAttachment(TechId holderId, AttachmentHolderKind holderKind,
+            Attachment attachment, AsyncCallback<Void> asyncCallback);
 
 }

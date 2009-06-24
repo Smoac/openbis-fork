@@ -49,6 +49,13 @@ abstract public class AbstractRegistrationDialog extends AbstractSaveDialog
         super(viewContext, title, postRegistrationCallback);
     }
 
+    public static TextField<String> createTitleField()
+    {
+        TextField<String> field = new TextField<String>();
+        field.setFieldLabel("Title");
+        return field;
+    }
+
     public static TextField<String> createDescriptionField()
     {
         TextField<String> field = new TextField<String>();

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 
 /**
@@ -38,4 +39,15 @@ public interface IAttachmentBO
      */
     void deleteHolderAttachments(final AttachmentHolderPE holder, final List<String> fileNames,
             final String reason);
+
+    /**
+     * Updates attachment.
+     */
+    void updateAttachment(final AttachmentHolderPE holder, final Attachment attachment);
+
+    /**
+     * Saves the business object.
+     */
+    void save();
+
 }

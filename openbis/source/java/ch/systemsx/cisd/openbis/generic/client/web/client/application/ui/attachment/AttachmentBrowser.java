@@ -28,13 +28,16 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.CellSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -58,9 +61,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -70,6 +75,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
@@ -83,6 +89,8 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
     private static final String PREFIX = "attachment-browser_";
 
     private static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
+
+    private IDelegatedAction postRegistrationCallback;
 
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext,
@@ -100,6 +108,13 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
         super(viewContext, createBrowserId(attachmentHolder), createGridId(attachmentHolder));
         this.attachmentHolder = attachmentHolder;
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.ATTACHMENT_BROWSER_GRID);
+        postRegistrationCallback = new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    AttachmentBrowser.this.refresh();
+                }
+            };
         extendBottomToolbar();
 
         registerLinkClickListenerFor(AttachmentColDefKind.FILE_NAME.id(),
@@ -159,6 +174,17 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                 createSelectedItemButton(showAllVersionsTitle, asShowEntityInvoker(false));
         addButton(showAllVersionsButton);
 
+        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
+                new ISelectedEntityInvoker<BaseEntityModel<AttachmentVersions>>()
+                    {
+
+                        public void invoke(BaseEntityModel<AttachmentVersions> selectedItem)
+                        {
+                            AttachmentVersions versions = selectedItem.getBaseObject();
+                            createEditAttachmentDialog(versions).show();
+
+                        }
+                    }));
         addButton(createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
                 new AbstractCreateDialogListener()
                     {
@@ -174,6 +200,39 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
         allowMultipleSelection(); // we allow deletion of multiple attachments
 
         addEntityOperationsSeparator();
+    }
+
+    private Window createEditAttachmentDialog(final AttachmentVersions versions)
+    {
+        final Attachment current = versions.getCurrent();
+        String title = viewContext.getMessage(Dict.EDIT_TITLE) + " " + current.getFileName();
+        return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
+            {
+                private final TextField<String> titleField;
+                {
+                    titleField = createTitleField();
+                    titleField.setValue(StringEscapeUtils.unescapeHtml(current.getTitle()));
+                    addField(titleField);
+                }
+
+                private final TextField<String> descriptionField;
+                {
+                    descriptionField = createDescriptionField();
+                    descriptionField.setValue(StringEscapeUtils.unescapeHtml(current
+                            .getDescription()));
+                    addField(descriptionField);
+                }
+
+                @Override
+                protected void register(AsyncCallback<Void> registrationCallback)
+                {
+                    current.setTitle(titleField.getValue());
+                    current.setDescription(descriptionField.getValue());
+                    viewContext.getService().updateAttachment(TechId.create(attachmentHolder),
+                            attachmentHolder.getAttachmentHolderKind(), current,
+                            registrationCallback);
+                }
+            };
     }
 
     @Override
@@ -330,13 +389,15 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                         if (ColumnListener.isLinkTarget(be))
                         {
                             String column =
-                                attachmentGrid.getColumnModel().getColumn(be.colIndex).getId();
+                                    attachmentGrid.getColumnModel().getColumn(be.colIndex).getId();
                             if (ModelDataPropertyNames.VERSION_FILE_NAME.equals(column))
                             {
                                 final AttachmentVersionModel selectedItem =
-                                    (AttachmentVersionModel) be.grid.getStore().getAt(be.rowIndex);
+                                        (AttachmentVersionModel) be.grid.getStore().getAt(
+                                                be.rowIndex);
                                 Attachment selectedAttachment =
-                                    (Attachment) selectedItem.get(ModelDataPropertyNames.OBJECT);
+                                        (Attachment) selectedItem
+                                                .get(ModelDataPropertyNames.OBJECT);
                                 int version = selectedAttachment.getVersion();
                                 downloadAttachment(fileName, version, attachmentHolder);
                             }

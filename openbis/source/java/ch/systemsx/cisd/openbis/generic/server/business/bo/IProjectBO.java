@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
@@ -70,4 +71,9 @@ public interface IProjectBO extends IEntityBusinessObject
      * Updates the project.
      */
     public void update(ProjectUpdatesDTO updates);
+
+    /**
+     * Deletes the project.
+     */
+    public void deleteByTechId(TechId id, String reason);
 }

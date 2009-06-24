@@ -30,12 +30,15 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -249,5 +252,36 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
                     .fromTemplate("No group with the name '%s' found!", groupCode);
         }
         return group;
+    }
+
+    public void deleteByTechId(TechId projectId, String reason) throws UserFailureException
+    {
+        loadDataByTechId(projectId);
+        try
+        {
+            getProjectDAO().delete(project);
+            getEventDAO().persist(createDeletionEvent(project, session.tryGetPerson(), reason));
+        } catch (final DataAccessException ex)
+        {
+            throwException(ex, String.format("Project '%s'", project.getCode()), null);
+        }
+    }
+
+    public static EventPE createDeletionEvent(ProjectPE project, PersonPE registrator, String reason)
+    {
+        EventPE event = new EventPE();
+        event.setEventType(EventType.DELETION);
+        event.setEntityType(EntityType.PROJECT);
+        event.setIdentifier(project.getIdentifier());
+        event.setDescription(getDeletionDescription(project));
+        event.setReason(reason);
+        event.setRegistrator(registrator);
+
+        return event;
+    }
+
+    private static String getDeletionDescription(ProjectPE project)
+    {
+        return String.format("%s", project.getIdentifier());
     }
 }

@@ -41,7 +41,6 @@ import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
@@ -92,6 +91,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
@@ -1639,6 +1639,43 @@ public final class CommonClientService extends AbstractClientService implements
         } catch (UserFailureException ex)
         {
             throw UserFailureExceptionTranslator.translate(ex);
+        }
+    }
+
+    public void updateAttachment(TechId holderId, AttachmentHolderKind holderKind,
+            Attachment attachment)
+    {
+        final String sessionToken = getSessionToken();
+        try
+        {
+            switch (holderKind)
+            {
+                case EXPERIMENT:
+                    commonServer.updateExperimentAttachments(sessionToken, holderId, attachment);
+                    break;
+                case SAMPLE:
+                    commonServer.updateSampleAttachments(sessionToken, holderId, attachment);
+                    break;
+                case PROJECT:
+                    commonServer.updateProjectAttachments(sessionToken, holderId, attachment);
+                    break;
+            }
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public void deleteProjects(List<TechId> projectIds, String reason)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.deleteProjects(sessionToken, projectIds, reason);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
         }
     }
 

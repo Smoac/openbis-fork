@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -460,6 +461,9 @@ public interface ICommonClientService extends IClientService
     public void deleteExperiments(List<TechId> experimentIds, String reason)
             throws UserFailureException;
 
+    /** Deletes the specified projects. */
+    public void deleteProjects(List<TechId> projectIds, String reason) throws UserFailureException;
+
     /**
      * Deletes specified attachments (all versions with given file names) of specified attachment
      * holder.
@@ -532,5 +536,11 @@ public interface ICommonClientService extends IClientService
      * Updates the file format.
      */
     public void updateFileFormatType(AbstractType type);
+
+    /**
+     * Updates the attachment.
+     */
+    public void updateAttachment(TechId holderId, AttachmentHolderKind holderKind,
+            Attachment attachment);
 
 }

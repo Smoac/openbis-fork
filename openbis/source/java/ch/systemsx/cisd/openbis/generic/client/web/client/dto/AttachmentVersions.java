@@ -21,6 +21,8 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
+
 /**
  * Encapsulation of all versions of an {@link Attachment} file.
  * 

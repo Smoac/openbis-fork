@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.projec
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 
@@ -41,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.ProjectColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
@@ -109,8 +111,23 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
         editButton.setId(EDIT_BUTTON_ID);
         pagingToolbar.add(new AdapterToolItem(editButton));
 
+        // Button deleteButton =
+        createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
+                new AbstractCreateDialogListener()
+                    {
+                        @Override
+                        protected Dialog createDialog(List<Project> projects,
+                                IBrowserGridActionInvoker invoker)
+                        {
+                            return new ProjectListDeletionConfirmationDialog(viewContext, projects,
+                                    createDeletionCallback(invoker));
+                        }
+                    });
+        // addButton(deleteButton);
+
         addEntityOperationsSeparator();
     }
+
 
     @Override
     protected IColumnDefinitionKind<Project>[] getStaticColumnsDefinition()

@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolde
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -824,6 +825,23 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
     }
 
+    public void updateExperimentAttachments(String sessionToken, TechId experimentId,
+            Attachment attachment)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+            experimentBO.loadDataByTechId(experimentId);
+            IAttachmentBO attachmentBO = businessObjectFactory.createAttachmentBO(session);
+            attachmentBO.updateAttachment(experimentBO.getExperiment(), attachment);
+            attachmentBO.save();
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
     public void deleteSampleAttachments(String sessionToken, TechId sampleId,
             List<String> fileNames, String reason)
     {
@@ -1138,6 +1156,56 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             throw createUserFailureException(ex);
         }
 
+    }
+
+    public void updateProjectAttachments(String sessionToken, TechId projectId,
+            Attachment attachment)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IProjectBO bo = businessObjectFactory.createProjectBO(session);
+            bo.loadDataByTechId(projectId);
+            IAttachmentBO attachmentBO = businessObjectFactory.createAttachmentBO(session);
+            attachmentBO.updateAttachment(bo.getProject(), attachment);
+            attachmentBO.save();
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+
+    }
+
+    public void updateSampleAttachments(String sessionToken, TechId sampleId, Attachment attachment)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            ISampleBO bo = businessObjectFactory.createSampleBO(session);
+            bo.loadDataByTechId(sampleId);
+            IAttachmentBO attachmentBO = businessObjectFactory.createAttachmentBO(session);
+            attachmentBO.updateAttachment(bo.getSample(), attachment);
+            attachmentBO.save();
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
+    public void deleteProjects(String sessionToken, List<TechId> projectIds, String reason)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
+            for (TechId id : projectIds)
+            {
+                projectBO.deleteByTechId(id, reason);
+            }
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
     }
 
 }

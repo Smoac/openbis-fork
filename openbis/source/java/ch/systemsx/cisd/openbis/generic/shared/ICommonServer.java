@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectVa
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -691,4 +692,39 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.FILE_FORMAT_TYPE)
     public void updateFileFormatType(String sessionToken, AbstractType type);
 
+    /**
+     * Updates the experiment attachment.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.POWER_USER)
+    @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
+    public void updateExperimentAttachments(String sessionToken, TechId experimentId,
+            Attachment attachment);
+
+    /**
+     * Updates the sample attachment.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.POWER_USER)
+    @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
+    public void updateSampleAttachments(String sessionToken, TechId sampleId, Attachment attachment);
+
+    /**
+     * Updates the project attachment.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.POWER_USER)
+    @DatabaseUpdateModification(value = ObjectKind.PROJECT)
+    public void updateProjectAttachments(String sessionToken, TechId projectId,
+            Attachment attachment);
+
+    /**
+     * Deletes specified projects.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.POWER_USER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.PROJECT)
+    public void deleteProjects(String sessionToken,
+            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) List<TechId> projectIds,
+            String reason);
 }

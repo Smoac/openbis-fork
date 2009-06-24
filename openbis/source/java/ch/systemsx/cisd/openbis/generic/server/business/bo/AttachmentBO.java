@@ -20,8 +20,11 @@ import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -35,6 +38,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
  */
 public final class AttachmentBO extends AbstractBusinessObject implements IAttachmentBO
 {
+    private AttachmentPE attachment;
+
+    private boolean dataChanged;
+
     public AttachmentBO(final IDAOFactory daoFactory, final Session session)
     {
         super(daoFactory, session);
@@ -75,6 +82,41 @@ public final class AttachmentBO extends AbstractBusinessObject implements IAttac
     private static String createDeletionIdentifier(AttachmentHolderPE holder, String fileName)
     {
         return String.format("%s/%s/%s", holder.getHolderName(), holder.getIdentifier(), fileName);
+    }
+
+    public void updateAttachment(AttachmentHolderPE holder, Attachment attachmentDTO)
+    {
+        load(holder, attachmentDTO.getFileName(), attachmentDTO.getVersion());
+        attachment.setDescription(attachmentDTO.getDescription());
+        attachment.setTitle(attachmentDTO.getTitle());
+        dataChanged = true;
+    }
+
+    public final void save()
+    {
+        assert attachment != null : "Can not save an undefined attachment.";
+        if (dataChanged)
+        {
+            try
+            {
+                getAttachmentDAO().persist(attachment);
+            } catch (final DataAccessException ex)
+            {
+                throwException(ex, "Attachment '" + attachment.getFileName() + "'");
+            }
+        }
+    }
+
+    private void load(AttachmentHolderPE holder, String fileName, int version)
+    {
+        attachment =
+                getAttachmentDAO().tryFindAttachmentByOwnerAndFileNameAndVersion(holder, fileName,
+                        version);
+        if (attachment == null)
+        {
+            throw new UserFailureException("Attachment not found");
+        }
+        dataChanged = false;
     }
 
 }
