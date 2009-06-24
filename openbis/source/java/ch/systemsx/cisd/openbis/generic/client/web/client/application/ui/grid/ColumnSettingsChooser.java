@@ -3,9 +3,13 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Record;
@@ -77,6 +81,30 @@ class ColumnSettingsChooser
         // target.setFeedback(Feedback.INSERT);
     }
 
+    private void enableButtonOnGridSelectedItem(final Button button, final String enabledTitle)
+    {
+        final String disabledTitle = "Select a table row first.";
+        button.disable();
+        button.setTitle(disabledTitle);
+
+        grid.getSelectionModel().addListener(Events.SelectionChange,
+                new Listener<SelectionEvent<ModelData>>()
+                    {
+                        public void handleEvent(SelectionEvent<ModelData> se)
+                        {
+                            if (se.selection.size() == 1)
+                            {
+                                button.enable();
+                                button.setTitle(enabledTitle);
+                            } else
+                            {
+                                button.disable();
+                                button.setTitle(disabledTitle);
+                            }
+                        }
+                    });
+    }
+
     private static ListStore<ColumnDataModel> createStore(List<ColumnDataModel> list)
     {
         ListStore<ColumnDataModel> store = new ListStore<ColumnDataModel>();
@@ -111,12 +139,14 @@ class ColumnSettingsChooser
             add(new AdapterToolItem(createLink(Selectable.FILTER, false)));
             add(new FillToolItem());
             Button up = new Button("Move Up");
-            up.setTitle("Move selected column to the left");
             up.addSelectionListener(moveSelectedItem(-1));
+            enableButtonOnGridSelectedItem(up,
+                    "Move selected column to the left in modified table.");
             add(new AdapterToolItem(up));
             Button down = new Button("Move Down");
-            down.setTitle("Move selected column to the right");
             down.addSelectionListener(moveSelectedItem(+1));
+            enableButtonOnGridSelectedItem(down,
+                    "Move selected column to the right in modified table.");
             add(new AdapterToolItem(down));
         }
 
