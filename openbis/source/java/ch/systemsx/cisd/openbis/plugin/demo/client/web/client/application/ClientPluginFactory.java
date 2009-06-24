@@ -33,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ClientPluginAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -42,7 +41,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
 import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.IDemoClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.module.DemoModule;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationForm;
 
@@ -196,9 +194,9 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<IDemo
         return DefaultTabItem.createUnaware(identifier, component, false);
     }
 
-    @Override
-    public IModule tryGetModule()
-    {
-        return new DemoModule(getViewContext());
-    }
+//    @Override
+//    public IModule tryGetModule()
+//    {
+//        return new DemoModule(getViewContext());
+//    }
 }
