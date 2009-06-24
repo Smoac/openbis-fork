@@ -73,13 +73,38 @@ public class GridTestUtils
         table.fireEvent(Events.CellClick, event);
     }
 
-    public static <T extends ModelData> void fireSelectRow(final Grid<T> table, int rowIndex)
+    /**
+     * Fires a selection of a first row in given table which contains given value in a column with a
+     * specified id.
+     */
+    public static <T extends ModelData> void fireSelectRow(final Grid<T> table, String columnId,
+            String columnValue)
     {
-        GridEvent event = createGridEvent(table, rowIndex);
-        table.fireEvent(Events.Select, event);
+        T row = getFirstRowWithColumnValue(table, columnId, columnValue);
+        table.getSelectionModel().select(row);
     }
 
     private static <T extends ModelData> GridEvent createGridEvent(final Grid<T> table,
+            String columnId, String columnValue)
+    {
+        int rowIndex = getFirstRowIndexWithColumnValue(table, columnId, columnValue);
+
+        final GridEvent gridEvent = new GridEvent(table);
+        gridEvent.rowIndex = rowIndex;
+        gridEvent.colIndex = table.getColumnModel().findColumnIndex(columnId);
+        return gridEvent;
+    }
+
+    private static <T extends ModelData> T getFirstRowWithColumnValue(final Grid<T> table,
+            String columnId, String columnValue)
+    {
+        int rowIndex = getFirstRowIndexWithColumnValue(table, columnId, columnValue);
+        final ListStore<T> store = table.getStore();
+        final T row = store.getAt(rowIndex);
+        return row;
+    }
+
+    private static <T extends ModelData> int getFirstRowIndexWithColumnValue(final Grid<T> table,
             String columnId, String columnValue)
     {
         final ListStore<T> store = table.getStore();
@@ -90,10 +115,7 @@ public class GridTestUtils
             String rowCode = TestUtil.normalize(row.get(columnId));
             if (columnValue.equalsIgnoreCase(rowCode))
             {
-                final GridEvent gridEvent = new GridEvent(table);
-                gridEvent.rowIndex = i;
-                gridEvent.colIndex = table.getColumnModel().findColumnIndex(columnId);
-                return gridEvent;
+                return i;
             }
             codes += rowCode;
             if (i < store.getCount() - 1)
@@ -103,22 +125,7 @@ public class GridTestUtils
         }
         Assert.fail("The column with id '" + columnId + "' has never the value '" + columnValue
                 + "'. Following values were found: " + codes);
-        return null; // just to make the compiler happy
-    }
-
-    private static <T extends ModelData> GridEvent createGridEvent(final Grid<T> table, int rowIndex)
-    {
-        final ListStore<T> store = table.getStore();
-        if (0 <= rowIndex && rowIndex < store.getCount())
-        {
-            final GridEvent gridEvent = new GridEvent(table);
-            gridEvent.rowIndex = rowIndex;
-            return gridEvent;
-        } else
-        {
-            Assert.fail("invalid rowIndex");
-            return null; // just to make the compiler happy
-        }
+        return -1; // just to make the compiler happy
     }
 
     public static String getPropertyColumnIdentifier(final String propertyCode,
