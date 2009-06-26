@@ -45,7 +45,7 @@ import ch.systemsx.cisd.cifex.server.trigger.AsynchronousTrigger;
 import ch.systemsx.cisd.cifex.server.trigger.ITrigger;
 import ch.systemsx.cisd.cifex.server.trigger.ITriggerConsole;
 import ch.systemsx.cisd.cifex.server.trigger.ITriggerRequest;
-import ch.systemsx.cisd.cifex.server.trigger.ThreadSafeTrigger;
+import ch.systemsx.cisd.cifex.server.trigger.SingletonTrigger;
 import ch.systemsx.cisd.cifex.server.util.FilenameUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -309,7 +309,7 @@ class TriggerManager implements ITriggerManager
             try
             {
                 final Class triggerClass = Class.forName(triggerClassName);
-                if (triggerClass.isAnnotationPresent(ThreadSafeTrigger.class))
+                if (triggerClass.isAnnotationPresent(SingletonTrigger.class))
                 {
                     this.triggerObjectOrNull = createTrigger();
                 } else
