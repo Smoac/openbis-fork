@@ -216,12 +216,12 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         registrationHelper.prepare();
         if (registrationHelper.hasDataSetBeenIdentified())
         {
-            registrationHelper.registerDataSet();
+            return registrationHelper.registerDataSet();
         } else
         {
             registrationHelper.moveDataSet();
+            return Collections.emptyList();
         }
-        return Collections.singletonList(registrationHelper.dataSetInformation);
     }
 
     public boolean isStopped()
@@ -424,7 +424,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         /**
          * This method is only ever called for identified data sets.
          */
-        final void registerDataSet()
+        final List<DataSetInformation> registerDataSet()
         {
             final SamplePE sample = dataSetInformation.getSample();
             String processorID = typeExtractor.getProcessorType(incomingDataSetFile);
@@ -441,9 +441,11 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                             + "'.");
                 }
                 clean();
+                return Collections.singletonList(dataSetInformation);
             } catch (final Throwable throwable)
             {
                 rollback(throwable);
+                return Collections.emptyList();
             }
         }
 
