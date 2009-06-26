@@ -24,7 +24,9 @@ import java.lang.annotation.Target;
 
 /**
  * If a trigger is annotated with the {@link AsynchronousTrigger} annotation, it will be called in a
- * separate thread. All slow triggers should be annotated this way.
+ * separate thread. All slow triggers should be annotated this way. Note, however, that an
+ * {@link AsynchronousTrigger} has to decide once and forever whether it will dismiss its requests.
+ * Thus an {@link AsynchronousTrigger} cannot work with pending requests.
  * 
  * @author Bernd Rinn
  */
@@ -37,7 +39,7 @@ public @interface AsynchronousTrigger
      * Whether the trigger will dismiss the request in the end.
      */
     public boolean willDismissRequest() default true;
-    
+
     /**
      * The number of permits the trigger needs in order to be allowed to run.
      */
