@@ -49,7 +49,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
 {
     @Resource(name = ResourceNames.PHOSPHONETX_DAO_FACTORY)
     private IPhosphoNetXDAOFactory specificDAOFactory;
-    
+
     public PhosphoNetXServer()
     {
         super();
@@ -71,13 +71,13 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         return IPhosphoNetXServer.class;
     }
 
-    public IPhosphoNetXServer createLogger(boolean invocationSuccessful)
+    public IPhosphoNetXServer createLogger(boolean invocationSuccessful, long elapsedTime)
     {
-        return new PhosphoNetXServerLogger(getSessionManager(), invocationSuccessful);
+        return new PhosphoNetXServerLogger(getSessionManager(), invocationSuccessful, elapsedTime);
     }
 
-    public List<ProteinReference> listProteinReferencesByExperiment(String sessionToken, TechId experimentId)
-            throws UserFailureException
+    public List<ProteinReference> listProteinReferencesByExperiment(String sessionToken,
+            TechId experimentId) throws UserFailureException
     {
         ExperimentPE experiment = getDAOFactory().getExperimentDAO().getByTechId(experimentId);
         String permId = experiment.getPermId();
@@ -87,5 +87,5 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         refrences.addAll(resultSet);
         return refrences;
     }
-    
+
 }

@@ -31,16 +31,14 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPhosphoNetXServer
 {
     PhosphoNetXServerLogger(final ISessionManager<Session> sessionManager,
-            final boolean invocationSuccessful)
+            final boolean invocationSuccessful, final long elapsedTime)
     {
-        super(sessionManager, invocationSuccessful);
+        super(sessionManager, invocationSuccessful, elapsedTime);
     }
 
     public SampleGenerationDTO getSampleInfo(String sessionToken, SampleIdentifier sampleIdentifier)
