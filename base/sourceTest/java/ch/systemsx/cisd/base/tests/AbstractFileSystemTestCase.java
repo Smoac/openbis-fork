@@ -67,9 +67,21 @@ public abstract class AbstractFileSystemTestCase extends AssertJUnit
     @BeforeMethod
     public void setUp() throws IOException
     {
-        FileUtils.deleteDirectory(workingDirectory);
+        deleteDirectory(workingDirectory);
         workingDirectory.mkdir();
         assertTrue(workingDirectory.isDirectory() && workingDirectory.listFiles().length == 0);
+    }
+
+    private void deleteDirectory(File dir)
+    {
+        try
+        {
+            FileUtils.deleteDirectory(dir);
+        } catch (IOException e)
+        {
+            System.err.println("Could not delete the directory " + dir.getPath() + " because: "
+                    + e.getMessage());
+        }
     }
 
     @AfterClass
