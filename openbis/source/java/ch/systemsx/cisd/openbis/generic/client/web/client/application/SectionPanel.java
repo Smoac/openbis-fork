@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 /**
  * {@link ContentPanel} configured for Experiment Viewer.
@@ -33,6 +33,6 @@ public class SectionPanel extends ContentPanel
         setCollapsible(true);
         setAnimCollapse(false);
         setBodyBorder(true);
-        setScrollMode(Scroll.AUTO);
+        setLayout(new FitLayout());
     }
 }

@@ -16,14 +16,11 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
-import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentVersionsSection;
@@ -99,11 +96,6 @@ public final class GenericExperimentViewer extends
     public static final String createId(final TechId experimentId)
     {
         return ID_PREFIX + experimentId;
-    }
-
-    private static void addSection(final LayoutContainer lc, final Widget w)
-    {
-        lc.add(w, new RowData(-1, -1, new Margins(5)));
     }
 
     /**
@@ -188,18 +180,18 @@ public final class GenericExperimentViewer extends
             CompositeDatabaseModificationObserverWithMainObserver observer)
     {
         final LayoutContainer container = new LayoutContainer();
-        container.setLayout(new RowLayout());
+        container.setLayout(new BorderLayout());
 
         AttachmentVersionsSection<Experiment> attachmentsSection = createAttachmentsSection(result);
-        addSection(container, attachmentsSection);
+        container.add(attachmentsSection, createBorderLayoutData(LayoutRegion.NORTH));
         observer.addObserver(attachmentsSection.getDatabaseModificationObserver());
 
         ExperimentSamplesSection sampleSection = new ExperimentSamplesSection(result, viewContext);
-        addSection(container, sampleSection);
+        container.add(sampleSection, createBorderLayoutData(LayoutRegion.SOUTH));
         observer.addObserver(sampleSection.getDatabaseModificationObserver());
 
         ExperimentDataSetSection dataSection = new ExperimentDataSetSection(result, viewContext);
-        addSection(container, dataSection);
+        container.add(dataSection, createBorderLayoutData(LayoutRegion.CENTER));
         observer.addObserver(dataSection.getDatabaseModificationObserver());
 
         container.layout();

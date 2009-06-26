@@ -16,11 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
-import com.google.gwt.user.client.ui.Widget;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
@@ -76,11 +74,6 @@ public final class ProjectViewer extends
         return ID_PREFIX + projectId;
     }
 
-    private static void addSection(final LayoutContainer lc, final Widget w)
-    {
-        lc.add(w, new RowData(-1, -1, new Margins(5)));
-    }
-
     /**
      * Load the project information.
      */
@@ -112,12 +105,13 @@ public final class ProjectViewer extends
         @Override
         protected final void process(final Project result)
         {
+            viewer.setLayout(new BorderLayout());
             viewer.updateOriginalProject(result);
             viewer.removeAll();
             viewer.setScrollMode(Scroll.AUTO);
             AttachmentVersionsSection<Project> attachmentsSection =
                     viewer.createAttachmentsSection(result);
-            addSection(viewer, attachmentsSection);
+            viewer.add(attachmentsSection, createBorderLayoutData(LayoutRegion.NORTH));
             modificationObserver.addObserver(attachmentsSection.getDatabaseModificationObserver());
             viewer.layout();
         }

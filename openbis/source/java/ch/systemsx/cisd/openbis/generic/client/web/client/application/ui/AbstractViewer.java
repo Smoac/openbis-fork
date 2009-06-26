@@ -24,7 +24,6 @@ import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
@@ -208,18 +207,17 @@ public abstract class AbstractViewer<T extends IClientServiceAsync, D extends IE
 
     protected final static BorderLayoutData createLeftBorderLayoutData()
     {
-        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.WEST, 300, 100, 500);
-        data.setMargins(new Margins(0, 5, 0, 0));
-        data.setSplit(true);
-        data.setCollapsible(true);
-        data.setFloatable(false);
-        return data;
+        return BorderLayoutDataFactory.create(LayoutRegion.WEST, 300);
     }
 
     protected final static BorderLayoutData createRightBorderLayoutData()
     {
-        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.CENTER);
-        return data;
+        return createBorderLayoutData(LayoutRegion.CENTER);
+    }
+
+    protected final static BorderLayoutData createBorderLayoutData(LayoutRegion region)
+    {
+        return BorderLayoutDataFactory.create(region);
     }
 
     protected final AbstractAsyncCallback<Void> createDeletionCallback()

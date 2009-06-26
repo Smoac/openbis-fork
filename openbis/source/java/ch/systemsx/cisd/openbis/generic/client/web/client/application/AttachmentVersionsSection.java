@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.attachment.AttachmentBrowser;
@@ -33,16 +31,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IAttachmentHolder;
 public class AttachmentVersionsSection<T extends IAttachmentHolder> extends SectionPanel
 {
 
-    private static int HEIGHT = 150;
-
     private IDisposableComponent disposableBrowser;
 
     public AttachmentVersionsSection(final IViewContext<ICommonClientServiceAsync> viewContext,
             final T attachmentHolder)
     {
         super(viewContext.getMessage(Dict.ATTACHMENTS));
-        setLayout(new FitLayout());
-        setHeight(HEIGHT);
         disposableBrowser = AttachmentBrowser.create(viewContext, attachmentHolder);
         add(disposableBrowser.getComponent());
     }

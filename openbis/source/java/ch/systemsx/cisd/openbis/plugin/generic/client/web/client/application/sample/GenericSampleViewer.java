@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseListLoadConfig;
@@ -32,7 +33,6 @@ import com.extjs.gxt.ui.client.data.ListLoader;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -40,9 +40,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
-import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -50,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Attachment
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractDatabaseModificationObserverWithCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserverWithMainObserver;
@@ -159,11 +157,10 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     private final Component createRightPanel(SampleGeneration sampleGeneration)
     {
         final LayoutContainer container = new LayoutContainer();
-        container.setLayout(new RowLayout());
-        final double defaultHeight = 1.0 / 3; // all child panels have the same height as default
-        // Attachments
+        container.setLayout(new BorderLayout());
+
         attachmentsSection = createAttachmentsSection(sampleGeneration.getGenerator());
-        container.add(attachmentsSection, new RowData(1, defaultHeight, new Margins(5, 5, 0, 0)));
+        container.add(attachmentsSection, createBorderLayoutData(LayoutRegion.NORTH));
         // 'Part of' samples
         final ContentPanel componentsPanel =
                 createContentPanel(viewContext.getMessage(Dict.PART_OF_HEADING));
@@ -178,27 +175,19 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         partOfSamplesGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         partOfSamplesGrid.setLoadMask(true);
         componentsPanel.add(partOfSamplesGrid);
-        componentsPanel.setVisible(false);
-        container.add(componentsPanel, new RowData(1, defaultHeight, new Margins(5, 5, 0, 0)));
-        // External data
         final ContentPanel externalDataPanel =
                 createContentPanel(viewContext.getMessage(Dict.EXTERNAL_DATA_HEADING));
         dataSetBrowser = SampleDataSetBrowser.create(viewContext, sampleId);
-        // external data panel has the height doubled when components panel is not visible
         externalDataPanel.add(dataSetBrowser.getComponent());
-        final RowData externalDataRow = new RowData(1, 2 * defaultHeight, new Margins(5, 5, 0, 0));
-        container.add(externalDataPanel, externalDataRow);
+        container.add(externalDataPanel, createBorderLayoutData(LayoutRegion.CENTER));
 
+        container.setLayoutOnChange(true);
         showComponentsPanelAction = new IDelegatedAction()
             {
                 public void execute()
                 {
-                    componentsPanel.setVisible(true);
-                    // switching back to default size of external data panel
-                    externalDataRow.setHeight(defaultHeight);
-                    container.layout();
+                    container.add(componentsPanel, createBorderLayoutData(LayoutRegion.SOUTH));
                 }
-
             };
 
         container.layout();
@@ -222,12 +211,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
     private final static ContentPanel createContentPanel(final String heading)
     {
-        final ContentPanel panel = new ContentPanel();
-        panel.setHeading(heading);
-        panel.setLayout(new FitLayout());
-        panel.setBodyBorder(true);
-        panel.setBorders(false);
-        return panel;
+        return new SectionPanel(heading);
     }
 
     private final <T> ListLoader<BaseListLoadConfig> createListLoader(

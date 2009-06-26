@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
-import com.extjs.gxt.ui.client.widget.layout.RowData;
-import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
@@ -41,13 +38,12 @@ public class ExperimentSamplesSection extends SectionPanel
     public ExperimentSamplesSection(final Experiment experiment, final IViewContext<?> viewContext)
     {
         super("Samples");
-        setLayout(new RowLayout());
         TechId experimentId = TechId.create(experiment);
         sampleDisposableGrid =
                 SampleBrowserGrid.createGridForExperimentSamples(
                         viewContext.getCommonViewContext(), experimentId,
                         createGridId(experimentId), experiment.getExperimentType());
-        add(sampleDisposableGrid.getComponent(), new RowData(-1, 200));
+        add(sampleDisposableGrid.getComponent());
     }
 
     public IDatabaseModificationObserver getDatabaseModificationObserver()

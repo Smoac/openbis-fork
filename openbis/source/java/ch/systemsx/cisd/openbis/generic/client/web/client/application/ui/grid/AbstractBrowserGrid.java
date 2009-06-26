@@ -40,7 +40,6 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
@@ -74,6 +73,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.GridDisplaySettings;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.BorderLayoutDataFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -344,17 +344,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private final BorderLayoutData createLeftBorderLayoutData()
     {
-        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.WEST, 200, 150, 400);
-        data.setMargins(new Margins(0, 5, 0, 0));
-        data.setCollapsible(true);
-        data.setFloatable(false);
-        return data;
+        return BorderLayoutDataFactory.create(LayoutRegion.WEST, 200);
     }
 
     private final BorderLayoutData createCenterBorderLayoutData()
     {
-        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.CENTER);
-        return data;
+        return BorderLayoutDataFactory.create(LayoutRegion.CENTER);
     }
 
     private DisposableEntityChooser<T> asDisposableMaterialChooser(final Component mainComponent)
