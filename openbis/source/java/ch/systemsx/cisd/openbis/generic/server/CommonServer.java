@@ -175,9 +175,10 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     /**
      * Creates a logger used to log invocations of objects of this class.
      */
-    public final ICommonServer createLogger(final boolean invocationSuccessful)
+    public final ICommonServer createLogger(final boolean invocationSuccessful,
+            final long elapsedTime)
     {
-        return new CommonServerLogger(getSessionManager(), invocationSuccessful);
+        return new CommonServerLogger(getSessionManager(), invocationSuccessful, elapsedTime);
     }
 
     //

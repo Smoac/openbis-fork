@@ -47,13 +47,16 @@ public abstract class AbstractServerLogger implements IServer
 
     protected final boolean invocationSuccessful;
 
+    protected final long elapsedTime;
+
     protected final LogMessagePrefixGenerator logMessagePrefixGenerator;
 
     public AbstractServerLogger(final ISessionManager<Session> sessionManager,
-            final boolean invocationSuccessful)
+            final boolean invocationSuccessful, final long elapsedTime)
     {
         this.sessionManager = sessionManager;
         this.invocationSuccessful = invocationSuccessful;
+        this.elapsedTime = elapsedTime;
         logMessagePrefixGenerator = new LogMessagePrefixGenerator();
         accessLog = LogFactory.getLogger(LogCategory.ACCESS, getClass());
         trackingLog = LogFactory.getLogger(LogCategory.TRACKING, getClass());
@@ -94,15 +97,22 @@ public abstract class AbstractServerLogger implements IServer
         }
         final String message = String.format(parameterDisplayFormat, parameters);
         final String invocationStatusMessage = getInvocationStatusMessage();
+        final String elapsedTimeMessage = getElapsedTimeMessage();
         // We put on purpose 2 spaces between the command and the message derived from the
         // parameters.
         logger.info(prefix
-                + String.format(": %s  %s%s", commandName, message, invocationStatusMessage));
+                + String.format(": (%s) %s  %s%s", elapsedTimeMessage, commandName, message,
+                        invocationStatusMessage));
     }
 
     private String getInvocationStatusMessage()
     {
         return invocationSuccessful ? RESULT_SUCCESS : RESULT_FAILURE;
+    }
+
+    private String getElapsedTimeMessage()
+    {
+        return elapsedTime + "ms";
     }
 
     //

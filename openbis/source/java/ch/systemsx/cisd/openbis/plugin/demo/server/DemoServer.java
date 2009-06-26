@@ -82,9 +82,9 @@ public final class DemoServer extends AbstractServer<IDemoServer> implements IDe
     /**
      * Creates a logger used to log invocations of objects of this class.
      */
-    public final IDemoServer createLogger(final boolean invocationSuccessful)
+    public final IDemoServer createLogger(final boolean invocationSuccessful, final long elapsedTime)
     {
-        return new DemoServerLogger(getSessionManager(), invocationSuccessful);
+        return new DemoServerLogger(getSessionManager(), invocationSuccessful, elapsedTime);
     }
 
     //

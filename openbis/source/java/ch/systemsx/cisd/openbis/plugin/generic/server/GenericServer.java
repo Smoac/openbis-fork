@@ -108,9 +108,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     /**
      * Creates a logger used to log invocations of objects of this class.
      */
-    public final IGenericServer createLogger(final boolean invocationSuccessful)
+    public IGenericServer createLogger(final boolean invocationSuccessful, final long elapsedTime)
     {
-        return new GenericServerLogger(getSessionManager(), invocationSuccessful);
+        return new GenericServerLogger(getSessionManager(), invocationSuccessful, elapsedTime);
     }
 
     //

@@ -36,9 +36,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 public class ETLServiceLogger extends AbstractServerLogger implements IETLService
 {
 
-    public ETLServiceLogger(ISessionManager<Session> sessionManager, boolean invocationSuccessful)
+    public ETLServiceLogger(final ISessionManager<Session> sessionManager,
+            final boolean invocationSuccessful, final long elapsedTime)
     {
-        super(sessionManager, invocationSuccessful);
+        super(sessionManager, invocationSuccessful, elapsedTime);
     }
 
     public String createDataSetCode(String sessionToken) throws UserFailureException

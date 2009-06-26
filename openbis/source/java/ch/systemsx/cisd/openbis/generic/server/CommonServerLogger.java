@@ -85,13 +85,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 final class CommonServerLogger extends AbstractServerLogger implements ICommonServer
 {
     /**
-     * Creates an instance for the specified session manager and invocation status. The session
-     * manager is used to retrieve user information which will be a part of the log message.
+     * Creates an instance for the specified session manager, invocation status and elapsed time.
+     * The session manager is used to retrieve user information which will be a part of the log
+     * message.
      */
     CommonServerLogger(final ISessionManager<Session> sessionManager,
-            final boolean invocationSuccessful)
+            final boolean invocationSuccessful, final long elapsedTime)
     {
-        super(sessionManager, invocationSuccessful);
+        super(sessionManager, invocationSuccessful, elapsedTime);
     }
 
     //

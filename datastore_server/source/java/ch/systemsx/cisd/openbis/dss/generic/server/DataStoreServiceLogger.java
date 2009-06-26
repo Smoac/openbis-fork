@@ -26,26 +26,29 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class DataStoreServiceLogger implements IDataStoreService
 {
     private static final String RESULT_SUCCESS = "";
+
     private static final String RESULT_FAILURE = " ...FAILED";
 
     private final Logger operationLog;
+
     private final boolean invocationSuccessful;
 
-    DataStoreServiceLogger(Logger operationLog, boolean invocationSuccessful)
+    private final long elapsedTime;
+
+    DataStoreServiceLogger(Logger operationLog, boolean invocationSuccessful, long elapsedTime)
     {
         this.operationLog = operationLog;
         this.invocationSuccessful = invocationSuccessful;
+        this.elapsedTime = elapsedTime;
     }
-    
-    private final void log(final String commandName,
-            final String parameterDisplayFormat, final Object... parameters)
+
+    private final void log(final String commandName, final String parameterDisplayFormat,
+            final Object... parameters)
     {
         for (int i = 0; i < parameters.length; i++)
         {
@@ -59,12 +62,14 @@ class DataStoreServiceLogger implements IDataStoreService
             }
         }
         final String message = String.format(parameterDisplayFormat, parameters);
-        final String invocationStatusMessage = invocationSuccessful ? RESULT_SUCCESS : RESULT_FAILURE;
+        final String invocationStatusMessage =
+                invocationSuccessful ? RESULT_SUCCESS : RESULT_FAILURE;
         // We put on purpose 2 spaces between the command and the message derived from the
         // parameters.
-        operationLog.info(String.format("%s  %s%s", commandName, message, invocationStatusMessage));
+        operationLog.info(String.format("%s  %s%s (%s ms)", commandName, message,
+                invocationStatusMessage, elapsedTime));
     }
-    
+
     public int getVersion(String sessionToken)
     {
         log("get_version", "SESSION(%s)", sessionToken);
@@ -92,7 +97,8 @@ class DataStoreServiceLogger implements IDataStoreService
         {
             builder.append(' ').append(externalDataPE.getCode());
         }
-        log("upload_data_sets", "USER(%s) DATASETS(%s)", context.getUserID(), builder.toString().trim());
+        log("upload_data_sets", "USER(%s) DATASETS(%s)", context.getUserID(), builder.toString()
+                .trim());
     }
 
 }

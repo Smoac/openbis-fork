@@ -36,9 +36,9 @@ import ch.systemsx.cisd.openbis.plugin.demo.shared.IDemoServer;
 final class DemoServerLogger extends AbstractServerLogger implements IDemoServer
 {
     DemoServerLogger(final ISessionManager<Session> sessionManager,
-            final boolean invocationSuccessful)
+            final boolean invocationSuccessful, final long elapsedTime)
     {
-        super(sessionManager, invocationSuccessful);
+        super(sessionManager, invocationSuccessful, elapsedTime);
     }
 
     //

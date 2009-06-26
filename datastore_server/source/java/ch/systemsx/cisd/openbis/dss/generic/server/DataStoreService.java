@@ -42,16 +42,17 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         IDataStoreService, InitializingBean
 {
     private final SessionTokenManager sessionTokenManager;
-    
+
     private final IDataSetCommandExecutorFactory commandExecutorFactory;
-    
+
     private final MailClientParameters mailClientParameters;
-    
+
     private File storeRoot;
 
     private IDataSetCommandExecutor commandExecuter;
 
-    public DataStoreService(SessionTokenManager sessionTokenManager, MailClientParameters mailClientParameters)
+    public DataStoreService(SessionTokenManager sessionTokenManager,
+            MailClientParameters mailClientParameters)
     {
         this(sessionTokenManager, new IDataSetCommandExecutorFactory()
             {
@@ -63,7 +64,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     }
 
     DataStoreService(SessionTokenManager sessionTokenManager,
-            IDataSetCommandExecutorFactory commandExecutorFactory, MailClientParameters mailClientParameters)
+            IDataSetCommandExecutorFactory commandExecutorFactory,
+            MailClientParameters mailClientParameters)
     {
         this.sessionTokenManager = sessionTokenManager;
         this.commandExecutorFactory = commandExecutorFactory;
@@ -110,15 +112,15 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         return IDataStoreService.class;
     }
 
-    public IDataStoreService createLogger(boolean invocationSuccessful)
+    public IDataStoreService createLogger(final boolean invocationSuccessful, final long elapsedTime)
     {
-        return new DataStoreServiceLogger(operationLog, invocationSuccessful);
+        return new DataStoreServiceLogger(operationLog, invocationSuccessful, elapsedTime);
     }
 
     public int getVersion(String sessionToken)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
-        
+
         return IDataStoreService.VERSION;
     }
 
@@ -126,7 +128,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             throws InvalidAuthenticationException
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
-        
+
         List<String> knownLocations = new ArrayList<String>();
         for (String location : dataSetLocations)
         {
@@ -163,10 +165,10 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         commandExecuter.scheduleUploadingDataSetsToCIFEX(serviceFactory, mailClientParameters,
                 dataSets, context);
     }
-    
+
     protected ICIFEXRPCServiceFactory createCIFEXRPCServiceFactory(String cifexURL)
     {
         return new CIFEXRPCServiceFactory(cifexURL);
     }
-    
+
 }

@@ -95,9 +95,9 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         return IETLService.class;
     }
 
-    public IETLService createLogger(boolean invocationSuccessful)
+    public IETLService createLogger(final boolean invocationSuccessful, final long elapsedTime)
     {
-        return new ETLServiceLogger(getSessionManager(), invocationSuccessful);
+        return new ETLServiceLogger(getSessionManager(), invocationSuccessful, elapsedTime);
     }
 
     @Override
