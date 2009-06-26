@@ -410,6 +410,7 @@ incorrect_experiment_syntax: "Incorrect experiment specification. Please provide
  version: "Version",
  show_all_versions: "show all versions",
  button_show_all_versions: "Show All Versions",
+ button_download: "Download",
  
 //
 // Grid Column Chooser

@@ -90,7 +90,9 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
 
     private static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private IDelegatedAction postRegistrationCallback;
+    public static final String DOWNLOAD_BUTTON_ID_SUFFIX = "_download-button";
+
+    private final IDelegatedAction postRegistrationCallback;
 
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext,
@@ -169,6 +171,12 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
     {
         addEntityOperationsLabel();
 
+        String downloadTitle = viewContext.getMessage(Dict.BUTTON_DOWNLOAD);
+        Button downloadButton =
+                createSelectedItemButton(downloadTitle, asDownloadAttachmentInvoker());
+        downloadButton.setId(createBrowserId(attachmentHolder) + DOWNLOAD_BUTTON_ID_SUFFIX);
+        addButton(downloadButton);
+
         String showAllVersionsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_ALL_VERSIONS);
         Button showAllVersionsButton =
                 createSelectedItemButton(showAllVersionsTitle, asShowEntityInvoker(false));
@@ -200,6 +208,20 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
         allowMultipleSelection(); // we allow deletion of multiple attachments
 
         addEntityOperationsSeparator();
+    }
+
+    protected final ISelectedEntityInvoker<BaseEntityModel<AttachmentVersions>> asDownloadAttachmentInvoker()
+    {
+        return new ISelectedEntityInvoker<BaseEntityModel<AttachmentVersions>>()
+            {
+                public void invoke(BaseEntityModel<AttachmentVersions> selectedItem)
+                {
+                    AttachmentVersions versions = selectedItem.getBaseObject();
+                    final String fileName = versions.getCurrent().getFileName();
+                    final int version = versions.getCurrent().getVersion();
+                    downloadAttachment(fileName, version, attachmentHolder);
+                }
+            };
     }
 
     private Window createEditAttachmentDialog(final AttachmentVersions versions)

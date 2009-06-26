@@ -59,7 +59,7 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
         //
         // Assumption: technicalId(CISD:/CISD/DEFAULT/EXP_REUSE) = 8
         //
-        remoteConsole.prepare(new ClickDownloadAttachmentCmdTest("cellPlates.txt", new TechId(8L)));
+        remoteConsole.prepare(new DownloadAttachment("cellPlates.txt", new TechId(8L)));
 
         // this callback will be used when the attempt to open an URL will occur
         OpenedUrlCallback openedUrlCallback = new OpenedUrlCallback(client.tryToGetViewContext());

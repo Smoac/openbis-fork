@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.SampleBrow
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SearchTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VocabularyBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VocabularyRegistrationTest;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentAttachmentDownloadTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentEditorTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewerTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationTest;
@@ -71,8 +72,7 @@ public class SystemTestSuite extends GWTTestSuite
         testSuite.addTestSuite(EntityTypePropertyTypeAssignmentTest.class);
         testSuite.addTestSuite(VocabularyRegistrationTest.class);
         testSuite.addTestSuite(PropertyTypeRegistrationTest.class);
-        // TODO 2009-06-24, Piotr Buczek: fix clicking on cell with anchor or add a download button
-        // testSuite.addTestSuite(GenericExperimentAttachmentDownloadTest.class);
+        testSuite.addTestSuite(GenericExperimentAttachmentDownloadTest.class);
         testSuite.addTestSuite(ProjectRegistrationTest.class);
         testSuite.addTestSuite(EntityTypeBrowserTest.class);
         return testSuite;

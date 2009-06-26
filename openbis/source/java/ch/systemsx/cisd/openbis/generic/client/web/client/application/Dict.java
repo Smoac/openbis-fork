@@ -330,6 +330,8 @@ public abstract class Dict
 
     public static final String SHOW_ALL_VERSIONS = "show_all_versions";
 
+    public static final String BUTTON_DOWNLOAD = "button_download";
+
     public static final String BUTTON_SHOW_ALL_VERSIONS = "button_show_all_versions";
 
     public static final String NO_ATTACHMENTS_FOUND = "no_attachments_found";
@@ -579,7 +581,7 @@ public abstract class Dict
     public static final String TITLE_CHOOSE_EXPERIMENT = "TITLE_CHOOSE_EXPERIMENT";
 
     public static final String INCORRECT_EXPERIMENT_SYNTAX = "incorrect_experiment_syntax";
-    
+
     public static final String TITLE_CHOOSE_SAMPLE = "title_choose_sample";
 
     //

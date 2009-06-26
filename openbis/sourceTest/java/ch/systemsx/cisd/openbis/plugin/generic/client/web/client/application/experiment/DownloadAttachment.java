@@ -30,17 +30,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
- * Simulates clicking on the specified attachment in the experiment info window.
+ * Simulates downloading of the specified attachment in the experiment detail view.
  * 
  * @author Tomasz Pylak
  */
-public class ClickDownloadAttachmentCmdTest extends AbstractDefaultTestCommand
+public class DownloadAttachment extends AbstractDefaultTestCommand
 {
     private final String fileName;
 
     private final TechId experimentId;
 
-    public ClickDownloadAttachmentCmdTest(final String fileName, final TechId experimentId)
+    public DownloadAttachment(final String fileName, final TechId experimentId)
     {
         this.fileName = fileName;
         this.experimentId = experimentId;
@@ -56,6 +56,10 @@ public class ClickDownloadAttachmentCmdTest extends AbstractDefaultTestCommand
         final Widget widget = GWTTestUtil.getWidgetWithID(attachmentGridId);
         final Grid<BaseEntityModel<AttachmentVersions>> table =
                 (Grid<BaseEntityModel<AttachmentVersions>>) widget;
-        GridTestUtils.fireSingleClick(table, AttachmentColDefKind.FILE_NAME.id(), fileName);
+        GridTestUtils.fireSelectRow(table, AttachmentColDefKind.FILE_NAME.id(), fileName);
+        String downloadButtonId =
+                AttachmentBrowser.createBrowserId(experimentId, AttachmentHolderKind.EXPERIMENT)
+                        + AttachmentBrowser.DOWNLOAD_BUTTON_ID_SUFFIX;
+        GWTTestUtil.clickButtonWithID(downloadButtonId);
     }
 }
