@@ -231,21 +231,35 @@ public final class GWTUtils
         return (O) (selectedModel != null ? selectedModel.get(ModelDataPropertyNames.OBJECT) : null);
     }
 
+	/** Returns base URL to the index page of the application. */
+    public final static String getBaseIndexURL()
+    {
+        return GWT.getModuleBaseURL() + "index.html";
+    }
+
+	//
+	// native JavaScript
+	//
+
     /**
      * Returns the <i>search</i> of a <i>Javascript</i> window location (without the starting
      * <code>?</code> if any).
      * 
      * @return something like <code>key1=value1&key2=value2</code>.
      */
-    public final static native String getParamString() /*-{
-                                                                                              var search = $wnd.location.search;
-                                                                                              return search.indexOf("?") == 0 ? search.substring(1) : search;
-                                                                                           }-*/;
+    public final static native String getParamString()
+    /*-{
+        var search = $wnd.location.search;
+        return search.indexOf("?") == 0 ? search.substring(1) : search;
+    }-*/;
 
-    /** Returns base URL to the index page of the application. */
-    public final static String getBaseIndexURL()
-    {
-        return GWT.getModuleBaseURL() + "index.html";
-    }
+    /**
+     * Depending on specified <var>allowConfirmOnExit</var> when user tries to exit application
+     * confirmation dialog will or will not appear.
+     */
+    public final static native void setAllowConfirmOnExit(boolean allowConfirmOnExit)
+    /*-{
+        $wnd.setAllowConfirmOnExit(allowConfirmOnExit);
+    }-*/;
 
 }

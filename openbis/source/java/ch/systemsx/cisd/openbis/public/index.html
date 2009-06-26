@@ -8,11 +8,19 @@
 -->
 <script language="javascript" src="ch.systemsx.cisd.openbis.OpenBIS.nocache.js"></script>
 <script language="JavaScript">
+	// confirmation on exit depends on whether user is logged in
+	var allowConfirmOnExit = false; 
   window.onbeforeunload = confirmExit;
   function confirmExit()
   {
-    return "WARNING: By doing this you will in fact leave openBIS!"
+    if (allowConfirmOnExit) {
+      return "WARNING: By doing this you will in fact leave openBIS!";
+    }
   }
+  function setAllowConfirmOnExit(value)
+	{
+		allowConfirmOnExit = value;
+	}
 </script>
 <link rel="shortcut icon" href="images/favicon.ico" />
 <link rel="icon" type="image/png" href="images/favicon.png" />
