@@ -350,10 +350,4 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         }
         return codes;
     }
-
-    public String hello(final String sessionToken)
-    {
-        return "Hello World!";
-    }
-
 }
