@@ -38,6 +38,9 @@ public class BasicConstant
     /** Prefix of user namespace vocabulary code. */
     public static final String USER_NAMESPACE_PREFIX = "USER.";
 
+    /** Template part of Vocabulary URL that that is replaced with vocabulary term code. */
+    public static final String VOCABULARY_URL_TEMPLATE_TERM_PART = "\\$term\\$";
+
     private BasicConstant()
     {
     }

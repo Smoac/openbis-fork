@@ -340,7 +340,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY)
+    @DatabaseUpdateModification(value = ObjectKind.VOCABULARY)
     public void updateVocabulary(String sessionToken, IVocabularyUpdates updates);
 
     /**
@@ -468,7 +468,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.DATASET_TYPE)
+    @DatabaseUpdateModification(value = ObjectKind.DATASET_TYPE)
     public void updateDataSetType(String sessionToken, EntityType entityType);
 
     /**

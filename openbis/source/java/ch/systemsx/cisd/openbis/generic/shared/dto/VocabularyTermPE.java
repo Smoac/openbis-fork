@@ -39,6 +39,7 @@ import org.hibernate.validator.Pattern;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
@@ -185,7 +186,8 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
     public String getUrl()
     {
         String template = getVocabulary().getURLTemplate();
-        return template != null ? (template.replaceAll("\\$term\\$", getCode())) : null;
+        return template != null ? (template.replaceAll(
+                BasicConstant.VOCABULARY_URL_TEMPLATE_TERM_PART, getCode())) : null;
     }
 
 }

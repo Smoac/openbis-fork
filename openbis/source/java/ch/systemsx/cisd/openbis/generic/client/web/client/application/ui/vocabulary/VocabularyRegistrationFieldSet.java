@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -238,15 +239,21 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
 
         public static VarcharField createURLTemplateField(IMessageProvider messageProvider)
         {
-            final VarcharField result =
-                    new VarcharField(
-                            messageProvider.getMessage(Dict.VOCABULARY_TERMS_URL_TEMPLATE), false);
+            final String fieldLabel =
+                    messageProvider.getMessage(Dict.VOCABULARY_TERMS_URL_TEMPLATE);
+            final String templatePart = BasicConstant.VOCABULARY_URL_TEMPLATE_TERM_PART;
+            final String emptyText =
+                    "for example http://www.ebi.ac.uk/QuickGO/GTerm?id=" + templatePart;
+            final String regex = ".*" + templatePart + ".*";
+            final String regexTextMsg =
+                    "URL template must contain '" + templatePart + "', "
+                            + "which will be substituted with appropriate term automatically.";
+
+            final VarcharField result = new VarcharField(fieldLabel, false);
             result.setAutoValidate(false);
-            result.setEmptyText("for example http://www.ebi.ac.uk/QuickGO/GTerm?id=$term$");
-            result.setRegex(".*\\$term\\$.*");
-            result.getMessages().setRegexText(
-                    "URL template must contain '$term$', "
-                            + "which will be substituted with appropriate term automatically.");
+            result.setEmptyText(emptyText);
+            result.setRegex(regex);
+            result.getMessages().setRegexText(regexTextMsg);
 
             // manually clear invalid messages on focus (automatic validation is turned off)
             result.addListener(Events.Focus, new Listener<FieldEvent>()
