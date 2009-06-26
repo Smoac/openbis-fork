@@ -63,6 +63,22 @@ public interface IStorageProcessor extends IStoreRootDirectoryHolder
             final File incomingDataSetDirectory, final File rootDir);
 
     /**
+     * Instructs the dataset handler what to do with the data in incoming directory if there was an
+     * error during registration in openbis.
+     */
+    public enum UnstoreDataAction
+    {
+        /**
+         * moved the data to the error directory
+         */
+        MOVE_TO_ERROR,
+        /**
+         * leave the data in the incoming directory
+         */
+        LEAVE_UNTOUCH
+    }
+
+    /**
      * Performs a rollback of
      * {@link #storeData(SamplePE, DataSetInformation, ITypeExtractor, IMailClient, File, File)} The
      * data created in <code>directory</code> will also be removed.
@@ -73,8 +89,11 @@ public interface IStorageProcessor extends IStoreRootDirectoryHolder
      * 
      * @param incomingDataSetDirectory original folder to be restored.
      * @param storedDataDirectory directory which contains the data to be restored.
+     * @param exception an exception which has caused that the unstore operation has to be performed
+     * @return an instruction what to do with the data in incoming directory
      */
-    public void unstoreData(final File incomingDataSetDirectory, final File storedDataDirectory);
+    public UnstoreDataAction unstoreData(final File incomingDataSetDirectory,
+            final File storedDataDirectory, Throwable exception);
 
     /**
      * Returns the format that this storage processor is storing data sets in.

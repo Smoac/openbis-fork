@@ -55,6 +55,7 @@ import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
+import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
@@ -466,9 +467,10 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             {
                 throw (Error) throwable;
             }
-            storageProcessor.unstoreData(incomingDataSetFile, baseDirectoryHolder
-                    .getBaseDirectory());
-            if (stopped == false)
+            UnstoreDataAction action =
+                    storageProcessor.unstoreData(incomingDataSetFile, baseDirectoryHolder
+                            .getBaseDirectory(), throwable);
+            if (stopped == false && action == UnstoreDataAction.MOVE_TO_ERROR)
             {
                 final File baseDirectory =
                         createBaseDirectory(ERROR_DATA_STRATEGY, storeRoot, dataSetInformation);

@@ -147,14 +147,14 @@ abstract public class AbstractDelegatingStorageProcessorWithDropbox extends
     }
 
     @Override
-    public final void unstoreData(final File incomingDataSetDirectory,
-            final File storedDataDirectory)
+    public UnstoreDataAction unstoreData(final File incomingDataSetDirectory,
+            final File storedDataDirectory, Throwable exception)
     {
         if (recentlyStoredDropboxDataset != null && recentlyStoredDropboxDataset.exists())
         {
             fileOperations.deleteRecursively(recentlyStoredDropboxDataset);
         }
         recentlyStoredDropboxDataset = null;
-        super.unstoreData(incomingDataSetDirectory, storedDataDirectory);
+        return super.unstoreData(incomingDataSetDirectory, storedDataDirectory, exception);
     }
 }

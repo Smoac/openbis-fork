@@ -68,8 +68,8 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
         return rootDir;
     }
 
-    public final void unstoreData(final File incomingDataSetDirectory,
-            final File storedDataDirectory)
+    public UnstoreDataAction unstoreData(final File incomingDataSetDirectory,
+            final File storedDataDirectory, Throwable exception)
     {
         checkParameters(incomingDataSetDirectory, storedDataDirectory);
         File targetFile =
@@ -79,6 +79,7 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
         // directory structure will persist. Right now, we consider this is fine as these empty
         // directories will not disturb the running application.
         FileRenamer.renameAndLog(targetFile, incomingDataSetDirectory);
+        return UnstoreDataAction.MOVE_TO_ERROR;
     }
 
     private static File getOriginalDirectory(final File storedDataDirectory)

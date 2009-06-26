@@ -101,9 +101,10 @@ abstract public class AbstractDelegatingStorageProcessor implements IStorageProc
                 incomingDataSetDirectory, rootDir);
     }
 
-    public void unstoreData(final File incomingDataSetDirectory, final File storedDataDirectory)
+    public UnstoreDataAction unstoreData(final File incomingDataSetDirectory,
+            final File storedDataDirectory, Throwable exception)
     {
-        delegate.unstoreData(incomingDataSetDirectory, storedDataDirectory);
+        return delegate.unstoreData(incomingDataSetDirectory, storedDataDirectory, exception);
     }
 
     public StorageFormat getStorageFormat()
