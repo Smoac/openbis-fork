@@ -182,7 +182,7 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
     }
 
     @Test
-    public void testFailWithDataSetPropertiesFileExpectedButUndefined()
+    public void testHappyCaseWithDataSetPropertiesFileConfiguredButNotPresent()
     {
         final Properties properties = new Properties();
         final String separator = "=";
@@ -196,15 +196,7 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
                 new File(WORKING_DIRECTORY, barcode + separator + parentDataSetCode + separator
                         + "A" + separator + producerCode + separator + productionDate);
         incoming.mkdir();
-        boolean exceptionThrown = false;
-        try
-        {
-            extractor.getDataSetInformation(incoming, null);
-        } catch (UserFailureException ex)
-        {
-            exceptionThrown = true;
-        }
-        assertTrue(exceptionThrown);
+        extractor.getDataSetInformation(incoming, null);
     }
 
     @Test
