@@ -16,11 +16,6 @@
 
 package ch.systemsx.cisd.datamover;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertTrue;
-
 import java.io.File;
 
 import org.apache.commons.io.FileUtils;

@@ -18,10 +18,6 @@ package ch.systemsx.cisd.datamover;
 
 import static ch.systemsx.cisd.datamover.testhelper.FileSystemHelper.assertEmptyDir;
 import static ch.systemsx.cisd.datamover.testhelper.FileSystemHelper.createDir;
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
 import java.io.FileFilter;
