@@ -22,6 +22,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -179,12 +180,18 @@ class TriggerManager implements ITriggerManager
         private Set<FileDTO> toBeDeletedOrNull;
 
         private boolean dismiss;
+        
+        private Date timeOfRequest;
+        
+        private Date timeOfExpiration;
 
         TriggerRequest(FileDTO fileDTO, File file, Set<FileDTO> toBeDeletedOrNull)
         {
             this.fileDTO = fileDTO;
             this.file = file;
             this.toBeDeletedOrNull = toBeDeletedOrNull;
+            this.timeOfRequest = fileDTO.getRegistrationDate();
+            this.timeOfExpiration = fileDTO.getExpirationDate();
             dismiss = false;
         }
 
@@ -255,6 +262,16 @@ class TriggerManager implements ITriggerManager
         public boolean isDismissed()
         {
             return dismiss;
+        }
+
+        public Date getRequestTime()
+        {
+            return timeOfRequest;
+        }
+
+        public Date getExpirationTime()
+        {
+            return timeOfExpiration;
         }
 
     }

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server.trigger;
 
 import java.io.File;
+import java.util.Date;
 
 /**
  * A trigger request corresponding to an uploaded file.
@@ -55,6 +56,16 @@ public interface ITriggerRequest
      * Returns the full name of the uploading user.
      */
     public String getUploadingUserFullName();
+
+    /**
+     * Returns the time when the request was made (i.e. the file was uploaded).
+     */
+    public Date getRequestTime();
+
+    /**
+     * Returns the time when the request will expire.
+     */
+    public Date getExpirationTime();
 
     /**
      * Mark the file of this request dismissiable, that is delete the file from CIFEX after the

@@ -17,11 +17,11 @@
 package ch.systemsx.cisd.cifex.plugins.dss;
 
 import java.io.File;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.cifex.server.trigger.AsynchronousTrigger;
 import ch.systemsx.cisd.cifex.server.trigger.ITrigger;
 import ch.systemsx.cisd.cifex.server.trigger.ITriggerConsole;
 import ch.systemsx.cisd.cifex.server.trigger.ITriggerRequest;
@@ -36,7 +36,6 @@ import ch.systemsx.cisd.common.filesystem.IFileImmutableCopier;
  * 
  * @author Izabela Adamczyk
  */
-@AsynchronousTrigger
 public class DataStoreTrigger implements ITrigger
 {
 
@@ -48,52 +47,91 @@ public class DataStoreTrigger implements ITrigger
 
     private static final String INCOMING_DIRECTORY_PATH_KEY = "dss-incoming-directory";
 
+    private static final String DATASET_PROEPERTIES_FILENAME = "dss-data-set-properties-filename";
+
     private File incomingDirectory;
 
-    public DataStoreTrigger()
-    {
-    }
+    private String propertiesFileNameOrNull;
 
     public DataStoreTrigger(final Properties properties)
     {
-        String incomingDirectoryPath = properties.getProperty(INCOMING_DIRECTORY_PATH_KEY);
+        final String incomingDirectoryPath = properties.getProperty(INCOMING_DIRECTORY_PATH_KEY);
         if (StringUtils.isEmpty(incomingDirectoryPath))
         {
             throw new ConfigurationFailureException(INCOMING_DIRECTORY_PATH_KEY + " not configured");
         }
         incomingDirectory = new File(incomingDirectoryPath);
-        String errorMessage =
+        final String errorMessage =
                 FileUtilities.checkDirectoryFullyAccessible(incomingDirectory,
                         "data store incoming directory");
         if (errorMessage != null)
         {
             throw new EnvironmentFailureException(errorMessage);
         }
-
+        propertiesFileNameOrNull = properties.getProperty(DATASET_PROEPERTIES_FILENAME);
+        if (StringUtils.isBlank(propertiesFileNameOrNull))
+        {
+            propertiesFileNameOrNull = null;
+        }
     }
 
     public void handle(ITriggerRequest request, ITriggerConsole console)
     {
-        File sourceFile = request.getFile();
+        if (propertiesFileNameOrNull != null
+                && propertiesFileNameOrNull.equals(request.getFileName()))
+        {
+            return;
+        }
+        request.dismiss();
+        final File sourceFile = request.getFile();
+        final ITriggerRequest propertiesFileOrNull = tryGetDataSetPropertiesFile(console);
         try
         {
-            File destDir = createDestinationDirectory(sourceFile);
+            final File destDir = createDestinationDirectory(sourceFile);
             saveRequestPropertiesFile(destDir, request);
-            copyUploadedFile(sourceFile, destDir);
+            copyUploadedFile(sourceFile, destDir, request.getFileName());
+            if (propertiesFileOrNull != null)
+            {
+                copyUploadedFile(propertiesFileOrNull.getFile(), destDir, propertiesFileOrNull
+                        .getFileName());
+            }
         } catch (Exception ex)
         {
             console.sendMessage("Data set upload failed", String.format(
                     "Upload of data set (file: '%s', comment: '%s') failed. ('%s')", sourceFile,
                     request.getComment(), ex.getMessage()), null, request.getUploadingUserEmail());
-        } finally
-        {
-            request.dismiss();
         }
+    }
+
+    private ITriggerRequest tryGetDataSetPropertiesFile(ITriggerConsole console)
+    {
+        if (propertiesFileNameOrNull == null)
+        {
+            return null;
+        }
+        final List<ITriggerRequest> propertyFiles =
+                console.getPendingRequests(propertiesFileNameOrNull);
+        if (propertyFiles.isEmpty())
+        {
+            return null;
+        }
+        ITriggerRequest latestPropertyFile = null;
+        for (ITriggerRequest pfile : propertyFiles)
+        {
+            if (latestPropertyFile == null
+                    || pfile.getRequestTime().getTime() > latestPropertyFile.getRequestTime()
+                            .getTime())
+            {
+                latestPropertyFile = pfile;
+            }
+            pfile.dismiss();
+        }
+        return latestPropertyFile;
     }
 
     private File createDestinationDirectory(File sourceFile)
     {
-        File destDir =
+        final File destDir =
                 FileUtilities.createNextNumberedFile(new File(incomingDirectory, sourceFile
                         .getName()
                         + ".dir"), null);
@@ -105,12 +143,14 @@ public class DataStoreTrigger implements ITrigger
         return destDir;
     }
 
-    private void copyUploadedFile(File sourceFile, File destinationDirectory)
+    private void copyUploadedFile(File sourceFile, File destinationDirectory,
+            String destinationFileName)
     {
-        IFileImmutableCopier copier = HardLinkMaker.tryCreate();
+        final IFileImmutableCopier copier = HardLinkMaker.tryCreate();
         if (copier != null)
         {
-            boolean status = copier.copyFileImmutably(sourceFile, destinationDirectory, null);
+            boolean status =
+                    copier.copyFileImmutably(sourceFile, destinationDirectory, destinationFileName);
             if (status == false)
             {
                 throw new EnvironmentFailureException("Could not create the hardlink");
@@ -123,7 +163,7 @@ public class DataStoreTrigger implements ITrigger
 
     private void saveRequestPropertiesFile(File destDir, ITriggerRequest request)
     {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append(createProperty(COMMENT_KEY, request.getComment()));
         sb.append(createProperty(USER_EMAIL_KEY, request.getUploadingUserEmail()));
         File requestPropertiesFile = new File(destDir, REQUEST_PROPERTIES_FILE);
