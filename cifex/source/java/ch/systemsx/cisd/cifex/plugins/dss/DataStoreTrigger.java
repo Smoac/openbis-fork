@@ -47,7 +47,7 @@ public class DataStoreTrigger implements ITrigger
 
     private static final String INCOMING_DIRECTORY_PATH_KEY = "dss-incoming-directory";
 
-    private static final String DATASET_PROEPERTIES_FILENAME = "dss-data-set-properties-filename";
+    private static final String DATASET_PROEPERTIES_FILENAME = "dss-data-set-properties-file-name";
 
     private File incomingDirectory;
 
