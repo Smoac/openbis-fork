@@ -526,7 +526,6 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                     errorMessageTemplate = DATA_SET_REGISTRATION_FAILURE_TEMPLATE;
                     plainRegisterDataSet(data, relativePath, availableFormat, isCompleteFlag);
                     clean();
-                    clean();
                     if (processorOrNull == null)
                     {
                         return;
