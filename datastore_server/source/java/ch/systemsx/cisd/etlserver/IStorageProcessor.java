@@ -75,7 +75,7 @@ public interface IStorageProcessor extends IStoreRootDirectoryHolder
         /**
          * leave the data in the incoming directory
          */
-        LEAVE_UNTOUCH
+        LEAVE_UNTOUCHED
     }
 
     /**

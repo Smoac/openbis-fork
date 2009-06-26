@@ -139,7 +139,10 @@ public class BatchDataSetHandler implements IDataSetHandler
             {
                 List<DataSetInformation> processed = delegateProcessing(file, log);
                 processedDatasetFiles.addAll(processed);
-                processedFiles.add(file.getName().toLowerCase());
+                if (processed.size() > 0)
+                {
+                    processedFiles.add(file.getName().toLowerCase());
+                }
             }
         }
         if (unknownMappings.size() > 0)

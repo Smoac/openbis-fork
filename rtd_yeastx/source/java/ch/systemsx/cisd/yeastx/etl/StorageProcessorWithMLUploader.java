@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 /**
  * @author Tomasz Pylak
  */
-public class StorageProcessorWithMLUploader extends AbstractDelegatingStorageProcessor
+public final class StorageProcessorWithMLUploader extends AbstractDelegatingStorageProcessor
 {
     private final ML2DatabaseUploader uploader;
 
@@ -49,5 +49,15 @@ public class StorageProcessorWithMLUploader extends AbstractDelegatingStoragePro
         File originalData = super.tryGetProprietaryData(storeData);
         uploader.upload(originalData, dataSetInformation);
         return storeData;
+    }
+
+    @Override
+    public UnstoreDataAction unstoreData(final File incomingDataSetDirectory,
+            final File storedDataDirectory, Throwable exception)
+    {
+        super.unstoreData(incomingDataSetDirectory, storedDataDirectory, exception);
+        LogUtils log = new LogUtils(incomingDataSetDirectory.getParentFile());
+        log.datasetFileError(incomingDataSetDirectory, exception.getMessage());
+        return UnstoreDataAction.LEAVE_UNTOUCHED;
     }
 }
