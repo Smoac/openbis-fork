@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.cifex;
 import java.io.File;
 import java.util.Properties;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
@@ -28,6 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.DataSetUploadInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
+import static ch.systemsx.cisd.etlserver.AbstractDataSetInfoExtractor.extractDataSetProperties;
+
 /**
  * {@link IDataSetInfoExtractor} extracting group and sample from CIFEX comment.
  * 
@@ -36,8 +39,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 public class CifexDataSetInfoExtractor implements IDataSetInfoExtractor
 {
 
+    @Private
+    static final String DATA_SET_PROPERTIES_FILE_NAME_KEY =
+            "data-set-info-extractor.data-set-properties-file-name";
+
+    private final String dataSetPropertiesFileNameOrNull;
+
     public CifexDataSetInfoExtractor(final Properties globalProperties)
     {
+        dataSetPropertiesFileNameOrNull =
+                globalProperties.getProperty(DATA_SET_PROPERTIES_FILE_NAME_KEY);
     }
 
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,
@@ -56,6 +67,8 @@ public class CifexDataSetInfoExtractor implements IDataSetInfoExtractor
         }
         dataSetInformation.setUploadingUserEmail(CifexExtratorHelper
                 .getUploadingUserEmail(incomingDataSetPath));
+        dataSetInformation.setDataSetProperties(extractDataSetProperties(incomingDataSetPath,
+                dataSetPropertiesFileNameOrNull));
         return dataSetInformation;
     }
 

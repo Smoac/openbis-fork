@@ -19,9 +19,7 @@ package ch.systemsx.cisd.etlserver;
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -29,16 +27,9 @@ import org.apache.commons.lang.StringUtils;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.parser.AbstractParserObjectFactory;
-import ch.systemsx.cisd.common.parser.IParserObjectFactory;
-import ch.systemsx.cisd.common.parser.IParserObjectFactoryFactory;
-import ch.systemsx.cisd.common.parser.IPropertyMapper;
-import ch.systemsx.cisd.common.parser.ParserException;
-import ch.systemsx.cisd.common.parser.TabFileLoader;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
  * Default implementation which assumes that the information can be extracted from the file name.
@@ -218,7 +209,7 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
 
     private final SimpleDateFormat dateFormat;
 
-    private final String dataSetPropertiesFileName;
+    private final String dataSetPropertiesFileNameOrNull;
 
     /**
      * The <var>properties</var> are not used by this constructor but present to fulfill the
@@ -253,7 +244,7 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
         dateFormat =
                 new SimpleDateFormat(properties.getProperty(DATA_PRODUCTION_DATE_FORMAT,
                         DEFAULT_DATA_PRODUCTION_DATE_FORMAT));
-        dataSetPropertiesFileName = properties.getProperty(DATA_SET_PROPERTIES_FILE_NAME_KEY);
+        dataSetPropertiesFileNameOrNull = properties.getProperty(DATA_SET_PROPERTIES_FILE_NAME_KEY);
     }
 
     //
@@ -274,7 +265,7 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
         dataSetInformation.setProducerCode(tryGetDataProducerCode(entitiesProvider));
         dataSetInformation.setProductionDate(tryGetDataProductionDate(entitiesProvider));
         dataSetInformation.setDataSetProperties(extractDataSetProperties(incomingDataSetPath,
-                dataSetPropertiesFileName));
+                dataSetPropertiesFileNameOrNull));
         dataSetInformation.setGroupCode(extractGroupCode(entitiesProvider));
         return dataSetInformation;
     }
@@ -326,42 +317,6 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
             throw new UserFailureException("Could not parse data production date '" + dateString
                     + "' because it violates the following format: " + dateFormat.toPattern());
         }
-    }
-
-    private static List<NewProperty> extractDataSetProperties(File incomingDataSetPath,
-            String fileName)
-    {
-        List<NewProperty> result = new ArrayList<NewProperty>();
-        if (fileName != null && incomingDataSetPath.isDirectory())
-        {
-            File propertiesFile = new File(incomingDataSetPath, fileName);
-            if (propertiesFile.isFile())
-            {
-                TabFileLoader<NewProperty> tabFileLoader =
-                        new TabFileLoader<NewProperty>(
-                                new IParserObjectFactoryFactory<NewProperty>()
-                                    {
-
-                                        public IParserObjectFactory<NewProperty> createFactory(
-                                                IPropertyMapper propertyMapper)
-                                                throws ParserException
-                                        {
-                                            return new AbstractParserObjectFactory<NewProperty>(
-                                                    NewProperty.class, propertyMapper)
-                                                {
-                                                };
-                                        }
-                                    });
-                result.addAll(tabFileLoader.load(propertiesFile));
-
-            } else
-            {
-                throw new UserFailureException("Data set properties file '" + propertiesFile
-                        + "' does not exist or is not a 'normal' file.");
-            }
-        }
-        return result;
-
     }
 
 }
