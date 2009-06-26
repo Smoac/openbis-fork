@@ -16,12 +16,6 @@
 
 package ch.systemsx.cisd.etlserver;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.fail;
-
 import java.io.File;
 import java.io.IOException;
 import java.sql.Date;
@@ -421,7 +415,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
                         mailClient, incomingDirectoryData, storeRootDir);
         assertEquals(true, dataStore.isDirectory());
         assertEquals(false, incomingDirectoryData.exists());
-        storageAdapter.unstoreData(incomingDirectoryData, storeRootDir);
+        storageAdapter.unstoreData(incomingDirectoryData, storeRootDir, null);
         assertEquals(false, dataStore.exists());
         assertEquals(true, incomingDirectoryData.isDirectory());
 

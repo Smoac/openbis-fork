@@ -16,11 +16,6 @@
 
 package ch.systemsx.cisd.bds.v1_1;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
-
 import java.io.IOException;
 import java.util.List;
 

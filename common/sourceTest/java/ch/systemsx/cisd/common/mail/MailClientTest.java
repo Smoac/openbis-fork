@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.common.mail;
 
-import static org.testng.AssertJUnit.assertEquals;
-
 import java.io.File;
 import java.util.Arrays;
 

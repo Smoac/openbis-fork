@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.etlserver;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
-
 import java.io.File;
 
 import org.apache.log4j.Level;

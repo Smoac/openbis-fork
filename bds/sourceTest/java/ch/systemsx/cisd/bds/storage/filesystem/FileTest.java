@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.bds.storage.filesystem;
 
-import static org.testng.AssertJUnit.assertEquals;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

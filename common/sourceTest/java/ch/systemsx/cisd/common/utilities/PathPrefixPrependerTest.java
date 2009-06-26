@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.common.utilities;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.fail;
-
 import java.io.File;
 
 import org.testng.annotations.DataProvider;

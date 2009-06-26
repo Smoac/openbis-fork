@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.etlserver;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.fail;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,8 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
 public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCase
 {
 
-    private final static ITypeExtractor TYPE_EXTRACTOR =
-            new TestProcedureAndDataTypeExtractor();
+    private final static ITypeExtractor TYPE_EXTRACTOR = new TestProcedureAndDataTypeExtractor();
 
     private final DefaultStorageProcessor createStorageProcessor()
     {
@@ -101,7 +97,7 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
         final DefaultStorageProcessor storageProcessor = createStorageProcessor();
         try
         {
-            storageProcessor.unstoreData(null, null);
+            storageProcessor.unstoreData(null, null, null);
             fail("Null values not accepted");
         } catch (final AssertionError e)
         {
@@ -116,7 +112,7 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
                         incomingDataSetDirectory, root);
         assertEquals(true, storeData.exists());
         assertEquals(false, incomingDataSetDirectory.exists());
-        storageProcessor.unstoreData(incomingDataSetDirectory, root);
+        storageProcessor.unstoreData(incomingDataSetDirectory, root, null);
         assertEquals(true, incomingDataSetDirectory.exists());
         assertEquals("hi", FileUtilities.loadToString(readMeFile).trim());
     }

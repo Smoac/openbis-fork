@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.bds.v1_1;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.fail;
-
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 

@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.etlserver.threev;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;

@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.bds.storage.filesystem;
 
-import static org.testng.AssertJUnit.assertEquals;
-
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 

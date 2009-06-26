@@ -17,10 +17,6 @@
 package ch.systemsx.cisd.bds.v1_0;
 
 import static ch.systemsx.cisd.bds.v1_0.DataStructureV1_0.DIR_METADATA;
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
 
 import java.io.IOException;
 import java.util.Date;

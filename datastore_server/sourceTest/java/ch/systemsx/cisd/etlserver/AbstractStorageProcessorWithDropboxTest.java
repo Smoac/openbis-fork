@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.etlserver;
 
 import static ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessorWithDropbox.DATASET_CODE_SEPARATOR_PROPERTY;
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
 import java.util.Properties;

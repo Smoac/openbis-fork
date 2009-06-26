@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.etlserver.imsb;
 
-import static org.testng.AssertJUnit.*;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;

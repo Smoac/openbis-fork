@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.common.collections;
 
-import static org.testng.AssertJUnit.assertEquals;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

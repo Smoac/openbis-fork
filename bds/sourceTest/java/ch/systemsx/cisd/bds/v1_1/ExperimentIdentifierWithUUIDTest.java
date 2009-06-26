@@ -16,18 +16,12 @@
 
 package ch.systemsx.cisd.bds.v1_1;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertNotNull;
-
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.bds.ExperimentIdentifierTest;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
-import ch.systemsx.cisd.bds.v1_1.ExperimentIdentifierWithUUID;
-import ch.systemsx.cisd.bds.v1_1.SampleWithOwner;
 
 /**
  * Test cases for corresponding {@link ExperimentIdentifierWithUUID} class.

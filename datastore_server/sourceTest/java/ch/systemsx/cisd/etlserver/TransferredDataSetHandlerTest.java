@@ -16,10 +16,6 @@
 
 package ch.systemsx.cisd.etlserver;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -56,6 +52,7 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.JavaMailProperties;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
+import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
 import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -839,9 +836,12 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
                     one(storageProcessor).storeData(baseSample, dataSetInformation, typeExtractor,
                             mailClient, folder, baseDir);
-                    will(throwException(new Exception("Could store data by storage processor")));
+                    UserFailureException exception =
+                            new UserFailureException("Could store data by storage processor");
+                    will(throwException(exception));
 
-                    one(storageProcessor).unstoreData(with(equal(folder)), with(equal(baseDir)));
+                    one(storageProcessor).unstoreData(folder, baseDir, exception);
+                    will(returnValue(UnstoreDataAction.MOVE_TO_ERROR));
 
                     allowing(typeExtractor).getLocatorType(folder);
                     allowing(typeExtractor).getDataSetType(folder);
@@ -902,10 +902,11 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     one(limsService).registerDataSet(with(equal(SESSION_TOKEN)),
                             with(equal(dataSetInformation.getSampleIdentifier())),
                             with(new ExternalDataMatcher(targetData1)));
-                    will(throwException(new EnvironmentFailureException(
-                            "Could not register data set folder")));
+                    EnvironmentFailureException exception =
+                            new EnvironmentFailureException("Could not register data set folder");
+                    will(throwException(exception));
 
-                    one(storageProcessor).unstoreData(with(equal(folder)), with(equal(baseDir)));
+                    one(storageProcessor).unstoreData(folder, baseDir, exception);
                     one(storageProcessor).getStorageFormat();
                 }
             });

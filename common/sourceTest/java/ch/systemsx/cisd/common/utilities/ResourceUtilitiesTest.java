@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.common.utilities;
 
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

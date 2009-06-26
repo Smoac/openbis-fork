@@ -16,10 +16,6 @@
 
 package ch.systemsx.cisd.bds;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.fail;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;

@@ -16,11 +16,6 @@
 
 package ch.systemsx.cisd.bds.hcs;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
-
 import java.io.File;
 
 import org.testng.annotations.Test;
