@@ -81,16 +81,17 @@ public class BatchDataSetHandler implements IDataSetHandler
             return createEmptyResult();
         }
         LogUtils log = new LogUtils(batchDir);
+        if (callPreprocessingScript(batchDir, log) == false)
+        {
+            return flushErrors(batchDir, null, log);
+        }
         DataSetMappingInformationFile mappingFile =
                 DatasetMappingUtil.tryGetDatasetsMapping(batchDir, log);
         if (mappingFile == null || mappingFile.tryGetMappings() == null)
         {
             return flushErrors(batchDir, mappingFile, log);
         }
-        if (callPreprocessingScript(batchDir, log) == false)
-        {
-            return flushErrors(batchDir, mappingFile, log);
-        }
+
         return processDatasets(batchDir, log, mappingFile.tryGetMappings(), mappingFile
                 .getNotificationEmail());
     }
@@ -112,6 +113,8 @@ public class BatchDataSetHandler implements IDataSetHandler
             log.error("No datasets from '%s' directory can be processed because "
                     + "the try to acquire write access by openBIS has failed. "
                     + "Try again or contact your administrator.", batchDir.getName());
+            LogUtils.adminError("failed to execute the preprocessing script for '%s' directory",
+                    batchDir.getName());
         }
         return ok;
     }
