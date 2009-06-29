@@ -231,15 +231,15 @@ public final class GWTUtils
         return (O) (selectedModel != null ? selectedModel.get(ModelDataPropertyNames.OBJECT) : null);
     }
 
-	/** Returns base URL to the index page of the application. */
+    /** Returns base URL to the index page of the application. */
     public final static String getBaseIndexURL()
     {
         return GWT.getModuleBaseURL() + "index.html";
     }
 
-	//
-	// native JavaScript
-	//
+    //
+    // native JavaScript
+    //
 
     /**
      * Returns the <i>search</i> of a <i>Javascript</i> window location (without the starting
@@ -259,7 +259,7 @@ public final class GWTUtils
      */
     public final static native void setAllowConfirmOnExit(boolean allowConfirmOnExit)
     /*-{
-        $wnd.setAllowConfirmOnExit(allowConfirmOnExit);
+        // $wnd.setAllowConfirmOnExit(allowConfirmOnExit);
     }-*/;
 
 }
