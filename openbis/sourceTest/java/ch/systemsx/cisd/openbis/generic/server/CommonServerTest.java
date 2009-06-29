@@ -1280,7 +1280,6 @@ public final class CommonServerTest extends AbstractServerTestCase
 
         assertSame(group, person.getHomeGroup());
         assertSame(groupId.getId(), person.getHomeGroup().getId());
-        // TODO 2009-05-11, Piotr Buczek: no DAO update is executed - check value in DB after change
 
         context.assertIsSatisfied();
     }
@@ -1306,7 +1305,6 @@ public final class CommonServerTest extends AbstractServerTestCase
         createServer().changeUserHomeGroup(SESSION_TOKEN, null);
 
         assertNull(person.getHomeGroup());
-        // TODO 2009-05-11, Piotr Buczek: no DAO update is executed - check value in DB after change
 
         context.assertIsSatisfied();
     }

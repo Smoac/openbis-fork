@@ -153,8 +153,6 @@ public abstract class AbstractRegistrationForm extends ContentPanel
                 {
                     if (panel.isValid())
                     {
-                        // TODO 2009-05-29, Piotr Buczek: isValid could be changed to disable save
-                        // button
                         submitValidForm();
                     }
                 }
