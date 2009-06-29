@@ -259,7 +259,7 @@ public final class GWTUtils
      */
     public final static native void setAllowConfirmOnExit(boolean allowConfirmOnExit)
     /*-{
-        // $wnd.setAllowConfirmOnExit(allowConfirmOnExit);
+        $wnd.allowConfirmOnExit = allowConfirmOnExit;
     }-*/;
 
 }
