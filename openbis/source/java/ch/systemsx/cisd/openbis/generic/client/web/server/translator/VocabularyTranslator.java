@@ -16,15 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -44,19 +39,6 @@ public final class VocabularyTranslator
             return null;
         }
         final Vocabulary result = new Vocabulary();
-        List<VocabularyTerm> list;
-        if (HibernateUtils.isInitialized(vocabulary.getTerms()) == false)
-        {
-            list = DtoConverters.createUnmodifiableEmptyList();
-        } else
-        {
-            list = new ArrayList<VocabularyTerm>();
-            for (final VocabularyTermPE vt : vocabulary.getTerms())
-            {
-                list.add(VocabularyTermTranslator.translate(vt));
-            }
-        }
-        result.setTerms(list);
         result.setId(HibernateUtils.getId(vocabulary));
         result.setCode(StringEscapeUtils.escapeHtml(vocabulary.getCode()));
         result.setDescription(StringEscapeUtils.escapeHtml(vocabulary.getDescription()));

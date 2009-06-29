@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -371,13 +372,12 @@ public interface ICommonClientService extends IClientService
     /**
      * Registers given {@link PropertyType}.
      */
-    public void registerPropertyType(final String termsSessionKey, final PropertyType propertyType)
-            throws UserFailureException;
+    public void registerPropertyType(final PropertyType propertyType) throws UserFailureException;
 
     /**
-     * Registers given {@link Vocabulary}.
+     * Registers given {@link NewVocabulary}.
      */
-    public void registerVocabulary(final String termsSessionKey, final Vocabulary vocabulary)
+    public void registerVocabulary(final String termsSessionKey, final NewVocabulary vocabulary)
             throws UserFailureException;
 
     /**

@@ -41,9 +41,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
@@ -789,11 +789,11 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(commonBusinessObjectFactory).createVocabularyBO(SESSION);
                     will(returnValue(vocabularyBO));
 
-                    one(vocabularyBO).define(with(aNonNull(Vocabulary.class)));
+                    one(vocabularyBO).define(with(aNonNull(NewVocabulary.class)));
                     one(vocabularyBO).save();
                 }
             });
-        createServer().registerVocabulary(SESSION_TOKEN, new Vocabulary());
+        createServer().registerVocabulary(SESSION_TOKEN, new NewVocabulary());
         context.assertIsSatisfied();
     }
 

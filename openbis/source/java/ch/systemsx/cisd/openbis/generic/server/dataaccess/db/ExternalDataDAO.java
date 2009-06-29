@@ -151,10 +151,6 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         final DetachedCriteria criteria = DetachedCriteria.forClass(ENTITY_CLASS);
         criteria.add(codeEq);
         criteria.setFetchMode("dataSetType.dataSetTypePropertyTypesInternal", FetchMode.JOIN);
-        criteria
-                .setFetchMode(
-                        "dataSetType.dataSetTypePropertyTypesInternal.propertyTypeInternal.vocabulary.vocabularyTerms",
-                        FetchMode.JOIN);
         criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
         final List<ExternalDataPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         final ExternalDataPE entity = tryFindEntity(list, "data set");

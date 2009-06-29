@@ -43,8 +43,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 /**
@@ -139,9 +139,9 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
         return checkBox;
     }
 
-    public final Vocabulary createVocabulary()
+    public final NewVocabulary createVocabulary()
     {
-        final Vocabulary vocabulary = new Vocabulary();
+        final NewVocabulary vocabulary = new NewVocabulary();
         vocabulary.setCode(getVocabularyCodeValue());
         vocabulary.setDescription(getDescriptionValue());
         vocabulary.setChosenFromList(getChosenFromListValue());
@@ -365,7 +365,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
             FieldUtil.setVisibility(useFreeText == false, uploadFileField);
         }
 
-        public void setValues(Vocabulary vocabulary)
+        public void setValues(NewVocabulary vocabulary)
         {
             vocabulary.setUploadedFromFile(fromFile.getValue());
             vocabulary.setURLTemplate(getURLTemplateValue());

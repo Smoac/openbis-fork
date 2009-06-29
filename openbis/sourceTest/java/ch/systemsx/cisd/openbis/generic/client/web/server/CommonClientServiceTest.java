@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -294,7 +295,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                             with(aNonNull(PropertyType.class)));
                 }
             });
-        commonClientService.registerPropertyType(TERMS_SESSION_KEY, new PropertyType());
+        commonClientService.registerPropertyType(new PropertyType());
         context.assertIsSatisfied();
     }
 
@@ -307,10 +308,10 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                     prepareGetSessionToken(this);
 
                     one(commonServer).registerVocabulary(with(SESSION_TOKEN),
-                            with(aNonNull(Vocabulary.class)));
+                            with(aNonNull(NewVocabulary.class)));
                 }
             });
-        commonClientService.registerVocabulary(TERMS_SESSION_KEY, new Vocabulary());
+        commonClientService.registerVocabulary(TERMS_SESSION_KEY, new NewVocabulary());
         context.assertIsSatisfied();
     }
 

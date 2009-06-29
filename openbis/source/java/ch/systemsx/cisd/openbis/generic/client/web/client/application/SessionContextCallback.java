@@ -61,8 +61,7 @@ public final class SessionContextCallback extends AbstractAsyncCallback<SessionC
             viewContext.getModel().setSessionContext(sessionContext);
             dispatcher.dispatch(AppEvents.INIT);
             afterInitAction.execute();
-			GWTUtils.setAllowConfirmOnExit(true);
+            GWTUtils.setAllowConfirmOnExit(true);
         }
     }
-
 }

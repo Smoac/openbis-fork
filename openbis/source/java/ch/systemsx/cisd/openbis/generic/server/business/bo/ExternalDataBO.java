@@ -88,13 +88,10 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
 
     private static final String PROPERTY_TYPES = "dataSetType.dataSetTypePropertyTypesInternal";
 
-    private static final String VOCABULARY_TERMS =
-            PROPERTY_TYPES + ".propertyTypeInternal.vocabulary.vocabularyTerms";
-
     public void loadDataByTechId(TechId datasetId)
     {
         String[] connections =
-            { PROPERTY_TYPES, VOCABULARY_TERMS };
+            { PROPERTY_TYPES };
         externalData = getExternalDataDAO().tryGetByTechId(datasetId, connections);
         if (externalData == null)
         {

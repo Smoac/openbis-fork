@@ -207,7 +207,7 @@ public final class PropertyTypeBOTest extends AbstractBOTest
     }
 
     @Test
-    public final void testDefineWithNewVocabulary()
+    public final void testFailDefineWithNewVocabulary()
     {
         final DataTypePE dataTypePE = new DataTypePE();
         dataTypePE.setCode(EntityDataType.CONTROLLEDVOCABULARY);
@@ -223,19 +223,21 @@ public final class PropertyTypeBOTest extends AbstractBOTest
 
                     one(propertyTypeDAO).getDataTypeByCode(EntityDataType.CONTROLLEDVOCABULARY);
                     will(returnValue(dataTypePE));
-
-                    allowing(daoFactory).getVocabularyDAO();
-                    will(returnValue(vocabularyDAO));
-
-                    one(vocabularyDAO).createOrUpdateVocabulary(with(aNonNull(VocabularyPE.class)));
                 }
             });
         final PropertyTypeBO propertyTypeBO = createPropertyTypeBO();
         final PropertyType propertyType = createPropertyType(DataTypeCode.CONTROLLEDVOCABULARY);
         propertyType.setVocabulary(vocabulary);
-        propertyTypeBO.define(propertyType);
-        final PropertyTypePE propertyTypePE = propertyTypeBO.getPropertyType();
-        assertPropertyTypeEquals(propertyType, propertyTypePE);
+        boolean exceptionThrown = false;
+        try
+        {
+            propertyTypeBO.define(propertyType);
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Vocabulary not selected", ex.getMessage());
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
         context.assertIsSatisfied();
     }
 }

@@ -72,14 +72,11 @@ public final class MaterialBO extends AbstractBusinessObject implements IMateria
 
     private static final String PROPERTY_TYPES = "materialType.materialTypePropertyTypesInternal";
 
-    private static final String VOCABULARY_TERMS =
-            PROPERTY_TYPES + ".propertyTypeInternal.vocabulary.vocabularyTerms";
-
     private MaterialPE getMaterialById(final TechId materialId)
     {
         assert materialId != null : "Material technical id unspecified.";
         String[] connections =
-            { PROPERTY_TYPES, VOCABULARY_TERMS };
+            { PROPERTY_TYPES };
         final MaterialPE result = getMaterialDAO().tryGetByTechId(materialId, connections);
         if (result == null)
         {

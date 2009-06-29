@@ -134,13 +134,10 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     private static final String PROPERTY_TYPES =
             "experimentType.experimentTypePropertyTypesInternal";
 
-    private static final String VOCABULARY_TERMS =
-            PROPERTY_TYPES + ".propertyTypeInternal.vocabulary.vocabularyTerms";
-
     public void loadDataByTechId(TechId experimentId)
     {
         String[] connections =
-            { PROPERTY_TYPES, VOCABULARY_TERMS };
+            { PROPERTY_TYPES };
         experiment = getExperimentDAO().tryGetByTechId(experimentId, connections);
         if (experiment == null)
         {

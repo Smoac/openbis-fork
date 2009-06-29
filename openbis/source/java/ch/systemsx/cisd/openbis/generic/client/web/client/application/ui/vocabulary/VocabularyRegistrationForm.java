@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
@@ -49,7 +50,7 @@ public final class VocabularyRegistrationForm extends AbstractVocabularyRegistra
     @Override
     protected final void submitValidForm()
     {
-        final Vocabulary vocabulary = vocabularyRegistrationFieldSet.createVocabulary();
+        final NewVocabulary vocabulary = vocabularyRegistrationFieldSet.createVocabulary();
         viewContext.getService().registerVocabulary(termsSessionKey, vocabulary,
                 new VocabularyRegistrationCallback(viewContext, vocabulary));
     }

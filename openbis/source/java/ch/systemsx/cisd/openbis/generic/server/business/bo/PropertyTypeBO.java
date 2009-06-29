@@ -71,9 +71,7 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
             Vocabulary vocabulary = propertyType.getVocabulary();
             if (vocabulary.getId() == null)
             {
-                // new vocabulary is not yet persistent
-                define(vocabulary);
-                super.save();
+                throw new UserFailureException("Vocabulary not selected");
             } else
             {
                 // loading existing vocabulary

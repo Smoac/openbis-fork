@@ -69,9 +69,6 @@ final class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEnti
         criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         final String entityKindName = entityKind.name().toLowerCase();
         criteria.setFetchMode(entityKindName + "TypePropertyTypesInternal", FetchMode.JOIN);
-        criteria.setFetchMode(entityKindName
-                + "TypePropertyTypesInternal.propertyTypeInternal.vocabulary.vocabularyTerms",
-                FetchMode.JOIN);
         criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
         final List<T> list = cast(getHibernateTemplate().findByCriteria(criteria));
         return list;

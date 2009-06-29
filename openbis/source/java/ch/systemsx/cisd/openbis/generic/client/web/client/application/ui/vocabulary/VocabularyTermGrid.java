@@ -370,9 +370,11 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         for (final VocabularyTermReplacement termToBeReplaced : termsToBeReplaced)
         {
             String term = termToBeReplaced.getTerm().getCode();
+            // TODO 2009-06-26, IA: do we really want to load almost all the terms from large
+            // vocabulary to the drop down list?
             final VocabularyTermSelectionWidget s =
-                    new VocabularyTermSelectionWidget(getId() + term, term, termsForReplacement,
-                            true);
+                    new VocabularyTermSelectionWidget(getId() + term, term, true,
+                            termsForReplacement, null);
             s.addSelectionChangedListener(new SelectionChangedListener<VocabularyTermModel>()
                 {
                     @Override

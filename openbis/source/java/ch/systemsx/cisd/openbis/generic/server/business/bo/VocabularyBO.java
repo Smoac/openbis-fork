@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO
 import ch.systemsx.cisd.openbis.generic.server.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
@@ -61,7 +61,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
     // AbstractVocabularyBusinessObject
     //
 
-    public final void define(final Vocabulary vocabulary) throws UserFailureException
+    public final void define(final NewVocabulary vocabulary) throws UserFailureException
     {
         assert vocabulary != null : "Unspecified vocabulary.";
         vocabularyPE = new VocabularyPE();

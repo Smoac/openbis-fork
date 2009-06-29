@@ -16,22 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import ch.systemsx.cisd.common.annotation.CollectionMapping;
 
 /**
  * Controlled vocabulary.
  * 
  * @author Izabela Adamczyk
  */
-public final class Vocabulary extends CodeWithRegistration<Vocabulary> implements
-        IVocabularyUpdates
+public class Vocabulary extends CodeWithRegistration<Vocabulary> implements IVocabularyUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-
-    private List<VocabularyTerm> terms = new ArrayList<VocabularyTerm>();
 
     private Long id;
 
@@ -42,8 +35,6 @@ public final class Vocabulary extends CodeWithRegistration<Vocabulary> implement
     private boolean internalNamespace;
 
     private boolean chosenFromList;
-
-    private boolean uploadedFromFile; // transient
 
     private String urlTemplate;
 
@@ -59,17 +50,6 @@ public final class Vocabulary extends CodeWithRegistration<Vocabulary> implement
     public void setId(Long id)
     {
         this.id = id;
-    }
-
-    public final List<VocabularyTerm> getTerms()
-    {
-        return terms;
-    }
-
-    @CollectionMapping(collectionClass = ArrayList.class, elementClass = VocabularyTerm.class)
-    public final void setTerms(final List<VocabularyTerm> terms)
-    {
-        this.terms = terms;
     }
 
     public final String getDescription()
@@ -122,13 +102,4 @@ public final class Vocabulary extends CodeWithRegistration<Vocabulary> implement
         this.urlTemplate = urlTemplate;
     }
 
-    public boolean isUploadedFromFile()
-    {
-        return uploadedFromFile;
-    }
-
-    public void setUploadedFromFile(boolean uploadedFromFile)
-    {
-        this.uploadedFromFile = uploadedFromFile;
-    }
 }

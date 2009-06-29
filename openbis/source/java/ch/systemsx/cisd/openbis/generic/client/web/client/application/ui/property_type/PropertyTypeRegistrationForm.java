@@ -53,7 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
  * @author Christian Ribeaud
  * @author Piotr Buczek
  */
-public final class PropertyTypeRegistrationForm extends AbstractVocabularyRegistrationForm
+public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
 {
     public static final String ID = GenericConstants.ID_PREFIX + "property-type-registration_form";
 
@@ -69,6 +69,8 @@ public final class PropertyTypeRegistrationForm extends AbstractVocabularyRegist
 
     private final MaterialTypeSelectionWidget materialTypeSelectionWidget;
 
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
+
     public static DatabaseModificationAwareComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -80,6 +82,7 @@ public final class PropertyTypeRegistrationForm extends AbstractVocabularyRegist
     private PropertyTypeRegistrationForm(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, ID);
+        this.viewContext = viewContext;
 
         this.propertyTypeCodeField = createPropertyTypeCodeField();
         this.propertyTypeLabelField = createPropertyTypeLabelField();
@@ -89,7 +92,6 @@ public final class PropertyTypeRegistrationForm extends AbstractVocabularyRegist
         this.materialTypeSelectionWidget = createMaterialTypeSelectionField(viewContext);
 
         vocabularySelectionWidget.setVisible(false);
-        vocabularyRegistrationFieldSet.setVisible(false);
         materialTypeSelectionWidget.setVisible(false);
 
         formPanel.add(propertyTypeCodeField);
@@ -97,7 +99,6 @@ public final class PropertyTypeRegistrationForm extends AbstractVocabularyRegist
         formPanel.add(propertyTypeDescriptionField);
         formPanel.add(dataTypeSelectionWidget);
         formPanel.add(vocabularySelectionWidget);
-        formPanel.add(vocabularyRegistrationFieldSet);
         formPanel.add(materialTypeSelectionWidget);
     }
 
@@ -148,8 +149,9 @@ public final class PropertyTypeRegistrationForm extends AbstractVocabularyRegist
 
     private final VocabularySelectionWidget createVocabularySelectionWidget()
     {
-        return new VocabularySelectionWidgetForPropertyTypeRegistration(viewContext,
-                vocabularyRegistrationFieldSet);
+        VocabularySelectionWidget result = new VocabularySelectionWidget(viewContext);
+        FieldUtil.markAsMandatory(result);
+        return result;
     }
 
     private final String getPropertyTypeCode()
@@ -191,15 +193,7 @@ public final class PropertyTypeRegistrationForm extends AbstractVocabularyRegist
     {
         if (DataTypeCode.CONTROLLEDVOCABULARY.equals(selectedDataType.getCode()))
         {
-            final String selectedVocabularyCode =
-                    GWTUtils.tryGetSingleSelectedCode(vocabularySelectionWidget);
-            if (VocabularySelectionWidget.NEW_VOCABULARY_CODE.equals(selectedVocabularyCode))
-            {
-                return vocabularyRegistrationFieldSet.createVocabulary();
-            } else
-            {
-                return (Vocabulary) GWTUtils.tryGetSingleSelected(vocabularySelectionWidget);
-            }
+            return (Vocabulary) GWTUtils.tryGetSingleSelected(vocabularySelectionWidget);
         } else
         {
             return null;
@@ -214,7 +208,7 @@ public final class PropertyTypeRegistrationForm extends AbstractVocabularyRegist
     protected final void submitValidForm()
     {
         final PropertyType propertyType = createPropertyType();
-        viewContext.getService().registerPropertyType(termsSessionKey, propertyType,
+        viewContext.getService().registerPropertyType(propertyType,
                 new PropertyTypeRegistrationCallback(viewContext, propertyType));
     }
 

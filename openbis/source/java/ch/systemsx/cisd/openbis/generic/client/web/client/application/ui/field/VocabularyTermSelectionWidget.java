@@ -49,39 +49,46 @@ public class VocabularyTermSelectionWidget extends
 
     private final IViewContext<?> viewContextOrNull;
 
+    private String initialTermCodeOrNull;
+
+    private boolean dataLoaded = false;
+
     /**
      * Allows to choose one of the specified vocabulary's terms, is able to refresh the available
      * terms by calling the server.
      */
     public static DatabaseModificationAwareField<VocabularyTermModel> create(String idSuffix,
             String label, Vocabulary vocabulary, final boolean mandatory,
-            IViewContext<?> viewContext)
+            IViewContext<?> viewContext, String initialTermOrNull)
     {
-        return new VocabularyTermSelectionWidget(idSuffix, label, vocabulary.getTerms(), mandatory,
-                vocabulary, viewContext).asDatabaseModificationAware();
+        return new VocabularyTermSelectionWidget(idSuffix, label, mandatory, vocabulary,
+                viewContext, null, initialTermOrNull).asDatabaseModificationAware();
     }
 
     /**
      * Allows to choose one of the specified vocabulary terms.
      */
-    public VocabularyTermSelectionWidget(String idSuffix, String label, List<VocabularyTerm> terms,
-            final boolean mandatory)
+    public VocabularyTermSelectionWidget(String idSuffix, String label, final boolean mandatory,
+            List<VocabularyTerm> initialTermsOrNull, String initialTermOrNull)
     {
-        this(idSuffix, label, terms, mandatory, null, null);
+        this(idSuffix, label, mandatory, null, null, initialTermsOrNull, initialTermOrNull);
     }
 
-    private VocabularyTermSelectionWidget(String idSuffix, String label,
-            List<VocabularyTerm> terms, boolean mandatory, Vocabulary vocabularyOrNull,
-            IViewContext<?> viewContextOrNull)
+    private VocabularyTermSelectionWidget(String idSuffix, String label, boolean mandatory,
+            Vocabulary vocabularyOrNull, IViewContext<?> viewContextOrNull,
+            List<VocabularyTerm> termsOrNull, String initialTermOrNull)
     {
         super(idSuffix, ModelDataPropertyNames.CODE, label, CHOOSE_MSG, EMPTY_MSG,
-                VALUE_NOT_IN_LIST_MSG, mandatory, viewContextOrNull, false);
+                VALUE_NOT_IN_LIST_MSG, mandatory, viewContextOrNull, termsOrNull == null);
         this.viewContextOrNull = viewContextOrNull;
         this.vocabularyOrNull = vocabularyOrNull;
-
+        this.initialTermCodeOrNull = initialTermOrNull;
         FieldUtil.setMandatoryFlag(this, mandatory);
         setAllowBlank(mandatory == false);
-        setTerms(terms);
+        if (termsOrNull != null)
+        {
+            setTerms(termsOrNull);
+        }
     }
 
     private void setTerms(List<VocabularyTerm> terms)
@@ -104,7 +111,8 @@ public class VocabularyTermSelectionWidget extends
     {
         if (viewContextOrNull != null && vocabularyOrNull != null)
         {
-            viewContextOrNull.getCommonService().listVocabularyTerms(vocabularyOrNull, callback);
+            viewContextOrNull.getCommonService().listVocabularyTerms(vocabularyOrNull,
+                    new ListTermsCallback(viewContextOrNull));
         }
     }
 
@@ -112,4 +120,42 @@ public class VocabularyTermSelectionWidget extends
     {
         return DatabaseModificationKind.any(ObjectKind.VOCABULARY_TERM);
     }
+
+    public void selectTermAndUpdateOriginal(String term)
+    {
+        this.initialTermCodeOrNull = term;
+        if (dataLoaded && initialTermCodeOrNull != null)
+        {
+            trySelectByCode(initialTermCodeOrNull);
+            updateOriginalValue();
+        }
+    }
+
+    public void trySelectByCode(String termCode)
+    {
+        GWTUtils.setSelectedItem(this, ModelDataPropertyNames.CODE, termCode);
+    }
+
+    public void updateOriginalValue()
+    {
+        setOriginalValue(getValue());
+    }
+
+    public class ListTermsCallback extends VocabularyTermSelectionWidget.ListItemsCallback
+    {
+
+        protected ListTermsCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        public void process(List<VocabularyTerm> result)
+        {
+            super.process(result);
+            dataLoaded = true;
+            selectTermAndUpdateOriginal(initialTermCodeOrNull);
+        }
+    }
+
 }

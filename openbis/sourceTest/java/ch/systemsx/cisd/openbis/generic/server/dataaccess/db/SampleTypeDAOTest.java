@@ -119,7 +119,7 @@ public final class SampleTypeDAOTest extends AbstractDAOTest
                 final VocabularyPE vocabulary = stpt.getPropertyType().getVocabulary();
                 if (vocabulary != null)
                 {
-                    assertTrue(HibernateUtils.isInitialized(vocabulary.getTerms()));
+                    assertFalse(HibernateUtils.isInitialized(vocabulary.getTerms()));
                 }
             }
         }

@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -328,12 +329,12 @@ public interface ICommonServer extends IServer
             String propertyTypeCode, String entityTypeCode);
 
     /**
-     * Registers given {@link Vocabulary}.
+     * Registers given {@link NewVocabulary}.
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY)
-    public void registerVocabulary(final String sessionToken, final Vocabulary vocabulary);
+    public void registerVocabulary(final String sessionToken, final NewVocabulary vocabulary);
 
     /**
      * Updates a vocabulary.

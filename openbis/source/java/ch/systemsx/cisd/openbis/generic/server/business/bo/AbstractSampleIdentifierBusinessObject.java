@@ -115,15 +115,12 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
 
     private static final String PROPERTY_TYPES = "sampleType.sampleTypePropertyTypesInternal";
 
-    private static final String VOCABULARY_TERMS =
-            PROPERTY_TYPES + ".propertyTypeInternal.vocabulary.vocabularyTerms";
-
     private static final String EXPERIMENT = "experimentInternal";
 
     protected SamplePE tryToGetSampleByTechId(final TechId sampleId)
     {
         String[] connections =
-            { PROPERTY_TYPES, VOCABULARY_TERMS, EXPERIMENT };
+            { PROPERTY_TYPES, EXPERIMENT };
         return getSampleDAO().tryGetByTechId(sampleId, connections);
     }
 }

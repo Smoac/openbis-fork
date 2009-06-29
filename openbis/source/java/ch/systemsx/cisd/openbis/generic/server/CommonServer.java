@@ -72,6 +72,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -551,7 +552,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         propertyTypeBO.save();
     }
 
-    public final void registerVocabulary(final String sessionToken, final Vocabulary vocabulary)
+    public final void registerVocabulary(final String sessionToken, final NewVocabulary vocabulary)
     {
         assert sessionToken != null : "Unspecified session token";
         assert vocabulary != null : "Unspecified vocabulary";

@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  */
 public class VocabularySelectionWidget extends DropDownList<BaseModelData, Vocabulary>
 {
-    public static final String NEW_VOCABULARY_CODE = "(New Vocabulary)";
 
     private static final String PREFIX = "vocabulary-select";
 
@@ -63,13 +62,6 @@ public class VocabularySelectionWidget extends DropDownList<BaseModelData, Vocab
     private static BaseModelData createModel(Vocabulary vocabulary)
     {
         return createModel(vocabulary, vocabulary.getCode());
-    }
-
-    protected final static Vocabulary createNewVocabulary()
-    {
-        Vocabulary result = new Vocabulary();
-        result.setCode(NEW_VOCABULARY_CODE);
-        return result;
     }
 
     private static BaseModelData createModel(Object object, String code)

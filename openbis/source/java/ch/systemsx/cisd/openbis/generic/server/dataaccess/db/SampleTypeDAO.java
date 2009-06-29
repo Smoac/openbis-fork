@@ -59,9 +59,6 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
         final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
         criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         criteria.setFetchMode("sampleTypePropertyTypesInternal", FetchMode.JOIN);
-        criteria.setFetchMode(
-                "sampleTypePropertyTypesInternal.propertyTypeInternal.vocabulary.vocabularyTerms",
-                FetchMode.JOIN);
         criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
         final List<SampleTypePE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())

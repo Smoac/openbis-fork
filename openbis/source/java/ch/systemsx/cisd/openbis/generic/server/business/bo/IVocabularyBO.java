@@ -21,7 +21,7 @@ import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
@@ -44,7 +44,7 @@ public interface IVocabularyBO extends IEntityBusinessObject
      * 
      * @throws UserFailureException if given <var>vocabulary</var> does already exist.
      */
-    void define(final Vocabulary vocabulary) throws UserFailureException;
+    void define(final NewVocabulary vocabulary) throws UserFailureException;
 
     /**
      * Returns the loaded {@link VocabularyPE}.

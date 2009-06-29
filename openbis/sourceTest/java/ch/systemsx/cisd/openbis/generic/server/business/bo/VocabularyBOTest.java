@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
@@ -57,9 +57,9 @@ public final class VocabularyBOTest extends AbstractBOTest
         return new VocabularyBO(daoFactory, EXAMPLE_SESSION);
     }
 
-    static final Vocabulary createVocabulary()
+    static final NewVocabulary createVocabulary()
     {
-        final Vocabulary vocabulary = new Vocabulary();
+        final NewVocabulary vocabulary = new NewVocabulary();
         vocabulary.setCode(VOCABULARY_CODE);
         vocabulary.setDescription(VOCABULARY_DESCRIPTION);
         vocabulary.setTerms(createTerms());
@@ -82,7 +82,8 @@ public final class VocabularyBOTest extends AbstractBOTest
         return term;
     }
 
-    static void assertVocabularyEquals(final Vocabulary vocabulary, final VocabularyPE vocabularyPE)
+    static void assertVocabularyEquals(final NewVocabulary vocabulary,
+            final VocabularyPE vocabularyPE)
     {
         assertEquals(vocabulary.getCode(), vocabularyPE.getCode());
         assertEquals(vocabulary.getDescription(), vocabularyPE.getDescription());
@@ -135,7 +136,7 @@ public final class VocabularyBOTest extends AbstractBOTest
                     will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
                 }
             });
-        final Vocabulary vocabulary = createVocabulary();
+        final NewVocabulary vocabulary = createVocabulary();
         vocabularyBO.define(vocabulary);
         final VocabularyPE vocabularyPE = vocabularyBO.getVocabulary();
         assertVocabularyEquals(vocabulary, vocabularyPE);
@@ -156,7 +157,7 @@ public final class VocabularyBOTest extends AbstractBOTest
                     one(vocabularyDAO).createOrUpdateVocabulary(with(aNonNull(VocabularyPE.class)));
                 }
             });
-        final Vocabulary vocabulary = createVocabulary();
+        final NewVocabulary vocabulary = createVocabulary();
         vocabularyBO.define(vocabulary);
         vocabularyBO.save();
         context.assertIsSatisfied();
@@ -176,7 +177,7 @@ public final class VocabularyBOTest extends AbstractBOTest
                     will(throwException(new DataIntegrityViolationException(null)));
                 }
             });
-        final Vocabulary vocabulary = createVocabulary();
+        final NewVocabulary vocabulary = createVocabulary();
         vocabularyBO.define(vocabulary);
         try
         {

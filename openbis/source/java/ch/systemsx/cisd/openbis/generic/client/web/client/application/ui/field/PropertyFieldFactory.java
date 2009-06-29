@@ -25,7 +25,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -43,10 +42,6 @@ public class PropertyFieldFactory
                 doCreateField(pt, isMandatory, label, fieldId, originalRawValue, viewContext);
         Field<?> field = fieldHolder.get();
         field.setId(fieldId);
-        if (originalRawValue != null)
-        {
-            setValue(field, StringEscapeUtils.unescapeHtml(originalRawValue));
-        }
         return fieldHolder;
     }
 
@@ -58,51 +53,49 @@ public class PropertyFieldFactory
         switch (dataType)
         {
             case BOOLEAN:
-                return wrapUnaware(new CheckBoxField(label, isMandatory));
+                return wrapUnaware(setValue(new CheckBoxField(label, isMandatory), originalRawValue));
             case VARCHAR:
-                return wrapUnaware(new VarcharField(label, isMandatory));
+                return wrapUnaware(setValue(new VarcharField(label, isMandatory), originalRawValue));
             case TIMESTAMP:
-                return wrapUnaware(new DateFormField(label, isMandatory));
+                return wrapUnaware(setValue(new DateFormField(label, isMandatory), originalRawValue));
             case CONTROLLEDVOCABULARY:
                 return createControlledVocabularyField(fieldId, label, pt.getVocabulary(),
-                        isMandatory, viewContext);
+                        isMandatory, viewContext, originalRawValue);
             case INTEGER:
-                return wrapUnaware(new IntegerField(label, isMandatory));
+                return wrapUnaware(setValue(new IntegerField(label, isMandatory), originalRawValue));
             case REAL:
-                return wrapUnaware(new RealField(label, isMandatory));
+                return wrapUnaware(setValue(new RealField(label, isMandatory), originalRawValue));
             case MATERIAL:
                 return wrapUnaware(MaterialChooserField.create(label, isMandatory, pt
                         .getMaterialType(), originalRawValue, viewContext));
             case HYPERLINK:
-                return wrapUnaware(new HyperlinkField(label, isMandatory));
+                return wrapUnaware(setValue(new HyperlinkField(label, isMandatory),
+                        originalRawValue));
             case MULTILINE_VARCHAR:
-                return wrapUnaware(new MultilineVarcharField(label, isMandatory));
+                return wrapUnaware(setValue(new MultilineVarcharField(label, isMandatory),
+                        originalRawValue));
         }
         throw new IllegalStateException("unknown enum " + dataType);
     }
 
     private static DatabaseModificationAwareField<?> createControlledVocabularyField(
             String fieldId, String label, Vocabulary vocabulary, boolean isMandatory,
-            IViewContext<ICommonClientServiceAsync> viewContext)
+            IViewContext<ICommonClientServiceAsync> viewContext, String originalRawValue)
     {
         if (vocabulary.isChosenFromList())
         {
             return VocabularyTermSelectionWidget.create(fieldId, label, vocabulary, isMandatory,
-                    viewContext);
+                    viewContext, originalRawValue);
         } else
         {
-            return wrapUnaware(new VocabularyTermField(viewContext, label, isMandatory));
+            return wrapUnaware(setValue(new VocabularyTermField(viewContext, label, isMandatory),
+                    originalRawValue));
         }
     }
 
     private static DatabaseModificationAwareField<?> wrapUnaware(Field<?> field)
     {
         return DatabaseModificationAwareField.wrapUnaware(field);
-    }
-
-    private static <T> void setValue(final Field<T> field, String originalRawValue)
-    {
-        field.setValue(field.getPropertyEditor().convertStringValue(originalRawValue));
     }
 
     public static final String valueToString(final Object value)
@@ -120,5 +113,14 @@ public class PropertyFieldFactory
         {
             return value.toString();
         }
+    }
+
+    private static <T> Field<T> setValue(Field<T> field, String originalRawValue)
+    {
+        if (originalRawValue != null)
+        {
+            field.setValue(field.getPropertyEditor().convertStringValue(originalRawValue));
+        }
+        return field;
     }
 }

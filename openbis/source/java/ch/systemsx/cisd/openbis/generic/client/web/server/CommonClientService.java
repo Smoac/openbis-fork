@@ -107,6 +107,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -938,19 +939,13 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public final void registerPropertyType(final String termsSessionKey,
-            final PropertyType propertyType)
+    public final void registerPropertyType(final PropertyType propertyType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         assert propertyType != null : "Unspecified property type.";
         try
         {
             final String sessionToken = getSessionToken();
-            Vocabulary vocabularyOrNull = propertyType.getVocabulary();
-            if (vocabularyOrNull != null && vocabularyOrNull.isUploadedFromFile())
-            {
-                extendVocabularyWithUploadedData(vocabularyOrNull, termsSessionKey);
-            }
             commonServer.registerPropertyType(sessionToken, propertyType);
         } catch (final UserFailureException e)
         {
@@ -958,7 +953,8 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public final void registerVocabulary(final String termsSessionKey, final Vocabulary vocabulary)
+    public final void registerVocabulary(final String termsSessionKey,
+            final NewVocabulary vocabulary)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         assert vocabulary != null : "Unspecified vocabulary.";
@@ -991,7 +987,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    private final void extendVocabularyWithUploadedData(Vocabulary vocabulary, String sessionKey)
+    private final void extendVocabularyWithUploadedData(NewVocabulary vocabulary, String sessionKey)
     {
         VocabularyTermsExtractor extractor =
                 new VocabularyTermsExtractor().prepareTerms(sessionKey);
