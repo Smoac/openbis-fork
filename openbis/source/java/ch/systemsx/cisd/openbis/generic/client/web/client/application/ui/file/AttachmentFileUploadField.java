@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
@@ -98,7 +99,7 @@ public class AttachmentFileUploadField extends FileUploadField
 
         private VarcharField titleField;
 
-        private VarcharField descriptionField;
+        private MultilineVarcharField descriptionField;
 
         public AttachmentsFileSet(final IMessageProvider messageProvider,
                 FileUploadField fileUploadField)
@@ -142,9 +143,9 @@ public class AttachmentFileUploadField extends FileUploadField
             return varcharField;
         }
 
-        private final VarcharField createDescriptionField(final String label)
+        private final MultilineVarcharField createDescriptionField(final String label)
         {
-            final VarcharField varcharField = new VarcharField(label, false);
+            final MultilineVarcharField varcharField = new MultilineVarcharField(label, false);
             varcharField.setMaxLength(1000);
             return varcharField;
         }

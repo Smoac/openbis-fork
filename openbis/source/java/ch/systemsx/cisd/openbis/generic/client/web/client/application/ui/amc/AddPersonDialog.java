@@ -41,7 +41,7 @@ public class AddPersonDialog extends AbstractRegistrationDialog
         super(viewContext, "Add a new person", postRegistrationCallback);
 
         this.viewContext = viewContext;
-        this.codeField = createCodeField();
+        this.codeField = createCodeField(viewContext);
         addField(codeField);
     }
 

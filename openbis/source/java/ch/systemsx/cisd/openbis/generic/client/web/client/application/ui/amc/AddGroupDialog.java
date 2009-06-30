@@ -43,10 +43,10 @@ public class AddGroupDialog extends AbstractRegistrationDialog
     {
         super(viewContext, "Add a new group", postRegistrationCallback);
         this.viewContext = viewContext;
-        this.codeField = createCodeField();
+        this.codeField = createCodeField(viewContext);
         addField(codeField);
 
-        this.descriptionField = createDescriptionField();
+        this.descriptionField = createDescriptionField(viewContext);
         addField(descriptionField);
     }
 

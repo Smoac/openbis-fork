@@ -33,8 +33,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 public abstract class AddTypeDialog extends AbstractRegistrationDialog
 {
     public static final String DIALOG_ID = GenericConstants.ID_PREFIX + "add-type-dialog";
+
     public static final String DESCRIPTION_FIELD_ID = DIALOG_ID + "-description-field";
-    
+
     /** Registers a new property type and calls the specified callback at the end */
     abstract protected void register(String code, String descriptionOrNull,
             AsyncCallback<Void> registrationCallback);
@@ -43,16 +44,16 @@ public abstract class AddTypeDialog extends AbstractRegistrationDialog
 
     private final TextField<String> descriptionField;
 
-    public AddTypeDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
-            String title, final IDelegatedAction postRegistrationCallback)
+    public AddTypeDialog(final IViewContext<ICommonClientServiceAsync> viewContext, String title,
+            final IDelegatedAction postRegistrationCallback)
     {
         super(viewContext, title, postRegistrationCallback);
         setId(DIALOG_ID);
-        
-        codeField = createCodeField();
+
+        codeField = createCodeField(viewContext);
         addField(codeField);
 
-        descriptionField = createDescriptionField();
+        descriptionField = createDescriptionField(viewContext);
         descriptionField.setId(DESCRIPTION_FIELD_ID);
         addField(descriptionField);
     }

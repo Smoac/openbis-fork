@@ -42,7 +42,7 @@ public enum EntityTypeColDefKind implements IColumnDefinitionKind<EntityType>
             @Override
             public String tryGetValue(EntityType entity)
             {
-                return entity.getDescription();
+                return renderMultilineString(entity.getDescription());
             }
         }),
 

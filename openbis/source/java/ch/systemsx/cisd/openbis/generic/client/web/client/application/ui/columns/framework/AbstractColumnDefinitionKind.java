@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IInvalidationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractRegistrationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -42,7 +43,7 @@ public abstract class AbstractColumnDefinitionKind<T>
     public static final int DATE_COLUMN_WIDTH = 300;
 
     public static final int DEFAULT_COLUMN_WIDTH = 150;
-    
+
     private String headerMsgKey;
 
     private int width;
@@ -89,7 +90,12 @@ public abstract class AbstractColumnDefinitionKind<T>
     {
         return headerMsgKey;
     }
-    
+
+    protected String renderMultilineString(final String string)
+    {
+        return string != null ? new MultilineHTML(string).toString() : null;
+    }
+
     protected String renderRegistrationDate(final AbstractRegistrationHolder entity)
     {
         return SimpleDateRenderer.renderDate(entity.getRegistrationDate());

@@ -22,8 +22,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.SourcesTableEvents;
-import com.google.gwt.user.client.ui.TableListener;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -40,8 +38,6 @@ public final class PropertyGrid extends Grid
     private final Map<Class<?>, IPropertyValueRenderer<?>> propertyValueRenderers =
             new HashMap<Class<?>, IPropertyValueRenderer<?>>();
 
-    private final Map<String, GridCellListener> listeners = new HashMap<String, GridCellListener>();
-
     private Map<String, ?> properties;
 
     private final IMessageProvider messageProvider;
@@ -53,7 +49,6 @@ public final class PropertyGrid extends Grid
         setStyleName("property-grid");
         getColumnFormatter().addStyleName(0, "header");
         defaultPropertyValueRenderer = new ObjectPropertyValueRenderer(messageProvider);
-        addTableListener(new PropertyGridListener());
         registerDefaultPropertyValueRenderers();
     }
 
@@ -117,20 +112,6 @@ public final class PropertyGrid extends Grid
     }
 
     /**
-     * Adds a <code>GridCellListener</code> for given <var>key</var>.
-     * <p>
-     * If there is already a <code>GridCellListener</code> registered for given <var>key</var>, the
-     * new one will replace it.
-     * </p>
-     */
-    public final void addGridCellListener(final String key, final GridCellListener listener)
-    {
-        assert key != null : "Unspecified key.";
-        assert listener != null : "Undefined GridCellListener.";
-        listeners.put(key, listener);
-    }
-
-    /**
      * Sets the properties that are going to be displayed here.
      */
     public final <T> void setProperties(final Map<String, ? super T> properties)
@@ -163,41 +144,6 @@ public final class PropertyGrid extends Grid
             setHTML(row, 0, key);
             setWidget(row, 1, widget);
         }
-    }
-
-    //
-    // Helper classes
-    //
-
-    private final class PropertyGridListener implements TableListener
-    {
-
-        //
-        // TableListener
-        //
-
-        public final void onCellClicked(final SourcesTableEvents sender, final int row,
-                final int column)
-        {
-            // Only for property value (index 1).
-            if (column == 1)
-            {
-                final String keyValue = getText(row, 0);
-                final GridCellListener listener = listeners.get(keyValue);
-                if (listener != null)
-                {
-                    listener.onCellClicked();
-                }
-            }
-        }
-    }
-
-    /** Event listener interface for property table events. */
-    public static interface GridCellListener
-    {
-
-        /** Fired when a property value cell is clicked. */
-        public void onCellClicked();
     }
 
 }

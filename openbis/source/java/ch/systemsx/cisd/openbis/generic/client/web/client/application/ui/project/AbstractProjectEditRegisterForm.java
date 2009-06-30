@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField.CodeFieldKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.AttachmentsFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
@@ -51,7 +51,7 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
 
     protected CodeField projectCodeField;
 
-    protected VarcharField projectDescriptionField;
+    protected MultilineVarcharField projectDescriptionField;
 
     protected GroupSelectionWidget groupField;
 
@@ -102,10 +102,10 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
         return codeField;
     }
 
-    private final VarcharField createProjectDescriptionField()
+    private final MultilineVarcharField createProjectDescriptionField()
     {
-        final VarcharField varcharField =
-                new VarcharField(viewContext.getMessage(Dict.DESCRIPTION), false);
+        final MultilineVarcharField varcharField =
+                new MultilineVarcharField(viewContext.getMessage(Dict.DESCRIPTION), false);
         varcharField.setId(getId() + "_description");
         varcharField.setMaxLength(GenericConstants.DESCRIPTION_250);
         return varcharField;

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Data
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField.CodeFieldKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeSelectionWidget;
@@ -61,7 +62,7 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
 
     private final VarcharField propertyTypeLabelField;
 
-    private final VarcharField propertyTypeDescriptionField;
+    private final MultilineVarcharField propertyTypeDescriptionField;
 
     private final DataTypeSelectionWidget dataTypeSelectionWidget;
 
@@ -130,10 +131,10 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
         return varcharField;
     }
 
-    private final VarcharField createPropertyTypeDescriptionField()
+    private final MultilineVarcharField createPropertyTypeDescriptionField()
     {
-        final VarcharField varcharField =
-                new VarcharField(viewContext.getMessage(Dict.DESCRIPTION), true);
+        final MultilineVarcharField varcharField =
+                new MultilineVarcharField(viewContext.getMessage(Dict.DESCRIPTION), true);
         varcharField.setId(getId() + "_description");
         varcharField.setMaxLength(GenericConstants.DESCRIPTION_250);
         return varcharField;

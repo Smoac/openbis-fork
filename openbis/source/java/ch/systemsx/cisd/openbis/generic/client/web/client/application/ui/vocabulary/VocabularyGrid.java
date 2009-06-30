@@ -221,7 +221,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                     codeField.setValue(getOldVocabularyCodeWithoutPrefix());
                     addField(codeField);
 
-                    descriptionField = createDescriptionField();
+                    descriptionField = createDescriptionField(viewContext);
                     descriptionField.setValue(StringEscapeUtils.unescapeHtml(vocabulary
                             .getDescription()));
                     addField(descriptionField);

@@ -57,7 +57,7 @@ body,div,td {
  *****************************/
 
 .property-grid {
-    table-layout: auto;
+    table-layout: fixed;
     border-collapse: collapse;
 }
 

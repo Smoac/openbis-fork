@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget;
 
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.HTML;
 
 /**
- * A {@link HTML} widget extension that preserves newlines in multiline text.
+ * A {@link HTML} widget extension that preserves newlines in multiline text and provides a tooltip.
  * 
  * @author Piotr Buczek
  */
@@ -34,12 +36,12 @@ public final class MultilineHTML extends HTML
     {
         // Another way to implement this would be to preserve white-space:
         // getElement().getStyle().setProperty("whiteSpace", "pre");
-        // but then to long lines would not fit in property grid with no word wrapping.
+        // but then too long lines would not fit in property grid with no word wrapping.
         // So the only option is to replace newlines with <br/>
         super(replaceNewlinesWithBRs(html));
     }
 
-    private static final String BR = "<br\\>";
+    private static final String BR = DOM.toString(DOM.createElement("br"));
 
     private static String replaceNewlinesWithBRs(String html)
     {
@@ -47,6 +49,16 @@ public final class MultilineHTML extends HTML
         // to be independent of regexp implementation we have to replace newlines in two steps
         result = result.replaceAll("\n\r", BR);
         result = result.replaceAll("[\n\r]", BR);
-        return result;
+        // result will not be wrapped in AbstractBrowserGrid so we wrap it up in div with tooltip
+        return wrapUpInDivWithTooltip(result, html);
     }
+
+    private static String wrapUpInDivWithTooltip(String text, String tooltip)
+    {
+        final Element div = DOM.createDiv();
+        div.setInnerHTML(text);
+        div.setTitle(tooltip);
+        return DOM.toString(div);
+    }
+
 }

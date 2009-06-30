@@ -190,6 +190,16 @@ public final class PropertyValueRenderers
     }
 
     /**
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering a String with newlines
+     * preserved.
+     */
+    public final static IPropertyValueRenderer<String> createMultilineStringPropertyValueRenderer(
+            final IMessageProvider messageProvider)
+    {
+        return new MultilineStringPropertyValueRenderer(messageProvider);
+    }
+
+    /**
      * Renderer for {@link Person}.
      * 
      * @author Christian Ribeaud
@@ -320,7 +330,8 @@ public final class PropertyValueRenderers
 
         private Widget createMultilineHtmlWidget(T object)
         {
-            return new MultilineHTML(object.getValue());
+            return MultilineStringPropertyValueRenderer
+                    .createMultilineHtmlWidget(object.getValue());
         }
 
         private Widget createHtmlWidget(T object)
@@ -466,6 +477,36 @@ public final class PropertyValueRenderers
                 panel.add(new InlineHTML(" [" + sample.getSampleType().getCode() + "]"));
             }
             return panel;
+        }
+
+    }
+
+    /**
+     * Renderer for a String with newlines preserved.
+     * 
+     * @author Piotr Buczek
+     */
+    private final static class MultilineStringPropertyValueRenderer extends
+            AbstractPropertyValueRenderer<String>
+    {
+
+        public MultilineStringPropertyValueRenderer(IMessageProvider messageProvider)
+        {
+            super(messageProvider);
+        }
+
+        //
+        // AbstractPropertyValueRenderer
+        //
+
+        public Widget getAsWidget(String object)
+        {
+            return createMultilineHtmlWidget(object);
+        }
+
+        protected static Widget createMultilineHtmlWidget(String object)
+        {
+            return new MultilineHTML(object);
         }
 
     }

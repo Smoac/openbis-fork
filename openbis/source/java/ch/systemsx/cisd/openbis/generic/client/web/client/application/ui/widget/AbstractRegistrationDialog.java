@@ -20,9 +20,12 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
  * Abstract {@link Window} with Save and Cancel buttons, useful when simple registration operation
@@ -49,25 +52,23 @@ abstract public class AbstractRegistrationDialog extends AbstractSaveDialog
         super(viewContext, title, postRegistrationCallback);
     }
 
-    public static TextField<String> createTitleField()
+    public static TextField<String> createTitleField(IMessageProvider messageProvider)
     {
         TextField<String> field = new TextField<String>();
-        field.setFieldLabel("Title");
+        field.setFieldLabel(messageProvider.getMessage(Dict.TITLE));
         return field;
     }
 
-    public static TextField<String> createDescriptionField()
+    public static TextField<String> createDescriptionField(IMessageProvider messageProvider)
     {
-        TextField<String> field = new TextField<String>();
-        field.setFieldLabel("Description");
-        return field;
+        return new MultilineVarcharField(messageProvider.getMessage(Dict.DESCRIPTION), false);
     }
 
-    public static TextField<String> createCodeField()
+    public static TextField<String> createCodeField(IMessageProvider messageProvider)
     {
         final TextField<String> codeField = new TextField<String>();
         codeField.setWidth(100);
-        codeField.setFieldLabel("Code");
+        codeField.setFieldLabel(messageProvider.getMessage(Dict.CODE));
         codeField.setAllowBlank(false);
         codeField.setValidateOnBlur(true);
         codeField.setId(CODE_FIELD_ID);

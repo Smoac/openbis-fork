@@ -191,7 +191,7 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
             {
                 private final TextField<String> descriptionField;
                 {
-                    descriptionField = createDescriptionField();
+                    descriptionField = createDescriptionField(viewContext);
                     descriptionField
                             .setValue(StringEscapeUtils.unescapeHtml(type.getDescription()));
                     addField(descriptionField);

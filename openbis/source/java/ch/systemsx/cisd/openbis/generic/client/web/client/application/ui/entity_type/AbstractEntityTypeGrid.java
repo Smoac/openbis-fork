@@ -184,7 +184,7 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
             {
                 private final TextField<String> descriptionField;
                 {
-                    descriptionField = createDescriptionField();
+                    descriptionField = createDescriptionField(viewContext);
                     descriptionField.setValue(StringEscapeUtils.unescapeHtml(entityType
                             .getDescription()));
                     addField(descriptionField);

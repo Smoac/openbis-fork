@@ -35,6 +35,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField.CodeFieldKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
@@ -58,7 +59,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
 
     private CodeField vocabularyCodeField;
 
-    private VarcharField vocabularyDescriptionField;
+    private MultilineVarcharField vocabularyDescriptionField;
 
     private CheckBox chosenFromListCheckbox;
 
@@ -120,10 +121,11 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
         return codeField;
     }
 
-    private final VarcharField createDescriptionField(final String descriptionLabel,
+    private final MultilineVarcharField createDescriptionField(final String descriptionLabel,
             final boolean mandatory)
     {
-        final VarcharField varcharField = new VarcharField(descriptionLabel, mandatory);
+        final MultilineVarcharField varcharField =
+                new MultilineVarcharField(descriptionLabel, mandatory);
         varcharField.setMaxLength(GenericConstants.DESCRIPTION_250);
         varcharField.setId(idPrefix + "_description");
         return varcharField;

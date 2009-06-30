@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 
 /**
  * Generic columns for a grid of types.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public enum TypeColDefKind implements IColumnDefinitionKind<AbstractType>
@@ -42,7 +42,7 @@ public enum TypeColDefKind implements IColumnDefinitionKind<AbstractType>
             @Override
             public String tryGetValue(AbstractType entity)
             {
-                return entity.getDescription();
+                return renderMultilineString(entity.getDescription());
             }
         });
 
