@@ -53,6 +53,7 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.shared.basic.dto.Message;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -71,6 +72,8 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
      * next request.
      */
     static final String FILES_TO_UPLOAD = "files-to-upload";
+
+    private static final long DELAY_AFTER_FAILED_LOGIN_MILLIS = 500L;
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, CIFEXServiceImpl.class);
@@ -150,8 +153,12 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     {
         try
         {
-            final UserDTO userDTO = super.tryLoginUser(userCode, plainPassword, true);
-            return BeanUtils.createBean(UserInfoDTO.class, userDTO);
+            final UserDTO userDTOOrNull = super.tryLoginUser(userCode, plainPassword, true);
+            if (userDTOOrNull == null)
+            {
+                ConcurrencyUtilities.sleep(DELAY_AFTER_FAILED_LOGIN_MILLIS);
+            }
+            return BeanUtils.createBean(UserInfoDTO.class, userDTOOrNull);
         } catch (ch.systemsx.cisd.common.exceptions.EnvironmentFailureException ex)
         {
             throw new EnvironmentFailureException(ex.getMessage());

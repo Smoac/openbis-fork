@@ -57,6 +57,7 @@ import ch.systemsx.cisd.cifex.server.util.FilenameUtilities;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
@@ -78,6 +79,8 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
     private static final long MB = 1024 * 1024;
 
     public static final String PREFIX = "$";
+    
+    private static final long DELAY_AFTER_FAILED_LOGIN_MILLIS = 500L;
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, CIFEXRPCService.class);
@@ -181,6 +184,8 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             {
                 userBehaviorLogOrNull.logFailedLoginAttempt(userCode);
             }
+            // Delay reporting of failure in order to make brute force password attacks unattractive.
+            ConcurrencyUtilities.sleep(DELAY_AFTER_FAILED_LOGIN_MILLIS);
             throw new AuthorizationFailureException("Login failed: invalid user or password");
         }
         return createSession(user, getURLForEmail());
