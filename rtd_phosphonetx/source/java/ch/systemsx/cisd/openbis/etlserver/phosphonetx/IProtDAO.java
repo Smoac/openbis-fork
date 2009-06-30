@@ -23,7 +23,6 @@ import net.lemnik.eodsql.Update;
 
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Experiment;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ModificationType;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinAnnotation;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sample;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sequence;
 
@@ -62,20 +61,21 @@ public interface IProtDAO extends BaseQuery
     @Select("insert into data_sets (expe_id, samp_id, perm_id) values (?{1}, ?{2}, ?{3}) returning id")
     public long createDataSet(long experimentID, Long sampleID, String dataSetPermID);
     
-    @Select("insert into proteins (dase_id) values (?{1}) returning id")
-    public long createProtein(long dataSetID);
+    @Update("insert into probability_fdr_mappings (dase_id, probability, false_discovery_rate) "
+            + "values (?{1}, ?{2}, ?{3})")
+    public void createProbabilityToFDRMapping(long dataSetID, double probability,
+            double falseDiscoveryRate);
     
-    @Select("insert into peptides (prot_id, sequ_id, charge) values (?{1}, ?{2}, ?{3}) returning id")
-    public long createPeptide(long proteinID, long sequenceID, int charge);
+    @Select("insert into proteins (dase_id, probability) values (?{1}, ?{2}) returning id")
+    public long createProtein(long dataSetID, double probability);
     
-    @Update("insert into modifications (pept_id, moty_id, position, mass) "
-            + "values (?{1}, ?{2}, ?{3}, ?{4})")
+    @Select("insert into peptides (prot_id, sequence, charge) values (?{1}, ?{2}, ?{3}) returning id")
+    public long createPeptide(long proteinID, String sequence, int charge);
+    
+    @Update("insert into modifications (pept_id, moty_id, pos, mass) values (?{1}, ?{2}, ?{3}, ?{4})")
     public void createModification(long peptideID, long modificationTypeID, int position,
             double mass);
 
-    @Update("insert into annotations (prot_id, protein_description, ipi_name, refseq_name, "
-            + "swissprot_name, ensembl_name, trembl_name, locus_link_name, flybase) "
-            + "values (?{1}, ?{2.description}, ?{2.ipiName}, ?{2.refseqName}, ?{2.swissprotName}, "
-            + "?{2.ensemblName}, ?{2.tremblName}, ?{2.locusLinkName}, ?{2.flybase})")
-    public void createAnnotion(long proteinID, ProteinAnnotation annotation);
+    @Update("insert into identified_proteins (prot_id, sequ_id, description) values (?{1}, ?{2}, ?{3})")
+    public void createIdentifiedProtein(long proteinID, Long sequenceID, String description);
 }

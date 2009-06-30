@@ -1,233 +1,237 @@
-/*
- * Copyright 2009 ETH Zuerich, CISD
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* ---------------------------------------------------------------------- */
+/* Script generated with: DeZign for Databases v5.2.2                     */
+/* Target DBMS:           PostgreSQL 8                                    */
+/* Project file:          phosphonetx.dez                                 */
+/* Project name:                                                          */
+/* Author:                                                                */
+/* Script type:           Database creation script                        */
+/* Created on:            2009-06-30 09:00                                */
+/* Model version:         Version 2009-06-30                              */
+/* ---------------------------------------------------------------------- */
 
--- Create domain types -------------------------------------------------
 
-CREATE DOMAIN ACCESSION_NUMBER AS Character varying(400);
+/* ---------------------------------------------------------------------- */
+/* Domains                                                                */
+/* ---------------------------------------------------------------------- */
 
-CREATE DOMAIN BINARY_DATA AS Bytea;
+CREATE DOMAIN BINARY_DATA AS BYTEA;
 
-CREATE DOMAIN CHECKSUM AS Character varying(8);
+CREATE DOMAIN CHECKSUM AS CHARACTER VARYING(8);
 
-CREATE DOMAIN CODE AS Character varying(40);
+CREATE DOMAIN CODE AS CHARACTER VARYING(40);
 
-CREATE DOMAIN DESCRIPTION AS Character varying(2000);
+CREATE DOMAIN DESCRIPTION AS CHARACTER VARYING(2000);
 
-CREATE DOMAIN INTEGER_NUMBER AS Integer;
+CREATE DOMAIN INTEGER_NUMBER AS INTEGER;
 
-CREATE DOMAIN REAL_NUMBER AS Double precision;
+CREATE DOMAIN REAL_NUMBER AS DOUBLE PRECISION;
 
-CREATE DOMAIN SEQUENCE AS Text;
+CREATE DOMAIN LONG_SEQUENCE AS TEXT;
 
-CREATE DOMAIN SHORT_DESCRIPTION AS Character varying(200);
+CREATE DOMAIN SHORT_DESCRIPTION AS CHARACTER VARYING(200);
 
 CREATE DOMAIN TECH_ID AS BIGINT;
 
--- Create tables -------------------------------------------------
+CREATE DOMAIN SHORT_SEQUENCE AS CHARACTER VARYING(1000);
 
--- Table ABUNDANCES
+/* ---------------------------------------------------------------------- */
+/* Tables                                                                 */
+/* ---------------------------------------------------------------------- */
 
-CREATE TABLE ABUNDANCES(
-  ID BIGSERIAL NOT NULL,
-  ABTY_ID TECH_ID NOT NULL,
-  AMOUNT REAL_NUMBER NOT NULL,
-  PRIMARY KEY (ID)
+/* ---------------------------------------------------------------------- */
+/* Add table "ABUNDANCES_TYPES"                                           */
+/* ---------------------------------------------------------------------- */
+
+CREATE TABLE ABUNDANCES_TYPES (
+    ID BIGSERIAL  NOT NULL,
+    CODE CODE  NOT NULL,
+    DESCRIPTION SHORT_DESCRIPTION,
+    CONSTRAINT PK_ABUNDANCES_TYPES PRIMARY KEY (ID),
+    CONSTRAINT TUC_ABUNDANCES_TYPES_1 UNIQUE (CODE)
 );
 
--- Table ABUNDANCES_TYPES
+/* ---------------------------------------------------------------------- */
+/* Add table "EXPERIMENTS"                                                */
+/* ---------------------------------------------------------------------- */
 
-CREATE TABLE ABUNDANCES_TYPES(
-  ID BIGSERIAL NOT NULL,
-  CODE CODE NOT NULL,
-  DESCRIPTION SHORT_DESCRIPTION,
-  PRIMARY KEY (ID),
-  UNIQUE (CODE)
+CREATE TABLE EXPERIMENTS (
+    ID BIGSERIAL  NOT NULL,
+    PERM_ID CODE  NOT NULL,
+    CONSTRAINT PK_EXPERIMENTS PRIMARY KEY (ID),
+    CONSTRAINT TUC_EXPERIMENTS_1 UNIQUE (PERM_ID)
 );
 
--- Table ANNOTATIONS
+/* ---------------------------------------------------------------------- */
+/* Add table "DATA_SETS"                                                  */
+/* ---------------------------------------------------------------------- */
 
-CREATE TABLE ANNOTATIONS(
-  ID BIGSERIAL NOT NULL,
-  PROT_ID TECH_ID NOT NULL,
-  PROTEIN_DESCRIPTION DESCRIPTION NOT NULL,
-  IPI_NAME ACCESSION_NUMBER,
-  REFSEQ_NAME ACCESSION_NUMBER,
-  SWISSPROT_NAME ACCESSION_NUMBER,
-  ENSEMBL_NAME ACCESSION_NUMBER,
-  TREMBL_NAME ACCESSION_NUMBER,
-  LOCUS_LINK_NAME ACCESSION_NUMBER,
-  FLYBASE ACCESSION_NUMBER,
-  PRIMARY KEY (ID)
+CREATE TABLE DATA_SETS (
+    ID BIGSERIAL  NOT NULL,
+    EXPE_ID TECH_ID  NOT NULL,
+    SAMP_ID TECH_ID  NOT NULL,
+    PERM_ID CODE  NOT NULL,
+    CONSTRAINT PK_DATA_SETS PRIMARY KEY (ID),
+    CONSTRAINT TUC_DATA_SETS_1 UNIQUE (PERM_ID)
 );
-
--- Table EXPERIMENTS
-
-CREATE TABLE EXPERIMENTS(
-  ID BIGSERIAL NOT NULL,
-  PERM_ID CODE NOT NULL,
-  PRIMARY KEY (ID),
-  UNIQUE (PERM_ID)
-);
-
--- Table DATA_SETS
-
-CREATE TABLE DATA_SETS(
-  ID BIGSERIAL NOT NULL,
-  PERM_ID CODE NOT NULL,  
-  EXPE_ID TECH_ID NOT NULL,
-  SAMP_ID TECH_ID,
-  PRIMARY KEY (ID),
-  UNIQUE (PERM_ID)
-);
-
--- Table IDENTIFICATION_DATA
-
-CREATE TABLE IDENTIFICATION_DATA(
-  ID BIGSERIAL NOT NULL,
-  SPEC_ID TECH_ID,
-  SPECTRA_COUNT INTEGER_NUMBER,
-  PRIMARY KEY (ID)
-);
-
--- Table MODIFICATIONS
-
-CREATE TABLE MODIFICATIONS(
-  ID BIGSERIAL NOT NULL,
-  PEPT_ID TECH_ID NOT NULL,
-  MOTY_ID TECH_ID NOT NULL,
-  POSITION INTEGER_NUMBER NOT NULL,
-  MASS REAL_NUMBER NOT NULL,
-  PRIMARY KEY (ID)
-);
-
--- Table MODIFICATION_TYPES
-
-CREATE TABLE MODIFICATION_TYPES(
-  ID BIGSERIAL NOT NULL,
-  CODE CODE NOT NULL,
-  DESCRIPTION SHORT_DESCRIPTION,
-  MASS REAL_NUMBER,
-  DELTA_MASS REAL_NUMBER,
-  PRIMARY KEY (ID),
-  UNIQUE (CODE)
-);
-
--- Table PEPTIDES
-
-CREATE TABLE PEPTIDES(
-  ID BIGSERIAL NOT NULL,
-  PROT_ID TECH_ID NOT NULL,
-  SEQU_ID TECH_ID NOT NULL,
-  ABUN_ID TECH_ID,
-  IDDA_ID TECH_ID,
-  CHARGE INTEGER_NUMBER NOT NULL,
-  PRIMARY KEY (ID)
-);
-
--- Table PROTEIN_STATISTICS
-
-CREATE TABLE PROTEIN_STATISTICS(
-  ID BIGSERIAL NOT NULL,
-  PRIMARY KEY (ID)
-);
-
--- Table PROTEINS
-
-CREATE TABLE PROTEINS(
-  ID BIGSERIAL NOT NULL,
-  DASE_ID TECH_ID NOT NULL,
-  ABUN_ID TECH_ID,
-  SEQU_ID TECH_ID,
-  PRST_ID TECH_ID,
-  PRIMARY KEY (ID)
-);
-
--- Table SAMPLES
-
-CREATE TABLE SAMPLES(
-  ID BIGSERIAL NOT NULL,
-  PERM_ID CODE NOT NULL,
-  EXPE_ID TECH_ID NOT NULL,
-  PRIMARY KEY (ID),
-  UNIQUE (PERM_ID)
-);
-
--- Table SEQUENCES
-
-CREATE TABLE SEQUENCES(
-  ID BIGSERIAL NOT NULL,
-  AMINO_ACID_SEQUENCE SEQUENCE NOT NULL,
-  CHECKSUM CHECKSUM NOT NULL,
-  PRIMARY KEY (ID)
-);
-
--- Table SPECTRA
-
-CREATE TABLE SPECTRA(
-  ID BIGSERIAL NOT NULL,
-  DATA BINARY_DATA NOT NULL,
-  PRIMARY KEY (ID)
-);
-
-
--- Create relationships ------------------------------------------------- 
-
-CREATE INDEX IX_FK_ABUNDANCES_ABUNDANCES_TYPES ON ABUNDANCES (ABTY_ID);
-ALTER TABLE ABUNDANCES ADD CONSTRAINT AB_AT_FK FOREIGN KEY (ABTY_ID) REFERENCES ABUNDANCES_TYPES (ID);
-
-CREATE INDEX IX_FK_ANNOTATIONS_PROTEINS ON ANNOTATIONS (PROT_ID);
-ALTER TABLE ANNOTATIONS ADD CONSTRAINT AN_PR_FK FOREIGN KEY (PROT_ID) REFERENCES PROTEINS (ID);
 
 CREATE INDEX IX_FK_DATA_SETS_EXPERIMENTS ON DATA_SETS (EXPE_ID);
-ALTER TABLE DATA_SETS ADD CONSTRAINT DA_EX_FK FOREIGN KEY (EXPE_ID) REFERENCES EXPERIMENTS (ID);
 
 CREATE INDEX IX_FK_DATA_SETS_SAMPLES ON DATA_SETS (SAMP_ID);
-ALTER TABLE DATA_SETS ADD CONSTRAINT DA_SA_FK FOREIGN KEY (SAMP_ID) REFERENCES SAMPLES (ID);
 
-CREATE INDEX IX_FK_IDENTIFICATION_DATA_SPECTRA ON IDENTIFICATION_DATA (SPEC_ID);
-ALTER TABLE IDENTIFICATION_DATA ADD CONSTRAINT ID_SP_FK FOREIGN KEY (SPEC_ID) REFERENCES SPECTRA (ID);
+/* ---------------------------------------------------------------------- */
+/* Add table "MODIFICATIONS"                                              */
+/* ---------------------------------------------------------------------- */
+
+CREATE TABLE MODIFICATIONS (
+    ID BIGSERIAL  NOT NULL,
+    PEPT_ID TECH_ID  NOT NULL,
+    MOTY_ID TECH_ID  NOT NULL,
+    POS INTEGER_NUMBER  NOT NULL,
+    MASS REAL_NUMBER  NOT NULL,
+    CONSTRAINT PK_MODIFICATIONS PRIMARY KEY (ID)
+);
 
 CREATE INDEX IX_FK_MODIFICATIONS_PEPTIDES ON MODIFICATIONS (PEPT_ID);
-ALTER TABLE MODIFICATIONS ADD CONSTRAINT MO_PE_FK FOREIGN KEY (PEPT_ID) REFERENCES PEPTIDES (ID);
 
 CREATE INDEX IX_FK_MODIFICATIONS_MODIFICATION_TYPES ON MODIFICATIONS (MOTY_ID);
-ALTER TABLE MODIFICATIONS ADD CONSTRAINT MO_MT_FK FOREIGN KEY (MOTY_ID) REFERENCES MODIFICATION_TYPES (ID);
 
-CREATE INDEX IX_FK_PEPTIDES_ABUNDANCES ON PEPTIDES (ABUN_ID);
-ALTER TABLE PEPTIDES ADD CONSTRAINT PE_AB_FK FOREIGN KEY (ABUN_ID) REFERENCES ABUNDANCES (ID);
+/* ---------------------------------------------------------------------- */
+/* Add table "MODIFICATION_TYPES"                                         */
+/* ---------------------------------------------------------------------- */
 
-CREATE INDEX IX_FK_PEPTIDES_IDENTIFICATION_DATA ON PEPTIDES (IDDA_ID);
-ALTER TABLE PEPTIDES ADD CONSTRAINT PE_ID_FK FOREIGN KEY (IDDA_ID) REFERENCES IDENTIFICATION_DATA (ID);
+CREATE TABLE MODIFICATION_TYPES (
+    ID BIGSERIAL  NOT NULL,
+    CODE CODE  NOT NULL,
+    DESCRIPTION SHORT_DESCRIPTION,
+    MASS REAL_NUMBER,
+    DELTA_MASS REAL_NUMBER,
+    CONSTRAINT PK_MODIFICATION_TYPES PRIMARY KEY (ID),
+    CONSTRAINT TUC_MODIFICATION_TYPES_1 UNIQUE (CODE)
+);
+
+/* ---------------------------------------------------------------------- */
+/* Add table "PEPTIDES"                                                   */
+/* ---------------------------------------------------------------------- */
+
+CREATE TABLE PEPTIDES (
+    ID BIGSERIAL  NOT NULL,
+    PROT_ID TECH_ID  NOT NULL,
+    SEQUENCE SHORT_SEQUENCE  NOT NULL,
+    CHARGE INTEGER_NUMBER  NOT NULL,
+    CONSTRAINT PK_PEPTIDES PRIMARY KEY (ID)
+);
 
 CREATE INDEX IX_FK_PEPTIDES_PROTEINS ON PEPTIDES (PROT_ID);
-ALTER TABLE PEPTIDES ADD CONSTRAINT PE_PR_FK FOREIGN KEY (PROT_ID) REFERENCES PROTEINS (ID);
 
-CREATE INDEX IX_FK_PEPTIDES_SEQUENCES ON PEPTIDES (SEQU_ID);
-ALTER TABLE PEPTIDES ADD CONSTRAINT PE_SE_FK FOREIGN KEY (SEQU_ID) REFERENCES SEQUENCES (ID);
+/* ---------------------------------------------------------------------- */
+/* Add table "PROTEINS"                                                   */
+/* ---------------------------------------------------------------------- */
 
-CREATE INDEX IX_FK_PROTEINS_DATA_SETS ON PROTEINS (DASE_ID);
-ALTER TABLE PROTEINS ADD CONSTRAINT PR_DA_FK FOREIGN KEY (DASE_ID) REFERENCES DATA_SETS (ID);
+CREATE TABLE PROTEINS (
+    ID BIGSERIAL  NOT NULL,
+    DASE_ID TECH_ID  NOT NULL,
+    PROBABILITY REAL_NUMBER  NOT NULL,
+    CONSTRAINT PK_PROTEINS PRIMARY KEY (ID)
+);
 
-CREATE INDEX IX_FK_PROTEINS_SEQUENCES ON PROTEINS (SEQU_ID);
-ALTER TABLE PROTEINS ADD CONSTRAINT PR_SE_FK FOREIGN KEY (SEQU_ID) REFERENCES SEQUENCES (ID);
+CREATE INDEX IDX_PROTEINS_1 ON PROTEINS (DASE_ID);
 
-CREATE INDEX IX_FK_PROTEINS_ABUNDANCES ON PROTEINS (ABUN_ID);
-ALTER TABLE PROTEINS ADD CONSTRAINT PR_AB_FK FOREIGN KEY (ABUN_ID) REFERENCES ABUNDANCES (ID);
+/* ---------------------------------------------------------------------- */
+/* Add table "SAMPLES"                                                    */
+/* ---------------------------------------------------------------------- */
 
-CREATE INDEX IX_FK_PROTEINS_PROTEIN_STATISTICS ON PROTEINS (PRST_ID);
-ALTER TABLE PROTEINS ADD CONSTRAINT PR_PS_FK FOREIGN KEY (PRST_ID) REFERENCES PROTEIN_STATISTICS (ID);
+CREATE TABLE SAMPLES (
+    ID BIGSERIAL  NOT NULL,
+    PERM_ID CODE  NOT NULL,
+    EXPE_ID TECH_ID  NOT NULL,
+    CONSTRAINT PK_SAMPLES PRIMARY KEY (ID),
+    CONSTRAINT TUC_SAMPLES_1 UNIQUE (PERM_ID)
+);
 
+/* ---------------------------------------------------------------------- */
+/* Add table "SEQUENCES"                                                  */
+/* ---------------------------------------------------------------------- */
 
+CREATE TABLE SEQUENCES (
+    ID BIGSERIAL  NOT NULL,
+    AMINO_ACID_SEQUENCE LONG_SEQUENCE  NOT NULL,
+    CHECKSUM CHECKSUM  NOT NULL,
+    CONSTRAINT PK_SEQUENCES PRIMARY KEY (ID)
+);
+
+/* ---------------------------------------------------------------------- */
+/* Add table "IDENTIFIED_PROTEINS"                                        */
+/* ---------------------------------------------------------------------- */
+
+CREATE TABLE IDENTIFIED_PROTEINS (
+    ID BIGSERIAL  NOT NULL,
+    PROT_ID TECH_ID  NOT NULL,
+    SEQU_ID TECH_ID,
+    DESCRIPTION DESCRIPTION  NOT NULL,
+    CONSTRAINT PK_IDENTIFIED_PROTEINS PRIMARY KEY (ID)
+);
+
+/* ---------------------------------------------------------------------- */
+/* Add table "ABUNDANCES"                                                 */
+/* ---------------------------------------------------------------------- */
+
+CREATE TABLE ABUNDANCES (
+    ID BIGSERIAL  NOT NULL,
+    PROT_ID TECH_ID  NOT NULL,
+    SAMP_ID TECH_ID  NOT NULL,
+    ABTY_ID TECH_ID  NOT NULL,
+    VALUE REAL_NUMBER  NOT NULL,
+    CONSTRAINT PK_ABUNDANCES PRIMARY KEY (ID)
+);
+
+/* ---------------------------------------------------------------------- */
+/* Add table "PROBABILITY_FDR_MAPPINGS"                                   */
+/* ---------------------------------------------------------------------- */
+
+CREATE TABLE PROBABILITY_FDR_MAPPINGS (
+    ID BIGSERIAL  NOT NULL,
+    DASE_ID TECH_ID  NOT NULL,
+    PROBABILITY REAL_NUMBER  NOT NULL,
+    FALSE_DISCOVERY_RATE REAL_NUMBER  NOT NULL,
+    CONSTRAINT PK_PROBABILITY_FDR_MAPPINGS PRIMARY KEY (ID)
+);
+
+/* ---------------------------------------------------------------------- */
+/* Foreign key constraints                                                */
+/* ---------------------------------------------------------------------- */
+
+ALTER TABLE DATA_SETS ADD CONSTRAINT DA_EX_FK 
+    FOREIGN KEY (EXPE_ID) REFERENCES EXPERIMENTS (ID);
+
+ALTER TABLE DATA_SETS ADD CONSTRAINT DA_SA_FK 
+    FOREIGN KEY (SAMP_ID) REFERENCES SAMPLES (ID);
+
+ALTER TABLE MODIFICATIONS ADD CONSTRAINT MO_PE_FK 
+    FOREIGN KEY (PEPT_ID) REFERENCES PEPTIDES (ID);
+
+ALTER TABLE MODIFICATIONS ADD CONSTRAINT MO_MT_FK 
+    FOREIGN KEY (MOTY_ID) REFERENCES MODIFICATION_TYPES (ID);
+
+ALTER TABLE PEPTIDES ADD CONSTRAINT PE_PR_FK 
+    FOREIGN KEY (PROT_ID) REFERENCES PROTEINS (ID);
+
+ALTER TABLE PROTEINS ADD CONSTRAINT DATA_SETS_PROTEINS 
+    FOREIGN KEY (DASE_ID) REFERENCES DATA_SETS (ID);
+
+ALTER TABLE IDENTIFIED_PROTEINS ADD CONSTRAINT PROTEINS_IDENTIFIED_PROTEINS 
+    FOREIGN KEY (PROT_ID) REFERENCES PROTEINS (ID);
+
+ALTER TABLE IDENTIFIED_PROTEINS ADD CONSTRAINT SEQUENCES_IDENTIFIED_PROTEINS 
+    FOREIGN KEY (SEQU_ID) REFERENCES SEQUENCES (ID);
+
+ALTER TABLE ABUNDANCES ADD CONSTRAINT SAMPLES_ABUNDANCES 
+    FOREIGN KEY (SAMP_ID) REFERENCES SAMPLES (ID);
+
+ALTER TABLE ABUNDANCES ADD CONSTRAINT ABUNDANCES_TYPES_ABUNDANCES 
+    FOREIGN KEY (ABTY_ID) REFERENCES ABUNDANCES_TYPES (ID);
+
+ALTER TABLE ABUNDANCES ADD CONSTRAINT PROTEINS_ABUNDANCES 
+    FOREIGN KEY (PROT_ID) REFERENCES PROTEINS (ID);
+
+ALTER TABLE PROBABILITY_FDR_MAPPINGS ADD CONSTRAINT DATA_SETS_PROBABILITY_FDR_MAPPINGS 
+    FOREIGN KEY (DASE_ID) REFERENCES DATA_SETS (ID);

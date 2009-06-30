@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto;
 
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -34,7 +36,7 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.Constants;
 public class ProteinProphetDetails
 {
     private String occamFlag;
-    private NSPInformation nspInformation;
+    private List<ProteinSummaryDataFilter> dataFilters;
 
     @XmlAttribute(name = "occam_flag", required = true)
     public final String getOccamFlag()
@@ -47,20 +49,20 @@ public class ProteinProphetDetails
         this.occamFlag = occamFlag;
     }
 
-    @XmlElement(name = "nsp_information", namespace = Constants.NAMESPACE)
-    public final NSPInformation getNspInformation()
+    @XmlElement(name = "protein_summary_data_filter", namespace = Constants.NAMESPACE)
+    public final List<ProteinSummaryDataFilter> getDataFilters()
     {
-        return nspInformation;
+        return dataFilters;
     }
 
-    public final void setNspInformation(NSPInformation nspInformation)
+    public final void setDataFilters(List<ProteinSummaryDataFilter> dataFilters)
     {
-        this.nspInformation = nspInformation;
+        this.dataFilters = dataFilters;
     }
 
     @Override
     public String toString()
     {
-        return "ProteinProphet[occamFlag=" + occamFlag + ", nspInfo=" + nspInformation + "]";
+        return "ProteinProphet[occamFlag=" + occamFlag + "]";
     }
 }
