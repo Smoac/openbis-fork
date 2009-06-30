@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.PropertyValidator.SupportedDatePattern;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
@@ -118,7 +119,7 @@ public final class PropertyValidatorTest extends AbstractBOTest
                         {
                                 createTimestampPropertyType(),
                                 DateFormatUtils.format(new Date(),
-                                        PropertyValidator.CANONICAL_DATE_PATTERN) },
+                                        SupportedDatePattern.CANONICAL_DATE_PATTERN.getPattern()) },
                         { createIntegerPropertyType(), "1" },
                         { createRealPropertyType(), "1" },
                         { createRealPropertyType(), "1.1" },

@@ -41,6 +41,19 @@ public class BasicConstant
     /** Template part of Vocabulary URL that that is replaced with vocabulary term code. */
     public static final String VOCABULARY_URL_TEMPLATE_TERM_PART = "\\$term\\$";
 
+    /**
+     * Canonical date format pattern used to save dates in DB. Holds date, time and time zone
+     * information. It is less readable then the one used in GUI (
+     * {@link BasicConstant#RENDERED_CANONICAL_DATE_FORMAT_PATTERN}), but both layers cannot share
+     * the more readable one (GWT fails to parse date created with that pattern on the server side).
+     */
+    public static final String CANONICAL_DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss Z";
+
+    /**
+     * Canonical date format pattern used to render dates in GUI in a more readable way.
+     */
+    public static final String RENDERED_CANONICAL_DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss zzz";
+
     private BasicConstant()
     {
     }

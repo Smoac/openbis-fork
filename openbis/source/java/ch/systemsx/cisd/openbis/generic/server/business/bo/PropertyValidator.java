@@ -19,12 +19,14 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
@@ -33,6 +35,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils.Boolean;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ValidationUtilities.HyperlinkValidationHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -47,15 +50,32 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
  */
 public final class PropertyValidator implements IPropertyValueValidator
 {
-    public static final String DAYS_DATE_PATTERN = "yyyy-MM-dd";
+    public enum SupportedDatePattern
+    {
+        DAYS_DATE_PATTERN("yyyy-MM-dd"),
 
-    public static final String MINUTES_DATE_PATTERN = "yyyy-MM-dd HH:mm";
+        MINUTES_DATE_PATTERN("yyyy-MM-dd HH:mm"),
 
-    public static final String SECONDS_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
+        SECONDS_DATE_PATTERN("yyyy-MM-dd HH:mm:ss"),
 
-    public static final String CANONICAL_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss Z";
-    
-    private static final String US_DATE_PATTERN = "M/d/yy h:mm a";
+        US_DATE_PATTERN("M/d/yy"),
+
+        CANONICAL_DATE_PATTERN(BasicConstant.CANONICAL_DATE_FORMAT_PATTERN),
+
+        RENDERED_CANONICAL_DATE_PATTERN(BasicConstant.RENDERED_CANONICAL_DATE_FORMAT_PATTERN);
+
+        private final String pattern;
+
+        SupportedDatePattern(String pattern)
+        {
+            this.pattern = pattern;
+        }
+
+        public String getPattern()
+        {
+            return pattern;
+        }
+    }
 
     private final static String[] DATE_PATTERNS = createDatePatterns();
 
@@ -82,11 +102,10 @@ public final class PropertyValidator implements IPropertyValueValidator
     {
         final List<String> datePatterns = new ArrayList<String>();
         // Order does not matter due to DateUtils implementation used.
-        datePatterns.add(CANONICAL_DATE_PATTERN);
-        datePatterns.add(SECONDS_DATE_PATTERN);
-        datePatterns.add(MINUTES_DATE_PATTERN);
-        datePatterns.add(DAYS_DATE_PATTERN);
-        datePatterns.add(US_DATE_PATTERN);
+        for (SupportedDatePattern supportedPattern : SupportedDatePattern.values())
+        {
+            datePatterns.add(supportedPattern.getPattern());
+        }
         return datePatterns.toArray(ArrayUtils.EMPTY_STRING_ARRAY);
     }
 
@@ -169,7 +188,7 @@ public final class PropertyValidator implements IPropertyValueValidator
         }
     }
 
-    private final static class TimestampValidator implements IDataTypeValidator
+    public final static class TimestampValidator implements IDataTypeValidator
     {
 
         //
@@ -181,8 +200,10 @@ public final class PropertyValidator implements IPropertyValueValidator
             assert value != null : "Unspecified value.";
             try
             {
-                DateUtils.parseDate(value, DATE_PATTERNS);
-                return value;
+                Date date = DateUtils.parseDate(value, DATE_PATTERNS);
+                // we store date in CANONICAL_DATE_PATTERN
+                return DateFormatUtils.format(date, SupportedDatePattern.CANONICAL_DATE_PATTERN
+                        .getPattern());
             } catch (final ParseException ex)
             {
                 throw UserFailureException.fromTemplate(

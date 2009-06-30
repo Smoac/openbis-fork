@@ -20,6 +20,8 @@ import java.util.Date;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+
 /**
  * A <i>static</i> class to render {@link java.util.Date}.
  * 
@@ -33,7 +35,8 @@ public final class DateRenderer
      * Suitable for displaying full registration date.
      * </p>
      */
-    public static final String DEFAULT_DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss zzz";
+    public static final String DEFAULT_DATE_FORMAT_PATTERN =
+            BasicConstant.RENDERED_CANONICAL_DATE_FORMAT_PATTERN;
 
     /**
      * Default {@link DateTimeFormat}.

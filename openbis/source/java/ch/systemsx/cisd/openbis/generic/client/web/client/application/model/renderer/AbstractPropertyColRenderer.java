@@ -48,6 +48,8 @@ public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHol
                 return new MultilineVarcharPropertyColRenderer<S>(colDef);
             case CONTROLLEDVOCABULARY:
                 return new VocabularyPropertyColRenderer<S>(colDef);
+            case TIMESTAMP:
+                return new TimestampPropertyColRenderer<S>(colDef);
             default:
                 return new DefaultPropertyColRenderer<S>(colDef);
         }
