@@ -100,7 +100,6 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         checkSample.property("Parent 2").asCode("MP001-1");
         checkSample.property("Parent 2").asInvalidEntity();
 
-        checkSample.componentsTable().expectedSize(0);
         final CheckTableCommand dataTable = checkSample.dataTable().expectedSize(2);
         dataTable.expectedRow(new DataSetRow("20081105092158673-1").invalid().withFileFormatType(
                 "TIFF"));
