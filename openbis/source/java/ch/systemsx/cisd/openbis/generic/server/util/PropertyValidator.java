@@ -59,6 +59,8 @@ public final class PropertyValidator implements IPropertyValueValidator
         SECONDS_DATE_PATTERN("yyyy-MM-dd HH:mm:ss"),
 
         US_DATE_PATTERN("M/d/yy"),
+        
+        US_DATE_TIME_PATTERN("M/d/yy h:mm a"),
 
         CANONICAL_DATE_PATTERN(BasicConstant.CANONICAL_DATE_FORMAT_PATTERN),
 
