@@ -43,6 +43,8 @@ import javax.persistence.Version;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.search.annotations.DocumentId;
@@ -434,6 +436,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
     @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROPERTIES)
+    @Fetch(FetchMode.SUBSELECT)
     private Set<DataSetPropertyPE> getDataSetProperties()
     {
         return properties;

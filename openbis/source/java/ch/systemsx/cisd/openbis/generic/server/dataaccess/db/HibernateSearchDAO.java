@@ -64,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Implementation of {@link IHibernateSearchDAO} for databases.
@@ -353,17 +354,31 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                 fullTextSession.createFullTextQuery(query, ExternalDataPE.class);
 
         Criteria criteria = getSession().createCriteria(ExternalDataPE.class);
-        criteria.setFetchMode("dataSetProperties", FetchMode.JOIN);
         criteria.setFetchMode("parents", FetchMode.JOIN);
         criteria.setFetchMode("experimentInternal", FetchMode.JOIN);
-        criteria.setFetchMode("experimentInternal.experimentProperties", FetchMode.JOIN);
         criteria.setFetchMode("sampleInternal", FetchMode.JOIN);
-        criteria.setFetchMode("sampleInternal.sampleProperties", FetchMode.JOIN);
         hibernateQuery.setCriteriaQuery(criteria);
 
         List<ExternalDataPE> datasets = AbstractDAO.cast(hibernateQuery.list());
+        initializeDatasetSampleExperimentProperties(datasets);
         datasets = filterNulls(datasets);
         return datasets;
+    }
+
+    private void initializeDatasetSampleExperimentProperties(List<ExternalDataPE> datasets)
+    {
+        for (ExternalDataPE dataset : datasets)
+        {
+            HibernateUtils.initialize(dataset.getProperties());
+            if (dataset.getSample() != null)
+            {
+                HibernateUtils.initialize(dataset.getSample().getProperties());
+            }
+            if (dataset.getExperiment() != null)
+            {
+                HibernateUtils.initialize(dataset.getExperiment().getProperties());
+            }
+        }
     }
 
 }

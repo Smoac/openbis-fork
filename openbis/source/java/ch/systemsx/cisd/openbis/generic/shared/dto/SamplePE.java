@@ -46,6 +46,8 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Check;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.search.annotations.ContainedIn;
@@ -258,6 +260,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROPERTIES)
+    @Fetch(FetchMode.SUBSELECT)
     private Set<SamplePropertyPE> getSampleProperties()
     {
         return properties;
