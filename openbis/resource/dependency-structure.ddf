@@ -68,20 +68,24 @@ check [grid-columns] independentOf [extjs]
 
 [generic.server.authorization] = ${generic.server}.authorization.*
 [generic.server.business] = ${generic.server}.business.*
-[generic.server.dataaccess] = ${generic.server}.dataaccess.*
+[generic.server.dataaccess] = ${generic.server}.dataaccess.* excluding \
+                              ${generic.server}.dataaccess.migration.*
+[generic.server.dataaccess.migration] = ${generic.server}.dataaccess.migration.*
 [generic.server.util] = ${generic.server}.util.*
 [generic.server-subpackages] = ${generic.server}.* excluding ${generic.server}.*.*
 
 check sets [generic.server.authorization] [generic.server.business] [generic.server.dataaccess] \
-           [generic.server.util] [generic.server-subpackages]
+           [generic.server.dataaccess.migration] [generic.server.util] [generic.server-subpackages]
 
 layer generic.server.1 = [generic.server.dataaccess]
 layer generic.server.2 = [generic.server.util]
-layer generic.server.3 = [generic.server.authorization]
-layer generic.server.4 = [generic.server.business]
-layer generic.server.5 = [generic.server-subpackages]
+layer generic.server.3 = [generic.server.dataaccess.migration]
+layer generic.server.4 = [generic.server.authorization]
+layer generic.server.5 = [generic.server.business]
+layer generic.server.6 = [generic.server-subpackages]
 
-check layeringOf generic.server.1 generic.server.2 generic.server.3 generic.server.4 generic.server.5 
+check layeringOf generic.server.1 generic.server.2 generic.server.3 generic.server.4 \
+                 generic.server.5 generic.server.6 
 
 ##########################################
 # Plugins
