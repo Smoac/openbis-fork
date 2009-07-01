@@ -46,6 +46,9 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 
 /**
+ * Allows to operate on files by executing all file system operations on a remote machine with ssh
+ * command.
+ * 
  * @author Tomasz Pylak
  */
 public class FileStoreRemote extends AbstractFileStore
@@ -406,7 +409,7 @@ public class FileStoreRemote extends AbstractFileStore
         {
             result.log();
         }
-        if (result.isOK())
+        if (result.isOK() && hasAnyOutput(result))
         {
             final String findExecutable = result.getOutput().get(0);
             final String verCmd = getVersionCommand(findExec);
@@ -422,6 +425,11 @@ public class FileStoreRemote extends AbstractFileStore
             }
         }
         return null;
+    }
+
+    private static boolean hasAnyOutput(ProcessResult result)
+    {
+        return result.getOutput().size() > 0;
     }
 
     private boolean isGNUFind(List<String> output)
@@ -458,7 +466,7 @@ public class FileStoreRemote extends AbstractFileStore
         {
             result.log();
         }
-        if (result.isOK())
+        if (result.isOK() && hasAnyOutput(result))
         {
             return result.getOutput().get(0);
         } else
@@ -612,6 +620,10 @@ public class FileStoreRemote extends AbstractFileStore
             return String.format("Command '%s' failed with error exitval=%d, output=[%s]", result
                     .getCommandLine(), result.getExitValue(), StringUtils.join(result.getOutput(),
                     '\n'));
+        } else if (hasAnyOutput(result) == false)
+        {
+            return String.format("Command '%s' ended succesfully, but without any output.", result
+                    .getCommandLine());
         } else
         {
             return null;
