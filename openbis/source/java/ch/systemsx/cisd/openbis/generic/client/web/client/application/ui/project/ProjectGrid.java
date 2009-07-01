@@ -128,7 +128,6 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
         addEntityOperationsSeparator();
     }
 
-
     @Override
     protected IColumnDefinitionKind<Project>[] getStaticColumnsDefinition()
     {
@@ -141,6 +140,8 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
         ColumnDefsAndConfigs<Project> schema = super.createColumnsDefinition();
         schema.setGridCellRendererFor(ProjectColDefKind.CODE.id(), LinkRenderer
                 .createLinkRenderer());
+        schema.setGridCellRendererFor(ProjectColDefKind.DESCRIPTION.id(),
+                createMultilineStringCellRenderer());
         return schema;
     }
 

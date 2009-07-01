@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IInvalidationProvider;
@@ -86,6 +87,17 @@ public class BaseEntityModel<T> extends BaseModelData
         if (value.length() > 0)
         {// only for not null value
             value = LinkRenderer.renderAsLinkWithAnchor(value);
+        }
+        this.set(columnId, value);
+    }
+
+    /** render specified column as a multiline string with a tooltip (no word wrapping available) */
+    public void renderAsMultilineStringWithTooltip(String columnId)
+    {
+        String value = this.get(columnId);
+        if (value.length() > 0)
+        {// only for not null value
+            value = new MultilineHTML(value).toString();
         }
         this.set(columnId, value);
     }

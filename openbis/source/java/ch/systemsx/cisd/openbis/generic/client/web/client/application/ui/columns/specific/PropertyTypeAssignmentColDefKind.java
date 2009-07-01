@@ -52,7 +52,7 @@ public enum PropertyTypeAssignmentColDefKind implements
             @Override
             public String tryGetValue(EntityTypePropertyType<?> entity)
             {
-                return renderMultilineString(entity.getPropertyType().getDescription());
+                return entity.getPropertyType().getDescription();
             }
         }),
 

@@ -58,7 +58,7 @@ public enum AttachmentColDefKind implements IColumnDefinitionKind<AttachmentVers
             @Override
             public String tryGetValue(AttachmentVersions entity)
             {
-                return renderMultilineString(entity.getCurrent().getDescription());
+                return entity.getCurrent().getDescription();
             }
         }),
 

@@ -325,6 +325,7 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
     {
         BaseEntityModel<AttachmentVersions> model = super.createModel(entity);
         model.renderAsLinkWithAnchor(AttachmentColDefKind.FILE_NAME.id());
+        model.renderAsMultilineStringWithTooltip(AttachmentColDefKind.DESCRIPTION.id());
         renderVersionAsLink(model);
         return model;
     }

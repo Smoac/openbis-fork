@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.EntityTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -219,6 +220,15 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
     protected IColumnDefinitionKind<EntityType>[] getStaticColumnsDefinition()
     {
         return EntityTypeColDefKind.values();
+    }
+
+    @Override
+    protected ColumnDefsAndConfigs<EntityType> createColumnsDefinition()
+    {
+        ColumnDefsAndConfigs<EntityType> schema = super.createColumnsDefinition();
+        schema.setGridCellRendererFor(EntityTypeColDefKind.DESCRIPTION.id(),
+                createMultilineStringCellRenderer());
+        return schema;
     }
 
     @Override

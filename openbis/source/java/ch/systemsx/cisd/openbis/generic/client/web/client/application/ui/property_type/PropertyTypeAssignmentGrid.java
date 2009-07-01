@@ -207,6 +207,15 @@ public class PropertyTypeAssignmentGrid extends
     }
 
     @Override
+    protected BaseEntityModel<EntityTypePropertyType<?>> createModel(
+            EntityTypePropertyType<?> entity)
+    {
+        BaseEntityModel<EntityTypePropertyType<?>> model = super.createModel(entity);
+        model.renderAsMultilineStringWithTooltip(PropertyTypeAssignmentColDefKind.DESCRIPTION.id());
+        return model;
+    }
+
+    @Override
     protected List<IColumnDefinition<EntityTypePropertyType<?>>> getInitialFilters()
     {
         return asColumnFilters(new PropertyTypeAssignmentColDefKind[]

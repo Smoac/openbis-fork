@@ -42,7 +42,7 @@ public enum TypeColDefKind implements IColumnDefinitionKind<AbstractType>
             @Override
             public String tryGetValue(AbstractType entity)
             {
-                return renderMultilineString(entity.getDescription());
+                return entity.getDescription();
             }
         });
 

@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.TypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AddTypeDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
@@ -225,6 +226,15 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
     protected IColumnDefinitionKind<AbstractType>[] getStaticColumnsDefinition()
     {
         return TypeColDefKind.values();
+    }
+
+    @Override
+    protected ColumnDefsAndConfigs<AbstractType> createColumnsDefinition()
+    {
+        ColumnDefsAndConfigs<AbstractType> schema = super.createColumnsDefinition();
+        schema.setGridCellRendererFor(TypeColDefKind.DESCRIPTION.id(),
+                createMultilineStringCellRenderer());
+        return schema;
     }
 
     @Override

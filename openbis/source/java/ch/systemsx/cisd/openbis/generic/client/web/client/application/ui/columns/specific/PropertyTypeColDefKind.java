@@ -93,7 +93,7 @@ public enum PropertyTypeColDefKind implements IColumnDefinitionKind<PropertyType
             @Override
             public String tryGetValue(PropertyType entity)
             {
-                return renderMultilineString(entity.getDescription());
+                return entity.getDescription();
             }
         }),
 

@@ -79,7 +79,9 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
     @Override
     protected PropertyTypeModel createModel(PropertyType entity)
     {
-        return new PropertyTypeModel(entity, getStaticColumnsDefinition());
+        PropertyTypeModel model = new PropertyTypeModel(entity, getStaticColumnsDefinition());
+        model.renderAsMultilineStringWithTooltip(PropertyTypeColDefKind.DESCRIPTION.id());
+        return model;
     }
 
     @Override
