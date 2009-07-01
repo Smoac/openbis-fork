@@ -199,6 +199,7 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
         result.add(createOrDelete(entity));
         result.add(edit(entity));
         result.add(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT));
+        result.add(edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT));
         return result;
     }
 

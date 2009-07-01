@@ -18,11 +18,15 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.proper
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -34,9 +38,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeAssignmentColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -162,42 +169,145 @@ public class PropertyTypeAssignmentGrid extends
         return new PropertyTypeAssignmentGrid(viewContext).asDisposableWithoutToolbar();
     }
 
+    private final IDelegatedAction postRegistrationCallback;
+
     private PropertyTypeAssignmentGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID, GRID_ID);
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.PROPERTY_TYPE_ASSIGNMENT_BROWSER_GRID);
         extendBottomToolbar();
+        postRegistrationCallback = createRefreshGridAction();
     }
 
     private void extendBottomToolbar()
     {
         addEntityOperationsLabel();
 
-        Button button = new Button(viewContext.getMessage(Dict.UNASSIGN_BUTTON_LABEL));
-        button.addSelectionListener(new SelectionListener<ButtonEvent>()
-            {
-                @Override
-                public void componentSelected(ButtonEvent ce)
-                {
-                    List<BaseEntityModel<EntityTypePropertyType<?>>> items = getSelectedItems();
-                    if (items.size() == 1)
+        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
+                new ISelectedEntityInvoker<BaseEntityModel<EntityTypePropertyType<?>>>()
                     {
-                        BaseEntityModel<EntityTypePropertyType<?>> item = items.get(0);
-                        final EntityTypePropertyType<?> etpt = item.getBaseObject();
-                        EntityKind entityKind = etpt.getEntityKind();
-                        String propertyTypeCode = etpt.getPropertyType().getCode();
-                        String entityTypeCode = etpt.getEntityType().getCode();
-                        IBrowserGridActionInvoker invoker = asActionInvoker();
-                        AsyncCallback<Integer> callback =
-                                new UnassignmentPreparationCallback(viewContext, etpt, invoker);
-                        viewContext.getService().countPropertyTypedEntities(entityKind,
-                                propertyTypeCode, entityTypeCode, callback);
-                    }
-                }
-            });
-        pagingToolbar.add(new AdapterToolItem(button));
+
+                        public void invoke(BaseEntityModel<EntityTypePropertyType<?>> selectedItem)
+                        {
+                            final EntityTypePropertyType<?> etpt = selectedItem.getBaseObject();
+                            if (etpt.isManagedInternally())
+                            {
+                                final String alertMsg =
+                                        "Assignments of internally managed property types cannot be edited.";
+                                MessageBox.alert("Error", alertMsg, null);
+                            } else
+                            {
+                                createEditDialog(etpt).show();
+                            }
+                        }
+                    }));
+        addButton(createSelectedItemButton(viewContext.getMessage(Dict.UNASSIGN_BUTTON_LABEL),
+                new ISelectedEntityInvoker<BaseEntityModel<EntityTypePropertyType<?>>>()
+                    {
+                        public void invoke(BaseEntityModel<EntityTypePropertyType<?>> selectedItem)
+                        {
+                            final EntityTypePropertyType<?> etpt = selectedItem.getBaseObject();
+                            unassignPropertyType(etpt);
+                        }
+
+                    }));
 
         addEntityOperationsSeparator();
+    }
+
+    private Window createEditDialog(final EntityTypePropertyType<?> etpt)
+    {
+        final EntityKind entityKind = etpt.getEntityKind();
+        final String entityTypeCode = etpt.getEntityType().getCode();
+        final String propertyTypeCode = etpt.getPropertyType().getCode();
+        final String title =
+                viewContext.getMessage(Dict.EDIT_PROPERTY_TYPE_ASSIGNMENT_TITLE, entityKind
+                        .getDescription(), entityTypeCode, propertyTypeCode);
+
+        return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
+            {
+                private final boolean originalIsMandatory;
+
+                private final CheckBox mandatoryCheckbox;
+
+                private final Field<?> defaultValueField;
+
+                {
+                    originalIsMandatory = etpt.isMandatory();
+
+                    mandatoryCheckbox = new CheckBox();
+                    mandatoryCheckbox.setFieldLabel(viewContext.getMessage(Dict.MANDATORY));
+                    mandatoryCheckbox.setValue(originalIsMandatory);
+                    addField(mandatoryCheckbox);
+
+                    // default value needs to be specified only if currently property is optional
+                    if (originalIsMandatory == false)
+                    {
+                        defaultValueField =
+                                PropertyFieldFactory.createField(etpt.getPropertyType(), false,
+                                        viewContext.getMessage(Dict.DEFAULT_UPDATE_VALUE),
+                                        "default_value_field", null, viewContext).get();
+                        defaultValueField.setToolTip(viewContext
+                                .getMessage(Dict.DEFAULT_UPDATE_VALUE_TOOLTIP));
+                        addField(defaultValueField);
+
+                        mandatoryCheckbox.addListener(Events.Change, new Listener<FieldEvent>()
+                            {
+                                public void handleEvent(FieldEvent be)
+                                {
+                                    defaultValueField.setVisible(getMandatoryValue());
+                                }
+                            });
+                        mandatoryCheckbox.fireEvent(Events.Change);
+                    } else
+                    {
+                        defaultValueField = null;
+                    }
+                }
+
+                private String getDefaultValue()
+                {
+                    if (defaultValueField != null)
+                    {
+                        return PropertyFieldFactory.valueToString(defaultValueField.getValue());
+                    }
+                    return null;
+                }
+
+                private boolean getMandatoryValue()
+                {
+                    return mandatoryCheckbox.getValue();
+                }
+
+                @Override
+                protected void register(AsyncCallback<Void> registrationCallback)
+                {
+                    boolean isMandatory = getMandatoryValue();
+                    // update only if isMandatory value has changed
+                    if (isMandatory != originalIsMandatory)
+                    {
+                        viewContext.getService().updatePropertyTypeAssignment(entityKind,
+                                propertyTypeCode, entityTypeCode, getMandatoryValue(),
+                                getDefaultValue(), registrationCallback);
+                    } else
+                    {
+                        final String alertMsg = "Nothing to update.";
+                        MessageBox.info("Information", alertMsg, null);
+                    }
+                }
+            };
+    }
+
+    private void unassignPropertyType(final EntityTypePropertyType<?> etpt)
+    {
+        final EntityKind entityKind = etpt.getEntityKind();
+        final String entityTypeCode = etpt.getEntityType().getCode();
+        final String propertyTypeCode = etpt.getPropertyType().getCode();
+        final IBrowserGridActionInvoker invoker = asActionInvoker();
+        final AsyncCallback<Integer> callback =
+                new UnassignmentPreparationCallback(viewContext, etpt, invoker);
+        viewContext.getService().countPropertyTypedEntities(entityKind, propertyTypeCode,
+                entityTypeCode, callback);
     }
 
     @Override
@@ -242,8 +352,7 @@ public class PropertyTypeAssignmentGrid extends
 
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
+        return DatabaseModificationKind.any(ObjectKind.PROPERTY_TYPE_ASSIGNMENT);
     }
 
 }

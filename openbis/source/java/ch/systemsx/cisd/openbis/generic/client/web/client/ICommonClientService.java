@@ -370,6 +370,13 @@ public interface ICommonClientService extends IClientService
             String entityTypeCode) throws UserFailureException;
 
     /**
+     * Updates specified property type assignment.
+     */
+    public void updatePropertyTypeAssignment(EntityKind entityKind, String propertyTypeCode,
+            String entityTypeCode, boolean isMandatory, String defaultValue)
+            throws UserFailureException;
+
+    /**
      * Registers given {@link PropertyType}.
      */
     public void registerPropertyType(final PropertyType propertyType) throws UserFailureException;

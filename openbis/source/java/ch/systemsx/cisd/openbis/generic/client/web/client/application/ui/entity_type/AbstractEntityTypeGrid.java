@@ -69,13 +69,7 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
     {
         super(viewContext, browserId, gridId);
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.TYPE_BROWSER_GRID);
-        postRegistrationCallback = new IDelegatedAction()
-            {
-                public void execute()
-                {
-                    AbstractEntityTypeGrid.this.refresh();
-                }
-            };
+        postRegistrationCallback = createRefreshGridAction();
         extendBottomToolbar();
     }
 

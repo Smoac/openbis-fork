@@ -760,6 +760,17 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return grid.getSelectionModel().getSelectedItems();
     }
 
+    protected final IDelegatedAction createRefreshGridAction()
+    {
+        return new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    refresh();
+                }
+            };
+    }
+
     protected final <D extends ModelData> SelectionChangedListener<D> createGridRefreshListener()
     {
         return new SelectionChangedListener<D>()

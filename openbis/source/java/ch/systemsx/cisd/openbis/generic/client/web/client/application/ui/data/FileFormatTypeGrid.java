@@ -80,13 +80,7 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
     {
         super(viewContext, BROWSER_ID, GRID_ID);
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.FILE_FORMAT_TYPE_BROWSER_GRID);
-        postRegistrationCallback = new IDelegatedAction()
-            {
-                public void execute()
-                {
-                    FileFormatTypeGrid.this.refresh();
-                }
-            };
+        postRegistrationCallback = createRefreshGridAction();
         extendBottomToolbar();
     }
 

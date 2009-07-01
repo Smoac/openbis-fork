@@ -58,9 +58,18 @@ public interface IEntityPropertyTypeDAO
             throws DataAccessException;
 
     /**
-     * Returns a list of all entities of given type.
+     * Returns a list of all entities of given <var>entityType</var>.
      */
-    public List<IEntityPropertiesHolder> listEntities(final EntityTypePE entityType);
+    public List<IEntityPropertiesHolder> listEntities(final EntityTypePE entityType)
+            throws DataAccessException;
+
+    /**
+     * Returns a list of all entities of given <var>entityType</var> that don't have value with
+     * given <var>propertyType</var>.
+     */
+    public List<IEntityPropertiesHolder> listEntitiesWithoutPropertyValue(
+            final EntityTypePE entityType, final PropertyTypePE propertyType)
+            throws DataAccessException;
 
     /**
      * Counts how many times is the specified vocabulary term used as a property value for the
@@ -78,6 +87,16 @@ public interface IEntityPropertyTypeDAO
      * Updates specified properties.
      */
     public void updateProperties(List<EntityPropertyPE> properties);
+
+    /**
+     * Updates given persistent (already saved) <var>entity</var> after successful validation.<br>
+     * <br>
+     * Useful especially instead of a save() method (used for making entity persistent) after BO
+     * update that does not flush.
+     * 
+     * @param entity the entity to be validated and updated
+     */
+    public void validateAndSaveUpdatedEntity(EntityTypePropertyTypePE entity);
 
     /**
      * Deletes specified assignment.

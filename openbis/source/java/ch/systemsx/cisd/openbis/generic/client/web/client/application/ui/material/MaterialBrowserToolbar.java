@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material;
 
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 
 import java.util.Set;
 
@@ -93,7 +94,8 @@ class MaterialBrowserToolbar extends ToolBar implements ICriteriaProvider<ListMa
     {
         return new DatabaseModificationKind[]
             { createOrDelete(ObjectKind.MATERIAL_TYPE),
-                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
+                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
     public void update(Set<DatabaseModificationKind> observedModifications,
@@ -101,7 +103,8 @@ class MaterialBrowserToolbar extends ToolBar implements ICriteriaProvider<ListMa
     {
         if (observedModifications.contains(createOrDelete(ObjectKind.MATERIAL_TYPE))
                 || observedModifications
-                        .contains(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)))
+                        .contains(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT))
+                || observedModifications.contains(edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)))
         {
             selectMaterialTypeCombo.refreshStore(entityTypeRefreshCallback);
         } else

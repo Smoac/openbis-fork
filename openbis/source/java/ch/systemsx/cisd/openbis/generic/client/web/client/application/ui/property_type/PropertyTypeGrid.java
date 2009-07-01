@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
 
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 
 import java.util.List;
 
@@ -102,6 +103,7 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
     {
         return new DatabaseModificationKind[]
             { createOrDelete(ObjectKind.PROPERTY_TYPE),
-                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
+                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 }

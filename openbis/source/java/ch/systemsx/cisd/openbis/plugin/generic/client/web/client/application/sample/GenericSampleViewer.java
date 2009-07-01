@@ -499,6 +499,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
                         DatabaseModificationKind.edit(ObjectKind.SAMPLE),
                         DatabaseModificationKind
                                 .createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                        DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                         DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM) };
         }
 

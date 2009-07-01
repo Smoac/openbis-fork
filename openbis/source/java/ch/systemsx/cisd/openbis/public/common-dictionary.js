@@ -211,7 +211,10 @@ var common = {
   unassignment_confirmation_dialog_title: "Unassignment Confirmation",
   unassignment_confirmation_template_without_properties: "Removing assignment between {0} type {1} and property type {2}. This can be safely done because no {0} has this property filled in.<br><br>Do you want to remove the assignment?",
   unassignment_confirmation_template_with_properties: "Removing assignment between {0} type {1} and property type {2}. There are {3} {0}(s) where value for this property has been filled in.<br><br>Do you want to delete these values and remove the assignment?",
- 
+  edit_property_type_assignment_title : "Edit assignment between {0} type {1} and property type {2}",
+  default_update_value: "Update Value",
+  default_update_value_tooltip: "The value of the assigned property for all currently existing entities that didn't have any value for this property.",
+  
   //
   // Menu Titles
   //

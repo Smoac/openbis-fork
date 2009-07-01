@@ -110,7 +110,8 @@ class ExperimentBrowserToolbar extends ToolBar implements
     {
         return new DatabaseModificationKind[]
             { createOrDelete(ObjectKind.EXPERIMENT_TYPE), createOrDelete(ObjectKind.PROJECT),
-                    edit(ObjectKind.PROJECT), createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
+                    edit(ObjectKind.PROJECT), createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
     public void update(Set<DatabaseModificationKind> observedModifications,
@@ -118,7 +119,8 @@ class ExperimentBrowserToolbar extends ToolBar implements
     {
         if (observedModifications.contains(createOrDelete(ObjectKind.EXPERIMENT_TYPE))
                 || observedModifications
-                        .contains(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)))
+                        .contains(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT))
+                || observedModifications.contains(edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)))
         {
             selectExperimentTypeCombo.refreshStore(entityTypeRefreshCallback);
         } else

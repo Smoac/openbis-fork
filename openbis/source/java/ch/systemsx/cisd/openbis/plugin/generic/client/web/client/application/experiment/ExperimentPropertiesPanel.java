@@ -164,6 +164,7 @@ public class ExperimentPropertiesPanel extends ContentPanel
                         DatabaseModificationKind.edit(ObjectKind.EXPERIMENT),
                         DatabaseModificationKind
                                 .createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                        DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                         DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM) };
         }
 

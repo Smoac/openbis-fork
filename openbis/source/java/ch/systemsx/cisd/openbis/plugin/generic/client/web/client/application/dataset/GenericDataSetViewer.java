@@ -217,6 +217,7 @@ public final class GenericDataSetViewer extends
             { DatabaseModificationKind.edit(ObjectKind.DATA_SET),
                     DatabaseModificationKind.createOrDelete(ObjectKind.DATA_SET),
                     DatabaseModificationKind.createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                     DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM) };
     }
 

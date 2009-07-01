@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 
 import java.util.List;
 import java.util.Set;
@@ -147,7 +148,8 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
     {
         return new DatabaseModificationKind[]
             { createOrDelete(ObjectKind.SAMPLE_TYPE), createOrDelete(ObjectKind.GROUP),
-                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
+                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
     public void update(Set<DatabaseModificationKind> observedModifications,
@@ -155,7 +157,8 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
     {
         if (observedModifications.contains(createOrDelete(ObjectKind.SAMPLE_TYPE))
                 || observedModifications
-                        .contains(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)))
+                        .contains(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT))
+                || observedModifications.contains(edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)))
         {
             selectSampleTypeCombo.refreshStore(entityTypeRefreshCallback);
         } else

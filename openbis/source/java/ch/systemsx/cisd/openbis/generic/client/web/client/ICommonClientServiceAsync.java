@@ -308,6 +308,14 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> process);
 
     /**
+     * @see ICommonClientService#updatePropertyTypeAssignment(EntityKind, String, String, boolean,
+     *      String)
+     */
+    public void updatePropertyTypeAssignment(EntityKind entityKind, String propertyTypeCode,
+            String entityTypeCode, boolean isMandatory, String defaultValue,
+            AsyncCallback<Void> callback);
+
+    /**
      * @see ICommonClientService#unassignPropertyType(EntityKind, String, String)
      */
     public void unassignPropertyType(EntityKind entityKind, String propertyTypeCode,

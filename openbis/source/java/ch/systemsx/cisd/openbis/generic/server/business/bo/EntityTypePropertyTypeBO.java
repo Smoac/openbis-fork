@@ -96,20 +96,33 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         EntityTypePE entityType = findEntityType(entityTypeCode);
         PropertyTypePE propertyType = findPropertyType(propertyTypeCode);
         assignment = createAssignment(isMandatory, entityType, propertyType);
-        List<IEntityPropertiesHolder> entities =
-                getEntityPropertyTypeDAO(entityKind).listEntities(entityType);
+        // fill initial mandatory property values
+        if (isMandatory)
+        {
+            List<IEntityPropertiesHolder> entities =
+                    getEntityPropertyTypeDAO(entityKind).listEntities(entityType);
+            String errorMsgTemplate =
+                    "Cannot create mandatory assignment. "
+                            + "Please specify 'Initial Value', which will be used for %s %s%s "
+                            + "of type '%s' already existing in the database.";
+            addPropertyWithDefaultValue(entityType, propertyType, defaultValue, entities,
+                    errorMsgTemplate);
+        }
+    }
+
+    private void addPropertyWithDefaultValue(EntityTypePE entityType, PropertyTypePE propertyType,
+            String defaultValue, List<IEntityPropertiesHolder> entities, String errorMsgTemplate)
+    {
         final int size = entities.size();
         if (size > 0)
         {
-            if (isMandatory && StringUtils.isEmpty(defaultValue))
+            if (StringUtils.isEmpty(defaultValue))
             {
-                throw new UserFailureException(String.format(
-                        "Cannot create mandatory assignment. Please specify "
-                                + "'Initial Value', which will be used for %s %s%s "
-                                + "of type '%s' already existing in the database.", size,
-                        entityKind.getLabel(), createPlural(size), entityType.getCode()));
+                throw new UserFailureException(String.format(errorMsgTemplate, size, entityKind
+                        .getLabel(), createPlural(size), entityType.getCode()));
             }
         }
+        // TODO 2009-06-01, Piotr Buczek: no validation of default value
         for (IEntityPropertiesHolder entity : entities)
         {
             final EntityPropertyPE property =
@@ -120,6 +133,33 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
                 entity.addProperty(property);
             }
         }
+    }
+
+    public void updateLoadedAssignment(final boolean isMandatory, final String defaultValue)
+    {
+        assignment.setMandatory(isMandatory);
+        // fill missing property values if we change from optional to mandatory
+        if (isMandatory)
+        {
+            final EntityTypePE entityType = assignment.getEntityType();
+            final PropertyTypePE propertyType = assignment.getPropertyType();
+            List<IEntityPropertiesHolder> entities =
+                    getEntityPropertyTypeDAO(entityKind).listEntitiesWithoutPropertyValue(
+                            entityType, propertyType);
+            String errorMsgTemplate =
+                    "Cannot change assignment to mandatory. "
+                            + "Please specify 'Update Value', which will be used for %s %s%s "
+                            + "of type '%s' already existing in the database "
+                            + "without any value for this property.";
+            addPropertyWithDefaultValue(entityType, propertyType, defaultValue, entities,
+                    errorMsgTemplate);
+        }
+        validateAndSave();
+    }
+
+    private void validateAndSave()
+    {
+        getEntityPropertyTypeDAO(entityKind).validateAndSaveUpdatedEntity(assignment);
     }
 
     private String createPlural(int size)

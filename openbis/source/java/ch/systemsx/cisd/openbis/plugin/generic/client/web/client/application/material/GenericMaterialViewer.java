@@ -123,6 +123,7 @@ public final class GenericMaterialViewer extends
         return new DatabaseModificationKind[]
             { DatabaseModificationKind.edit(ObjectKind.MATERIAL),
                     DatabaseModificationKind.createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                     DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM) };
     }
 

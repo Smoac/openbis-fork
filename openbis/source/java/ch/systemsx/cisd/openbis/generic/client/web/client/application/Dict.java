@@ -299,6 +299,10 @@ public abstract class Dict
 
     public static final String DEFAULT_VALUE_TOOLTIP = "default_value_tooltip";
 
+    public static final String DEFAULT_UPDATE_VALUE = "default_update_value";
+
+    public static final String DEFAULT_UPDATE_VALUE_TOOLTIP = "default_update_value_tooltip";
+
     //
     // Property Type Assignment Browser
     //
@@ -313,6 +317,9 @@ public abstract class Dict
 
     public static final String UNASSIGNMENT_CONFIRMATION_TEMPLATE_WITH_PROPERTIES =
             "unassignment_confirmation_template_with_properties";
+
+    public static final String EDIT_PROPERTY_TYPE_ASSIGNMENT_TITLE =
+            "edit_property_type_assignment_title";
 
     //
     // Attachments Browser

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -136,6 +137,50 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         return list;
     }
 
+    public List<IEntityPropertiesHolder> listEntitiesWithoutPropertyValue(
+            final EntityTypePE entityType, final PropertyTypePE propertyType)
+            throws DataAccessException
+    {
+        assert entityType != null : "Unspecified entity type.";
+        assert propertyType != null : "Unspecified property type.";
+
+        final DetachedCriteria criteria = DetachedCriteria.forClass(entityKind.getEntityClass());
+        criteria.add(Restrictions.eq(entityKind.getEntityTypeFieldName(), entityType));
+        //
+        final List<IEntityPropertiesHolder> list =
+                cast(getHibernateTemplate().findByCriteria(criteria));
+
+        // TODO filter results with criteria
+        // final DetachedCriteria propertyTypesCriteria =
+        // DetachedCriteria.forClass(entityKind.getEntityPropertyClass());
+        // propertyTypesCriteria.add(Restrictions.eq("entityTypePropertyType", propertyType));
+        // criteria.add(Subqueries.notExists(propertyTypesCriteria.setProjection(Projections
+        // .property("pizza.id"))));
+        final List<IEntityPropertiesHolder> result =
+                new ArrayList<IEntityPropertiesHolder>(list.size());
+        for (IEntityPropertiesHolder entity : list)
+        {
+            if (isEntityWithoutPropertyValue(entity, propertyType))
+            {
+                result.add(entity);
+            }
+        }
+        return result;
+    }
+
+    private final boolean isEntityWithoutPropertyValue(final IEntityPropertiesHolder entity,
+            final PropertyTypePE propertyType)
+    {
+        for (EntityPropertyPE property : entity.getProperties())
+        {
+            if (propertyType.equals(property.getEntityTypePropertyType()))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public final long countTermUsageStatistics(final VocabularyTermPE vocabularyTerm)
             throws DataAccessException
     {
@@ -180,6 +225,14 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
             operationLog.info("UPDATE: " + properties.size() + " of kind " + entityKind
                     + " updated.");
         }
+    }
+
+    public final void validateAndSaveUpdatedEntity(EntityTypePropertyTypePE entity)
+    {
+        assert entity != null : "entity is null";
+
+        validatePE(entity);
+        getHibernateTemplate().flush();
     }
 
     public void delete(EntityTypePropertyTypePE assignment)

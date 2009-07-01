@@ -110,13 +110,7 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
         super(viewContext, createBrowserId(attachmentHolder), createGridId(attachmentHolder));
         this.attachmentHolder = attachmentHolder;
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.ATTACHMENT_BROWSER_GRID);
-        postRegistrationCallback = new IDelegatedAction()
-            {
-                public void execute()
-                {
-                    AttachmentBrowser.this.refresh();
-                }
-            };
+        postRegistrationCallback = createRefreshGridAction();
         extendBottomToolbar();
 
         registerLinkClickListenerFor(AttachmentColDefKind.FILE_NAME.id(),
