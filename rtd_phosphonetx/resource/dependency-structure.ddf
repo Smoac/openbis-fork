@@ -3,6 +3,13 @@
 #
 #show allResults
 
-{root} = ch.systemsx.cisd
-{phosphonetx} = ${root}.phosphonetx
+{root} = ch.systemsx.cisd.openbis
+{phosphonetx} = ${root}.plugin.phosphonetx
 
+# Check that grid column definitions are GUI independent - export on the server side is using it
+[grid-columns] = ${phosphonetx}.client.web.client.application.columns.*
+check sets [grid-columns]
+[gwt] = com.google.gwt.** excluding com.google.gwt.user.client.rpc.IsSerializable
+[extjs] = com.extjs.**
+check [grid-columns] independentOf [gwt]
+check [grid-columns] independentOf [extjs]

@@ -61,6 +61,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements I
 
     public ResultSet<ProteinInfo> listProteinsByExperiment(ListProteinByExperimentCriteria criteria) throws UserFailureException
     {
+        System.out.println("PhosphoNetXClientService.listProteinsByExperiment()" + criteria);
         final String sessionToken = getSessionToken();
         return listEntities(criteria, new ListProteinOriginalDataProvider(server,
                 sessionToken, criteria.getExperimentID()));

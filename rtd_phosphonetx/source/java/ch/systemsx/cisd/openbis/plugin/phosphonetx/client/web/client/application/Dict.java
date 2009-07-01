@@ -21,7 +21,7 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.applicatio
  *
  * @author Franz-Josef Elmer
  */
-class Dict
+public class Dict
 {
     public static final String QUERY_MENU_TITLE = "query_menu_title";
     public static final String SELECTED_EXPERIMENT_LABEL = "selected_experiment_label";

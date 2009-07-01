@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
-
-import com.google.gwt.i18n.client.NumberFormat;
+package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.columns;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
 
 /**
@@ -40,17 +39,18 @@ public enum ProteinColDefKind implements IColumnDefinitionKind<ProteinInfo>
             @Override
             public String tryGetValue(ProteinInfo entity)
             {
-                return render(entity.getFalseDiscoveryRate());
+                return Double.toString(entity.getFalseDiscoveryRate());
             }
-        }), ;
+            
+            @Override
+            public Comparable<?> getComparableValue(ProteinInfo entity)
+            {
+                return entity.getFalseDiscoveryRate();
+            }
+            
+        }), 
+    ;
 
-    private static final NumberFormat DECIMAL_FORMAT = NumberFormat.getDecimalFormat();
-    
-    protected static String render(double value)
-    {
-        return DECIMAL_FORMAT.format(value);
-    }
-    
     private final AbstractColumnDefinitionKind<ProteinInfo> columnDefinitionKind;
 
     private ProteinColDefKind(AbstractColumnDefinitionKind<ProteinInfo> columnDefinitionKind)

@@ -114,6 +114,11 @@ public class ResultDataSetHandler implements IDataSetHandler
     {
         ProteinSummary summary = readProtXML(dataSet);
         List<DataSetInformation> dataSets = delegator.handleDataSet(dataSet);
+        if (dataSets.isEmpty())
+        {
+            throw new ConfigurationFailureException(
+                    "Data set not registered due to some error. See error folder in data store.");
+        }
         if (dataSets.size() != 1)
         {
             throw new ConfigurationFailureException(
