@@ -33,7 +33,8 @@ public interface IProteinQueryDAO extends BaseQuery
     @Select("select * from probability_fdr_mappings where dase_id = ?{1}")
     public DataSet<ProbabilityFDRMapping> getProbabilityFDRMapping(long dataSetID);
     
-    @Select("select ip.id as id, d.id as data_set_id, p.id as protein_id, p.probability, ip.description "
+    @Select("select ip.id as id, d.id as data_set_id, d.perm_id as data_set_perm_id, "
+            + "p.id as protein_id, p.probability, ip.description "
             + "from identified_proteins as ip left join proteins as p on ip.prot_id = p.id "
             + "left join data_sets as d on p.dase_id = d.id "
             + "left join experiments as e on d.expe_id = e.id where e.perm_id = ?{1}")

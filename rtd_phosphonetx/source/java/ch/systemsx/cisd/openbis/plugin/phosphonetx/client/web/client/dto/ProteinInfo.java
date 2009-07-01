@@ -29,6 +29,8 @@ public class ProteinInfo implements IsSerializable
 {
     private TechId id;
     
+    private String dataSetPermID;
+    
     private String description;
     
     private double falseDiscoveryRate;
@@ -41,6 +43,16 @@ public class ProteinInfo implements IsSerializable
     public final void setId(TechId id)
     {
         this.id = id;
+    }
+
+    public final String getDataSetPermID()
+    {
+        return dataSetPermID;
+    }
+
+    public final void setDataSetPermID(String dataSetPermID)
+    {
+        this.dataSetPermID = dataSetPermID;
     }
 
     public final double getFalseDiscoveryRate()

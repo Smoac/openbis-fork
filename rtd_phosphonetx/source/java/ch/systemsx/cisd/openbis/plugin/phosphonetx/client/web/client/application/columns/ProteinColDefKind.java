@@ -47,7 +47,14 @@ public enum ProteinColDefKind implements IColumnDefinitionKind<ProteinInfo>
             {
                 return entity.getFalseDiscoveryRate();
             }
-            
+        }), 
+    DATA_SET(new AbstractColumnDefinitionKind<ProteinInfo>(Dict.DATA_SET)
+        {
+            @Override
+            public String tryGetValue(ProteinInfo entity)
+            {
+                return entity.getDataSetPermID();
+            }
         }), 
     ;
 

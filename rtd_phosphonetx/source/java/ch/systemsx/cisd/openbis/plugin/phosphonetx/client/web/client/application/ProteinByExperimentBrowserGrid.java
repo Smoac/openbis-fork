@@ -21,8 +21,11 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
@@ -65,11 +68,19 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
         return browserGrid.asDisposableWithToolbar(toolbar);
     }
     
-    private ProteinByExperimentBrowserGrid(IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
+    private ProteinByExperimentBrowserGrid(final IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID, false);
         specificViewContext = viewContext;
         setDisplayTypeIDGenerator(PhosphoNetXDisplayTypeIDGenerator.PROTEIN_BY_EXPERIMENT_BROWSER_GRID);
+        registerLinkClickListenerFor(ProteinColDefKind.DATA_SET.id(),
+                new ICellListener<ProteinInfo>()
+                    {
+                        public void handle(ProteinInfo rowItem)
+                        {
+                            System.out.println(rowItem.getDataSetPermID());
+                        }
+                    });
     }
     
     void update(ExperimentIdentifier identifier)
@@ -83,6 +94,14 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
     protected IColumnDefinitionKind<ProteinInfo>[] getStaticColumnsDefinition()
     {
         return ProteinColDefKind.values();
+    }
+
+    @Override
+    protected ColumnDefsAndConfigs<ProteinInfo> createColumnsDefinition()
+    {
+        ColumnDefsAndConfigs<ProteinInfo> definitions = super.createColumnsDefinition();
+        definitions.setGridCellRendererFor(ProteinColDefKind.DATA_SET.id(), LinkRenderer.createLinkRenderer());
+        return definitions;
     }
 
     @Override

@@ -31,6 +31,9 @@ public class IdentifiedProtein
     @ResultColumn("data_set_id")
     private long dataSetID;
     
+    @ResultColumn("data_set_perm_id")
+    private String dataSetPermID;
+    
     @ResultColumn("protein_id")
     private long proteinID;
     
@@ -50,6 +53,16 @@ public class IdentifiedProtein
     public final void setId(long id)
     {
         this.id = id;
+    }
+
+    public final String getDataSetPermID()
+    {
+        return dataSetPermID;
+    }
+
+    public final void setDataSetPermID(String dataSetPermID)
+    {
+        this.dataSetPermID = dataSetPermID;
     }
 
     public final String getDescription()

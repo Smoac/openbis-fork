@@ -61,7 +61,6 @@ public class PhosphoNetXClientService extends AbstractClientService implements I
 
     public ResultSet<ProteinInfo> listProteinsByExperiment(ListProteinByExperimentCriteria criteria) throws UserFailureException
     {
-        System.out.println("PhosphoNetXClientService.listProteinsByExperiment()" + criteria);
         final String sessionToken = getSessionToken();
         return listEntities(criteria, new ListProteinOriginalDataProvider(server,
                 sessionToken, criteria.getExperimentID()));
@@ -70,8 +69,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements I
     public String prepareExportProteins(TableExportCriteria<ProteinInfo> exportCriteria)
             throws UserFailureException
     {
-        // TODO Auto-generated method stub
-        return null;
+        return prepareExportEntities(exportCriteria);
     }
 
 }
