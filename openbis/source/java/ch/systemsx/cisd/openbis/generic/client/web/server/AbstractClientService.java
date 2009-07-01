@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
@@ -187,6 +188,28 @@ public abstract class AbstractClientService implements IClientService
     private final HttpSession getOrCreateHttpSession(final boolean create)
     {
         return requestContextProvider.getHttpServletRequest().getSession(create);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected final <T> CacheManager<String, T> getExportManager()
+    {
+        return (CacheManager<String, T>) getHttpSession().getAttribute(
+                SessionConstants.OPENBIS_EXPORT_MANAGER);
+    }
+
+    protected <T> String prepareExportEntities(TableExportCriteria<T> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            // Not directly needed but this refreshes the session.
+            getSessionToken();
+            final CacheManager<String, TableExportCriteria<T>> exportManager = getExportManager();
+            return exportManager.saveData(criteria);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
     }
 
     private CachedResultSetManager<String> createCachedResultSetManager()

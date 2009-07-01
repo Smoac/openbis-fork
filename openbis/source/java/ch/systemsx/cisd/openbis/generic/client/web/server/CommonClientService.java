@@ -85,7 +85,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.TypeTransla
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.VocabularyTermTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRenderer;
-import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
@@ -177,13 +176,6 @@ public final class CommonClientService extends AbstractClientService implements
 
     // ----------- export and listing with cache generic functionality
 
-    @SuppressWarnings("unchecked")
-    private final <T> CacheManager<String, T> getExportManager()
-    {
-        return (CacheManager<String, T>) getHttpSession().getAttribute(
-                SessionConstants.OPENBIS_EXPORT_MANAGER);
-    }
-
     /**
      * Returns and removes cached export criteria.
      */
@@ -248,21 +240,6 @@ public final class CommonClientService extends AbstractClientService implements
             final TableExportCriteria<T> exportCriteria = getAndRemoveExportCriteria(exportDataKey);
             final List<T> entities = fetchCachedEntities(exportCriteria);
             return TSVRenderer.createTable(entities, exportCriteria.getColumnDefs(), lineSeparator);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-    }
-
-    private <T> String prepareExportEntities(TableExportCriteria<T> criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        try
-        {
-            // Not directly needed but this refreshes the session.
-            getSessionToken();
-            final CacheManager<String, TableExportCriteria<T>> exportManager = getExportManager();
-            return exportManager.saveData(criteria);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
