@@ -89,6 +89,12 @@ public abstract class AbstractColumnDefinitionKind<T>
     {
         return headerMsgKey;
     }
+    
+    public Comparable<?> getComparableValue(T entity)
+    {
+        String value = tryGetValue(entity);
+        return value == null ? "" : value;
+    }
 
     protected String renderRegistrationDate(final AbstractRegistrationHolder entity)
     {

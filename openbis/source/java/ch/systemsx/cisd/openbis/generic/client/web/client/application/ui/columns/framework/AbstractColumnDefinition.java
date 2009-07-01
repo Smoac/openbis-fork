@@ -67,4 +67,10 @@ public abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI
         return value != null ? value : "";
     }
 
+    public Comparable<?> getComparableValue(T rowModel)
+    {
+        return getValue(rowModel);
+    }
+
+    
 }

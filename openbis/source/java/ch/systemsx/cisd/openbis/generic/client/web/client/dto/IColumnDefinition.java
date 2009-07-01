@@ -28,6 +28,8 @@ public interface IColumnDefinition<T> extends IsSerializable
 {
     /** extracts value for the cell of the represented column */
     String getValue(T rowModel);
+    
+    Comparable<?> getComparableValue(T rowModel);
 
     /** column's header */
     String getHeader();

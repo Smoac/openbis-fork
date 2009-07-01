@@ -68,6 +68,11 @@ public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHol
         return renderValue(entity);
     }
 
+    public Comparable<?> getComparableValue(T rowModel)
+    {
+        return colDef.getComparableValue(rowModel);
+    }
+
     /**
      * @return given <var>value</var> rendered depending on property type
      */

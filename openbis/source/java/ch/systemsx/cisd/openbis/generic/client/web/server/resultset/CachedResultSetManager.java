@@ -129,10 +129,11 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         Comparator<T> comparator = new Comparator<T>()
             {
 
+                @SuppressWarnings("unchecked")
                 public int compare(T o1, T o2)
                 {
-                    String v1 = sortField.getValue(o1);
-                    String v2 = sortField.getValue(o2);
+                    Comparable v1 = sortField.getComparableValue(o1);
+                    Comparable v2 = sortField.getComparableValue(o2);
                     return v1.compareTo(v2);
                 }
             };

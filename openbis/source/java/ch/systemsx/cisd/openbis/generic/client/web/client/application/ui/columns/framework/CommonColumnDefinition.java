@@ -58,6 +58,12 @@ public class CommonColumnDefinition<T> extends AbstractColumnDefinition<T>
         return columnDefinitionKind.getDescriptor().tryGetValue(entity);
     }
 
+    @Override
+    public Comparable<?> getComparableValue(T rowModel)
+    {
+        return columnDefinitionKind.getDescriptor().getComparableValue(rowModel);
+    }
+
     public String getIdentifier()
     {
         return columnDefinitionKind.id();

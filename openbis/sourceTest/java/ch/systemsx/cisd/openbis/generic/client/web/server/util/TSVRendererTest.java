@@ -84,6 +84,11 @@ public class TSVRendererTest
                     return rowModel[colIx];
                 }
 
+                public Comparable<?> getComparableValue(String[] rowModel)
+                {
+                    return getValue(rowModel);
+                }
+
             };
     }
 }
