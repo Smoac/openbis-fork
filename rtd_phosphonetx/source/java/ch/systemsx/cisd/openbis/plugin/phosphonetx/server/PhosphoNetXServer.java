@@ -16,12 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
-
-import net.lemnik.eodsql.DataSet;
 
 import org.springframework.stereotype.Component;
 
@@ -35,10 +32,12 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IIdentifiedProteinTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ResourceNames;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
 
 /**
  * @author Franz-Josef Elmer
@@ -49,6 +48,9 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
 {
     @Resource(name = ResourceNames.PHOSPHONETX_DAO_FACTORY)
     private IPhosphoNetXDAOFactory specificDAOFactory;
+    
+    @Resource(name = ResourceNames.PHOSPHONETX_BO_FACTORY)
+    private IBusinessObjectFactory specificBOFactory;
 
     public PhosphoNetXServer()
     {
@@ -58,11 +60,13 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     @Private
     PhosphoNetXServer(ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
             IPhosphoNetXDAOFactory specificDAOFactory,
+            IBusinessObjectFactory specificBOFactory,
             ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin,
             IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin)
     {
         super(sessionManager, daoFactory, sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
         this.specificDAOFactory = specificDAOFactory;
+        this.specificBOFactory = specificBOFactory;
     }
 
     @Override
@@ -76,16 +80,14 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         return new PhosphoNetXServerLogger(getSessionManager(), invocationSuccessful, elapsedTime);
     }
 
-    public List<ProteinReference> listProteinReferencesByExperiment(String sessionToken,
+    public List<IdentifiedProtein> listProteinsByExperiment(String sessionToken,
             TechId experimentId) throws UserFailureException
     {
+        final Session session = getSessionManager().getSession(sessionToken);
+        IIdentifiedProteinTable proteinTable = specificBOFactory.createProteinTable(session);
         ExperimentPE experiment = getDAOFactory().getExperimentDAO().getByTechId(experimentId);
-        String permId = experiment.getPermId();
-        DataSet<ProteinReference> resultSet =
-                specificDAOFactory.getProteinQueryDAO().listProteinsByExperiment(permId);
-        ArrayList<ProteinReference> refrences = new ArrayList<ProteinReference>();
-        refrences.addAll(resultSet);
-        return refrences;
+        proteinTable.load(experiment.getPermId());
+        return proteinTable.getIdentifiedProteins();
     }
 
 }

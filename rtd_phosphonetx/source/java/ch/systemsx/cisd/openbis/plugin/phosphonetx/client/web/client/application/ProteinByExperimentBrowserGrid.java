@@ -66,16 +66,17 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
     
     private ProteinByExperimentBrowserGrid(IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
-        super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID);
+        super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID, false);
         specificViewContext = viewContext;
         setDisplayTypeIDGenerator(PhosphoNetXDisplayTypeIDGenerator.PROTEIN_BY_EXPERIMENT_BROWSER_GRID);
     }
     
     void update(ExperimentIdentifier identifier)
     {
+        System.out.println("ProteinByExperimentBrowserGrid.update() "+identifier);
         criteria = new ListProteinByExperimentCriteria();
         criteria.setExperimentID(identifier.getTechID());
-        refresh();
+        refresh();           
     }
 
     @Override

@@ -32,5 +32,7 @@ public class ResourceNames
     public final static String PHOSPHONETX_PLUGIN_SERVER = "phosphonetx-plugin-server";
     
     public final static String PHOSPHONETX_DAO_FACTORY = "phosphonetx-dao-factory";
+    
+    public final static String PHOSPHONETX_BO_FACTORY = "phosphonetx-bo-factory";
 
 }

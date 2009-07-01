@@ -42,7 +42,16 @@ public class QueryMenu extends TopMenuItem
     
     private static enum ActionMenuKind implements IActionMenuItem
     {
-        ALL_PROTEINS_OF_AN_EXPERIMENT;
+        ALL_PROTEINS_OF_AN_EXPERIMENT()
+        {
+            @Override
+            IDisposableComponent createComponent(
+                    IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
+            {
+                return ProteinByExperimentBrowserGrid.create(viewContext);
+            }
+        }
+        ;
 
         public String getMenuId()
         {
@@ -51,36 +60,33 @@ public class QueryMenu extends TopMenuItem
 
         public String getMenuText(IMessageProvider messageProvider)
         {
-            return messageProvider.getMessage(this.name());
-        }
-    }
-    
-    private static final class TabItemFactory implements ITabItemFactory
-    {
-        protected final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
-        private final String id;
-        private final String tabLabelKey;
-        private final IDisposableComponent disposableComponent;
-
-        TabItemFactory(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-                String tabLabelKey, IDisposableComponent disposableComponent)
-        {
-            this.viewContext = viewContext;
-            this.tabLabelKey = tabLabelKey;
-            this.disposableComponent = disposableComponent;
-            this.id = ID + tabLabelKey;
-        }
-
-        public String getId()
-        {
-            return id;
+            return messageProvider.getMessage(this.name() + "_menu_item");
         }
         
-        public ITabItem create()
+        String getTabLabelKey()
         {
-            String menuItemText = viewContext.getMessage(tabLabelKey);
-            return DefaultTabItem.create(menuItemText, disposableComponent, viewContext);
+            return this.name() + "_tab_label";
         }
+        
+        ActionMenu createActionMenu(final IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
+        {
+            return new ActionMenu(this, viewContext, new ITabItemFactory()
+                {
+                    public String getId()
+                    {
+                        return ID + getTabLabelKey();
+                    }
+
+                    public ITabItem create()
+                    {
+                        String menuItemText = viewContext.getMessage(getTabLabelKey());
+                        return DefaultTabItem.create(menuItemText, createComponent(viewContext),
+                                viewContext);
+                    }
+                });
+        }
+        
+        abstract IDisposableComponent createComponent(IViewContext<IPhosphoNetXClientServiceAsync> viewContext);
     }
     
     public QueryMenu(IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
@@ -89,14 +95,10 @@ public class QueryMenu extends TopMenuItem
         setIconStyle(TopMenu.ICON_STYLE);
         
         Menu menu = new Menu();
-        IDisposableComponent disposableComponent =
-                ProteinByExperimentBrowserGrid.create(viewContext);
-        TabItemFactory factory =
-                new TabItemFactory(viewContext, Dict.QUERY_ALL_PROTEINS_BY_EXPERIMENT,
-                        disposableComponent);
-        ActionMenu actionMenu =
-                new ActionMenu(ActionMenuKind.ALL_PROTEINS_OF_AN_EXPERIMENT, viewContext, factory);
-        menu.add(actionMenu);
+        for (ActionMenuKind actionMenuKind : ActionMenuKind.values())
+        {
+            menu.add(actionMenuKind.createActionMenu(viewContext));
+        }
         setMenu(menu);
     }
 }

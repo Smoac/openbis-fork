@@ -14,42 +14,32 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto;
+package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
-import net.lemnik.eodsql.ResultColumn;
+import java.util.ArrayList;
+
+import net.lemnik.eodsql.DataSet;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class ProteinReference
+public class MockDataSet<T> extends ArrayList<T> implements DataSet<T>
 {
-    @ResultColumn("id")
-    private long annotationID;
-    
-    @ResultColumn("protein_description")
-    private String description;
+    private static final long serialVersionUID = 1L;
 
-    public final String getDescription()
+    public void close()
     {
-        return description;
     }
 
-    public final void setDescription(String description)
+    public void disconnect()
     {
-        this.description = description;
     }
 
-    public final long getAnnotationID()
+    public boolean isConnected()
     {
-        return annotationID;
+        return false;
     }
-
-    public final void setAnnotationID(long annotationID)
-    {
-        this.annotationID = annotationID;
-    }
-
 
 }

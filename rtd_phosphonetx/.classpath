@@ -26,5 +26,9 @@
 	<classpathentry kind="lib" path="/libraries/spring/spring.jar" sourcepath="/libraries/spring/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar" sourcepath="/libraries/spring/webmvc/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/hibernate-search/jms.jar"/>
+	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-library.jar"/>
+	<classpathentry kind="lib" path="/libraries/jmock/objenesis/objenesis-1.0.jar"/>
+	<classpathentry kind="lib" path="/libraries/jmock/jmock.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

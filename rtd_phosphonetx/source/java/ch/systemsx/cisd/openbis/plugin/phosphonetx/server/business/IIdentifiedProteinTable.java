@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
+package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
+
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-class Dict
+public interface IIdentifiedProteinTable
 {
-    public static final String QUERY_MENU_TITLE = "query_menu_title";
-    public static final String SELECTED_EXPERIMENT_LABEL = "selected_experiment_label";
-    public static final String PROTEIN_DESCRIPTION = "protein_description";
-    public static final String FALSE_DISCOVERY_RATE = "false_discovery_rate";
-
+    public void load(String experimentPermID);
+    
+    public List<IdentifiedProtein> getIdentifiedProteins();
 }

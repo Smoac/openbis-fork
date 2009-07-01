@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDat
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
 
 /**
  * 
@@ -46,13 +46,14 @@ class ListProteinOriginalDataProvider implements IOriginalDataProvider<ProteinIn
     
     public List<ProteinInfo> getOriginalData() throws UserFailureException
     {
-        List<ProteinReference> references = server.listProteinReferencesByExperiment(sessionToken, experimentID);
-        List<ProteinInfo> infos = new ArrayList<ProteinInfo>(references.size());
-        for (ProteinReference proteinReference : references)
+        List<IdentifiedProtein> proteins = server.listProteinsByExperiment(sessionToken, experimentID);
+        List<ProteinInfo> infos = new ArrayList<ProteinInfo>(proteins.size());
+        for (IdentifiedProtein protein : proteins)
         {
             ProteinInfo proteinInfo = new ProteinInfo();
-            proteinInfo.setAnnotationID(new TechId(proteinReference.getAnnotationID()));
-            proteinInfo.setDescription(proteinReference.getDescription());
+            proteinInfo.setId(new TechId(protein.getId()));
+            proteinInfo.setDescription(protein.getDescription());
+            proteinInfo.setFalseDiscoveryRate(protein.getFalseDiscoveryRate());
             infos.add(proteinInfo);
         }
         return infos;

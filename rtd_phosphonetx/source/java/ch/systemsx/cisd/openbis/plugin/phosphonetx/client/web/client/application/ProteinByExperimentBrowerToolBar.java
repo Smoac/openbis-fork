@@ -16,10 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
-import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
@@ -27,7 +23,9 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntityListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 
@@ -45,20 +43,19 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
                 + GenericConstants.LABEL_SEPARATOR));
         final ExperimentChooserFieldAdaptor chooser =
                 ExperimentChooserField.create("", false, null, viewContext.getCommonViewContext());
-        TextField<String> textField = chooser.getTextField();
-        textField.setReadOnly(true);
-        textField.addListener(Events.Valid, new Listener<BaseEvent>()
+        ExperimentChooserField chooserField = chooser.getChooserField();
+        chooserField.setReadOnly(true);
+        chooserField.addChosenEntityListener(new IChosenEntityListener<Experiment>()
             {
-                public void handleEvent(BaseEvent be)
+                public void entityChosen(Experiment entity)
                 {
-                    ExperimentIdentifier identifier = chooser.getValue();
-                    if (identifier != null)
+                    if (entity != null)
                     {
-                        browserGrid.update(identifier);
+                        browserGrid.update(ExperimentIdentifier.createIdentifier(entity));
                     }
                 }
             });
-        add(new AdapterToolItem(textField));
+        add(new AdapterToolItem(chooserField));
         add(new AdapterToolItem(chooser.getChooseButton()));
     }
 

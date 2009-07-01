@@ -14,33 +14,31 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto;
+package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import net.lemnik.eodsql.ResultColumn;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class ProteinInfo implements IsSerializable
+public class ProbabilityFDRMapping
 {
-    private TechId id;
+    @ResultColumn("probability")
+    private double probability;
     
-    private String description;
-    
+    @ResultColumn("false_discovery_rate")
     private double falseDiscoveryRate;
 
-    public final TechId getId()
+    public final double getProbability()
     {
-        return id;
+        return probability;
     }
 
-    public final void setId(TechId id)
+    public final void setProbability(double probability)
     {
-        this.id = id;
+        this.probability = probability;
     }
 
     public final double getFalseDiscoveryRate()
@@ -52,16 +50,4 @@ public class ProteinInfo implements IsSerializable
     {
         this.falseDiscoveryRate = falseDiscoveryRate;
     }
-
-    public final String getDescription()
-    {
-        return description;
-    }
-
-    public final void setDescription(String description)
-    {
-        this.description = description;
-    }
-
-
 }

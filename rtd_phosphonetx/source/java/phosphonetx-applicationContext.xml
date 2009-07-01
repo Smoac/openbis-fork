@@ -33,4 +33,10 @@
           class="ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.db.PhosphoNetXDAOFactory">
         <constructor-arg ref="phosphonetx-db-configuration-context"/>
     </bean>
+    
+    <bean id="phosphonetx-bo-factory"
+          class="ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.BusinessObjectFactory">
+        <constructor-arg ref="dao-factory"/>
+        <constructor-arg ref="phosphonetx-dao-factory"/>
+    </bean>      
 </beans>

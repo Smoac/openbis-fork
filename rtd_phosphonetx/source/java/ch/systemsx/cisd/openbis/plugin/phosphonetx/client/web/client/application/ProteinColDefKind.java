@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
+import com.google.gwt.i18n.client.NumberFormat;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
@@ -25,7 +27,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.Protein
  */
 public enum ProteinColDefKind implements IColumnDefinitionKind<ProteinInfo>
 {
-    DESCRIPTION(new AbstractColumnDefinitionKind<ProteinInfo>(Dict.PROTEIN_DESCRIPTION, false)
+    DESCRIPTION(new AbstractColumnDefinitionKind<ProteinInfo>(Dict.PROTEIN_DESCRIPTION)
         {
             @Override
             public String tryGetValue(ProteinInfo entity)
@@ -33,8 +35,22 @@ public enum ProteinColDefKind implements IColumnDefinitionKind<ProteinInfo>
                 return entity.getDescription();
             }
         }), 
-    ;
+    FALSE_DISCOVERY_RATE(new AbstractColumnDefinitionKind<ProteinInfo>(Dict.FALSE_DISCOVERY_RATE)
+        {
+            @Override
+            public String tryGetValue(ProteinInfo entity)
+            {
+                return render(entity.getFalseDiscoveryRate());
+            }
+        }), ;
 
+    private static final NumberFormat DECIMAL_FORMAT = NumberFormat.getDecimalFormat();
+    
+    protected static String render(double value)
+    {
+        return DECIMAL_FORMAT.format(value);
+    }
+    
     private final AbstractColumnDefinitionKind<ProteinInfo> columnDefinitionKind;
 
     private ProteinColDefKind(AbstractColumnDefinitionKind<ProteinInfo> columnDefinitionKind)
@@ -51,4 +67,5 @@ public enum ProteinColDefKind implements IColumnDefinitionKind<ProteinInfo>
     {
         return columnDefinitionKind;
     }
+    
 }
