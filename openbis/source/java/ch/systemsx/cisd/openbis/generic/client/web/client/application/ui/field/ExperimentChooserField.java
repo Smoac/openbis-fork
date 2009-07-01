@@ -23,15 +23,14 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowserGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.EntityChooserDialog.ChosenEntitySetter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 
@@ -48,7 +47,7 @@ public final class ExperimentChooserField extends ChosenEntitySetter<Experiment>
     {
         Field<?> getField();
         
-        TextField<String> getTextField();
+        ExperimentChooserField getChooserField();
         
         Button getChooseButton();
 
@@ -93,14 +92,14 @@ public final class ExperimentChooserField extends ChosenEntitySetter<Experiment>
                     return chooseButton;
                 }
 
-                public TextField<String> getTextField()
+                public ExperimentChooserField getChooserField()
                 {
                     return chooserField;
                 }
 
                 public ExperimentIdentifier getValue()
                 {
-                    return chooserField.identifer;
+                    return chooserField.tryGetIdentifier();
                 }
 
                 public void updateOriginalValue()
@@ -137,21 +136,22 @@ public final class ExperimentChooserField extends ChosenEntitySetter<Experiment>
 
     private final boolean mandatory;
     
-    private ExperimentIdentifier identifer;
-
     @Override
-    public void setChosenEntity(Experiment entityOrNull)
+    public String renderEntity(Experiment entity)
     {
-        if (entityOrNull != null)
-        {
-            identifer = ExperimentIdentifier.createIdentifier(entityOrNull);
-            setValue(identifer);
-        }
+        return print(ExperimentIdentifier.createIdentifier(entity));
     }
 
-    private void setValue(ExperimentIdentifier chosenEntity)
+    private ExperimentIdentifier tryGetIdentifier()
     {
-        super.setValue(print(chosenEntity));
+        String ident = getValue();
+        if (StringUtils.isBlank(ident))
+        {
+            return null;
+        } else
+        {
+            return new ExperimentIdentifier(ident);
+        }
     }
 
     private String print(ExperimentIdentifier chosenEntity)
@@ -169,10 +169,9 @@ public final class ExperimentChooserField extends ChosenEntitySetter<Experiment>
 
         setRegex(EXPERIMENT_IDENTIFIER_PATTERN);
         getMessages().setRegexText(viewContext.getMessage(Dict.INCORRECT_EXPERIMENT_SYNTAX));
-        identifer = initialValueOrNull;
         if (initialValueOrNull != null)
         {
-            setValue(initialValueOrNull);
+            super.setValue(print(initialValueOrNull));
         }
     }
 

@@ -27,7 +27,6 @@ import com.extjs.gxt.ui.client.widget.form.MultiField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.EntityChooserDialog.ChosenEntitySetter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
@@ -85,13 +84,10 @@ public final class MaterialChooserField extends ChosenEntitySetter<Material>
     private final boolean mandatory;
 
     @Override
-    public void setChosenEntity(Material materialOrNull)
+    public String renderEntity(Material materialOrNull)
     {
-        if (materialOrNull != null)
-        {
-            MaterialIdentifier chosenMaterial = createIdentifier(materialOrNull);
-            super.setValue(chosenMaterial.print());
-        }
+        MaterialIdentifier chosenMaterial = createIdentifier(materialOrNull);
+        return chosenMaterial.print();
     }
 
     private static MaterialIdentifier createIdentifier(Material material)

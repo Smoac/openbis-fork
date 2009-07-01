@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.Event;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -46,18 +45,6 @@ class EntityChooserDialog<T> extends SimpleDialog
     private final IDelegatedAction onAcceptAction;
 
     private final IDelegatedAction onCancelAction;
-
-    public static abstract class ChosenEntitySetter<T> extends TextField<String>
-    {
-        private static final int TEXT_CHOOSER_FIELD_WIDTH = 342;
-
-        protected ChosenEntitySetter()
-        {
-            setWidth(TEXT_CHOOSER_FIELD_WIDTH);
-        }
-
-        abstract void setChosenEntity(T entity);
-    }
 
     public EntityChooserDialog(DisposableEntityChooser<T> entityBrowser,
             ChosenEntitySetter<T> chosenEntitySetter, String title, IMessageProvider messageProvider)

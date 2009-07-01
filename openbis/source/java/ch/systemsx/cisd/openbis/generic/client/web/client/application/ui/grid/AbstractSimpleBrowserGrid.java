@@ -37,7 +37,13 @@ abstract public class AbstractSimpleBrowserGrid<T/* Entity */> extends
     protected AbstractSimpleBrowserGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             String browserId, String gridId)
     {
-        super(viewContext, gridId, false, true);
+        this(viewContext, browserId, gridId, true);
+    }
+    
+    protected AbstractSimpleBrowserGrid(IViewContext<ICommonClientServiceAsync> viewContext,
+            String browserId, String gridId, boolean refreshAutomatically)
+    {
+        super(viewContext, gridId, false, refreshAutomatically);
         setId(browserId);
         updateDefaultRefreshButton();
     }

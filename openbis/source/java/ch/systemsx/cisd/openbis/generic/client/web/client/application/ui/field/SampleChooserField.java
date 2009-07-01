@@ -27,7 +27,6 @@ import com.extjs.gxt.ui.client.widget.form.MultiField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.EntityChooserDialog.ChosenEntitySetter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
@@ -116,12 +115,9 @@ public final class SampleChooserField extends ChosenEntitySetter<Sample>
     private final boolean mandatory;
 
     @Override
-    public void setChosenEntity(Sample entityOrNull)
+    public String renderEntity(Sample entityOrNull)
     {
-        if (entityOrNull != null)
-        {
-            setValue(entityOrNull.getIdentifier());
-        }
+        return entityOrNull.getIdentifier();
     }
 
     public SampleChooserField(boolean mandatory, String initialValueOrNull,
