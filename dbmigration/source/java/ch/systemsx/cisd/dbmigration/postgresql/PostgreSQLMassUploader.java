@@ -67,7 +67,8 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
      * Creates an instance for the specified data source and sequence mapper.
      */
     public PostgreSQLMassUploader(final DataSource dataSource,
-            final ISequenceNameMapper sequenceNameMapper, boolean sequenceUpdateNeeded) throws SQLException
+            final ISequenceNameMapper sequenceNameMapper, boolean sequenceUpdateNeeded)
+            throws SQLException
     {
         this.dataSource = dataSource;
         this.sequenceNameMapper = sequenceNameMapper;
@@ -130,11 +131,11 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
             {
                 if (tsvFileType)
                 {
-                    getCopyManager().copyIn(tableName, is);
+                    getCopyManager().copyIn("COPY " + tableName + " FROM STDIN", is);
                 } else
                 {
-                    getCopyManager().copyInQuery(
-                            "COPY " + tableName + " FROM STDIN WITH CSV HEADER", is);
+                    getCopyManager()
+                            .copyIn("COPY " + tableName + " FROM STDIN WITH CSV HEADER", is);
                 }
                 tables.add(tableName);
             } finally
