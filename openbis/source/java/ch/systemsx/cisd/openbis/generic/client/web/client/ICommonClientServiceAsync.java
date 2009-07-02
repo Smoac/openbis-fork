@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -323,6 +324,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /** @see ICommonClientService#registerPropertyType(PropertyType) */
     public void registerPropertyType(final PropertyType propertyType,
+            final AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#updatePropertyType(IPropertyTypeUpdates) */
+    public void updatePropertyType(final IPropertyTypeUpdates updates,
             final AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#registerVocabulary(String, NewVocabulary) */

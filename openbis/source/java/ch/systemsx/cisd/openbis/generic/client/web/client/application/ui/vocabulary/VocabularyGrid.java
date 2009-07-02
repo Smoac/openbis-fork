@@ -105,7 +105,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                                 public void invoke(BaseEntityModel<Vocabulary> selectedItem)
                                 {
                                     Vocabulary vocabulary = selectedItem.getBaseObject();
-                                    if (vocabulary.isInternalNamespace())
+                                    if (vocabulary.isManagedInternally())
                                     {
                                         MessageBox.alert("Error",
                                                 "Internally managed vocabulary cannot be edited.",

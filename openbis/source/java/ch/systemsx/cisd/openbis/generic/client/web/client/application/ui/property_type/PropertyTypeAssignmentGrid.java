@@ -192,9 +192,9 @@ public class PropertyTypeAssignmentGrid extends
                             final EntityTypePropertyType<?> etpt = selectedItem.getBaseObject();
                             if (etpt.isManagedInternally())
                             {
-                                final String alertMsg =
+                                final String errorMsg =
                                         "Assignments of internally managed property types cannot be edited.";
-                                MessageBox.alert("Error", alertMsg, null);
+                                MessageBox.alert("Error", errorMsg, null);
                             } else
                             {
                                 createEditDialog(etpt).show();

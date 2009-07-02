@@ -21,16 +21,26 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PropertyTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -57,10 +67,76 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
         return new PropertyTypeGrid(viewContext).asDisposableWithoutToolbar();
     }
 
+    private final IDelegatedAction postRegistrationCallback;
+
     private PropertyTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID, GRID_ID);
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.PROPERTY_TYPE_BROWSER_GRID);
+        extendBottomToolbar();
+        postRegistrationCallback = createRefreshGridAction();
+    }
+
+    private void extendBottomToolbar()
+    {
+        addEntityOperationsLabel();
+
+        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
+                new ISelectedEntityInvoker<BaseEntityModel<PropertyType>>()
+                    {
+
+                        public void invoke(BaseEntityModel<PropertyType> selectedItem)
+                        {
+                            final PropertyType propertyType = selectedItem.getBaseObject();
+                            if (propertyType.isManagedInternally())
+                            {
+                                final String errorMsg =
+                                        "Internally managed property types cannot be edited.";
+                                MessageBox.alert("Error", errorMsg, null);
+                            } else
+                            {
+                                createEditDialog(propertyType).show();
+                            }
+                        }
+                    }));
+
+        addEntityOperationsSeparator();
+    }
+
+    private Window createEditDialog(final PropertyType propertyType)
+    {
+        final String code = propertyType.getCode();
+        final String description = propertyType.getDescription();
+        final String label = propertyType.getLabel();
+        final String title = viewContext.getMessage(Dict.EDIT_TITLE, "Property Type", code);
+
+        return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
+            {
+                private final TextField<String> descriptionField;
+
+                private final TextField<String> labelField;
+
+                {
+                    boolean mandatory = true;
+
+                    labelField = createTextField(viewContext.getMessage(Dict.LABEL), mandatory);
+                    labelField.setValue(StringEscapeUtils.unescapeHtml(label));
+                    addField(labelField);
+
+                    descriptionField = createDescriptionField(viewContext, mandatory);
+                    descriptionField.setValue(StringEscapeUtils.unescapeHtml(description));
+                    addField(descriptionField);
+                }
+
+                @Override
+                protected void register(AsyncCallback<Void> registrationCallback)
+                {
+                    propertyType.setDescription(descriptionField.getValue());
+                    propertyType.setLabel(labelField.getValue());
+
+                    viewContext.getService().updatePropertyType(propertyType, registrationCallback);
+                }
+            };
     }
 
     @Override
@@ -102,7 +178,7 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { createOrDelete(ObjectKind.PROPERTY_TYPE),
+            { createOrDelete(ObjectKind.PROPERTY_TYPE), edit(ObjectKind.PROPERTY_TYPE),
                     createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                     edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }

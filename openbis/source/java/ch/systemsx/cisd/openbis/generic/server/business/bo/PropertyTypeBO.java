@@ -17,11 +17,13 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataRetrievalFailureException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -75,7 +77,7 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
             } else
             {
                 // loading existing vocabulary
-                loadDataByTechId(TechId.create(vocabulary));
+                loadVocabularyDataByTechId(TechId.create(vocabulary));
             }
             VocabularyPE vocabularyPE = getVocabulary();
             propertyTypePE.setVocabulary(vocabularyPE);
@@ -125,9 +127,41 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
         }
     }
 
+    public void update(IPropertyTypeUpdates updates)
+    {
+        loadDataByTechId(TechId.create(updates));
+
+        propertyTypePE.setDescription(updates.getDescription());
+        propertyTypePE.setLabel(updates.getLabel());
+
+        validateAndSave();
+    }
+
+    private void validateAndSave()
+    {
+        getPropertyTypeDAO().validateAndSaveUpdatedEntity(propertyTypePE);
+    }
+
     public final PropertyTypePE getPropertyType()
     {
         assert propertyTypePE != null : "Property type not defined.";
         return propertyTypePE;
+    }
+
+    @Override
+    public void loadDataByTechId(TechId propertyTypeId)
+    {
+        try
+        {
+            propertyTypePE = getPropertyTypeDAO().getByTechId(propertyTypeId);
+        } catch (DataRetrievalFailureException exception)
+        {
+            throw new UserFailureException(exception.getMessage());
+        }
+    }
+
+    private void loadVocabularyDataByTechId(TechId vocabularyId)
+    {
+        super.loadDataByTechId(vocabularyId);
     }
 }

@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
@@ -52,16 +53,29 @@ abstract public class AbstractRegistrationDialog extends AbstractSaveDialog
         super(viewContext, title, postRegistrationCallback);
     }
 
-    public static TextField<String> createTitleField(IMessageProvider messageProvider)
+    /** Creates simple text field with given title and mandatory flag set false. */
+    public static TextField<String> createTextField(String title)
     {
-        TextField<String> field = new TextField<String>();
-        field.setFieldLabel(messageProvider.getMessage(Dict.TITLE));
-        return field;
+        return createTextField(title, false);
     }
 
+    /** Creates simple text field with given title and given mandatory flag. */
+    public static TextField<String> createTextField(String title, boolean mandatory)
+    {
+        return new VarcharField(title, mandatory);
+    }
+
+    /** Creates multiline text field for description with mandatory flag set false. */
     public static TextField<String> createDescriptionField(IMessageProvider messageProvider)
     {
-        return new MultilineVarcharField(messageProvider.getMessage(Dict.DESCRIPTION), false);
+        return createDescriptionField(messageProvider, false);
+    }
+
+    /** Creates multiline text field for description with mandatory flag set false. */
+    public static TextField<String> createDescriptionField(IMessageProvider messageProvider,
+            boolean mandatory)
+    {
+        return new MultilineVarcharField(messageProvider.getMessage(Dict.DESCRIPTION), mandatory);
     }
 
     public static TextField<String> createCodeField(IMessageProvider messageProvider)

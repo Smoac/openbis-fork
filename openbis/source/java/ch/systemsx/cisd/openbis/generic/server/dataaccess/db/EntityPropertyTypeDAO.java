@@ -150,12 +150,12 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         final List<IEntityPropertiesHolder> list =
                 cast(getHibernateTemplate().findByCriteria(criteria));
 
-        // TODO filter results with criteria
+        // TODO 2009-07-01, Piotr Buczek: filter results with criteria
         // final DetachedCriteria propertyTypesCriteria =
         // DetachedCriteria.forClass(entityKind.getEntityPropertyClass());
         // propertyTypesCriteria.add(Restrictions.eq("entityTypePropertyType", propertyType));
         // criteria.add(Subqueries.notExists(propertyTypesCriteria.setProjection(Projections
-        // .property("pizza.id"))));
+        // .property(...))));
         final List<IEntityPropertiesHolder> result =
                 new ArrayList<IEntityPropertiesHolder>(list.size());
         for (IEntityPropertiesHolder entity : list)

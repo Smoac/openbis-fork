@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * A {@link PropertyType} &lt;---&gt; {@link PropertyTypePE} translator.
@@ -52,6 +53,7 @@ public final class PropertyTypeTranslator
             MaterialType materialType)
     {
         final PropertyType result = new PropertyType();
+        result.setId(HibernateUtils.getId(propertyType));
         result.setCode(StringEscapeUtils.escapeHtml(propertyType.getCode()));
         result.setSimpleCode(StringEscapeUtils.escapeHtml(propertyType.getSimpleCode()));
         result.setInternalNamespace(propertyType.isInternalNamespace());

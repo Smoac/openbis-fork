@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -312,6 +313,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "register_property_type", "PROPERTY_TYPE(%s)", propertyType
                 .getCode());
+    }
+
+    public void updatePropertyType(String sessionToken, IPropertyTypeUpdates updates)
+    {
+        logTracking(sessionToken, "update_property_type", "PROPERTY_TYPE(%)", updates.getCode());
     }
 
     public final void registerVocabulary(final String sessionToken, final NewVocabulary vocabulary)

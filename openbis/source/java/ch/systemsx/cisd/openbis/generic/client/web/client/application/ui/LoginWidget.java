@@ -75,7 +75,16 @@ public class LoginWidget extends VerticalPanel
         formPanel.add(passwordField);
         button = createButton(viewContext);
         formPanel.addButton(button);
+
+        // NOTE: it would be better to invoke it on reset but it somehow doesn't have any effect
+        focusOnFirstField();
+
         add(formPanel);
+    }
+
+    private void focusOnFirstField()
+    {
+        formPanel.getItem(0).focus();
     }
 
     private final static FormPanel createFormPanel()
@@ -95,10 +104,8 @@ public class LoginWidget extends VerticalPanel
     {
         final TextField<String> field = new TextField<String>();
         field.setFieldLabel(viewContext.getMessage(Dict.LOGIN_USER_LABEL));
-        field.setSelectOnFocus(true);
-        field.setAllowBlank(false);
-        field.setValidateOnBlur(true);
         field.setId(USER_FIELD_ID);
+        field.setAllowBlank(false);
         field.setValidateOnBlur(true);
         addEnterKeyListener(field, viewContext);
         return field;
@@ -123,9 +130,9 @@ public class LoginWidget extends VerticalPanel
     {
         final TextField<String> field = new TextField<String>();
         field.setPassword(true);
-        field.setAllowBlank(false);
         field.setFieldLabel(viewContext.getMessage(Dict.LOGIN_PASSWORD_LABEL));
         field.setId(PASSWORD_FIELD_ID);
+        field.setAllowBlank(false);
         field.setValidateOnBlur(true);
         addEnterKeyListener(field, viewContext);
         return field;

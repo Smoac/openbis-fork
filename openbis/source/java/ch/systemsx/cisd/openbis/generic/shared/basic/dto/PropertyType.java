@@ -28,11 +28,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
  * 
  * @author Izabela Adamczyk
  */
-public class PropertyType extends Code<PropertyType> implements IsSerializable, Serializable
+public class PropertyType extends Code<PropertyType> implements IPropertyTypeUpdates,
+        IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     public final static String USER_NAMESPACE_CODE_PREPEND = "USER.";
+
+    private Long id;
 
     /**
      * Only used for displaying/viewing. With <code>managedInternally</code> is unambiguous (meaning
@@ -64,6 +67,16 @@ public class PropertyType extends Code<PropertyType> implements IsSerializable, 
     private List<ExperimentTypePropertyType> experimentTypePropertyTypes;
 
     private List<DataSetTypePropertyType> dataSetTypePropertyTypes;
+
+    public Long getId()
+    {
+        return id;
+    }
+
+    public void setId(Long id)
+    {
+        this.id = id;
+    }
 
     public String getSimpleCode()
     {

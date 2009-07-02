@@ -67,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -563,6 +564,17 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         final IPropertyTypeBO propertyTypeBO = businessObjectFactory.createPropertyTypeBO(session);
         propertyTypeBO.define(propertyType);
         propertyTypeBO.save();
+    }
+
+    public final void updatePropertyType(final String sessionToken,
+            final IPropertyTypeUpdates updates)
+    {
+        assert sessionToken != null : "Unspecified session token";
+        assert updates != null : "Unspecified updates";
+
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IPropertyTypeBO propertyTypeBO = businessObjectFactory.createPropertyTypeBO(session);
+        propertyTypeBO.update(updates);
     }
 
     public final void registerVocabulary(final String sessionToken, final NewVocabulary vocabulary)

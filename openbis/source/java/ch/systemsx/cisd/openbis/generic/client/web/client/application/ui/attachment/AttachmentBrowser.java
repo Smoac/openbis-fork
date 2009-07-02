@@ -228,7 +228,7 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
             {
                 private final TextField<String> titleField;
                 {
-                    titleField = createTitleField(viewContext);
+                    titleField = createTextField(viewContext.getMessage(Dict.TITLE));
                     titleField.setValue(StringEscapeUtils.unescapeHtml(current.getTitle()));
                     addField(titleField);
                 }
