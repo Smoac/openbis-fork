@@ -307,7 +307,6 @@ public interface ICommonServer extends IServer
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.PROPERTY_TYPE)
-    // FIXME modif
     public void updatePropertyType(final String sessionToken, final IPropertyTypeUpdates updates);
 
     /**
