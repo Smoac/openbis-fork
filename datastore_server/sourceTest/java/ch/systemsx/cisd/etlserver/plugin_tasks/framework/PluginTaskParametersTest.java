@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver;
+package ch.systemsx.cisd.etlserver.plugin_tasks.framework;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,20 +34,21 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.etlserver.plugin_tasks.demo.DemoProcessingPlugin;
 import ch.systemsx.cisd.etlserver.plugin_tasks.demo.DemoReportingPlugin;
 import ch.systemsx.cisd.etlserver.plugin_tasks.framework.AbstractPluginTaskFactory;
-import ch.systemsx.cisd.etlserver.plugin_tasks.framework.DatasetDescription;
 import ch.systemsx.cisd.etlserver.plugin_tasks.framework.IProcessingPluginTask;
 import ch.systemsx.cisd.etlserver.plugin_tasks.framework.IReportingPluginTask;
-import ch.systemsx.cisd.etlserver.plugin_tasks.framework.PluginTaskFactories;
+import ch.systemsx.cisd.etlserver.plugin_tasks.framework.PluginTaskProvider;
+import ch.systemsx.cisd.etlserver.plugin_tasks.framework.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Tests for {@link Parameters} class.
+ * Tests for {@link PluginTaskProviders} class.
  * 
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { Parameters.class, AbstractPluginTaskFactory.class })
-public class ParametersTest extends AbstractFileSystemTestCase
+    { PluginTaskProviders.class, AbstractPluginTaskFactory.class })
+public class PluginTaskParametersTest extends AbstractFileSystemTestCase
 {
     @Test
     public void testCreateReportingPluginsFactories() throws Exception
@@ -56,7 +57,7 @@ public class ParametersTest extends AbstractFileSystemTestCase
         String plugin1 = "plugin1";
         String plugin2 = "plugin2";
 
-        props.put(Parameters.REPORTING_PLUGIN_NAMES, plugin1 + ", " + plugin2);
+        props.put(PluginTaskProviders.REPORTING_PLUGIN_NAMES, plugin1 + ", " + plugin2);
         String pluginLabel1 = "Demo Reporting 1";
         String datasetCodes1 = "MZXML, EICML";
         putPluginProperties(props, plugin1, pluginLabel1, datasetCodes1, DemoReportingPlugin.class);
@@ -65,8 +66,8 @@ public class ParametersTest extends AbstractFileSystemTestCase
         String datasetCodes2 = "EICML";
         putPluginProperties(props, plugin2, pluginLabel2, datasetCodes2, DemoReportingPlugin.class);
 
-        PluginTaskFactories<IReportingPluginTask> factories =
-                Parameters.createReportingPluginsFactories(props);
+        PluginTaskProvider<IReportingPluginTask> factories =
+                PluginTaskProviders.createReportingPluginsFactories(props);
         factories.check();
         factories.logConfigurations();
         IReportingPluginTask pluginInstance1 = factories.createPluginInstance(plugin1);
@@ -94,20 +95,20 @@ public class ParametersTest extends AbstractFileSystemTestCase
     public void testMissingPluginSpecFails() throws Exception
     {
         Properties props = new Properties();
-        props.put(Parameters.REPORTING_PLUGIN_NAMES, "plugin1");
-        Parameters.createReportingPluginsFactories(props);
+        props.put(PluginTaskProviders.REPORTING_PLUGIN_NAMES, "plugin1");
+        PluginTaskProviders.createReportingPluginsFactories(props);
     }
 
     @Test
     public void testUnspecifiedPluginsParameters() throws Exception
     {
         Properties props = new Properties();
-        PluginTaskFactories<IProcessingPluginTask> processing =
-                Parameters.createProcessingPluginsFactories(props);
+        PluginTaskProvider<IProcessingPluginTask> processing =
+                PluginTaskProviders.createProcessingPluginsFactories(props);
         assertEquals(0, processing.getPluginDescriptions().size());
 
-        PluginTaskFactories<IProcessingPluginTask> reporting =
-                Parameters.createProcessingPluginsFactories(props);
+        PluginTaskProvider<IProcessingPluginTask> reporting =
+                PluginTaskProviders.createProcessingPluginsFactories(props);
         assertEquals(0, reporting.getPluginDescriptions().size());
 
     }
@@ -118,12 +119,12 @@ public class ParametersTest extends AbstractFileSystemTestCase
         Properties props = new Properties();
         String plugin1 = "plugin1";
 
-        props.put(Parameters.PROCESSING_PLUGIN_NAMES, plugin1);
+        props.put(PluginTaskProviders.PROCESSING_PLUGIN_NAMES, plugin1);
         putPluginProperties(props, plugin1, "pluginLabel1", "datasetCodes1",
                 DemoProcessingPlugin.class);
 
-        PluginTaskFactories<IProcessingPluginTask> factories =
-                Parameters.createProcessingPluginsFactories(props);
+        PluginTaskProvider<IProcessingPluginTask> factories =
+                PluginTaskProviders.createProcessingPluginsFactories(props);
         factories.check();
         factories.logConfigurations();
         IProcessingPluginTask pluginInstance1 = factories.createPluginInstance(plugin1);

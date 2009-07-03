@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableModel;
 
@@ -102,10 +103,11 @@ class DataStoreServiceLogger implements IDataStoreService
                 .toString().trim());
     }
 
-    public TableModel createReportFromDatasets(String reportingTaskId, List<String> datasetCodes)
+    public TableModel createReportFromDatasets(String reportingTaskId,
+            List<DatasetDescription> datasets)
     {
         log("createReportFromDatasets", "reportingTaskId(%s) DATASETS(%s)", reportingTaskId,
-                datasetCodes);
+                datasets);
         return null;
     }
 

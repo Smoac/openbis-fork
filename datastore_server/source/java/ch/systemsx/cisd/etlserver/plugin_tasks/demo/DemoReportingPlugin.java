@@ -19,8 +19,8 @@ package ch.systemsx.cisd.etlserver.plugin_tasks.demo;
 import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.etlserver.plugin_tasks.framework.DatasetDescription;
 import ch.systemsx.cisd.etlserver.plugin_tasks.framework.IReportingPluginTask;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableModel;
 
 /**
@@ -36,7 +36,7 @@ public class DemoReportingPlugin implements IReportingPluginTask
 
     public TableModel createReport(List<DatasetDescription> datasets)
     {
-        // TODO 2009-07-03, Tomasz Pylak: implement me!
+        System.out.println("Reporting from the following datasets has been requested: " + datasets);
         return null;
     }
 

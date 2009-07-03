@@ -18,6 +18,8 @@ package ch.systemsx.cisd.etlserver.plugin_tasks.framework;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+
 /**
  * Interface of the processing plugin task.
  * 

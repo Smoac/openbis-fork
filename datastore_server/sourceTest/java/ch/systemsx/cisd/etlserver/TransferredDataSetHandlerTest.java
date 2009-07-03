@@ -53,6 +53,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.JavaMailProperties;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
+import ch.systemsx.cisd.etlserver.plugin_tasks.framework.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -269,7 +270,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 new ETLServerPlugin(new MockDataSetInfoExtractor(dataSetInfoExtractor),
                         typeExtractor, storageProcessor);
         final EncapsulatedOpenBISService authorizedLimsService =
-                new EncapsulatedOpenBISService(new SessionTokenManager(), limsService);
+                new EncapsulatedOpenBISService(new SessionTokenManager(), limsService,
+                        new PluginTaskProviders(new Properties()));
         authorizedLimsService.setUsername("u");
         authorizedLimsService.setPassword("p");
         handler =

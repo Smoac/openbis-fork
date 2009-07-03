@@ -27,10 +27,13 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
-import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
+import ch.systemsx.cisd.etlserver.plugin_tasks.framework.IReportingPluginTask;
+import ch.systemsx.cisd.etlserver.plugin_tasks.framework.PluginTaskProvider;
+import ch.systemsx.cisd.etlserver.plugin_tasks.framework.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableModel;
 
@@ -49,12 +52,14 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     private final MailClientParameters mailClientParameters;
 
+    private final PluginTaskProviders pluginTaskParameters;
+
     private File storeRoot;
 
     private IDataSetCommandExecutor commandExecuter;
 
     public DataStoreService(SessionTokenManager sessionTokenManager,
-            MailClientParameters mailClientParameters)
+            MailClientParameters mailClientParameters, PluginTaskProviders pluginTaskParameters)
     {
         this(sessionTokenManager, new IDataSetCommandExecutorFactory()
             {
@@ -62,16 +67,17 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
                 {
                     return new DataSetCommandExecuter(store);
                 }
-            }, mailClientParameters);
+            }, mailClientParameters, pluginTaskParameters);
     }
 
     DataStoreService(SessionTokenManager sessionTokenManager,
             IDataSetCommandExecutorFactory commandExecutorFactory,
-            MailClientParameters mailClientParameters)
+            MailClientParameters mailClientParameters, PluginTaskProviders pluginTaskParameters)
     {
         this.sessionTokenManager = sessionTokenManager;
         this.commandExecutorFactory = commandExecutorFactory;
         this.mailClientParameters = mailClientParameters;
+        this.pluginTaskParameters = pluginTaskParameters;
     }
 
     public final void setStoreRoot(File storeRoot)
@@ -173,10 +179,13 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         return new CIFEXRPCServiceFactory(cifexURL);
     }
 
-    public TableModel createReportFromDatasets(String reportingTaskId, List<String> datasetCodes)
+    public TableModel createReportFromDatasets(String reportingTaskId,
+            List<DatasetDescription> datasets)
     {
-        // TODO 2009-07-03, Tomasz Pylak: implement me
-        throw new NotImplementedException();
+        PluginTaskProvider<IReportingPluginTask> reportingPlugins =
+                pluginTaskParameters.getReportingPluginsProvider();
+        IReportingPluginTask task = reportingPlugins.createPluginInstance(reportingTaskId);
+        return task.createReport(datasets);
     }
 
 }

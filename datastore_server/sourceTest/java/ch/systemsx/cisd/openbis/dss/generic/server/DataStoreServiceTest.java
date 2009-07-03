@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -33,33 +34,38 @@ import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.etlserver.plugin_tasks.framework.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataStoreServiceTest extends AssertJUnit
 {
     private static final String INVALID_SESSION_TOKEN_MSG = "Invalid session token.";
+
     private static final String CIFEX_URL = "cifexURL";
+
     private static final File TEST_FOLDER = new File("targets/data-store-service-test");
+
     private static final File TEST_STORE = new File(TEST_FOLDER, "store");
-    
+
     private static final class MockDataStoreService extends DataStoreService
     {
         private final ICIFEXRPCServiceFactory cifexServiceFactory;
+
         private final String expectedCIFEXURL;
 
         MockDataStoreService(SessionTokenManager sessionTokenManager,
                 IDataSetCommandExecutorFactory commandExecutorFactory,
                 MailClientParameters mailClientParameters,
-                ICIFEXRPCServiceFactory cifexServiceFactory, String expectedCIFEXURL)
+                ICIFEXRPCServiceFactory cifexServiceFactory, String expectedCIFEXURL,
+                PluginTaskProviders pluginTaskParameters)
         {
-            super(sessionTokenManager, commandExecutorFactory, mailClientParameters);
+            super(sessionTokenManager, commandExecutorFactory, mailClientParameters,
+                    pluginTaskParameters);
             this.cifexServiceFactory = cifexServiceFactory;
             this.expectedCIFEXURL = expectedCIFEXURL;
         }
@@ -71,15 +77,24 @@ public class DataStoreServiceTest extends AssertJUnit
             return cifexServiceFactory;
         }
     }
-    
+
     private SessionTokenManager sessionTokenManager;
+
     private String sessionToken;
+
     private Mockery context;
+
     private IDataSetCommandExecutorFactory commandExecutorFactory;
+
     private IDataSetCommandExecutor commandExecutor;
+
     private ICIFEXRPCServiceFactory cifexServiceFactory;
+
     private MailClientParameters mailClientParameters;
+
     private ICIFEXRPCService cifexService;
+
+    private PluginTaskProviders pluginTaskParameters;
 
     @BeforeMethod
     public void setup()
@@ -95,9 +110,10 @@ public class DataStoreServiceTest extends AssertJUnit
         mailClientParameters.setFrom("a@bc.de");
         mailClientParameters.setSmtpHost("file://targets/email");
         FileUtilities.deleteRecursively(TEST_FOLDER);
+        pluginTaskParameters = new PluginTaskProviders(new Properties());
         TEST_STORE.mkdirs();
     }
-    
+
     @AfterMethod
     public void tearDown()
     {
@@ -105,7 +121,7 @@ public class DataStoreServiceTest extends AssertJUnit
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetVersionForInvalidSessionToken()
     {
@@ -117,18 +133,18 @@ public class DataStoreServiceTest extends AssertJUnit
         {
             assertEquals(INVALID_SESSION_TOKEN_MSG, e.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetVersion()
     {
         assertEquals(IDataStoreService.VERSION, createService().getVersion(sessionToken));
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetKnownDataSetsForInvalidSessionToken()
     {
@@ -140,24 +156,25 @@ public class DataStoreServiceTest extends AssertJUnit
         {
             assertEquals(INVALID_SESSION_TOKEN_MSG, e.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetKnownDataSets() throws IOException
     {
         String location = "ds1";
         new File(TEST_STORE, location).createNewFile();
-        
+
         IDataStoreService service = createService();
-        List<String> knownDataSets = service.getKnownDataSets(sessionToken, Arrays.asList(location, "ds2"));
-        
+        List<String> knownDataSets =
+                service.getKnownDataSets(sessionToken, Arrays.asList(location, "ds2"));
+
         assertEquals(1, knownDataSets.size());
         assertSame(location, knownDataSets.get(0));
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDeleteDataSetsForInvalidSessionToken()
     {
@@ -169,10 +186,10 @@ public class DataStoreServiceTest extends AssertJUnit
         {
             assertEquals(INVALID_SESSION_TOKEN_MSG, e.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDeleteDataSets()
     {
@@ -184,10 +201,10 @@ public class DataStoreServiceTest extends AssertJUnit
                 }
             });
         createService().deleteDataSets(sessionToken, locations);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testUploadDataSetsForInvalidSessionToken()
     {
@@ -199,7 +216,7 @@ public class DataStoreServiceTest extends AssertJUnit
         {
             assertEquals(INVALID_SESSION_TOKEN_MSG, e.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
 
@@ -230,10 +247,10 @@ public class DataStoreServiceTest extends AssertJUnit
         {
             assertEquals("User couldn't be authenticated at CIFEX.", e.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testUploadDataSets()
     {
@@ -247,20 +264,20 @@ public class DataStoreServiceTest extends AssertJUnit
                 {
                     one(cifexServiceFactory).createService();
                     will(returnValue(cifexService));
-                    
+
                     one(cifexService).login(uploadContext.getUserID(), uploadContext.getPassword());
                     will(returnValue("token"));
-                    
+
                     one(commandExecutor).scheduleUploadingDataSetsToCIFEX(cifexServiceFactory,
                             mailClientParameters, dataSets, uploadContext);
                 }
             });
-        
+
         createService().uploadDataSetsToCIFEX(sessionToken, dataSets, uploadContext);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     private IDataStoreService createService()
     {
         context.checking(new Expectations()
@@ -268,13 +285,13 @@ public class DataStoreServiceTest extends AssertJUnit
                 {
                     one(commandExecutorFactory).create(TEST_STORE);
                     will(returnValue(commandExecutor));
-                    
+
                     one(commandExecutor).start();
                 }
             });
         MockDataStoreService service =
-                new MockDataStoreService(sessionTokenManager, commandExecutorFactory, mailClientParameters,
-                        cifexServiceFactory, CIFEX_URL);
+                new MockDataStoreService(sessionTokenManager, commandExecutorFactory,
+                        mailClientParameters, cifexServiceFactory, CIFEX_URL, pluginTaskParameters);
         service.setStoreRoot(TEST_STORE);
         service.afterPropertiesSet();
         return service;

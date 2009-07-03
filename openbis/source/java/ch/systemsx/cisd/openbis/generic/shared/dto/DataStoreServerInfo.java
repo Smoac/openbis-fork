@@ -49,6 +49,8 @@ public class DataStoreServerInfo implements Serializable
 
     private String sessionToken;
 
+    private PluginTaskDescriptions pluginTaskDescriptions;
+
     public final int getPort()
     {
         return port;
@@ -89,4 +91,13 @@ public class DataStoreServerInfo implements Serializable
         this.sessionToken = sessionToken;
     }
 
+    public PluginTaskDescriptions getPluginTaskDescriptions()
+    {
+        return pluginTaskDescriptions;
+    }
+
+    public void setPluginTaskDescriptions(PluginTaskDescriptions pluginTaskDescriptions)
+    {
+        this.pluginTaskDescriptions = pluginTaskDescriptions;
+    }
 }

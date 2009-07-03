@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.util.Properties;
+
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
@@ -26,6 +28,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.etlserver.plugin_tasks.framework.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
@@ -102,7 +105,13 @@ public class EncapsulatedOpenBISServiceTest
                                             DataStoreServerInfo info = (DataStoreServerInfo) item;
                                             return DATA_STORE_CODE.equals(info.getDataStoreCode())
                                                     && DOWNLOAD_URL.equals(info.getDownloadUrl())
-                                                    && PORT == info.getPort();
+                                                    && PORT == info.getPort()
+                                                    && info.getPluginTaskDescriptions()
+                                                            .getProcessingPluginDescriptions()
+                                                            .size() == 0
+                                                    && info.getPluginTaskDescriptions()
+                                                            .getReportingPluginDescriptions()
+                                                            .size() == 0;
                                         }
                                         return false;
                                     }
@@ -115,7 +124,8 @@ public class EncapsulatedOpenBISServiceTest
                 }
             });
         encapsulatedLimsService =
-                new EncapsulatedOpenBISService(new SessionTokenManager(), limsService);
+                new EncapsulatedOpenBISService(new SessionTokenManager(), limsService,
+                        new PluginTaskProviders(new Properties()));
         encapsulatedLimsService.setUsername(LIMS_USER);
         encapsulatedLimsService.setPassword(LIMS_PASSWORD);
         encapsulatedLimsService.setDataStoreCode(DATA_STORE_CODE);

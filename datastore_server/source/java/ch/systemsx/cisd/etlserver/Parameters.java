@@ -23,7 +23,6 @@ import java.util.Properties;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.args4j.CmdLineException;
 import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.ExampleMode;
@@ -39,11 +38,7 @@ import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemExit;
-import ch.systemsx.cisd.etlserver.plugin_tasks.framework.IProcessingPluginTask;
-import ch.systemsx.cisd.etlserver.plugin_tasks.framework.IReportingPluginTask;
-import ch.systemsx.cisd.etlserver.plugin_tasks.framework.PluginTaskFactories;
-import ch.systemsx.cisd.etlserver.plugin_tasks.framework.ProcessingPluginTaskFactory;
-import ch.systemsx.cisd.etlserver.plugin_tasks.framework.ReportingPluginTaskFactory;
+import ch.systemsx.cisd.etlserver.plugin_tasks.framework.PluginTaskProviders;
 import ch.systemsx.cisd.etlserver.utils.PropertyParametersUtil;
 import ch.systemsx.cisd.etlserver.utils.PropertyParametersUtil.SectionProperties;
 
@@ -70,14 +65,6 @@ public class Parameters
 
     /** property with thread names separated by delimiter */
     private static final String INPUT_THREAD_NAMES = "inputs";
-
-    @Private
-    /* * property with repotring plugins names separated by delimiter */
-    static final String REPORTING_PLUGIN_NAMES = "reporting-plugins";
-
-    @Private
-    /* * property with processing plugins names separated by delimiter */
-    static final String PROCESSING_PLUGIN_NAMES = "processing-plugins";
 
     @Option(name = "s", longName = "server-url", metaVar = "URL", usage = "URL of the server")
     private String serverURL;
@@ -143,9 +130,7 @@ public class Parameters
 
     private final ThreadParameters[] threads;
 
-    private final PluginTaskFactories<IReportingPluginTask> reportingPlugins;
-
-    private final PluginTaskFactories<IProcessingPluginTask> processingPlugins;
+    private final PluginTaskProviders pluginsTasks;
 
     private final Map<String, Properties> processorProperties;
 
@@ -182,6 +167,12 @@ public class Parameters
         }
     }
 
+    /** used externally from spring configuration files */
+    public static PluginTaskProviders createPluginTaskParameters()
+    {
+        return new PluginTaskProviders(loadServiceProperties());
+    }
+
     Parameters(final String[] args)
     {
         this(args, SystemExit.SYSTEM_EXIT);
@@ -191,14 +182,13 @@ public class Parameters
     {
         try
         {
-            this.serviceProperties = PropertyUtils.loadProperties(SERVICE_PROPERTIES_FILE);
+            this.serviceProperties = loadServiceProperties();
             PropertyUtils.trimProperties(serviceProperties);
             this.processorProperties = extractProcessorProperties(serviceProperties);
             this.threads = createThreadParameters(serviceProperties);
             this.mailProperties = createMailProperties(serviceProperties);
             this.timingParameters = TimingParameters.create(serviceProperties);
-            this.reportingPlugins = createReportingPluginsFactories(serviceProperties);
-            this.processingPlugins = createProcessingPluginsFactories(serviceProperties);
+            this.pluginsTasks = new PluginTaskProviders(serviceProperties);
 
             initCommandLineParametersFromProperties();
 
@@ -213,14 +203,19 @@ public class Parameters
         }
     }
 
+    private static Properties loadServiceProperties()
+    {
+        return PropertyUtils.loadProperties(SERVICE_PROPERTIES_FILE);
+    }
+
     private void ensureParametersCorrect()
     {
         for (final ThreadParameters thread : threads)
         {
             thread.check();
         }
-        reportingPlugins.check();
-        processingPlugins.check();
+        pluginsTasks.check();
+
         if (serverURL == null)
         {
             throw new ConfigurationFailureException("No 'server-url' defined.");
@@ -257,43 +252,6 @@ public class Parameters
             }
         }
         return map;
-    }
-
-    @Private
-    static PluginTaskFactories<IReportingPluginTask> createReportingPluginsFactories(
-            Properties serviceProperties)
-    {
-        SectionProperties[] sectionsProperties =
-                extractSectionProperties(serviceProperties, REPORTING_PLUGIN_NAMES);
-        ReportingPluginTaskFactory[] factories =
-                new ReportingPluginTaskFactory[sectionsProperties.length];
-        for (int i = 0; i < factories.length; i++)
-        {
-            factories[i] = new ReportingPluginTaskFactory(sectionsProperties[i]);
-        }
-        return new PluginTaskFactories<IReportingPluginTask>(factories);
-    }
-
-    @Private
-    static PluginTaskFactories<IProcessingPluginTask> createProcessingPluginsFactories(
-            Properties serviceProperties)
-    {
-        SectionProperties[] sectionsProperties =
-                extractSectionProperties(serviceProperties, PROCESSING_PLUGIN_NAMES);
-        ProcessingPluginTaskFactory[] factories =
-                new ProcessingPluginTaskFactory[sectionsProperties.length];
-        for (int i = 0; i < factories.length; i++)
-        {
-            factories[i] = new ProcessingPluginTaskFactory(sectionsProperties[i]);
-        }
-        return new PluginTaskFactories<IProcessingPluginTask>(factories);
-    }
-
-    private static SectionProperties[] extractSectionProperties(Properties serviceProperties,
-            String namesListPropertyKey)
-    {
-        return PropertyParametersUtil.extractSectionProperties(serviceProperties,
-                namesListPropertyKey, false);
     }
 
     private static ThreadParameters[] createThreadParameters(final Properties serviceProperties)
@@ -441,8 +399,7 @@ public class Parameters
             {
                 threadParameters.log();
             }
-            processingPlugins.logConfigurations();
-            reportingPlugins.logConfigurations();
+            pluginsTasks.logConfigurations();
 
             operationLog.info(String.format("Check intervall: %d s.",
                     getCheckIntervalMillis() / 1000));

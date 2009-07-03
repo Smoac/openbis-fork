@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.plugin_tasks.framework;
+package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.File;
 
@@ -43,6 +43,12 @@ public class DatasetDescription
     public String getDatasetCode()
     {
         return datasetCode;
+    }
+
+    @Override
+    public String toString()
+    {
+        return String.format("Dataset '%s'", datasetCode);
     }
 
 }

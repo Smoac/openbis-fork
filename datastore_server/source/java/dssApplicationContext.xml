@@ -17,6 +17,8 @@
         <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
         <property name="ignoreUnresolvablePlaceholders" value="true" />
     </bean>
+    
+    <bean id="plugin-tasks" class="ch.systemsx.cisd.etlserver.Parameters" factory-method="createPluginTaskParameters"/>
 
     <bean id="openBIS-service" class="ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService">
         <constructor-arg ref="session-token-manager"/>
@@ -26,6 +28,7 @@
         <property name="port" value="${port}"/>
         <property name="downloadUrl" value="${download-url}"/>
         <property name="dataStoreCode" value="${data-store-server-code}"/>
+        <constructor-arg ref="plugin-tasks" />
     </bean>    
     
     <bean id="data-store-server"
@@ -41,6 +44,7 @@
                         <property name="smtpPassword" value="${mail.smtp.password}"/>
                     </bean>
                 </constructor-arg>
+                <constructor-arg ref="plugin-tasks" />
                 <property name="storeRoot" value="${storeroot-dir}"/>
             </bean>
         </property>

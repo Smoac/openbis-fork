@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
+import ch.systemsx.cisd.etlserver.plugin_tasks.framework.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
@@ -35,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PluginTaskDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -79,20 +81,25 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
 
     private DatabaseInstancePE homeDatabaseInstance;
 
-    public EncapsulatedOpenBISService(SessionTokenManager sessionTokenManager, String serverURL)
+    private PluginTaskDescriptions pluginTaskDescriptions;
+
+    public EncapsulatedOpenBISService(SessionTokenManager sessionTokenManager, String serverURL,
+            PluginTaskProviders pluginTaskParameters)
     {
         this(sessionTokenManager, HttpInvokerUtils.createServiceStub(IETLLIMSService.class,
-                serverURL + "/rmi-etl", 5));
+                serverURL + "/rmi-etl", 5), pluginTaskParameters);
     }
 
     public EncapsulatedOpenBISService(SessionTokenManager sessionTokenManager,
-            IETLLIMSService service)
+            IETLLIMSService service, PluginTaskProviders pluginTaskParameters)
     {
         assert sessionTokenManager != null : "Unspecified session token manager.";
         assert service != null : "Given IETLLIMSService implementation can not be null.";
+        assert pluginTaskParameters != null : "Unspecified plugin tasks";
 
         this.sessionTokenManager = sessionTokenManager;
         this.service = service;
+        this.pluginTaskDescriptions = pluginTaskParameters.getPluginTaskDescriptions();
     }
 
     public final void setPort(int port)
@@ -155,6 +162,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         dataStoreServerInfo.setDataStoreCode(dataStoreCode);
         dataStoreServerInfo.setDownloadUrl(downloadUrl);
         dataStoreServerInfo.setSessionToken(sessionTokenManager.drawSessionToken());
+        dataStoreServerInfo.setPluginTaskDescriptions(pluginTaskDescriptions);
         service.registerDataStoreServer(sessionToken, dataStoreServerInfo);
     }
 

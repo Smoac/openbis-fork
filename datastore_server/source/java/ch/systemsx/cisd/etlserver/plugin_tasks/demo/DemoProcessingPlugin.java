@@ -19,8 +19,8 @@ package ch.systemsx.cisd.etlserver.plugin_tasks.demo;
 import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.etlserver.plugin_tasks.framework.DatasetDescription;
 import ch.systemsx.cisd.etlserver.plugin_tasks.framework.IProcessingPluginTask;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
  * Processing plugin which can be used for demonstration purposes.
@@ -35,6 +35,6 @@ public class DemoProcessingPlugin implements IProcessingPluginTask
 
     public void process(List<DatasetDescription> datasets)
     {
-        // TODO 2009-07-03, Tomasz Pylak: implement me!
+        System.out.println("Processing of the following datasets has been requested: " + datasets);
     }
 }

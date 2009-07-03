@@ -25,15 +25,15 @@ import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
 
 /**
- * Stores plugin tasks factories of one type.
+ * Stores plugin tasks factories of one type (the one specified as a generic).
  * 
  * @author Tomasz Pylak
  */
-public class PluginTaskFactories<P>
+public class PluginTaskProvider<P>
 {
     private final TableMap<String, AbstractPluginTaskFactory<P>> factories;
 
-    public PluginTaskFactories(AbstractPluginTaskFactory<P>[] factories)
+    public PluginTaskProvider(AbstractPluginTaskFactory<P>[] factories)
     {
         this.factories =
                 new TableMap<String, AbstractPluginTaskFactory<P>>(Arrays.asList(factories),
