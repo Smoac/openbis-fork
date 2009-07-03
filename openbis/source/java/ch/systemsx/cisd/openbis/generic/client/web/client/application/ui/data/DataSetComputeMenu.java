@@ -247,8 +247,9 @@ public class DataSetComputeMenu extends TextToolItem
 
             if (data.getSelectedDataSets().size() > 0)
             {
-                formPanel.add(createInputRadio());
+                formPanel.add(createComputationDataSetsRadio());
                 selectedDataSetTypesText = formPanel.addText(createSelectedDataSetTypesText());
+                updateComputationDataSetsState();
             }
         }
 
@@ -262,7 +263,14 @@ public class DataSetComputeMenu extends TextToolItem
             }
 
             StringBuilder sb = new StringBuilder();
-            sb.append("Type(s) of selected Data Set(s): " + DOM.toString(DOM.createElement("br")));
+            if (codes.size() > 1)
+            {
+                sb.append("Types of selected Data Sets: ");
+            } else
+            {
+                sb.append("Type of selected Data Set: ");
+            }
+            sb.append(DOM.toString(DOM.createElement("br")));
             sb.append(StringUtils.joinList(codes));
             return sb.toString();
         }
@@ -277,7 +285,7 @@ public class DataSetComputeMenu extends TextToolItem
             return result;
         }
 
-        private final RadioGroup createInputRadio()
+        private final RadioGroup createComputationDataSetsRadio()
         {
             final RadioGroup result = new RadioGroup();
             result.setFieldLabel("Computation Data Sets");
@@ -287,17 +295,21 @@ public class DataSetComputeMenu extends TextToolItem
                 {
                     public void handleEvent(BaseEvent be)
                     {
-                        boolean showSelectedDataSetTypes = getComputeOnSelectedValue();
-                        selectedDataSetTypesText.setVisible(showSelectedDataSetTypes);
+                        updateComputationDataSetsState();
                     }
                 });
-
             computeOnAll = createRadio("all");
             computeOnSelected = createRadio("selected");
             result.add(computeOnAll);
             result.add(computeOnSelected);
             result.setValue(computeOnAll);
             return result;
+        }
+
+        private final void updateComputationDataSetsState()
+        {
+            boolean showSelectedDataSetTypes = getComputeOnSelectedValue();
+            selectedDataSetTypesText.setVisible(showSelectedDataSetTypes);
         }
 
         private final Radio createRadio(final String label)
