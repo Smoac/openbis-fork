@@ -25,11 +25,15 @@ import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
  */
 public class TopMenuItem extends TextToolItem
 {
+    public static final String ICON_STYLE = "icon-menu-show";
+
+    public static final String BUTTON_STYLE = "x-btn-top-menu";
 
     public TopMenuItem(String name)
     {
         super(name);
-        button.addStyleName("x-btn-top-menu");
+        setIconStyle(ICON_STYLE);
+        button.addStyleName(BUTTON_STYLE);
     }
 
 }

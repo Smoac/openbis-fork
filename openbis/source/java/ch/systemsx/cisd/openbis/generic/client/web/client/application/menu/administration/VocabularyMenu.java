@@ -36,7 +36,6 @@ public class VocabularyMenu extends MenuItem
     public VocabularyMenu(IMessageProvider messageProvider, ComponentProvider componentProvider)
     {
         super(messageProvider.getMessage(Dict.MENU_VOCABULARY));
-        setIconStyle(TopMenu.ICON_STYLE);
 
         Menu menu = new Menu();
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.VOCABULARY_MENU_BROWSE, messageProvider,

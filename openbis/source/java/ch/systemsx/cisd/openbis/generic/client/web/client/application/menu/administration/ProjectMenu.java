@@ -36,7 +36,6 @@ public class ProjectMenu extends MenuItem
     public ProjectMenu(IMessageProvider messageProvider, ComponentProvider componentProvider)
     {
         super(messageProvider.getMessage(Dict.MENU_PROJECT));
-        setIconStyle(TopMenu.ICON_STYLE);
 
         Menu menu = new Menu();
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.PROJECT_MENU_BROWSE, messageProvider,

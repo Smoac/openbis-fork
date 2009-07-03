@@ -36,7 +36,6 @@ public class SampleMenu extends TopMenuItem
     public SampleMenu(IMessageProvider messageProvider, ComponentProvider componentProvider)
     {
         super(messageProvider.getMessage(Dict.MENU_SAMPLE));
-        setIconStyle(TopMenu.ICON_STYLE);
 
         Menu menu = new Menu();
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE, messageProvider,

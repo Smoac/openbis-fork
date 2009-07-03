@@ -38,7 +38,6 @@ public class DataSetMenu extends TopMenuItem
     public DataSetMenu(final CommonViewContext viewContext, ComponentProvider componentProvider)
     {
         super(viewContext.getMessage(Dict.MENU_DATA_SET));
-        setIconStyle(TopMenu.ICON_STYLE);
 
         Menu menu = new Menu();
         IMessageProvider messageProvider = viewContext;

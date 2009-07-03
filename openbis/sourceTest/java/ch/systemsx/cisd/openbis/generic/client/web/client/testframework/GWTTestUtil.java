@@ -42,6 +42,7 @@ import com.extjs.gxt.ui.client.widget.menu.Item;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolItem;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.ComplexPanel;
@@ -51,8 +52,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PagingToolBarAdapter;
 
 /**
@@ -68,9 +68,9 @@ public final class GWTTestUtil
     }
 
     /**
-     * Clicks on the {@link ActionMenu} specified by {@link ActionMenuKind}.
+     * Clicks on the {@link ActionMenu} specified by {@link IActionMenuItem}.
      */
-    public static void selectTopActionMenu(final ActionMenuKind action)
+    public static void selectActionMenu(final IActionMenuItem action)
     {
         final String id = action.getMenuId();
         final Widget item = tryToFindByID(id);
@@ -331,9 +331,9 @@ public final class GWTTestUtil
             if (widget instanceof ComplexPanel)
             {
                 return new ComplexPanelHandler(this).handle((ComplexPanel) widget);
-            } else if (widget instanceof TopMenuItem)
+            } else if (widget instanceof TextToolItem)
             {
-                return new TopMenuItemHandler(this).handle((TopMenuItem) widget);
+                return new TextToolItemHandler(this).handle((TextToolItem) widget);
             } else if (widget instanceof MenuItem)
             {
                 return new MenuItemHandler(this).handle((MenuItem) widget);
@@ -401,12 +401,12 @@ public final class GWTTestUtil
         }
     }
 
-    /** Handle for handling {@link TopMenuItem} widget. */
-    private static final class TopMenuItemHandler implements IWidgetHandler<TopMenuItem>
+    /** Handle for handling {@link TextToolItem} widget. */
+    private static final class TextToolItemHandler implements IWidgetHandler<TextToolItem>
     {
         private final IWidgetHandler<Widget> handler;
 
-        TopMenuItemHandler(final IWidgetHandler<Widget> handler)
+        TextToolItemHandler(final IWidgetHandler<Widget> handler)
         {
             this.handler = handler;
         }
@@ -415,9 +415,9 @@ public final class GWTTestUtil
         // IWidgetHandler
         //
 
-        public final boolean handle(final TopMenuItem topMenuItem)
+        public final boolean handle(final TextToolItem menuItem)
         {
-            if (handler.handle(topMenuItem.getMenu()))
+            if (handler.handle(menuItem.getMenu()))
             {
                 return true;
             }

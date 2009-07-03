@@ -269,6 +269,10 @@ var common = {
   USER_MENU_CHANGE_HOME_GROUP: "Home Group",
   USER_MENU_LOGOUT: "Logout",
     
+  menu_compute: "Compute",
+  COMPUTE_MENU_QUERIES: "Queries",
+  COMPUTE_MENU_PROCESSING: "Processing",
+    
   //
   // Tab Titles
   //

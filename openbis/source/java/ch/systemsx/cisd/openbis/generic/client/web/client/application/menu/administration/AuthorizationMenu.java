@@ -36,7 +36,6 @@ public class AuthorizationMenu extends MenuItem
     public AuthorizationMenu(IMessageProvider messageProvider, ComponentProvider componentProvider)
     {
         super(messageProvider.getMessage(Dict.MENU_AUTHORIZATION));
-        setIconStyle(TopMenu.ICON_STYLE);
 
         Menu menu = new Menu();
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.AUTHORIZATION_MENU_USERS, messageProvider,

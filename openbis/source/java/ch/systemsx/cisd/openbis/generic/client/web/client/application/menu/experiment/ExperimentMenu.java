@@ -35,7 +35,6 @@ public class ExperimentMenu extends TopMenuItem
     public ExperimentMenu(IMessageProvider messageProvider, ComponentProvider componentProvider)
     {
         super(messageProvider.getMessage(Dict.MENU_EXPERIMENT));
-        setIconStyle(TopMenu.ICON_STYLE);
 
         Menu menu = new Menu();
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_BROWSE, messageProvider,

@@ -42,7 +42,6 @@ public final class LoggedUserMenu extends TopMenuItem
     public LoggedUserMenu(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(null); // menu title is set later
-        setIconStyle(TopMenu.ICON_STYLE);
         this.viewContext = viewContext;
 
         Menu menu = new Menu();

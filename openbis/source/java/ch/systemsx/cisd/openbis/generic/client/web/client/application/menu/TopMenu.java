@@ -47,8 +47,6 @@ public class TopMenu extends LayoutContainer
 {
     public static final String ID = GenericConstants.ID_PREFIX + "top-menu";
 
-    public static final String ICON_STYLE = "icon-menu-show";
-
     /** {@link ActionMenu} kind enum with names matching dictionary keys */
     public static enum ActionMenuKind implements IActionMenuItem
     {
@@ -56,7 +54,8 @@ public class TopMenu extends LayoutContainer
 
         AUTHORIZATION_MENU_USERS, AUTHORIZATION_MENU_ROLES,
 
-        DATA_SET_MENU_SEARCH, DATA_SET_MENU_TYPES, DATA_SET_MENU_FILE_FORMATS, DATA_SET_MENU_UPLOAD,
+        DATA_SET_MENU_SEARCH, DATA_SET_MENU_TYPES, DATA_SET_MENU_FILE_FORMATS,
+        DATA_SET_MENU_UPLOAD,
 
         EXPERIMENT_MENU_BROWSE, EXPERIMENT_MENU_NEW, EXPERIMENT_MENU_TYPES,
 

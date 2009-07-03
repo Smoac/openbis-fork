@@ -435,6 +435,8 @@ public abstract class Dict
 
     public static final String MENU_SAMPLE = "menu_sample";
 
+    public static final String MENU_COMPUTE = "menu_compute";
+
     //
     // Tab Titles
     //

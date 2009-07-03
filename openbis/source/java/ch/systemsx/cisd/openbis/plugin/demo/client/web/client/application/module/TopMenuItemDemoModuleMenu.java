@@ -25,7 +25,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.IDemoClientServiceAsync;
@@ -51,9 +50,8 @@ public class TopMenuItemDemoModuleMenu extends TopMenuItem
 
         public ITabItem create()
         {
-            return DefaultTabItem.create(viewContext
-                    .getMessage(Dict.STATISTICS_DEMO_TAB_HEADER), StatisticsWidget
-                    .create(viewContext), viewContext, false);
+            return DefaultTabItem.create(viewContext.getMessage(Dict.STATISTICS_DEMO_TAB_HEADER),
+                    StatisticsWidget.create(viewContext), viewContext, false);
         }
 
         public String getId()
@@ -81,7 +79,6 @@ public class TopMenuItemDemoModuleMenu extends TopMenuItem
     public TopMenuItemDemoModuleMenu(final IViewContext<IDemoClientServiceAsync> viewContext)
     {
         super(viewContext.getMessage(Dict.MODULE_MENU_TITLE));
-        setIconStyle(TopMenu.ICON_STYLE);
 
         Menu menu = new Menu();
         menu.add(new ActionMenu(ActionMenuKind.STATISTICS, viewContext,

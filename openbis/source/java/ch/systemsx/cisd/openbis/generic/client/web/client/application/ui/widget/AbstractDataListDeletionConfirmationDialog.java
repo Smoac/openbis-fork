@@ -41,7 +41,7 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
 
     public AbstractDataListDeletionConfirmationDialog(IMessageProvider messageProvider, List<T> data)
     {
-        super(messageProvider, data, Dict.DELETE_CONFIRMATION_TITLE);
+        super(messageProvider, data, messageProvider.getMessage(Dict.DELETE_CONFIRMATION_TITLE));
     }
 
     @Override

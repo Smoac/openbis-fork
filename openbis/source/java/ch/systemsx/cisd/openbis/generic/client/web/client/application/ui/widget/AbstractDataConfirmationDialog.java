@@ -40,12 +40,11 @@ public abstract class AbstractDataConfirmationDialog<T> extends Dialog
 
     protected final KeyListener keyListener;
 
-    protected AbstractDataConfirmationDialog(IMessageProvider messageProvider, T data,
-            String titleKey)
+    protected AbstractDataConfirmationDialog(IMessageProvider messageProvider, T data, String title)
     {
         this.messageProvider = messageProvider;
         this.data = data;
-        setHeading(messageProvider.getMessage(titleKey));
+        setHeading(title);
         setButtons(Dialog.OKCANCEL);
         setHideOnButtonClick(true);
         setModal(true);
@@ -59,8 +58,8 @@ public abstract class AbstractDataConfirmationDialog<T> extends Dialog
                 }
 
             };
-        extendForm();
         addText(createMessage());
+        extendForm();
         add(formPanel);
     }
 

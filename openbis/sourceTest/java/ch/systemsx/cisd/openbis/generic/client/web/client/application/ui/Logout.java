@@ -42,7 +42,7 @@ public class Logout extends AbstractDefaultTestCommand
 
     public void execute()
     {
-        GWTTestUtil.selectTopActionMenu(ActionMenuKind.USER_MENU_LOGOUT);
+        GWTTestUtil.selectActionMenu(ActionMenuKind.USER_MENU_LOGOUT);
     }
 
 }
