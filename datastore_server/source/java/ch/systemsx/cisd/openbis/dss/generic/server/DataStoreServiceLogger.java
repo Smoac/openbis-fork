@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableModel;
 
 /**
  * @author Franz-Josef Elmer
@@ -72,21 +73,21 @@ class DataStoreServiceLogger implements IDataStoreService
 
     public int getVersion(String sessionToken)
     {
-        log("get_version", "SESSION(%s)", sessionToken);
+        log("getVersion", "SESSION(%s)", sessionToken);
         return 0;
     }
 
     public List<String> getKnownDataSets(String sessionToken, List<String> dataSetLocations)
             throws InvalidAuthenticationException
     {
-        log("get_known_data_sets", "LOCATIONS(%s)", dataSetLocations);
+        log("getKnownDataSets", "LOCATIONS(%s)", dataSetLocations);
         return null;
     }
 
     public void deleteDataSets(String sessionToken, List<String> dataSetLocations)
             throws InvalidAuthenticationException
     {
-        log("delete_data_sets", "LOCATIONS(%s)", dataSetLocations);
+        log("deleteDataSets", "LOCATIONS(%s)", dataSetLocations);
     }
 
     public void uploadDataSetsToCIFEX(String sessionToken, List<ExternalDataPE> dataSets,
@@ -97,8 +98,15 @@ class DataStoreServiceLogger implements IDataStoreService
         {
             builder.append(' ').append(externalDataPE.getCode());
         }
-        log("upload_data_sets", "USER(%s) DATASETS(%s)", context.getUserID(), builder.toString()
-                .trim());
+        log("uploadDataSetsToCIFEX", "USER(%s) DATASETS(%s)", context.getUserID(), builder
+                .toString().trim());
+    }
+
+    public TableModel createReportFromDatasets(String reportingTaskId, List<String> datasetCodes)
+    {
+        log("createReportFromDatasets", "reportingTaskId(%s) DATASETS(%s)", reportingTaskId,
+                datasetCodes);
+        return null;
     }
 
 }

@@ -16,15 +16,14 @@
 
 package ch.systemsx.cisd.etlserver;
 
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.args4j.CmdLineException;
 import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.ExampleMode;
@@ -40,6 +39,13 @@ import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemExit;
+import ch.systemsx.cisd.etlserver.plugin_tasks.framework.IProcessingPluginTask;
+import ch.systemsx.cisd.etlserver.plugin_tasks.framework.IReportingPluginTask;
+import ch.systemsx.cisd.etlserver.plugin_tasks.framework.PluginTaskFactories;
+import ch.systemsx.cisd.etlserver.plugin_tasks.framework.ProcessingPluginTaskFactory;
+import ch.systemsx.cisd.etlserver.plugin_tasks.framework.ReportingPluginTaskFactory;
+import ch.systemsx.cisd.etlserver.utils.PropertyParametersUtil;
+import ch.systemsx.cisd.etlserver.utils.PropertyParametersUtil.SectionProperties;
 
 /**
  * The class to process the command line parameters and service properties.
@@ -62,10 +68,16 @@ public class Parameters
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, Parameters.class);
 
-    /** property with thread names separated by {@link #ITEMS_DELIMITER} */
+    /** property with thread names separated by delimiter */
     private static final String INPUT_THREAD_NAMES = "inputs";
 
-    private static final String ITEMS_DELIMITER = ",";
+    @Private
+    /* * property with repotring plugins names separated by delimiter */
+    static final String REPORTING_PLUGIN_NAMES = "reporting-plugins";
+
+    @Private
+    /* * property with processing plugins names separated by delimiter */
+    static final String PROCESSING_PLUGIN_NAMES = "processing-plugins";
 
     @Option(name = "s", longName = "server-url", metaVar = "URL", usage = "URL of the server")
     private String serverURL;
@@ -118,20 +130,24 @@ public class Parameters
     private boolean reprocessFaultyDatasets;
 
     /** A subset of <code>service.properties</code> that are reserved for the <i>JavaMail API</i>. */
-    private Properties mailProperties;
+    private final Properties mailProperties;
 
     /**
      * The command line parser.
      */
     private final CmdLineParser parser = new CmdLineParser(this);
 
-    private TimingParameters timingParameters;
+    private final TimingParameters timingParameters;
 
-    private Properties serviceProperties;
+    private final Properties serviceProperties;
 
-    private ThreadParameters[] threads;
+    private final ThreadParameters[] threads;
 
-    private Map<String, Properties> processorProperties;
+    private final PluginTaskFactories<IReportingPluginTask> reportingPlugins;
+
+    private final PluginTaskFactories<IProcessingPluginTask> processingPlugins;
+
+    private final Map<String, Properties> processorProperties;
 
     @Option(longName = "help", skipForExample = true, usage = "Prints out a description of the options.")
     void printHelp(final boolean exit)
@@ -175,17 +191,19 @@ public class Parameters
     {
         try
         {
-            initParametersFromProperties();
+            this.serviceProperties = PropertyUtils.loadProperties(SERVICE_PROPERTIES_FILE);
+            PropertyUtils.trimProperties(serviceProperties);
+            this.processorProperties = extractProcessorProperties(serviceProperties);
+            this.threads = createThreadParameters(serviceProperties);
+            this.mailProperties = createMailProperties(serviceProperties);
+            this.timingParameters = TimingParameters.create(serviceProperties);
+            this.reportingPlugins = createReportingPluginsFactories(serviceProperties);
+            this.processingPlugins = createProcessingPluginsFactories(serviceProperties);
+
+            initCommandLineParametersFromProperties();
 
             parser.parseArgument(args);
-            for (final ThreadParameters thread : threads)
-            {
-                thread.check();
-            }
-            if (serverURL == null)
-            {
-                throw new ConfigurationFailureException("No 'server-url' defined.");
-            }
+            ensureParametersCorrect();
         } catch (final Exception ex)
         {
             outputException(ex);
@@ -195,12 +213,22 @@ public class Parameters
         }
     }
 
-    private void initParametersFromProperties()
+    private void ensureParametersCorrect()
     {
-        serviceProperties = PropertyUtils.loadProperties(SERVICE_PROPERTIES_FILE);
-        PropertyUtils.trimProperties(serviceProperties);
-        processorProperties = extractProcessorProperties(serviceProperties);
-        threads = createThreadParameters(serviceProperties);
+        for (final ThreadParameters thread : threads)
+        {
+            thread.check();
+        }
+        reportingPlugins.check();
+        processingPlugins.check();
+        if (serverURL == null)
+        {
+            throw new ConfigurationFailureException("No 'server-url' defined.");
+        }
+    }
+
+    private void initCommandLineParametersFromProperties()
+    {
         serverURL = serviceProperties.getProperty("server-url");
         username = serviceProperties.getProperty("username");
         password = serviceProperties.getProperty("password");
@@ -212,8 +240,6 @@ public class Parameters
         quietPeriodMillis = Long.parseLong(serviceProperties.getProperty(QUIET_PERIOD_NAME, "300"));
         shutdownTimeOutSeconds =
                 Long.parseLong(serviceProperties.getProperty("shutdown-timeout", "30"));
-        mailProperties = createMailProperties(serviceProperties);
-        timingParameters = TimingParameters.create(serviceProperties);
     }
 
     private static Map<String, Properties> extractProcessorProperties(final Properties properties)
@@ -222,7 +248,8 @@ public class Parameters
         final String processors = properties.getProperty("processors");
         if (processors != null)
         {
-            final String[] procedureTypes = processors.split(ITEMS_DELIMITER);
+            final String[] procedureTypes =
+                    processors.split(PropertyParametersUtil.ITEMS_DELIMITER);
             for (final String procedureType : procedureTypes)
             {
                 final String prefix = "processor." + procedureType + ".";
@@ -232,75 +259,69 @@ public class Parameters
         return map;
     }
 
+    @Private
+    static PluginTaskFactories<IReportingPluginTask> createReportingPluginsFactories(
+            Properties serviceProperties)
+    {
+        SectionProperties[] sectionsProperties =
+                extractSectionProperties(serviceProperties, REPORTING_PLUGIN_NAMES);
+        ReportingPluginTaskFactory[] factories =
+                new ReportingPluginTaskFactory[sectionsProperties.length];
+        for (int i = 0; i < factories.length; i++)
+        {
+            factories[i] = new ReportingPluginTaskFactory(sectionsProperties[i]);
+        }
+        return new PluginTaskFactories<IReportingPluginTask>(factories);
+    }
+
+    @Private
+    static PluginTaskFactories<IProcessingPluginTask> createProcessingPluginsFactories(
+            Properties serviceProperties)
+    {
+        SectionProperties[] sectionsProperties =
+                extractSectionProperties(serviceProperties, PROCESSING_PLUGIN_NAMES);
+        ProcessingPluginTaskFactory[] factories =
+                new ProcessingPluginTaskFactory[sectionsProperties.length];
+        for (int i = 0; i < factories.length; i++)
+        {
+            factories[i] = new ProcessingPluginTaskFactory(sectionsProperties[i]);
+        }
+        return new PluginTaskFactories<IProcessingPluginTask>(factories);
+    }
+
+    private static SectionProperties[] extractSectionProperties(Properties serviceProperties,
+            String namesListPropertyKey)
+    {
+        return PropertyParametersUtil.extractSectionProperties(serviceProperties,
+                namesListPropertyKey, false);
+    }
+
     private static ThreadParameters[] createThreadParameters(final Properties serviceProperties)
     {
-        final String threadNames = serviceProperties.getProperty(INPUT_THREAD_NAMES);
-        if (threadNames == null)
+        SectionProperties[] sectionsProperties =
+                PropertyParametersUtil.extractSectionProperties(serviceProperties,
+                        INPUT_THREAD_NAMES, true);
+        if (sectionsProperties.length == 0)
         {
             // backward compatibility mode - no prefixes before thread properties, one thread only
             return new ThreadParameters[]
                 { new ThreadParameters(serviceProperties, "default") };
         } else
         {
-            final String[] names = threadNames.split(ITEMS_DELIMITER);
-            validateThreadNames(names);
-            return createThreadParameters(names, serviceProperties);
+            return asThreadParameters(sectionsProperties);
         }
     }
 
-    private static ThreadParameters[] createThreadParameters(final String[] names,
-            final Properties serviceProperties)
+    private static ThreadParameters[] asThreadParameters(SectionProperties[] sectionProperties)
     {
-        final ThreadParameters[] threadParameters = new ThreadParameters[names.length];
-        final Properties generalProperties =
-                removeThreadSpecificProperties(names, serviceProperties);
-        for (int i = 0; i < names.length; i++)
+        final ThreadParameters[] threadParameters = new ThreadParameters[sectionProperties.length];
+        for (int i = 0; i < threadParameters.length; i++)
         {
-            final String name = names[i].trim();
-            if (operationLog.isInfoEnabled())
-            {
-                operationLog.info("Create parameters for thread '" + name + "'.");
-            }
-            // extract thread specific properties, remove prefix
-            final ExtendedProperties threadProperties =
-                    ExtendedProperties.getSubset(serviceProperties, getPropertyPrefix(name), true);
-            threadProperties.putAll(generalProperties); // add all general properties
-            threadParameters[i] = new ThreadParameters(threadProperties, name);
+            SectionProperties section = sectionProperties[i];
+            operationLog.info("Create parameters for thread '" + section.getKey() + "'.");
+            threadParameters[i] = new ThreadParameters(section.getProperties(), section.getKey());
         }
         return threadParameters;
-    }
-
-    private static Properties removeThreadSpecificProperties(final String[] names,
-            final Properties properties)
-    {
-        final ExtendedProperties generalProperties = ExtendedProperties.createWith(properties);
-        for (final String name : names)
-        {
-            generalProperties.removeSubset(getPropertyPrefix(name));
-        }
-        return generalProperties;
-    }
-
-    private static String getPropertyPrefix(final String name)
-    {
-        return name + ".";
-    }
-
-    private static void validateThreadNames(final String[] names)
-    {
-        final Set<String> processed = new HashSet<String>();
-        for (final String name : names)
-        {
-            if (processed.contains(name))
-            {
-                throw new ConfigurationFailureException("Duplicated thread name: " + name);
-            }
-            if (name.length() == 0)
-            {
-                throw new ConfigurationFailureException("Thread name:cannot be empty!");
-            }
-            processed.add(name);
-        }
     }
 
     private final static Properties createMailProperties(final Properties serviceProperties)
@@ -420,6 +441,9 @@ public class Parameters
             {
                 threadParameters.log();
             }
+            processingPlugins.logConfigurations();
+            reportingPlugins.logConfigurations();
+
             operationLog.info(String.format("Check intervall: %d s.",
                     getCheckIntervalMillis() / 1000));
             operationLog

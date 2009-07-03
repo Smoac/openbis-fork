@@ -21,10 +21,11 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableModel;
 
 /**
  * Service interface of Data Store Server.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IDataStoreService
@@ -36,25 +37,23 @@ public interface IDataStoreService
     public static final int VERSION = 1; // for release S51
 
     /**
-     * Returns the version of this service. 
+     * Returns the version of this service.
      * 
      * @param sessionToken Valid token to identify authorised access.
      * @return {@link #VERSION}
-     * 
      * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
      */
     public int getVersion(String sessionToken) throws InvalidAuthenticationException;
-    
+
     /**
      * Returns from the specified data set locations those locations known by the Data Store Server.
      * 
      * @param sessionToken Valid token to identify authorised access.
-     * 
      * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
      */
     public List<String> getKnownDataSets(String sessionToken, List<String> dataSetLocations)
             throws InvalidAuthenticationException;
-    
+
     /**
      * Deletes the specified data sets.
      * 
@@ -63,7 +62,7 @@ public interface IDataStoreService
      */
     public void deleteDataSets(String sessionToken, List<String> dataSetLocations)
             throws InvalidAuthenticationException;
-    
+
     /**
      * Uploads the specified data sets to CIFEX.
      * 
@@ -73,4 +72,7 @@ public interface IDataStoreService
      */
     public void uploadDataSetsToCIFEX(String sessionToken, List<ExternalDataPE> dataSets,
             DataSetUploadContext context) throws InvalidAuthenticationException;
+
+    /** Runs the reporting task with the specified id for provided dataset codes */
+    public TableModel createReportFromDatasets(String reportingTaskId, List<String> datasetCodes);
 }
