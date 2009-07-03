@@ -1,0 +1,50 @@
+/*
+ * Copyright 2008 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
+
+import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.ModelData;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
+
+/**
+ * {@link ModelData} for {@link PluginTaskDescription}.
+ * 
+ * @author Piotr Buczek
+ */
+public class PluginTaskDescriptionModel extends BaseModelData
+{
+
+    private static final long serialVersionUID = 1L;
+
+    public PluginTaskDescriptionModel()
+    {
+    }
+
+    public PluginTaskDescriptionModel(final PluginTaskDescription p)
+    {
+        set(ModelDataPropertyNames.OBJECT, p);
+        set(ModelDataPropertyNames.LABEL, p.getLabel());
+        set(ModelDataPropertyNames.DATA_SET_TYPES, StringUtils.join(p.getDatasetTypeCodes(), ", "));
+    }
+
+    public final PluginTaskDescription getBaseObject()
+    {
+        return get(ModelDataPropertyNames.OBJECT);
+    }
+}

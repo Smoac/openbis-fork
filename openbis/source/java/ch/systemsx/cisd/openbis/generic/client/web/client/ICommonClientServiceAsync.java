@@ -59,6 +59,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
@@ -481,5 +483,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#updateAttachment(TechId, AttachmentHolderKind, Attachment) */
     public void updateAttachment(TechId holderId, AttachmentHolderKind holderKind,
             Attachment attachment, AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#listPluginTaskDescriptions(PluginTaskKind) */
+    public void listPluginTaskDescriptions(PluginTaskKind pluginTaskKind,
+            AsyncCallback<List<PluginTaskDescription>> callback);
 
 }

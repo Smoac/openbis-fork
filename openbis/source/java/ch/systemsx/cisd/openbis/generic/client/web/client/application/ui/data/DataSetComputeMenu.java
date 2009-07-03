@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
@@ -34,7 +35,9 @@ import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.google.gwt.user.client.DOM;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
@@ -45,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Strin
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskKind;
 
 /**
  * 'Compute' menu for Data Sets.
@@ -53,29 +57,43 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
  */
 public class DataSetComputeMenu extends TextToolItem
 {
-    private final IMessageProvider messageProvider;
+
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private final IDelegatedActionWithResult<List<ExternalData>> getSelectedDataSetsAction;
 
-    public DataSetComputeMenu(IMessageProvider messageProvider,
+    public DataSetComputeMenu(IViewContext<ICommonClientServiceAsync> viewContext,
             IDelegatedActionWithResult<List<ExternalData>> getSelectedDataSetsAction)
     {
-        super(messageProvider.getMessage(Dict.MENU_COMPUTE));
-        this.messageProvider = messageProvider;
+        super(viewContext.getMessage(Dict.MENU_COMPUTE));
+        this.viewContext = viewContext;
         this.getSelectedDataSetsAction = getSelectedDataSetsAction;
 
         Menu menu = new Menu();
-        addMenuItem(menu, ActionMenuKind.COMPUTE_MENU_QUERIES);
-        addMenuItem(menu, ActionMenuKind.COMPUTE_MENU_PROCESSING);
+        addMenuItem(menu, PluginTaskActionMenuKind.COMPUTE_MENU_QUERIES);
+        addMenuItem(menu, PluginTaskActionMenuKind.COMPUTE_MENU_PROCESSING);
         setMenu(menu);
     }
 
     //
 
     /** {@link ActionMenu} kind enum with names matching dictionary keys */
-    public static enum ActionMenuKind implements IActionMenuItem
+    public static enum PluginTaskActionMenuKind implements IActionMenuItem
     {
-        COMPUTE_MENU_QUERIES, COMPUTE_MENU_PROCESSING;
+        COMPUTE_MENU_QUERIES(PluginTaskKind.QUERIES), COMPUTE_MENU_PROCESSING(
+                PluginTaskKind.PROCESSING);
+
+        private final PluginTaskKind pluginTaskKind;
+
+        PluginTaskActionMenuKind(PluginTaskKind pluginTaskKind)
+        {
+            this.pluginTaskKind = pluginTaskKind;
+        }
+
+        public PluginTaskKind getPluginTaskKind()
+        {
+            return pluginTaskKind;
+        }
 
         public String getMenuId()
         {
@@ -88,50 +106,50 @@ public class DataSetComputeMenu extends TextToolItem
         }
     }
 
-    private final void addMenuItem(Menu menu, ActionMenuKind menuItemKind)
+    private final void addMenuItem(Menu menu, PluginTaskActionMenuKind menuItemKind)
     {
         final IDelegatedAction menuItemAction =
-                createComputeMenuAction(menuItemKind.getMenuText(messageProvider));
-        menu.add(new ActionMenu(menuItemKind, messageProvider, menuItemAction));
+                createComputeMenuAction(menuItemKind.getPluginTaskKind());
+        menu.add(new ActionMenu(menuItemKind, viewContext, menuItemAction));
     }
 
-    private IDelegatedAction createComputeMenuAction(final String computationName)
+    private IDelegatedAction createComputeMenuAction(final PluginTaskKind pluginTaskKind)
     {
         return new IDelegatedAction()
             {
 
                 public void execute()
                 {
-                    List<PluginTaskDescription> plugins = getPlugins();
-                    List<ExternalData> selectedDataSets = getSelectedDataSetsAction.execute();
-                    createPerformComputationDialog(plugins, selectedDataSets, null).show();
-                }
-
-                private List<PluginTaskDescription> getPlugins()
-                {
-                    List<PluginTaskDescription> plugins = new ArrayList<PluginTaskDescription>();
-                    // TODO fill with plugins from server
-                    String[] testDataSetTypeCodes =
-                        { "UNKNOWN", "HCS_IMAGE", "HCS_IMAGE_ANALYSIS_DATA" };
-                    plugins.add(new PluginTaskDescription("key1", "label1", new String[]
-                        { testDataSetTypeCodes[0], testDataSetTypeCodes[1] }));
-                    plugins.add(new PluginTaskDescription("key2", "label2", new String[]
-                        { testDataSetTypeCodes[1], testDataSetTypeCodes[2] }));
-                    plugins.add(new PluginTaskDescription("key3", "label3", new String[]
-                        { testDataSetTypeCodes[2], testDataSetTypeCodes[0] }));
-                    return plugins;
-                }
-
-                private Window createPerformComputationDialog(
-                        final List<PluginTaskDescription> plugins,
-                        final List<ExternalData> selectedDataSets,
-                        final IComputationAction computationAction)
-                {
-                    final String title = "Perform " + computationName + " Computation";
+                    final List<ExternalData> selectedDataSets = getSelectedDataSetsAction.execute();
+                    final IComputationAction computationAction =
+                            createComputationAction(selectedDataSets);
                     final ComputationData data =
-                            new ComputationData(computationName, computationAction,
-                                    selectedDataSets, plugins);
-                    return new PerformComputationDialog(messageProvider, data, title);
+                            new ComputationData(pluginTaskKind, computationAction, selectedDataSets);
+                    createPerformComputationDialog(data).show();
+                }
+
+                private Window createPerformComputationDialog(ComputationData data)
+                {
+                    final String title =
+                            "Perform " + pluginTaskKind.getDescription() + " Computation";
+                    return new PerformComputationDialog(viewContext, data, title);
+                }
+
+                private IComputationAction createComputationAction(
+                        List<ExternalData> selectedDataSets)
+                {
+                    return new IComputationAction()
+                        {
+                            public void execute(PluginTaskDescription pluginTask,
+                                    boolean computeOnSelected)
+                            {
+                                final String title =
+                                        "Mock " + pluginTaskKind.getDescription() + "execution";
+                                final String msg =
+                                        pluginTaskKind.getDescription() + ": " + pluginTask;
+                                MessageBox.info(title, msg, null);
+                            }
+                        };
                 }
 
             };
@@ -139,27 +157,24 @@ public class DataSetComputeMenu extends TextToolItem
 
     private class ComputationData
     {
-        private final String computationName;
+        private final PluginTaskKind pluginTaskKind;
 
         private final IComputationAction computationAction;
 
         private final List<ExternalData> selectedDataSets;
 
-        private final List<PluginTaskDescription> plugins;
-
-        public ComputationData(String computationName, IComputationAction computationAction,
-                List<ExternalData> selectedDataSets, List<PluginTaskDescription> plugins)
+        public ComputationData(PluginTaskKind pluginTaskKind, IComputationAction computationAction,
+                List<ExternalData> selectedDataSets)
         {
             super();
-            this.computationName = computationName;
+            this.pluginTaskKind = pluginTaskKind;
             this.computationAction = computationAction;
             this.selectedDataSets = selectedDataSets;
-            this.plugins = plugins;
         }
 
-        public String getComputationName()
+        public PluginTaskKind getPluginTaskKind()
         {
-            return computationName;
+            return pluginTaskKind;
         }
 
         public IComputationAction getComputationAction()
@@ -172,10 +187,6 @@ public class DataSetComputeMenu extends TextToolItem
             return selectedDataSets;
         }
 
-        public List<PluginTaskDescription> getPlugins()
-        {
-            return plugins;
-        }
     }
 
     private class PerformComputationDialog extends AbstractDataConfirmationDialog<ComputationData>
@@ -191,35 +202,37 @@ public class DataSetComputeMenu extends TextToolItem
 
         private Html selectedDataSetTypesText;
 
-        protected PerformComputationDialog(IMessageProvider messageProvider, ComputationData data,
-                String title)
+        private PluginTasksView pluginTasksGrid;
+
+        protected PerformComputationDialog(IViewContext<ICommonClientServiceAsync> messageProvider,
+                ComputationData data, String title)
         {
             super(messageProvider, data, title);
-            setWidth(LABEL_WIDTH + FIELD_WIDTH + 50);
+            setWidth(420);
         }
 
         @Override
         protected String createMessage()
         {
             int size = data.getSelectedDataSets().size();
-            String computationName = data.getComputationName();
+            String computationName = data.getPluginTaskKind().getDescription();
             // TODO 2009-07-03, Piotr Buczek: externalize to dictionary with parameters
             switch (size)
             {
                 case 0:
-                    return "No Data Sets were selected. " + "Select a plugin to perform "
+                    return "No Data Sets were selected. " + "Select a plugin task to perform "
                             + computationName + " computation on all Data Sets "
                             + "of appropriate types and click on Run button.";
                 case 1:
                     return "Select between performing " + computationName
                             + " computation only on selected Data Set "
                             + "or on all Data Sets of appropriate types, "
-                            + "then select a plugin and click on Run button.";
+                            + "then select a plugin task and click on Run button.";
                 default:
                     return "Select between performing " + computationName + " computation only on "
                             + size
                             + "selected Data Sets or on all Data Sets of appropriate types, "
-                            + "then select a plugin and click on Run button.";
+                            + "then select a plugin task and click on Run button.";
             }
         }
 
@@ -227,9 +240,15 @@ public class DataSetComputeMenu extends TextToolItem
         protected void executeConfirmedAction()
         {
             final IComputationAction computationAction = data.getComputationAction();
-            final List<PluginTaskDescription> plugins = data.getPlugins();
-            computationAction.execute(plugins.get(0), getComputeOnSelectedValue(), data
-                    .getSelectedDataSets());
+            final PluginTaskDescription selectedPluginTask = getSelectedPluginTask();
+            computationAction.execute(selectedPluginTask, getComputeOnSelectedValue());
+        }
+
+        private PluginTaskDescription getSelectedPluginTask()
+        {
+            PluginTaskDescription selectedPluginOrNull = pluginTasksGrid.tryGetSelectedItem();
+            assert selectedPluginOrNull == null : "no plugin selected!";
+            return selectedPluginOrNull;
         }
 
         private boolean getComputeOnSelectedValue()
@@ -251,6 +270,9 @@ public class DataSetComputeMenu extends TextToolItem
                 selectedDataSetTypesText = formPanel.addText(createSelectedDataSetTypesText());
                 updateComputationDataSetsState();
             }
+
+            pluginTasksGrid = new PluginTasksView(viewContext, data.getPluginTaskKind());
+            formPanel.add(pluginTasksGrid);
         }
 
         private final String createSelectedDataSetTypesText()
@@ -323,8 +345,7 @@ public class DataSetComputeMenu extends TextToolItem
 
     private static interface IComputationAction
     {
-        void execute(PluginTaskDescription plugin, boolean computeOnSelected,
-                List<ExternalData> selectedDataSets);
+        void execute(PluginTaskDescription pluginTask, boolean computeOnSelected);
     }
 
 }

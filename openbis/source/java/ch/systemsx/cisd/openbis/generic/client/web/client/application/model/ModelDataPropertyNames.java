@@ -38,6 +38,10 @@ public final class ModelDataPropertyNames
 {
     public static final String CODE = "code";
 
+    public static final String LABEL = "label";
+
+    public static final String DATA_SET_TYPES = "data_set_types";
+
     public static final String FILE_NAME = "fileName";
 
     public static final String VERSION = "version";

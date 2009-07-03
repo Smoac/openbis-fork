@@ -16,18 +16,26 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
  * Description of one datastore server plugin task: key, label, dataset type codes.
  * 
  * @author Tomasz Pylak
  */
-public class PluginTaskDescription
+public class PluginTaskDescription implements IsSerializable
 {
-    private final String key;
+    private String key;
 
-    private final String label;
+    private String label;
 
-    private final String[] datasetTypeCodes;
+    private String[] datasetTypeCodes;
+
+    @SuppressWarnings("unused")
+    // for serialization
+    private PluginTaskDescription()
+    {
+    }
 
     public PluginTaskDescription(String key, String label, String[] datasetTypeCodes)
     {
@@ -52,5 +60,47 @@ public class PluginTaskDescription
     public String[] getDatasetTypeCodes()
     {
         return datasetTypeCodes;
+    }
+
+    // for serialization
+
+    @SuppressWarnings("unused")
+    private void setKey(String key)
+    {
+        this.key = key;
+    }
+
+    @SuppressWarnings("unused")
+    private void setLabel(String label)
+    {
+        this.label = label;
+    }
+
+    @SuppressWarnings("unused")
+    private void setDatasetTypeCodes(String[] datasetTypeCodes)
+    {
+        this.datasetTypeCodes = datasetTypeCodes;
+    }
+
+    //
+    // Object
+    //
+
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<");
+        sb.append(getKey());
+        sb.append("; ");
+        sb.append(getLabel());
+        sb.append("; ");
+        for (String code : getDatasetTypeCodes())
+        {
+            sb.append(code);
+            sb.append(", ");
+        }
+        sb.append(">");
+        return sb.toString();
     }
 }

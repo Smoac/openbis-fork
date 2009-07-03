@@ -35,6 +35,7 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
     DATA_SET_SEARCH_RESULT_GRID("data-set-search-result-grid"),
     PROJECT_BROWSER_GRID("project-browser-grid"),
     PERSON_BROWSER_GRID("person-browser-grid"),
+    PLUGIN_TASKS_BROWSER_GRID("plugin-tasks-browser-grid"),
     GROUPS_BROWSER_GRID("group-browser-grid"),
     ROLE_ASSIGNMENT_BROWSER_GRID("role-assignment-browser-grid"),
     PROPERTY_TYPE_BROWSER_GRID("property-type-browser-grid"),
