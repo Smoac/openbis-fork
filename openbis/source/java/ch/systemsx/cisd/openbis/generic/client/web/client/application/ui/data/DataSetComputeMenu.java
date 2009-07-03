@@ -147,7 +147,7 @@ public class DataSetComputeMenu extends TextToolItem
                                     boolean computeOnSelected)
                             {
                                 final String title =
-                                        "Mock " + pluginTaskKind.getDescription() + "execution";
+                                        "Mock " + pluginTaskKind.getDescription() + " execution";
                                 final String msg =
                                         pluginTaskKind.getDescription() + ": " + pluginTask;
                                 MessageBox.info(title, msg, null);
@@ -252,7 +252,7 @@ public class DataSetComputeMenu extends TextToolItem
         private PluginTaskDescription getSelectedPluginTask()
         {
             PluginTaskDescription selectedPluginOrNull = pluginTasksGrid.tryGetSelectedItem();
-            assert selectedPluginOrNull == null : "no plugin selected!";
+            assert selectedPluginOrNull != null : "no plugin selected!";
             return selectedPluginOrNull;
         }
 

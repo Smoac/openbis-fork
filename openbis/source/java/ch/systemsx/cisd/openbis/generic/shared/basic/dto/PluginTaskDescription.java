@@ -90,7 +90,7 @@ public class PluginTaskDescription implements IsSerializable
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append("<");
+        sb.append("[");
         sb.append(getKey());
         sb.append("; ");
         sb.append(getLabel());
@@ -100,7 +100,7 @@ public class PluginTaskDescription implements IsSerializable
             sb.append(code);
             sb.append(", ");
         }
-        sb.append(">");
+        sb.append("]");
         return sb.toString();
     }
 }
