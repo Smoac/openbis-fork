@@ -50,6 +50,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Bernd Rinn
  */
+// TODO 2009-07-03, Tomasz Pylak: remove all the setters which are used to configure this class,
+// only methods which contact openbis server should be public. Create a separate class which
+// describes this class configuration and move all appropriate setters there.
 public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISService, FactoryBean
 {
 
