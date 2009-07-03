@@ -19,18 +19,20 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Text;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -41,11 +43,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PluginTaskDescriptionModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskKind;
-import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.Dict;
 
 /**
  * Implements {@link PluginTaskDescription} listing functionality.
@@ -68,6 +68,9 @@ public class PluginTasksView extends ContentPanel
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
+    private final List<Listener<SelectionEvent<ModelData>>> gridSelectionChangedListeners =
+            new ArrayList<Listener<SelectionEvent<ModelData>>>();
+
     private final PluginTaskKind pluginTaskKind;
 
     private Grid<PluginTaskDescriptionModel> grid;
@@ -79,7 +82,7 @@ public class PluginTasksView extends ContentPanel
         this.pluginTaskKind = pluginTaskKind;
         setLayout(new FitLayout());
 
-        setWidth(400);
+        setWidth(4 * ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         setHeight(200);
 
         setHeaderVisible(true);
@@ -109,7 +112,7 @@ public class PluginTasksView extends ContentPanel
         final ColumnConfig codesNameColumnConfig = new ColumnConfig();
         codesNameColumnConfig.setId(ModelDataPropertyNames.DATA_SET_TYPES);
         codesNameColumnConfig.setHeader(DATA_SET_TYPES);
-        codesNameColumnConfig.setWidth(2 * ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
+        codesNameColumnConfig.setWidth(3 * ColumnConfigFactory.DEFAULT_COLUMN_WIDTH - 15);
         configs.add(codesNameColumnConfig);
 
         final ColumnModel cm = new ColumnModel(configs);
@@ -120,18 +123,16 @@ public class PluginTasksView extends ContentPanel
 
         final ContentPanel cp = new ContentPanel();
 
-        // cp.setWidth(500);
-        // cp.setHeight(500);
-
         cp.setBodyBorder(false);
         cp.setHeaderVisible(false);
         cp.setButtonAlign(HorizontalAlignment.CENTER);
 
         cp.setLayout(new FitLayout());
-        // cp.setSize("90%", "90%");
 
         grid = new Grid<PluginTaskDescriptionModel>(store, cm);
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        grid.getSelectionModel().addListener(Events.SelectionChange,
+                createGridSelectionChangeListener());
         grid.setId(TABLE_ID);
         grid.setBorders(true);
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
@@ -139,15 +140,6 @@ public class PluginTasksView extends ContentPanel
                 DisplayTypeIDGenerator.PLUGIN_TASKS_BROWSER_GRID.createID(null, null);
         viewContext.getDisplaySettingsManager().prepareGrid(displayTypeID, grid);
         cp.add(grid);
-
-        final ToolBar toolBar = new ToolBar();
-        toolBar.add(new LabelToolItem(viewContext.getMessage(Dict.FILTER)
-                + GenericConstants.LABEL_SEPARATOR));
-        toolBar.add(new AdapterToolItem(new ColumnFilter<PluginTaskDescriptionModel>(store,
-                ModelDataPropertyNames.LABEL, LABEL)));
-        toolBar.add(new AdapterToolItem(new ColumnFilter<PluginTaskDescriptionModel>(store,
-                ModelDataPropertyNames.DATA_SET_TYPES, "Data Set Type")));
-        cp.setBottomComponent(toolBar);
 
         add(cp);
         layout();
@@ -163,6 +155,43 @@ public class PluginTasksView extends ContentPanel
             result.add(new PluginTaskDescriptionModel(p));
         }
         return result;
+    }
+
+    /**
+     * Given <var>button</var> will be enabled only if exactly one item is selected in the grid.
+     */
+    public void enableButtonOnSelectedItem(final Button button)
+    {
+        button.setEnabled(false);
+        registerGridSelectionChangeListener(new Listener<SelectionEvent<ModelData>>()
+            {
+                public void handleEvent(SelectionEvent<ModelData> se)
+                {
+                    boolean enabled = se.selection.size() == 1;
+                    button.setEnabled(enabled);
+                }
+            });
+    }
+
+    private final void registerGridSelectionChangeListener(
+            Listener<SelectionEvent<ModelData>> listener)
+    {
+        gridSelectionChangedListeners.add(listener);
+    }
+
+    /** Creates grid selection change listener that handles all registered listeners. */
+    private Listener<SelectionEvent<ModelData>> createGridSelectionChangeListener()
+    {
+        return new Listener<SelectionEvent<ModelData>>()
+            {
+                public void handleEvent(SelectionEvent<ModelData> be)
+                {
+                    for (Listener<SelectionEvent<ModelData>> listener : gridSelectionChangedListeners)
+                    {
+                        listener.handleEvent(be);
+                    }
+                }
+            };
     }
 
     /**
@@ -209,10 +238,6 @@ public class PluginTasksView extends ContentPanel
         @Override
         public final void process(final List<PluginTaskDescription> plugins)
         {
-            for (PluginTaskDescription p : plugins)
-            {
-                System.err.println(p);
-            }
             display(plugins);
         }
     }

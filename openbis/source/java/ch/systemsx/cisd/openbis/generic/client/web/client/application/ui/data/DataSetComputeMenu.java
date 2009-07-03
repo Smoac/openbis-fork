@@ -29,17 +29,20 @@ import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
@@ -192,9 +195,11 @@ public class DataSetComputeMenu extends TextToolItem
     private class PerformComputationDialog extends AbstractDataConfirmationDialog<ComputationData>
     {
 
-        private static final int LABEL_WIDTH = 80;
+        private static final int LABEL_WIDTH = ColumnConfigFactory.DEFAULT_COLUMN_WIDTH - 20;
 
-        private static final int FIELD_WIDTH = 180;
+        private static final int FIELD_WIDTH = 2 * ColumnConfigFactory.DEFAULT_COLUMN_WIDTH - 20;
+
+        private static final int DIALOG_WIDTH = 4 * ColumnConfigFactory.DEFAULT_COLUMN_WIDTH + 30;
 
         private Radio computeOnSelected;
 
@@ -208,7 +213,7 @@ public class DataSetComputeMenu extends TextToolItem
                 ComputationData data, String title)
         {
             super(messageProvider, data, title);
-            setWidth(420);
+            setWidth(DIALOG_WIDTH);
         }
 
         @Override
@@ -262,8 +267,6 @@ public class DataSetComputeMenu extends TextToolItem
             formPanel.setLabelWidth(LABEL_WIDTH);
             formPanel.setFieldWidth(FIELD_WIDTH);
 
-            getButtonById(Dialog.OK).setText("Run");
-
             if (data.getSelectedDataSets().size() > 0)
             {
                 formPanel.add(createComputationDataSetsRadio());
@@ -273,6 +276,17 @@ public class DataSetComputeMenu extends TextToolItem
 
             pluginTasksGrid = new PluginTasksView(viewContext, data.getPluginTaskKind());
             formPanel.add(pluginTasksGrid);
+
+            Button confirmButton = getButtonById(Dialog.OK);
+            confirmButton.setText("Run");
+            pluginTasksGrid.enableButtonOnSelectedItem(confirmButton);
+        }
+
+        @Override
+        protected void onRender(Element parent, int pos)
+        {
+            super.onRender(parent, pos);
+            getButtonById(OK).disable();
         }
 
         private final String createSelectedDataSetTypesText()
