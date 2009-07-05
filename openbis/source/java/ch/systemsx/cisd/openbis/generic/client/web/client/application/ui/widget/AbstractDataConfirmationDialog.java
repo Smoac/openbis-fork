@@ -44,6 +44,7 @@ public abstract class AbstractDataConfirmationDialog<T> extends Dialog
     {
         this.messageProvider = messageProvider;
         this.data = data;
+        initializeData();
         setHeading(title);
         setButtons(Dialog.OKCANCEL);
         setHideOnButtonClick(true);
@@ -69,10 +70,28 @@ public abstract class AbstractDataConfirmationDialog<T> extends Dialog
 
     protected abstract void executeConfirmedAction();
 
-    private void updateOkButtonState()
+    /** Additional initialization of data that will be performed before dialog form is created. */
+    protected void initializeData()
     {
-        okBtn.setEnabled(formPanel.isValid());
+        // by default nothing to do
     }
+
+	/** Sets OK button state to disabled if validation fails. */
+    protected final void updateOkButtonState()
+    {
+        okBtn.setEnabled(validate());
+    }
+    
+    /**
+     * Validates data provided in the dialog. By default validates form values.
+     * 
+     * @return <code>true</code> if valid, otherwise <code>false</code>
+     */
+    protected boolean validate()
+    {
+        return formPanel.isValid();
+    }
+    
 
     private FormPanel createForm()
     {
@@ -87,10 +106,10 @@ public abstract class AbstractDataConfirmationDialog<T> extends Dialog
     {
         if (button.getItemId().equals(Dialog.OK))
         {
-            if (formPanel.isValid())
+            if (validate())
             {
-                super.onButtonPressed(button);
                 executeConfirmedAction();
+                super.onButtonPressed(button);
             }
         } else
         {

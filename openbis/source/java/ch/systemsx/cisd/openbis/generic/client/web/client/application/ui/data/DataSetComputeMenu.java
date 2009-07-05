@@ -17,14 +17,18 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionEvent;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -34,8 +38,6 @@ import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -201,9 +203,13 @@ public class DataSetComputeMenu extends TextToolItem
 
         private static final int DIALOG_WIDTH = 4 * ColumnConfigFactory.DEFAULT_COLUMN_WIDTH + 30;
 
-        private Radio computeOnSelected;
+        private static final String BR = "<br/>";
 
-        private Radio computeOnAll;
+        private List<String> selectedDataSetTypeCodes;
+
+        private Radio computeOnSelectedRadio;
+
+        private Radio computeOnAllRadio;
 
         private Html selectedDataSetTypesText;
 
@@ -214,6 +220,29 @@ public class DataSetComputeMenu extends TextToolItem
         {
             super(messageProvider, data, title);
             setWidth(DIALOG_WIDTH);
+        }
+
+        @Override
+        protected void initializeData()
+        {
+            super.initializeData();
+
+            Set<DataSetType> selectedDataSetTypes = getSelectedDataSetTypes();
+            selectedDataSetTypeCodes = new ArrayList<String>(selectedDataSetTypes.size());
+            for (DataSetType type : selectedDataSetTypes)
+            {
+                selectedDataSetTypeCodes.add(type.getCode());
+            }
+        }
+
+        private Set<DataSetType> getSelectedDataSetTypes()
+        {
+            Set<DataSetType> result = new TreeSet<DataSetType>();
+            for (ExternalData dataSet : data.getSelectedDataSets())
+            {
+                result.add(dataSet.getDataSetType());
+            }
+            return result;
         }
 
         @Override
@@ -242,23 +271,66 @@ public class DataSetComputeMenu extends TextToolItem
         }
 
         @Override
+        protected boolean validate()
+        {
+            final PluginTaskDescription selectedPluginTaskOrNull = tryGetSelectedPluginTask();
+            if (selectedPluginTaskOrNull == null)
+            {
+                return false;
+            }
+            final boolean computeOnSelected = getComputeOnSelected();
+            if (computeOnSelected)
+            {
+                // show error message if plugin does not support all types of selected data sets
+                Set<String> supportedDataSetTypes =
+                        getSupportedDataSetTypes(selectedPluginTaskOrNull);
+                List<String> unsupportedDataSetTypes = new ArrayList<String>();
+                for (String selectedDataSetType : selectedDataSetTypeCodes)
+                {
+                    if (supportedDataSetTypes.contains(selectedDataSetType) == false)
+                    {
+                        unsupportedDataSetTypes.add(selectedDataSetType);
+                    }
+                }
+                if (unsupportedDataSetTypes.size() > 0)
+                {
+                    final String msg = createUnsupportedDataSetTypesText(unsupportedDataSetTypes);
+                    MessageBox.alert("Error", msg, null);
+                    return false;
+                }
+            }
+            return super.validate();
+        }
+
+        @Override
         protected void executeConfirmedAction()
         {
             final IComputationAction computationAction = data.getComputationAction();
             final PluginTaskDescription selectedPluginTask = getSelectedPluginTask();
-            computationAction.execute(selectedPluginTask, getComputeOnSelectedValue());
+            final boolean computeOnSelected = getComputeOnSelected();
+            computationAction.execute(selectedPluginTask, computeOnSelected);
+        }
+
+        private Set<String> getSupportedDataSetTypes(PluginTaskDescription plugin)
+        {
+            return new HashSet<String>(Arrays.asList(plugin.getDatasetTypeCodes()));
         }
 
         private PluginTaskDescription getSelectedPluginTask()
         {
-            PluginTaskDescription selectedPluginOrNull = pluginTasksGrid.tryGetSelectedItem();
+            PluginTaskDescription selectedPluginOrNull = tryGetSelectedPluginTask();
             assert selectedPluginOrNull != null : "no plugin selected!";
             return selectedPluginOrNull;
         }
 
-        private boolean getComputeOnSelectedValue()
+        private PluginTaskDescription tryGetSelectedPluginTask()
         {
-            return computeOnSelected.getValue();
+            return pluginTasksGrid.tryGetSelectedItem();
+        }
+
+        private boolean getComputeOnSelected()
+        {
+            return computeOnSelectedRadio.getValue();
         }
 
         @Override
@@ -279,46 +351,38 @@ public class DataSetComputeMenu extends TextToolItem
 
             Button confirmButton = getButtonById(Dialog.OK);
             confirmButton.setText("Run");
-            pluginTasksGrid.enableButtonOnSelectedItem(confirmButton);
-        }
-
-        @Override
-        protected void onRender(Element parent, int pos)
-        {
-            super.onRender(parent, pos);
-            getButtonById(OK).disable();
+            pluginTasksGrid
+                    .registerGridSelectionChangeListener(new Listener<SelectionEvent<ModelData>>()
+                        {
+                            public void handleEvent(SelectionEvent<ModelData> se)
+                            {
+                                updateOkButtonState();
+                            }
+                        });
         }
 
         private final String createSelectedDataSetTypesText()
         {
-            Set<DataSetType> selectedDataSetTypes = createSelectedDataSetTypes();
-            List<String> codes = new ArrayList<String>(selectedDataSetTypes.size());
-            for (DataSetType type : selectedDataSetTypes)
-            {
-                codes.add(type.getCode());
-            }
-
-            StringBuilder sb = new StringBuilder();
-            if (codes.size() > 1)
-            {
-                sb.append("Types of selected Data Sets: ");
-            } else
-            {
-                sb.append("Type of selected Data Set: ");
-            }
-            sb.append(DOM.toString(DOM.createElement("br")));
-            sb.append(StringUtils.joinList(codes));
-            return sb.toString();
+            return createDataSetTypeMsg("Selected Data Set type", selectedDataSetTypeCodes);
         }
 
-        private Set<DataSetType> createSelectedDataSetTypes()
+        private final String createUnsupportedDataSetTypesText(List<String> dataSetTypes)
         {
-            Set<DataSetType> result = new TreeSet<DataSetType>();
-            for (ExternalData dataSet : data.getSelectedDataSets())
-            {
-                result.add(dataSet.getDataSetType());
-            }
-            return result;
+            return createDataSetTypeMsg(
+                    "Selected plugin does not support all types of selected Data Sets. " + BR + BR
+                            + "Unsupported Data Set type", dataSetTypes);
+        }
+
+        private final String createDataSetTypeMsg(String singularMsgPrefix,
+                List<String> dataSetTypes)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.append(singularMsgPrefix);
+            sb.append(dataSetTypes.size() > 1 ? "s" : "");
+            sb.append(":");
+            sb.append(BR);
+            sb.append(StringUtils.joinList(dataSetTypes));
+            return sb.toString();
         }
 
         private final RadioGroup createComputationDataSetsRadio()
@@ -332,19 +396,20 @@ public class DataSetComputeMenu extends TextToolItem
                     public void handleEvent(BaseEvent be)
                     {
                         updateComputationDataSetsState();
+                        updateOkButtonState();
                     }
                 });
-            computeOnAll = createRadio("all");
-            computeOnSelected = createRadio("selected");
-            result.add(computeOnAll);
-            result.add(computeOnSelected);
-            result.setValue(computeOnAll);
+            computeOnAllRadio = createRadio("all");
+            computeOnSelectedRadio = createRadio("selected");
+            result.add(computeOnAllRadio);
+            result.add(computeOnSelectedRadio);
+            result.setValue(computeOnAllRadio);
             return result;
         }
 
         private final void updateComputationDataSetsState()
         {
-            boolean showSelectedDataSetTypes = getComputeOnSelectedValue();
+            boolean showSelectedDataSetTypes = getComputeOnSelected();
             selectedDataSetTypesText.setVisible(showSelectedDataSetTypes);
         }
 

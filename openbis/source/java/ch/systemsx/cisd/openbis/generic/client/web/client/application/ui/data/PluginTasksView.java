@@ -28,7 +28,6 @@ import com.extjs.gxt.ui.client.event.SelectionEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Text;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -157,24 +156,7 @@ public class PluginTasksView extends ContentPanel
         return result;
     }
 
-    /**
-     * Given <var>button</var> will be enabled only if exactly one item is selected in the grid.
-     */
-    public void enableButtonOnSelectedItem(final Button button)
-    {
-        button.setEnabled(false);
-        registerGridSelectionChangeListener(new Listener<SelectionEvent<ModelData>>()
-            {
-                public void handleEvent(SelectionEvent<ModelData> se)
-                {
-                    boolean enabled = se.selection.size() == 1;
-                    button.setEnabled(enabled);
-                }
-            });
-    }
-
-    private final void registerGridSelectionChangeListener(
-            Listener<SelectionEvent<ModelData>> listener)
+    final void registerGridSelectionChangeListener(Listener<SelectionEvent<ModelData>> listener)
     {
         gridSelectionChangedListeners.add(listener);
     }
@@ -199,6 +181,10 @@ public class PluginTasksView extends ContentPanel
      */
     public final PluginTaskDescription tryGetSelectedItem()
     {
+        if (grid == null)
+        {
+            return null;
+        }
         List<PluginTaskDescriptionModel> model = grid.getSelectionModel().getSelectedItems();
         if (model.size() == 0)
         {
