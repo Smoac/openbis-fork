@@ -203,7 +203,8 @@ public abstract class AbstractExternalDataGrid
         super.updateCriteriaProviderAndRefresh();
 
         addEntityOperationsLabel();
-        pagingToolbar.add(createComputeMenu());
+        // TODO 2009-07-05, Piotr Buczek: uncomment when implementation is complete
+        // pagingToolbar.add(createComputeMenu());
         addButton(createBrowseExternalDataButton());
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
                 browserId + SHOW_DETAILS_BUTTON_ID_SUFFIX, asShowEntityInvoker(false)));
@@ -249,6 +250,7 @@ public abstract class AbstractExternalDataGrid
 
     }
 
+    @SuppressWarnings("unused")
     private final ToolItem createComputeMenu()
     {
         return new DataSetComputeMenu(viewContext, getSelectedItemsAction());
