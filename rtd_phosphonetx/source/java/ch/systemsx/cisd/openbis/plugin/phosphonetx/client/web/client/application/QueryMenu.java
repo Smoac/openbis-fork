@@ -25,7 +25,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -92,7 +91,7 @@ public class QueryMenu extends TopMenuItem
     public QueryMenu(IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
         super(viewContext.getMessage(Dict.QUERY_MENU_TITLE));
-        setIconStyle(TopMenu.ICON_STYLE);
+        setIconStyle(TopMenuItem.ICON_STYLE);
         
         Menu menu = new Menu();
         for (ActionMenuKind actionMenuKind : ActionMenuKind.values())
