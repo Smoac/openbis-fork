@@ -23,44 +23,31 @@ import net.lemnik.eodsql.ResultColumn;
  *
  * @author Franz-Josef Elmer
  */
-public class DataSet extends AbstractDTOWithIDAndPermID
+public class ProteinReference extends AbstractDTOWithID
 {
-    @ResultColumn("samp_id")
-    private Long sampleID;
+    @ResultColumn("uniprot_id")
+    private String uniprotID;
     
-    @ResultColumn("expe_id")
-    private Long experimentID;
-    
-    @ResultColumn("db_id")
-    private Long databaseID;
+    @ResultColumn("description")
+    private String description;
 
-    public final Long getSampleID()
+    public final String getUniprotID()
     {
-        return sampleID;
+        return uniprotID;
     }
 
-    public final void setSampleID(Long sampleID)
+    public final void setUniprotID(String uniprotID)
     {
-        this.sampleID = sampleID;
+        this.uniprotID = uniprotID;
     }
 
-    public final Long getExperimentID()
+    public final String getDescription()
     {
-        return experimentID;
+        return description;
     }
 
-    public final void setExperimentID(Long experimentID)
+    public final void setDescription(String description)
     {
-        this.experimentID = experimentID;
-    }
-
-    public final Long getDatabaseID()
-    {
-        return databaseID;
-    }
-
-    public final void setDatabaseID(Long databaseID)
-    {
-        this.databaseID = databaseID;
+        this.description = description;
     }
 }

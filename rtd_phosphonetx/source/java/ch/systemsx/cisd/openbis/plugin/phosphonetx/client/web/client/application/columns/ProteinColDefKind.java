@@ -26,14 +26,22 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.Protein
  */
 public enum ProteinColDefKind implements IColumnDefinitionKind<ProteinInfo>
 {
-    DESCRIPTION(new AbstractColumnDefinitionKind<ProteinInfo>(Dict.PROTEIN_DESCRIPTION)
+    UNIPROT_ID(new AbstractColumnDefinitionKind<ProteinInfo>(Dict.UNIPROT_ID)
         {
+            @Override
+            public String tryGetValue(ProteinInfo entity)
+            {
+                return entity.getUniprotID();
+            }
+        }), 
+    DESCRIPTION(new AbstractColumnDefinitionKind<ProteinInfo>(Dict.PROTEIN_DESCRIPTION)
+                {
             @Override
             public String tryGetValue(ProteinInfo entity)
             {
                 return entity.getDescription();
             }
-        }), 
+                }), 
     FALSE_DISCOVERY_RATE(new AbstractColumnDefinitionKind<ProteinInfo>(Dict.FALSE_DISCOVERY_RATE)
         {
             @Override
@@ -46,14 +54,6 @@ public enum ProteinColDefKind implements IColumnDefinitionKind<ProteinInfo>
             public Comparable<?> getComparableValue(ProteinInfo entity)
             {
                 return entity.getFalseDiscoveryRate();
-            }
-        }), 
-    DATA_SET(new AbstractColumnDefinitionKind<ProteinInfo>(Dict.DATA_SET)
-        {
-            @Override
-            public String tryGetValue(ProteinInfo entity)
-            {
-                return entity.getDataSetPermID();
             }
         }), 
     ;

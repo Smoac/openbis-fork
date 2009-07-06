@@ -25,6 +25,12 @@ import net.lemnik.eodsql.ResultColumn;
  */
 public class Sequence extends AbstractDTOWithID
 {
+    @ResultColumn("database_id")
+    private long databaseID;
+    
+    @ResultColumn("protein_reference_id")
+    private long proteinReferenceID;
+    
     @ResultColumn("amino_acid_sequence")
     private String sequence;
     
@@ -42,6 +48,26 @@ public class Sequence extends AbstractDTOWithID
         calculateChecksum();
     }
     
+    public final long getDatabaseID()
+    {
+        return databaseID;
+    }
+
+    public final void setDatabaseID(long databaseID)
+    {
+        this.databaseID = databaseID;
+    }
+
+    public final long getProteinReferenceID()
+    {
+        return proteinReferenceID;
+    }
+
+    public final void setProteinReferenceID(long proteinDescriptionID)
+    {
+        this.proteinReferenceID = proteinDescriptionID;
+    }
+
     public final String getSequence()
     {
         return sequence;

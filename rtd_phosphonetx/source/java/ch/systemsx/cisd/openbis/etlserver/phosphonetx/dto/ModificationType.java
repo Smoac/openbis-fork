@@ -27,9 +27,12 @@ public class ModificationType extends AbstractDTOWithID
 {
     private String code;
     
+    @ResultColumn("amino_acid")
+    private String aminoAcid;
+    
     private double mass;
     
-    @ResultColumn("delta_mass")
+    @ResultColumn("mass_tolerance")
     private double deltaMass;
 
     public final String getCode()
@@ -40,6 +43,16 @@ public class ModificationType extends AbstractDTOWithID
     public final void setCode(String code)
     {
         this.code = code;
+    }
+
+    public final String getAminoAcid()
+    {
+        return aminoAcid;
+    }
+
+    public final void setAminoAcid(String aminoAcid)
+    {
+        this.aminoAcid = aminoAcid;
     }
 
     public final double getMass()
@@ -70,7 +83,7 @@ public class ModificationType extends AbstractDTOWithID
     @Override
     public String toString()
     {
-        return code + "=(" + mass + "\u00b1" + deltaMass + ")";
+        return code + "=(" + aminoAcid + ":" + mass + "\u00b1" + deltaMass + ")";
     }
     
     

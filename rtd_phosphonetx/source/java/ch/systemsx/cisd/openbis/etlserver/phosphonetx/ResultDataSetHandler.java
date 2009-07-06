@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.AminoAcidMass;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.AnnotatedProtein;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.DataSet;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Database;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Experiment;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ModificationType;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Peptide;
@@ -48,6 +49,7 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Protein;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinAnnotation;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinGroup;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinProphetDetails;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinReference;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummary;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummaryDataFilter;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sample;
@@ -66,6 +68,55 @@ public class ResultDataSetHandler implements IDataSetHandler
     private static final String DATABASE_KIND = "database.kind";
     private static final String DATABASE_OWNER = "database.owner";
     private static final String DATABASE_PASSWORD = "database.password";
+    
+    private static final class ProteinDescription
+    {
+        private final String uniprotID;
+        private final String description;
+        private final String sequence;
+
+        public ProteinDescription(String proteinDescription)
+        {
+            String[] items = proteinDescription.split("\\\\");
+            uniprotID = tryToGetUniprotID(items);
+            description = tryToGetValue(items, "DE");
+            sequence = tryToGetValue(items, "SEQ");
+        }
+        
+        public final String getUniprotID()
+        {
+            return uniprotID;
+        }
+
+        public final String getDescription()
+        {
+            return description;
+        }
+
+        public final String getSequence()
+        {
+            return sequence;
+        }
+
+        private String tryToGetUniprotID(String[] items)
+        {
+            return items == null || items.length == 0 ? null : items[0].trim(); 
+        }
+        
+        private String tryToGetValue(String[] items, String key)
+        {
+            for (String item : items)
+            {
+                int indexOfEqualSign = item.indexOf('=');
+                if (indexOfEqualSign > 0
+                        && item.substring(0, indexOfEqualSign).trim().equalsIgnoreCase(key))
+                {
+                    return item.substring(indexOfEqualSign + 1).trim();
+                }
+            }
+            return null;
+        }
+    }
     
     private final IDataSetHandler delegator;
     private final Unmarshaller unmarshaller;
@@ -130,12 +181,35 @@ public class ResultDataSetHandler implements IDataSetHandler
         dataSetInfo.getSample().getPermId();
         Experiment experiment = getOrCreateExperiment(dataSetInfo.getExperiment().getPermId());
         Sample sample = getOrCreateSample(experiment, dataSetInfo.getSample().getPermId());
-        DataSet ds = getOrCreateDataSet(experiment, sample, dataSetInfo.getDataSetCode());
+        String referenceDatabase = summary.getSummaryHeader().getReferenceDatabase();
+        Database database = getOrGreateDatabase(referenceDatabase);
+        DataSet ds = getOrCreateDataSet(experiment, sample, database, dataSetInfo.getDataSetCode());
         addToDatabase(ds, summary);
         return dataSets;
     }
 
-    private DataSet getOrCreateDataSet(Experiment experiment, Sample sample, String dataSetPermID)
+    private Database getOrGreateDatabase(String databaseNameAndVersion)
+    {
+        int indexOfLastSlash = databaseNameAndVersion.lastIndexOf('/');
+        String nameOrVersion;
+        if (indexOfLastSlash < 0)
+        {
+            nameOrVersion = databaseNameAndVersion;
+        } else
+        {
+            nameOrVersion = databaseNameAndVersion.substring(indexOfLastSlash + 1);
+        }
+        Database database = dao.tryToGetDatabaseByName(nameOrVersion);
+        if (database == null)
+        {
+            database = new Database();
+            database.setNameAndVersion(nameOrVersion);
+            database.setId(dao.createDatabase(database.getNameAndVersion()));
+        }
+        return database;
+    }
+
+    private DataSet getOrCreateDataSet(Experiment experiment, Sample sample, Database database, String dataSetPermID)
     {
         DataSet dataSet = dao.tryToGetDataSetByPermID(dataSetPermID);
         if (dataSet == null)
@@ -144,7 +218,11 @@ public class ResultDataSetHandler implements IDataSetHandler
             dataSet.setPermID(dataSetPermID);
             long experimentID = experiment.getId();
             dataSet.setExperimentID(experimentID);
-            dataSet.setId(dao.createDataSet(experimentID, sample.getId(), dataSetPermID));
+            long sampleID = sample.getId();
+            dataSet.setSampleID(sampleID);
+            long databaseID = database.getId();
+            dataSet.setDatabaseID(databaseID);
+            dataSet.setId(dao.createDataSet(experimentID, sampleID, dataSetPermID, databaseID));
         }
         return dataSet;
     }
@@ -193,29 +271,26 @@ public class ResultDataSetHandler implements IDataSetHandler
     private void addToDatabase(DataSet dataSet, ProteinSummary summary)
     {
         long dataSetID = dataSet.getId();
+        Long databaseID = dataSet.getDatabaseID();
         createProbabilityToFDRMapping(dataSetID, summary);
         Iterable<ModificationType> modificationTypes = dao.listModificationTypes();
+        System.out.println(modificationTypes);
         List<ProteinGroup> proteinGroups = summary.getProteinGroups();
-        int maxGroupSize = 0;
-        String maxGroupName = null;
         for (ProteinGroup proteinGroup : proteinGroups)
         {
             double probability = proteinGroup.getProbability();
             List<Protein> proteins = proteinGroup.getProteins();
-            if (maxGroupSize < proteins.size())
+            if  (proteins.isEmpty() == false)
             {
-                maxGroupSize = proteins.size();
-                maxGroupName = proteinGroup.getGroupNumber();
-            }
-            for (Protein protein : proteins)
-            {
+                // only the first protein is added. All other proteins are ignored.
+                Protein protein = proteins.get(0);
                 ProteinAnnotation annotation = protein.getAnnotation();
                 long proteinID = dao.createProtein(dataSetID, probability);
-                dao.createIdentifiedProtein(proteinID, null, annotation.getDescription());
+                createIdentifiedProtein(proteinID, databaseID, annotation.getDescription());
                 for (AnnotatedProtein annotatedProtein : protein.getIndistinguishableProteins())
                 {
                     String description = annotatedProtein.getAnnotation().getDescription();
-                    dao.createIdentifiedProtein(proteinID, null, description);
+                    createIdentifiedProtein(proteinID, databaseID, description);
                 }
                 List<Peptide> peptides = protein.getPeptides();
                 for (Peptide peptide : peptides)
@@ -238,7 +313,6 @@ public class ResultDataSetHandler implements IDataSetHandler
                 }
             }
         }
-        System.out.println("maximum group size: " + maxGroupSize + ", name:" + maxGroupName);
     }
 
     private void createProbabilityToFDRMapping(long dataSetID, ProteinSummary summary)
@@ -264,20 +338,35 @@ public class ResultDataSetHandler implements IDataSetHandler
         }
         throw new UserFailureException("Missing Protein Prophet details.");
     }
-
-    private Sequence getOrCreateSequence(Peptide peptide)
+    
+    private void createIdentifiedProtein(long proteinID, long databaseID, String proteinDescription)
     {
-        String s = peptide.getSequence();
-        Sequence sequence = dao.tryToGetSequenceBySequenceString(s);
-        if (sequence == null)
+        ProteinDescription protDesc = new ProteinDescription(proteinDescription);
+        String uniprotID = protDesc.getUniprotID();
+        String description = protDesc.getDescription();
+        ProteinReference proteinReference = dao.tryToGetProteinReference(uniprotID);
+        if (proteinReference == null)
         {
-            sequence = new Sequence(s);
-            long id = dao.createSequence(sequence);
-            sequence.setId(id);
+            proteinReference = new ProteinReference();
+            proteinReference.setUniprotID(uniprotID);
+            proteinReference.setDescription(description);
+            proteinReference.setId(dao.createProteinReference(uniprotID, description));
+        } else if (description.equals(proteinReference.getDescription()) == false)
+        {
+            dao.updateProteinReferenceDescription(proteinReference.getId(), description);
         }
-        return sequence;
+        Sequence sequence =
+                dao.tryToGetSequenceByReferenceAndDatabase(proteinReference.getId(), databaseID);
+        if (sequence == null || protDesc.getSequence().equals(sequence.getSequence()) == false)
+        {
+            sequence = new Sequence(protDesc.getSequence());
+            sequence.setDatabaseID(databaseID);
+            sequence.setProteinReferenceID(proteinReference.getId());
+            sequence.setId(dao.createSequence(sequence));
+        }
+        dao.createIdentifiedProtein(proteinID, sequence.getId());
     }
-
+    
     private ModificationType findModificationType(Iterable<ModificationType> modificationTypes,
             double mass)
     {

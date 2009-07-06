@@ -23,44 +23,19 @@ import net.lemnik.eodsql.ResultColumn;
  *
  * @author Franz-Josef Elmer
  */
-public class DataSet extends AbstractDTOWithIDAndPermID
+public class Database extends AbstractDTOWithID
 {
-    @ResultColumn("samp_id")
-    private Long sampleID;
-    
-    @ResultColumn("expe_id")
-    private Long experimentID;
-    
-    @ResultColumn("db_id")
-    private Long databaseID;
+    @ResultColumn("name_and_version")
+    private String nameAndVersion;
 
-    public final Long getSampleID()
+    public final String getNameAndVersion()
     {
-        return sampleID;
+        return nameAndVersion;
     }
 
-    public final void setSampleID(Long sampleID)
+    public final void setNameAndVersion(String nameAndVersion)
     {
-        this.sampleID = sampleID;
+        this.nameAndVersion = nameAndVersion;
     }
 
-    public final Long getExperimentID()
-    {
-        return experimentID;
-    }
-
-    public final void setExperimentID(Long experimentID)
-    {
-        this.experimentID = experimentID;
-    }
-
-    public final Long getDatabaseID()
-    {
-        return databaseID;
-    }
-
-    public final void setDatabaseID(Long databaseID)
-    {
-        this.databaseID = databaseID;
-    }
 }

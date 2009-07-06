@@ -1,20 +1,18 @@
 /* ---------------------------------------------------------------------- */
 /* Script generated with: DeZign for Databases v5.2.2                     */
 /* Target DBMS:           PostgreSQL 8                                    */
-/* Project file:          phosphonetx.dez                                 */
+/* Project file:          schema-001.dez                                  */
 /* Project name:                                                          */
 /* Author:                                                                */
 /* Script type:           Database creation script                        */
-/* Created on:            2009-06-30 09:00                                */
-/* Model version:         Version 2009-06-30                              */
+/* Created on:            2009-07-06 13:30                                */
+/* Model version:         Version 2009-07-06 1                            */
 /* ---------------------------------------------------------------------- */
 
 
 /* ---------------------------------------------------------------------- */
 /* Domains                                                                */
 /* ---------------------------------------------------------------------- */
-
-CREATE DOMAIN BINARY_DATA AS BYTEA;
 
 CREATE DOMAIN CHECKSUM AS CHARACTER VARYING(8);
 
@@ -33,6 +31,8 @@ CREATE DOMAIN SHORT_DESCRIPTION AS CHARACTER VARYING(200);
 CREATE DOMAIN TECH_ID AS BIGINT;
 
 CREATE DOMAIN SHORT_SEQUENCE AS CHARACTER VARYING(1000);
+
+CREATE DOMAIN UNIPROT_ACCESSION_NUMBER AS CHARACTER VARYING(40);
 
 /* ---------------------------------------------------------------------- */
 /* Tables                                                                 */
@@ -69,6 +69,7 @@ CREATE TABLE DATA_SETS (
     ID BIGSERIAL  NOT NULL,
     EXPE_ID TECH_ID  NOT NULL,
     SAMP_ID TECH_ID  NOT NULL,
+    DB_ID TECH_ID  NOT NULL,
     PERM_ID CODE  NOT NULL,
     CONSTRAINT PK_DATA_SETS PRIMARY KEY (ID),
     CONSTRAINT TUC_DATA_SETS_1 UNIQUE (PERM_ID)
@@ -103,8 +104,9 @@ CREATE TABLE MODIFICATION_TYPES (
     ID BIGSERIAL  NOT NULL,
     CODE CODE  NOT NULL,
     DESCRIPTION SHORT_DESCRIPTION,
+    AMINO_ACID CHARACTER(1),
     MASS REAL_NUMBER,
-    DELTA_MASS REAL_NUMBER,
+    MASS_TOLERANCE REAL_NUMBER,
     CONSTRAINT PK_MODIFICATION_TYPES PRIMARY KEY (ID),
     CONSTRAINT TUC_MODIFICATION_TYPES_1 UNIQUE (CODE)
 );
@@ -154,6 +156,8 @@ CREATE TABLE SAMPLES (
 
 CREATE TABLE SEQUENCES (
     ID BIGSERIAL  NOT NULL,
+    DB_ID TECH_ID  NOT NULL,
+    PRRE_ID TECH_ID  NOT NULL,
     AMINO_ACID_SEQUENCE LONG_SEQUENCE  NOT NULL,
     CHECKSUM CHECKSUM  NOT NULL,
     CONSTRAINT PK_SEQUENCES PRIMARY KEY (ID)
@@ -166,8 +170,7 @@ CREATE TABLE SEQUENCES (
 CREATE TABLE IDENTIFIED_PROTEINS (
     ID BIGSERIAL  NOT NULL,
     PROT_ID TECH_ID  NOT NULL,
-    SEQU_ID TECH_ID,
-    DESCRIPTION DESCRIPTION  NOT NULL,
+    SEQU_ID TECH_ID  NOT NULL,
     CONSTRAINT PK_IDENTIFIED_PROTEINS PRIMARY KEY (ID)
 );
 
@@ -197,6 +200,31 @@ CREATE TABLE PROBABILITY_FDR_MAPPINGS (
 );
 
 /* ---------------------------------------------------------------------- */
+/* Add table "PROTEIN_REFERENCES"                                         */
+/* ---------------------------------------------------------------------- */
+
+CREATE TABLE PROTEIN_REFERENCES (
+    ID BIGSERIAL  NOT NULL,
+    UNIPROT_ID UNIPROT_ACCESSION_NUMBER  NOT NULL,
+    DESCRIPTION DESCRIPTION,
+    CONSTRAINT PK_PROTEIN_REFERENCES PRIMARY KEY (ID),
+    CONSTRAINT TUC_PROTEIN_REFERENCES_1 UNIQUE (UNIPROT_ID)
+);
+
+CREATE INDEX IDX_PROTEIN_REFERENCES_1 ON PROTEIN_REFERENCES (UNIPROT_ID);
+
+/* ---------------------------------------------------------------------- */
+/* Add table "DATABASES"                                                  */
+/* ---------------------------------------------------------------------- */
+
+CREATE TABLE DATABASES (
+    ID BIGSERIAL  NOT NULL,
+    NAME_AND_VERSION SHORT_DESCRIPTION  NOT NULL,
+    CONSTRAINT PK_DATABASES PRIMARY KEY (ID),
+    CONSTRAINT TUC_DATABASES_1 UNIQUE (NAME_AND_VERSION)
+);
+
+/* ---------------------------------------------------------------------- */
 /* Foreign key constraints                                                */
 /* ---------------------------------------------------------------------- */
 
@@ -205,6 +233,9 @@ ALTER TABLE DATA_SETS ADD CONSTRAINT DA_EX_FK
 
 ALTER TABLE DATA_SETS ADD CONSTRAINT DA_SA_FK 
     FOREIGN KEY (SAMP_ID) REFERENCES SAMPLES (ID);
+
+ALTER TABLE DATA_SETS ADD CONSTRAINT DATABASES_DATA_SETS 
+    FOREIGN KEY (DB_ID) REFERENCES DATABASES (ID);
 
 ALTER TABLE MODIFICATIONS ADD CONSTRAINT MO_PE_FK 
     FOREIGN KEY (PEPT_ID) REFERENCES PEPTIDES (ID);
@@ -217,6 +248,12 @@ ALTER TABLE PEPTIDES ADD CONSTRAINT PE_PR_FK
 
 ALTER TABLE PROTEINS ADD CONSTRAINT DATA_SETS_PROTEINS 
     FOREIGN KEY (DASE_ID) REFERENCES DATA_SETS (ID);
+
+ALTER TABLE SEQUENCES ADD CONSTRAINT DATABASES_SEQUENCES 
+    FOREIGN KEY (DB_ID) REFERENCES DATABASES (ID);
+
+ALTER TABLE SEQUENCES ADD CONSTRAINT PROTEIN_REFERENCES_SEQUENCES 
+    FOREIGN KEY (PRRE_ID) REFERENCES PROTEIN_REFERENCES (ID);
 
 ALTER TABLE IDENTIFIED_PROTEINS ADD CONSTRAINT PROTEINS_IDENTIFIED_PROTEINS 
     FOREIGN KEY (PROT_ID) REFERENCES PROTEINS (ID);

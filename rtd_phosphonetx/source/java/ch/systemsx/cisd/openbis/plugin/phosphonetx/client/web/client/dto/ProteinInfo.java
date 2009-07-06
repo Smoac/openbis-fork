@@ -29,6 +29,8 @@ public class ProteinInfo implements IsSerializable
 {
     private TechId id;
     
+    private String uniprotID;
+    
     private String dataSetPermID;
     
     private String description;
@@ -63,6 +65,16 @@ public class ProteinInfo implements IsSerializable
     public final void setFalseDiscoveryRate(double falseDiscoveryRate)
     {
         this.falseDiscoveryRate = falseDiscoveryRate;
+    }
+
+    public final String getUniprotID()
+    {
+        return uniprotID;
+    }
+
+    public final void setUniprotID(String uniprotID)
+    {
+        this.uniprotID = uniprotID;
     }
 
     public final String getDescription()

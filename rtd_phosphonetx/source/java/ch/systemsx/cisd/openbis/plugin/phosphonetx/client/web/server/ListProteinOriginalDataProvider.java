@@ -52,6 +52,7 @@ class ListProteinOriginalDataProvider implements IOriginalDataProvider<ProteinIn
         {
             ProteinInfo proteinInfo = new ProteinInfo();
             proteinInfo.setId(new TechId(protein.getId()));
+            proteinInfo.setUniprotID(protein.getUniprotID());
             proteinInfo.setDescription(protein.getDescription());
             proteinInfo.setFalseDiscoveryRate(protein.getFalseDiscoveryRate());
             proteinInfo.setDataSetPermID(protein.getDataSetPermID());

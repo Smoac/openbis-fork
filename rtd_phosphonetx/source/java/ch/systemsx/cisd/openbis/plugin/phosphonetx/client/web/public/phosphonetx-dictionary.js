@@ -6,6 +6,7 @@ var phosphonetx = {
   selected_experiment_label: "Experiment",
   
   // Protein grid
+  uniprot_id: "UniProt ID",
   protein_description: "Protein",
   false_discovery_rate: "FDR",
   

@@ -37,6 +37,9 @@ public class IdentifiedProtein
     @ResultColumn("protein_id")
     private long proteinID;
     
+    @ResultColumn("uniprot_id")
+    private String uniprotID;
+    
     @ResultColumn("description")
     private String description;
     
@@ -63,6 +66,16 @@ public class IdentifiedProtein
     public final void setDataSetPermID(String dataSetPermID)
     {
         this.dataSetPermID = dataSetPermID;
+    }
+
+    public final String getUniprotID()
+    {
+        return uniprotID;
+    }
+
+    public final void setUniprotID(String uniprotID)
+    {
+        this.uniprotID = uniprotID;
     }
 
     public final String getDescription()
