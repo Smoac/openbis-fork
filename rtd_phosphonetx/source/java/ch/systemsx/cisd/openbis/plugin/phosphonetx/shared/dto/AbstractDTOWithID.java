@@ -14,20 +14,29 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
+package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto;
 
-import java.util.List;
-
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
+import net.lemnik.eodsql.ResultColumn;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IIdentifiedProteinTable
+abstract class AbstractDTOWithID
 {
-    public void load(String experimentPermID);
+    @ResultColumn("id")
+    private long id;
     
-    public List<ProteinReference> getIdentifiedProteins();
+    public final long getId()
+    {
+        return id;
+    }
+
+    public final void setId(long id)
+    {
+        this.id = id;
+    }
+
+
 }

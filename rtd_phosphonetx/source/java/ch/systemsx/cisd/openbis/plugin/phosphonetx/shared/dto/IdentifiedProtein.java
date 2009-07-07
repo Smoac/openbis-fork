@@ -23,11 +23,8 @@ import net.lemnik.eodsql.ResultColumn;
  *
  * @author Franz-Josef Elmer
  */
-public class IdentifiedProtein
+public class IdentifiedProtein extends AbstractDTOWithID
 {
-    @ResultColumn("id")
-    private long id;
-    
     @ResultColumn("data_set_id")
     private long dataSetID;
     
@@ -47,16 +44,6 @@ public class IdentifiedProtein
     private double probability;
     
     private double falseDiscoveryRate;
-
-    public final long getId()
-    {
-        return id;
-    }
-
-    public final void setId(long id)
-    {
-        this.id = id;
-    }
 
     public final String getDataSetPermID()
     {

@@ -21,7 +21,7 @@ import net.lemnik.eodsql.DataSet;
 import net.lemnik.eodsql.Select;
 
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProbabilityFDRMapping;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
 
 /**
  * 
@@ -33,12 +33,11 @@ public interface IProteinQueryDAO extends BaseQuery
     @Select("select * from probability_fdr_mappings where dase_id = ?{1}")
     public DataSet<ProbabilityFDRMapping> getProbabilityFDRMapping(long dataSetID);
     
-    @Select("select ip.id as id, d.id as data_set_id, d.perm_id as data_set_perm_id, "
-            + "p.id as protein_id, p.probability, pr.uniprot_id, pr.description "
+    @Select("select distinct pr.id, pr.uniprot_id, pr.description "
             + "from identified_proteins as ip left join proteins as p on ip.prot_id = p.id "
             + "left join data_sets as d on p.dase_id = d.id "
             + "left join experiments as e on d.expe_id = e.id, " 
             + "sequences as s left join protein_references as pr on s.prre_id = pr.id "
             + "where e.perm_id = ?{1} and ip.sequ_id = s.id")
-    public DataSet<IdentifiedProtein> listProteinsByExperiment(String experimentPermID);
+    public DataSet<ProteinReference> listProteinsByExperiment(String experimentPermID);
 }

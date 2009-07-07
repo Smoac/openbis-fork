@@ -42,20 +42,6 @@ public enum ProteinColDefKind implements IColumnDefinitionKind<ProteinInfo>
                 return entity.getDescription();
             }
                 }), 
-    FALSE_DISCOVERY_RATE(new AbstractColumnDefinitionKind<ProteinInfo>(Dict.FALSE_DISCOVERY_RATE)
-        {
-            @Override
-            public String tryGetValue(ProteinInfo entity)
-            {
-                return Double.toString(entity.getFalseDiscoveryRate());
-            }
-            
-            @Override
-            public Comparable<?> getComparableValue(ProteinInfo entity)
-            {
-                return entity.getFalseDiscoveryRate();
-            }
-        }), 
     ;
 
     private final AbstractColumnDefinitionKind<ProteinInfo> columnDefinitionKind;

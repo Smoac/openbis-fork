@@ -5,8 +5,8 @@
 /* Project name:                                                          */
 /* Author:                                                                */
 /* Script type:           Database creation script                        */
-/* Created on:            2009-07-06 13:30                                */
-/* Model version:         Version 2009-07-06 1                            */
+/* Created on:            2009-07-07 08:01                                */
+/* Model version:         Version 2009-07-07                              */
 /* ---------------------------------------------------------------------- */
 
 
@@ -37,18 +37,6 @@ CREATE DOMAIN UNIPROT_ACCESSION_NUMBER AS CHARACTER VARYING(40);
 /* ---------------------------------------------------------------------- */
 /* Tables                                                                 */
 /* ---------------------------------------------------------------------- */
-
-/* ---------------------------------------------------------------------- */
-/* Add table "ABUNDANCES_TYPES"                                           */
-/* ---------------------------------------------------------------------- */
-
-CREATE TABLE ABUNDANCES_TYPES (
-    ID BIGSERIAL  NOT NULL,
-    CODE CODE  NOT NULL,
-    DESCRIPTION SHORT_DESCRIPTION,
-    CONSTRAINT PK_ABUNDANCES_TYPES PRIMARY KEY (ID),
-    CONSTRAINT TUC_ABUNDANCES_TYPES_1 UNIQUE (CODE)
-);
 
 /* ---------------------------------------------------------------------- */
 /* Add table "EXPERIMENTS"                                                */
@@ -182,7 +170,6 @@ CREATE TABLE ABUNDANCES (
     ID BIGSERIAL  NOT NULL,
     PROT_ID TECH_ID  NOT NULL,
     SAMP_ID TECH_ID  NOT NULL,
-    ABTY_ID TECH_ID  NOT NULL,
     VALUE REAL_NUMBER  NOT NULL,
     CONSTRAINT PK_ABUNDANCES PRIMARY KEY (ID)
 );
@@ -263,9 +250,6 @@ ALTER TABLE IDENTIFIED_PROTEINS ADD CONSTRAINT SEQUENCES_IDENTIFIED_PROTEINS
 
 ALTER TABLE ABUNDANCES ADD CONSTRAINT SAMPLES_ABUNDANCES 
     FOREIGN KEY (SAMP_ID) REFERENCES SAMPLES (ID);
-
-ALTER TABLE ABUNDANCES ADD CONSTRAINT ABUNDANCES_TYPES_ABUNDANCES 
-    FOREIGN KEY (ABTY_ID) REFERENCES ABUNDANCES_TYPES (ID);
 
 ALTER TABLE ABUNDANCES ADD CONSTRAINT PROTEINS_ABUNDANCES 
     FOREIGN KEY (PROT_ID) REFERENCES PROTEINS (ID);

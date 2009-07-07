@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
 
 /**
  * 
@@ -33,7 +34,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
  */
 class IdentifiedProteinTable extends AbstractBusinessObject implements IIdentifiedProteinTable
 {
-    private List<IdentifiedProtein> proteins;
+    private List<ProteinReference> proteins;
 
     public IdentifiedProteinTable(IDAOFactory daoFactory,
             IPhosphoNetXDAOFactory specificDAOFactory, Session session)
@@ -41,7 +42,7 @@ class IdentifiedProteinTable extends AbstractBusinessObject implements IIdentifi
         super(daoFactory, specificDAOFactory, session);
     }
 
-    public List<IdentifiedProtein> getIdentifiedProteins()
+    public List<ProteinReference> getIdentifiedProteins()
     {
         if (proteins == null)
         {
@@ -52,13 +53,12 @@ class IdentifiedProteinTable extends AbstractBusinessObject implements IIdentifi
 
     public void load(String experimentPermID)
     {
-        proteins = new ArrayList<IdentifiedProtein>();
-        DataSet<IdentifiedProtein> resultSet =
+        proteins = new ArrayList<ProteinReference>();
+        DataSet<ProteinReference> resultSet =
             getSpecificDAOFactory().getProteinQueryDAO().listProteinsByExperiment(experimentPermID);
         ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
-        for (IdentifiedProtein protein : resultSet)
+        for (ProteinReference protein : resultSet)
         {
-            errorModel.setFalseDiscoveryRateFor(protein);
             proteins.add(protein);
         }
     }

@@ -43,6 +43,7 @@ public class Protein extends AnnotatedProtein
     private int totalNumberOfPeptides;
     private String subsumingProtein;
     private String fractionOfCorrectPeptideIdentifications;
+    private List<Parameter> parameters = new ArrayList<Parameter>();
     private List<AnnotatedProtein> indistinguishableProteins = new ArrayList<AnnotatedProtein>();
     private List<Peptide> peptides;
     
@@ -132,6 +133,17 @@ public class Protein extends AnnotatedProtein
     public final void setFractionOfCorrectPeptideIdentifications(String fractionOfCorrectPeptideIdentifications)
     {
         this.fractionOfCorrectPeptideIdentifications = fractionOfCorrectPeptideIdentifications;
+    }
+
+    @XmlElement(name = "parameter", namespace = Constants.NAMESPACE)
+    public final List<Parameter> getParameters()
+    {
+        return parameters;
+    }
+
+    public final void setParameters(List<Parameter> parameters)
+    {
+        this.parameters = parameters;
     }
 
     @XmlElement(name = "indistinguishable_protein", namespace = Constants.NAMESPACE)

@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IIdentifiedPr
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ResourceNames;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
 
 /**
  * @author Franz-Josef Elmer
@@ -80,7 +80,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         return new PhosphoNetXServerLogger(getSessionManager(), invocationSuccessful, elapsedTime);
     }
 
-    public List<IdentifiedProtein> listProteinsByExperiment(String sessionToken,
+    public List<ProteinReference> listProteinsByExperiment(String sessionToken,
             TechId experimentId) throws UserFailureException
     {
         final Session session = getSessionManager().getSession(sessionToken);
