@@ -33,7 +33,7 @@ public class ModificationType extends AbstractDTOWithID
     private double mass;
     
     @ResultColumn("mass_tolerance")
-    private double deltaMass;
+    private double massTolerance;
 
     public final String getCode()
     {
@@ -65,25 +65,33 @@ public class ModificationType extends AbstractDTOWithID
         this.mass = mass;
     }
 
-    public final double getDeltaMass()
+    public final double getMassTolerance()
     {
-        return deltaMass;
+        return massTolerance;
     }
 
-    public final void setDeltaMass(double deltaMass)
+    public final void setMassTolerance(double deltaMass)
     {
-        this.deltaMass = deltaMass;
+        this.massTolerance = deltaMass;
     }
     
-    public boolean matches(double m)
+    public boolean matches(char aminoAcidSymbol, double m)
     {
-        return mass - deltaMass <= m && m <= mass + deltaMass;
+        if (m < mass - massTolerance)
+        {
+            return false;
+        }
+        if (m > mass + massTolerance)
+        {
+            return false;
+        }
+        return aminoAcid == null || (aminoAcid.length() == 1 && aminoAcid.charAt(0) == aminoAcidSymbol); 
     }
 
     @Override
     public String toString()
     {
-        return code + "=(" + aminoAcid + ":" + mass + "\u00b1" + deltaMass + ")";
+        return code + "=(" + aminoAcid + ":" + mass + "\u00b1" + massTolerance + ")";
     }
     
     

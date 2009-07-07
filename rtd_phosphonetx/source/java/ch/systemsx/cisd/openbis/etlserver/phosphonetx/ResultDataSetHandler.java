@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.AnnotatedProtein;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.DataSet;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Database;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Experiment;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ModificationType;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Parameter;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Peptide;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.PeptideModification;
@@ -267,8 +266,8 @@ public class ResultDataSetHandler extends AbstractHandler implements IDataSetHan
                 new GroupIdentifier(group.getDatabaseInstance().getCode(), group.getCode());
         AbundanceHandler abundanceHandler =
                 new AbundanceHandler(openbisService, dao, groupIdentifier, experiment);
+        ModificationHandler modificationHandler = new ModificationHandler(dao);
         createProbabilityToFDRMapping(dataSetID, summary);
-        Iterable<ModificationType> modificationTypes = dao.listModificationTypes();
         List<ProteinGroup> proteinGroups = summary.getProteinGroups();
         for (ProteinGroup proteinGroup : proteinGroups)
         {
@@ -278,13 +277,13 @@ public class ResultDataSetHandler extends AbstractHandler implements IDataSetHan
             {
                 // Only the first protein of a ProteinGroup is valid
                 addProtein(proteins.get(0), probability, dataSetID, databaseID, abundanceHandler,
-                        modificationTypes);
+                        modificationHandler);
             }
         }
     }
 
     private void addProtein(Protein protein, double probability, long dataSetID, Long databaseID,
-            AbundanceHandler abundanceHandler, Iterable<ModificationType> modificationTypes)
+            AbundanceHandler abundanceHandler, ModificationHandler modificationHandler)
     {
         long proteinID = dao.createProtein(dataSetID, probability);
         for (Parameter parameter : protein.getParameters())
@@ -302,19 +301,16 @@ public class ResultDataSetHandler extends AbstractHandler implements IDataSetHan
         List<Peptide> peptides = protein.getPeptides();
         for (Peptide peptide : peptides)
         {
+            String peptideSequence = peptide.getSequence();
             int charge = peptide.getCharge();
-            long peptideID = dao.createPeptide(proteinID, peptide.getSequence(), charge);
+            long peptideID = dao.createPeptide(proteinID, peptideSequence, charge);
             List<PeptideModification> modifications = peptide.getModifications();
             for (PeptideModification modification : modifications)
             {
                 List<AminoAcidMass> aminoAcidMasses = modification.getAminoAcidMasses();
                 for (AminoAcidMass aminoAcidMass : aminoAcidMasses)
                 {
-                    double mass = aminoAcidMass.getMass();
-                    ModificationType modificationType =
-                            findModificationType(modificationTypes, mass);
-                    dao.createModification(peptideID, modificationType.getId(),
-                            aminoAcidMass.getPosition(), mass);
+                    modificationHandler.createModification(peptideID, peptideSequence, aminoAcidMass);
                 }
             }
         }
@@ -373,20 +369,4 @@ public class ResultDataSetHandler extends AbstractHandler implements IDataSetHan
         throw new UserFailureException("Missing Protein Prophet details.");
     }
     
-    private ModificationType findModificationType(Iterable<ModificationType> modificationTypes,
-            double mass)
-    {
-        ModificationType result = null;
-        for (ModificationType modificationType : modificationTypes)
-        {
-            if (modificationType.matches(mass))
-            {
-                if (result == null || modificationType.getDeltaMass() < result.getDeltaMass())
-                {
-                    result = modificationType;
-                }
-            }
-        }
-        return result;
-    }
 }
