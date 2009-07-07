@@ -36,6 +36,11 @@ public final class TableNames
 
     public static final String DATA_STORES_TABLE = "data_stores";
 
+    public static final String DATA_STORE_SERVICES_TABLE = "data_store_services";
+
+    public static final String DATA_STORE_SERVICES_DATASET_TYPES_TABLE =
+            "DATA_STORE_SERVICE_DATA_SET_TYPES";
+
     public static final String DATA_TABLE = "data";
 
     public static final String DATA_SET_PROPERTIES_TABLE = "data_set_properties";

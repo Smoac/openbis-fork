@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PluginTaskDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -59,10 +60,14 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         String downloadUrl = info.getDownloadUrl();
         int port = info.getPort();
         String dssSessionToken = info.getSessionToken();
-        logTracking(sessionToken, "register_data_store_server_session_token",
-                "CODE(%s) DOWNLOAD-URL(%s) PORT(%s) DSS-TOKEN(%s) REPORTING_PLUGINS(%s), "
-                        + "PROCESSING_PLUGINS(%s)", code, downloadUrl, port, dssSessionToken, "?",
-                "?");
+        PluginTaskDescriptions services = info.getServicesDescriptions();
+        logTracking(
+                sessionToken,
+                "register_data_store_server_session_token",
+                "CODE(%s) DOWNLOAD-URL(%s) PORT(%s) DSS-TOKEN(%s) REPORTING_PLUGINS(%s), PROCESSING_PLUGINS(%s)",
+                code, downloadUrl, port, dssSessionToken, services
+                        .getReportingServiceDescriptions(), services
+                        .getProcessingServiceDescriptions());
     }
 
     public void registerDataSet(String sessionToken, SampleIdentifier sampleIdentifier,

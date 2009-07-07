@@ -21,6 +21,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 /**
  * Enumeration of plugin task kinds.
  */
+// TODO 2009-07-06, Tomasz Pylak: merge with DataStoreTaskKind
 public enum PluginTaskKind implements IsSerializable
 {
     PROCESSING("Processing"), QUERIES("Queries");

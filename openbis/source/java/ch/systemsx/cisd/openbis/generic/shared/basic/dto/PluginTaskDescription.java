@@ -27,8 +27,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class PluginTaskDescription implements IsSerializable, Serializable
 {
-    private static final long serialVersionUID = 1;
-    
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private String key;
 
     private String label;
@@ -36,7 +36,7 @@ public class PluginTaskDescription implements IsSerializable, Serializable
     private String[] datasetTypeCodes;
 
     @SuppressWarnings("unused")
-    // for serialization
+    // for GWT serialization
     private PluginTaskDescription()
     {
     }
@@ -66,7 +66,7 @@ public class PluginTaskDescription implements IsSerializable, Serializable
         return datasetTypeCodes;
     }
 
-    // for serialization
+    // for GWT serialization
 
     @SuppressWarnings("unused")
     private void setKey(String key)

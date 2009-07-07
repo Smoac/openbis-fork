@@ -19,35 +19,35 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import java.io.Serializable;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * @author Tomasz Pylak
  */
 public class PluginTaskDescriptions implements Serializable
 {
-    private static final long serialVersionUID = IServer.VERSION;
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private final List<PluginTaskDescription> reportingPluginDescriptions;
+    private final List<PluginTaskDescription> reportingServiceDescriptions;
 
-    private final List<PluginTaskDescription> processingPluginDescriptions;
+    private final List<PluginTaskDescription> processingServiceDescriptions;
 
-    public PluginTaskDescriptions(List<PluginTaskDescription> reportingPluginDescriptions,
-            List<PluginTaskDescription> processingPluginDescriptions)
+    public PluginTaskDescriptions(List<PluginTaskDescription> reportingServiceDescriptions,
+            List<PluginTaskDescription> processingServiceDescriptions)
     {
-        this.reportingPluginDescriptions = reportingPluginDescriptions;
-        this.processingPluginDescriptions = processingPluginDescriptions;
+        this.reportingServiceDescriptions = reportingServiceDescriptions;
+        this.processingServiceDescriptions = processingServiceDescriptions;
     }
 
-    public List<PluginTaskDescription> getReportingPluginDescriptions()
+    public List<PluginTaskDescription> getReportingServiceDescriptions()
     {
-        return reportingPluginDescriptions;
+        return reportingServiceDescriptions;
     }
 
-    public List<PluginTaskDescription> getProcessingPluginDescriptions()
+    public List<PluginTaskDescription> getProcessingServiceDescriptions()
     {
-        return processingPluginDescriptions;
+        return processingServiceDescriptions;
     }
 
 }

@@ -162,7 +162,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         dataStoreServerInfo.setDataStoreCode(dataStoreCode);
         dataStoreServerInfo.setDownloadUrl(downloadUrl);
         dataStoreServerInfo.setSessionToken(sessionTokenManager.drawSessionToken());
-        dataStoreServerInfo.setPluginTaskDescriptions(pluginTaskDescriptions);
+        dataStoreServerInfo.setServicesDescriptions(pluginTaskDescriptions);
         service.registerDataStoreServer(sessionToken, dataStoreServerInfo);
     }
 

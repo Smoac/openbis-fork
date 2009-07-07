@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.IDataStoreService.VERSION;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -37,15 +38,18 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PluginTaskDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -58,6 +62,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 @Friend(toClasses = ETLService.class)
 public class ETLServiceTest extends AbstractServerTestCase
 {
+    private static final String DATA_SET_TYPE_CODE = "dataSetTypeCode1";
+
     private static final String DOWNLOAD_URL = "download-url";
 
     private static final String DSS_CODE = "my-dss";
@@ -106,6 +112,9 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(dataStoreService).getVersion(DSS_SESSION_TOKEN);
                     will(returnValue(IDataStoreService.VERSION));
 
+                    allowing(dataSetTypeDAO).tryToFindDataSetTypeByCode(DATA_SET_TYPE_CODE);
+                    will(returnValue(new DataSetTypePE()));
+
                     one(dataStoreDAO).createOrUpdateDataStore(with(new BaseMatcher<DataStorePE>()
                         {
                             public void describeTo(Description description)
@@ -146,6 +155,9 @@ public class ETLServiceTest extends AbstractServerTestCase
 
                     one(dataStoreDAO).tryToFindDataStoreByCode(DSS_CODE);
                     will(returnValue(new DataStorePE()));
+
+                    allowing(dataSetTypeDAO).tryToFindDataSetTypeByCode(DATA_SET_TYPE_CODE);
+                    will(returnValue(new DataSetTypePE()));
 
                     one(dataStoreDAO).createOrUpdateDataStore(with(new BaseMatcher<DataStorePE>()
                         {
@@ -565,6 +577,17 @@ public class ETLServiceTest extends AbstractServerTestCase
         info.setSessionToken(DSS_SESSION_TOKEN);
         info.setDataStoreCode(DSS_CODE);
         info.setDownloadUrl(DOWNLOAD_URL);
+        List<PluginTaskDescription> reporting = Arrays.asList(createDataStoreService("reporting"));
+        List<PluginTaskDescription> processing =
+                Arrays.asList(createDataStoreService("processing"));
+        PluginTaskDescriptions services = new PluginTaskDescriptions(reporting, processing);
+        info.setServicesDescriptions(services);
         return info;
+    }
+
+    private static PluginTaskDescription createDataStoreService(String key)
+    {
+        return new PluginTaskDescription(key, key, new String[]
+            { DATA_SET_TYPE_CODE });
     }
 }

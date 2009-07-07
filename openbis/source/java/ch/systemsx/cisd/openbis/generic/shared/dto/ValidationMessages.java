@@ -54,6 +54,12 @@ public final class ValidationMessages
 
     public static final String DATA_STORE_NOT_NULL_MESSAGE = "Data store" + CAN_NOT_BE_NULL;
 
+    public static final String DATA_STORE_SERVICES_NOT_NULL_MESSAGE =
+            "Data store services" + CAN_NOT_BE_NULL;
+
+    public static final String DATA_STORE_SERVICE_KIND_NOT_NULL_MESSAGE =
+            "Data Store Service Kind " + CAN_NOT_BE_NULL;
+
     public static final String DATA_SET_TYPE_NOT_NULL_MESSAGE = "Data set type" + CAN_NOT_BE_NULL;
 
     public static final String DATA_TYPE_NOT_NULL_MESSAGE = "Data type" + CAN_NOT_BE_NULL;
@@ -167,6 +173,9 @@ public final class ValidationMessages
     public static final String ENTITY_TYPE_NOT_NULL_MESSAGE = "Entity Type" + CAN_NOT_BE_NULL;
 
     public static final String IDENTIFIER_NOT_NULL_MESSAGE = "Identifier" + CAN_NOT_BE_NULL;
+
+    public static final String IDENTIFIER_LENGTH_MESSAGE =
+            LENGTH_PREFIX + "identifier" + LENGTH_SUFFIX;
 
     public static final String DATA_NOT_NULL_MESSAGE = "Data " + CAN_NOT_BE_NULL;
 

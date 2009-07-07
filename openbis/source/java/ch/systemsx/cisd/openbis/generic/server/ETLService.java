@@ -18,10 +18,13 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -33,22 +36,28 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PluginTaskDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -149,7 +158,76 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         dataStore.setDownloadUrl(info.getDownloadUrl());
         dataStore.setRemoteUrl(dssURL);
         dataStore.setSessionToken(dssSessionToken);
+        Set<DataStoreServicePE> dataStoreServices =
+                createDataStoreServices(info.getServicesDescriptions());
+        dataStore.setServices(dataStoreServices);
         dataStoreDAO.createOrUpdateDataStore(dataStore);
+    }
+
+    private Set<DataStoreServicePE> createDataStoreServices(
+            PluginTaskDescriptions serviceDescriptions)
+    {
+        Set<DataStoreServicePE> services = new HashSet<DataStoreServicePE>();
+
+        Set<DataStoreServicePE> processing =
+                createDataStoreServices(serviceDescriptions.getProcessingServiceDescriptions(),
+                        DataStoreServiceKind.PROCESSING);
+        services.addAll(processing);
+
+        Set<DataStoreServicePE> queries =
+                createDataStoreServices(serviceDescriptions.getReportingServiceDescriptions(),
+                        DataStoreServiceKind.QUERIES);
+        services.addAll(queries);
+
+        return services;
+    }
+
+    private Set<DataStoreServicePE> createDataStoreServices(
+            List<PluginTaskDescription> serviceDescriptions, DataStoreServiceKind serviceKind)
+    {
+        Set<DataStoreServicePE> services = new HashSet<DataStoreServicePE>();
+        for (PluginTaskDescription desc : serviceDescriptions)
+        {
+            DataStoreServicePE service = new DataStoreServicePE();
+            service.setKey(desc.getKey());
+            service.setLabel(desc.getLabel());
+            service.setKind(serviceKind);
+            Set<DataSetTypePE> datasetTypes = extractDatasetTypes(desc.getDatasetTypeCodes(), desc);
+            service.setDatasetTypes(datasetTypes);
+            services.add(service);
+        }
+        return services;
+    }
+
+    private Set<DataSetTypePE> extractDatasetTypes(String[] datasetTypeCodes,
+            PluginTaskDescription serviceDescription)
+    {
+        Set<DataSetTypePE> datasetTypes = new HashSet<DataSetTypePE>();
+        Set<String> missingCodes = new HashSet<String>();
+        IDataSetTypeDAO dataSetTypeDAO = daoFactory.getDataSetTypeDAO();
+        for (String datasetTypeCode : datasetTypeCodes)
+        {
+            DataSetTypePE datasetType = dataSetTypeDAO.tryToFindDataSetTypeByCode(datasetTypeCode);
+            if (datasetType == null)
+            {
+                missingCodes.add(datasetTypeCode);
+            }
+            datasetTypes.add(datasetType);
+        }
+        if (missingCodes.size() > 0)
+        {
+            notifyDataStoreServerMisconfiguration(missingCodes, serviceDescription);
+        }
+        return datasetTypes;
+    }
+
+    private void notifyDataStoreServerMisconfiguration(Set<String> missingCodes,
+            PluginTaskDescription serviceDescription)
+    {
+        String missingCodesText = CollectionUtils.abbreviate(missingCodes, -1);
+        notificationLog.warn(String.format("The Datastore Server Plugin '%s' is misconfigured. "
+                + "It refers to the dataset types which do not exist in openBIS: %s",
+                serviceDescription.toString(), missingCodesText));
     }
 
     public String createDataSetCode(String sessionToken) throws UserFailureException

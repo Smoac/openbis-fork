@@ -49,7 +49,7 @@ public class DataStoreServerInfo implements Serializable
 
     private String sessionToken;
 
-    private PluginTaskDescriptions pluginTaskDescriptions;
+    private PluginTaskDescriptions servicesDescriptions;
 
     public final int getPort()
     {
@@ -91,13 +91,13 @@ public class DataStoreServerInfo implements Serializable
         this.sessionToken = sessionToken;
     }
 
-    public PluginTaskDescriptions getPluginTaskDescriptions()
+    public PluginTaskDescriptions getServicesDescriptions()
     {
-        return pluginTaskDescriptions;
+        return servicesDescriptions;
     }
 
-    public void setPluginTaskDescriptions(PluginTaskDescriptions pluginTaskDescriptions)
+    public void setServicesDescriptions(PluginTaskDescriptions servicesDescriptions)
     {
-        this.pluginTaskDescriptions = pluginTaskDescriptions;
+        this.servicesDescriptions = servicesDescriptions;
     }
 }

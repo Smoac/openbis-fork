@@ -106,11 +106,11 @@ public class EncapsulatedOpenBISServiceTest
                                             return DATA_STORE_CODE.equals(info.getDataStoreCode())
                                                     && DOWNLOAD_URL.equals(info.getDownloadUrl())
                                                     && PORT == info.getPort()
-                                                    && info.getPluginTaskDescriptions()
-                                                            .getProcessingPluginDescriptions()
+                                                    && info.getServicesDescriptions()
+                                                            .getProcessingServiceDescriptions()
                                                             .size() == 0
-                                                    && info.getPluginTaskDescriptions()
-                                                            .getReportingPluginDescriptions()
+                                                    && info.getServicesDescriptions()
+                                                            .getReportingServiceDescriptions()
                                                             .size() == 0;
                                         }
                                         return false;

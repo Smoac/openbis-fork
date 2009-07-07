@@ -10,6 +10,8 @@ CREATE DOMAIN boolean_char_or_unknown AS character(1) DEFAULT 'U'::bpchar
 	CONSTRAINT boolean_char_or_unknown_check CHECK ((VALUE = ANY (ARRAY['F'::bpchar, 'T'::bpchar, 'U'::bpchar])));
 CREATE DOMAIN code AS character varying(40);
 CREATE DOMAIN column_label AS character varying(40);
+CREATE DOMAIN data_store_service_kind AS character varying(40)
+	CONSTRAINT data_store_service_kind_check CHECK (((VALUE)::text = ANY ((ARRAY['PROCESSING'::character varying, 'QUERIES'::character varying])::text[])));
 CREATE DOMAIN description_1000 AS character varying(1000);
 CREATE DOMAIN description_250 AS character varying(250);
 CREATE DOMAIN event_type AS character varying(40)
@@ -366,6 +368,24 @@ CREATE SEQUENCE data_store_id_seq
     NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('data_store_id_seq', 1, true);
+CREATE TABLE data_store_service_data_set_types (
+    data_store_service_id tech_id NOT NULL,
+    data_set_type_id tech_id NOT NULL
+);
+CREATE TABLE data_store_services (
+    id tech_id NOT NULL,
+    key character varying(256) NOT NULL,
+    label character varying(256) NOT NULL,
+    kind data_store_service_kind NOT NULL,
+    data_store_id tech_id NOT NULL
+);
+CREATE SEQUENCE data_store_services_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+SELECT pg_catalog.setval('data_store_services_id_seq', 1, false);
 CREATE TABLE data_stores (
     id tech_id NOT NULL,
     dbin_id tech_id NOT NULL,

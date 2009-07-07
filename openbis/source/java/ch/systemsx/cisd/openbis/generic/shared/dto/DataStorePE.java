@@ -17,7 +17,10 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -26,8 +29,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.Version;
 
 import org.hibernate.annotations.Generated;
@@ -36,6 +41,8 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
+import ch.rinn.restrictions.Friend;
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
@@ -45,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  */
 @Entity
 @Table(name = TableNames.DATA_STORES_TABLE)
+@Friend(toClasses = DataStoreServicePE.class)
 public final class DataStorePE extends AbstractIdAndCodeHolder<DataStorePE>
 {
     private static final long serialVersionUID = IServer.VERSION;
@@ -68,6 +76,8 @@ public final class DataStorePE extends AbstractIdAndCodeHolder<DataStorePE>
     private DatabaseInstancePE databaseInstance;
 
     private Date modificationDate;
+
+    private Set<DataStoreServicePE> services = new HashSet<DataStoreServicePE>();
 
     public final void setId(final Long id)
     {
@@ -173,4 +183,46 @@ public final class DataStorePE extends AbstractIdAndCodeHolder<DataStorePE>
         return id;
     }
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "dataStoreInternal")
+    // @Cascade(value =
+    // { org.hibernate.annotations.CascadeType.DELETE_ORPHAN })
+    @NotNull(message = ValidationMessages.DATA_STORE_SERVICES_NOT_NULL_MESSAGE)
+    private Set<DataStoreServicePE> getServicesInternal()
+    {
+        return services;
+    }
+
+    @SuppressWarnings("unused")
+    // for Hibernate only
+    private void setServicesInternal(Set<DataStoreServicePE> services)
+    {
+        this.services = services;
+    }
+
+    public void setServices(Set<DataStoreServicePE> services)
+    {
+        getServicesInternal().clear();
+        for (DataStoreServicePE service : services)
+        {
+            addService(service);
+        }
+    }
+
+    @Private
+    void addService(DataStoreServicePE service)
+    {
+        DataStorePE dataStore = service.getDataStore();
+        if (dataStore != null)
+        {
+            dataStore.getServicesInternal().remove(service);
+        }
+        service.setDataStoreInternal(this);
+        getServicesInternal().add(service);
+    }
+
+    @Transient
+    public Set<DataStoreServicePE> getServices()
+    {
+        return getServicesInternal();
+    }
 }
