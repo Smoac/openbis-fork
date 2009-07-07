@@ -21,7 +21,9 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
 
 /**
@@ -40,4 +42,7 @@ public interface IPhosphoNetXClientServiceAsync extends IClientServiceAsync
     public void prepareExportProteins(TableExportCriteria<ProteinInfo> exportCriteria,
             AsyncCallback<String> callback);
 
+    /** @see IPhosphoNetXClientService#getProteinByExperiment(TechId, TechId) */
+    public void getProteinByExperiment(TechId experimentID, TechId proteinReferenceID,
+            AsyncCallback<ProteinByExperiment> callback);
 }

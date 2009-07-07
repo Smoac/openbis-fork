@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 public class ListProteinByExperimentCriteria extends DefaultResultSetConfig<String, ProteinInfo> implements IsSerializable
 {
     private TechId experimentID;
+    private double falseDiscoveryRate;
 
     public final TechId getExperimentID()
     {
@@ -39,6 +40,15 @@ public class ListProteinByExperimentCriteria extends DefaultResultSetConfig<Stri
     {
         this.experimentID = experimentID;
     }
-    
+
+    public final double getFalseDiscoveryRate()
+    {
+        return falseDiscoveryRate;
+    }
+
+    public final void setFalseDiscoveryRate(double falseDiscoveryRate)
+    {
+        this.falseDiscoveryRate = falseDiscoveryRate;
+    }
     
 }

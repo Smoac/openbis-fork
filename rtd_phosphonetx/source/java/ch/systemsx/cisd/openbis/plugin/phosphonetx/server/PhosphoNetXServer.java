@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IIdentifiedProteinTable;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinReferenceTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ResourceNames;
@@ -81,13 +81,13 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     }
 
     public List<ProteinReference> listProteinsByExperiment(String sessionToken,
-            TechId experimentId) throws UserFailureException
+            TechId experimentId, double falseDiscoveryRate) throws UserFailureException
     {
         final Session session = getSessionManager().getSession(sessionToken);
-        IIdentifiedProteinTable proteinTable = specificBOFactory.createProteinTable(session);
+        IProteinReferenceTable table = specificBOFactory.createProteinReferenceTable(session);
         ExperimentPE experiment = getDAOFactory().getExperimentDAO().getByTechId(experimentId);
-        proteinTable.load(experiment.getPermId());
-        return proteinTable.getIdentifiedProteins();
+        table.load(experiment.getPermId(), falseDiscoveryRate);
+        return table.getProteinReferences();
     }
 
 }

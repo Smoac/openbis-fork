@@ -25,6 +25,7 @@ public class Dict
 {
     public static final String QUERY_MENU_TITLE = "query_menu_title";
     public static final String SELECTED_EXPERIMENT_LABEL = "selected_experiment_label";
+    public static final String FDR_FILTER_LABEL = "false_discovery_rate_filter_label";
     
     public static final String UNIPROT_ID = "uniprot_id";
     public static final String PROTEIN_DESCRIPTION = "protein_description";

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
+package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IBusinessObjectFactory
+public class ProteinByExperiment implements IsSerializable
 {
-    public IProteinReferenceTable createProteinReferenceTable(Session session);
+
 }

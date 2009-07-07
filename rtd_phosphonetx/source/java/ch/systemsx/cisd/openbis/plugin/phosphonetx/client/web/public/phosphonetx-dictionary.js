@@ -4,6 +4,7 @@ var phosphonetx = {
   ALL_PROTEINS_OF_AN_EXPERIMENT_menu_item: "All Proteins of an Experiment",
   ALL_PROTEINS_OF_AN_EXPERIMENT_tab_label: "Proteins of an Experiment",
   selected_experiment_label: "Experiment",
+  false_discovery_rate_filter_label: "False Discovery Rate",
   
   // Protein grid
   uniprot_id: "UniProt ID",

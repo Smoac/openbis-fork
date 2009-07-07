@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNet
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProbabilityFDRMapping;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
 
 /**
  * 
@@ -99,6 +100,12 @@ class ErrorModel
     ErrorModel(IPhosphoNetXDAOFactory specificDAOFactory)
     {
         this.specificDAOFactory = specificDAOFactory;
+    }
+    
+    boolean passProtein(ProteinReferenceWithProbability protein, double falseDiscoveryRate)
+    {
+        ProbabilityToFDRCalculator calculator = getCalculator(protein.getDataSetID());
+        return calculator.calculateFDR(protein.getProbability()) <= falseDiscoveryRate;
     }
 
     void setFalseDiscoveryRateFor(IdentifiedProtein protein)

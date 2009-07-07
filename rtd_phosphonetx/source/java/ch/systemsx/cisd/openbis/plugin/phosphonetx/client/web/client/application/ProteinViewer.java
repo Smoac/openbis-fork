@@ -22,6 +22,7 @@ import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
@@ -33,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
 
 /**
@@ -46,7 +48,9 @@ public class ProteinViewer extends ContentPanel implements IDatabaseModification
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
     
-    static ITabItemFactory createTabItemFactory(final IViewContext<IPhosphoNetXClientServiceAsync> viewContext, final ProteinInfo proteinInfo)
+    static ITabItemFactory createTabItemFactory(
+            final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
+            final ProteinInfo proteinInfo)
     {
         return new ITabItemFactory()
             {
@@ -54,38 +58,51 @@ public class ProteinViewer extends ContentPanel implements IDatabaseModification
                 {
                     return createWidgetID(proteinInfo.getId());
                 }
-        
+
                 public ITabItem create()
                 {
-                    ProteinViewer viewer = new ProteinViewer(viewContext, proteinInfo.getId());
-                    DatabaseModificationAwareComponent c = new DatabaseModificationAwareComponent(viewer, viewer);
-                    return DefaultTabItem.create("Protein: " + proteinInfo.getDescription(), c, viewContext, false);
+                    ProteinViewer viewer =
+                            new ProteinViewer(viewContext, proteinInfo.getExperimentID(),
+                                    proteinInfo.getId());
+                    DatabaseModificationAwareComponent c =
+                            new DatabaseModificationAwareComponent(viewer, viewer);
+                    return DefaultTabItem.create("Protein: " + proteinInfo.getDescription(), c,
+                            viewContext, false);
                 }
             };
     }
     
-    static String createWidgetID(TechId proteinID)
+    static String createWidgetID(TechId proteinReferenceID)
     {
-        return ID_PREFIX + proteinID.getId();
+        return ID_PREFIX + proteinReferenceID.getId();
     }
     
     private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
-    private final TechId proteinID;
+    private final TechId experimentID;
+    private final TechId proteinreferenceID;
     private final String widgetID;
     
-    private ProteinViewer(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            TechId proteinID)
+    private ProteinViewer(IViewContext<IPhosphoNetXClientServiceAsync> viewContext, TechId experimentID,
+            TechId proteinReferenceID)
     {
-        widgetID = createWidgetID(proteinID);
+        widgetID = createWidgetID(proteinReferenceID);
         this.viewContext = viewContext;
-        this.proteinID = proteinID;
+        this.experimentID = experimentID;
+        this.proteinreferenceID = proteinReferenceID;
+        reloadAllData();
     }
     
-    private void createUI()
+    private void reloadAllData()
+    {
+        viewContext.getService().getProteinByExperiment(experimentID, proteinreferenceID,
+                new ProteinByExperimentCallback(viewContext, this));
+    }
+
+    private void recreateUI(ProteinByExperiment protein)
     {
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
         final PropertyGrid propertyGrid = new PropertyGrid(viewContext, properties.size());
-        properties.put("ID", proteinID);
+        properties.put("ID", proteinreferenceID);
         add(propertyGrid);
     }
 
@@ -97,5 +114,28 @@ public class ProteinViewer extends ContentPanel implements IDatabaseModification
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
     }
+
+    public static final class ProteinByExperimentCallback extends
+            AbstractAsyncCallback<ProteinByExperiment>
+    {
+        private final ProteinViewer viewer;
+
+        private ProteinByExperimentCallback(
+                final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
+                final ProteinViewer viewer)
+        {
+            super(viewContext);
+            this.viewer = viewer;
+        }
+
+        @Override
+        protected final void process(final ProteinByExperiment result)
+        {
+            viewer.recreateUI(result);
+        }
+
+    }
+
+
 
 }

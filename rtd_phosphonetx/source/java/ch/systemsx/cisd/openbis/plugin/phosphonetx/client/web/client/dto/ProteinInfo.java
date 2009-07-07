@@ -31,6 +31,8 @@ public class ProteinInfo implements IsSerializable
     
     private String uniprotID;
     
+    private TechId experimentID;
+    
     private String dataSetPermID;
     
     private String description;
@@ -45,6 +47,16 @@ public class ProteinInfo implements IsSerializable
     public final void setId(TechId id)
     {
         this.id = id;
+    }
+
+    public final TechId getExperimentID()
+    {
+        return experimentID;
+    }
+
+    public final void setExperimentID(TechId experimentID)
+    {
+        this.experimentID = experimentID;
     }
 
     public final String getDataSetPermID()

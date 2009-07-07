@@ -29,10 +29,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
@@ -79,16 +79,17 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
                     {
                         public void handle(ProteinInfo rowItem)
                         {
-                            DispatcherHelper.dispatchNaviEvent(ProteinViewer.createTabItemFactory(viewContext, rowItem));
-                            System.out.println(rowItem.getDataSetPermID());
+                            DispatcherHelper.dispatchNaviEvent(ProteinViewer.createTabItemFactory(
+                                    viewContext, rowItem));
                         }
                     });
     }
     
-    void update(ExperimentIdentifier identifier)
+    void update(TechId experimentID, double falseDiscoveryRate)
     {
         criteria = new ListProteinByExperimentCriteria();
-        criteria.setExperimentID(identifier.getTechID());
+        criteria.setExperimentID(experimentID);
+        criteria.setFalseDiscoveryRate(falseDiscoveryRate);
         refresh();           
     }
 

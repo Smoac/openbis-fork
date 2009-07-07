@@ -36,9 +36,9 @@ public class BusinessObjectFactory implements IBusinessObjectFactory
         this.specificDAOFactory = specificDAOFactory;
     }
 
-    public IIdentifiedProteinTable createProteinTable(Session session)
+    public IProteinReferenceTable createProteinReferenceTable(Session session)
     {
-        return new IdentifiedProteinTable(daoFactory, specificDAOFactory, session);
+        return new ProteinReferenceTable(daoFactory, specificDAOFactory, session);
     }
 
 }

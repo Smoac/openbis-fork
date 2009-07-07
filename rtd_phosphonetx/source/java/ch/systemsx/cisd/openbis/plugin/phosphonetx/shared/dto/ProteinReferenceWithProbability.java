@@ -23,41 +23,32 @@ import net.lemnik.eodsql.ResultColumn;
  *
  * @author Franz-Josef Elmer
  */
-public abstract class ProteinReference extends AbstractDTOWithID
+public class ProteinReferenceWithProbability extends ProteinReference
 {
+    @ResultColumn("data_set_id")
+    private long dataSetID;
+    
+    @ResultColumn("probability")
+    private double probability;
 
-    @ResultColumn("uniprot_id")
-    private String uniprotID;
-    @ResultColumn("description")
-    private String description;
-
-    /**
-     *
-     *
-     */
-    public ProteinReference()
+    public final long getDataSetID()
     {
-        super();
+        return dataSetID;
     }
 
-    public final String getUniprotID()
+    public final void setDataSetID(long dataSetID)
     {
-        return uniprotID;
+        this.dataSetID = dataSetID;
     }
 
-    public final void setUniprotID(String uniprotID)
+    public final double getProbability()
     {
-        this.uniprotID = uniprotID;
+        return probability;
     }
 
-    public final String getDescription()
+    public final void setProbability(double probability)
     {
-        return description;
+        this.probability = probability;
     }
-
-    public final void setDescription(String description)
-    {
-        this.description = description;
-    }
-
+    
 }

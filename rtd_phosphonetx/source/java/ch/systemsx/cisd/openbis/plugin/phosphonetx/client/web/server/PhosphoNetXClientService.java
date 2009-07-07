@@ -26,8 +26,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ResourceNames;
@@ -63,13 +65,19 @@ public class PhosphoNetXClientService extends AbstractClientService implements I
     {
         final String sessionToken = getSessionToken();
         return listEntities(criteria, new ListProteinOriginalDataProvider(server,
-                sessionToken, criteria.getExperimentID()));
+                sessionToken, criteria.getExperimentID(), criteria.getFalseDiscoveryRate()));
     }
 
     public String prepareExportProteins(TableExportCriteria<ProteinInfo> exportCriteria)
             throws UserFailureException
     {
         return prepareExportEntities(exportCriteria);
+    }
+
+    public ProteinByExperiment getProteinByExperiment(TechId experimentID, TechId proteinReferenceID)
+            throws UserFailureException
+    {
+        return new ProteinByExperiment();
     }
 
 }

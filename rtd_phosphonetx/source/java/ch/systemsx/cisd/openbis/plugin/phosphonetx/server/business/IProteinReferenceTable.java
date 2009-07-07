@@ -25,9 +25,9 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
  *
  * @author Franz-Josef Elmer
  */
-public interface IIdentifiedProteinTable
+public interface IProteinReferenceTable
 {
-    public void load(String experimentPermID);
+    public void load(String experimentPermID, double falseDiscoveryRate);
     
-    public List<ProteinReference> getIdentifiedProteins();
+    public List<ProteinReference> getProteinReferences();
 }

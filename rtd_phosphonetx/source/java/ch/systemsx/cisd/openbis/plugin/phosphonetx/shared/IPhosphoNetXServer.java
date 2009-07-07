@@ -40,5 +40,5 @@ public interface IPhosphoNetXServer extends IServer
     @RolesAllowed(RoleSet.OBSERVER)
     public List<ProteinReference> listProteinsByExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId experimentId) throws UserFailureException;
+            TechId experimentId, double falseDiscoveryRate) throws UserFailureException;
 }

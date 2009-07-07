@@ -36,17 +36,21 @@ class ListProteinOriginalDataProvider implements IOriginalDataProvider<ProteinIn
     private final IPhosphoNetXServer server;
     private final String sessionToken;
     private final TechId experimentID;
+    private final double falseDiscoveryRate;
 
-    ListProteinOriginalDataProvider(IPhosphoNetXServer server, String sessionToken, TechId experimentID)
+    ListProteinOriginalDataProvider(IPhosphoNetXServer server, String sessionToken,
+            TechId experimentID, double falseDiscoveryRate)
     {
         this.server = server;
         this.sessionToken = sessionToken;
         this.experimentID = experimentID;
+        this.falseDiscoveryRate = falseDiscoveryRate;
     }
     
     public List<ProteinInfo> getOriginalData() throws UserFailureException
     {
-        List<ProteinReference> proteins = server.listProteinsByExperiment(sessionToken, experimentID);
+        List<ProteinReference> proteins =
+                server.listProteinsByExperiment(sessionToken, experimentID, falseDiscoveryRate);
         List<ProteinInfo> infos = new ArrayList<ProteinInfo>(proteins.size());
         for (ProteinReference protein : proteins)
         {
@@ -54,6 +58,7 @@ class ListProteinOriginalDataProvider implements IOriginalDataProvider<ProteinIn
             proteinInfo.setId(new TechId(protein.getId()));
             proteinInfo.setUniprotID(protein.getUniprotID());
             proteinInfo.setDescription(protein.getDescription());
+            proteinInfo.setExperimentID(experimentID);
             infos.add(proteinInfo);
         }
         return infos;

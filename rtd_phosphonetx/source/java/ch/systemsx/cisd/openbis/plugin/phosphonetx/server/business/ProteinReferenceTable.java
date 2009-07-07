@@ -17,32 +17,34 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.lemnik.eodsql.DataSet;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-class IdentifiedProteinTable extends AbstractBusinessObject implements IIdentifiedProteinTable
+class ProteinReferenceTable extends AbstractBusinessObject implements IProteinReferenceTable
 {
     private List<ProteinReference> proteins;
 
-    public IdentifiedProteinTable(IDAOFactory daoFactory,
+    public ProteinReferenceTable(IDAOFactory daoFactory,
             IPhosphoNetXDAOFactory specificDAOFactory, Session session)
     {
         super(daoFactory, specificDAOFactory, session);
     }
 
-    public List<ProteinReference> getIdentifiedProteins()
+    public List<ProteinReference> getProteinReferences()
     {
         if (proteins == null)
         {
@@ -51,15 +53,24 @@ class IdentifiedProteinTable extends AbstractBusinessObject implements IIdentifi
         return proteins;
     }
 
-    public void load(String experimentPermID)
+    public void load(String experimentPermID, double falseDiscoveryRate)
     {
         proteins = new ArrayList<ProteinReference>();
-        DataSet<ProteinReference> resultSet =
+        DataSet<ProteinReferenceWithProbability> resultSet =
             getSpecificDAOFactory().getProteinQueryDAO().listProteinsByExperiment(experimentPermID);
         ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
-        for (ProteinReference protein : resultSet)
+        Set<String> idsOfPassedProteins = new HashSet<String>();
+        for (ProteinReferenceWithProbability protein : resultSet)
         {
-            proteins.add(protein);
+            if (errorModel.passProtein(protein, falseDiscoveryRate))
+            {
+                String uniprotID = protein.getUniprotID();
+                if (idsOfPassedProteins.contains(uniprotID) == false)
+                {
+                    idsOfPassedProteins.add(uniprotID);
+                    proteins.add(protein);
+                }
+            }
         }
     }
 
