@@ -62,6 +62,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 @Friend(toClasses = ETLService.class)
 public class ETLServiceTest extends AbstractServerTestCase
 {
+    private static final String UNKNOWN_DATA_SET_TYPE_CODE = "completely-unknown-code";
+
     private static final String DATA_SET_TYPE_CODE = "dataSetTypeCode1";
 
     private static final String DOWNLOAD_URL = "download-url";
@@ -112,8 +114,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(dataStoreService).getVersion(DSS_SESSION_TOKEN);
                     will(returnValue(IDataStoreService.VERSION));
 
-                    allowing(dataSetTypeDAO).tryToFindDataSetTypeByCode(DATA_SET_TYPE_CODE);
-                    will(returnValue(new DataSetTypePE()));
+                    prepareFindDatasetTypes(this);
 
                     allowing(dataStoreDAO).createOrUpdateDataStore(
                             with(new BaseMatcher<DataStorePE>()
@@ -145,6 +146,14 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
+    private void prepareFindDatasetTypes(Expectations exp)
+    {
+        exp.allowing(dataSetTypeDAO).tryToFindDataSetTypeByCode(DATA_SET_TYPE_CODE);
+        exp.will(Expectations.returnValue(new DataSetTypePE()));
+        exp.allowing(dataSetTypeDAO).tryToFindDataSetTypeByCode(UNKNOWN_DATA_SET_TYPE_CODE);
+        exp.will(Expectations.returnValue(null));
+    }
+
     @Test
     public void testRegisterDataStoreServerAgain()
     {
@@ -158,8 +167,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(dataStoreDAO).tryToFindDataStoreByCode(DSS_CODE);
                     will(returnValue(new DataStorePE()));
 
-                    allowing(dataSetTypeDAO).tryToFindDataSetTypeByCode(DATA_SET_TYPE_CODE);
-                    will(returnValue(new DataSetTypePE()));
+                    prepareFindDatasetTypes(this);
 
                     allowing(dataStoreDAO).createOrUpdateDataStore(
                             with(new BaseMatcher<DataStorePE>()
@@ -581,10 +589,12 @@ public class ETLServiceTest extends AbstractServerTestCase
         info.setSessionToken(DSS_SESSION_TOKEN);
         info.setDataStoreCode(DSS_CODE);
         info.setDownloadUrl(DOWNLOAD_URL);
-        List<DatastoreServiceDescription> reporting = Arrays.asList(createDataStoreService("reporting"));
+        List<DatastoreServiceDescription> reporting =
+                Arrays.asList(createDataStoreService("reporting"));
         List<DatastoreServiceDescription> processing =
                 Arrays.asList(createDataStoreService("processing"));
-        DatastoreServiceDescriptions services = new DatastoreServiceDescriptions(reporting, processing);
+        DatastoreServiceDescriptions services =
+                new DatastoreServiceDescriptions(reporting, processing);
         info.setServicesDescriptions(services);
         return info;
     }
@@ -593,6 +603,6 @@ public class ETLServiceTest extends AbstractServerTestCase
     {
         // unknown data set type codes should be silently discarded
         return new DatastoreServiceDescription(key, key, new String[]
-            { DATA_SET_TYPE_CODE, "completely-unknown-code" });
+            { DATA_SET_TYPE_CODE, UNKNOWN_DATA_SET_TYPE_CODE });
     }
 }
