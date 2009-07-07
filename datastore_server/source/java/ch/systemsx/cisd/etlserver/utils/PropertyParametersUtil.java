@@ -104,9 +104,20 @@ public class PropertyParametersUtil
      */
     public static String[] parseItemisedProperty(String itemsList, String itemsListPropertyName)
     {
-        final String[] names = itemsList.split(ITEMS_DELIMITER);
+        String[] names = itemsList.split(ITEMS_DELIMITER);
+        names = trim(names);
         validateUniqueNonemptyNames(names, itemsListPropertyName);
         return names;
+    }
+
+    private static String[] trim(String[] names)
+    {
+        String[] trimmedNames = new String[names.length];
+        for (int i = 0; i < trimmedNames.length; i++)
+        {
+            trimmedNames[i] = names[i].trim();
+        }
+        return trimmedNames;
     }
 
     private static void attachGeneralProperties(final Properties properties, final String[] names,
