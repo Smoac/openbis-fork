@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKi
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
@@ -135,6 +136,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -1692,7 +1694,8 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public List<DatastoreServiceDescription> listPluginTaskDescriptions(PluginTaskKind pluginTaskKind)
+    public List<DatastoreServiceDescription> listPluginTaskDescriptions(
+            PluginTaskKind pluginTaskKind)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -1710,7 +1713,8 @@ public final class CommonClientService extends AbstractClientService implements
      * mock implementation of getting {@link DatastoreServiceDescription}s of specific
      * {@link PluginTaskKind}
      */
-    private List<DatastoreServiceDescription> getMockPluginTaskDescriptions(PluginTaskKind pluginTaskKind)
+    private List<DatastoreServiceDescription> getMockPluginTaskDescriptions(
+            PluginTaskKind pluginTaskKind)
     {
         List<DatastoreServiceDescription> plugins = new ArrayList<DatastoreServiceDescription>();
         String kindName = pluginTaskKind.name();
@@ -1723,6 +1727,13 @@ public final class CommonClientService extends AbstractClientService implements
         plugins.add(new DatastoreServiceDescription("key3", kindName + " 3", new String[]
             { mockDataSetTypeCodes[2], mockDataSetTypeCodes[0] }));
         return plugins;
+    }
+
+    public TableModel createReportFromDatasets(String datastoreServiceKey,
+            DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
+    {
+        // TODO 2009-07-07, Tomasz Pylak: write report generation
+        return null;
     }
 
 }

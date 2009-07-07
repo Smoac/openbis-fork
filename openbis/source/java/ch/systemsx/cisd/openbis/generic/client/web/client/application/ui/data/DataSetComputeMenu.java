@@ -40,6 +40,7 @@ import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
@@ -51,10 +52,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskKind;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableModel;
 
 /**
  * 'Compute' menu for Data Sets.
@@ -148,10 +151,21 @@ public class DataSetComputeMenu extends TextToolItem
                 {
                     return new IComputationAction()
                         {
-                            public void execute(DatastoreServiceDescription pluginTask,
+                            public void execute(DatastoreServiceDescription service,
                                     boolean computeOnSelected)
                             {
-                                createMock(pluginTask);
+                                String datastoreServiceKey = service.getKey();
+                                DisplayedOrSelectedDatasetCriteria criteria =
+                                        createCriteria(selectedAndDisplayedItems, computeOnSelected);
+                                if (pluginTaskKind == PluginTaskKind.QUERIES)
+                                {
+                                    viewContext.getService().createReportFromDatasets(
+                                            datastoreServiceKey, criteria,
+                                            new ReportDisplayCallback(viewContext));
+                                } else
+                                {
+                                    createMock(service);
+                                }
                             }
 
                             private void createMock(DatastoreServiceDescription pluginTask)
@@ -166,6 +180,45 @@ public class DataSetComputeMenu extends TextToolItem
                 }
 
             };
+    }
+
+    private static DisplayedOrSelectedDatasetCriteria createCriteria(
+            SelectedAndDisplayedItems selectedAndDisplayedItems, boolean computeOnSelected)
+    {
+        if (computeOnSelected)
+        {
+            return DisplayedOrSelectedDatasetCriteria
+                    .createSelectedItems(extractCodes(selectedAndDisplayedItems.getSelectedItems()));
+        } else
+        {
+            return DisplayedOrSelectedDatasetCriteria
+                    .createDisplayedItems(selectedAndDisplayedItems.getDisplayedItemsConfig());
+        }
+    }
+
+    private static final class ReportDisplayCallback extends AbstractAsyncCallback<TableModel>
+    {
+
+        public ReportDisplayCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        protected void process(TableModel result)
+        {
+            // TODO 2009-07-07, Tomasz Pylak: display a new tab with a grid
+        }
+    }
+
+    private static List<String> extractCodes(List<ExternalData> selectedItems)
+    {
+        List<String> codes = new ArrayList<String>();
+        for (String code : codes)
+        {
+            codes.add(code);
+        }
+        return codes;
     }
 
     private class ComputationData
