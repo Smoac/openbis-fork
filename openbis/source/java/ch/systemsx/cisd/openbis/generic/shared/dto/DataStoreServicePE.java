@@ -44,6 +44,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
+ * Services offered by the Data Store server to the public.<br>
  * A <i>Persistence Entity</i> which represents an entry in
  * {@link TableNames#DATA_STORE_SERVICES_TABLE}.
  * 

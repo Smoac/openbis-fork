@@ -133,7 +133,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
 
     private static List<DatasetDescription> createDatasetDescriptions()
     {
-        return Arrays.asList(new DatasetDescription(new File("."), "3123123123-123"));
+        return Arrays.asList(new DatasetDescription(".", "3123123123-123"));
     }
 
     private void putPluginProperties(Properties props, String pluginId, String pluginLabel,

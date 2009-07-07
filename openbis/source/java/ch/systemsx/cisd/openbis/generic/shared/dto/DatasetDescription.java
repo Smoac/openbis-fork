@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.io.File;
-
 /**
  * Describes one dataset which should be processed by the plugin task.
  * 
@@ -25,19 +23,19 @@ import java.io.File;
  */
 public class DatasetDescription
 {
-    private final File datasetFile;
-
     private final String datasetCode;
 
-    public DatasetDescription(File datasetFile, String datasetCode)
+    private final String dataSetLocation;
+
+    public DatasetDescription(String datasetCode, String dataSetLocation)
     {
-        this.datasetFile = datasetFile;
+        this.dataSetLocation = dataSetLocation;
         this.datasetCode = datasetCode;
     }
 
-    public File getDatasetFile()
+    public String getDataSetLocation()
     {
-        return datasetFile;
+        return dataSetLocation;
     }
 
     public String getDatasetCode()
