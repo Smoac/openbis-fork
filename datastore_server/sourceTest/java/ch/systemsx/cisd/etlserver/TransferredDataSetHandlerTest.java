@@ -53,9 +53,9 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.JavaMailProperties;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
-import ch.systemsx.cisd.etlserver.plugin_tasks.framework.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
@@ -84,7 +84,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses =
-    { TransferredDataSetHandler.class, IdentifiedDataStrategy.class })
+    { TransferredDataSetHandler.class, IdentifiedDataStrategy.class, PluginTaskProviders.class })
 public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestCase
 {
 

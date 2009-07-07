@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.plugin_tasks.framework;
+package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,13 +31,13 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.etlserver.plugin_tasks.demo.DemoProcessingPlugin;
-import ch.systemsx.cisd.etlserver.plugin_tasks.demo.DemoReportingPlugin;
-import ch.systemsx.cisd.etlserver.plugin_tasks.framework.AbstractPluginTaskFactory;
-import ch.systemsx.cisd.etlserver.plugin_tasks.framework.IProcessingPluginTask;
-import ch.systemsx.cisd.etlserver.plugin_tasks.framework.IReportingPluginTask;
-import ch.systemsx.cisd.etlserver.plugin_tasks.framework.PluginTaskProvider;
-import ch.systemsx.cisd.etlserver.plugin_tasks.framework.PluginTaskProviders;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo.DemoProcessingPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo.DemoReportingPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.AbstractPluginTaskFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvider;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 

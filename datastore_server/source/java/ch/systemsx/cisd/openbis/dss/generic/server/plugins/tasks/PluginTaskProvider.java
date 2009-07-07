@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.plugin_tasks.framework;
+package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.plugin_tasks.demo;
+package ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo;
 
 import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.etlserver.plugin_tasks.framework.IProcessingPluginTask;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**

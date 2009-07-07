@@ -14,21 +14,30 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.plugin_tasks.framework;
+package ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo;
 
 import java.util.List;
+import java.util.Properties;
 
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableModel;
 
 /**
- * Interface of the processing plugin task.
+ * Reporting plugin which can be used for demonstration purposes.
  * 
  * @author Tomasz Pylak
  */
-public interface IProcessingPluginTask
+public class DemoReportingPlugin implements IReportingPluginTask
 {
-    /**
-     * Processes anynchronously the specified datasets.
-     */
-    void process(List<DatasetDescription> datasets);
+    public DemoReportingPlugin(Properties properties)
+    {
+    }
+
+    public TableModel createReport(List<DatasetDescription> datasets)
+    {
+        System.out.println("Reporting from the following datasets has been requested: " + datasets);
+        return null;
+    }
+
 }

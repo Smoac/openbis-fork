@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.utils;
+package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
 import java.util.HashSet;
 import java.util.Properties;
@@ -22,16 +22,28 @@ import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
 /**
- * Utility class to parse a properties section. It's assumed that all proeprties in one section
+ * Utility class to parse properties.
+ * <p>
+ * Includes utilities to parse properties section. It's assumed that all properties in one section
  * begins with the common prefix.
+ * </p>
  * 
  * @author Tomasz Pylak
  */
 public class PropertyParametersUtil
 {
+    private static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
+
     public static final String ITEMS_DELIMITER = ",";
+
+    /** loads server configuration */
+    public static Properties loadServiceProperties()
+    {
+        return PropertyUtils.loadProperties(SERVICE_PROPERTIES_FILE);
+    }
 
     // a section is a set of properties which start with the common prefix
     public static class SectionProperties

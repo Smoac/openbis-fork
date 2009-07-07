@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.plugin_tasks.framework;
+package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
 import java.util.Properties;
 
@@ -28,8 +28,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.etlserver.utils.PropertyParametersUtil;
-import ch.systemsx.cisd.etlserver.utils.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
 
 /**

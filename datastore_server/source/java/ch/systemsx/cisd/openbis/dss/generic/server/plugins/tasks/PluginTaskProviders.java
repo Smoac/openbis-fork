@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.plugin_tasks.framework;
+package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
 import java.util.Properties;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.etlserver.utils.PropertyParametersUtil;
-import ch.systemsx.cisd.etlserver.utils.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PluginTaskDescriptions;
 
 /**
@@ -40,6 +40,17 @@ public class PluginTaskProviders
 
     private final PluginTaskProvider<IProcessingPluginTask> processingPlugins;
 
+    public static PluginTaskProviders create()
+    {
+        Properties properties = PropertyParametersUtil.loadServiceProperties();
+        PluginTaskProviders providers = new PluginTaskProviders(properties);
+        providers.check();
+        providers.logConfigurations();
+        return providers;
+    }
+
+    @Private
+    // only for tests
     public PluginTaskProviders(Properties serviceProperties)
     {
         this.reportingPlugins = createReportingPluginsFactories(serviceProperties);
@@ -56,7 +67,7 @@ public class PluginTaskProviders
         return processingPlugins;
     }
 
-    public void check()
+    private void check()
     {
         processingPlugins.check();
         reportingPlugins.check();

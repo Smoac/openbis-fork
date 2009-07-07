@@ -38,9 +38,8 @@ import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemExit;
-import ch.systemsx.cisd.etlserver.plugin_tasks.framework.PluginTaskProviders;
-import ch.systemsx.cisd.etlserver.utils.PropertyParametersUtil;
-import ch.systemsx.cisd.etlserver.utils.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.SectionProperties;
 
 /**
  * The class to process the command line parameters and service properties.
@@ -54,8 +53,6 @@ public class Parameters
     private static final String QUIET_PERIOD_NAME = "quiet-period";
 
     private static final String REPROCESS_FAULTY_DATASETS_NAME = "reprocess-faulty-datasets";
-
-    private static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, Parameters.class);
@@ -130,8 +127,6 @@ public class Parameters
 
     private final ThreadParameters[] threads;
 
-    private final PluginTaskProviders pluginsTasks;
-
     private final Map<String, Properties> processorProperties;
 
     @Option(longName = "help", skipForExample = true, usage = "Prints out a description of the options.")
@@ -167,12 +162,6 @@ public class Parameters
         }
     }
 
-    /** used externally from spring configuration files */
-    public static PluginTaskProviders createPluginTaskParameters()
-    {
-        return new PluginTaskProviders(loadServiceProperties());
-    }
-
     Parameters(final String[] args)
     {
         this(args, SystemExit.SYSTEM_EXIT);
@@ -182,13 +171,12 @@ public class Parameters
     {
         try
         {
-            this.serviceProperties = loadServiceProperties();
+            this.serviceProperties = PropertyParametersUtil.loadServiceProperties();
             PropertyUtils.trimProperties(serviceProperties);
             this.processorProperties = extractProcessorProperties(serviceProperties);
             this.threads = createThreadParameters(serviceProperties);
             this.mailProperties = createMailProperties(serviceProperties);
             this.timingParameters = TimingParameters.create(serviceProperties);
-            this.pluginsTasks = new PluginTaskProviders(serviceProperties);
 
             initCommandLineParametersFromProperties();
 
@@ -203,18 +191,12 @@ public class Parameters
         }
     }
 
-    private static Properties loadServiceProperties()
-    {
-        return PropertyUtils.loadProperties(SERVICE_PROPERTIES_FILE);
-    }
-
     private void ensureParametersCorrect()
     {
         for (final ThreadParameters thread : threads)
         {
             thread.check();
         }
-        pluginsTasks.check();
 
         if (serverURL == null)
         {
@@ -399,7 +381,6 @@ public class Parameters
             {
                 threadParameters.log();
             }
-            pluginsTasks.logConfigurations();
 
             operationLog.info(String.format("Check intervall: %d s.",
                     getCheckIntervalMillis() / 1000));
