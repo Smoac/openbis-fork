@@ -82,7 +82,7 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
         return UnstoreDataAction.MOVE_TO_ERROR;
     }
 
-    private static File getOriginalDirectory(final File storedDataDirectory)
+    public static File getOriginalDirectory(final File storedDataDirectory)
     {
         return new File(storedDataDirectory, ORIGINAL_DIR);
     }
