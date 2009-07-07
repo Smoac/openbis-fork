@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
@@ -23,8 +25,10 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Tomasz Pylak
  */
-public class PluginTaskDescription implements IsSerializable
+public class PluginTaskDescription implements IsSerializable, Serializable
 {
+    private static final long serialVersionUID = 1;
+    
     private String key;
 
     private String label;

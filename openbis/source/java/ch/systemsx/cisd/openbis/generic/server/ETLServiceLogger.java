@@ -60,8 +60,9 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         int port = info.getPort();
         String dssSessionToken = info.getSessionToken();
         logTracking(sessionToken, "register_data_store_server_session_token",
-                "CODE(%s) DOWNLOAD-URL(%s) PORT(%s) DSS-TOKEN(%s) REPORTING_PLUGINS(%s), PROCE¤ING_PLUGINS(%s)", code, downloadUrl, port,
-                dssSessionToken);
+                "CODE(%s) DOWNLOAD-URL(%s) PORT(%s) DSS-TOKEN(%s) REPORTING_PLUGINS(%s), "
+                        + "PROCESSING_PLUGINS(%s)", code, downloadUrl, port, dssSessionToken, "?",
+                "?");
     }
 
     public void registerDataSet(String sessionToken, SampleIdentifier sampleIdentifier,

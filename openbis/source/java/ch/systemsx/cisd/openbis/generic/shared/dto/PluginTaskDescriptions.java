@@ -16,15 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.io.Serializable;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
 
 /**
  * @author Tomasz Pylak
  */
-public class PluginTaskDescriptions
+public class PluginTaskDescriptions implements Serializable
 {
+    private static final long serialVersionUID = IServer.VERSION;
+
     private final List<PluginTaskDescription> reportingPluginDescriptions;
 
     private final List<PluginTaskDescription> processingPluginDescriptions;
