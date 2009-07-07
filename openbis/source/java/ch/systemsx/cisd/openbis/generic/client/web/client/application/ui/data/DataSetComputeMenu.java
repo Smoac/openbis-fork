@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid.SelectedAndDisplayedItems;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
@@ -65,10 +66,10 @@ public class DataSetComputeMenu extends TextToolItem
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final IDelegatedActionWithResult<List<ExternalData>> getSelectedDataSetsAction;
+    private final IDelegatedActionWithResult<SelectedAndDisplayedItems> getSelectedDataSetsAction;
 
     public DataSetComputeMenu(IViewContext<ICommonClientServiceAsync> viewContext,
-            IDelegatedActionWithResult<List<ExternalData>> getSelectedDataSetsAction)
+            IDelegatedActionWithResult<SelectedAndDisplayedItems> getSelectedDataSetsAction)
     {
         super(viewContext.getMessage(Dict.MENU_COMPUTE));
         this.viewContext = viewContext;
@@ -125,11 +126,13 @@ public class DataSetComputeMenu extends TextToolItem
 
                 public void execute()
                 {
-                    final List<ExternalData> selectedDataSets = getSelectedDataSetsAction.execute();
+                    final SelectedAndDisplayedItems selectedAndDisplayedItems =
+                            getSelectedDataSetsAction.execute();
                     final IComputationAction computationAction =
-                            createComputationAction(selectedDataSets);
+                            createComputationAction(selectedAndDisplayedItems);
                     final ComputationData data =
-                            new ComputationData(pluginTaskKind, computationAction, selectedDataSets);
+                            new ComputationData(pluginTaskKind, computationAction,
+                                    selectedAndDisplayedItems);
                     createPerformComputationDialog(data).show();
                 }
 
@@ -141,12 +144,17 @@ public class DataSetComputeMenu extends TextToolItem
                 }
 
                 private IComputationAction createComputationAction(
-                        List<ExternalData> selectedDataSets)
+                        final SelectedAndDisplayedItems selectedAndDisplayedItems)
                 {
                     return new IComputationAction()
                         {
                             public void execute(DatastoreServiceDescription pluginTask,
                                     boolean computeOnSelected)
+                            {
+                                createMock(pluginTask);
+                            }
+
+                            private void createMock(DatastoreServiceDescription pluginTask)
                             {
                                 final String title =
                                         "Mock " + pluginTaskKind.getDescription() + " execution";
@@ -166,15 +174,15 @@ public class DataSetComputeMenu extends TextToolItem
 
         private final IComputationAction computationAction;
 
-        private final List<ExternalData> selectedDataSets;
+        private final SelectedAndDisplayedItems selectedAndDisplayedItems;
 
         public ComputationData(PluginTaskKind pluginTaskKind, IComputationAction computationAction,
-                List<ExternalData> selectedDataSets)
+                SelectedAndDisplayedItems selectedAndDisplayedItems)
         {
             super();
             this.pluginTaskKind = pluginTaskKind;
             this.computationAction = computationAction;
-            this.selectedDataSets = selectedDataSets;
+            this.selectedAndDisplayedItems = selectedAndDisplayedItems;
         }
 
         public PluginTaskKind getPluginTaskKind()
@@ -189,9 +197,8 @@ public class DataSetComputeMenu extends TextToolItem
 
         public List<ExternalData> getSelectedDataSets()
         {
-            return selectedDataSets;
+            return selectedAndDisplayedItems.getSelectedItems();
         }
-
     }
 
     private class PerformComputationDialog extends AbstractDataConfirmationDialog<ComputationData>
@@ -254,19 +261,20 @@ public class DataSetComputeMenu extends TextToolItem
             switch (size)
             {
                 case 0:
-                    return "No Data Sets were selected. " + "Select a plugin task to perform "
-                            + computationName + " computation on all Data Sets "
-                            + "of appropriate types and click on Run button.";
+                    return "No Data Sets were selected. "
+                            + "Select a data store service to perform " + computationName
+                            + " computation on all Data Sets "
+                            + "of appropriate types and click on a Run button.";
                 case 1:
                     return "Select between performing " + computationName
                             + " computation only on selected Data Set "
                             + "or on all Data Sets of appropriate types, "
-                            + "then select a plugin task and click on Run button.";
+                            + "then select a data store service and click on a Run button.";
                 default:
                     return "Select between performing " + computationName + " computation only on "
                             + size
-                            + "selected Data Sets or on all Data Sets of appropriate types, "
-                            + "then select a plugin task and click on Run button.";
+                            + " selected Data Sets or on all Data Sets of appropriate types, "
+                            + "then select a data store service and click on a Run button.";
             }
         }
 
@@ -363,14 +371,14 @@ public class DataSetComputeMenu extends TextToolItem
 
         private final String createSelectedDataSetTypesText()
         {
-            return createDataSetTypeMsg("Selected Data Set type", selectedDataSetTypeCodes);
+            return createDataSetTypeMsg("Types of selected Data Sets", selectedDataSetTypeCodes);
         }
 
         private final String createUnsupportedDataSetTypesText(List<String> dataSetTypes)
         {
             return createDataSetTypeMsg(
-                    "Selected plugin does not support all types of selected Data Sets. " + BR + BR
-                            + "Unsupported Data Set type", dataSetTypes);
+                    "Selected service does not support all types of selected Data Sets. " + BR + BR
+                            + "Unsupported Data Set types", dataSetTypes);
         }
 
         private final String createDataSetTypeMsg(String singularMsgPrefix,
@@ -388,7 +396,7 @@ public class DataSetComputeMenu extends TextToolItem
         private final RadioGroup createComputationDataSetsRadio()
         {
             final RadioGroup result = new RadioGroup();
-            result.setFieldLabel("Computation Data Sets");
+            result.setFieldLabel("Data Sets");
             result.setSelectionRequired(true);
             result.setOrientation(Orientation.HORIZONTAL);
             result.addListener(Events.Change, new Listener<BaseEvent>()

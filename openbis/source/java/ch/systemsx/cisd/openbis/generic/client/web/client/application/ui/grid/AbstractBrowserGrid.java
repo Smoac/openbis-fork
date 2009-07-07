@@ -86,6 +86,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Windo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -466,24 +467,43 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return filters;
     }
 
+    // returns a current grid configuration, which uses current filtering, sorting and visible
+    // columns settings, but ignores the paging information (refers to all rows in the grid)
+    protected final DefaultResultSetConfig<String, T> createNonPagedGridConfig()
+    {
+        com.extjs.gxt.ui.client.data.SortInfo sortInfo = grid.getStore().getSortState();
+        List<GridFilterInfo<T>> appliedFilters = getAppliedFilters();
+        return createPagingConfig(IResultSetConfig.NO_LIMIT, 0, sortInfo, columnDefinitions,
+                appliedFilters, resultSetKey);
+    }
+
     private static <T> DefaultResultSetConfig<String, T> createPagingConfig(
             PagingLoadConfig loadConfig, Set<IColumnDefinition<T>> availableColumns,
             List<GridFilterInfo<T>> appliedFilters, String resultSetKey)
     {
+        return createPagingConfig(loadConfig.getLimit(), loadConfig.getOffset(), loadConfig
+                .getSortInfo(), availableColumns, appliedFilters, resultSetKey);
+    }
+
+    private static <T> DefaultResultSetConfig<String, T> createPagingConfig(int limit, int offset,
+            com.extjs.gxt.ui.client.data.SortInfo sortInfo,
+            Set<IColumnDefinition<T>> availableColumns, List<GridFilterInfo<T>> appliedFilters,
+            String resultSetKey)
+    {
         DefaultResultSetConfig<String, T> resultSetConfig = new DefaultResultSetConfig<String, T>();
-        resultSetConfig.setLimit(loadConfig.getLimit());
-        resultSetConfig.setOffset(loadConfig.getOffset());
-        SortInfo<T> sortInfo = translateSortInfo(loadConfig, availableColumns);
-        resultSetConfig.setSortInfo(sortInfo);
+        resultSetConfig.setLimit(limit);
+        resultSetConfig.setOffset(offset);
+        SortInfo<T> translatedSortInfo = translateSortInfo(sortInfo, availableColumns);
+        resultSetConfig.setSortInfo(translatedSortInfo);
         resultSetConfig.setFilterInfos(appliedFilters);
         resultSetConfig.setResultSetKey(resultSetKey);
         return resultSetConfig;
     }
 
-    private static <T> SortInfo<T> translateSortInfo(PagingLoadConfig loadConfig,
+    private static <T> SortInfo<T> translateSortInfo(
+            com.extjs.gxt.ui.client.data.SortInfo sortInfo,
             Set<IColumnDefinition<T>> availableColumns)
     {
-        com.extjs.gxt.ui.client.data.SortInfo sortInfo = loadConfig.getSortInfo();
         return translateSortInfo(sortInfo.getSortField(), sortInfo.getSortDir(), availableColumns);
     }
 
@@ -753,11 +773,25 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     /**
-     * Returns all selected items or an empty list if nothing selected.
+     * Returns all models of selected items or an empty list if nothing selected.
      */
     protected final List<M> getSelectedItems()
     {
         return grid.getSelectionModel().getSelectedItems();
+    }
+
+    /**
+     * Returns all base objects of selected items or an empty list if nothing selected.
+     */
+    protected final List<T> getSelectedBaseObjects()
+    {
+        List<M> items = getSelectedItems();
+        List<T> data = new ArrayList<T>();
+        for (BaseEntityModel<T> item : items)
+        {
+            data.add(item.getBaseObject());
+        }
+        return data;
     }
 
     protected final IDelegatedAction createRefreshGridAction()
@@ -1323,14 +1357,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         @Override
         public void componentSelected(ButtonEvent ce)
         {
-            List<M> items = getSelectedItems();
-            if (items.isEmpty() == false)
+            List<T> data = getSelectedBaseObjects();
+            if (data.isEmpty() == false)
             {
-                List<T> data = new ArrayList<T>();
-                for (BaseEntityModel<T> item : items)
-                {
-                    data.add(item.getBaseObject());
-                }
                 IBrowserGridActionInvoker invoker = asActionInvoker();
                 createDialog(data, invoker).show();
             }

@@ -55,9 +55,9 @@ public class PluginTasksView extends ContentPanel
 {
     public static final String ID = GenericConstants.ID_PREFIX + "plugin_tasks-view";
 
-    private static final String HEADING = "Plugin Tasks";
+    private static final String HEADING = "Data Store Services";
 
-    private static final String LABEL = "Label";
+    private static final String LABEL = "Name";
 
     private static final String DATA_SET_TYPES = "Handled Data Set Types";
 

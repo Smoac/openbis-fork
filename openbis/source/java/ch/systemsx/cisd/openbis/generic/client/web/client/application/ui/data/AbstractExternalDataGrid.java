@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -253,26 +254,44 @@ public abstract class AbstractExternalDataGrid
     @SuppressWarnings("unused")
     private final ToolItem createComputeMenu()
     {
-        return new DataSetComputeMenu(viewContext, getSelectedItemsAction());
+        return new DataSetComputeMenu(viewContext, getSelectedAndDisplayedItemsAction());
     }
 
-    private final IDelegatedActionWithResult<List<ExternalData>> getSelectedItemsAction()
+    public final static class SelectedAndDisplayedItems
     {
-        return new IDelegatedActionWithResult<List<ExternalData>>()
+        // describes all items which are displayed in the grid (including all grid pages)
+        private final DefaultResultSetConfig<String, ExternalData> displayedItemsConfig;
+
+        // currently selected items
+        private final List<ExternalData> selectedItems;
+
+        public SelectedAndDisplayedItems(
+                DefaultResultSetConfig<String, ExternalData> nonPagedGridConfig,
+                List<ExternalData> selectedItems)
+        {
+            this.displayedItemsConfig = nonPagedGridConfig;
+            this.selectedItems = selectedItems;
+        }
+
+        public DefaultResultSetConfig<String, ExternalData> getDisplayedItemsConfig()
+        {
+            return displayedItemsConfig;
+        }
+
+        public List<ExternalData> getSelectedItems()
+        {
+            return selectedItems;
+        }
+    }
+
+    private final IDelegatedActionWithResult<SelectedAndDisplayedItems> getSelectedAndDisplayedItemsAction()
+    {
+        return new IDelegatedActionWithResult<SelectedAndDisplayedItems>()
             {
-                public List<ExternalData> execute()
+                public SelectedAndDisplayedItems execute()
                 {
-                    final List<BaseEntityModel<ExternalData>> items = getSelectedItems();
-                    final List<ExternalData> result = new ArrayList<ExternalData>();
-                    if (items.isEmpty() == false)
-                    {
-                        for (BaseEntityModel<ExternalData> item : items)
-                        {
-                            ExternalData dataSet = item.getBaseObject();
-                            result.add(dataSet);
-                        }
-                    }
-                    return result;
+                    return new SelectedAndDisplayedItems(createNonPagedGridConfig(),
+                            getSelectedBaseObjects());
                 }
             };
     }
