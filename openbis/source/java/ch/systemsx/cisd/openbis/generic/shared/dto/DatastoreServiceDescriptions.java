@@ -19,33 +19,34 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import java.io.Serializable;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * @author Tomasz Pylak
  */
-public class PluginTaskDescriptions implements Serializable
+public class DatastoreServiceDescriptions implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private final List<PluginTaskDescription> reportingServiceDescriptions;
+    private final List<DatastoreServiceDescription> reportingServiceDescriptions;
 
-    private final List<PluginTaskDescription> processingServiceDescriptions;
+    private final List<DatastoreServiceDescription> processingServiceDescriptions;
 
-    public PluginTaskDescriptions(List<PluginTaskDescription> reportingServiceDescriptions,
-            List<PluginTaskDescription> processingServiceDescriptions)
+    public DatastoreServiceDescriptions(
+            List<DatastoreServiceDescription> reportingServiceDescriptions,
+            List<DatastoreServiceDescription> processingServiceDescriptions)
     {
         this.reportingServiceDescriptions = reportingServiceDescriptions;
         this.processingServiceDescriptions = processingServiceDescriptions;
     }
 
-    public List<PluginTaskDescription> getReportingServiceDescriptions()
+    public List<DatastoreServiceDescription> getReportingServiceDescriptions()
     {
         return reportingServiceDescriptions;
     }
 
-    public List<PluginTaskDescription> getProcessingServiceDescriptions()
+    public List<DatastoreServiceDescription> getProcessingServiceDescriptions()
     {
         return processingServiceDescriptions;
     }

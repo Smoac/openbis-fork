@@ -58,7 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -560,9 +560,9 @@ public interface ICommonClientService extends IClientService
 
     /**
      * For given {@link PluginTaskKind} returns a list of all corresponding
-     * {@link PluginTaskDescription}s.
+     * {@link DatastoreServiceDescription}s.
      */
-    public List<PluginTaskDescription> listPluginTaskDescriptions(PluginTaskKind pluginTaskKind)
+    public List<DatastoreServiceDescription> listPluginTaskDescriptions(PluginTaskKind pluginTaskKind)
             throws UserFailureException;
 
 }

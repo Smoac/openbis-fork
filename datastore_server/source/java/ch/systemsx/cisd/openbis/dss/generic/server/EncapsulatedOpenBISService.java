@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PluginTaskDescriptions;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -81,7 +81,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
 
     private DatabaseInstancePE homeDatabaseInstance;
 
-    private PluginTaskDescriptions pluginTaskDescriptions;
+    private DatastoreServiceDescriptions pluginTaskDescriptions;
 
     public EncapsulatedOpenBISService(SessionTokenManager sessionTokenManager, String serverURL,
             PluginTaskProviders pluginTaskParameters)

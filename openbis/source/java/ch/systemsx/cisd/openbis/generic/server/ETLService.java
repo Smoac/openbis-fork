@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
@@ -52,7 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PluginTaskDescriptions;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -162,7 +162,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         dataStoreDAO.createOrUpdateDataStore(dataStore);
     }
 
-    private void setServices(DataStorePE dataStore, PluginTaskDescriptions serviceDescs,
+    private void setServices(DataStorePE dataStore, DatastoreServiceDescriptions serviceDescs,
             IDataStoreDAO dataStoreDAO)
     {
         // Clean services first and save the result.
@@ -180,7 +180,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     }
 
     private Set<DataStoreServicePE> createDataStoreServices(
-            PluginTaskDescriptions serviceDescriptions)
+            DatastoreServiceDescriptions serviceDescriptions)
     {
         Set<DataStoreServicePE> services = new HashSet<DataStoreServicePE>();
 
@@ -198,10 +198,10 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     }
 
     private Set<DataStoreServicePE> createDataStoreServices(
-            List<PluginTaskDescription> serviceDescriptions, DataStoreServiceKind serviceKind)
+            List<DatastoreServiceDescription> serviceDescriptions, DataStoreServiceKind serviceKind)
     {
         Set<DataStoreServicePE> services = new HashSet<DataStoreServicePE>();
-        for (PluginTaskDescription desc : serviceDescriptions)
+        for (DatastoreServiceDescription desc : serviceDescriptions)
         {
             DataStoreServicePE service = new DataStoreServicePE();
             service.setKey(desc.getKey());
@@ -215,7 +215,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     }
 
     private Set<DataSetTypePE> extractDatasetTypes(String[] datasetTypeCodes,
-            PluginTaskDescription serviceDescription)
+            DatastoreServiceDescription serviceDescription)
     {
         Set<DataSetTypePE> datasetTypes = new HashSet<DataSetTypePE>();
         Set<String> missingCodes = new HashSet<String>();
@@ -239,7 +239,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     }
 
     private void notifyDataStoreServerMisconfiguration(Set<String> missingCodes,
-            PluginTaskDescription serviceDescription)
+            DatastoreServiceDescription serviceDescription)
     {
         String missingCodesText = CollectionUtils.abbreviate(missingCodes, -1);
         notificationLog.warn(String.format("The Datastore Server Plugin '%s' is misconfigured. "

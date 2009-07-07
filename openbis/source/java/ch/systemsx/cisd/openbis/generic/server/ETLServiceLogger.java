@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PluginTaskDescriptions;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -60,7 +60,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         String downloadUrl = info.getDownloadUrl();
         int port = info.getPort();
         String dssSessionToken = info.getSessionToken();
-        PluginTaskDescriptions services = info.getServicesDescriptions();
+        DatastoreServiceDescriptions services = info.getServicesDescriptions();
         logTracking(
                 sessionToken,
                 "register_data_store_server_session_token",

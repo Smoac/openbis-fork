@@ -30,7 +30,7 @@ import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.SectionProperties;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 
 /**
  * Abstract class for a factory of plugin tasks.
@@ -69,7 +69,7 @@ public abstract class AbstractPluginTaskFactory<T>
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, AbstractPluginTaskFactory.class);
 
-    private final PluginTaskDescription description;
+    private final DatastoreServiceDescription description;
 
     private final String className;
 
@@ -81,7 +81,7 @@ public abstract class AbstractPluginTaskFactory<T>
         String pluginKey = sectionProperties.getKey();
         String label = PropertyUtils.getMandatoryProperty(pluginProperties, LABEL_PROPERTY_NAME);
         String[] datasetCodes = extractDatasetCodes(pluginProperties);
-        this.description = new PluginTaskDescription(pluginKey, label, datasetCodes);
+        this.description = new DatastoreServiceDescription(pluginKey, label, datasetCodes);
         this.className = PropertyUtils.getMandatoryProperty(pluginProperties, CLASS_PROPERTY_NAME);
         this.instanceParameters = extractInstanceParameters(pluginProperties);
     }
@@ -145,7 +145,7 @@ public abstract class AbstractPluginTaskFactory<T>
     }
 
     /** @return description of a plugin task. It is the same for all plugin instances. */
-    public PluginTaskDescription getPluginDescription()
+    public DatastoreServiceDescription getPluginDescription()
     {
         return description;
     }

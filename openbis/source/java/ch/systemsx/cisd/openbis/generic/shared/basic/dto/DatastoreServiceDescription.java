@@ -25,7 +25,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Tomasz Pylak
  */
-public class PluginTaskDescription implements IsSerializable, Serializable
+public class DatastoreServiceDescription implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -37,11 +37,11 @@ public class PluginTaskDescription implements IsSerializable, Serializable
 
     @SuppressWarnings("unused")
     // for GWT serialization
-    private PluginTaskDescription()
+    private DatastoreServiceDescription()
     {
     }
 
-    public PluginTaskDescription(String key, String label, String[] datasetTypeCodes)
+    public DatastoreServiceDescription(String key, String label, String[] datasetTypeCodes)
     {
         this.key = key;
         this.label = label;

@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPlug
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -74,9 +74,9 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         pluginInstance1.createReport(createDatasetDescriptions());
         factories.createPluginInstance(plugin2);
 
-        List<PluginTaskDescription> descriptions = factories.getPluginDescriptions();
+        List<DatastoreServiceDescription> descriptions = factories.getPluginDescriptions();
         assertEquals(2, descriptions.size());
-        for (PluginTaskDescription desc : descriptions)
+        for (DatastoreServiceDescription desc : descriptions)
         {
             String key = desc.getKey();
             if (key.equals(plugin2))

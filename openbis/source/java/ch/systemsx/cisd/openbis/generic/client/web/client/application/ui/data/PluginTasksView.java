@@ -43,11 +43,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Mode
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PluginTaskDescriptionModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskKind;
 
 /**
- * Implements {@link PluginTaskDescription} listing functionality.
+ * Implements {@link DatastoreServiceDescription} listing functionality.
  * 
  * @author Pitor Buczek
  */
@@ -96,7 +96,7 @@ public class PluginTasksView extends ContentPanel
         refresh();
     }
 
-    private void display(final List<PluginTaskDescription> plugins)
+    private void display(final List<DatastoreServiceDescription> plugins)
     {
         removeAll();
 
@@ -146,10 +146,10 @@ public class PluginTasksView extends ContentPanel
     }
 
     List<PluginTaskDescriptionModel> getPluginTaskModels(
-            final List<PluginTaskDescription> pluginTasks)
+            final List<DatastoreServiceDescription> pluginTasks)
     {
         final List<PluginTaskDescriptionModel> result = new ArrayList<PluginTaskDescriptionModel>();
-        for (final PluginTaskDescription p : pluginTasks)
+        for (final DatastoreServiceDescription p : pluginTasks)
         {
             result.add(new PluginTaskDescriptionModel(p));
         }
@@ -179,7 +179,7 @@ public class PluginTasksView extends ContentPanel
     /**
      * Returns one selected item or null if nothing selected.
      */
-    public final PluginTaskDescription tryGetSelectedItem()
+    public final DatastoreServiceDescription tryGetSelectedItem()
     {
         if (grid == null)
         {
@@ -209,7 +209,7 @@ public class PluginTasksView extends ContentPanel
     //
 
     public final class ListPluginTaskDescriptionsCallback extends
-            AbstractAsyncCallback<List<PluginTaskDescription>>
+            AbstractAsyncCallback<List<DatastoreServiceDescription>>
     {
         private ListPluginTaskDescriptionsCallback(
                 final IViewContext<ICommonClientServiceAsync> viewContext)
@@ -222,7 +222,7 @@ public class PluginTasksView extends ContentPanel
         //
 
         @Override
-        public final void process(final List<PluginTaskDescription> plugins)
+        public final void process(final List<DatastoreServiceDescription> plugins)
         {
             display(plugins);
         }

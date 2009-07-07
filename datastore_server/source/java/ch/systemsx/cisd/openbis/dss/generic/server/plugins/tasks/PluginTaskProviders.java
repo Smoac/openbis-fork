@@ -21,7 +21,7 @@ import java.util.Properties;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.SectionProperties;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PluginTaskDescriptions;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 
 /**
  * @author Tomasz Pylak
@@ -116,9 +116,9 @@ public class PluginTaskProviders
                 namesListPropertyKey, false);
     }
 
-    public PluginTaskDescriptions getPluginTaskDescriptions()
+    public DatastoreServiceDescriptions getPluginTaskDescriptions()
     {
-        return new PluginTaskDescriptions(reportingPlugins.getPluginDescriptions(),
+        return new DatastoreServiceDescriptions(reportingPlugins.getPluginDescriptions(),
                 processingPlugins.getPluginDescriptions());
     }
 

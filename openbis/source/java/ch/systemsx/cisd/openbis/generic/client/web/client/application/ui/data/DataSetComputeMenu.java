@@ -52,7 +52,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskKind;
 
 /**
@@ -145,7 +145,7 @@ public class DataSetComputeMenu extends TextToolItem
                 {
                     return new IComputationAction()
                         {
-                            public void execute(PluginTaskDescription pluginTask,
+                            public void execute(DatastoreServiceDescription pluginTask,
                                     boolean computeOnSelected)
                             {
                                 final String title =
@@ -273,7 +273,7 @@ public class DataSetComputeMenu extends TextToolItem
         @Override
         protected boolean validate()
         {
-            final PluginTaskDescription selectedPluginTaskOrNull = tryGetSelectedPluginTask();
+            final DatastoreServiceDescription selectedPluginTaskOrNull = tryGetSelectedPluginTask();
             if (selectedPluginTaskOrNull == null)
             {
                 return false;
@@ -306,24 +306,24 @@ public class DataSetComputeMenu extends TextToolItem
         protected void executeConfirmedAction()
         {
             final IComputationAction computationAction = data.getComputationAction();
-            final PluginTaskDescription selectedPluginTask = getSelectedPluginTask();
+            final DatastoreServiceDescription selectedPluginTask = getSelectedPluginTask();
             final boolean computeOnSelected = getComputeOnSelected();
             computationAction.execute(selectedPluginTask, computeOnSelected);
         }
 
-        private Set<String> getSupportedDataSetTypes(PluginTaskDescription plugin)
+        private Set<String> getSupportedDataSetTypes(DatastoreServiceDescription plugin)
         {
             return new HashSet<String>(Arrays.asList(plugin.getDatasetTypeCodes()));
         }
 
-        private PluginTaskDescription getSelectedPluginTask()
+        private DatastoreServiceDescription getSelectedPluginTask()
         {
-            PluginTaskDescription selectedPluginOrNull = tryGetSelectedPluginTask();
+            DatastoreServiceDescription selectedPluginOrNull = tryGetSelectedPluginTask();
             assert selectedPluginOrNull != null : "no plugin selected!";
             return selectedPluginOrNull;
         }
 
-        private PluginTaskDescription tryGetSelectedPluginTask()
+        private DatastoreServiceDescription tryGetSelectedPluginTask()
         {
             return pluginTasksGrid.tryGetSelectedItem();
         }
@@ -424,7 +424,7 @@ public class DataSetComputeMenu extends TextToolItem
 
     private static interface IComputationAction
     {
-        void execute(PluginTaskDescription pluginTask, boolean computeOnSelected);
+        void execute(DatastoreServiceDescription pluginTask, boolean computeOnSelected);
     }
 
 }

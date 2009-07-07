@@ -20,10 +20,10 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 
 /**
- * {@link ModelData} for {@link PluginTaskDescription}.
+ * {@link ModelData} for {@link DatastoreServiceDescription}.
  * 
  * @author Piotr Buczek
  */
@@ -36,14 +36,14 @@ public class PluginTaskDescriptionModel extends BaseModelData
     {
     }
 
-    public PluginTaskDescriptionModel(final PluginTaskDescription p)
+    public PluginTaskDescriptionModel(final DatastoreServiceDescription p)
     {
         set(ModelDataPropertyNames.OBJECT, p);
         set(ModelDataPropertyNames.LABEL, p.getLabel());
         set(ModelDataPropertyNames.DATA_SET_TYPES, StringUtils.join(p.getDatasetTypeCodes(), ", "));
     }
 
-    public final PluginTaskDescription getBaseObject()
+    public final DatastoreServiceDescription getBaseObject()
     {
         return get(ModelDataPropertyNames.OBJECT);
     }

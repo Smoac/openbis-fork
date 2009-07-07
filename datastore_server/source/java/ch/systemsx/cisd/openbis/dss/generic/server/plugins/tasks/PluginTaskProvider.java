@@ -22,7 +22,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 
 /**
  * Stores plugin tasks factories of one type (the one specified as a generic).
@@ -52,9 +52,9 @@ public class PluginTaskProvider<P>
         return factories.tryGet(pluginKey).createPluginInstance();
     }
 
-    public List<PluginTaskDescription> getPluginDescriptions()
+    public List<DatastoreServiceDescription> getPluginDescriptions()
     {
-        List<PluginTaskDescription> descriptions = new ArrayList<PluginTaskDescription>();
+        List<DatastoreServiceDescription> descriptions = new ArrayList<DatastoreServiceDescription>();
         for (AbstractPluginTaskFactory<?> factory : factories.values())
         {
             descriptions.add(factory.getPluginDescription());

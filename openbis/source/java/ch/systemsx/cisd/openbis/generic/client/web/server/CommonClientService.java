@@ -110,7 +110,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyTyp
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -1692,7 +1692,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public List<PluginTaskDescription> listPluginTaskDescriptions(PluginTaskKind pluginTaskKind)
+    public List<DatastoreServiceDescription> listPluginTaskDescriptions(PluginTaskKind pluginTaskKind)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -1707,20 +1707,20 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     /**
-     * mock implementation of getting {@link PluginTaskDescription}s of specific
+     * mock implementation of getting {@link DatastoreServiceDescription}s of specific
      * {@link PluginTaskKind}
      */
-    private List<PluginTaskDescription> getMockPluginTaskDescriptions(PluginTaskKind pluginTaskKind)
+    private List<DatastoreServiceDescription> getMockPluginTaskDescriptions(PluginTaskKind pluginTaskKind)
     {
-        List<PluginTaskDescription> plugins = new ArrayList<PluginTaskDescription>();
+        List<DatastoreServiceDescription> plugins = new ArrayList<DatastoreServiceDescription>();
         String kindName = pluginTaskKind.name();
         String[] mockDataSetTypeCodes =
             { "UNKNOWN", "HCS_IMAGE", "HCS_IMAGE_ANALYSIS_DATA" };
-        plugins.add(new PluginTaskDescription("key1", kindName + " 1", new String[]
+        plugins.add(new DatastoreServiceDescription("key1", kindName + " 1", new String[]
             { mockDataSetTypeCodes[0], mockDataSetTypeCodes[1] }));
-        plugins.add(new PluginTaskDescription("key2", kindName + " 2", new String[]
+        plugins.add(new DatastoreServiceDescription("key2", kindName + " 2", new String[]
             { mockDataSetTypeCodes[1], mockDataSetTypeCodes[2] }));
-        plugins.add(new PluginTaskDescription("key3", kindName + " 3", new String[]
+        plugins.add(new DatastoreServiceDescription("key3", kindName + " 3", new String[]
             { mockDataSetTypeCodes[2], mockDataSetTypeCodes[0] }));
         return plugins;
     }

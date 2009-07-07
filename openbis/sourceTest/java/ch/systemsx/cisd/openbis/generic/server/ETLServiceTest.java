@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PluginTaskDescriptions;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -581,18 +581,18 @@ public class ETLServiceTest extends AbstractServerTestCase
         info.setSessionToken(DSS_SESSION_TOKEN);
         info.setDataStoreCode(DSS_CODE);
         info.setDownloadUrl(DOWNLOAD_URL);
-        List<PluginTaskDescription> reporting = Arrays.asList(createDataStoreService("reporting"));
-        List<PluginTaskDescription> processing =
+        List<DatastoreServiceDescription> reporting = Arrays.asList(createDataStoreService("reporting"));
+        List<DatastoreServiceDescription> processing =
                 Arrays.asList(createDataStoreService("processing"));
-        PluginTaskDescriptions services = new PluginTaskDescriptions(reporting, processing);
+        DatastoreServiceDescriptions services = new DatastoreServiceDescriptions(reporting, processing);
         info.setServicesDescriptions(services);
         return info;
     }
 
-    private static PluginTaskDescription createDataStoreService(String key)
+    private static DatastoreServiceDescription createDataStoreService(String key)
     {
         // unknown data set type codes should be silently discarded
-        return new PluginTaskDescription(key, key, new String[]
+        return new DatastoreServiceDescription(key, key, new String[]
             { DATA_SET_TYPE_CODE, "completely-unknown-code" });
     }
 }
