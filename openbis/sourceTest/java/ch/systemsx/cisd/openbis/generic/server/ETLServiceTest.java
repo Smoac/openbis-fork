@@ -115,26 +115,28 @@ public class ETLServiceTest extends AbstractServerTestCase
                     allowing(dataSetTypeDAO).tryToFindDataSetTypeByCode(DATA_SET_TYPE_CODE);
                     will(returnValue(new DataSetTypePE()));
 
-                    one(dataStoreDAO).createOrUpdateDataStore(with(new BaseMatcher<DataStorePE>()
-                        {
-                            public void describeTo(Description description)
-                            {
-                            }
-
-                            public boolean matches(Object item)
-                            {
-                                if (item instanceof DataStorePE)
+                    allowing(dataStoreDAO).createOrUpdateDataStore(
+                            with(new BaseMatcher<DataStorePE>()
                                 {
-                                    DataStorePE store = (DataStorePE) item;
-                                    return DSS_CODE.equals(store.getCode())
-                                            && URL.equals(store.getRemoteUrl())
-                                            && DOWNLOAD_URL.equals(store.getDownloadUrl())
-                                            && DSS_SESSION_TOKEN.equals(store.getSessionToken());
-                                }
-                                return false;
-                            }
+                                    public void describeTo(Description description)
+                                    {
+                                    }
 
-                        }));
+                                    public boolean matches(Object item)
+                                    {
+                                        if (item instanceof DataStorePE)
+                                        {
+                                            DataStorePE store = (DataStorePE) item;
+                                            return DSS_CODE.equals(store.getCode())
+                                                    && URL.equals(store.getRemoteUrl())
+                                                    && DOWNLOAD_URL.equals(store.getDownloadUrl())
+                                                    && DSS_SESSION_TOKEN.equals(store
+                                                            .getSessionToken());
+                                        }
+                                        return false;
+                                    }
+
+                                }));
                 }
             });
 
@@ -159,26 +161,28 @@ public class ETLServiceTest extends AbstractServerTestCase
                     allowing(dataSetTypeDAO).tryToFindDataSetTypeByCode(DATA_SET_TYPE_CODE);
                     will(returnValue(new DataSetTypePE()));
 
-                    one(dataStoreDAO).createOrUpdateDataStore(with(new BaseMatcher<DataStorePE>()
-                        {
-                            public void describeTo(Description description)
-                            {
-                            }
-
-                            public boolean matches(Object item)
-                            {
-                                if (item instanceof DataStorePE)
+                    allowing(dataStoreDAO).createOrUpdateDataStore(
+                            with(new BaseMatcher<DataStorePE>()
                                 {
-                                    DataStorePE store = (DataStorePE) item;
-                                    return DSS_CODE.equals(store.getCode())
-                                            && URL.equals(store.getRemoteUrl())
-                                            && DOWNLOAD_URL.equals(store.getDownloadUrl())
-                                            && DSS_SESSION_TOKEN.equals(store.getSessionToken());
-                                }
-                                return false;
-                            }
+                                    public void describeTo(Description description)
+                                    {
+                                    }
 
-                        }));
+                                    public boolean matches(Object item)
+                                    {
+                                        if (item instanceof DataStorePE)
+                                        {
+                                            DataStorePE store = (DataStorePE) item;
+                                            return DSS_CODE.equals(store.getCode())
+                                                    && URL.equals(store.getRemoteUrl())
+                                                    && DOWNLOAD_URL.equals(store.getDownloadUrl())
+                                                    && DSS_SESSION_TOKEN.equals(store
+                                                            .getSessionToken());
+                                        }
+                                        return false;
+                                    }
+
+                                }));
                 }
             });
 
@@ -587,7 +591,8 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private static PluginTaskDescription createDataStoreService(String key)
     {
+        // unknown data set type codes should be silently discarded
         return new PluginTaskDescription(key, key, new String[]
-            { DATA_SET_TYPE_CODE });
+            { DATA_SET_TYPE_CODE, "completely-unknown-code" });
     }
 }

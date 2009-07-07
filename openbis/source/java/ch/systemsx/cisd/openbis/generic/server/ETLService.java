@@ -158,10 +158,25 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         dataStore.setDownloadUrl(info.getDownloadUrl());
         dataStore.setRemoteUrl(dssURL);
         dataStore.setSessionToken(dssSessionToken);
-        Set<DataStoreServicePE> dataStoreServices =
-                createDataStoreServices(info.getServicesDescriptions());
-        dataStore.setServices(dataStoreServices);
+        setServices(dataStore, info.getServicesDescriptions(), dataStoreDAO);
         dataStoreDAO.createOrUpdateDataStore(dataStore);
+    }
+
+    private void setServices(DataStorePE dataStore, PluginTaskDescriptions serviceDescs,
+            IDataStoreDAO dataStoreDAO)
+    {
+        // Clean services first and save the result.
+        // In general it should happen automatically, because services are annotated with
+        // "DELETE_ORPHANS".
+        // But hibernate does the orphans deletion at the flush time, and insertion of new services
+        // is performed before.
+        // So if it happens that services with the same keys are registered, we have a unique
+        // constraint violation. This is a recognized hibernate bug HHH-2421.
+        dataStore.setServices(new HashSet<DataStoreServicePE>());
+        dataStoreDAO.createOrUpdateDataStore(dataStore);
+
+        Set<DataStoreServicePE> dataStoreServices = createDataStoreServices(serviceDescs);
+        dataStore.setServices(dataStoreServices);
     }
 
     private Set<DataStoreServicePE> createDataStoreServices(
@@ -211,8 +226,10 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
             if (datasetType == null)
             {
                 missingCodes.add(datasetTypeCode);
+            } else
+            {
+                datasetTypes.add(datasetType);
             }
-            datasetTypes.add(datasetType);
         }
         if (missingCodes.size() > 0)
         {

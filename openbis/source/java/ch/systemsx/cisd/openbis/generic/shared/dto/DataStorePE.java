@@ -35,6 +35,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.validator.Length;
@@ -184,8 +185,8 @@ public final class DataStorePE extends AbstractIdAndCodeHolder<DataStorePE>
     }
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "dataStoreInternal")
-    // @Cascade(value =
-    // { org.hibernate.annotations.CascadeType.DELETE_ORPHAN })
+    @Cascade(value =
+        { org.hibernate.annotations.CascadeType.DELETE_ORPHAN })
     @NotNull(message = ValidationMessages.DATA_STORE_SERVICES_NOT_NULL_MESSAGE)
     private Set<DataStoreServicePE> getServicesInternal()
     {

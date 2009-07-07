@@ -16,9 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import static org.testng.AssertJUnit.assertNotNull;
+
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.test.annotation.Rollback;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
@@ -37,24 +40,38 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
     { "db", "dataStore" })
 public final class DataStoreDAOTest extends AbstractDAOTest
 {
+    private static final String DATA_STORE_CODE = "xxx";
+
     @Test
+    @Rollback(value = false)
     public void testCreate()
     {
         DataStorePE dataStore = new DataStorePE();
         dataStore.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
-        String dataStoreCode = "xxx";
-        dataStore.setCode(dataStoreCode);
-        dataStore.setDownloadUrl(dataStoreCode);
-        dataStore.setRemoteUrl(dataStoreCode);
-        dataStore.setSessionToken(dataStoreCode);
-        dataStore.setServices(createDataStoreServices(dataStoreCode));
+        String code = DATA_STORE_CODE;
+        dataStore.setCode(code);
+        dataStore.setDownloadUrl(code);
+        dataStore.setRemoteUrl(code);
+        dataStore.setSessionToken(code);
+        dataStore.setServices(createDataStoreServices(code));
         daoFactory.getDataStoreDAO().createOrUpdateDataStore(dataStore);
-        AssertJUnit.assertNotNull(dataStore.getId());
+        assertNotNull(dataStore.getId());
 
-        DataStorePE store = daoFactory.getDataStoreDAO().tryToFindDataStoreByCode(dataStoreCode);
+        DataStorePE store = daoFactory.getDataStoreDAO().tryToFindDataStoreByCode(code);
         AssertJUnit.assertEquals(dataStore, store);
-        // check if changing the registered services does not fail
+        // check if changing the registered services does not fail when the result of this test
+        // method will be commited
         dataStore.setServices(createDataStoreServices("another"));
+        daoFactory.getDataStoreDAO().createOrUpdateDataStore(dataStore);
+    }
+
+    @Test(dependsOnMethods = "testCreate")
+    public void testDelete()
+    {
+        DataStorePE dataStore =
+                daoFactory.getDataStoreDAO().tryToFindDataStoreByCode(DATA_STORE_CODE);
+        assertNotNull(dataStore);
+        dataStore.setServices(new HashSet<DataStoreServicePE>()); // delete all services
         daoFactory.getDataStoreDAO().createOrUpdateDataStore(dataStore);
     }
 

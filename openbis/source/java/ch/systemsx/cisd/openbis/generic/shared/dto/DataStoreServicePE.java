@@ -115,7 +115,7 @@ public class DataStoreServicePE implements Serializable
         this.label = label;
     }
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     @JoinTable(name = TableNames.DATA_STORE_SERVICES_DATASET_TYPES_TABLE, joinColumns = @JoinColumn(name = ColumnNames.DATA_STORE_SERVICES_DATASET_TYPES_PARENT_COLUMN), inverseJoinColumns = @JoinColumn(name = ColumnNames.DATA_STORE_SERVICES_DATASET_TYPES_CHILDREN_COLUMN))
     public Set<DataSetTypePE> getDatasetTypes()
     {
