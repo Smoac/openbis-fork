@@ -55,9 +55,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Strin
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskKind;
-import ch.systemsx.cisd.openbis.generic.shared.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 
 /**
  * 'Compute' menu for Data Sets.
@@ -69,14 +69,14 @@ public class DataSetComputeMenu extends TextToolItem
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final IDelegatedActionWithResult<SelectedAndDisplayedItems> getSelectedDataSetsAction;
+    private final IDelegatedActionWithResult<SelectedAndDisplayedItems> selectedDataSetsGetter;
 
     public DataSetComputeMenu(IViewContext<ICommonClientServiceAsync> viewContext,
-            IDelegatedActionWithResult<SelectedAndDisplayedItems> getSelectedDataSetsAction)
+            IDelegatedActionWithResult<SelectedAndDisplayedItems> selectedDataSetsGetter)
     {
         super(viewContext.getMessage(Dict.MENU_COMPUTE));
         this.viewContext = viewContext;
-        this.getSelectedDataSetsAction = getSelectedDataSetsAction;
+        this.selectedDataSetsGetter = selectedDataSetsGetter;
 
         Menu menu = new Menu();
         addMenuItem(menu, PluginTaskActionMenuKind.COMPUTE_MENU_QUERIES);
@@ -89,17 +89,17 @@ public class DataSetComputeMenu extends TextToolItem
     /** {@link ActionMenu} kind enum with names matching dictionary keys */
     public static enum PluginTaskActionMenuKind implements IActionMenuItem
     {
-        COMPUTE_MENU_QUERIES(PluginTaskKind.QUERIES), COMPUTE_MENU_PROCESSING(
-                PluginTaskKind.PROCESSING);
+        COMPUTE_MENU_QUERIES(DataStoreServiceKind.QUERIES), COMPUTE_MENU_PROCESSING(
+                DataStoreServiceKind.PROCESSING);
 
-        private final PluginTaskKind pluginTaskKind;
+        private final DataStoreServiceKind pluginTaskKind;
 
-        PluginTaskActionMenuKind(PluginTaskKind pluginTaskKind)
+        PluginTaskActionMenuKind(DataStoreServiceKind pluginTaskKind)
         {
             this.pluginTaskKind = pluginTaskKind;
         }
 
-        public PluginTaskKind getPluginTaskKind()
+        public DataStoreServiceKind getPluginTaskKind()
         {
             return pluginTaskKind;
         }
@@ -122,7 +122,7 @@ public class DataSetComputeMenu extends TextToolItem
         menu.add(new ActionMenu(menuItemKind, viewContext, menuItemAction));
     }
 
-    private IDelegatedAction createComputeMenuAction(final PluginTaskKind pluginTaskKind)
+    private IDelegatedAction createComputeMenuAction(final DataStoreServiceKind pluginTaskKind)
     {
         return new IDelegatedAction()
             {
@@ -130,7 +130,7 @@ public class DataSetComputeMenu extends TextToolItem
                 public void execute()
                 {
                     final SelectedAndDisplayedItems selectedAndDisplayedItems =
-                            getSelectedDataSetsAction.execute();
+                            selectedDataSetsGetter.execute();
                     final IComputationAction computationAction =
                             createComputationAction(selectedAndDisplayedItems);
                     final ComputationData data =
@@ -154,14 +154,12 @@ public class DataSetComputeMenu extends TextToolItem
                             public void execute(DatastoreServiceDescription service,
                                     boolean computeOnSelected)
                             {
-                                String datastoreServiceKey = service.getKey();
                                 DisplayedOrSelectedDatasetCriteria criteria =
                                         createCriteria(selectedAndDisplayedItems, computeOnSelected);
-                                if (pluginTaskKind == PluginTaskKind.QUERIES)
+                                if (pluginTaskKind == DataStoreServiceKind.QUERIES)
                                 {
-                                    viewContext.getService().createReportFromDatasets(
-                                            datastoreServiceKey, criteria,
-                                            new ReportDisplayCallback(viewContext));
+                                    viewContext.getService().createReportFromDatasets(service,
+                                            criteria, new ReportDisplayCallback(viewContext));
                                 } else
                                 {
                                     createMock(service);
@@ -214,22 +212,23 @@ public class DataSetComputeMenu extends TextToolItem
     private static List<String> extractCodes(List<ExternalData> selectedItems)
     {
         List<String> codes = new ArrayList<String>();
-        for (String code : codes)
+        for (ExternalData dataset : selectedItems)
         {
-            codes.add(code);
+            codes.add(dataset.getCode());
         }
         return codes;
     }
 
     private class ComputationData
     {
-        private final PluginTaskKind pluginTaskKind;
+        private final DataStoreServiceKind pluginTaskKind;
 
         private final IComputationAction computationAction;
 
         private final SelectedAndDisplayedItems selectedAndDisplayedItems;
 
-        public ComputationData(PluginTaskKind pluginTaskKind, IComputationAction computationAction,
+        public ComputationData(DataStoreServiceKind pluginTaskKind,
+                IComputationAction computationAction,
                 SelectedAndDisplayedItems selectedAndDisplayedItems)
         {
             super();
@@ -238,7 +237,7 @@ public class DataSetComputeMenu extends TextToolItem
             this.selectedAndDisplayedItems = selectedAndDisplayedItems;
         }
 
-        public PluginTaskKind getPluginTaskKind()
+        public DataStoreServiceKind getPluginTaskKind()
         {
             return pluginTaskKind;
         }

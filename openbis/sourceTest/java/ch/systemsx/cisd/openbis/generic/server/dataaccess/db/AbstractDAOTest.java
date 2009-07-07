@@ -249,7 +249,7 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
     protected ExternalDataPE findExternalData(String code)
     {
         final IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
-        ExternalDataPE externalData = externalDataDAO.tryToFindFullDataSetByCode(code);
+        ExternalDataPE externalData = externalDataDAO.tryToFindFullDataSetByCode(code, true);
 
         assertNotNull(externalData);
 

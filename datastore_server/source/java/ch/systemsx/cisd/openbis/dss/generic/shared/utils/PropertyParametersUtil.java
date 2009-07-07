@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
@@ -35,6 +36,9 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
  */
 public class PropertyParametersUtil
 {
+    @Private
+    static final String DSS_CODE_KEY = "data-store-server-code";
+
     private static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
 
     public static final String ITEMS_DELIMITER = ",";
@@ -43,6 +47,11 @@ public class PropertyParametersUtil
     public static Properties loadServiceProperties()
     {
         return PropertyUtils.loadProperties(SERVICE_PROPERTIES_FILE);
+    }
+
+    public static String getDataStoreCode(Properties serviceProperties)
+    {
+        return PropertyUtils.getMandatoryProperty(serviceProperties, DSS_CODE_KEY);
     }
 
     // a section is a set of properties which start with the common prefix

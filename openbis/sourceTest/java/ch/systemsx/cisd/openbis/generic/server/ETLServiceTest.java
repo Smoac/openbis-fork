@@ -603,6 +603,6 @@ public class ETLServiceTest extends AbstractServerTestCase
     {
         // unknown data set type codes should be silently discarded
         return new DatastoreServiceDescription(key, key, new String[]
-            { DATA_SET_TYPE_CODE, UNKNOWN_DATA_SET_TYPE_CODE });
+            { DATA_SET_TYPE_CODE, UNKNOWN_DATA_SET_TYPE_CODE }, key);
     }
 }

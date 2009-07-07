@@ -83,7 +83,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
 
     public void loadByCode(String dataSetCode)
     {
-        externalData = getExternalDataDAO().tryToFindFullDataSetByCode(dataSetCode);
+        externalData = getExternalDataDAO().tryToFindFullDataSetByCode(dataSetCode, true);
     }
 
     private static final String PROPERTY_TYPES = "dataSetType.dataSetTypePropertyTypesInternal";

@@ -19,10 +19,10 @@ package ch.systemsx.cisd.openbis.generic.shared;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.TableModel;
 
 /**
  * Service interface of Data Store Server.
@@ -75,6 +75,6 @@ public interface IDataStoreService
             DataSetUploadContext context) throws InvalidAuthenticationException;
 
     /** Runs the reporting task with the specified id for provided datasets */
-    public TableModel createReportFromDatasets(String reportingTaskId,
+    public TableModel createReportFromDatasets(String sessionToken, String serviceKey,
             List<DatasetDescription> datasets);
 }

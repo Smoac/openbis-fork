@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.util.List;
+import java.io.Serializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * Interface of the reporting plugin task.
+ * A table with a list of rows and columns specification. Each column has header and type.
  * 
  * @author Tomasz Pylak
  */
-public interface IReportingPluginTask
+public class TableModel implements IsSerializable, Serializable
 {
-    /**
-     * Creates a report for the specified datasets
-     */
-    TableModel createReport(List<DatasetDescription> datasets);
+
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+    // TODO 2009-07-02, Tomasz Pylak: implement me
 }

@@ -16,13 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.io.Serializable;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
+
 /**
  * Describes one dataset which should be processed by the plugin task.
  * 
  * @author Tomasz Pylak
  */
-public class DatasetDescription
+public class DatasetDescription implements Serializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private final String datasetCode;
 
     private final String dataSetLocation;

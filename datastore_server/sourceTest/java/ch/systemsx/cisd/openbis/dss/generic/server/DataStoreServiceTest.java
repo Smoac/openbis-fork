@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -35,6 +34,7 @@ import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PluginUtilTest;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -110,7 +110,7 @@ public class DataStoreServiceTest extends AssertJUnit
         mailClientParameters.setFrom("a@bc.de");
         mailClientParameters.setSmtpHost("file://targets/email");
         FileUtilities.deleteRecursively(TEST_FOLDER);
-        pluginTaskParameters = new PluginTaskProviders(new Properties());
+        pluginTaskParameters = PluginUtilTest.createPluginTaskProviders();
         TEST_STORE.mkdirs();
     }
 

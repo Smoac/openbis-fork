@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -61,15 +62,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
-import ch.systemsx.cisd.openbis.generic.shared.dto.TableModel;
 
 /**
  * Asynchronous version of {@link ICommonClientService}.
@@ -486,12 +486,15 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void updateAttachment(TechId holderId, AttachmentHolderKind holderKind,
             Attachment attachment, AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#listPluginTaskDescriptions(PluginTaskKind) */
-    public void listPluginTaskDescriptions(PluginTaskKind pluginTaskKind,
+    /** @see ICommonClientService#listDataStoreServices(DataStoreServiceKind) */
+    public void listDataStoreServices(DataStoreServiceKind pluginTaskKind,
             AsyncCallback<List<DatastoreServiceDescription>> callback);
 
-    /** @see ICommonClientService#createReportFromDatasets(String, DisplayedOrSelectedDatasetCriteria) */
-    public void createReportFromDatasets(String datastoreServiceKey,
+    /**
+     * @see ICommonClientService#createReportFromDatasets(DatastoreServiceDescription,
+     *      DisplayedOrSelectedDatasetCriteria)
+     */
+    public void createReportFromDatasets(DatastoreServiceDescription serviceDescription,
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria,
             AsyncCallback<TableModel> callback);
 

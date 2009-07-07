@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2009 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * Enumeration of plugin task kinds.
+ * @author Tomasz Pylak
  */
-// TODO 2009-07-06, Tomasz Pylak: merge with DataStoreTaskKind
-public enum PluginTaskKind implements IsSerializable
+public enum DataStoreServiceKind implements Serializable, IsSerializable
 {
     PROCESSING("Processing"), QUERIES("Queries");
 
     private final String description;
 
-    private PluginTaskKind(final String description)
+    private DataStoreServiceKind(final String description)
     {
         this.description = description;
     }

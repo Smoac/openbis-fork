@@ -64,6 +64,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
@@ -76,6 +78,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
@@ -83,6 +86,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -1237,4 +1242,58 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
     }
 
+    public List<DatastoreServiceDescription> listDataStoreServices(String sessionToken,
+            DataStoreServiceKind dataStoreServiceKind)
+    {
+        List<DatastoreServiceDescription> result = new ArrayList<DatastoreServiceDescription>();
+        List<DataStorePE> dataStores = getDAOFactory().getDataStoreDAO().listDataStores();
+        for (DataStorePE dataStore : dataStores)
+        {
+            result.addAll(convertAndFilter(dataStore.getServices(), dataStoreServiceKind));
+        }
+        return result;
+    }
+
+    private static List<DatastoreServiceDescription> convertAndFilter(
+            Set<DataStoreServicePE> services, DataStoreServiceKind dataStoreServiceKind)
+    {
+        List<DatastoreServiceDescription> result = new ArrayList<DatastoreServiceDescription>();
+        for (DataStoreServicePE service : services)
+        {
+            if (service.getKind() == dataStoreServiceKind)
+            {
+                result.add(convert(service));
+            }
+        }
+        return result;
+    }
+
+    private static DatastoreServiceDescription convert(DataStoreServicePE service)
+    {
+        String[] datasetTypeCodes = extractCodes(service.getDatasetTypes());
+        String dssCode = service.getDataStore().getCode();
+        return new DatastoreServiceDescription(service.getKey(), service.getLabel(),
+                datasetTypeCodes, dssCode);
+    }
+
+    private static String[] extractCodes(Set<DataSetTypePE> datasetTypes)
+    {
+        String[] codes = new String[datasetTypes.size()];
+        int i = 0;
+        for (DataSetTypePE datasetType : datasetTypes)
+        {
+            codes[i] = datasetType.getCode();
+            i++;
+        }
+        return codes;
+    }
+
+    public TableModel createReportFromDatasets(String sessionToken,
+            DatastoreServiceDescription serviceDescription, List<String> datasetCodes)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        IExternalDataTable externalDataTable =
+                businessObjectFactory.createExternalDataTable(session);
+        return externalDataTable.createReportFromDatasets(serviceDescription, datasetCodes);
+    }
 }

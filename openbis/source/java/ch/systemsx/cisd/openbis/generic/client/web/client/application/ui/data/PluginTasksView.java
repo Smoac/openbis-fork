@@ -43,15 +43,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Mode
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PluginTaskDescriptionModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskKind;
 
 /**
  * Implements {@link DatastoreServiceDescription} listing functionality.
  * 
  * @author Pitor Buczek
  */
-public class PluginTasksView extends ContentPanel
+class PluginTasksView extends ContentPanel
 {
     public static final String ID = GenericConstants.ID_PREFIX + "plugin_tasks-view";
 
@@ -70,12 +70,12 @@ public class PluginTasksView extends ContentPanel
     private final List<Listener<SelectionEvent<ModelData>>> gridSelectionChangedListeners =
             new ArrayList<Listener<SelectionEvent<ModelData>>>();
 
-    private final PluginTaskKind pluginTaskKind;
+    private final DataStoreServiceKind pluginTaskKind;
 
     private Grid<PluginTaskDescriptionModel> grid;
 
     public PluginTasksView(IViewContext<ICommonClientServiceAsync> viewContext,
-            PluginTaskKind pluginTaskKind)
+            DataStoreServiceKind pluginTaskKind)
     {
         this.viewContext = viewContext;
         this.pluginTaskKind = pluginTaskKind;
@@ -146,14 +146,33 @@ public class PluginTasksView extends ContentPanel
     }
 
     List<PluginTaskDescriptionModel> getPluginTaskModels(
-            final List<DatastoreServiceDescription> pluginTasks)
+            final List<DatastoreServiceDescription> services)
     {
         final List<PluginTaskDescriptionModel> result = new ArrayList<PluginTaskDescriptionModel>();
-        for (final DatastoreServiceDescription p : pluginTasks)
+        boolean multipleDataStoresPresent = multipleDataStoresPresent(services);
+        for (final DatastoreServiceDescription p : services)
         {
-            result.add(new PluginTaskDescriptionModel(p));
+            result.add(new PluginTaskDescriptionModel(p, multipleDataStoresPresent));
         }
         return result;
+    }
+
+    // do the srevices come form more than one datastore?
+    private static boolean multipleDataStoresPresent(List<DatastoreServiceDescription> services)
+    {
+        if (services.size() == 0)
+        {
+            return false;
+        }
+        String dss = services.get(0).getDatastoreCode();
+        for (DatastoreServiceDescription service : services)
+        {
+            if (dss.equals(service.getDatastoreCode()) == false)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     final void registerGridSelectionChangeListener(Listener<SelectionEvent<ModelData>> listener)
@@ -200,7 +219,7 @@ public class PluginTasksView extends ContentPanel
     {
         removeAll();
         add(new Text("data loading..."));
-        viewContext.getService().listPluginTaskDescriptions(pluginTaskKind,
+        viewContext.getService().listDataStoreServices(pluginTaskKind,
                 new ListPluginTaskDescriptionsCallback(viewContext));
     }
 

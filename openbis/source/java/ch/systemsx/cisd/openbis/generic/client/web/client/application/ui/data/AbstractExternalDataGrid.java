@@ -53,7 +53,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -205,7 +204,7 @@ public abstract class AbstractExternalDataGrid
 
         addEntityOperationsLabel();
         // TODO 2009-07-05, Piotr Buczek: uncomment when implementation is complete
-        // pagingToolbar.add(createComputeMenu());
+        pagingToolbar.add(createComputeMenu());
         addButton(createBrowseExternalDataButton());
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
                 browserId + SHOW_DETAILS_BUTTON_ID_SUFFIX, asShowEntityInvoker(false)));
@@ -251,7 +250,6 @@ public abstract class AbstractExternalDataGrid
 
     }
 
-    @SuppressWarnings("unused")
     private final ToolItem createComputeMenu()
     {
         return new DataSetComputeMenu(viewContext, getSelectedAndDisplayedItemsAction());
@@ -260,20 +258,19 @@ public abstract class AbstractExternalDataGrid
     public final static class SelectedAndDisplayedItems
     {
         // describes all items which are displayed in the grid (including all grid pages)
-        private final DefaultResultSetConfig<String, ExternalData> displayedItemsConfig;
+        private final TableExportCriteria<ExternalData> displayedItemsConfig;
 
         // currently selected items
         private final List<ExternalData> selectedItems;
 
-        public SelectedAndDisplayedItems(
-                DefaultResultSetConfig<String, ExternalData> nonPagedGridConfig,
+        public SelectedAndDisplayedItems(TableExportCriteria<ExternalData> displayedItemsConfig,
                 List<ExternalData> selectedItems)
         {
-            this.displayedItemsConfig = nonPagedGridConfig;
+            this.displayedItemsConfig = displayedItemsConfig;
             this.selectedItems = selectedItems;
         }
 
-        public DefaultResultSetConfig<String, ExternalData> getDisplayedItemsConfig()
+        public TableExportCriteria<ExternalData> getDisplayedItemsConfig()
         {
             return displayedItemsConfig;
         }
@@ -290,7 +287,7 @@ public abstract class AbstractExternalDataGrid
             {
                 public SelectedAndDisplayedItems execute()
                 {
-                    return new SelectedAndDisplayedItems(createNonPagedGridConfig(),
+                    return new SelectedAndDisplayedItems(createTableExportCriteria(),
                             getSelectedBaseObjects());
                 }
             };

@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PluginUtilTest;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
@@ -271,7 +272,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                         typeExtractor, storageProcessor);
         final EncapsulatedOpenBISService authorizedLimsService =
                 new EncapsulatedOpenBISService(new SessionTokenManager(), limsService,
-                        new PluginTaskProviders(new Properties()));
+                        PluginUtilTest.createPluginTaskProviders());
         authorizedLimsService.setUsername("u");
         authorizedLimsService.setPassword("p");
         handler =

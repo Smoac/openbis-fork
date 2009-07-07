@@ -28,6 +28,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -36,8 +37,11 @@ import ch.systemsx.cisd.openbis.generic.server.util.HibernateTransformer;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -126,7 +130,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         externalData = new ArrayList<ExternalDataPE>();
         for (String dataSetCode : dataSetCodes)
         {
-            ExternalDataPE dataSet = externalDataDAO.tryToFindFullDataSetByCode(dataSetCode);
+            ExternalDataPE dataSet = externalDataDAO.tryToFindFullDataSetByCode(dataSetCode, true);
             if (dataSet != null)
             {
                 externalData.add(dataSet);
@@ -323,15 +327,25 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
 
     private void deleteDataSets(DataStorePE dataStore, List<String> locations)
     {
-        String remoteURL = dataStore.getRemoteUrl();
-        if (StringUtils.isBlank(remoteURL))
+        IDataStoreService service = tryGetDataStoreService(dataStore);
+        if (service == null)
         {
             // Nothing to delete on dummy data store
             return;
         }
-        IDataStoreService service = dssFactory.create(remoteURL);
         String sessionToken = dataStore.getSessionToken();
         service.deleteDataSets(sessionToken, locations);
+    }
+
+    // null if DSS URL has not been specified
+    private IDataStoreService tryGetDataStoreService(DataStorePE dataStore)
+    {
+        String remoteURL = dataStore.getRemoteUrl();
+        if (StringUtils.isBlank(remoteURL))
+        {
+            return null;
+        }
+        return dssFactory.create(remoteURL);
     }
 
     private List<String> getKnownDataSets(DataStorePE dataStore, List<String> locations)
@@ -345,5 +359,49 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         IDataStoreService service = dssFactory.create(remoteURL);
         String sessionToken = dataStore.getSessionToken();
         return service.getKnownDataSets(sessionToken, locations);
+    }
+
+    public TableModel createReportFromDatasets(DatastoreServiceDescription serviceDescription,
+            List<String> datasetCodes)
+    {
+        DataStorePE dataStore = findDataStore(serviceDescription);
+        IDataStoreService service = tryGetDataStoreService(dataStore);
+        if (service == null)
+        {
+            throw new ConfigurationFailureException(
+                    "Connection to Data Store Server has not been configured. "
+                            + "Conntact your administrator.");
+        }
+        List<DatasetDescription> locations = loadDatasetDescriptions(datasetCodes);
+        String sessionToken = dataStore.getSessionToken();
+        return service.createReportFromDatasets(sessionToken, serviceDescription.getKey(),
+                locations);
+    }
+
+    private List<DatasetDescription> loadDatasetDescriptions(List<String> datasetCodes)
+    {
+        IExternalDataDAO externalDataDAO = getExternalDataDAO();
+        List<DatasetDescription> result = new ArrayList<DatasetDescription>();
+        for (String datasetCode : datasetCodes)
+        {
+            ExternalDataPE dataSet = externalDataDAO.tryToFindFullDataSetByCode(datasetCode, false);
+            if (dataSet != null)
+            {
+                String location = dataSet.getLocation();
+                result.add(new DatasetDescription(datasetCode, location));
+            }
+        }
+        return result;
+    }
+
+    private DataStorePE findDataStore(DatastoreServiceDescription serviceDescription)
+    {
+        String datastoreCode = serviceDescription.getDatastoreCode();
+        DataStorePE dataStore = getDataStoreDAO().tryToFindDataStoreByCode(datastoreCode);
+        if (dataStore == null)
+        {
+            throw new IllegalStateException("Cannot find the data store " + datastoreCode);
+        }
+        return dataStore;
     }
 }

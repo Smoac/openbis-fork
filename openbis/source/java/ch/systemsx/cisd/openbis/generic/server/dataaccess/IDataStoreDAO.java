@@ -16,11 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 
 /**
  * <i>Data Access Object</i> for {@link DataStorePE}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IDataStoreDAO
@@ -29,9 +31,12 @@ public interface IDataStoreDAO
      * Creates or updates specified data store.
      */
     public void createOrUpdateDataStore(DataStorePE dataStore);
-    
+
     /**
      * Tries to returns specified data store or <code>null</code> if not found.
      */
     public DataStorePE tryToFindDataStoreByCode(String dataStoreCode);
+
+    /** Lists all data stores in the home database */
+    public List<DataStorePE> listDataStores();
 }

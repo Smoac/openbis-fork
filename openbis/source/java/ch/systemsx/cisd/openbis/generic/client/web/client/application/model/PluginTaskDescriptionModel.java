@@ -36,10 +36,16 @@ public class PluginTaskDescriptionModel extends BaseModelData
     {
     }
 
-    public PluginTaskDescriptionModel(final DatastoreServiceDescription p)
+    public PluginTaskDescriptionModel(final DatastoreServiceDescription p,
+            boolean multipleDataStoresPresent)
     {
         set(ModelDataPropertyNames.OBJECT, p);
-        set(ModelDataPropertyNames.LABEL, p.getLabel());
+        String label = p.getLabel();
+        if (multipleDataStoresPresent)
+        {
+            label += " (" + p.getDatastoreCode() + ")";
+        }
+        set(ModelDataPropertyNames.LABEL, label);
         set(ModelDataPropertyNames.DATA_SET_TYPES, StringUtils.join(p.getDatasetTypeCodes(), ", "));
     }
 

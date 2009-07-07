@@ -66,6 +66,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemExit;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
@@ -77,8 +78,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 public final class ETLDaemon
 {
     static final String STOREROOT_DIR_KEY = "storeroot-dir";
-
-    static final String DSS_CODE_KEY = "data-store-server-code";
 
     static final String NOTIFY_SUCCESSFUL_REGISTRATION = "notify-successful-registration";
 
@@ -347,12 +346,7 @@ public final class ETLDaemon
         migrateDataStoreByRenamingObservableTypeToDataSetType(storeRootDir);
         plugin.getStorageProcessor().setStoreRootDirectory(storeRootDir);
         final Properties mailProperties = parameters.getMailProperties();
-        String dssCode = parameters.getProperties().getProperty(DSS_CODE_KEY);
-        if (dssCode == null)
-        {
-            throw new ConfigurationFailureException("Missing service property '" + DSS_CODE_KEY
-                    + "'");
-        }
+        String dssCode = PropertyParametersUtil.getDataStoreCode(properties);
         final TransferredDataSetHandler pathHandler =
                 new TransferredDataSetHandler(dssCode, plugin, authorizedLimsService,
                         mailProperties, highwaterMarkWatcher, notifySuccessfulRegistration,

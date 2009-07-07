@@ -32,10 +32,10 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPlugi
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.TableModel;
 
 /**
  * Implementation of {@link IDataStoreService} which will be accessed remotely by the opneBIS
@@ -179,12 +179,14 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         return new CIFEXRPCServiceFactory(cifexURL);
     }
 
-    public TableModel createReportFromDatasets(String reportingTaskId,
+    public TableModel createReportFromDatasets(String sessionToken, String serviceKey,
             List<DatasetDescription> datasets)
     {
+        sessionTokenManager.assertValidSessionToken(sessionToken);
+
         PluginTaskProvider<IReportingPluginTask> reportingPlugins =
                 pluginTaskParameters.getReportingPluginsProvider();
-        IReportingPluginTask task = reportingPlugins.createPluginInstance(reportingTaskId);
+        IReportingPluginTask task = reportingPlugins.createPluginInstance(serviceKey);
         return task.createReport(datasets);
     }
 

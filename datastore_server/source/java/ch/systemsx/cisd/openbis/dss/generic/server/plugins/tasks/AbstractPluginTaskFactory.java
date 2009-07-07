@@ -75,13 +75,14 @@ public abstract class AbstractPluginTaskFactory<T>
 
     private final Properties instanceParameters;
 
-    protected AbstractPluginTaskFactory(SectionProperties sectionProperties)
+    protected AbstractPluginTaskFactory(SectionProperties sectionProperties, String datastoreCode)
     {
         Properties pluginProperties = sectionProperties.getProperties();
         String pluginKey = sectionProperties.getKey();
         String label = PropertyUtils.getMandatoryProperty(pluginProperties, LABEL_PROPERTY_NAME);
         String[] datasetCodes = extractDatasetCodes(pluginProperties);
-        this.description = new DatastoreServiceDescription(pluginKey, label, datasetCodes);
+        this.description =
+                new DatastoreServiceDescription(pluginKey, label, datasetCodes, datastoreCode);
         this.className = PropertyUtils.getMandatoryProperty(pluginProperties, CLASS_PROPERTY_NAME);
         this.instanceParameters = extractInstanceParameters(pluginProperties);
     }

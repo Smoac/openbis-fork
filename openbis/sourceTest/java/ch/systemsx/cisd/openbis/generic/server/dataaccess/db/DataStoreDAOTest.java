@@ -25,10 +25,10 @@ import org.springframework.test.annotation.Rollback;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 
 /**

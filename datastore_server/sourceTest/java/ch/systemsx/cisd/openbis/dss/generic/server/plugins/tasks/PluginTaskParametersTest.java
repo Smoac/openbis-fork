@@ -66,8 +66,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         String datasetCodes2 = "EICML";
         putPluginProperties(props, plugin2, pluginLabel2, datasetCodes2, DemoReportingPlugin.class);
 
-        PluginTaskProvider<IReportingPluginTask> factories =
-                PluginTaskProviders.createReportingPluginsFactories(props);
+        PluginTaskProvider<IReportingPluginTask> factories = createReportingPluginsFactories(props);
         factories.check();
         factories.logConfigurations();
         IReportingPluginTask pluginInstance1 = factories.createPluginInstance(plugin1);
@@ -96,7 +95,19 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
     {
         Properties props = new Properties();
         props.put(PluginTaskProviders.REPORTING_PLUGIN_NAMES, "plugin1");
-        PluginTaskProviders.createReportingPluginsFactories(props);
+        createReportingPluginsFactories(props);
+    }
+
+    private static PluginTaskProvider<IReportingPluginTask> createReportingPluginsFactories(
+            Properties props)
+    {
+        return PluginTaskProviders.createReportingPluginsFactories(props, "dss");
+    }
+
+    private static PluginTaskProvider<IProcessingPluginTask> createProcessingPluginsFactories(
+            Properties props)
+    {
+        return PluginTaskProviders.createProcessingPluginsFactories(props, "dss");
     }
 
     @Test
@@ -104,11 +115,11 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
     {
         Properties props = new Properties();
         PluginTaskProvider<IProcessingPluginTask> processing =
-                PluginTaskProviders.createProcessingPluginsFactories(props);
+                createProcessingPluginsFactories(props);
         assertEquals(0, processing.getPluginDescriptions().size());
 
         PluginTaskProvider<IProcessingPluginTask> reporting =
-                PluginTaskProviders.createProcessingPluginsFactories(props);
+                createProcessingPluginsFactories(props);
         assertEquals(0, reporting.getPluginDescriptions().size());
 
     }
@@ -124,7 +135,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
                 DemoProcessingPlugin.class);
 
         PluginTaskProvider<IProcessingPluginTask> factories =
-                PluginTaskProviders.createProcessingPluginsFactories(props);
+                createProcessingPluginsFactories(props);
         factories.check();
         factories.logConfigurations();
         IProcessingPluginTask pluginInstance1 = factories.createPluginInstance(plugin1);

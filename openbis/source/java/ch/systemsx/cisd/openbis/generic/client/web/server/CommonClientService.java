@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -95,7 +96,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
@@ -111,13 +114,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyTyp
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
@@ -136,7 +138,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -1694,46 +1695,66 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public List<DatastoreServiceDescription> listPluginTaskDescriptions(
-            PluginTaskKind pluginTaskKind)
+    public List<DatastoreServiceDescription> listDataStoreServices(
+            DataStoreServiceKind dataStoreServiceKind)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
-            @SuppressWarnings("unused")
             final String sessionToken = getSessionToken();
-            return getMockPluginTaskDescriptions(pluginTaskKind);
+            return commonServer.listDataStoreServices(sessionToken, dataStoreServiceKind);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
-    /**
-     * mock implementation of getting {@link DatastoreServiceDescription}s of specific
-     * {@link PluginTaskKind}
-     */
-    private List<DatastoreServiceDescription> getMockPluginTaskDescriptions(
-            PluginTaskKind pluginTaskKind)
-    {
-        List<DatastoreServiceDescription> plugins = new ArrayList<DatastoreServiceDescription>();
-        String kindName = pluginTaskKind.name();
-        String[] mockDataSetTypeCodes =
-            { "UNKNOWN", "HCS_IMAGE", "HCS_IMAGE_ANALYSIS_DATA" };
-        plugins.add(new DatastoreServiceDescription("key1", kindName + " 1", new String[]
-            { mockDataSetTypeCodes[0], mockDataSetTypeCodes[1] }));
-        plugins.add(new DatastoreServiceDescription("key2", kindName + " 2", new String[]
-            { mockDataSetTypeCodes[1], mockDataSetTypeCodes[2] }));
-        plugins.add(new DatastoreServiceDescription("key3", kindName + " 3", new String[]
-            { mockDataSetTypeCodes[2], mockDataSetTypeCodes[0] }));
-        return plugins;
-    }
-
-    public TableModel createReportFromDatasets(String datastoreServiceKey,
+    public TableModel createReportFromDatasets(DatastoreServiceDescription serviceDescription,
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
     {
-        // TODO 2009-07-07, Tomasz Pylak: write report generation
-        return null;
+        try
+        {
+            final String sessionToken = getSessionToken();
+            List<String> datasetCodes =
+                    extractDatasetCodes(displayedOrSelectedDatasetCriteria, serviceDescription);
+            return commonServer.createReportFromDatasets(sessionToken, serviceDescription,
+                    datasetCodes);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    private List<String> extractDatasetCodes(
+            DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria,
+            DatastoreServiceDescription serviceDescription)
+    {
+        if (displayedOrSelectedDatasetCriteria.tryGetSelectedItems() != null)
+        {
+            return displayedOrSelectedDatasetCriteria.tryGetSelectedItems();
+        } else
+        {
+            TableExportCriteria<ExternalData> displayedItemsCriteria =
+                    displayedOrSelectedDatasetCriteria.tryGetDisplayedItems();
+            final List<ExternalData> datasets = fetchCachedEntities(displayedItemsCriteria);
+            return filterDatasets(datasets, serviceDescription.getDatasetTypeCodes());
+        }
+    }
+
+    // returns codes of those datasets which have type code belonging to the specified set
+    private static List<String> filterDatasets(List<ExternalData> datasets,
+            String[] datasetTypeCodes)
+    {
+        Set<String> datasetTypeCodesMap = new HashSet<String>(Arrays.asList(datasetTypeCodes));
+        List<String> datasetCodes = new ArrayList<String>();
+        for (ExternalData dataset : datasets)
+        {
+            if (datasetTypeCodesMap.contains(dataset.getDataSetType().getCode()))
+            {
+                datasetCodes.add(dataset.getCode());
+            }
+        }
+        return datasetCodes;
     }
 
 }

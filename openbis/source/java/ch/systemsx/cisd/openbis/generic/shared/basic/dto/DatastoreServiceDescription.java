@@ -35,17 +35,21 @@ public class DatastoreServiceDescription implements IsSerializable, Serializable
 
     private String[] datasetTypeCodes;
 
+    private String datastoreCode;
+
     @SuppressWarnings("unused")
     // for GWT serialization
     private DatastoreServiceDescription()
     {
     }
 
-    public DatastoreServiceDescription(String key, String label, String[] datasetTypeCodes)
+    public DatastoreServiceDescription(String key, String label, String[] datasetTypeCodes,
+            String datastoreCode)
     {
         this.key = key;
         this.label = label;
         this.datasetTypeCodes = datasetTypeCodes;
+        this.datastoreCode = datastoreCode;
     }
 
     /** the unique key of the plugin */
@@ -64,6 +68,11 @@ public class DatastoreServiceDescription implements IsSerializable, Serializable
     public String[] getDatasetTypeCodes()
     {
         return datasetTypeCodes;
+    }
+
+    public String getDatastoreCode()
+    {
+        return datastoreCode;
     }
 
     // for GWT serialization
@@ -86,9 +95,11 @@ public class DatastoreServiceDescription implements IsSerializable, Serializable
         this.datasetTypeCodes = datasetTypeCodes;
     }
 
-    //
-    // Object
-    //
+    @SuppressWarnings("unused")
+    private void setDatastoreCode(String datastoreCode)
+    {
+        this.datastoreCode = datastoreCode;
+    }
 
     @Override
     public String toString()
@@ -97,12 +108,14 @@ public class DatastoreServiceDescription implements IsSerializable, Serializable
         sb.append("[");
         sb.append(getKey());
         sb.append("; ");
+        sb.append(getDatastoreCode());
+        sb.append("; ");
         sb.append(getLabel());
         sb.append("; ");
         for (String code : getDatasetTypeCodes())
         {
             sb.append(code);
-            sb.append(", ");
+            sb.append(" ");
         }
         sb.append("]");
         return sb.toString();

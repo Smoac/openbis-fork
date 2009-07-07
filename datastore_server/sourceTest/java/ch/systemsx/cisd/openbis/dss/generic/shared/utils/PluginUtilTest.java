@@ -14,14 +14,23 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.dto;
+package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
+
+import java.util.Properties;
+
+import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
 
 /**
- * A table with a list of rows and columns specification. Each column has header and type.
- * 
  * @author Tomasz Pylak
  */
-public class TableModel
+@Friend(toClasses = PropertyParametersUtil.class)
+public class PluginUtilTest
 {
-    // TODO 2009-07-02, Tomasz Pylak: implement me
+    public static PluginTaskProviders createPluginTaskProviders()
+    {
+        Properties serviceProperties = new Properties();
+        serviceProperties.put(PropertyParametersUtil.DSS_CODE_KEY, "dss");
+        return new PluginTaskProviders(serviceProperties);
+    }
 }

@@ -32,9 +32,9 @@ public class ProcessingPluginTaskFactory extends AbstractPluginTaskFactory<IProc
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, ProcessingPluginTaskFactory.class);
 
-    public ProcessingPluginTaskFactory(SectionProperties sectionProperties)
+    public ProcessingPluginTaskFactory(SectionProperties sectionProperties, String datastoreCode)
     {
-        super(sectionProperties);
+        super(sectionProperties, datastoreCode);
     }
 
     @Override
@@ -46,8 +46,8 @@ public class ProcessingPluginTaskFactory extends AbstractPluginTaskFactory<IProc
     @Override
     public void logConfiguration()
     {
-        operationLog.info(String.format("Processing plugin '%s' configuration:", getPluginDescription()
-                .getKey()));
+        operationLog.info(String.format("Processing plugin '%s' configuration:",
+                getPluginDescription().getKey()));
         logPropertiesConfiguration();
     }
 }

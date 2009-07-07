@@ -29,12 +29,12 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public final class DisplayedOrSelectedDatasetCriteria implements IsSerializable
 {
 
-    private IResultSetConfig<String, ExternalData> displayedItemsOrNull;
+    private TableExportCriteria<ExternalData> displayedItemsOrNull;
 
     private List<String> selectedDatasetCodesOrNull;
 
     public static DisplayedOrSelectedDatasetCriteria createDisplayedItems(
-            IResultSetConfig<String, ExternalData> displayedItems)
+            TableExportCriteria<ExternalData> displayedItems)
     {
         return new DisplayedOrSelectedDatasetCriteria(displayedItems, null);
     }
@@ -46,7 +46,7 @@ public final class DisplayedOrSelectedDatasetCriteria implements IsSerializable
     }
 
     private DisplayedOrSelectedDatasetCriteria(
-            IResultSetConfig<String, ExternalData> displayedItemsOrNull,
+            TableExportCriteria<ExternalData> displayedItemsOrNull,
             List<String> selectedDatasetCodesOrNull)
     {
         assert (displayedItemsOrNull == null) != (selectedDatasetCodesOrNull == null) : "Exactly one arg must be null and one non-null";
@@ -54,7 +54,7 @@ public final class DisplayedOrSelectedDatasetCriteria implements IsSerializable
         this.selectedDatasetCodesOrNull = selectedDatasetCodesOrNull;
     }
 
-    public IResultSetConfig<String, ExternalData> tryGetDisplayedItems()
+    public TableExportCriteria<ExternalData> tryGetDisplayedItems()
     {
         return displayedItemsOrNull;
     }
@@ -71,14 +71,14 @@ public final class DisplayedOrSelectedDatasetCriteria implements IsSerializable
 
     @SuppressWarnings("unused")
     // GWT only
-    private IResultSetConfig<String, ExternalData> getDisplayedItemsOrNull()
+    private TableExportCriteria<ExternalData> getDisplayedItemsOrNull()
     {
         return displayedItemsOrNull;
     }
 
     @SuppressWarnings("unused")
     // GWT only
-    private void setDisplayedItemsOrNull(IResultSetConfig<String, ExternalData> displayedItemsOrNull)
+    private void setDisplayedItemsOrNull(TableExportCriteria<ExternalData> displayedItemsOrNull)
     {
         this.displayedItemsOrNull = displayedItemsOrNull;
     }

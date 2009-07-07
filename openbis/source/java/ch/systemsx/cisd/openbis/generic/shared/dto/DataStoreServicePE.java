@@ -42,6 +42,7 @@ import org.hibernate.validator.NotNull;
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 
 /**
  * Services offered by the Data Store server to the public.<br>
@@ -69,11 +70,6 @@ public class DataStoreServicePE implements Serializable
 
     // which types of datasets can be processed by this plugin? If null, all types are appropriate.
     private Set<DataSetTypePE> datasetTypes;
-
-    public enum DataStoreServiceKind
-    {
-        PROCESSING, QUERIES
-    }
 
     @SuppressWarnings("unused")
     @Id

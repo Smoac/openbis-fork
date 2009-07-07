@@ -184,16 +184,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
     {
         final ExternalDataPE d1 = createDataSet("d1", dss1);
         final ExternalDataPE d2 = createDataSet("d2", dss2);
-        context.checking(new Expectations()
-            {
-                {
-                    one(externalDataDAO).tryToFindFullDataSetByCode(d1.getCode());
-                    will(returnValue(d1));
-
-                    one(externalDataDAO).tryToFindFullDataSetByCode(d2.getCode());
-                    will(returnValue(null));
-                }
-            });
+        prepareFindFullDatasets(d1, true);
+        prepareFindFullDatasets(d2, false);
 
         ExternalDataTable externalDataTable = createExternalDataTable();
         externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()));
@@ -204,6 +196,17 @@ public final class ExternalDataTableTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
+    private void prepareFindFullDatasets(final ExternalDataPE result, final boolean found)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(externalDataDAO).tryToFindFullDataSetByCode(result.getCode(), true);
+                    will(returnValue(found ? result : null));
+                }
+            });
+    }
+
     @Test
     public void testDeleteLoadedDataSetsButOneDataSetIsUnknown()
     {
@@ -212,11 +215,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(externalDataDAO).tryToFindFullDataSetByCode(d1.getCode());
-                    will(returnValue(d1));
-
-                    one(externalDataDAO).tryToFindFullDataSetByCode(d2.getCode());
-                    will(returnValue(d2));
+                    prepareFindFullDatasets(d1, true);
+                    prepareFindFullDatasets(d2, true);
 
                     one(dataStoreService2).getKnownDataSets(dss2.getSessionToken(),
                             Arrays.asList(d2.getLocation()));
@@ -250,11 +250,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(externalDataDAO).tryToFindFullDataSetByCode(d1.getCode());
-                    will(returnValue(d1));
-
-                    one(externalDataDAO).tryToFindFullDataSetByCode(d2.getCode());
-                    will(returnValue(d2));
+                    prepareFindFullDatasets(d1, true);
+                    prepareFindFullDatasets(d2, true);
 
                     List<String> d2Locations = Arrays.asList(d2.getLocation());
                     one(dataStoreService2).getKnownDataSets(dss2.getSessionToken(), d2Locations);
@@ -296,11 +293,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(externalDataDAO).tryToFindFullDataSetByCode(d1.getCode());
-                    will(returnValue(d1));
-
-                    one(externalDataDAO).tryToFindFullDataSetByCode(d2.getCode());
-                    will(returnValue(d2));
+                    prepareFindFullDatasets(d1, true);
+                    prepareFindFullDatasets(d2, true);
 
                     List<String> d2Locations = Arrays.asList(d2.getLocation());
                     one(dataStoreService2).getKnownDataSets(dss2.getSessionToken(), d2Locations);

@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -60,15 +61,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
-import ch.systemsx.cisd.openbis.generic.shared.dto.TableModel;
 
 /**
  * Service interface for the generic GWT client.
@@ -561,16 +561,16 @@ public interface ICommonClientService extends IClientService
             Attachment attachment);
 
     /**
-     * For given {@link PluginTaskKind} returns a list of all corresponding
+     * For given {@link DataStoreServiceKind} returns a list of all corresponding
      * {@link DatastoreServiceDescription}s.
      */
-    public List<DatastoreServiceDescription> listPluginTaskDescriptions(
-            PluginTaskKind pluginTaskKind) throws UserFailureException;
+    public List<DatastoreServiceDescription> listDataStoreServices(
+            DataStoreServiceKind pluginTaskKind) throws UserFailureException;
 
     /**
-     * Uses a datastore service with the given key to generate reports from the specified datasets.
+     * Uses the specified datastore service to generate reports from the specified datasets.
      */
-    public TableModel createReportFromDatasets(String datastoreServiceKey,
+    public TableModel createReportFromDatasets(DatastoreServiceDescription serviceDescription,
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria);
 
 }

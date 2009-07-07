@@ -86,7 +86,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Windo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -467,29 +466,14 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return filters;
     }
 
-    // returns a current grid configuration, which uses current filtering, sorting and visible
-    // columns settings, but ignores the paging information (refers to all rows in the grid)
-    protected final DefaultResultSetConfig<String, T> createNonPagedGridConfig()
-    {
-        com.extjs.gxt.ui.client.data.SortInfo sortInfo = grid.getStore().getSortState();
-        List<GridFilterInfo<T>> appliedFilters = getAppliedFilters();
-        return createPagingConfig(IResultSetConfig.NO_LIMIT, 0, sortInfo, columnDefinitions,
-                appliedFilters, resultSetKey);
-    }
-
     private static <T> DefaultResultSetConfig<String, T> createPagingConfig(
             PagingLoadConfig loadConfig, Set<IColumnDefinition<T>> availableColumns,
             List<GridFilterInfo<T>> appliedFilters, String resultSetKey)
     {
-        return createPagingConfig(loadConfig.getLimit(), loadConfig.getOffset(), loadConfig
-                .getSortInfo(), availableColumns, appliedFilters, resultSetKey);
-    }
+        int limit = loadConfig.getLimit();
+        int offset = loadConfig.getOffset();
+        com.extjs.gxt.ui.client.data.SortInfo sortInfo = loadConfig.getSortInfo();
 
-    private static <T> DefaultResultSetConfig<String, T> createPagingConfig(int limit, int offset,
-            com.extjs.gxt.ui.client.data.SortInfo sortInfo,
-            Set<IColumnDefinition<T>> availableColumns, List<GridFilterInfo<T>> appliedFilters,
-            String resultSetKey)
-    {
         DefaultResultSetConfig<String, T> resultSetConfig = new DefaultResultSetConfig<String, T>();
         resultSetConfig.setLimit(limit);
         resultSetConfig.setOffset(offset);
@@ -1098,6 +1082,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     // @Private - for tests
     public final void export(final AbstractAsyncCallback<String> callback)
     {
+        final TableExportCriteria<T> exportCriteria = createTableExportCriteria();
+
+        prepareExportEntities(exportCriteria, callback);
+    }
+
+    protected final TableExportCriteria<T> createTableExportCriteria()
+    {
         assert columnDefinitions != null : "refresh before exporting!";
         assert resultSetKey != null : "refresh before exporting, resultSetKey is null!";
 
@@ -1105,8 +1096,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         SortInfo<T> sortInfo = getGridSortInfo();
         final TableExportCriteria<T> exportCriteria =
                 new TableExportCriteria<T>(resultSetKey, sortInfo, getAppliedFilters(), columnDefs);
-
-        prepareExportEntities(exportCriteria, callback);
+        return exportCriteria;
     }
 
     // returns info about sorting in current grid
