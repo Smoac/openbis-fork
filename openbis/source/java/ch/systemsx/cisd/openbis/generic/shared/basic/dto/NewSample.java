@@ -29,6 +29,11 @@ public final class NewSample extends Identifier<NewSample>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    public static final String SAMPLE_REGISTRATION_TEMPLATE_COMMENT =
+            "# The \"container\" and \"parent\" columns are optional, only one should be specified. They should contain a sample identifier, e.g. /GROUP/SAMPLE_1\n"
+                    + "# If \"container\" sample is provided, the registered sample will become a \"component\" of it.\n"
+                    + "# If \"parent\" sample is provided, the registered sample will become a \"child\" of it.\n";
+
     public static final String CONTAINER = "container";
 
     public static final String PARENT = "parent";

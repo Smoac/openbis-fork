@@ -1140,6 +1140,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             throw new UserFailureException("Unknown " + entityKind.name() + " type '" + type + "'");
         }
         List<String> result = new ArrayList<String>();
+
         switch (entityKind)
         {
             case SAMPLE:

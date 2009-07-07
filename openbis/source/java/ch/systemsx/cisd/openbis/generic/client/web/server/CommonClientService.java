@@ -107,6 +107,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginTaskDescription;
@@ -1599,6 +1600,10 @@ public final class CommonClientService extends AbstractClientService implements
                     sb.append("\t");
                 }
                 sb.append(column);
+            }
+            if (entityKind.equals(EntityKind.SAMPLE))
+            {
+                sb.insert(0, NewSample.SAMPLE_REGISTRATION_TEMPLATE_COMMENT);
             }
             return sb.toString();
         } catch (final UserFailureException e)
