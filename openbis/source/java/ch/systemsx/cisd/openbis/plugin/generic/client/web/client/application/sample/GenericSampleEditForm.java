@@ -104,7 +104,7 @@ public final class GenericSampleEditForm extends
         final List<SampleProperty> properties = extractProperties();
         final List<NewAttachment> attachments = attachmentsManager.extractAttachments();
         ExperimentIdentifier experimentIdent =
-                experimentFieldOrNull != null ? experimentFieldOrNull.getValue() : null;
+                experimentFieldOrNull != null ? experimentFieldOrNull.tryToGetValue() : null;
         viewContext.getService().updateSample(sessionKey, techIdOrNull, properties, attachments,
                 experimentIdent, originalSample.getModificationDate(),
                 new UpdateSampleCallback(viewContext));

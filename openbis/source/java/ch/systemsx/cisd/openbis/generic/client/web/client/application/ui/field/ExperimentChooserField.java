@@ -52,7 +52,7 @@ public final class ExperimentChooserField extends ChosenEntitySetter<Experiment>
         Button getChooseButton();
 
         /** @return the experiment identifier which is set as a field value */
-        ExperimentIdentifier getValue();
+        ExperimentIdentifier tryToGetValue();
 
         void updateOriginalValue();
     }
@@ -97,14 +97,14 @@ public final class ExperimentChooserField extends ChosenEntitySetter<Experiment>
                     return chooserField;
                 }
 
-                public ExperimentIdentifier getValue()
+                public ExperimentIdentifier tryToGetValue()
                 {
                     return chooserField.tryGetIdentifier();
                 }
 
                 public void updateOriginalValue()
                 {
-                    ExperimentIdentifier valueOrNull = getValue();
+                    ExperimentIdentifier valueOrNull = tryToGetValue();
                     String textValue = (valueOrNull == null ? "" : valueOrNull.getIdentifier());
                     chooserField.setOriginalValue(textValue);
                 }
