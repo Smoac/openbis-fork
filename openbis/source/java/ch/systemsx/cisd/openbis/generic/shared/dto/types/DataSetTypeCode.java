@@ -27,7 +27,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto.types;
  */
 public enum DataSetTypeCode
 {
-    HCS_IMAGE("HCS_IMAGE"), HCS_IMAGE_ANALYSIS_DATA("HCS_IMAGE_ANALYSIS_DATA"), UNKNOWN("UNKNOWN");
+    UNKNOWN("UNKNOWN");
 
     private final String code;
 

@@ -49,13 +49,14 @@ public class SimpleTypeExtractorTest
     public final void testConstructor()
     {
         SimpleTypeExtractor extractor = new SimpleTypeExtractor(new Properties());
-        assertEquals(FileFormatType.DEFAULT_FILE_FORMAT_TYPE_CODE, extractor.getFileFormatType(null).getCode());
-        assertEquals(LocatorType.DEFAULT_LOCATOR_TYPE_CODE, extractor.getLocatorType(null).getCode());
-        assertEquals(DataSetTypeCode.HCS_IMAGE
-                .getCode(), extractor.getDataSetType(null).getCode());
+        assertEquals(FileFormatType.DEFAULT_FILE_FORMAT_TYPE_CODE, extractor
+                .getFileFormatType(null).getCode());
+        assertEquals(LocatorType.DEFAULT_LOCATOR_TYPE_CODE, extractor.getLocatorType(null)
+                .getCode());
+        assertEquals(DataSetTypeCode.UNKNOWN.getCode(), extractor.getDataSetType(null).getCode());
         assertEquals(null, extractor.getProcessorType(null));
         assertEquals(true, extractor.isMeasuredData(null));
-        
+
         extractor = new SimpleTypeExtractor(createProperties());
         assertEquals("F", extractor.getFileFormatType(null).getCode());
         assertEquals("L", extractor.getLocatorType(null).getCode());

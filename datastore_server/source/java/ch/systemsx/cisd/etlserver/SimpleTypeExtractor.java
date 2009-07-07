@@ -25,8 +25,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 
 /**
- * Implementation of {@link ITypeExtractor} which gets the types from the properties
- * argument of the constructor.
+ * Implementation of {@link ITypeExtractor} which gets the types from the properties argument of the
+ * constructor.
  * 
  * @author Franz-Josef Elmer
  */
@@ -39,7 +39,7 @@ public class SimpleTypeExtractor implements ITypeExtractor
     public static final String DATA_SET_TYPE_KEY = "data-set-type";
 
     public static final String PROCESSOR_TYPE_KEY = "processor-type";
-    
+
     public static final String IS_MEASURED_KEY = "is-measured";
 
     private FileFormatType fileFormatType;
@@ -49,7 +49,7 @@ public class SimpleTypeExtractor implements ITypeExtractor
     private DataSetType dataSetType;
 
     private String processorType;
-    
+
     private boolean measured;
 
     public SimpleTypeExtractor(final Properties properties)
@@ -60,7 +60,7 @@ public class SimpleTypeExtractor implements ITypeExtractor
         fileFormatType = new FileFormatType(code);
         code = properties.getProperty(LOCATOR_TYPE_KEY, LocatorType.DEFAULT_LOCATOR_TYPE_CODE);
         locatorType = new LocatorType(code);
-        code = properties.getProperty(DATA_SET_TYPE_KEY, DataSetTypeCode.HCS_IMAGE.getCode());
+        code = properties.getProperty(DATA_SET_TYPE_KEY, DataSetTypeCode.UNKNOWN.getCode());
         dataSetType = new DataSetType(code);
         processorType = properties.getProperty(PROCESSOR_TYPE_KEY);
         measured = "true".equals(properties.getProperty(IS_MEASURED_KEY, "true"));
@@ -95,6 +95,5 @@ public class SimpleTypeExtractor implements ITypeExtractor
     {
         return measured;
     }
-
 
 }

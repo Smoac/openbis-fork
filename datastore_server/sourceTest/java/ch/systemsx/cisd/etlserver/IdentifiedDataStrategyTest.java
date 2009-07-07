@@ -48,7 +48,7 @@ public class IdentifiedDataStrategyTest extends AbstractFileSystemTestCase
     private final static IdentifiedDataStrategy strategy = new IdentifiedDataStrategy();
 
     private final static DataSetType dataSetType =
-            new DataSetType(DataSetTypeCode.HCS_IMAGE.getCode());
+            new DataSetType(DataSetTypeCode.UNKNOWN.getCode());
 
     private static final String EXAMPLE_GROUP_CODE = "G";
 
