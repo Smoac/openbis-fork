@@ -149,6 +149,15 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
                     }
                 }),
 
+    DATA_STORE_CODE(new AbstractColumnDefinitionKind<ExternalData>(Dict.DATA_STORE_CODE, true)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                return entity.getDataStore().getCode();
+            }
+        }),
+
     PERM_ID(new AbstractColumnDefinitionKind<ExternalData>(Dict.PERM_ID, true)
         {
             @Override

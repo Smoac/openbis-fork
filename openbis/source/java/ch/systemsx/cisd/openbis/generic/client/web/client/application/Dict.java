@@ -385,6 +385,8 @@ public abstract class Dict
 
     public static final String DATA_PRODUCER_CODE = "data_producer_code";
 
+    public static final String DATA_STORE_CODE = "data_store_code";
+
     public static final String BUTTON_UPLOAD_DATASETS = "button_upload_datasets";
 
     public static final String CONFIRM_DATASET_UPLOAD_TITLE = "confirm_dataset_upload_title";

@@ -370,6 +370,7 @@ var common = {
  file_format_type: "File Type",
  production_date: "Production Date",
  data_producer_code: "Producer",
+ data_store_code: "Data Store",
  button_upload_datasets: "Export Data",
  confirm_dataset_upload_title: "Uploading Confirmation and Authentication",
  confirm_dataset_upload_msg: "You are uploading {0} data set(s) to CIFEX ({1}) in a single ZIP file.<br/><br/>Please, enter additional information:", 

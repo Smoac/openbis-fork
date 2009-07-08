@@ -494,7 +494,8 @@ public class DataSetComputeMenu extends TextToolItem
             computeOnSelectedRadio = createRadio("selected");
             result.add(computeOnAllRadio);
             result.add(computeOnSelectedRadio);
-            result.setValue(computeOnAllRadio);
+            result.setValue(computeOnSelectedRadio);
+            result.setAutoHeight(true);
             return result;
         }
 

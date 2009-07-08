@@ -24,8 +24,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataStoreTranslator
@@ -42,6 +40,7 @@ public class DataStoreTranslator
             downloadUrl = downloadUrl + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
         }
         dataStore.setDownloadUrl(downloadUrl);
+        dataStore.setCode(dataStorePE.getCode());
         return dataStore;
     }
 }

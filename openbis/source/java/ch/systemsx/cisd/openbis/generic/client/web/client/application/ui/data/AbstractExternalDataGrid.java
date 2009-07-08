@@ -203,8 +203,6 @@ public abstract class AbstractExternalDataGrid
         super.updateCriteriaProviderAndRefresh();
 
         addEntityOperationsLabel();
-        // TODO 2009-07-05, Piotr Buczek: uncomment when implementation is complete
-        pagingToolbar.add(createComputeMenu());
         addButton(createBrowseExternalDataButton());
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
                 browserId + SHOW_DETAILS_BUTTON_ID_SUFFIX, asShowEntityInvoker(false)));
@@ -231,6 +229,7 @@ public abstract class AbstractExternalDataGrid
                             return new UploadConfirmationDialog(dataSets);
                         }
                     }));
+        pagingToolbar.add(createComputeMenu());
         addEntityOperationsSeparator();
         allowMultipleSelection();
 

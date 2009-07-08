@@ -111,7 +111,7 @@ class DataStoreServicesGrid extends ContentPanel
         final ColumnConfig codesNameColumnConfig = new ColumnConfig();
         codesNameColumnConfig.setId(ModelDataPropertyNames.DATA_SET_TYPES);
         codesNameColumnConfig.setHeader(DATA_SET_TYPES);
-        codesNameColumnConfig.setWidth(3 * ColumnConfigFactory.DEFAULT_COLUMN_WIDTH - 15);
+        codesNameColumnConfig.setWidth(2 * ColumnConfigFactory.DEFAULT_COLUMN_WIDTH - 30);
         configs.add(codesNameColumnConfig);
 
         final ColumnModel cm = new ColumnModel(configs);
