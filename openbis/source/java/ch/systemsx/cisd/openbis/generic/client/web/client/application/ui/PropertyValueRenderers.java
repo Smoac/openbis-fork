@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IInvalidationProvider;
@@ -511,4 +512,34 @@ public final class PropertyValueRenderers
 
     }
 
+    public static IPropertyValueRenderer<DataStore> createDataStorePropertyValueRenderer(
+            IMessageProvider messageProvider)
+    {
+        return new DataStorePropertyValueRenderer(messageProvider);
+    }
+
+    /**
+     * Renderer for {@link DataStore}.
+     * 
+     * @author Izabela Adamczyk
+     */
+    private final static class DataStorePropertyValueRenderer extends
+            AbstractSimplePropertyValueRenderer<DataStore>
+    {
+
+        DataStorePropertyValueRenderer(final IMessageProvider messageProvider)
+        {
+            super(messageProvider);
+        }
+
+        //
+        // AbstractPropertyValueRenderer
+        //
+
+        @Override
+        public final String renderNotNull(final DataStore dataStore)
+        {
+            return dataStore.getCode();
+        }
+    }
 }

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
 import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataStore;
@@ -40,7 +41,7 @@ public class DataStoreTranslator
             downloadUrl = downloadUrl + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
         }
         dataStore.setDownloadUrl(downloadUrl);
-        dataStore.setCode(dataStorePE.getCode());
+        dataStore.setCode(StringEscapeUtils.escapeHtml(dataStorePE.getCode()));
         return dataStore;
     }
 }

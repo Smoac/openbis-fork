@@ -673,5 +673,7 @@ public abstract class Dict
     public static final String MESSAGE_NO_EXTERNAL_UPLOAD_SERVICE =
             "message_no_external_upload_service";
 
+    public static final String DATA_STORE = "data_store";
+
     // ----- end generic ------------------
 }

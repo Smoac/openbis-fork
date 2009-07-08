@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPan
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
@@ -78,6 +79,8 @@ public class DataSetPropertiesSection extends SectionPanel
                 .createExperimentPropertyValueRenderer(viewContext));
         propertyGrid.registerPropertyValueRenderer(ExternalData.class, PropertyValueRenderers
                 .createExternalDataPropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(DataStore.class, PropertyValueRenderers
+                .createDataStorePropertyValueRenderer(viewContext));
         propertyGrid.setProperties(properties);
         return propertyGrid;
     }
@@ -94,6 +97,7 @@ public class DataSetPropertiesSection extends SectionPanel
 
         properties.put(messageProvider.getMessage(Dict.SOURCE_TYPE), dataset.getSourceType());
         properties.put(messageProvider.getMessage(Dict.LOCATION), dataset.getLocation());
+        properties.put(messageProvider.getMessage(Dict.DATA_STORE), dataset.getDataStore());
         properties.put(messageProvider.getMessage(Dict.IS_COMPLETE), dataset.getComplete());
         properties.put(messageProvider.getMessage(Dict.FILE_FORMAT_TYPE), dataset
                 .getFileFormatType().getCode());
