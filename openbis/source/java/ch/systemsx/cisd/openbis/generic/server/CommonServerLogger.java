@@ -320,7 +320,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public void updatePropertyType(String sessionToken, IPropertyTypeUpdates updates)
     {
-        logTracking(sessionToken, "update_property_type", "PROPERTY_TYPE(%)", updates.getCode());
+        logTracking(sessionToken, "update_property_type", "PROPERTY_TYPE(%s)", updates.getCode());
     }
 
     public final void registerVocabulary(final String sessionToken, final NewVocabulary vocabulary)
