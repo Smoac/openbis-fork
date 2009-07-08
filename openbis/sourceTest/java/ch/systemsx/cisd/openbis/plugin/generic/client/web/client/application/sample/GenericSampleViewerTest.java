@@ -105,7 +105,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                 "TIFF"));
         dataTable.expectedRow(new DataSetRow(DATA_SET_CODE).invalid().withLocation(
                 "analysis/result"));
-        dataTable.expectedColumnsNumber(16);
+        dataTable.expectedColumnsNumber(17);
         final String commentColIdent = GridTestUtils.getPropertyColumnIdentifier("COMMENT", false);
         dataTable.expectedColumnHidden(commentColIdent, true);
         remoteConsole.prepare(new AbstractDefaultTestCommand()
