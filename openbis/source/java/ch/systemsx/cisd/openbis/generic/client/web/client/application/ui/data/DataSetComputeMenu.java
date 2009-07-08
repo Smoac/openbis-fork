@@ -344,7 +344,7 @@ public class DataSetComputeMenu extends TextToolItem
                             + "of appropriate types and click on a Run button.";
                 case 1:
                     return "Select between performing " + computationName
-                            + " computation only on selected Data Set "
+                            + " computation only on selected Data Sets "
                             + "or on all Data Sets of appropriate types, "
                             + "then select a data store service and click on a Run button.";
                 default:
@@ -471,7 +471,6 @@ public class DataSetComputeMenu extends TextToolItem
             sb.append(singularMsgPrefix);
             sb.append(dataSetTypes.size() > 1 ? "s" : "");
             sb.append(":");
-            sb.append(BR);
             sb.append(StringUtils.joinList(dataSetTypes));
             return sb.toString();
         }
