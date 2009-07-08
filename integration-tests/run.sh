@@ -580,7 +580,7 @@ function find_dataset_dir {
 function assert_dss_registration {
     local dss=$1
     echo ==== assert registration of DSS $dss ====
-    assert_pattern_present $WORK/$dss/log/datastore_server_log.txt 1 get_version
+    assert_pattern_present $WORK/$dss/log/datastore_server_log.txt 1 getVersion
 }
 
 function assert_empty_in_out_folders {
