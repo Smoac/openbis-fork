@@ -16,9 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -38,7 +39,8 @@ public class DataSetReporter
 
     public static Component create(TableModel tableModel)
     {
-        ContentPanel panel = new ContentPanel();
+        LayoutContainer panel = new LayoutContainer();
+        panel.setScrollMode(Scroll.AUTO);
         Html content = new Html(tableModel.getContent());
         panel.add(content);
         return panel;
