@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.proper
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Dialog;
@@ -226,6 +227,10 @@ public class PropertyTypeAssignmentGrid extends
 
         return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
             {
+                {
+                    setScrollMode(Scroll.NONE);
+                }
+
                 private final boolean originalIsMandatory;
 
                 private final CheckBox mandatoryCheckbox;
