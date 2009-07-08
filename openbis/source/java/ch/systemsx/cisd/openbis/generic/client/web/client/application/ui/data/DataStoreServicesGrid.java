@@ -51,9 +51,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
  * 
  * @author Pitor Buczek
  */
-class PluginTasksView extends ContentPanel
+class DataStoreServicesGrid extends ContentPanel
 {
-    public static final String ID = GenericConstants.ID_PREFIX + "plugin_tasks-view";
+    public static final String ID = GenericConstants.ID_PREFIX + "datastore-services-view";
 
     private static final String HEADING = "Data Store Services";
 
@@ -74,7 +74,7 @@ class PluginTasksView extends ContentPanel
 
     private Grid<PluginTaskDescriptionModel> grid;
 
-    public PluginTasksView(IViewContext<ICommonClientServiceAsync> viewContext,
+    public DataStoreServicesGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             DataStoreServiceKind pluginTaskKind)
     {
         this.viewContext = viewContext;
@@ -119,6 +119,7 @@ class PluginTasksView extends ContentPanel
         final ListStore<PluginTaskDescriptionModel> store =
                 new ListStore<PluginTaskDescriptionModel>();
         store.add(getPluginTaskModels(plugins));
+        store.setSortField(ModelDataPropertyNames.LABEL);
 
         final ContentPanel cp = new ContentPanel();
 
@@ -145,7 +146,7 @@ class PluginTasksView extends ContentPanel
 
     }
 
-    List<PluginTaskDescriptionModel> getPluginTaskModels(
+    private List<PluginTaskDescriptionModel> getPluginTaskModels(
             final List<DatastoreServiceDescription> services)
     {
         final List<PluginTaskDescriptionModel> result = new ArrayList<PluginTaskDescriptionModel>();
@@ -220,17 +221,17 @@ class PluginTasksView extends ContentPanel
         removeAll();
         add(new Text("data loading..."));
         viewContext.getService().listDataStoreServices(pluginTaskKind,
-                new ListPluginTaskDescriptionsCallback(viewContext));
+                new ListServicesDescriptionsCallback(viewContext));
     }
 
     //
     // Helper classes
     //
 
-    public final class ListPluginTaskDescriptionsCallback extends
+    public final class ListServicesDescriptionsCallback extends
             AbstractAsyncCallback<List<DatastoreServiceDescription>>
     {
-        private ListPluginTaskDescriptionsCallback(
+        private ListServicesDescriptionsCallback(
                 final IViewContext<ICommonClientServiceAsync> viewContext)
         {
             super(viewContext);

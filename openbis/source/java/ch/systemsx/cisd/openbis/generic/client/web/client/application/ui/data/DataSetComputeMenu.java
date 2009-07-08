@@ -297,7 +297,7 @@ public class DataSetComputeMenu extends TextToolItem
 
         private Html selectedDataSetTypesText;
 
-        private PluginTasksView pluginTasksGrid;
+        private DataStoreServicesGrid pluginTasksGrid;
 
         protected PerformComputationDialog(IViewContext<ICommonClientServiceAsync> messageProvider,
                 ComputationData data, String title)
@@ -415,7 +415,13 @@ public class DataSetComputeMenu extends TextToolItem
 
         private boolean getComputeOnSelected()
         {
-            return computeOnSelectedRadio.getValue();
+            if (computeOnSelectedRadio == null)
+            {
+                return false;
+            } else
+            {
+                return computeOnSelectedRadio.getValue();
+            }
         }
 
         @Override
@@ -431,7 +437,7 @@ public class DataSetComputeMenu extends TextToolItem
                 updateComputationDataSetsState();
             }
 
-            pluginTasksGrid = new PluginTasksView(viewContext, data.getPluginTaskKind());
+            pluginTasksGrid = new DataStoreServicesGrid(viewContext, data.getPluginTaskKind());
             formPanel.add(pluginTasksGrid);
 
             Button confirmButton = getButtonById(Dialog.OK);
