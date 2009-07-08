@@ -34,6 +34,8 @@ import ch.systemsx.cisd.etlserver.DefaultStorageProcessorTest.TestProcedureAndDa
 @Friend(toClasses = CifexStorageProcessor.class)
 public class CifexStorageProcessorTest extends AbstractFileSystemTestCase
 {
+    // TODO 2009-07-09 Izabela Adamczyk: Add more test cases
+
     private final static ITypeExtractor TYPE_EXTRACTOR = new TestProcedureAndDataTypeExtractor();
 
     private static final String UNDEFINED = null;

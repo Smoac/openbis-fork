@@ -94,7 +94,7 @@ public class CifexStorageProcessor extends AbstractStorageProcessor
                         incomingDataSetDirectory, rootDir);
         if (StringUtils.isBlank(keppFileRegex) == false)
         {
-            result = clean(delegate.tryGetProprietaryData(rootDir), keppFileRegex);
+            clean(delegate.tryGetProprietaryData(rootDir), keppFileRegex);
         }
         return result;
     }
