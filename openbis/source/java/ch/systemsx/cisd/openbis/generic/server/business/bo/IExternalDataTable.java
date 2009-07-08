@@ -72,4 +72,7 @@ public interface IExternalDataTable
     /** Creates a report from specified datasets using the specified datastore service. */
     TableModel createReportFromDatasets(DatastoreServiceDescription serviceDescription,
             List<String> datasetCodes);
+
+    /** Schedules processing of specified datasets using the specified datastore service. */
+    void processDatasets(DatastoreServiceDescription serviceDescription, List<String> datasetCodes);
 }

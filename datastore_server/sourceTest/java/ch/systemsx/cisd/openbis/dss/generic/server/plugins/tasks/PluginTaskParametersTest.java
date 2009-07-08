@@ -33,11 +33,6 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo.DemoProcessingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo.DemoReportingPlugin;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.AbstractPluginTaskFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvider;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -50,6 +45,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
     { PluginTaskProviders.class, AbstractPluginTaskFactory.class })
 public class PluginTaskParametersTest extends AbstractFileSystemTestCase
 {
+    private static final File STORE_ROOT = new File(".");
+
     @Test
     public void testCreateReportingPluginsFactories() throws Exception
     {
@@ -69,9 +66,9 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         PluginTaskProvider<IReportingPluginTask> factories = createReportingPluginsFactories(props);
         factories.check();
         factories.logConfigurations();
-        IReportingPluginTask pluginInstance1 = factories.createPluginInstance(plugin1);
+        IReportingPluginTask pluginInstance1 = factories.createPluginInstance(plugin1, STORE_ROOT);
         pluginInstance1.createReport(createDatasetDescriptions());
-        factories.createPluginInstance(plugin2);
+        factories.createPluginInstance(plugin2, STORE_ROOT);
 
         List<DatastoreServiceDescription> descriptions = factories.getPluginDescriptions();
         assertEquals(2, descriptions.size());
@@ -138,7 +135,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
                 createProcessingPluginsFactories(props);
         factories.check();
         factories.logConfigurations();
-        IProcessingPluginTask pluginInstance1 = factories.createPluginInstance(plugin1);
+        IProcessingPluginTask pluginInstance1 = factories.createPluginInstance(plugin1, STORE_ROOT);
         pluginInstance1.process(createDatasetDescriptions());
     }
 

@@ -29,6 +29,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionEvent;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -43,6 +44,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
@@ -162,17 +167,9 @@ public class DataSetComputeMenu extends TextToolItem
                                             criteria, new ReportDisplayCallback(viewContext));
                                 } else
                                 {
-                                    createMock(service);
+                                    viewContext.getService().processDatasets(service, criteria,
+                                            new ProcessingDisplayCallback(viewContext));
                                 }
-                            }
-
-                            private void createMock(DatastoreServiceDescription pluginTask)
-                            {
-                                final String title =
-                                        "Mock " + pluginTaskKind.getDescription() + " execution";
-                                final String msg =
-                                        pluginTaskKind.getDescription() + ": " + pluginTask;
-                                MessageBox.info(title, msg, null);
                             }
                         };
                 }
@@ -194,6 +191,20 @@ public class DataSetComputeMenu extends TextToolItem
         }
     }
 
+    public final class ProcessingDisplayCallback extends AbstractAsyncCallback<Void>
+    {
+        private ProcessingDisplayCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        public final void process(final Void result)
+        {
+            MessageBox.info("Processing", "Processing has been scheduled successfully.", null);
+        }
+    }
+
     private static final class ReportDisplayCallback extends AbstractAsyncCallback<TableModel>
     {
 
@@ -203,9 +214,23 @@ public class DataSetComputeMenu extends TextToolItem
         }
 
         @Override
-        protected void process(TableModel result)
+        protected void process(final TableModel tableModel)
         {
             // TODO 2009-07-07, Tomasz Pylak: display a new tab with a grid
+            final ITabItemFactory tabFactory = new ITabItemFactory()
+                {
+                    public ITabItem create()
+                    {
+                        Component component = DataSetReporter.create(tableModel);
+                        return DefaultTabItem.createUnaware("Data Store Report", component, false);
+                    }
+
+                    public String getId()
+                    {
+                        return DataSetReporter.createId();
+                    }
+                };
+            DispatcherHelper.dispatchNaviEvent(tabFactory);
         }
     }
 

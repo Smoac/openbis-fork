@@ -14,22 +14,35 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
+package ch.systemsx.cisd.openbis.dss.generic.server;
 
-import java.io.Serializable;
+import java.io.File;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Interface of the processing plugin task.
+ * Command which processes datasets using the specified plugin instance.
  * 
  * @author Tomasz Pylak
  */
-public interface IProcessingPluginTask extends Serializable
+public class ProcessDatasetsCommand implements IDataSetCommand
 {
-    /**
-     * Processes anynchronously the specified datasets.
-     */
-    void process(List<DatasetDescription> datasets);
+    private static final long serialVersionUID = 1L;
+
+    private final IProcessingPluginTask task;
+
+    private final List<DatasetDescription> datasets;
+
+    public ProcessDatasetsCommand(IProcessingPluginTask task, List<DatasetDescription> datasets)
+    {
+        this.task = task;
+        this.datasets = datasets;
+    }
+
+    public void execute(File store)
+    {
+        task.process(datasets);
+    }
 }

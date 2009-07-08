@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
+import java.io.File;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -39,8 +40,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
  */
 public abstract class AbstractPluginTaskFactory<T>
 {
-    /** Creates a new instance of a plugin task */
-    abstract public T createPluginInstance();
+    /**
+     * Creates a new instance of a plugin task
+     * 
+     * @param storeRoot the root directory of the file store
+     */
+    abstract public T createPluginInstance(File storeRoot);
 
     /**
      * Logs the current parameters to the {@link LogCategory#OPERATION} log.
@@ -87,11 +92,11 @@ public abstract class AbstractPluginTaskFactory<T>
         this.instanceParameters = extractInstanceParameters(pluginProperties);
     }
 
-    protected T createPluginInstance(Class<T> clazz)
+    protected T createPluginInstance(Class<T> clazz, File storeRoot)
     {
         try
         {
-            return ClassUtils.create(clazz, className, instanceParameters);
+            return ClassUtils.create(clazz, className, instanceParameters, storeRoot);
         } catch (Exception ex)
         {
             throw new ConfigurationFailureException("Cannot find the plugin class '" + className
@@ -142,7 +147,7 @@ public abstract class AbstractPluginTaskFactory<T>
     /** Ensures that the factory configuration is correct and it is able to create plugins instances */
     public void check()
     {
-        createPluginInstance(); // just to see if it is possible
+        createPluginInstance(new File(".")); // just to see if it is possible
     }
 
     /** @return description of a plugin task. It is the same for all plugin instances. */

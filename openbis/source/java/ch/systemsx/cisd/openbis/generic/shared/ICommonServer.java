@@ -762,4 +762,10 @@ public interface ICommonServer extends IServer
     public TableModel createReportFromDatasets(String sessionToken,
             DatastoreServiceDescription serviceDescription,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
+
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.POWER_USER)
+    public void processDatasets(String sessionToken,
+            DatastoreServiceDescription serviceDescription,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
 }

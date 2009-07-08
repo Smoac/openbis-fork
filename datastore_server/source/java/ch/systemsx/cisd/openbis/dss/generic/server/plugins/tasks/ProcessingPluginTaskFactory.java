@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
+import java.io.File;
+
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -38,9 +40,9 @@ public class ProcessingPluginTaskFactory extends AbstractPluginTaskFactory<IProc
     }
 
     @Override
-    public IProcessingPluginTask createPluginInstance()
+    public IProcessingPluginTask createPluginInstance(File storeRoot)
     {
-        return createPluginInstance(IProcessingPluginTask.class);
+        return createPluginInstance(IProcessingPluginTask.class, storeRoot);
     }
 
     @Override

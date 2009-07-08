@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
+import java.io.File;
+
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -38,16 +40,16 @@ public class ReportingPluginTaskFactory extends AbstractPluginTaskFactory<IRepor
     }
 
     @Override
-    public IReportingPluginTask createPluginInstance()
+    public IReportingPluginTask createPluginInstance(File storeRoot)
     {
-        return createPluginInstance(IReportingPluginTask.class);
+        return createPluginInstance(IReportingPluginTask.class, storeRoot);
     }
 
     @Override
     public void logConfiguration()
     {
-        operationLog.info(String.format("Reporting plugin '%s' configuration:", getPluginDescription()
-                .getKey()));
+        operationLog.info(String.format("Reporting plugin '%s' configuration:",
+                getPluginDescription().getKey()));
         logPropertiesConfiguration();
     }
 }

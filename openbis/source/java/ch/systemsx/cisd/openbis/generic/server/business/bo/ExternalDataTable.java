@@ -361,6 +361,27 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         return service.getKnownDataSets(sessionToken, locations);
     }
 
+    public void processDatasets(DatastoreServiceDescription serviceDescription,
+            List<String> datasetCodes)
+    {
+        DataStorePE dataStore = findDataStore(serviceDescription);
+        IDataStoreService service = tryGetDataStoreService(dataStore);
+        if (service == null)
+        {
+            throw createUnknownDataStoreServerException();
+        }
+        List<DatasetDescription> locations = loadDatasetDescriptions(datasetCodes);
+        String sessionToken = dataStore.getSessionToken();
+        service.processDatasets(sessionToken, serviceDescription.getKey(), locations);
+    }
+
+    private ConfigurationFailureException createUnknownDataStoreServerException()
+    {
+        return new ConfigurationFailureException(
+                "Connection to Data Store Server has not been configured. "
+                        + "Conntact your administrator.");
+    }
+
     public TableModel createReportFromDatasets(DatastoreServiceDescription serviceDescription,
             List<String> datasetCodes)
     {
@@ -368,9 +389,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         IDataStoreService service = tryGetDataStoreService(dataStore);
         if (service == null)
         {
-            throw new ConfigurationFailureException(
-                    "Connection to Data Store Server has not been configured. "
-                            + "Conntact your administrator.");
+            throw createUnknownDataStoreServerException();
         }
         List<DatasetDescription> locations = loadDatasetDescriptions(datasetCodes);
         String sessionToken = dataStore.getSessionToken();
@@ -404,4 +423,5 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         }
         return dataStore;
     }
+
 }

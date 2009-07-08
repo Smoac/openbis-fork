@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,14 +48,15 @@ public class PluginTaskProvider<P>
     }
 
     /** creates an instance of the plugin with the given key */
-    public P createPluginInstance(String pluginKey)
+    public P createPluginInstance(String pluginKey, File storeRoot)
     {
-        return factories.tryGet(pluginKey).createPluginInstance();
+        return factories.tryGet(pluginKey).createPluginInstance(storeRoot);
     }
 
     public List<DatastoreServiceDescription> getPluginDescriptions()
     {
-        List<DatastoreServiceDescription> descriptions = new ArrayList<DatastoreServiceDescription>();
+        List<DatastoreServiceDescription> descriptions =
+                new ArrayList<DatastoreServiceDescription>();
         for (AbstractPluginTaskFactory<?> factory : factories.values())
         {
             descriptions.add(factory.getPluginDescription());

@@ -627,4 +627,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    public void processDatasets(String sessionToken,
+            DatastoreServiceDescription serviceDescription, List<String> datasetCodes)
+    {
+        logTracking(sessionToken, "processDatasets", "SERVICE(%s), NO_OF_DATASETS(%s)",
+                serviceDescription, datasetCodes.size());
+    }
+
 }

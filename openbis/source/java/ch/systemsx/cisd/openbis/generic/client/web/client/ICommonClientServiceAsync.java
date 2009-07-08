@@ -498,4 +498,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria,
             AsyncCallback<TableModel> callback);
 
+    /**
+     * @see ICommonClientService#processDatasets(DatastoreServiceDescription,
+     *      DisplayedOrSelectedDatasetCriteria)
+     */
+    public void processDatasets(DatastoreServiceDescription service,
+            DisplayedOrSelectedDatasetCriteria criteria, AsyncCallback<Void> callback);
+
 }

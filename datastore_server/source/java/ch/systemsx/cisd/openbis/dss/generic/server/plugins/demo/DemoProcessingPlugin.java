@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo;
 
+import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
@@ -29,12 +30,23 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  */
 public class DemoProcessingPlugin implements IProcessingPluginTask
 {
-    public DemoProcessingPlugin(Properties properties)
+    private static final long serialVersionUID = 1L;
+
+    public DemoProcessingPlugin(Properties properties, File storeRoot)
     {
     }
 
     public void process(List<DatasetDescription> datasets)
     {
         System.out.println("Processing of the following datasets has been requested: " + datasets);
+        System.out.println("sleeping for 10 sec");
+        try
+        {
+            Thread.sleep(10000);
+        } catch (InterruptedException ex)
+        {
+            ex.printStackTrace();
+        }
+        System.out.println("Processing done.");
     }
 }

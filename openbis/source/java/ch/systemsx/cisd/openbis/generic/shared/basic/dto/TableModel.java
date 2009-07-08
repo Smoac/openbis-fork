@@ -25,10 +25,34 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Tomasz Pylak
  */
+// TODO 2009-07-02, Tomasz Pylak: implement me. This stub holds just one string.
 public class TableModel implements IsSerializable, Serializable
 {
-
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    // TODO 2009-07-02, Tomasz Pylak: implement me
+    private String content;
+
+    public TableModel(String content)
+    {
+        this.content = content;
+    }
+
+    public String getContent()
+    {
+        return content;
+    }
+
+    // GWT only
+    @SuppressWarnings("unused")
+    private TableModel()
+    {
+    }
+
+    // GWT only
+    @SuppressWarnings("unused")
+    private void setContent(String content)
+    {
+        this.content = content;
+    }
+
 }

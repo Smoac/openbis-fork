@@ -28,6 +28,7 @@ import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
@@ -186,8 +187,19 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
         PluginTaskProvider<IReportingPluginTask> reportingPlugins =
                 pluginTaskParameters.getReportingPluginsProvider();
-        IReportingPluginTask task = reportingPlugins.createPluginInstance(serviceKey);
+        IReportingPluginTask task = reportingPlugins.createPluginInstance(serviceKey, storeRoot);
         return task.createReport(datasets);
+    }
+
+    public void processDatasets(String sessionToken, String serviceKey,
+            List<DatasetDescription> datasets)
+    {
+        sessionTokenManager.assertValidSessionToken(sessionToken);
+
+        PluginTaskProvider<IProcessingPluginTask> plugins =
+                pluginTaskParameters.getProcessingPluginsProvider();
+        IProcessingPluginTask task = plugins.createPluginInstance(serviceKey, storeRoot);
+        commandExecuter.scheduleProcessDatasets(task, datasets);
     }
 
 }

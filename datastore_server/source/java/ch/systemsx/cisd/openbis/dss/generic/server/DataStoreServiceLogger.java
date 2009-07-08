@@ -106,9 +106,16 @@ class DataStoreServiceLogger implements IDataStoreService
     public TableModel createReportFromDatasets(String sessionToken, String serviceKey,
             List<DatasetDescription> datasets)
     {
-        log("createReportFromDatasets", "reportingTaskId(%s) NO_OF_DATASETS(%s)", serviceKey,
+        log("createReportFromDatasets", "TASK_ID(%s) NO_OF_DATASETS(%s)", serviceKey,
                 datasets.size());
         return null;
+    }
+
+    public void processDatasets(String sessionToken, String serviceKey,
+            List<DatasetDescription> datasets)
+    {
+        log("processDatasets", "TASK_ID(%s) NO_OF_DATASETS(%s)", serviceKey, datasets
+                .size());
     }
 
 }

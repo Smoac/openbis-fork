@@ -1757,4 +1757,19 @@ public final class CommonClientService extends AbstractClientService implements
         return datasetCodes;
     }
 
+    public void processDatasets(DatastoreServiceDescription serviceDescription,
+            DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            List<String> datasetCodes =
+                    extractDatasetCodes(displayedOrSelectedDatasetCriteria, serviceDescription);
+            commonServer.processDatasets(sessionToken, serviceDescription, datasetCodes);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
 }

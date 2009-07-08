@@ -14,22 +14,34 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
+package ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo;
 
-import java.io.Serializable;
-import java.util.List;
+import java.io.File;
+import java.util.Properties;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Interface of the processing plugin task.
- * 
  * @author Tomasz Pylak
  */
-public interface IProcessingPluginTask extends Serializable
+abstract class AbstractDatastorePlugin
 {
-    /**
-     * Processes anynchronously the specified datasets.
-     */
-    void process(List<DatasetDescription> datasets);
+    private final File storeRoot;
+
+    protected AbstractDatastorePlugin(Properties properties, File storeRoot)
+    {
+        assert storeRoot.exists() : "storeRoot does not exist " + storeRoot;
+
+        this.storeRoot = storeRoot;
+    }
+
+    protected File getOriginalDir(DatasetDescription dataset)
+    {
+        return new File(getDatasetDir(dataset), "original");
+    }
+
+    protected File getDatasetDir(DatasetDescription dataset)
+    {
+        return new File(storeRoot, dataset.getDataSetLocation());
+    }
 }

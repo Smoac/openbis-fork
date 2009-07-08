@@ -573,4 +573,9 @@ public interface ICommonClientService extends IClientService
     public TableModel createReportFromDatasets(DatastoreServiceDescription serviceDescription,
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria);
 
+    /**
+     * Uses the specified datastore service to schedule processing of the specified datasets.
+     */
+    public void processDatasets(DatastoreServiceDescription service,
+            DisplayedOrSelectedDatasetCriteria criteria);
 }

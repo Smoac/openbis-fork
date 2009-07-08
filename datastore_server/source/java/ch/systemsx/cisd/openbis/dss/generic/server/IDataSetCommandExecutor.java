@@ -18,7 +18,9 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
@@ -40,14 +42,16 @@ interface IDataSetCommandExecutor
     void scheduleDeletionOfDataSets(List<String> locations);
 
     /**
-     * Schedules uploading of all data sets to CIFEX using the specified
-     * upload context.
+     * Schedules uploading of all data sets to CIFEX using the specified upload context.
      * 
      * @param cifexServiceFactory Factory for creating CIFEX upload service.
-     * @param mailClientParameters Parameters needed for sending an e-mail to the user if
-     *      uploading failed.
+     * @param mailClientParameters Parameters needed for sending an e-mail to the user if uploading
+     *            failed.
      */
     void scheduleUploadingDataSetsToCIFEX(ICIFEXRPCServiceFactory cifexServiceFactory,
             MailClientParameters mailClientParameters, List<ExternalDataPE> dataSets,
             DataSetUploadContext uploadContext);
+
+    /** Schedules the specified processing task for provided datasets */
+    void scheduleProcessDatasets(IProcessingPluginTask task, List<DatasetDescription> datasets);
 }

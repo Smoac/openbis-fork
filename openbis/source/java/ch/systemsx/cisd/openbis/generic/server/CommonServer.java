@@ -1296,4 +1296,13 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
                 businessObjectFactory.createExternalDataTable(session);
         return externalDataTable.createReportFromDatasets(serviceDescription, datasetCodes);
     }
+
+    public void processDatasets(String sessionToken,
+            DatastoreServiceDescription serviceDescription, List<String> datasetCodes)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        IExternalDataTable externalDataTable =
+                businessObjectFactory.createExternalDataTable(session);
+        externalDataTable.processDatasets(serviceDescription, datasetCodes);
+    }
 }

@@ -77,4 +77,8 @@ public interface IDataStoreService
     /** Runs the reporting task with the specified id for provided datasets */
     public TableModel createReportFromDatasets(String sessionToken, String serviceKey,
             List<DatasetDescription> datasets);
+
+    /** Schedules the processing task with the specified id for provided datasets */
+    public void processDatasets(String sessionToken, String serviceKey,
+            List<DatasetDescription> datasets);
 }

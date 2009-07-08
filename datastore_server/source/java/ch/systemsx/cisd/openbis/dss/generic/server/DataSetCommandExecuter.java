@@ -27,20 +27,22 @@ import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.collections.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class DataSetCommandExecuter implements IDataSetCommandExecutor
 {
     private final File store;
+
     private final IExtendedBlockingQueue<IDataSetCommand> commandQueue;
+
     private final Logger operationLog;
-    
+
     public DataSetCommandExecuter(File store)
     {
         this.store = store;
@@ -49,7 +51,7 @@ class DataSetCommandExecuter implements IDataSetCommandExecutor
                 ExtendedBlockingQueueFactory.<IDataSetCommand> createPersistRecordBased(queueFile);
         operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
     }
-    
+
     public void start()
     {
         Thread thread = new Thread(new Runnable()
@@ -97,6 +99,12 @@ class DataSetCommandExecuter implements IDataSetCommandExecutor
     {
         scheduleCommand(new UploadingCommand(cifexServiceFactory, mailClientParameters, dataSets,
                 uploadContext));
+    }
+
+    public void scheduleProcessDatasets(IProcessingPluginTask task,
+            List<DatasetDescription> datasets)
+    {
+        scheduleCommand(new ProcessDatasetsCommand(task, datasets));
     }
 
     private void scheduleCommand(IDataSetCommand command)
