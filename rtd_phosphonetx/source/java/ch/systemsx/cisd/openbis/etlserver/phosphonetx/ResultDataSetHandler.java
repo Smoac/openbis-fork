@@ -22,49 +22,33 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
 
+import javax.sql.DataSource;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import net.lemnik.eodsql.QueryTool;
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.AminoAcidMass;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.AnnotatedProtein;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.DataSet;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Database;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Experiment;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Parameter;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Peptide;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.PeptideModification;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Protein;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinAnnotation;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinGroup;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinProphetDetails;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinReference;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummary;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummaryDataFilter;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sample;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sequence;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class ResultDataSetHandler extends AbstractHandler implements IDataSetHandler
+public class ResultDataSetHandler implements IDataSetHandler
 {
-    private static final String PARAMETER_TYPE_ABUNDANCE = "abundance";
     private static final String DATABASE_ENGINE = "database.engine";
     private static final String DATABASE_URL_HOST_PART = "database.url-host-part";
     private static final String DATABASE_BASIC_NAME = "database.basic-name";
@@ -72,56 +56,10 @@ public class ResultDataSetHandler extends AbstractHandler implements IDataSetHan
     private static final String DATABASE_OWNER = "database.owner";
     private static final String DATABASE_PASSWORD = "database.password";
     
-    private static final class ProteinDescription
-    {
-        private final String uniprotID;
-        private final String description;
-        private final String sequence;
-
-        public ProteinDescription(String proteinDescription)
-        {
-            String[] items = proteinDescription.split("\\\\");
-            uniprotID = tryToGetUniprotID(items);
-            description = tryToGetValue(items, "DE");
-            sequence = tryToGetValue(items, "SEQ");
-        }
-        
-        public final String getUniprotID()
-        {
-            return uniprotID;
-        }
-
-        public final String getDescription()
-        {
-            return description;
-        }
-
-        public final String getSequence()
-        {
-            return sequence;
-        }
-
-        private String tryToGetUniprotID(String[] items)
-        {
-            return items == null || items.length == 0 ? null : items[0].trim(); 
-        }
-        
-        private String tryToGetValue(String[] items, String key)
-        {
-            for (String item : items)
-            {
-                int indexOfEqualSign = item.indexOf('=');
-                if (indexOfEqualSign > 0
-                        && item.substring(0, indexOfEqualSign).trim().equalsIgnoreCase(key))
-                {
-                    return item.substring(indexOfEqualSign + 1).trim();
-                }
-            }
-            return null;
-        }
-    }
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, ResultDataSetHandler.class);
     
-    private static Connection createDatabaseConnection(Properties properties)
+    private static DataSource createDataSource(Properties properties)
     {
         DatabaseConfigurationContext context = new DatabaseConfigurationContext();
         context.setDatabaseEngineCode(properties.getProperty(DATABASE_ENGINE, "postgresql"));
@@ -130,25 +68,20 @@ public class ResultDataSetHandler extends AbstractHandler implements IDataSetHan
         context.setDatabaseKind(PropertyUtils.getMandatoryProperty(properties, DATABASE_KIND));
         context.setOwner(properties.getProperty(DATABASE_OWNER, ""));
         context.setPassword(properties.getProperty(DATABASE_PASSWORD, ""));
-        try
-        {
-            Connection connection = context.getDataSource().getConnection();
-            return connection;
-        } catch (SQLException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
+        return context.getDataSource();
     }
     
     private final IDataSetHandler delegator;
     private final Unmarshaller unmarshaller;
     private final IEncapsulatedOpenBISService openbisService;
+    private final DataSource dataSource;
 
     public ResultDataSetHandler(Properties properties, IDataSetHandler delegator,
             IEncapsulatedOpenBISService openbisService)
     {
-        super(QueryTool.getQuery(createDatabaseConnection(ExtendedProperties.getSubset(properties,
-                IDataSetHandler.DATASET_HANDLER_KEY + '.', true)), IProtDAO.class));
+        dataSource =
+                createDataSource(ExtendedProperties.getSubset(properties,
+                        IDataSetHandler.DATASET_HANDLER_KEY + '.', true));
         this.delegator = delegator;
         this.openbisService = openbisService;
         try
@@ -164,7 +97,15 @@ public class ResultDataSetHandler extends AbstractHandler implements IDataSetHan
 
     public List<DataSetInformation> handleDataSet(File dataSet)
     {
+        long time = System.currentTimeMillis();
         ProteinSummary summary = readProtXML(dataSet);
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(summary.getProteinGroups().size()
+                    + " protein groups are successfully read from '" + dataSet + "' in "
+                    + (System.currentTimeMillis() - time) + " msec");
+        }
+        time = System.currentTimeMillis();
         List<DataSetInformation> dataSets = delegator.handleDataSet(dataSet);
         if (dataSets.isEmpty())
         {
@@ -178,68 +119,32 @@ public class ResultDataSetHandler extends AbstractHandler implements IDataSetHan
                     "Only data set handlers (like the primary one) " +
                     "registering exactly one data set are allowed.");
         }
-        DataSetInformation dataSetInfo = dataSets.get(0);
-        Experiment experiment = getOrCreateExperiment(dataSetInfo.getExperiment().getPermId());
-        Sample sample = getOrCreateSample(experiment, dataSetInfo.getSample().getPermId());
-        String referenceDatabase = summary.getSummaryHeader().getReferenceDatabase();
-        Database database = getOrGreateDatabase(referenceDatabase);
-        DataSet ds = getOrCreateDataSet(experiment, sample, database, dataSetInfo.getDataSetCode());
-        addToDatabase(ds, experiment, dataSetInfo.getSample().getGroup(), summary);
+        DataSetInformation dataSetInformation = dataSets.get(0);
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Registration at openBIS took "
+                    + (System.currentTimeMillis() - time) + " msec: " + dataSetInformation);
+        }
+        time = System.currentTimeMillis();
+        Connection connection;
+        try
+        {
+            connection = dataSource.getConnection();
+            connection.setAutoCommit(false);
+        } catch (SQLException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+        ResultDataSetUploader upLoader = new ResultDataSetUploader(connection, openbisService);
+        upLoader.upload(dataSetInformation, summary);
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Feeding result database took "
+                    + (System.currentTimeMillis() - time) + " msec.");
+        }
         return dataSets;
     }
-
-    private Database getOrGreateDatabase(String databaseNameAndVersion)
-    {
-        int indexOfLastSlash = databaseNameAndVersion.lastIndexOf('/');
-        String nameOrVersion;
-        if (indexOfLastSlash < 0)
-        {
-            nameOrVersion = databaseNameAndVersion;
-        } else
-        {
-            nameOrVersion = databaseNameAndVersion.substring(indexOfLastSlash + 1);
-        }
-        Database database = dao.tryToGetDatabaseByName(nameOrVersion);
-        if (database == null)
-        {
-            database = new Database();
-            database.setNameAndVersion(nameOrVersion);
-            database.setId(dao.createDatabase(database.getNameAndVersion()));
-        }
-        return database;
-    }
-
-    private DataSet getOrCreateDataSet(Experiment experiment, Sample sample, Database database,
-            String dataSetPermID)
-    {
-        DataSet dataSet = dao.tryToGetDataSetByPermID(dataSetPermID);
-        if (dataSet == null)
-        {
-            dataSet = new DataSet();
-            dataSet.setPermID(dataSetPermID);
-            long experimentID = experiment.getId();
-            dataSet.setExperimentID(experimentID);
-            long sampleID = sample.getId();
-            dataSet.setSampleID(sampleID);
-            long databaseID = database.getId();
-            dataSet.setDatabaseID(databaseID);
-            dataSet.setId(dao.createDataSet(experimentID, sampleID, dataSetPermID, databaseID));
-        }
-        return dataSet;
-    }
-
-    private Experiment getOrCreateExperiment(String experimentPermID)
-    {
-        Experiment experiment = dao.tryToGetExperimentByPermID(experimentPermID);
-        if (experiment == null)
-        {
-            experiment = new Experiment();
-            experiment.setPermID(experimentPermID);
-            experiment.setId(dao.createExperiment(experimentPermID));
-        }
-        return experiment;
-    }
-
+    
     private ProteinSummary readProtXML(File dataSet)
     {
         try
@@ -257,116 +162,4 @@ public class ResultDataSetHandler extends AbstractHandler implements IDataSetHan
         }
     }
 
-    private void addToDatabase(DataSet dataSet, Experiment experiment, GroupPE group,
-            ProteinSummary summary)
-    {
-        long dataSetID = dataSet.getId();
-        Long databaseID = dataSet.getDatabaseID();
-        GroupIdentifier groupIdentifier =
-                new GroupIdentifier(group.getDatabaseInstance().getCode(), group.getCode());
-        AbundanceHandler abundanceHandler =
-                new AbundanceHandler(openbisService, dao, groupIdentifier, experiment);
-        ModificationHandler modificationHandler = new ModificationHandler(dao);
-        createProbabilityToFDRMapping(dataSetID, summary);
-        List<ProteinGroup> proteinGroups = summary.getProteinGroups();
-        for (ProteinGroup proteinGroup : proteinGroups)
-        {
-            double probability = proteinGroup.getProbability();
-            List<Protein> proteins = proteinGroup.getProteins();
-            if (proteins.isEmpty() == false)
-            {
-                // Only the first protein of a ProteinGroup is valid
-                addProtein(proteins.get(0), probability, dataSetID, databaseID, abundanceHandler,
-                        modificationHandler);
-            }
-        }
-    }
-
-    private void addProtein(Protein protein, double probability, long dataSetID, Long databaseID,
-            AbundanceHandler abundanceHandler, ModificationHandler modificationHandler)
-    {
-        long proteinID = dao.createProtein(dataSetID, probability);
-        for (Parameter parameter : protein.getParameters())
-        {
-            if (PARAMETER_TYPE_ABUNDANCE.equals(parameter.getType()))
-            {
-                abundanceHandler.addAbundancesToDatabase(parameter, proteinID, protein.getName());
-            }
-        }
-        createIdentifiedProtein(proteinID, databaseID, protein.getAnnotation());
-        for (AnnotatedProtein annotatedProtein : protein.getIndistinguishableProteins())
-        {
-            createIdentifiedProtein(proteinID, databaseID, annotatedProtein.getAnnotation());
-        }
-        List<Peptide> peptides = protein.getPeptides();
-        for (Peptide peptide : peptides)
-        {
-            String peptideSequence = peptide.getSequence();
-            int charge = peptide.getCharge();
-            long peptideID = dao.createPeptide(proteinID, peptideSequence, charge);
-            List<PeptideModification> modifications = peptide.getModifications();
-            for (PeptideModification modification : modifications)
-            {
-                List<AminoAcidMass> aminoAcidMasses = modification.getAminoAcidMasses();
-                for (AminoAcidMass aminoAcidMass : aminoAcidMasses)
-                {
-                    modificationHandler.createModification(peptideID, peptideSequence, aminoAcidMass);
-                }
-            }
-        }
-    }
-
-    private void createIdentifiedProtein(long proteinID, Long databaseID,
-            ProteinAnnotation annotation)
-    {
-        ProteinDescription protDesc = new ProteinDescription(annotation.getDescription());
-        String uniprotID = protDesc.getUniprotID();
-        String description = protDesc.getDescription();
-        ProteinReference proteinReference = dao.tryToGetProteinReference(uniprotID);
-        if (proteinReference == null)
-        {
-            proteinReference = new ProteinReference();
-            proteinReference.setUniprotID(uniprotID);
-            proteinReference.setDescription(description);
-            proteinReference.setId(dao.createProteinReference(uniprotID, description));
-        } else if (description.equals(proteinReference.getDescription()) == false)
-        {
-            dao.updateProteinReferenceDescription(proteinReference.getId(), description);
-        }
-        Sequence sequence =
-                dao.tryToGetSequenceByReferenceAndDatabase(proteinReference.getId(), databaseID);
-        if (sequence == null || protDesc.getSequence().equals(sequence.getSequence()) == false)
-        {
-            sequence = new Sequence(protDesc.getSequence());
-            sequence.setDatabaseID(databaseID);
-            sequence.setProteinReferenceID(proteinReference.getId());
-            sequence.setId(dao.createSequence(sequence));
-        }
-        dao.createIdentifiedProtein(proteinID, sequence.getId());
-    }
-
-    private void createProbabilityToFDRMapping(long dataSetID, ProteinSummary summary)
-    {
-        Object[] s = summary.getSummaryHeader().getProgramDetails().getSummary();
-        if (s != null)
-        {
-            for (Object object : s)
-            {
-                if (object instanceof ProteinProphetDetails)
-                {
-                    ProteinProphetDetails details = (ProteinProphetDetails) object;
-                    List<ProteinSummaryDataFilter> filters = details.getDataFilters();
-                    for (ProteinSummaryDataFilter proteinSummaryDataFilter : filters)
-                    {
-                        double probability = proteinSummaryDataFilter.getMinProbability();
-                        double fdr = proteinSummaryDataFilter.getFalsePositiveErrorRate();
-                        dao.createProbabilityToFDRMapping(dataSetID, probability, fdr);
-                    }
-                    return;
-                }
-            }
-        }
-        throw new UserFailureException("Missing Protein Prophet details.");
-    }
-    
 }
