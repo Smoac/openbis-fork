@@ -38,8 +38,9 @@ echo "chmod g+w -R $SPRINT_DIR" | ssh -T $CISD_SERVER
 
 echo Copying new openBIS components to \'$SPRINT_SERVER\'...
 scp openBIS-server-*.zip $SPRINT_SERVER:.
-scp openBIS-server-*.zip $DEMO_SERVER:.
 scp datastore_server-*.zip $SPRINT_SERVER:.
+echo Copying new openBIS components to \'$DEMO_SERVER\'...
+scp openBIS-server-*.zip $DEMO_SERVER:.
 scp datastore_server-*.zip $DEMO_SERVER:.
 rm -f *.zip
 
