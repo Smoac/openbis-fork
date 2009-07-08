@@ -89,9 +89,9 @@ public class CifexStorageProcessorTest extends AbstractFileSystemTestCase
         final File storeData =
                 storageProcessor.storeData(null, null, TYPE_EXTRACTOR, null, incoming, rootDir);
         assertEquals(false, incoming.exists());
-        assertEquals(true, storeData.isFile());
+        assertEquals(true, storeData.isDirectory());
         File fileName = new File(rootDir, DefaultStorageProcessor.ORIGINAL_DIR + "/read.me");
-        assertEquals(fileName.getAbsolutePath(), storeData.getAbsolutePath());
+        assertEquals(rootDir.getAbsolutePath(), storeData.getAbsolutePath());
         assertEquals("hello world", FileUtilities.loadToString(fileName).trim());
     }
 
