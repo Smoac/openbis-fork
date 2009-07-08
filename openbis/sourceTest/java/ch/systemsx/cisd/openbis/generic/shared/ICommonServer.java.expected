@@ -764,7 +764,7 @@ public interface ICommonServer extends IServer
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
 
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleSet.USER)
     public void processDatasets(String sessionToken,
             DatastoreServiceDescription serviceDescription,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
