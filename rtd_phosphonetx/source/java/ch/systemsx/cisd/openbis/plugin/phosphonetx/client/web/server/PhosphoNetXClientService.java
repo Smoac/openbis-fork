@@ -20,31 +20,31 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component(value = ResourceNames.PHOSPHONETX_PLUGIN_SERVICE)
-public class PhosphoNetXClientService extends AbstractClientService implements IPhosphoNetXClientService
+public class PhosphoNetXClientService extends AbstractClientService implements
+        IPhosphoNetXClientService
 {
     @Resource(name = ResourceNames.PHOSPHONETX_PLUGIN_SERVER)
     private IPhosphoNetXServer server;
-    
+
     public PhosphoNetXClientService()
     {
         super();
@@ -61,23 +61,32 @@ public class PhosphoNetXClientService extends AbstractClientService implements I
         return server;
     }
 
-    public ResultSet<ProteinInfo> listProteinsByExperiment(ListProteinByExperimentCriteria criteria) throws UserFailureException
+    public ResultSet<ProteinInfo> listProteinsByExperiment(ListProteinByExperimentCriteria criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
-        return listEntities(criteria, new ListProteinOriginalDataProvider(server,
-                sessionToken, criteria.getExperimentID(), criteria.getFalseDiscoveryRate()));
+        return listEntities(criteria, new ListProteinOriginalDataProvider(server, sessionToken,
+                criteria.getExperimentID(), criteria.getFalseDiscoveryRate()));
     }
 
     public String prepareExportProteins(TableExportCriteria<ProteinInfo> exportCriteria)
-            throws UserFailureException
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(exportCriteria);
     }
 
     public ProteinByExperiment getProteinByExperiment(TechId experimentID, TechId proteinReferenceID)
-            throws UserFailureException
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return new ProteinByExperiment();
+        final String sessionToken = getSessionToken();
+        try
+        {
+            return server.getProteinByExperiment(sessionToken, experimentID, proteinReferenceID);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+
     }
 
 }

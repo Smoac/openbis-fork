@@ -18,37 +18,39 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto;
 
 import net.lemnik.eodsql.ResultColumn;
 
+
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class ProteinReference extends AbstractDTOWithID
+public class Sequence extends AbstractDTOWithID
 {
-    @ResultColumn("uniprot_id")
-    private String uniprotID;
+    @ResultColumn("amino_acid_sequence")
+    private String sequence;
     
-    @ResultColumn("description")
-    private String description;
+    @ResultColumn("name_and_version")
+    private String databaseNameAndVersion;
 
-    public final String getUniprotID()
+    public final String getSequence()
     {
-        return uniprotID;
+        return sequence;
     }
 
-    public final void setUniprotID(String uniprotID)
+    public final void setSequence(String sequence)
     {
-        this.uniprotID = uniprotID;
+        this.sequence = sequence;
     }
 
-    public final String getDescription()
+    public final String getDatabaseNameAndVersion()
     {
-        return description;
+        return databaseNameAndVersion;
     }
 
-    public final void setDescription(String description)
+    public final void setDatabaseNameAndVersion(String databaseNameAndVersion)
     {
-        this.description = description;
+        this.databaseNameAndVersion = databaseNameAndVersion;
     }
+
 
 }

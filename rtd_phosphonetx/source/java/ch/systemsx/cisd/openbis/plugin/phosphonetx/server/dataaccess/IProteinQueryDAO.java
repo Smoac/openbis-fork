@@ -21,7 +21,9 @@ import net.lemnik.eodsql.DataSet;
 import net.lemnik.eodsql.Select;
 
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProbabilityFDRMapping;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.Sequence;
 
 /**
  * 
@@ -40,4 +42,11 @@ public interface IProteinQueryDAO extends BaseQuery
             + "sequences as s left join protein_references as pr on s.prre_id = pr.id "
             + "where e.perm_id = ?{1} and ip.sequ_id = s.id order by pr.description")
     public DataSet<ProteinReferenceWithProbability> listProteinsByExperiment(String experimentPermID);
+    
+    @Select("select * from protein_references where id = ?{1}")
+    public ProteinReference tryToGetProteinReference(long proteinReferenceID);
+    
+    @Select("select s.id, s.amino_acid_sequence, d.name_and_version "
+            + "from sequences as s left join databases as d on s.db_id = d.id where s.prre_id = ?{1}")
+    public DataSet<Sequence> listProteinSequencesByProteinReference(long proteinReferenceID);
 }

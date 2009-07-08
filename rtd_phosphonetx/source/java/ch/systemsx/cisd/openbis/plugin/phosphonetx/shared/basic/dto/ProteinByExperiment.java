@@ -14,22 +14,31 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto;
+package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto;
 
-import net.lemnik.eodsql.ResultColumn;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class ProteinReference extends AbstractDTOWithID
+public class ProteinByExperiment implements IsSerializable, Serializable
 {
-    @ResultColumn("uniprot_id")
+
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+    
     private String uniprotID;
     
-    @ResultColumn("description")
     private String description;
+    
+    private List<ProteinSequence> sequences = new ArrayList<ProteinSequence>();
 
     public final String getUniprotID()
     {
@@ -51,4 +60,15 @@ public class ProteinReference extends AbstractDTOWithID
         this.description = description;
     }
 
+    public final List<ProteinSequence> getSequences()
+    {
+        return sequences;
+    }
+    
+    public final void addSequence(ProteinSequence proteinSequence)
+    {
+        this.sequences.add(proteinSequence);
+    }
+    
+    
 }

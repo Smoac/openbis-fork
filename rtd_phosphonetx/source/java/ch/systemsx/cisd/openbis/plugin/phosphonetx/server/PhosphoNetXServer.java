@@ -20,6 +20,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import net.lemnik.eodsql.DataSet;
+
 import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
@@ -35,9 +37,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinReferenceTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.Sequence;
 
 /**
  * @author Franz-Josef Elmer
@@ -88,6 +94,33 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         ExperimentPE experiment = getDAOFactory().getExperimentDAO().getByTechId(experimentId);
         table.load(experiment.getPermId(), falseDiscoveryRate);
         return table.getProteinReferences();
+    }
+
+    public ProteinByExperiment getProteinByExperiment(String sessionToken, TechId experimentId,
+            TechId proteinReferenceID) throws UserFailureException
+    {
+        getSessionManager().getSession(sessionToken);
+        IProteinQueryDAO proteinQueryDAO = specificDAOFactory.getProteinQueryDAO();
+        ProteinByExperiment proteinByExperiment = new ProteinByExperiment();
+        ProteinReference proteinReference =
+                proteinQueryDAO.tryToGetProteinReference(proteinReferenceID.getId());
+        if (proteinReference == null)
+        {
+            throw new UserFailureException("No protein reference found for ID: " + proteinReferenceID);
+        }
+        proteinByExperiment.setUniprotID(proteinReference.getUniprotID());
+        proteinByExperiment.setDescription(proteinReference.getDescription());
+        DataSet<Sequence> sequences =
+                proteinQueryDAO.listProteinSequencesByProteinReference(proteinReferenceID.getId());
+        for (Sequence sequence : sequences)
+        {
+            ProteinSequence proteinSequence = new ProteinSequence();
+            proteinSequence.setId(new TechId(sequence.getId()));
+            proteinSequence.setSequence(sequence.getSequence());
+            proteinSequence.setDatabaseNameAndVersion(sequence.getDatabaseNameAndVersion());
+            proteinByExperiment.addSequence(proteinSequence);
+        }
+        return proteinByExperiment;
     }
 
 }

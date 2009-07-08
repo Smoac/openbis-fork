@@ -34,8 +34,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 
 /**
  * 
@@ -86,6 +86,7 @@ public class ProteinViewer extends ContentPanel implements IDatabaseModification
             TechId proteinReferenceID)
     {
         widgetID = createWidgetID(proteinReferenceID);
+        setId(widgetID);
         this.viewContext = viewContext;
         this.experimentID = experimentID;
         this.proteinreferenceID = proteinReferenceID;
@@ -101,8 +102,9 @@ public class ProteinViewer extends ContentPanel implements IDatabaseModification
     private void recreateUI(ProteinByExperiment protein)
     {
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
+        properties.put("Protein Description", protein.getDescription());
+        properties.put("UniProt ID", protein.getUniprotID());
         final PropertyGrid propertyGrid = new PropertyGrid(viewContext, properties.size());
-        properties.put("ID", proteinreferenceID);
         add(propertyGrid);
     }
 
