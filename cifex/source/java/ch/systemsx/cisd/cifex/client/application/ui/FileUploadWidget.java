@@ -110,6 +110,15 @@ public final class FileUploadWidget extends Form
         column(createMiddleColumnConfig());
         fieldset(context.getMessageResources().getRecipientLegend());
 
+        if (context.getModel().getUser().isPermanent() == false)
+        {
+            final String registratorUserCode =
+                    context.getModel().getUser().getRegistrator().getUserCode();
+            if (registratorUserCode != null)
+            {
+                userTextArea.setValue("id:" + registratorUserCode);
+            }
+        }
         add(userTextArea);
         end();
         end();

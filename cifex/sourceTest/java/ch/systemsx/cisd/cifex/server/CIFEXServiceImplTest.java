@@ -641,7 +641,7 @@ public class CIFEXServiceImplTest
                     one(authenticationService).check();
                     one(authenticationService).authenticateApplication();
                     will(returnValue(null));
-                    one(userManager).tryFindUserByCode(userCode);
+                    one(userManager).tryFindUserByCodeFillRegistrator(userCode);
                     will(returnValue(null));
                 }
             });
@@ -671,7 +671,7 @@ public class CIFEXServiceImplTest
         context.checking(new Expectations()
             {
                 {
-                    one(userManager).tryFindUserByCode(userName);
+                    one(userManager).tryFindUserByCodeFillRegistrator(userName);
                     will(returnValue(null));
                 }
             });
@@ -1095,7 +1095,7 @@ public class CIFEXServiceImplTest
                     one(userManager).isDatabaseEmpty();
                     will(returnValue(false));
 
-                    one(userManager).tryFindUserByCode(userName);
+                    one(userManager).tryFindUserByCodeFillRegistrator(userName);
                     will(returnValue(userDTO));
 
                 }
@@ -1234,7 +1234,7 @@ public class CIFEXServiceImplTest
                     will(returnValue("someRemoteHost"));
                     allowing(httpServletRequest).getRemoteAddr();
                     will(returnValue("someRemoteAddress"));
-                    one(userManager).tryFindUserByCode(code);
+                    one(userManager).tryFindUserByCodeFillRegistrator(code);
                     final UserDTO dbUserDTO;
                     if (userDTO != null && Password.isEmpty(userDTO.getPassword()) == false)
                     {

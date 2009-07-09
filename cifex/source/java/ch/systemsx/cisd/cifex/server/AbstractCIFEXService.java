@@ -183,6 +183,17 @@ abstract public class AbstractCIFEXService
         // Do not transfer the password or its hash value to the client (security).
         userDTO.setPassword(null);
         userDTO.setPasswordHash(null);
+        // Be a bit more restrictive for the registrator. Actually only user_id, name and email
+        // should be transferred.
+        final UserDTO fullRegistrator = userDTO.getRegistrator();
+        if (fullRegistrator != null)
+        {
+            final UserDTO strippedRegistrator = new UserDTO();
+            strippedRegistrator.setUserCode(fullRegistrator.getUserCode());
+            strippedRegistrator.setEmail(fullRegistrator.getEmail());
+            strippedRegistrator.setUserFullName(fullRegistrator.getUserFullName());
+            userDTO.setRegistrator(strippedRegistrator);
+        }
         final String sessionToken = createSession(userDTO);
         loggingContextHandler.addContext(sessionToken, "user (email):" + userDTO.getEmail()
                 + ", session start:" + DateFormatUtils.format(new Date(), DATE_FORMAT_PATTERN));
@@ -211,7 +222,7 @@ abstract public class AbstractCIFEXService
             userManager.createUser(userDTO);
             return finishLogin(userDTO, doUserActionLog);
         }
-        UserDTO userDTOOrNull = userManager.tryFindUserByCode(userCode);
+        UserDTO userDTOOrNull = userManager.tryFindUserByCodeFillRegistrator(userCode);
         if (userDTOOrNull == null || userDTOOrNull.isExternallyAuthenticated())
         {
             userDTOOrNull = tryExternalAuthenticationServiceLogin(userCode, plainPassword);

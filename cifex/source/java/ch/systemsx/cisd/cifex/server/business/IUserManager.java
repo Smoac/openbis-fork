@@ -47,6 +47,14 @@ public interface IUserManager
     public UserDTO tryFindUserByCode(String code);
 
     /**
+     * Returns the user with the specified user code, filling in the registrating user correctly.
+     * 
+     * @return <code>null</code> if a user with the given <var>code</var> is not found.
+     */
+    @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
+    public UserDTO tryFindUserByCodeFillRegistrator(String code);
+
+    /**
      * Returns a list with all users, which have the given email address.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
