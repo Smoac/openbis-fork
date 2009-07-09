@@ -49,8 +49,10 @@ public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
     private static final String SQL_FILE_TYPE = ".sql";
 
     private static final String CREATE_DATABASE_SQL_TEMPLATE =
-            "create database %1$s with owner = %2$s encoding = 'utf8' tablespace = pg_default; "
+            "create database %1$s with owner = %2$s encoding = 'utf8' template = template0 tablespace = pg_default; "
                     + "alter database %1$s set default_with_oids = off;";
+
+    private static final String CREATE_PLPGSQL = "create language plpgsql;";
 
     private static final String CREATE_TABLE_DATABASE_VERSION_LOGS_SQL =
             "create table "
@@ -164,6 +166,7 @@ public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
     public void createDatabase()
     {
         createEmptyDatabase();
+        createLanguagePlPgSQLIfNecessary();
         createDatabaseVersionLogsTable();
     }
 
@@ -203,6 +206,28 @@ public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
         }
     }
 
+    private void createLanguagePlPgSQLIfNecessary()
+    {
+        operationLog.info("Try to create PL/PgSQL language.");
+        try
+        {
+            scriptExecutor.execute(new Script("create language PL/PgSQL", CREATE_PLPGSQL), true,
+                    null);
+            getJdbcTemplate().execute(CREATE_PLPGSQL);
+        } catch (RuntimeException ex)
+        {
+            if (ex instanceof DataAccessException
+                    && DBUtilities.isDuplicateObjectException((DataAccessException) ex))
+            {
+                operationLog.warn("Cannot create language PL/PgSQL since it already exists.");
+            } else
+            {
+                operationLog.error("Failed to create language PL/PgSQL.", ex);
+                throw ex;
+            }
+        }
+    }
+
     public void dropDatabase()
     {
         try
@@ -220,6 +245,7 @@ public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
     public void restoreDatabaseFromDump(File dumpFolder, String version)
     {
         createEmptyDatabase();
+        createLanguagePlPgSQLIfNecessary();
 
         final Script schemaScript = tryLoadScript(dumpFolder, "schema", version);
         scriptExecutor.execute(schemaScript, false, null);
