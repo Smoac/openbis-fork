@@ -194,7 +194,7 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
                     final String fileName =
                             FilenameUtilities.ensureMaximumSize(filenameToUpload,
                                     MAX_FILENAME_LENGTH);
-                    final String contentType = item.getContentType();
+                    final String contentType = FilenameUtilities.getMimeType(item.getName());
                     final FileDTO file =
                             fileManager.saveFile(requestUser, fileName, comment.toString(),
                                     contentType, stream);
@@ -225,4 +225,5 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
             }
         }
     }
+
 }
