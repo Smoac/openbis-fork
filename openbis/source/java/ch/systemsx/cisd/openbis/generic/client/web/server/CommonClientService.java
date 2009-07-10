@@ -1736,6 +1736,7 @@ public final class CommonClientService extends AbstractClientService implements
         {
             TableExportCriteria<ExternalData> displayedItemsCriteria =
                     displayedOrSelectedDatasetCriteria.tryGetDisplayedItems();
+            assert displayedItemsCriteria != null : "displayedItemsCriteria is null";
             final List<ExternalData> datasets = fetchCachedEntities(displayedItemsCriteria);
             return filterDatasets(datasets, serviceDescription.getDatasetTypeCodes());
         }
