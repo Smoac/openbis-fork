@@ -306,7 +306,7 @@ public class NamingThreadPoolExecutor extends ThreadPoolExecutor
             throw new NullPointerException();
         }
         final FutureTask<T> ftask;
-        if (task instanceof NamedCallable)
+        if (task instanceof NamedCallable<?>)
         {
             ftask = new NamedFutureTask<T>((NamedCallable<T>) task);
         } else
