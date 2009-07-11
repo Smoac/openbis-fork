@@ -74,8 +74,6 @@ public class SVNRecursiveCheckoutTaskTest
     private static class SVNCheckoutMock implements ISVNCheckout
     {
 
-        final String repositoryUrl;
-
         final String prefix;
 
         final String workingCopyDir;
@@ -88,7 +86,6 @@ public class SVNRecursiveCheckoutTaskTest
 
         SVNCheckoutMock(final String repositoryUrl, final String workingCopyDir)
         {
-            this.repositoryUrl = repositoryUrl;
             this.prefix = repositoryUrl + "/";
             this.workingCopyDir = workingCopyDir;
             this.checkedOutPaths = new ArrayList<String>();
