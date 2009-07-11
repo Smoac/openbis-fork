@@ -63,11 +63,6 @@ public class PlainTextRendererFactory implements IRendererFactory
     {
         private PrintWriter writer;
 
-        public String getContentType()
-        {
-            return "text";
-        }
-
         public void printDirectory(String name, String relativePath)
         {
             writer.print(name + "\n");
