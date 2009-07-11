@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
  * By default, each property annotated with <code>BeanProperty</code> is mandatory.
  * </p>
  * 
- * @see ch.systemsx.cisd.common.parser
+ * @see ch.systemsx.cisd.common.parser.IParser
  * @author Christian Ribeaud
  */
 @Retention(RetentionPolicy.RUNTIME)

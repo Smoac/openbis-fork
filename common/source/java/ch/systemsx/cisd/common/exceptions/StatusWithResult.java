@@ -110,7 +110,7 @@ public class StatusWithResult<T> extends Status
         {
             return true;
         }
-        if (obj == null || obj instanceof StatusWithResult == false)
+        if (obj == null || obj instanceof StatusWithResult<?> == false)
         {
             return false;
         }

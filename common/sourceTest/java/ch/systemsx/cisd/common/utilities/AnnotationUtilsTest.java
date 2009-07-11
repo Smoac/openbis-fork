@@ -119,6 +119,7 @@ public final class AnnotationUtilsTest
     // Helper classes
     //
 
+    @SuppressWarnings("unused")
     private static class A
     {
 
@@ -139,6 +140,7 @@ public final class AnnotationUtilsTest
         }
     }
 
+    @SuppressWarnings("unused")
     private final static class B extends A
     {
 
