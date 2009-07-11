@@ -48,7 +48,7 @@ public final class PropertyTypeSelectionWidget extends
 
     private static final String CHOOSE_SUFFIX = "property type";
 
-    private static class PropertyTypeComboModel extends BaseModelData
+    static class PropertyTypeComboModel extends BaseModelData
     {
         private static final long serialVersionUID = 1L;
 

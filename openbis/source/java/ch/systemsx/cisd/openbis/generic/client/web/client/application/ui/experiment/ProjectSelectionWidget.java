@@ -51,7 +51,7 @@ public final class ProjectSelectionWidget extends
     // @Private
     static final String DISPLAY_COLUMN_ID = "id";
 
-    private static class ProjectComboModel extends BaseModelData
+    static class ProjectComboModel extends BaseModelData
     {
         private static final long serialVersionUID = 1L;
 

@@ -51,7 +51,7 @@ public final class FileFormatTypeSelectionWidget extends
 
     static final String DISPLAY_COLUMN_ID = "code";
 
-    private static class FileFormatTypeModel extends BaseModelData
+    static class FileFormatTypeModel extends BaseModelData
     {
         private static final long serialVersionUID = 1L;
 
