@@ -61,35 +61,38 @@ public abstract class AbstractViewer<T extends IClientServiceAsync, D extends IE
 
     public static final String ID_DELETE_SUFFIX = "_edit";
 
-    private final ToolBar toolBar;
+    private ToolBar toolBar;
 
     private final List<Button> toolBarButtons = new ArrayList<Button>();
 
     protected final IViewContext<T> viewContext;
 
-    protected final Button editButton;
+    protected Button editButton;
 
-    private final LabelToolItem titleLabel;
+    private LabelToolItem titleLabel;
 
     private D originalData;
 
     public AbstractViewer(final IViewContext<T> viewContext, String id)
     {
-        this(viewContext, null, id); // title is set later with updateTitle method
+        this(viewContext, null, id, true); // title is set later with updateTitle method
     }
 
-    public AbstractViewer(final IViewContext<T> viewContext, String title, String id)
+    public AbstractViewer(final IViewContext<T> viewContext, String title, String id, boolean withToolBar)
     {
         this.viewContext = viewContext;
         setId(id);
         setHeaderVisible(false);
-        titleLabel = new LabelToolItem(title);
-        toolBar = new ToolBar();
-        setTopComponent(toolBar);
-        toolBar.add(titleLabel);
-        toolBar.add(new FillToolItem());
-        editButton = createEditButton();
-        addToolBarButton(editButton);
+        if (withToolBar)
+        {
+            toolBar = new ToolBar();
+            setTopComponent(toolBar);
+            titleLabel = new LabelToolItem(title);
+            toolBar.add(titleLabel);
+            toolBar.add(new FillToolItem());
+            editButton = createEditButton();
+            addToolBarButton(editButton);
+        }
     }
 
     private Button createEditButton()
