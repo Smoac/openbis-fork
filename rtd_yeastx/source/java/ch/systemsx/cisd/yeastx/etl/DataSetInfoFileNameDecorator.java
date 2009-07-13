@@ -20,22 +20,18 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
- * Uses a delegator extractor specified at {@link #DELEGATOR_CLASS_PROPERTY} property and enriches
- * the extracted information by adding a dataset property with a file name of the original dataset.
- * The name of the property used for the file name must be specified in
+ * Enriches the extracted data set information by adding a dataset property with a file name of the
+ * original dataset. The name of the property used for the file name must be specified in
  * {@link #FILE_NAME_PROPERTY_NAME} property.
  * 
  * @author Tomasz Pylak
  */
-public class DataSetInfoExtractorFileNameDecorator extends AbstractDelegatingDataSetInfoExtractor
+public class DataSetInfoFileNameDecorator
 {
     /**
      * Name of the property, which holds the property code in the database, at which the original
@@ -45,19 +41,14 @@ public class DataSetInfoExtractorFileNameDecorator extends AbstractDelegatingDat
 
     private final String fileNamePropertyCode;
 
-    public DataSetInfoExtractorFileNameDecorator(Properties properties)
+    public DataSetInfoFileNameDecorator(Properties localProperties)
     {
-        super(properties);
-        String code = PropertyUtils.getMandatoryProperty(properties, FILE_NAME_PROPERTY_NAME);
+        String code = PropertyUtils.getMandatoryProperty(localProperties, FILE_NAME_PROPERTY_NAME);
         this.fileNamePropertyCode = DatasetMappingResolver.adaptPropertyCode(code);
     }
 
-    @Override
-    public DataSetInformation getDataSetInformation(File incomingDataSetPath,
-            IEncapsulatedOpenBISService openbisService) throws UserFailureException,
-            EnvironmentFailureException
+    public DataSetInformation enrich(DataSetInformation info, File incomingDataSetPath)
     {
-        DataSetInformation info = super.getDataSetInformation(incomingDataSetPath, openbisService);
         List<NewProperty> properties = info.getDataSetProperties();
         properties.add(createFileNameProperty(incomingDataSetPath));
         info.setDataSetProperties(properties);

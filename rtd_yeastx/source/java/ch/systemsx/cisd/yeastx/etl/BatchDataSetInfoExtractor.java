@@ -33,9 +33,12 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
 {
     private final Properties properties;
 
+    private final DataSetInfoFileNameDecorator fileNameDecorator;
+
     public BatchDataSetInfoExtractor(final Properties globalProperties)
     {
         this.properties = ExtendedProperties.getSubset(globalProperties, EXTRACTOR_KEY + '.', true);
+        this.fileNameDecorator = new DataSetInfoFileNameDecorator(properties);
     }
 
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,
@@ -55,6 +58,7 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
             info.setGroupCode(plainInfo.getGroupCode());
             MLConversionType conversion = getConversion(plainInfo.getConversion());
             info.setConversion(conversion);
+            fileNameDecorator.enrich(info, incomingDataSetPath);
             return info;
         } else
         {
