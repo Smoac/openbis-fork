@@ -20,7 +20,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -30,7 +34,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
@@ -42,7 +50,9 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExp
  *
  * @author Franz-Josef Elmer
  */
-public class ProteinViewer extends ContentPanel implements IDatabaseModificationObserver
+public class ProteinViewer extends
+        AbstractViewer<IPhosphoNetXClientServiceAsync, IEntityInformationHolder> implements
+        IDatabaseModificationObserver
 {
     private static final String PREFIX = "protein-viewer_";
 
@@ -50,7 +60,7 @@ public class ProteinViewer extends ContentPanel implements IDatabaseModification
     
     static ITabItemFactory createTabItemFactory(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            final ProteinInfo proteinInfo)
+            final Experiment experimentOrNull, final ProteinInfo proteinInfo)
     {
         return new ITabItemFactory()
             {
@@ -62,11 +72,14 @@ public class ProteinViewer extends ContentPanel implements IDatabaseModification
                 public ITabItem create()
                 {
                     ProteinViewer viewer =
-                            new ProteinViewer(viewContext, proteinInfo.getExperimentID(),
-                                    proteinInfo.getId());
+                            new ProteinViewer(viewContext, experimentOrNull, proteinInfo.getId());
                     DatabaseModificationAwareComponent c =
                             new DatabaseModificationAwareComponent(viewer, viewer);
-                    return DefaultTabItem.create("Protein: " + proteinInfo.getDescription(), c,
+                    String description = StringUtils.abbreviate(proteinInfo.getDescription(), 30);
+                    String identifier =
+                            experimentOrNull == null ? "?" : experimentOrNull.getIdentifier();
+                    return DefaultTabItem.create(viewContext.getMessage(
+                            Dict.PROTEIN_IN_EXPERIMENT_TAB_LABEL, description, identifier), c,
                             viewContext, false);
                 }
             };
@@ -78,17 +91,17 @@ public class ProteinViewer extends ContentPanel implements IDatabaseModification
     }
     
     private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
+    private final Experiment experimentOrNull;
     private final TechId experimentID;
     private final TechId proteinreferenceID;
-    private final String widgetID;
     
-    private ProteinViewer(IViewContext<IPhosphoNetXClientServiceAsync> viewContext, TechId experimentID,
-            TechId proteinReferenceID)
+    private ProteinViewer(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
+            Experiment experimentOrNull, TechId proteinReferenceID)
     {
-        widgetID = createWidgetID(proteinReferenceID);
-        setId(widgetID);
+        super(viewContext, "", createWidgetID(proteinReferenceID), false);
         this.viewContext = viewContext;
-        this.experimentID = experimentID;
+        this.experimentOrNull = experimentOrNull;
+        this.experimentID = TechId.create(experimentOrNull);
         this.proteinreferenceID = proteinReferenceID;
         reloadAllData();
     }
@@ -101,11 +114,25 @@ public class ProteinViewer extends ContentPanel implements IDatabaseModification
 
     private void recreateUI(ProteinByExperiment protein)
     {
+        setLayout(new BorderLayout());
+        removeAll();
+        setScrollMode(Scroll.AUTO);
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
-        properties.put("Protein Description", protein.getDescription());
-        properties.put("UniProt ID", protein.getUniprotID());
-        final PropertyGrid propertyGrid = new PropertyGrid(viewContext, properties.size());
-        add(propertyGrid);
+        if (experimentOrNull != null)
+        {
+            String identifier = experimentOrNull.getIdentifier();
+            properties.put(viewContext.getMessage(Dict.EXPERIMENT_LABEL), identifier);
+        }
+        properties.put(viewContext.getMessage(Dict.UNIPROT_ID), protein.getUniprotID());
+        properties.put(viewContext.getMessage(Dict.PROTEIN_DESCRIPTION), protein.getDescription());
+        PropertyGrid propertyGrid = new PropertyGrid(viewContext, properties.size());
+        propertyGrid.setProperties(properties);
+        ContentPanel contentPanel = new ContentPanel();
+        contentPanel.add(propertyGrid);
+        BorderLayoutData layoutData = createBorderLayoutData(LayoutRegion.WEST);
+        layoutData.setSize(400);
+        add(contentPanel, layoutData);
+        layout();
     }
 
     public DatabaseModificationKind[] getRelevantModifications()

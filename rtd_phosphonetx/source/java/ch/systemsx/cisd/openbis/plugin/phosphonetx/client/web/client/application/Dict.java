@@ -31,5 +31,10 @@ public class Dict
     public static final String PROTEIN_DESCRIPTION = "protein_description";
     public static final String FALSE_DISCOVERY_RATE = "false_discovery_rate";
     public static final String DATA_SET = "data_set";
+    
+    // Protein Viewer
+    public static final String PROTEIN_IN_EXPERIMENT_TAB_LABEL = "protein_in_experiment_tab_label";
+    public static final String EXPERIMENT_LABEL = "experiment_label";
+    
 
 }

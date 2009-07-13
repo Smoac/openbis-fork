@@ -11,6 +11,10 @@ var phosphonetx = {
   protein_description: "Protein",
   false_discovery_rate: "FDR",
   
+  // Protein in experiment viewer
+  protein_in_experiment_tab_label: "{0} in {1}",
+  experiment_label: "Experiment",
+  
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };

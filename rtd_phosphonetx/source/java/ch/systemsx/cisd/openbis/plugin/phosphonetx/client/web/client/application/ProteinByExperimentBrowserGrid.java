@@ -56,23 +56,24 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
 
     private final IViewContext<IPhosphoNetXClientServiceAsync> specificViewContext;
 
+    private final ProteinByExperimentBrowerToolBar toolbar;
+    
     private ListProteinByExperimentCriteria criteria;
     
     static IDisposableComponent create(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
-        final ProteinByExperimentBrowerToolBar toolbar =
-                new ProteinByExperimentBrowerToolBar(viewContext);
         final ProteinByExperimentBrowserGrid browserGrid =
                 new ProteinByExperimentBrowserGrid(viewContext);
-        toolbar.setBrowserGrid(browserGrid);
-        return browserGrid.asDisposableWithToolbar(toolbar);
+        return browserGrid.asDisposableWithToolbar(browserGrid.toolbar);
     }
     
     private ProteinByExperimentBrowserGrid(final IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID, false);
         specificViewContext = viewContext;
+        toolbar = new ProteinByExperimentBrowerToolBar(viewContext);
+        toolbar.setBrowserGrid(this);
         setDisplayTypeIDGenerator(PhosphoNetXDisplayTypeIDGenerator.PROTEIN_BY_EXPERIMENT_BROWSER_GRID);
         registerLinkClickListenerFor(ProteinColDefKind.DESCRIPTION.id(),
                 new ICellListener<ProteinInfo>()
@@ -80,7 +81,7 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
                         public void handle(ProteinInfo rowItem)
                         {
                             DispatcherHelper.dispatchNaviEvent(ProteinViewer.createTabItemFactory(
-                                    viewContext, rowItem));
+                                    viewContext, toolbar.getExperimentOrNull(), rowItem));
                         }
                     });
     }

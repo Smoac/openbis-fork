@@ -119,6 +119,11 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
             });
         add(new AdapterToolItem(fdrComboBox));
     }
+    
+    Experiment getExperimentOrNull()
+    {
+        return experiment;
+    }
 
     void setBrowserGrid(ProteinByExperimentBrowserGrid browserGrid)
     {

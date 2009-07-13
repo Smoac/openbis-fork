@@ -120,6 +120,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
             proteinSequence.setDatabaseNameAndVersion(sequence.getDatabaseNameAndVersion());
             proteinByExperiment.addSequence(proteinSequence);
         }
+        sequences.close();
         return proteinByExperiment;
     }
 
