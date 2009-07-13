@@ -1,2 +1,0 @@
-Mon Jun 15 17:05:18 CEST 2009 ERROR: The file 'file.mzxml' appears more than once. No datasets will be processed.
-Mon Jun 15 17:05:18 CEST 2009 WARNING: Correct the errors and delete the '_delete_me_after_correcting_errors' file to start processing again.

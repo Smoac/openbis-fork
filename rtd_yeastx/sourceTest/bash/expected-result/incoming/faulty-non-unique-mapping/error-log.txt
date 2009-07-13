@@ -1,3 +1,0 @@
-Mon Jun 15 17:05:19 CEST 2009 ERROR: Mapping for file file1.mzXML is incorrect: there should be exacty one sample which matches the criteria 'Samples from the group 'IMSB_ZAMBONI' with property 'USER.samplename' set to 'any' in any experiment', but 2 of them were found. Consider using the unique sample code.
-Mon Jun 15 17:05:19 CEST 2009 ERROR: Mapping for file file2.mzXML is incorrect: there should be exacty one sample which matches the criteria 'Samples from the group 'IMSB_ZAMBONI' with property 'USER.samplename' set to 'any' in bacteria/e2 experiment', but 2 of them were found. Consider using the unique sample code.
-Mon Jun 15 17:05:19 CEST 2009 WARNING: Correct the errors and delete the '_delete_me_after_correcting_errors' file to start processing again.

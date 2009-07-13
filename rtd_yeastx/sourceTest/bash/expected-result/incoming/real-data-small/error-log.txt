@@ -1,4 +1,0 @@
-Mon Jun 15 17:05:27 CEST 2009 ERROR: Mapping for file file1.mzXML is incorrect: there is no sample which matches the criteria <Samples from the group 'IMSB_ZAMBONI' with property 'USER.samplename' set to 's1' in any experiment>
-Mon Jun 15 17:05:27 CEST 2009 ERROR: Mapping for file file2.eicML is incorrect: there is no sample which matches the criteria <Samples from the group 'IMSB_ZAMBONI' with property 'USER.samplename' set to 'PGI23' in any experiment>
-Mon Jun 15 17:05:27 CEST 2009 ERROR: Mapping for file file3.mzXML is incorrect: No project 'P1' could be found in the 'IMSB_ZAMBONI' group!
-Mon Jun 15 17:05:27 CEST 2009 WARNING: Correct the errors and delete the '_delete_me_after_correcting_errors' file to start processing again.
