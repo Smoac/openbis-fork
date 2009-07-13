@@ -130,28 +130,27 @@ class DatasetMappingResolver
                 return sampleCodeOrLabel;
             }
         }
-        LocalExperimentIdentifier experimentIdentifier =
-                tryGetExperimentIdentifier(mapping, experimentPropertyCodeOrNull);
         ListSamplesByPropertyCriteria criteria =
-                new ListSamplesByPropertyCriteria(samplePropertyCodeOrNull, sampleCodeOrLabel,
-                        mapping.getGroupCode(), experimentIdentifier);
-        List<String> samples;
-        try
+                createFindSampleByNameCriteria(mapping, sampleCodeOrLabel);
+        List<String> samples = tryListSamplesByCriteria(criteria, mapping, log);
+        if (samples == null)
         {
-            samples = openbisService.listSamplesByCriteria(criteria);
-        } catch (UserFailureException e)
-        {
-            log.datasetMappingError(mapping, e.getMessage());
-            return null;
-        }
-        if (samples.size() == 1)
+            return null; // some error occurred
+        } else if (samples.size() == 1)
         {
             return samples.get(0);
         } else if (samples.size() == 0)
         {
-            log.datasetMappingError(mapping, "there is no sample which matches the criteria <"
-                    + criteria + ">");
-            return null;
+            // try to assume that the sample code, not name, has been provided
+            if (isConnectedToExperiment(sampleCodeOrLabel, mapping, log))
+            {
+                return sampleCodeOrLabel;
+            } else
+            {
+                log.datasetMappingError(mapping, "there is no sample which matches the criteria <"
+                        + criteria + ">");
+                return null;
+            }
         } else
         {
             String errMsg =
@@ -162,6 +161,30 @@ class DatasetMappingResolver
             log.datasetMappingError(mapping, errMsg);
             return null;
         }
+    }
+
+    private List<String> tryListSamplesByCriteria(ListSamplesByPropertyCriteria criteria,
+            DataSetMappingInformation mapping, LogUtils log)
+    {
+        try
+        {
+            return openbisService.listSamplesByCriteria(criteria);
+        } catch (UserFailureException e)
+        {
+            log.datasetMappingError(mapping, e.getMessage());
+            return null;
+        }
+    }
+
+    private ListSamplesByPropertyCriteria createFindSampleByNameCriteria(
+            DataSetMappingInformation mapping, String sampleCodeOrLabel)
+    {
+        LocalExperimentIdentifier experimentIdentifier =
+                tryGetExperimentIdentifier(mapping, experimentPropertyCodeOrNull);
+        ListSamplesByPropertyCriteria criteria =
+                new ListSamplesByPropertyCriteria(samplePropertyCodeOrNull, sampleCodeOrLabel,
+                        mapping.getGroupCode(), experimentIdentifier);
+        return criteria;
     }
 
     private static LocalExperimentIdentifier tryGetExperimentIdentifier(
@@ -315,7 +338,7 @@ class DatasetMappingResolver
         return properties;
     }
 
-    private static String adaptPropertyCode(String propertyCode)
+    public static String adaptPropertyCode(String propertyCode)
     {
         if (propertyCode.toLowerCase().startsWith(PROPERTIES_PREFIX.toLowerCase()) == false)
         {
