@@ -18,5 +18,6 @@
 	<classpathentry kind="lib" path="/libraries/spring/spring-beans.jar"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base-test.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/mail/mail.jar"/>
+	<classpathentry kind="lib" path="/libraries/restrictionchecker/restrictions.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

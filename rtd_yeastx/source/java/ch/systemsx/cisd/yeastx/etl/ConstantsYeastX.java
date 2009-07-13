@@ -30,6 +30,4 @@ public class ConstantsYeastX
     public static final String EICML_EXT = "eicML";
 
     public static final String MZXML_EXT = "mzXML";
-
-    public static final String FILE_FORMAT_TYPE_CODE = "XML";
 }
