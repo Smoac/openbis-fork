@@ -16,38 +16,19 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.BrowserSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPanel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
  * @author Franz-Josef Elmer
  */
-class ExperimentDataSetSection extends SectionPanel
+class ExperimentDataSetSection extends BrowserSectionPanel
 {
-    private final IDisposableComponent disposableBrowser;
-
     ExperimentDataSetSection(Experiment experiment, IViewContext<?> viewContext)
     {
-        super("Data Sets");
-        TechId experimentId = TechId.create(experiment);
-        disposableBrowser = ExperimentDataSetBrowser.create(viewContext, experimentId);
-        add(disposableBrowser.getComponent());
-    }
-
-    public IDatabaseModificationObserver getDatabaseModificationObserver()
-    {
-        return disposableBrowser;
-    }
-
-    @Override
-    protected void onDetach()
-    {
-        disposableBrowser.dispose();
-        super.onDetach();
+        super("Data Sets", ExperimentDataSetBrowser.create(viewContext, TechId.create(experiment)));
     }
 
 }

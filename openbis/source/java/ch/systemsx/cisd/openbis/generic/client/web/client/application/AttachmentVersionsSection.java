@@ -17,9 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.attachment.AttachmentBrowser;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IAttachmentHolder;
 
@@ -28,29 +26,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IAttachmentHolder;
  * 
  * @author Piotr Buczek
  */
-public class AttachmentVersionsSection<T extends IAttachmentHolder> extends SectionPanel
+public class AttachmentVersionsSection<T extends IAttachmentHolder> extends BrowserSectionPanel
 {
-
-    private IDisposableComponent disposableBrowser;
-
     public AttachmentVersionsSection(final IViewContext<ICommonClientServiceAsync> viewContext,
             final T attachmentHolder)
     {
-        super(viewContext.getMessage(Dict.ATTACHMENTS));
-        disposableBrowser = AttachmentBrowser.create(viewContext, attachmentHolder);
-        add(disposableBrowser.getComponent());
+        super(viewContext.getMessage(Dict.ATTACHMENTS), AttachmentBrowser.create(viewContext,
+                attachmentHolder));
     }
-
-    public IDatabaseModificationObserver getDatabaseModificationObserver()
-    {
-        return disposableBrowser;
-    }
-
-    @Override
-    protected void onDetach()
-    {
-        disposableBrowser.dispose();
-        super.onDetach();
-    }
-
 }
