@@ -211,10 +211,6 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
 
     private final String dataSetPropertiesFileNameOrNull;
 
-    /**
-     * The <var>properties</var> are not used by this constructor but present to fulfill the
-     * contract.
-     */
     public DefaultDataSetInfoExtractor(final Properties globalProperties)
     {
         super(globalProperties);
