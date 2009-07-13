@@ -26,6 +26,7 @@ import net.lemnik.eodsql.DataSet;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
 
@@ -56,8 +57,9 @@ class ProteinReferenceTable extends AbstractBusinessObject implements IProteinRe
     public void load(String experimentPermID, double falseDiscoveryRate)
     {
         proteins = new ArrayList<ProteinReference>();
+        IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
         DataSet<ProteinReferenceWithProbability> resultSet =
-            getSpecificDAOFactory().getProteinQueryDAO().listProteinsByExperiment(experimentPermID);
+            dao.listProteinsByExperiment(experimentPermID);
         ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
         Set<String> idsOfPassedProteins = new HashSet<String>();
         for (ProteinReferenceWithProbability protein : resultSet)
@@ -72,6 +74,7 @@ class ProteinReferenceTable extends AbstractBusinessObject implements IProteinRe
                 }
             }
         }
+        resultSet.close();
     }
 
 }

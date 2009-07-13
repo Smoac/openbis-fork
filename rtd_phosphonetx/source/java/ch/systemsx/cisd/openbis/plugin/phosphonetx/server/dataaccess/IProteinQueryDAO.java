@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.Sequence;
  */
 public interface IProteinQueryDAO extends BaseQuery
 {
-    @Select("select * from probability_fdr_mappings where dase_id = ?{1}")
+    @Select(sql = "select * from probability_fdr_mappings where dase_id = ?{1}", disconnected = true)
     public DataSet<ProbabilityFDRMapping> getProbabilityFDRMapping(long dataSetID);
     
     @Select("select pr.id, pr.uniprot_id, pr.description, d.id as data_set_id, p.probability "

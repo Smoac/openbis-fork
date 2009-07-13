@@ -121,13 +121,14 @@ class ErrorModel
         {
             calculator = new ProbabilityToFDRCalculator();
             IProteinQueryDAO dao = specificDAOFactory.getProteinQueryDAO();
-            DataSet<ProbabilityFDRMapping> mmappings = dao.getProbabilityFDRMapping(dataSetID);
-            for (ProbabilityFDRMapping probabilityFDRMapping : mmappings)
+            DataSet<ProbabilityFDRMapping> mappings = dao.getProbabilityFDRMapping(dataSetID);
+            for (ProbabilityFDRMapping probabilityFDRMapping : mappings)
             {
                 double probability = probabilityFDRMapping.getProbability();
                 double falseDiscoveryRate = probabilityFDRMapping.getFalseDiscoveryRate();
                 calculator.add(probability, falseDiscoveryRate);
             }
+            mappings.close();
             calculator.init();
             calculators.put(dataSetID, calculator);
         }

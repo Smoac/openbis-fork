@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sequence;
  */
 public interface IProtDAO extends BaseQuery
 {
-    @Select("select * from modification_types")
+    @Select(sql = "select * from modification_types", disconnected = true)
     public DataSet<ModificationType> listModificationTypes();
     
     @Select("select * from experiments where perm_id = ?{1}")
