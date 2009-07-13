@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -96,7 +97,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         return table.getProteinReferences();
     }
 
-    public ProteinByExperiment getProteinByExperiment(String sessionToken, TechId experimentId,
+    public ProteinByExperiment getProteinByExperiment(String sessionToken, TechId experimentID,
             TechId proteinReferenceID) throws UserFailureException
     {
         getSessionManager().getSession(sessionToken);
@@ -110,18 +111,41 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         }
         proteinByExperiment.setUniprotID(proteinReference.getUniprotID());
         proteinByExperiment.setDescription(proteinReference.getDescription());
+        return proteinByExperiment;
+    }
+    
+    public List<ProteinSequence> listProteinSequencesByProteinReference(String sessionToken,
+            TechId proteinReferenceID) throws UserFailureException
+    {
+        IProteinQueryDAO proteinQueryDAO = specificDAOFactory.getProteinQueryDAO();
         DataSet<Sequence> sequences =
                 proteinQueryDAO.listProteinSequencesByProteinReference(proteinReferenceID.getId());
+        ArrayList<ProteinSequence> proteinSequences =
+                new ArrayList<ProteinSequence>(sequences.size());
+        int number = 0;
         for (Sequence sequence : sequences)
         {
             ProteinSequence proteinSequence = new ProteinSequence();
             proteinSequence.setId(new TechId(sequence.getId()));
+            proteinSequence.setShortName(createShortName(number++));
             proteinSequence.setSequence(sequence.getSequence());
             proteinSequence.setDatabaseNameAndVersion(sequence.getDatabaseNameAndVersion());
-            proteinByExperiment.addSequence(proteinSequence);
+            proteinSequences.add(proteinSequence);
         }
         sequences.close();
-        return proteinByExperiment;
+        return proteinSequences;
+    }
+
+    private String createShortName(int number)
+    {
+        StringBuilder builder = new StringBuilder();
+        int n = number;
+        while (n > 0)
+        {
+            builder.insert(0, "ABCEDEFGHIJKLMNOPQRSTUVWXYZ".charAt(n % 26));
+            n /= 26;
+        }
+        return builder.toString();
     }
 
 }

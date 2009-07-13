@@ -34,11 +34,14 @@ public class IdentifiedProtein extends AbstractDTOWithID
     @ResultColumn("protein_id")
     private long proteinID;
     
-    @ResultColumn("uniprot_id")
-    private String uniprotID;
+    @ResultColumn("peptide_count")
+    private int peptideCount;
     
-    @ResultColumn("description")
-    private String description;
+    @ResultColumn("amino_acid_sequence")
+    private String sequence;
+    
+    @ResultColumn("name_and_version")
+    private String database;
     
     @ResultColumn("probability")
     private double probability;
@@ -55,24 +58,24 @@ public class IdentifiedProtein extends AbstractDTOWithID
         this.dataSetPermID = dataSetPermID;
     }
 
-    public final String getUniprotID()
+    public final int getPeptideCount()
     {
-        return uniprotID;
+        return peptideCount;
     }
 
-    public final void setUniprotID(String uniprotID)
+    public final void setPeptideCount(int uniprotID)
     {
-        this.uniprotID = uniprotID;
+        this.peptideCount = uniprotID;
     }
 
-    public final String getDescription()
+    public final String getSequence()
     {
-        return description;
+        return sequence;
     }
 
-    public final void setDescription(String description)
+    public final void setSequence(String description)
     {
-        this.description = description;
+        this.sequence = description;
     }
 
     public final long getDataSetID()
@@ -113,6 +116,16 @@ public class IdentifiedProtein extends AbstractDTOWithID
     public final void setFalseDiscoveryRate(double falseDiscoveryRate)
     {
         this.falseDiscoveryRate = falseDiscoveryRate;
+    }
+
+    public final String getDatabase()
+    {
+        return database;
+    }
+
+    public final void setDatabase(String database)
+    {
+        this.database = database;
     }
 
 

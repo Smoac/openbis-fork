@@ -14,6 +14,10 @@ var phosphonetx = {
   // Protein in experiment viewer
   protein_in_experiment_tab_label: "{0} in {1}",
   experiment_label: "Experiment",
+  sequence_short_name: "",
+  database_name_and_version: "Database",
+  sequence: "Amino Acid Sequence",
+  sequences: "Amino Acid Sequences",
   
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

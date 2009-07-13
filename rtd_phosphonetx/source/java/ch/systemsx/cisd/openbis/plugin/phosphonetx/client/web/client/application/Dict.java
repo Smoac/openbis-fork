@@ -35,6 +35,11 @@ public class Dict
     // Protein Viewer
     public static final String PROTEIN_IN_EXPERIMENT_TAB_LABEL = "protein_in_experiment_tab_label";
     public static final String EXPERIMENT_LABEL = "experiment_label";
+    public static final String SEQUENCE_SHORT_NAME = "sequence_short_name";
+    public static final String DATABASE_NAME_AND_VERSION = "database_name_and_version";
+    public static final String SEQUENCE = "sequence";
+    public static final String SEQUENCES = "sequences";
+    
     
 
 }

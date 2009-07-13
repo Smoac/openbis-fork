@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 public enum PhosphoNetXDisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 {
     PROTEIN_BY_EXPERIMENT_BROWSER_GRID("protein-by-experiment-browser-grid"),
+    PROTEIN_SEQUENCE_BROWSER_GRID("protein-sequence-browser-grid"),
     ;
     
     private final String genericNameOrPrefix;

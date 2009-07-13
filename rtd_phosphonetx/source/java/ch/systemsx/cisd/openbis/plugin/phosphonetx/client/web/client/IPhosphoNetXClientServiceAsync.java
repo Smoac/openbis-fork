@@ -23,8 +23,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinSequenceCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 
 /**
  * 
@@ -36,7 +38,6 @@ public interface IPhosphoNetXClientServiceAsync extends IClientServiceAsync
     /** @see IPhosphoNetXClientService#listProteinsByExperiment(ListProteinByExperimentCriteria) */
     public void listProteinsByExperiment(ListProteinByExperimentCriteria criteria,
             AsyncCallback<ResultSet<ProteinInfo>> callback);
-    
 
     /** @see IPhosphoNetXClientService#prepareExportProteins(TableExportCriteria) */
     public void prepareExportProteins(TableExportCriteria<ProteinInfo> exportCriteria,
@@ -45,4 +46,13 @@ public interface IPhosphoNetXClientServiceAsync extends IClientServiceAsync
     /** @see IPhosphoNetXClientService#getProteinByExperiment(TechId, TechId) */
     public void getProteinByExperiment(TechId experimentID, TechId proteinReferenceID,
             AsyncCallback<ProteinByExperiment> callback);
+
+    /** @see IPhosphoNetXClientService#listSequencesByProteinReference(ListProteinSequenceCriteria) */
+    public void listSequencesByProteinReference(ListProteinSequenceCriteria criteria,
+            AsyncCallback<ResultSet<ProteinSequence>> callback);
+
+    /** @see IPhosphoNetXClientService#prepareExportProteinSequences(TableExportCriteria) */
+    public void prepareExportProteinSequences(TableExportCriteria<ProteinSequence> exportCriteria,
+            AsyncCallback<String> callback);
+
 }

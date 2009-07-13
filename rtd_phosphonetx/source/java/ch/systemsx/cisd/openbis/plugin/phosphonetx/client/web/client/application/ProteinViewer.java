@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.BrowserSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
@@ -132,6 +133,8 @@ public class ProteinViewer extends
         BorderLayoutData layoutData = createBorderLayoutData(LayoutRegion.WEST);
         layoutData.setSize(400);
         add(contentPanel, layoutData);
+        add(new BrowserSectionPanel(viewContext.getMessage(Dict.SEQUENCES), ProteinSequenceGrid
+                .create(viewContext, proteinreferenceID)), createRightBorderLayoutData());
         layout();
     }
 

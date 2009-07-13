@@ -32,11 +32,23 @@ public class ProteinSequence implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
     
+    private String shortName;
+    
     private TechId id;
     
     private String sequence;
     
     private String databaseNameAndVersion;
+
+    public final String getShortName()
+    {
+        return shortName;
+    }
+
+    public final void setShortName(String version)
+    {
+        this.shortName = version;
+    }
 
     public final TechId getId()
     {

@@ -22,13 +22,10 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
 
 /**
@@ -40,27 +37,6 @@ public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPh
             final boolean invocationSuccessful, final long elapsedTime)
     {
         super(sessionManager, invocationSuccessful, elapsedTime);
-    }
-
-    public SampleGenerationDTO getSampleInfo(String sessionToken, SampleIdentifier sampleIdentifier)
-            throws UserFailureException
-    {
-        logAccess(sessionToken, "get_sample_info", "CODE(%s)", sampleIdentifier);
-        return null;
-    }
-
-    public SampleGenerationDTO getSampleInfo(String sessionToken, TechId sampleId)
-            throws UserFailureException
-    {
-        logAccess(sessionToken, "get_sample_info", "ID(%s)", sampleId);
-        return null;
-    }
-
-    public void registerSample(String sessionToken, NewSample newSample,
-            List<AttachmentPE> attachments)
-    {
-        logTracking(sessionToken, "register_sample", "SAMPLE_TYPE(%s) SAMPLE(%s) ATTACHMENTS(%s)",
-                newSample.getSampleType(), newSample.getIdentifier(), attachments.size());
     }
 
     public List<ProteinReference> listProteinsByExperiment(String sessionToken,
@@ -76,6 +52,14 @@ public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPh
     {
         logAccess(sessionToken, "get_protein_by_experiment",
                 "EXPERIMENT_ID(%s) PROTEIN_REFERENCE_ID(%s)", experimentId, proteinReferenceID);
+        return null;
+    }
+
+    public List<ProteinSequence> listProteinSequencesByProteinReference(String sessionToken,
+            TechId proteinReferenceID) throws UserFailureException
+    {
+        logAccess(sessionToken, "list_protein_sequences_by_reference",
+                "PROTEIN_REFERENCE_ID(%s)", proteinReferenceID);
         return null;
     }
 
