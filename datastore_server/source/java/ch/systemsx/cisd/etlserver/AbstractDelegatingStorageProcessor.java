@@ -49,7 +49,7 @@ abstract public class AbstractDelegatingStorageProcessor implements IStorageProc
      * Property name which is used to specify the class of the default storage processor, to which
      * all calls are delegated.
      */
-    public final static String DELEGATE_PROCESSOR_CLASS_PROPERTY = "processor";
+    protected final static String DELEGATE_PROCESSOR_CLASS_PROPERTY = "processor";
 
     final static Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, AbstractDelegatingStorageProcessor.class);
