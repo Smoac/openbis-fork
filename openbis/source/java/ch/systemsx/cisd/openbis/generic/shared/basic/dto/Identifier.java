@@ -76,7 +76,7 @@ public class Identifier<T extends Identifier<T>> implements IsSerializable, Comp
         {
             return true;
         }
-        if (obj instanceof Identifier == false)
+        if (obj instanceof Identifier<?> == false)
         {
             return false;
         }

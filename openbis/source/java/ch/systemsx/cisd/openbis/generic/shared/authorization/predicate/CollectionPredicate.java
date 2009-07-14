@@ -72,7 +72,7 @@ public final class CollectionPredicate<T> extends AbstractPredicate<Collection<T
     @Override
     public final String getCandidateDescription()
     {
-        if (predicate instanceof AbstractPredicate)
+        if (predicate instanceof AbstractPredicate<?>)
         {
             return ((AbstractPredicate<?>) predicate).getCandidateDescription();
         }

@@ -89,7 +89,7 @@ public final class FillExperimentRegistrationForm extends AbstractDefaultTestCom
         for (final PropertyField property : properties)
         {
             final Widget widget = GWTTestUtil.getWidgetWithID(property.getPropertyFieldId());
-            if (widget instanceof Field)
+            if (widget instanceof Field<?>)
             {
                 ((Field<?>) widget).setRawValue(property.getPropertyFieldValue());
             } else

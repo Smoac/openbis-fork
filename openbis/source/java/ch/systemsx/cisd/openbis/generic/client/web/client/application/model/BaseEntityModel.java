@@ -106,7 +106,7 @@ public class BaseEntityModel<T> extends BaseModelData
     protected String renderColumnValue(final T entity, IColumnDefinition<T> column)
     {
         String value = column.getValue(entity);
-        if (column instanceof CommonColumnDefinition)
+        if (column instanceof CommonColumnDefinition<?>)
         {
             String headerMsgKey = ((CommonColumnDefinition<?>) column).getHeaderMsgKey();
             if (headerMsgKey.equals(Dict.REGISTRATOR)

@@ -126,7 +126,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                     final Widget widget =
                             GWTTestUtil
                                     .getWidgetWithID(SampleDataSetBrowser.createGridId(wildcard));
-                    assertTrue(widget instanceof Grid);
+                    assertTrue(widget instanceof Grid<?>);
                     final Grid<?> table = (Grid<?>) widget;
                     GridTestUtils.fireSelectRow(table, CommonExternalDataColDefKind.CODE.id(),
                             DATA_SET_CODE);

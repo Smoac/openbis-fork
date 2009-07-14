@@ -84,7 +84,7 @@ public final class FillExperimentEditForm extends AbstractDefaultTestCommand
         for (final PropertyField property : properties)
         {
             final Widget widget = GWTTestUtil.getWidgetWithID(id + property.getPropertyFieldId());
-            if (widget instanceof Field)
+            if (widget instanceof Field<?>)
             {
                 ((Field<?>) widget).setRawValue(property.getPropertyFieldValue());
             } else

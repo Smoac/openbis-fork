@@ -66,7 +66,7 @@ public abstract class Code<T extends Code<T>> implements Serializable, Comparabl
         {
             return true;
         }
-        if (obj instanceof Code == false)
+        if (obj instanceof Code<?> == false)
         {
             return false;
         }

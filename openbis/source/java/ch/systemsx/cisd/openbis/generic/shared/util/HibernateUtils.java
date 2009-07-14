@@ -42,7 +42,7 @@ public final class HibernateUtils
 
     private final static Object getRealProxy(final Object proxy)
     {
-        final boolean unmodifiable = (proxy instanceof UnmodifiableCollectionDecorator);
+        final boolean unmodifiable = (proxy instanceof UnmodifiableCollectionDecorator<?>);
         final Object realProxy =
                 (unmodifiable) ? ((UnmodifiableCollectionDecorator<?>) proxy).getDecorated()
                         : proxy;

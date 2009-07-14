@@ -74,8 +74,7 @@ class IntHashMap
      */
     private static class Entry
     {
-        int hash;
-
+        // Note: In this case the key is the hash.
         int key;
 
         Object value;
@@ -87,14 +86,12 @@ class IntHashMap
          * Create a new entry with the given values.
          * </p>
          * 
-         * @param hash The code used to hash the object with
-         * @param key The key used to enter this in the table
+         * @param key The key which is also the hash
          * @param value The value for this key
          * @param next A reference to the next entry in the table
          */
-        protected Entry(int hash, int key, Object value, Entry next)
+        protected Entry(int key, Object value, Entry next)
         {
-            this.hash = hash;
             this.key = key;
             this.value = value;
             this.next = next;
@@ -253,11 +250,10 @@ class IntHashMap
     public boolean containsKey(int key)
     {
         Entry tab[] = table;
-        int hash = key;
-        int index = (hash & 0x7FFFFFFF) % tab.length;
+        int index = (key & 0x7FFFFFFF) % tab.length;
         for (Entry e = tab[index]; e != null; e = e.next)
         {
-            if (e.hash == hash)
+            if (e.key == key)
             {
                 return true;
             }
@@ -278,11 +274,10 @@ class IntHashMap
     public Object get(int key)
     {
         Entry tab[] = table;
-        int hash = key;
-        int index = (hash & 0x7FFFFFFF) % tab.length;
+        int index = (key & 0x7FFFFFFF) % tab.length;
         for (Entry e = tab[index]; e != null; e = e.next)
         {
-            if (e.hash == hash)
+            if (e.key == key)
             {
                 return e.value;
             }
@@ -318,7 +313,7 @@ class IntHashMap
                 Entry e = old;
                 old = old.next;
 
-                int index = (e.hash & 0x7FFFFFFF) % newCapacity;
+                int index = (e.key & 0x7FFFFFFF) % newCapacity;
                 e.next = newMap[index];
                 newMap[index] = e;
             }
@@ -346,11 +341,10 @@ class IntHashMap
     {
         // Makes sure the key is not already in the hashtable.
         Entry tab[] = table;
-        int hash = key;
-        int index = (hash & 0x7FFFFFFF) % tab.length;
+        int index = (key & 0x7FFFFFFF) % tab.length;
         for (Entry e = tab[index]; e != null; e = e.next)
         {
-            if (e.hash == hash)
+            if (e.key == key)
             {
                 Object old = e.value;
                 e.value = value;
@@ -364,11 +358,11 @@ class IntHashMap
             rehash();
 
             tab = table;
-            index = (hash & 0x7FFFFFFF) % tab.length;
+            index = (key & 0x7FFFFFFF) % tab.length;
         }
 
         // Creates the new entry.
-        Entry e = new Entry(hash, key, value, tab[index]);
+        Entry e = new Entry(key, value, tab[index]);
         tab[index] = e;
         count++;
         return null;
@@ -389,11 +383,10 @@ class IntHashMap
     public Object remove(int key)
     {
         Entry tab[] = table;
-        int hash = key;
-        int index = (hash & 0x7FFFFFFF) % tab.length;
+        int index = (key & 0x7FFFFFFF) % tab.length;
         for (Entry e = tab[index], prev = null; e != null; prev = e, e = e.next)
         {
-            if (e.hash == hash)
+            if (e.key == key)
             {
                 if (prev != null)
                 {

@@ -114,7 +114,7 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
                         + PropertyTypeAssignmentForm.DEFAULT_VALUE_ID_PART
                         + isInternalNamespace(selectedPropertyTypeCode)
                         + getSimpleCode(selectedPropertyTypeCode));
-        assertTrue(widget instanceof Field);
+        assertTrue(widget instanceof Field<?>);
         if (defaultValue != null)
         {
             ((Field<?>) widget).setRawValue(defaultValue);

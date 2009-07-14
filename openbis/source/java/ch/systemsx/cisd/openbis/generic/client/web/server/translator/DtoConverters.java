@@ -98,6 +98,8 @@ public class DtoConverters
      * 
      * @author Christian Ribeaud
      */
+    // Note: the convertToXXX() methods will be used by reflection
+    @SuppressWarnings("unused")
     private final static class MatchingEntityConverter implements BeanUtils.Converter
     {
 
@@ -143,6 +145,8 @@ public class DtoConverters
      * 
      * @author Christian Ribeaud
      */
+    // Note: the convertToXXX() methods will be used by reflection
+    @SuppressWarnings("unused")
     private final static class DataTypeConverter implements BeanUtils.Converter
     {
         static final DataTypeConverter INSTANCE = new DataTypeConverter();
@@ -166,6 +170,8 @@ public class DtoConverters
      * 
      * @author Christian Ribeaud
      */
+    // Note: the convertToXXX() methods will be used by reflection
+    @SuppressWarnings("unused")
     private final static class VocabularyConverter implements BeanUtils.Converter
     {
         static final VocabularyConverter INSTANCE = new VocabularyConverter();

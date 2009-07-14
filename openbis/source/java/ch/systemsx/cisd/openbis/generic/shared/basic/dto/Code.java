@@ -76,7 +76,7 @@ public class Code<T extends Code<T>> implements IsSerializable, ICodeProvider, C
         {
             return true;
         }
-        if (obj instanceof Code == false)
+        if (obj instanceof Code<?> == false)
         {
             return false;
         }

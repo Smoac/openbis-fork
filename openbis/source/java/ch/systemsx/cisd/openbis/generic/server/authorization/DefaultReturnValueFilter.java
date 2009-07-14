@@ -162,7 +162,7 @@ public final class DefaultReturnValueFilter implements IReturnValueFilter
     {
         final String validatorClassName = validator.getClass().getName();
         final Class<?> returnValueClass = returnValue.getClass();
-        if (returnValue instanceof List)
+        if (returnValue instanceof List<?>)
         {
             final List<T> list = castToList(returnValue);
             try
