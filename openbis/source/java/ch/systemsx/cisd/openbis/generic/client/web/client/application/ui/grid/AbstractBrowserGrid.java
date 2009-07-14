@@ -269,7 +269,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     /** to be overriden by subclasses if different entity types can be displayed */
-    protected final EntityType tryToGetEntityType()
+    protected EntityType tryToGetEntityType()
     {
         return null;
     }
