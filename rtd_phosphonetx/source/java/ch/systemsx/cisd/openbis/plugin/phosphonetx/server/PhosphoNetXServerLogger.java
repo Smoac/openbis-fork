@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
@@ -60,6 +61,14 @@ public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPh
     {
         logAccess(sessionToken, "list_protein_sequences_by_reference",
                 "PROTEIN_REFERENCE_ID(%s)", proteinReferenceID);
+        return null;
+    }
+
+    public List<DataSetProtein> listProteinsByExperimentAndReference(String sessionToken,
+            TechId experimentId, TechId proteinReferenceID) throws UserFailureException
+    {
+        logAccess(sessionToken, "list_proteins_by_experiment_and_reference",
+                "EXPERIMENT_ID(%s) PROTEIN_REFERENCE_ID(%s)", experimentId, proteinReferenceID);
         return null;
     }
 

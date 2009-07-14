@@ -18,6 +18,10 @@ var phosphonetx = {
   database_name_and_version: "Database",
   sequence: "Amino Acid Sequence",
   sequences: "Amino Acid Sequences",
+  data_set_proteins: "Data Sets",
+  data_set_perm_id: "Data Set",
+  peptide_count: "Peptides",
+  sequence_name: "Sequence",
   
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

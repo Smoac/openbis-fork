@@ -29,6 +29,9 @@ public class Sequence extends AbstractDTOWithID
     @ResultColumn("amino_acid_sequence")
     private String sequence;
     
+    @ResultColumn("db_id")
+    private long databaseID;
+    
     @ResultColumn("name_and_version")
     private String databaseNameAndVersion;
 
@@ -40,6 +43,16 @@ public class Sequence extends AbstractDTOWithID
     public final void setSequence(String sequence)
     {
         this.sequence = sequence;
+    }
+
+    public final long getDatabaseID()
+    {
+        return databaseID;
+    }
+
+    public final void setDatabaseID(long databaseID)
+    {
+        this.databaseID = databaseID;
     }
 
     public final String getDatabaseNameAndVersion()

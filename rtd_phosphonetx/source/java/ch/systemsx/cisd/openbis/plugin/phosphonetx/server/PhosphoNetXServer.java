@@ -16,12 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
-
-import net.lemnik.eodsql.DataSet;
 
 import org.springframework.stereotype.Component;
 
@@ -36,15 +33,17 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IDataSetProteinTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinReferenceTable;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinSequenceTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.Sequence;
 
 /**
  * @author Franz-Josef Elmer
@@ -92,8 +91,8 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     {
         final Session session = getSessionManager().getSession(sessionToken);
         IProteinReferenceTable table = specificBOFactory.createProteinReferenceTable(session);
-        ExperimentPE experiment = getDAOFactory().getExperimentDAO().getByTechId(experimentId);
-        table.load(experiment.getPermId(), falseDiscoveryRate);
+        String experimentPermId = getExperimentPermIDFor(experimentId);
+        table.load(experimentPermId, falseDiscoveryRate);
         return table.getProteinReferences();
     }
 
@@ -117,35 +116,28 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     public List<ProteinSequence> listProteinSequencesByProteinReference(String sessionToken,
             TechId proteinReferenceID) throws UserFailureException
     {
-        IProteinQueryDAO proteinQueryDAO = specificDAOFactory.getProteinQueryDAO();
-        DataSet<Sequence> sequences =
-                proteinQueryDAO.listProteinSequencesByProteinReference(proteinReferenceID.getId());
-        ArrayList<ProteinSequence> proteinSequences =
-                new ArrayList<ProteinSequence>(sequences.size());
-        int number = 0;
-        for (Sequence sequence : sequences)
-        {
-            ProteinSequence proteinSequence = new ProteinSequence();
-            proteinSequence.setId(new TechId(sequence.getId()));
-            proteinSequence.setShortName(createShortName(number++));
-            proteinSequence.setSequence(sequence.getSequence());
-            proteinSequence.setDatabaseNameAndVersion(sequence.getDatabaseNameAndVersion());
-            proteinSequences.add(proteinSequence);
-        }
-        sequences.close();
-        return proteinSequences;
+        final Session session = getSessionManager().getSession(sessionToken);
+        IProteinSequenceTable sequenceTable = specificBOFactory.createProteinSequenceTable(session);
+        sequenceTable.loadByReference(proteinReferenceID);
+        return sequenceTable.getSequences();
     }
 
-    private String createShortName(int number)
+    public List<DataSetProtein> listProteinsByExperimentAndReference(String sessionToken,
+            TechId experimentId, TechId proteinReferenceID) throws UserFailureException
     {
-        StringBuilder builder = new StringBuilder();
-        int n = number;
-        while (n > 0)
-        {
-            builder.insert(0, "ABCEDEFGHIJKLMNOPQRSTUVWXYZ".charAt(n % 26));
-            n /= 26;
-        }
-        return builder.toString();
+        final Session session = getSessionManager().getSession(sessionToken);
+        IProteinSequenceTable sequenceTable = specificBOFactory.createProteinSequenceTable(session);
+        sequenceTable.loadByReference(proteinReferenceID);
+        IDataSetProteinTable dataSetProteinTable = specificBOFactory.createDataSetProteinTable(session);
+        dataSetProteinTable.load(getExperimentPermIDFor(experimentId), proteinReferenceID, sequenceTable);
+        return dataSetProteinTable.getDataSetProteins();
     }
 
+    private String getExperimentPermIDFor(TechId experimentId)
+    {
+        ExperimentPE experiment = getDAOFactory().getExperimentDAO().getByTechId(experimentId);
+        String experimentPermId = experiment.getPermId();
+        return experimentPermId;
+    }
+    
 }

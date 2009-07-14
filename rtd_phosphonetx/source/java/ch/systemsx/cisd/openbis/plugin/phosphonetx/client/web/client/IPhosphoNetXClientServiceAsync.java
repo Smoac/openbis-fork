@@ -22,9 +22,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentAndReferenceCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinSequenceCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 
@@ -55,4 +57,12 @@ public interface IPhosphoNetXClientServiceAsync extends IClientServiceAsync
     public void prepareExportProteinSequences(TableExportCriteria<ProteinSequence> exportCriteria,
             AsyncCallback<String> callback);
 
+    /** @see IPhosphoNetXClientService#listProteinsByExperimentAndReference(ListProteinByExperimentAndReferenceCriteria) */
+    public void listProteinsByExperimentAndReference(
+            ListProteinByExperimentAndReferenceCriteria criteria,
+            AsyncCallback<ResultSet<DataSetProtein>> callback);
+    
+    /** @see IPhosphoNetXClientService#prepareExportDataSetProteins(TableExportCriteria) */
+    public void prepareExportDataSetProteins(TableExportCriteria<DataSetProtein> exportCriteria,
+            AsyncCallback<String> callback);
 }

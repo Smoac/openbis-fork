@@ -36,6 +36,8 @@ public class ProteinSequence implements IsSerializable, Serializable
     
     private TechId id;
     
+    private TechId databaseID;
+    
     private String sequence;
     
     private String databaseNameAndVersion;
@@ -58,6 +60,16 @@ public class ProteinSequence implements IsSerializable, Serializable
     public final void setId(TechId id)
     {
         this.id = id;
+    }
+
+    public final TechId getDatabaseID()
+    {
+        return databaseID;
+    }
+
+    public final void setDatabaseID(TechId databaseID)
+    {
+        this.databaseID = databaseID;
     }
 
     public final String getSequence()

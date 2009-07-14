@@ -93,8 +93,7 @@ public class ProteinViewer extends
     
     private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
     private final Experiment experimentOrNull;
-    private final TechId experimentID;
-    private final TechId proteinreferenceID;
+    private final TechId proteinReferenceID;
     
     private ProteinViewer(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
             Experiment experimentOrNull, TechId proteinReferenceID)
@@ -102,15 +101,17 @@ public class ProteinViewer extends
         super(viewContext, "", createWidgetID(proteinReferenceID), false);
         this.viewContext = viewContext;
         this.experimentOrNull = experimentOrNull;
-        this.experimentID = TechId.create(experimentOrNull);
-        this.proteinreferenceID = proteinReferenceID;
+        this.proteinReferenceID = proteinReferenceID;
         reloadAllData();
     }
     
     private void reloadAllData()
     {
-        viewContext.getService().getProteinByExperiment(experimentID, proteinreferenceID,
-                new ProteinByExperimentCallback(viewContext, this));
+        if (experimentOrNull != null)
+        {
+            viewContext.getService().getProteinByExperiment(new TechId(experimentOrNull.getId()),
+                    proteinReferenceID, new ProteinByExperimentCallback(viewContext, this));
+        }
     }
 
     private void recreateUI(ProteinByExperiment protein)
@@ -134,7 +135,10 @@ public class ProteinViewer extends
         layoutData.setSize(400);
         add(contentPanel, layoutData);
         add(new BrowserSectionPanel(viewContext.getMessage(Dict.SEQUENCES), ProteinSequenceGrid
-                .create(viewContext, proteinreferenceID)), createRightBorderLayoutData());
+                .create(viewContext, proteinReferenceID)), createRightBorderLayoutData());
+        add(new BrowserSectionPanel(viewContext.getMessage(Dict.DATA_SET_PROTEINS),
+                DataSetProteinGrid.create(viewContext, experimentOrNull, proteinReferenceID)),
+                createBorderLayoutData(LayoutRegion.SOUTH));
         layout();
     }
 

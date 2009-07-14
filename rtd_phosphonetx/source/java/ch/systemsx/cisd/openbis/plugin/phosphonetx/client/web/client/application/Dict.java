@@ -39,6 +39,10 @@ public class Dict
     public static final String DATABASE_NAME_AND_VERSION = "database_name_and_version";
     public static final String SEQUENCE = "sequence";
     public static final String SEQUENCES = "sequences";
+    public static final String DATA_SET_PROTEINS = "data_set_proteins";
+    public static final String DATA_SET_PERM_ID = "data_set_perm_id";
+    public static final String PEPTIDE_COUNT = "peptide_count";
+    public static final String SEQUENCE_NAME = "sequence_name";
     
     
 

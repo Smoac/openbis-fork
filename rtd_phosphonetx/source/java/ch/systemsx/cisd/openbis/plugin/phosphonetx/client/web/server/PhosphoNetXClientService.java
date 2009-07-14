@@ -29,11 +29,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailure
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientService;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentAndReferenceCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinSequenceCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 
@@ -100,6 +102,21 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     }
 
     public String prepareExportProteinSequences(TableExportCriteria<ProteinSequence> exportCriteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return prepareExportEntities(exportCriteria);
+    }
+
+    public ResultSet<DataSetProtein> listProteinsByExperimentAndReference(
+            ListProteinByExperimentAndReferenceCriteria criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+        return listEntities(criteria, new ListDataSetProteinDataProvider(server, sessionToken,
+                criteria.getExperimentID(), criteria.getProteinReferenceID()));
+    }
+
+    public String prepareExportDataSetProteins(TableExportCriteria<DataSetProtein> exportCriteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(exportCriteria);

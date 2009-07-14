@@ -16,18 +16,21 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IBusinessObjectFactory
+public interface IDataSetProteinTable
 {
-    public IProteinReferenceTable createProteinReferenceTable(Session session);
-    
-    public IProteinSequenceTable createProteinSequenceTable(Session session);
-    
-    public IDataSetProteinTable createDataSetProteinTable(Session session);
+    public List<DataSetProtein> getDataSetProteins();
+
+    public void load(String experimentPermID, TechId proteinReferenceID,
+            IProteinSequenceTable sequenceTable);
+
 }

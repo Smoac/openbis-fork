@@ -40,8 +40,8 @@ public class IdentifiedProtein extends AbstractDTOWithID
     @ResultColumn("amino_acid_sequence")
     private String sequence;
     
-    @ResultColumn("name_and_version")
-    private String database;
+    @ResultColumn("db_id")
+    private long databaseID;
     
     @ResultColumn("probability")
     private double probability;
@@ -118,14 +118,14 @@ public class IdentifiedProtein extends AbstractDTOWithID
         this.falseDiscoveryRate = falseDiscoveryRate;
     }
 
-    public final String getDatabase()
+    public final long getDatabaseID()
     {
-        return database;
+        return databaseID;
     }
 
-    public final void setDatabase(String database)
+    public final void setDatabase(long databaseID)
     {
-        this.database = database;
+        this.databaseID = databaseID;
     }
 
 

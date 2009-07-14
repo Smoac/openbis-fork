@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
@@ -54,4 +55,11 @@ public interface IPhosphoNetXServer extends IServer
     @RolesAllowed(RoleSet.OBSERVER)
     public List<ProteinSequence> listProteinSequencesByProteinReference(String sessionToken,
             TechId proteinReferenceID) throws UserFailureException;
+    
+    @Transactional
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<DataSetProtein> listProteinsByExperimentAndReference(String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
+            TechId experimentId, TechId proteinReferenceID) throws UserFailureException;
+    
 }

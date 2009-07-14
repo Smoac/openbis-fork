@@ -47,21 +47,22 @@ public interface IProteinQueryDAO extends BaseQuery
     @Select("select * from protein_references where id = ?{1}")
     public ProteinReference tryToGetProteinReference(long proteinReferenceID);
     
-    @Select("select s.id, amino_acid_sequence, name_and_version "
+    @Select("select s.id, db_id, amino_acid_sequence, name_and_version "
             + "from sequences as s join databases as d on s.db_id = d.id "
             + "where s.prre_id = ?{1} order by name_and_version")
     public DataSet<Sequence> listProteinSequencesByProteinReference(long proteinReferenceID);
     
     @Select("select ds.id as data_set_id, ds.perm_id as data_set_perm_id, p.id as protein_id, "
-            + "probability, count(pe.id) as peptide_count, amino_acid_sequence, name_and_version "
-            + "from data_sets as ds join proteins as p on p.dase_id = ds.id "
+            + "probability, count(pe.id) as peptide_count, amino_acid_sequence, s.db_id "
+            + "from data_sets as ds join experiments as e on ds.expe_id = e.id "
+            + "                     join proteins as p on p.dase_id = ds.id "
             + "                     join identified_proteins as i on i.prot_id = p.id "
             + "                     join sequences as s on i.sequ_id = s.id "
             + "                     join databases as db on s.db_id = db.id "
             + "                     left join peptides as pe on pe.prot_id = p.id "
-            + "where s.prre_id = ?{2} and ds.expe_id = ?{1} "
+            + "where s.prre_id = ?{2} and e.perm_id = ?{1} "
             + "group by data_set_id, data_set_perm_id, protein_id, probability, "
-            + "         amino_acid_sequence, name_and_version order by data_set_perm_id")
+            + "         amino_acid_sequence, s.db_id order by data_set_perm_id")
     public DataSet<IdentifiedProtein> listProteinsByProteinReferenceAndExperiment(
-            long experimentID, long proteinReferenceID);
+            String experimentPermID, long proteinReferenceID);
 }

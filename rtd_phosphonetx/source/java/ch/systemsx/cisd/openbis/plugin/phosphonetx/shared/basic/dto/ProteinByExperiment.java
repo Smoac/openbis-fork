@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -38,8 +36,6 @@ public class ProteinByExperiment implements IsSerializable, Serializable
     
     private String description;
     
-    private List<ProteinSequence> sequences = new ArrayList<ProteinSequence>();
-
     public final String getUniprotID()
     {
         return uniprotID;
@@ -60,15 +56,4 @@ public class ProteinByExperiment implements IsSerializable, Serializable
         this.description = description;
     }
 
-    public final List<ProteinSequence> getSequences()
-    {
-        return sequences;
-    }
-    
-    public final void addSequence(ProteinSequence proteinSequence)
-    {
-        this.sequences.add(proteinSequence);
-    }
-    
-    
 }
