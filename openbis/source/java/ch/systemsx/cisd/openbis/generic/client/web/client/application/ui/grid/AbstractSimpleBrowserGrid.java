@@ -55,7 +55,7 @@ abstract public class AbstractSimpleBrowserGrid<T/* Entity */> extends
     }
 
     @Override
-    protected final boolean isRefreshEnabled()
+    protected boolean isRefreshEnabled()
     {
         return true;
     }

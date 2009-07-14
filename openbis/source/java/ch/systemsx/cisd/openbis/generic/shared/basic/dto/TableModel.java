@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -25,21 +26,38 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Tomasz Pylak
  */
-// TODO 2009-07-02, Tomasz Pylak: implement me. This stub holds just one string.
 public class TableModel implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private String content;
+    private List<TableModelRow> rows;
 
-    public TableModel(String content)
+    private List<TableModelColumnHeader> header;
+
+    public TableModel(List<TableModelColumnHeader> header, List<TableModelRow> rows)
     {
-        this.content = content;
+        this.rows = rows;
+        this.header = header;
+        validate();
     }
 
-    public String getContent()
+    private void validate()
     {
-        return content;
+        int columnsNo = header.size();
+        for (TableModelRow row : rows)
+        {
+            assert row.getValues().size() == columnsNo : "row has a different number of columns than the table header";
+        }
+    }
+
+    public List<TableModelRow> getRows()
+    {
+        return rows;
+    }
+
+    public List<TableModelColumnHeader> getHeader()
+    {
+        return header;
     }
 
     // GWT only
@@ -50,9 +68,65 @@ public class TableModel implements IsSerializable, Serializable
 
     // GWT only
     @SuppressWarnings("unused")
-    private void setContent(String content)
+    private void setRows(List<TableModelRow> rows)
     {
-        this.content = content;
+        this.rows = rows;
     }
 
+    // GWT only
+    @SuppressWarnings("unused")
+    private void setHeader(List<TableModelColumnHeader> header)
+    {
+        this.header = header;
+    }
+
+    public static enum TableModelColumnType implements IsSerializable
+    {
+        DATE, INTEGER, REAL, TEXT, BOOLEAN
+    }
+
+    public static class TableModelColumnHeader implements IsSerializable, Serializable
+    {
+        private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+        private String title;
+
+        private TableModelColumnType type;
+
+        public TableModelColumnHeader(String title, TableModelColumnType type)
+        {
+            this.title = title;
+            this.type = type;
+        }
+
+        public String getTitle()
+        {
+            return title;
+        }
+
+        public TableModelColumnType getType()
+        {
+            return type;
+        }
+
+        // GWT only
+        @SuppressWarnings("unused")
+        private TableModelColumnHeader()
+        {
+        }
+
+        // GWT only
+        @SuppressWarnings("unused")
+        private void setTitle(String title)
+        {
+            this.title = title;
+        }
+
+        // GWT only
+        @SuppressWarnings("unused")
+        private void setType(TableModelColumnType type)
+        {
+            this.type = type;
+        }
+    }
 }
