@@ -36,10 +36,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -253,5 +257,38 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
     {
         HibernateUtils.initialize(vocabularyPE.getTerms());
         return vocabularyPE.getTerms();
+    }
+
+    public void deleteByTechId(TechId vocabularyId, String reason) throws UserFailureException
+    {
+        loadDataByTechId(vocabularyId);
+        try
+        {
+            getVocabularyDAO().delete(vocabularyPE);
+            getEventDAO()
+                    .persist(createDeletionEvent(vocabularyPE, session.tryGetPerson(), reason));
+        } catch (final DataAccessException ex)
+        {
+            throwException(ex, String.format("Vocabulary '%s'", vocabularyPE.getCode()));
+        }
+    }
+
+    public static EventPE createDeletionEvent(VocabularyPE vocabularyPE, PersonPE registrator,
+            String reason)
+    {
+        EventPE event = new EventPE();
+        event.setEventType(EventType.DELETION);
+        event.setEntityType(EntityType.VOCABULARY);
+        event.setIdentifier(vocabularyPE.getCode());
+        event.setDescription(getDeletionDescription(vocabularyPE));
+        event.setReason(reason);
+        event.setRegistrator(registrator);
+
+        return event;
+    }
+
+    private static String getDeletionDescription(VocabularyPE vocabularyPE)
+    {
+        return String.format("%s", vocabularyPE.getCode());
     }
 }

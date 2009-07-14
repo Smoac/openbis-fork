@@ -526,6 +526,14 @@ public interface ICommonServer extends IServer
             String reason);
 
     /**
+     * Deletes specified vocabularies.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY)
+    public void deleteVocabularies(String sessionToken, List<TechId> vocabularyIds, String reason);
+
+    /**
      * Deletes specified attachments (all versions with given file names) of specified experiment.
      */
     @Transactional

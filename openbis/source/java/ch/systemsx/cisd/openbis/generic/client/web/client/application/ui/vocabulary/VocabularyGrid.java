@@ -21,11 +21,11 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant.USER_N
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationFieldSet.CommonVocabularyRegistrationAndEditionFieldsFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
@@ -95,29 +96,39 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                                 }
                             });
         showDetailsButton.setId(SHOW_DETAILS_BUTTON_ID);
-        pagingToolbar.add(new AdapterToolItem(showDetailsButton));
+        addButton(showDetailsButton);
 
-        Button editButton =
-                createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
-                        new ISelectedEntityInvoker<BaseEntityModel<Vocabulary>>()
+        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
+                new ISelectedEntityInvoker<BaseEntityModel<Vocabulary>>()
+                    {
+
+                        public void invoke(BaseEntityModel<Vocabulary> selectedItem)
+                        {
+                            Vocabulary vocabulary = selectedItem.getBaseObject();
+                            if (vocabulary.isManagedInternally())
                             {
+                                MessageBox.alert("Error",
+                                        "Internally managed vocabulary cannot be edited.", null);
+                            } else
+                            {
+                                createEditEntityDialog(vocabulary).show();
+                            }
+                        }
 
-                                public void invoke(BaseEntityModel<Vocabulary> selectedItem)
-                                {
-                                    Vocabulary vocabulary = selectedItem.getBaseObject();
-                                    if (vocabulary.isManagedInternally())
-                                    {
-                                        MessageBox.alert("Error",
-                                                "Internally managed vocabulary cannot be edited.",
-                                                null);
-                                    } else
-                                    {
-                                        createEditEntityDialog(vocabulary).show();
-                                    }
-                                }
-
-                            });
-        pagingToolbar.add(new AdapterToolItem(editButton));
+                    }));
+                    
+        addButton(createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
+                new AbstractCreateDialogListener()
+                    {
+                        @Override
+                        protected Dialog createDialog(List<Vocabulary> vocabularies,
+                                IBrowserGridActionInvoker invoker)
+                        {
+                            return new VocabularyListDeletionConfirmationDialog(viewContext,
+                                    vocabularies, createDeletionCallback(invoker));
+                        }
+                    }));
+        allowMultipleSelection(); // we allow deletion of multiple attachments
 
         addEntityOperationsSeparator();
     }

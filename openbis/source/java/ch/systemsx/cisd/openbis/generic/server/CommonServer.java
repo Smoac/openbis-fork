@@ -842,6 +842,22 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
     }
 
+    public void deleteVocabularies(String sessionToken, List<TechId> vocabularyIds, String reason)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
+            for (TechId id : vocabularyIds)
+            {
+                vocabularyBO.deleteByTechId(id, reason);
+            }
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
     public void deleteExperimentAttachments(String sessionToken, TechId experimentId,
             List<String> fileNames, String reason)
     {

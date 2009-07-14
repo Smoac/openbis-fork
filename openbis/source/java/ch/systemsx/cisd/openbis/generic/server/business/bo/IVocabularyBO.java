@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -82,5 +83,13 @@ public interface IVocabularyBO extends IEntityBusinessObject
      * Updates the vocabulary.
      */
     public void update(IVocabularyUpdates updates);
+
+    /**
+     * Deletes vocabulary for specified reason.
+     * 
+     * @param vocabularyId vocabulary technical identifier
+     * @throws UserFailureException if vocabulary with given technical identifier is not found.
+     */
+    void deleteByTechId(TechId vocabularyId, String reason);
 
 }

@@ -435,6 +435,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logTracking(sessionToken, "delete_experiments", "IDS(%s) REASON(%s)", experimentIds, reason);
     }
 
+    public void deleteVocabularies(String sessionToken, List<TechId> vocabularyIds, String reason)
+    {
+        logTracking(sessionToken, "delete_vocabularies", "IDS(%s) REASON(%s)", vocabularyIds,
+                reason);
+    }
+
     public void deleteExperimentAttachments(String sessionToken, TechId experimentId,
             List<String> fileNames, String reason)
     {

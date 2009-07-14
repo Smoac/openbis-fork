@@ -49,8 +49,11 @@ public final class DataAccessExceptionTranslator
 
     /** Message format for foreign key violation. */
     public final static String FOREIGN_KEY_VIOLATION_FORMAT =
-            "%s is being used. Delete all connected data %s first. "
-                    + "To find out which exactly objects are connected to this object "
+            "%s is being used. Delete all connected data %s first.";
+
+    public final static String DETAILED_FOREIGN_KEY_VIOLATION_FORMAT =
+            FOREIGN_KEY_VIOLATION_FORMAT
+                    + " To find out which exactly objects are connected to this object "
                     + "go to it's Detail view or use Search.";
 
     private DataAccessExceptionTranslator()
@@ -113,8 +116,15 @@ public final class DataAccessExceptionTranslator
     private static void throwForeignKeyViolationException(final String subject,
             EntityKind entityKindOrNull, Exception exception) throws UserFailureException
     {
-        throw new UserFailureException(String.format(FOREIGN_KEY_VIOLATION_FORMAT, subject,
+        throw new UserFailureException(String.format(
+                getForeignKeyViolationFormat(entityKindOrNull), subject,
                 getForeignKeyViolationDetailedDescription(entityKindOrNull)), exception);
+    }
+
+    private static String getForeignKeyViolationFormat(EntityKind entityKindOrNull)
+    {
+        return entityKindOrNull == null ? FOREIGN_KEY_VIOLATION_FORMAT
+                : DETAILED_FOREIGN_KEY_VIOLATION_FORMAT;
     }
 
     private static String getForeignKeyViolationDetailedDescription(EntityKind entityKindOrNull)

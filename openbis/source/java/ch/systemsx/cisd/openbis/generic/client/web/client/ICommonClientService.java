@@ -481,6 +481,10 @@ public interface ICommonClientService extends IClientService
     /** Deletes the specified projects. */
     public void deleteProjects(List<TechId> projectIds, String reason) throws UserFailureException;
 
+    /** Deletes the specified vocabularies. */
+    public void deleteVocabularies(List<TechId> vocabualryIds, String reason)
+            throws UserFailureException;
+
     /**
      * Deletes specified attachments (all versions with given file names) of specified attachment
      * holder.

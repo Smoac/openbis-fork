@@ -417,6 +417,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void deleteProjects(List<TechId> projectIds, String value,
             AsyncCallback<Void> asyncCallback);
 
+    /** @see ICommonClientService#deleteVocabularies(List, String) */
+    public void deleteVocabularies(List<TechId> vocabularyIds, String value,
+            AsyncCallback<Void> asyncCallback);
+
     /** @see ICommonClientService#deleteAttachments(TechId, AttachmentHolderKind, List, String) */
     public void deleteAttachments(TechId holderId, AttachmentHolderKind holderKind,
             List<String> fileNames, String reason, AsyncCallback<Void> asyncCallback);
