@@ -441,6 +441,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 reason);
     }
 
+    public void deletePropertyTypes(String sessionToken, List<TechId> propertyTypeIds, String reason)
+    {
+        logTracking(sessionToken, "delete_property_types", "IDS(%s) REASON(%s)", propertyTypeIds,
+                reason);
+    }
+
     public void deleteExperimentAttachments(String sessionToken, TechId experimentId,
             List<String> fileNames, String reason)
     {

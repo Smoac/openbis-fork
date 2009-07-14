@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -49,5 +50,13 @@ public interface IPropertyTypeBO extends IBusinessObject
      * Updates the property type.
      */
     public void update(IPropertyTypeUpdates updates);
+
+    /**
+     * Deletes property type for specified reason.
+     * 
+     * @param propertyTypeId property type technical identifier
+     * @throws UserFailureException if property type with given technical identifier is not found.
+     */
+    void deleteByTechId(TechId propertyTypeId, String reason);
 
 }

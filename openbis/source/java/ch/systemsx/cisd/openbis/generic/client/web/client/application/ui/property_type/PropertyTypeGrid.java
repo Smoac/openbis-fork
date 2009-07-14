@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -37,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Prop
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -99,6 +101,36 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
                             }
                         }
                     }));
+
+        addButton(createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
+                new AbstractCreateDialogListener()
+                    {
+
+                        @Override
+                        protected Dialog createDialog(List<PropertyType> propertyTypes,
+                                IBrowserGridActionInvoker invoker)
+                        {
+                            return new PropertyTypeListDeletionConfirmationDialog(viewContext,
+                                    propertyTypes, createDeletionCallback(invoker));
+                        }
+
+                        @Override
+                        protected boolean validateSelectedData(List<PropertyType> data)
+                        {
+                            String errorMsg =
+                                    "Internally managed property types cannot be deleted.";
+                            for (PropertyType propertyType : data)
+                            {
+                                if (propertyType.isManagedInternally())
+                                {
+                                    MessageBox.alert("Error", errorMsg, null);
+                                    return false;
+                                }
+                            }
+                            return true;
+                        }
+                    }));
+        allowMultipleSelection(); // we allow deletion of multiple attachments
 
         addEntityOperationsSeparator();
     }

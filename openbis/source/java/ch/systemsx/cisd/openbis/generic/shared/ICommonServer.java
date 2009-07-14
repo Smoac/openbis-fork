@@ -313,6 +313,14 @@ public interface ICommonServer extends IServer
     public void updatePropertyType(final String sessionToken, final IPropertyTypeUpdates updates);
 
     /**
+     * Deletes specified property types.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.PROPERTY_TYPE)
+    public void deletePropertyTypes(String sessionToken, List<TechId> propertyTypeIds, String reason);
+
+    /**
      * Assigns property type to entity type.
      */
     @Transactional
@@ -365,6 +373,14 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.VOCABULARY)
     public void updateVocabulary(String sessionToken, IVocabularyUpdates updates);
+
+    /**
+     * Deletes specified vocabularies.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY)
+    public void deleteVocabularies(String sessionToken, List<TechId> vocabularyIds, String reason);
 
     /**
      * Adds new terms to a vocabulary.
@@ -524,14 +540,6 @@ public interface ICommonServer extends IServer
             String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) List<TechId> experimentIds,
             String reason);
-
-    /**
-     * Deletes specified vocabularies.
-     */
-    @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY)
-    public void deleteVocabularies(String sessionToken, List<TechId> vocabularyIds, String reason);
 
     /**
      * Deletes specified attachments (all versions with given file names) of specified experiment.

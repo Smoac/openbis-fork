@@ -219,10 +219,10 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         // TODO 2009-06-09, Piotr Buczek: remove this check if we change many2many -> one2many
         if (entity.getChildren().size() > 0)
         {
-            throw new DataIntegrityViolationException(
-                    "Entity cannot be deleted because children datasets are connected.");
+            throw new DataIntegrityViolationException(String.format(
+                    "External Data '%s' cannot be deleted because children datasets are connected.",
+                    entity.getCode()));
         }
         super.delete(entity);
     }
-
 }

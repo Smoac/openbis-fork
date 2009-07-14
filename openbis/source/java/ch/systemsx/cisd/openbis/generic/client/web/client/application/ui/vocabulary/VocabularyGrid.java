@@ -132,7 +132,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                         @Override
                         protected boolean validateSelectedData(List<Vocabulary> data)
                         {
-                            String errorMsg = "Internally managed vocabulary cannot be deleted.";
+                            String errorMsg = "Internally managed vocabularies cannot be deleted.";
                             for (Vocabulary vocabulary : data)
                             {
                                 if (vocabulary.isManagedInternally())

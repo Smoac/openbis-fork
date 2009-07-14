@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DataRetrievalFailureException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -29,10 +30,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -163,5 +168,43 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
     private void loadVocabularyDataByTechId(TechId vocabularyId)
     {
         super.loadDataByTechId(vocabularyId);
+    }
+
+    @Override
+    public void deleteByTechId(TechId propertyTypeId, String reason) throws UserFailureException
+    {
+        loadDataByTechId(propertyTypeId);
+        try
+        {
+            getPropertyTypeDAO().delete(propertyTypePE);
+            getEventDAO().persist(
+                    createDeletionEvent(propertyTypePE, session.tryGetPerson(), reason));
+        } catch (final DataIntegrityViolationException ex)
+        {
+            throwEntityInUseException(
+                    String.format("Property Type '%s'", propertyTypePE.getCode()), null);
+        } catch (final DataAccessException ex)
+        {
+            throwException(ex, String.format("Property Type '%s'", propertyTypePE.getCode()));
+        }
+    }
+
+    public static EventPE createDeletionEvent(PropertyTypePE propertyTypePE, PersonPE registrator,
+            String reason)
+    {
+        EventPE event = new EventPE();
+        event.setEventType(EventType.DELETION);
+        event.setEntityType(EntityType.PROPERTY_TYPE);
+        event.setIdentifier(propertyTypePE.getCode());
+        event.setDescription(getDeletionDescription(propertyTypePE));
+        event.setReason(reason);
+        event.setRegistrator(registrator);
+
+        return event;
+    }
+
+    private static String getDeletionDescription(PropertyTypePE propertyTypePE)
+    {
+        return String.format("%s", propertyTypePE.getCode());
     }
 }

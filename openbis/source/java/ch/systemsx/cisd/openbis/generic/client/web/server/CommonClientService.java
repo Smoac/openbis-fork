@@ -1392,6 +1392,19 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public void deletePropertyTypes(List<TechId> propertyTypeIds, String reason)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.deletePropertyTypes(sessionToken, propertyTypeIds, reason);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
     public void deleteAttachments(TechId holderId, AttachmentHolderKind holderKind,
             List<String> fileNames, String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException

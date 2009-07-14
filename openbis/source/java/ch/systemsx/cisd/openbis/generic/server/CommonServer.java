@@ -858,6 +858,22 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
     }
 
+    public void deletePropertyTypes(String sessionToken, List<TechId> propertyTypeIds, String reason)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IPropertyTypeBO propertyTypeBO = businessObjectFactory.createPropertyTypeBO(session);
+            for (TechId id : propertyTypeIds)
+            {
+                propertyTypeBO.deleteByTechId(id, reason);
+            }
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
     public void deleteExperimentAttachments(String sessionToken, TechId experimentId,
             List<String> fileNames, String reason)
     {

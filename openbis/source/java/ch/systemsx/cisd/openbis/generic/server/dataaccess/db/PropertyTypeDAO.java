@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.support.JdbcAccessor;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -151,6 +152,25 @@ final class PropertyTypeDAO extends AbstractGenericEntityDAO<PropertyTypePE> imp
         {
             operationLog.info(String.format("ADD: property type '%s'.", propertyType));
         }
+    }
+
+    @Override
+    public void delete(PropertyTypePE entity) throws DataAccessException
+    {
+        assert entity != null : "entity unspecified";
+        int assignmentsSize =
+                entity.getDataSetTypePropertyTypes().size()
+                        + entity.getExperimentTypePropertyTypes().size()
+                        + entity.getMaterialTypePropertyTypes().size()
+                        + entity.getSampleTypePropertyTypes().size();
+        if (assignmentsSize > 0)
+        {
+            String errorMsgFormat =
+                    "Property Type '%s' cannot be deleted because entity types are assigned.";
+            throw new DataIntegrityViolationException(String.format(errorMsgFormat, entity
+                    .getCode()));
+        }
+        super.delete(entity);
     }
 
 }

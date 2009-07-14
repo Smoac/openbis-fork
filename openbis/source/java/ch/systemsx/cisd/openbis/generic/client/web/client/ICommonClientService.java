@@ -485,6 +485,10 @@ public interface ICommonClientService extends IClientService
     public void deleteVocabularies(List<TechId> vocabualryIds, String reason)
             throws UserFailureException;
 
+    /** Deletes the specified property types. */
+    public void deletePropertyTypes(List<TechId> propertyTypeIds, String reason)
+            throws UserFailureException;
+
     /**
      * Deletes specified attachments (all versions with given file names) of specified attachment
      * holder.

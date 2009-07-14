@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -302,7 +301,7 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
         return getCode();
     }
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "propertyTypeInternal")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "propertyTypeInternal")
     private Set<SampleTypePropertyTypePE> getSampleTypePropertyTypesInternal()
     {
         return sampleTypePropertyTypes;
@@ -343,7 +342,7 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
         getSampleTypePropertyTypesInternal().add(child);
     }
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "propertyTypeInternal")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "propertyTypeInternal")
     private Set<ExperimentTypePropertyTypePE> getExperimentTypePropertyTypesInternal()
     {
         return experimentTypePropertyTypes;
@@ -385,7 +384,7 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
         getExperimentTypePropertyTypesInternal().add(child);
     }
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "propertyTypeInternal")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "propertyTypeInternal")
     private Set<MaterialTypePropertyTypePE> getMaterialTypePropertyTypesInternal()
     {
         return materialTypePropertyTypes;
@@ -399,7 +398,7 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
         this.materialTypePropertyTypes = materialTypePropertyTypes;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "propertyTypeInternal")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "propertyTypeInternal")
     private Set<DataSetTypePropertyTypePE> getDataSetTypePropertyTypesInternal()
     {
         return dataSetTypePropertyTypes;
