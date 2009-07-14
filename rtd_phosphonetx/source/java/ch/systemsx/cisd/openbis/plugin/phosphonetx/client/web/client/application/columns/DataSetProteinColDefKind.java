@@ -52,8 +52,30 @@ public enum DataSetProteinColDefKind implements IColumnDefinitionKind<DataSetPro
             {
                 return Integer.toString(entity.getPeptideCount());
             }
+            
+            @Override
+            public Comparable<?> getComparableValue(DataSetProtein entity)
+            {
+                return entity.getPeptideCount();
+            }
         }),
                 
+    FDR(new AbstractColumnDefinitionKind<DataSetProtein>(Dict.FDR, 80)
+            {
+                @Override
+                public String tryGetValue(DataSetProtein entity)
+                {
+                    int perMille = (int) (1000 * entity.getFalseDiscoveryRate() + 0.5);
+                    return (perMille / 10) + "." + (perMille % 10) + " %";
+                }
+                
+                @Override
+                public Comparable<?> getComparableValue(DataSetProtein entity)
+                {
+                    return entity.getFalseDiscoveryRate();
+                }
+            }),
+                        
     ;
 
     private final AbstractColumnDefinitionKind<DataSetProtein> columnDefinitionKind;
