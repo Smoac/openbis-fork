@@ -268,7 +268,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         this.entityKind = entityKind;
     }
 
-    protected EntityType tryToGetEntityType()
+    /** to be overriden by subclasses if different entity types can be displayed */
+    protected final EntityType tryToGetEntityType()
     {
         return null;
     }
@@ -344,12 +345,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return asDisposableMaterialChooser(container);
     }
 
-    private final BorderLayoutData createLeftBorderLayoutData()
+    private BorderLayoutData createLeftBorderLayoutData()
     {
         return BorderLayoutDataFactory.create(LayoutRegion.WEST, 200);
     }
 
-    private final BorderLayoutData createCenterBorderLayoutData()
+    private BorderLayoutData createCenterBorderLayoutData()
     {
         return BorderLayoutDataFactory.create(LayoutRegion.CENTER);
     }
@@ -413,7 +414,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return newPagingLoader;
     }
 
-    private final RpcProxy<PagingLoadConfig, PagingLoadResult<M>> createDataLoaderProxy()
+    private RpcProxy<PagingLoadConfig, PagingLoadResult<M>> createDataLoaderProxy()
     {
         return new RpcProxy<PagingLoadConfig, PagingLoadResult<M>>()
             {
@@ -447,7 +448,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return filters;
     }
 
-    protected List<IColumnDefinition<T>> asColumnFilters(
+    protected final List<IColumnDefinition<T>> asColumnFilters(
             IColumnDefinitionKind<T>[] filteredColumnKinds)
     {
         return asColumnFilters(filteredColumnKinds, viewContext);
@@ -631,7 +632,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             };
     }
 
-    protected interface ISelectedEntityInvoker<M>
+    protected static interface ISelectedEntityInvoker<M>
     {
         void invoke(M selectedItem);
     }
@@ -729,7 +730,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     /** adds given <var>button</var> to grid {@link PagingToolBar} */
-    protected void addButton(Button button)
+    protected final void addButton(Button button)
     {
         pagingToolbar.add(new AdapterToolItem(button));
     }
@@ -737,7 +738,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     /**
      * Given <var>button</var> will be enabled only if at least one item is selected in the grid.
      */
-    protected void enableButtonOnSelectedItems(final Button button)
+    protected final void enableButtonOnSelectedItems(final Button button)
     {
         button.setEnabled(false);
         addGridSelectionChangeListener(new Listener<SelectionEvent<ModelData>>()
@@ -751,7 +752,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             });
     }
 
-    private final void addGridSelectionChangeListener(Listener<SelectionEvent<ModelData>> listener)
+    private void addGridSelectionChangeListener(Listener<SelectionEvent<ModelData>> listener)
     {
         grid.getSelectionModel().addListener(Events.SelectionChange, listener);
     }
@@ -1045,7 +1046,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     /** Export always deals with data from the previous refresh operation */
-    private final void export()
+    private void export()
     {
         export(new ExportEntitiesCallback(viewContext));
     }
@@ -1053,7 +1054,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     /**
      * Shows the dialog allowing to configure visibility and order of the table columns.
      */
-    private final void configureColumnSettings()
+    private void configureColumnSettings()
     {
         assert grid != null && grid.getColumnModel() != null : "Grid must be loaded";
 
@@ -1196,7 +1197,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return list;
     }
 
-    private final static ContentPanel createEmptyContentPanel()
+    private static ContentPanel createEmptyContentPanel()
     {
         final ContentPanel contentPanel = new ContentPanel();
         contentPanel.setBorders(false);
@@ -1239,7 +1240,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
     }
 
-    private static final <T extends ModelData> Grid<T> createGrid(
+    private static <T extends ModelData> Grid<T> createGrid(
             PagingLoader<PagingLoadConfig> dataLoader, String gridId)
     {
         ListStore<T> listStore = new ListStore<T>(dataLoader);
@@ -1318,7 +1319,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     /** Creates deletion callback that refreshes the grid. */
-    protected AbstractAsyncCallback<Void> createDeletionCallback(IBrowserGridActionInvoker invoker)
+    protected final AbstractAsyncCallback<Void> createDeletionCallback(
+            IBrowserGridActionInvoker invoker)
     {
         return new DeletionCallback(viewContext, invoker);
     }
