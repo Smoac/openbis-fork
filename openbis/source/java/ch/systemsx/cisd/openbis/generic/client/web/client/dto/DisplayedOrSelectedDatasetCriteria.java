@@ -40,9 +40,10 @@ public final class DisplayedOrSelectedDatasetCriteria implements IsSerializable
     }
 
     public static DisplayedOrSelectedDatasetCriteria createSelectedItems(
-            List<String> selectedDatasetCodes)
+            List<ExternalData> selectedDatasets)
     {
-        return new DisplayedOrSelectedDatasetCriteria(null, selectedDatasetCodes);
+        return new DisplayedOrSelectedDatasetCriteria(null, ExternalData
+                .extractCodes(selectedDatasets));
     }
 
     private DisplayedOrSelectedDatasetCriteria(

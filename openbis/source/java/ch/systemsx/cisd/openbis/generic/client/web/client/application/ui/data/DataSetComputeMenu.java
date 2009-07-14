@@ -180,15 +180,7 @@ public class DataSetComputeMenu extends TextToolItem
     private static DisplayedOrSelectedDatasetCriteria createCriteria(
             SelectedAndDisplayedItems selectedAndDisplayedItems, boolean computeOnSelected)
     {
-        if (computeOnSelected)
-        {
-            return DisplayedOrSelectedDatasetCriteria
-                    .createSelectedItems(extractCodes(selectedAndDisplayedItems.getSelectedItems()));
-        } else
-        {
-            return DisplayedOrSelectedDatasetCriteria
-                    .createDisplayedItems(selectedAndDisplayedItems.getDisplayedItemsConfig());
-        }
+        return selectedAndDisplayedItems.createCriteria(computeOnSelected);
     }
 
     public final class ProcessingDisplayCallback extends AbstractAsyncCallback<Void>
@@ -232,16 +224,6 @@ public class DataSetComputeMenu extends TextToolItem
                 };
             DispatcherHelper.dispatchNaviEvent(tabFactory);
         }
-    }
-
-    private static List<String> extractCodes(List<ExternalData> selectedItems)
-    {
-        List<String> codes = new ArrayList<String>();
-        for (ExternalData dataset : selectedItems)
-        {
-            codes.add(dataset.getCode());
-        }
-        return codes;
     }
 
     private class ComputationData

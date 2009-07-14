@@ -1321,7 +1321,23 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public String uploadDataSets(List<String> dataSetCodes, DataSetUploadParameters uploadParameters)
+    public String uploadDataSets(
+            DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria,
+            DataSetUploadParameters uploadParameters)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            List<String> datasetCodes = extractDatasetCodes(displayedOrSelectedDatasetCriteria);
+            return uploadDataSets(datasetCodes, uploadParameters);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    private String uploadDataSets(List<String> dataSetCodes,
+            DataSetUploadParameters uploadParameters)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -1752,8 +1768,14 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     private List<String> extractDatasetCodes(
+            DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
+    {
+        return extractDatasetCodes(displayedOrSelectedDatasetCriteria, null);
+    }
+
+    private List<String> extractDatasetCodes(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria,
-            DatastoreServiceDescription serviceDescription)
+            DatastoreServiceDescription serviceDescriptionOrNull)
     {
         if (displayedOrSelectedDatasetCriteria.tryGetSelectedItems() != null)
         {
@@ -1763,26 +1785,41 @@ public final class CommonClientService extends AbstractClientService implements
             TableExportCriteria<ExternalData> displayedItemsCriteria =
                     displayedOrSelectedDatasetCriteria.tryGetDisplayedItems();
             assert displayedItemsCriteria != null : "displayedItemsCriteria is null";
-            final List<ExternalData> datasets = fetchCachedEntities(displayedItemsCriteria);
-            return filterDatasets(datasets, serviceDescription.getDatasetTypeCodes());
+            List<ExternalData> datasets = fetchCachedEntities(displayedItemsCriteria);
+            if (serviceDescriptionOrNull != null)
+            {
+                datasets = filterDatasets(datasets, serviceDescriptionOrNull.getDatasetTypeCodes());
+            }
+            return ExternalData.extractCodes(datasets);
         }
     }
 
-    // returns codes of those datasets which have type code belonging to the specified set
-    private static List<String> filterDatasets(List<ExternalData> datasets,
+    // returns datasets which have type code belonging to the specified set
+    private static List<ExternalData> filterDatasets(List<ExternalData> datasets,
             String[] datasetTypeCodes)
     {
         Set<String> datasetTypeCodesMap = new HashSet<String>(Arrays.asList(datasetTypeCodes));
-        List<String> datasetCodes = new ArrayList<String>();
+        List<ExternalData> result = new ArrayList<ExternalData>();
         for (ExternalData dataset : datasets)
         {
             if (datasetTypeCodesMap.contains(dataset.getDataSetType().getCode()))
             {
-                datasetCodes.add(dataset.getCode());
+                result.add(dataset);
             }
         }
-        return datasetCodes;
+        return result;
     }
+
+    //
+    // private static List<String> getDatasetCodes(List<ExternalData> datasets)
+    // {
+    // List<String> datasetCodes = new ArrayList<String>();
+    // for (ExternalData externalData : datasets)
+    // {
+    // datasetCodes.add(externalData.getCode());
+    // }
+    // return datasetCodes;
+    // }
 
     public void processDatasets(DatastoreServiceDescription serviceDescription,
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)

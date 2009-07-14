@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -53,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -170,19 +170,23 @@ public abstract class AbstractExternalDataGrid
             parameters.setComment(commentField.getValue());
             parameters.setUserID(userField.getValue());
             parameters.setPassword(passwordField.getValue());
-            viewContext.getCommonService().uploadDataSets(getDataSetCodes(data), parameters,
+
+            // TODO 2009-07-14, Piotr Buczek: get uploadSelected value from a radioButton
+            final boolean uploadSelected = true;
+            final SelectedAndDisplayedItems selectedAndDisplayedItems =
+                    getSelectedAndDisplayedItemsAction().execute();
+            final DisplayedOrSelectedDatasetCriteria uploadCriteria =
+                    createCriteria(selectedAndDisplayedItems, uploadSelected);
+
+            viewContext.getCommonService().uploadDataSets(uploadCriteria, parameters,
                     new UploadCallback(viewContext));
         }
-    }
 
-    private List<String> getDataSetCodes(List<ExternalData> dataSets)
-    {
-        List<String> dataSetCodes = new ArrayList<String>();
-        for (ExternalData externalData : dataSets)
+        private DisplayedOrSelectedDatasetCriteria createCriteria(
+                SelectedAndDisplayedItems selectedAndDisplayedItems, boolean uploadSelected)
         {
-            dataSetCodes.add(externalData.getCode());
+            return selectedAndDisplayedItems.createCriteria(uploadSelected);
         }
-        return dataSetCodes;
     }
 
     public static final String SHOW_DETAILS_BUTTON_ID_SUFFIX = "_show-details-button";
@@ -277,6 +281,18 @@ public abstract class AbstractExternalDataGrid
         public List<ExternalData> getSelectedItems()
         {
             return selectedItems;
+        }
+
+        public DisplayedOrSelectedDatasetCriteria createCriteria(boolean selected)
+        {
+            if (selected)
+            {
+                return DisplayedOrSelectedDatasetCriteria.createSelectedItems(getSelectedItems());
+            } else
+            {
+                return DisplayedOrSelectedDatasetCriteria
+                        .createDisplayedItems(getDisplayedItemsConfig());
+            }
         }
     }
 

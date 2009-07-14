@@ -515,8 +515,8 @@ public interface ICommonClientService extends IClientService
      * 
      * @return a message or an empty string.
      */
-    public String uploadDataSets(List<String> dataSetCodes, DataSetUploadParameters uploadParameters)
-            throws UserFailureException;
+    public String uploadDataSets(DisplayedOrSelectedDatasetCriteria criteria,
+            DataSetUploadParameters uploadParameters) throws UserFailureException;
 
     /**
      * Information about the time and kind of the last modification, separately for each kind of

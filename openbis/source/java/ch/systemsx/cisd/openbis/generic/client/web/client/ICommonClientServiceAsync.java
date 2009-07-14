@@ -440,9 +440,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#listDataSetTypes() */
     public void listDataSetTypes(AsyncCallback<List<DataSetType>> callback);
 
-    /** @see ICommonClientService#uploadDataSets(List, DataSetUploadParameters) */
-    public void uploadDataSets(List<String> dataSetCodes, DataSetUploadParameters uploadParameters,
-            AsyncCallback<String> callback);
+    /**
+     * @see ICommonClientService#uploadDataSets(DisplayedOrSelectedDatasetCriteria,
+     *      DataSetUploadParameters)
+     */
+    public void uploadDataSets(DisplayedOrSelectedDatasetCriteria criteria,
+            DataSetUploadParameters uploadParameters, AsyncCallback<String> callback);
 
     /** @see ICommonClientService#getLastModificationState() */
     public void getLastModificationState(AsyncCallback<LastModificationState> asyncCallback);

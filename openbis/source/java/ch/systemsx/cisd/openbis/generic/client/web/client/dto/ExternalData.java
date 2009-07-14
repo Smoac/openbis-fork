@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -347,5 +348,15 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     public String getSourceType()
     {
         return SourceType.create(isDerived()).name();
+    }
+
+    public static List<String> extractCodes(List<ExternalData> datasets)
+    {
+        List<String> codes = new ArrayList<String>();
+        for (ExternalData dataset : datasets)
+        {
+            codes.add(dataset.getCode());
+        }
+        return codes;
     }
 }
