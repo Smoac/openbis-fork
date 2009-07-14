@@ -386,7 +386,7 @@ public interface ICommonServer extends IServer
      * Adds new terms to a vocabulary.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleSet.POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
     public void addVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<String> vocabularyTerms);
@@ -648,7 +648,7 @@ public interface ICommonServer extends IServer
      * Returns unique code.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleSet.USER)
     public String generateCode(String sessionToken, String prefix);
 
     /**
