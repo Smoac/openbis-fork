@@ -1351,8 +1351,20 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             if (data.isEmpty() == false)
             {
                 IBrowserGridActionInvoker invoker = asActionInvoker();
-                createDialog(data, invoker).show();
+                if (validateSelectedData(data))
+                {
+                    createDialog(data, invoker).show();
+                }
             }
+        }
+
+        /**
+         * If specified data is valid returns true, otherwise returns false. Dialog will be shown
+         * only if this method returns true. Default implementation always returns true.
+         */
+        protected boolean validateSelectedData(List<T> data)
+        {
+            return true;
         }
 
         protected abstract Dialog createDialog(List<T> data, IBrowserGridActionInvoker invoker);

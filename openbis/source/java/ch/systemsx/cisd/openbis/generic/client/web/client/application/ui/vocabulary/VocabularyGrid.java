@@ -107,8 +107,8 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                             Vocabulary vocabulary = selectedItem.getBaseObject();
                             if (vocabulary.isManagedInternally())
                             {
-                                MessageBox.alert("Error",
-                                        "Internally managed vocabulary cannot be edited.", null);
+                                String errorMsg = "Internally managed vocabulary cannot be edited.";
+                                MessageBox.alert("Error", errorMsg, null);
                             } else
                             {
                                 createEditEntityDialog(vocabulary).show();
@@ -116,16 +116,32 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                         }
 
                     }));
-                    
+
         addButton(createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
                 new AbstractCreateDialogListener()
                     {
+
                         @Override
                         protected Dialog createDialog(List<Vocabulary> vocabularies,
                                 IBrowserGridActionInvoker invoker)
                         {
                             return new VocabularyListDeletionConfirmationDialog(viewContext,
                                     vocabularies, createDeletionCallback(invoker));
+                        }
+
+                        @Override
+                        protected boolean validateSelectedData(List<Vocabulary> data)
+                        {
+                            String errorMsg = "Internally managed vocabulary cannot be deleted.";
+                            for (Vocabulary vocabulary : data)
+                            {
+                                if (vocabulary.isManagedInternally())
+                                {
+                                    MessageBox.alert("Error", errorMsg, null);
+                                    return false;
+                                }
+                            }
+                            return true;
                         }
                     }));
         allowMultipleSelection(); // we allow deletion of multiple attachments
