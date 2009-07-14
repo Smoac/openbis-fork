@@ -206,7 +206,7 @@ public final class ExtendedProperties extends Properties
     }
 
     @Override
-    public final String toString()
+    public final synchronized String toString()
     {
         return StringUtils
                 .replace(super.toString(), PROPERTY_SEPARATOR, SystemUtils.LINE_SEPARATOR);
