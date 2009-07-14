@@ -89,29 +89,29 @@ public abstract class AbstractColumnDefinitionKind<T>
     {
         return headerMsgKey;
     }
-    
+
     public Comparable<?> getComparableValue(T entity)
     {
         String value = tryGetValue(entity);
         return value == null ? "" : value;
     }
 
-    protected String renderRegistrationDate(final AbstractRegistrationHolder entity)
+    protected final String renderRegistrationDate(final AbstractRegistrationHolder entity)
     {
         return SimpleDateRenderer.renderDate(entity.getRegistrationDate());
     }
 
-    protected String renderRegistrator(final AbstractRegistrationHolder entity)
+    protected final String renderRegistrator(final AbstractRegistrationHolder entity)
     {
         return renderRegistrator(entity.getRegistrator());
     }
 
-    protected String renderRegistrator(final Person person)
+    protected final String renderRegistrator(final Person person)
     {
         return SimplePersonRenderer.createPersonName(person).toString();
     }
 
-    protected String renderInvalidationFlag(final IInvalidationProvider invalidationProvider)
+    protected final String renderInvalidationFlag(final IInvalidationProvider invalidationProvider)
     {
         return SimpleYesNoRenderer.render(invalidationProvider.getInvalidation() != null);
     }
