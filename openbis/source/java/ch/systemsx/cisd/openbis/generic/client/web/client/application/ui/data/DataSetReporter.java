@@ -41,7 +41,7 @@ public class DataSetReporter
     {
         LayoutContainer panel = new LayoutContainer();
         panel.setScrollMode(Scroll.AUTO);
-        Html content = new Html(tableModel.getContent());
+        Html content = new Html("TODO");
         panel.add(content);
         return panel;
     }
