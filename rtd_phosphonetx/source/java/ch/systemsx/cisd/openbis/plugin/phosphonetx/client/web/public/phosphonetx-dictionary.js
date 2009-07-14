@@ -22,6 +22,7 @@ var phosphonetx = {
   data_set_perm_id: "Data Set",
   peptide_count: "Peptides",
   sequence_name: "Sequence",
+  false_discovery_rate_column: "FDR",
   
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
