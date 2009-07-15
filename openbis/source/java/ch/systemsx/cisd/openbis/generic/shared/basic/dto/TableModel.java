@@ -93,10 +93,14 @@ public class TableModel implements IsSerializable, Serializable
 
         private TableModelColumnType type;
 
-        public TableModelColumnHeader(String title, TableModelColumnType type)
+        // allows to fetch the value for this column from the row content
+        private int index;
+
+        public TableModelColumnHeader(String title, TableModelColumnType type, int index)
         {
             this.title = title;
             this.type = type;
+            this.index = index;
         }
 
         public String getTitle()
@@ -107,6 +111,11 @@ public class TableModel implements IsSerializable, Serializable
         public TableModelColumnType getType()
         {
             return type;
+        }
+
+        public int getIndex()
+        {
+            return index;
         }
 
         // GWT only
@@ -127,6 +136,13 @@ public class TableModel implements IsSerializable, Serializable
         private void setType(TableModelColumnType type)
         {
             this.type = type;
+        }
+
+        // GWT only
+        @SuppressWarnings("unused")
+        private void setIndex(int index)
+        {
+            this.index = index;
         }
     }
 }

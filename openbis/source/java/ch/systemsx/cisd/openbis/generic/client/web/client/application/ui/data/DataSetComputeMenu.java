@@ -29,10 +29,10 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionEvent;
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.ProgressBar;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Radio;
@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.Actio
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid.SelectedAndDisplayedItems;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
@@ -59,10 +60,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 
 /**
  * 'Compute' menu for Data Sets.
@@ -163,13 +164,34 @@ public class DataSetComputeMenu extends TextToolItem
                                         createCriteria(selectedAndDisplayedItems, computeOnSelected);
                                 if (pluginTaskKind == DataStoreServiceKind.QUERIES)
                                 {
+                                    Dialog progressBar = createAndShowProgressBar();
                                     viewContext.getService().createReportFromDatasets(service,
-                                            criteria, new ReportDisplayCallback(viewContext));
+                                            criteria,
+                                            new ReportDisplayCallback(viewContext, progressBar));
                                 } else
                                 {
                                     viewContext.getService().processDatasets(service, criteria,
                                             new ProcessingDisplayCallback(viewContext));
                                 }
+                            }
+
+                            private Dialog createAndShowProgressBar()
+                            {
+                                ProgressBar progressBar = new ProgressBar();
+                                progressBar.auto();
+
+                                Dialog dialog = new Dialog();
+                                String title = "Generating the report...";
+                                dialog.setTitle(title);
+
+                                dialog.add(progressBar);
+                                dialog.setButtons("");
+                                dialog.setAutoHeight(true);
+                                dialog.setClosable(false);
+                                dialog.addText(title);
+                                dialog.setResizable(false);
+                                dialog.show();
+                                return dialog;
                             }
                         };
                 }
@@ -197,29 +219,37 @@ public class DataSetComputeMenu extends TextToolItem
         }
     }
 
-    private static final class ReportDisplayCallback extends AbstractAsyncCallback<TableModel>
+    private static final class ReportDisplayCallback extends
+            AbstractAsyncCallback<TableModelReference>
     {
+        private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-        public ReportDisplayCallback(IViewContext<?> viewContext)
+        private final Dialog progressBar;
+
+        public ReportDisplayCallback(IViewContext<ICommonClientServiceAsync> viewContext,
+                Dialog progressBar)
         {
             super(viewContext);
+            this.viewContext = viewContext;
+            this.progressBar = progressBar;
         }
 
         @Override
-        protected void process(final TableModel tableModel)
+        protected void process(final TableModelReference tableModelReference)
         {
-            // TODO 2009-07-07, Tomasz Pylak: display a new tab with a grid
+            progressBar.close();
             final ITabItemFactory tabFactory = new ITabItemFactory()
                 {
                     public ITabItem create()
                     {
-                        Component component = DataSetReporter.create(tableModel);
-                        return DefaultTabItem.createUnaware("Data Store Report", component, false);
+                        IDisposableComponent component =
+                                DataSetReporterGrid.create(viewContext, tableModelReference);
+                        return DefaultTabItem.create("Data Store Report", component, viewContext);
                     }
 
                     public String getId()
                     {
-                        return DataSetReporter.createId();
+                        return DataSetReporterGrid.createId(tableModelReference.getResultSetKey());
                     }
                 };
             DispatcherHelper.dispatchNaviEvent(tabFactory);
@@ -446,13 +476,11 @@ public class DataSetComputeMenu extends TextToolItem
                             + "Unsupported Data Set types", dataSetTypes);
         }
 
-        private final String createDataSetTypeMsg(String singularMsgPrefix,
-                List<String> dataSetTypes)
+        private final String createDataSetTypeMsg(String msgPrefix, List<String> dataSetTypes)
         {
             StringBuilder sb = new StringBuilder();
-            sb.append(singularMsgPrefix);
-            sb.append(dataSetTypes.size() > 1 ? "s" : "");
-            sb.append(":");
+            sb.append(msgPrefix);
+            sb.append(": ");
             sb.append(StringUtils.joinList(dataSetTypes));
             return sb.toString();
         }

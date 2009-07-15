@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
@@ -65,7 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
@@ -588,8 +589,20 @@ public interface ICommonClientService extends IClientService
     /**
      * Uses the specified datastore service to generate reports from the specified datasets.
      */
-    public TableModel createReportFromDatasets(DatastoreServiceDescription serviceDescription,
+    public TableModelReference createReportFromDatasets(
+            DatastoreServiceDescription serviceDescription,
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria);
+
+    /**
+     * Returns a list of datasets report rows.
+     */
+    public ResultSet<TableModelRow> listDatasetReport(
+            DefaultResultSetConfig<String, TableModelRow> resultSetConfig);
+
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for TableModelRow.
+     */
+    public String prepareExportDatasetReport(TableExportCriteria<TableModelRow> exportCriteria);
 
     /**
      * Uses the specified datastore service to schedule processing of the specified datasets.

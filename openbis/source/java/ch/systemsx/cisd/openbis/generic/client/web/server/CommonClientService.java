@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService.IDataStoreBaseURLProvider;
@@ -120,6 +121,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
@@ -1777,7 +1779,8 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public TableModel createReportFromDatasets(DatastoreServiceDescription serviceDescription,
+    public TableModelReference createReportFromDatasets(
+            DatastoreServiceDescription serviceDescription,
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
     {
         try
@@ -1785,12 +1788,45 @@ public final class CommonClientService extends AbstractClientService implements
             final String sessionToken = getSessionToken();
             List<String> datasetCodes =
                     extractDatasetCodes(displayedOrSelectedDatasetCriteria, serviceDescription);
-            return commonServer.createReportFromDatasets(sessionToken, serviceDescription,
-                    datasetCodes);
+            final TableModel tableModel =
+                    commonServer.createReportFromDatasets(sessionToken, serviceDescription,
+                            datasetCodes);
+            String resultSetKey = saveInCache(tableModel.getRows());
+            return new TableModelReference(resultSetKey, tableModel.getHeader());
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
+    }
+
+    // Saves the specified rows in the cache.
+    // Returns a key in the cache where the data were saved.
+    private String saveInCache(final List<TableModelRow> tableModelRows)
+    {
+        DefaultResultSetConfig<String, TableModelRow> criteria =
+                new DefaultResultSetConfig<String, TableModelRow>();
+        criteria.setLimit(0); // we do not need any data now, just a key
+        ResultSet<TableModelRow> resultSet =
+                listEntities(criteria, new IOriginalDataProvider<TableModelRow>()
+                    {
+                        public List<TableModelRow> getOriginalData() throws UserFailureException
+                        {
+                            return tableModelRows;
+                        }
+                    });
+        return resultSet.getResultSetKey();
+    }
+
+    public ResultSet<TableModelRow> listDatasetReport(
+            DefaultResultSetConfig<String, TableModelRow> resultSetConfig)
+    {
+        IOriginalDataProvider<TableModelRow> dummyDataProvider = createDummyDataProvider();
+        return listEntities(resultSetConfig, dummyDataProvider);
+    }
+
+    public String prepareExportDatasetReport(TableExportCriteria<TableModelRow> criteria)
+    {
+        return prepareExportEntities(criteria);
     }
 
     private List<String> extractDatasetCodes(
@@ -1836,17 +1872,6 @@ public final class CommonClientService extends AbstractClientService implements
         return result;
     }
 
-    //
-    // private static List<String> getDatasetCodes(List<ExternalData> datasets)
-    // {
-    // List<String> datasetCodes = new ArrayList<String>();
-    // for (ExternalData externalData : datasets)
-    // {
-    // datasetCodes.add(externalData.getCode());
-    // }
-    // return datasetCodes;
-    // }
-
     public void processDatasets(DatastoreServiceDescription serviceDescription,
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
     {
@@ -1861,5 +1886,4 @@ public final class CommonClientService extends AbstractClientService implements
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
-
 }

@@ -43,7 +43,7 @@ public class TableModelBuilder
 
     public void addHeader(String title, TableModelColumnType type)
     {
-        header.add(new TableModelColumnHeader(title, type));
+        header.add(new TableModelColumnHeader(title, type, header.size()));
     }
 
     public void addRow(List<String> values)

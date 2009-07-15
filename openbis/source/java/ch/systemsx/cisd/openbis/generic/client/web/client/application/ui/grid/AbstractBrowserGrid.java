@@ -972,11 +972,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private IDataRefreshCallback createInternalPostRefreshCallback()
     {
+        final boolean originalRefreshEnabled = pagingToolbar.isDefaultRefreshButtonEnabled();
         return new IDataRefreshCallback()
             {
                 public void postRefresh(boolean wasSuccessful)
                 {
-                    pagingToolbar.updateDefaultRefreshButton(true);
+                    pagingToolbar.updateDefaultRefreshButton(originalRefreshEnabled);
                     if (wasSuccessful)
                     {
                         pagingToolbar.updateDefaultConfigButton(true);

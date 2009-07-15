@@ -85,6 +85,11 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
         add(new LabelToolItem(messageProvider.getMessage(Dict.ENTITY_OPERATIONS)));
     }
 
+    public boolean isDefaultRefreshButtonEnabled()
+    {
+        return refreshButton.isEnabled();
+    }
+
     protected final void updateDefaultRefreshButton(boolean isEnabled)
     {
         updateRefreshButton(refreshButton, isEnabled, messageProvider);

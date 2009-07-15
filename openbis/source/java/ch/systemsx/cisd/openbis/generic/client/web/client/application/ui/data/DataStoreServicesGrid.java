@@ -22,6 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
+import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionEvent;
@@ -120,6 +121,7 @@ class DataStoreServicesGrid extends ContentPanel
                 new ListStore<PluginTaskDescriptionModel>();
         store.add(getPluginTaskModels(plugins));
         store.setSortField(ModelDataPropertyNames.LABEL);
+        store.setSortDir(SortDir.ASC);
 
         final ContentPanel cp = new ContentPanel();
 

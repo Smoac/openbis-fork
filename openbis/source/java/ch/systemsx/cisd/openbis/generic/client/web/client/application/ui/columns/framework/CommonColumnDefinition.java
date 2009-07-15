@@ -16,10 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework;
 
-
 /**
- * Definition of table columns for entities of type <code>T</code> together with the instructions
- * to render each column value.
+ * Definition of table columns for entities of type <code>T</code> together with the instructions to
+ * render each column value.
  * 
  * @author Tomasz Pylak
  * @author Franz-Josef Elmer

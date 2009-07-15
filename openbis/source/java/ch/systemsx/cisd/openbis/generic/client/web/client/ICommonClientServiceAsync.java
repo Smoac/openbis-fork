@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -66,7 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
@@ -515,7 +516,19 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void createReportFromDatasets(DatastoreServiceDescription serviceDescription,
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria,
-            AsyncCallback<TableModel> callback);
+            AsyncCallback<TableModelReference> callback);
+
+    /**
+     * @see ICommonClientService#listDatasetReport(DefaultResultSetConfig)
+     */
+    public void listDatasetReport(DefaultResultSetConfig<String, TableModelRow> resultSetConfig,
+            AsyncCallback<ResultSet<TableModelRow>> callback);
+
+    /**
+     * @see ICommonClientService#prepareExportDatasetReport(TableExportCriteria)
+     */
+    public void prepareExportDatasetReport(TableExportCriteria<TableModelRow> exportCriteria,
+            AsyncCallback<String> callback);
 
     /**
      * @see ICommonClientService#processDatasets(DatastoreServiceDescription,
