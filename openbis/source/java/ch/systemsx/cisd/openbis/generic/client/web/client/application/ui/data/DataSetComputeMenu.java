@@ -472,7 +472,8 @@ public class DataSetComputeMenu extends TextToolItem
                     }
                 });
             computeOnAllRadio = createRadio("all");
-            computeOnSelectedRadio = createRadio("selected");
+            computeOnSelectedRadio =
+                    createRadio("selected (" + data.getSelectedDataSets().size() + ")");
             result.add(computeOnSelectedRadio);
             result.add(computeOnAllRadio);
             result.setValue(computeOnSelectedRadio);

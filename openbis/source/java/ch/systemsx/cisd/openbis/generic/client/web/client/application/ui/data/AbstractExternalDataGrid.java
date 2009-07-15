@@ -19,10 +19,13 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 import java.util.List;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolItem;
@@ -106,16 +109,21 @@ public abstract class AbstractExternalDataGrid
 
         private TextField<String> userField;
 
+        private Radio uploadSelectedRadio;
+
+        private Radio uploadAllRadio;
+
         public UploadConfirmationDialog(List<ExternalData> dataSets)
         {
             super(viewContext, dataSets, viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_TITLE));
+
             setWidth(LABEL_WIDTH_IN_UPLOAD_DIALOG + FIELD_WIDTH_IN_UPLOAD_DIALOG + 50);
         }
 
         @Override
         protected String createMessage()
         {
-            return viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_MSG, data.size(), cifexURL);
+            return viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_MSG, cifexURL);
         }
 
         @Override
@@ -125,6 +133,8 @@ public abstract class AbstractExternalDataGrid
             formPanel.setFieldWidth(FIELD_WIDTH_IN_UPLOAD_DIALOG);
             formPanel.setBodyBorder(false);
             formPanel.setHeaderVisible(false);
+
+            formPanel.add(createDataSetsRadio());
 
             fileNameField = new TextField<String>();
             fileNameField.setFieldLabel(viewContext
@@ -161,6 +171,44 @@ public abstract class AbstractExternalDataGrid
             formPanel.add(passwordField);
         }
 
+        private final RadioGroup createDataSetsRadio()
+        {
+            final RadioGroup result = new RadioGroup();
+            result.setFieldLabel("Data Sets");
+            result.setSelectionRequired(true);
+            result.setOrientation(Orientation.HORIZONTAL);
+            int selectedSize = data.size();
+            uploadSelectedRadio = createRadio("selected (" + data.size() + ")");
+            uploadAllRadio = createRadio("all");
+            if (selectedSize > 0)
+            {
+                result.add(uploadSelectedRadio);
+            }
+            result.add(uploadAllRadio);
+            result.setValue(selectedSize > 0 ? uploadSelectedRadio : uploadAllRadio);
+            result.setAutoHeight(true);
+
+            return result;
+        }
+
+        private final Radio createRadio(final String label)
+        {
+            Radio result = new Radio();
+            result.setBoxLabel(label);
+            return result;
+        }
+
+        private boolean getUploadSelected()
+        {
+            if (uploadSelectedRadio == null)
+            {
+                return false;
+            } else
+            {
+                return uploadSelectedRadio.getValue();
+            }
+        }
+
         @Override
         protected void executeConfirmedAction()
         {
@@ -171,8 +219,7 @@ public abstract class AbstractExternalDataGrid
             parameters.setUserID(userField.getValue());
             parameters.setPassword(passwordField.getValue());
 
-            // TODO 2009-07-14, Piotr Buczek: get uploadSelected value from a radioButton
-            final boolean uploadSelected = true;
+            final boolean uploadSelected = getUploadSelected();
             final SelectedAndDisplayedItems selectedAndDisplayedItems =
                     getSelectedAndDisplayedItemsAction().execute();
             final DisplayedOrSelectedDatasetCriteria uploadCriteria =
@@ -212,6 +259,7 @@ public abstract class AbstractExternalDataGrid
                 browserId + SHOW_DETAILS_BUTTON_ID_SUFFIX, asShowEntityInvoker(false)));
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
                 asShowEntityInvoker(true)));
+
         addButton(createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
                 new AbstractCreateDialogListener()
                     {
@@ -223,16 +271,18 @@ public abstract class AbstractExternalDataGrid
                                     createDeletionCallback(invoker));
                         }
                     }));
-        addButton(createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_UPLOAD_DATASETS),
-                new AbstractCreateDialogListener()
-                    {
-                        @Override
-                        protected Dialog createDialog(List<ExternalData> dataSets,
-                                IBrowserGridActionInvoker invoker)
-                        {
-                            return new UploadConfirmationDialog(dataSets);
-                        }
-                    }));
+        Button uploadButton =
+                new Button(viewContext.getMessage(Dict.BUTTON_UPLOAD_DATASETS),
+                        new AbstractCreateDialogListener()
+                            {
+                                @Override
+                                protected Dialog createDialog(List<ExternalData> dataSets,
+                                        IBrowserGridActionInvoker invoker)
+                                {
+                                    return new UploadConfirmationDialog(dataSets);
+                                }
+                            });
+        addButton(uploadButton);
         pagingToolbar.add(createComputeMenu());
         addEntityOperationsSeparator();
         allowMultipleSelection();
