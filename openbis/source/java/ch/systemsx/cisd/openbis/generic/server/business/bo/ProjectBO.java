@@ -259,6 +259,10 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         loadDataByTechId(projectId);
         try
         {
+            // Experiments need to be initialized because Hibernate Search updates index after
+            // deletion and LazyInitializationException occurs if this collection is not
+            // initialized.
+            HibernateUtils.initialize(project.getExperiments());
             getProjectDAO().delete(project);
             getEventDAO().persist(createDeletionEvent(project, session.tryGetPerson(), reason));
         } catch (final DataAccessException ex)
