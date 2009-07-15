@@ -39,7 +39,6 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.AnnotatedProtein;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.DataSet;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Database;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Experiment;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ModificationType;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Parameter;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Peptide;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.PeptideModification;
@@ -60,7 +59,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.MockDataSet;
 
 /**
  * 
@@ -69,6 +67,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.MockDataSet;
  */
 public class ResultDataSetUploaderTest extends AssertJUnit
 {
+    private static final long MOD_PEPTIDE_ID = 101L;
     private static final long PEPTIDE_ID = 99L;
     private static final long CELL_LYSATE_ID1 = 88L;
     private static final String CELL_LYSATE1 = "cell_lysate1";
@@ -93,7 +92,6 @@ public class ResultDataSetUploaderTest extends AssertJUnit
     private static final String SAMPLE_PERM_ID = "s1234";
     private static final String DB_INSTANCE = "DB";
     private static final String GROUP_CODE = "G1";
-    private static final long MODIFICATION_TYPE_ID = 1L;
     
     private Mockery context;
     private Connection connection;
@@ -108,19 +106,6 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         connection = context.mock(Connection.class);
         dao = context.mock(IProtDAO.class);
         service = context.mock(IEncapsulatedOpenBISService.class);
-        context.checking(new Expectations()
-            {
-                {
-                    one(dao).listModificationTypes();
-                    MockDataSet<ModificationType> types = new MockDataSet<ModificationType>();
-                    ModificationType modificationType = new ModificationType();
-                    modificationType.setId(MODIFICATION_TYPE_ID);
-                    modificationType.setMass(0);
-                    modificationType.setMassTolerance(1e5);
-                    types.add(modificationType);
-                    will(returnValue(types));
-                }
-            });
         
         uploader = new ResultDataSetUploader(dao, connection, service);
     }
@@ -189,7 +174,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         prepareForCommit();
         
         ProteinSummary summary = createProteinSummary();
-        summary.getProteinGroups().add(createProteinGroup(1.0));
+        summary.getProteinGroups().add(createProteinGroup());
         uploader.upload(createDataSetInfo(), summary);
         
         context.assertIsSatisfied();
@@ -208,9 +193,9 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         prepareForCommit();
         
         ProteinSummary summary = createProteinSummary();
-        Protein p1 = createProtein(a1, a2);
+        Protein p1 = createProtein(probability, a1, a2);
         p1.setPeptides(Collections.<Peptide>emptyList());
-        summary.getProteinGroups().add(createProteinGroup(probability, p1, new Protein()));
+        summary.getProteinGroups().add(createProteinGroup(p1, new Protein()));
         
         uploader.upload(createDataSetInfo(), summary);
         
@@ -226,7 +211,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         prepareForCreatingProtein(probability);
         ProteinAnnotation a1 = createAnnotation(UNIPROT_ID1, PROTEIN_NAME1, SEQUENCE1);
         prepareForCreatingIdentifiedProtein(a1, false);
-        Protein p1 = createProtein(a1);
+        Protein p1 = createProtein(probability, a1);
         p1.setName(PROTEIN_NAME1);
         p1.getParameters().add(createAbundance(CELL_LYSATE1, 2.5));
         p1.getParameters().add(new Parameter());
@@ -252,10 +237,10 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         p1.setPeptides(Collections.<Peptide> emptyList());
         
         prepareForCreatingProtein(probability);
-        summary.getProteinGroups().add(createProteinGroup(probability, p1));
+        summary.getProteinGroups().add(createProteinGroup(p1));
         ProteinAnnotation a2 = createAnnotation(UNIPROT_ID2, PROTEIN_NAME2, SEQUENCE2);
         prepareForCreatingIdentifiedProtein(a2, false);
-        Protein p2 = createProtein(a2);
+        Protein p2 = createProtein(probability, a2);
         p2.setName(PROTEIN_NAME1);
         p2.getParameters().add(createAbundance(CELL_LYSATE1, 42.5));
         context.checking(new Expectations()
@@ -265,7 +250,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
             }
         });
         p2.setPeptides(Collections.<Peptide> emptyList());
-        summary.getProteinGroups().add(createProteinGroup(probability, p2));
+        summary.getProteinGroups().add(createProteinGroup(p2));
         prepareForCommit();
 
         uploader.upload(createDataSetInfo(), summary);
@@ -280,7 +265,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         double probability = 0.75;
         prepareForCreatingProtein(probability);
         ProteinSummary summary = createProteinSummary();
-        Protein p1 = createProtein();
+        Protein p1 = createProtein(probability);
         p1.setName(PROTEIN_NAME1);
         p1.getParameters().add(createAbundance(CELL_LYSATE1, 2.5));
         p1.getParameters().add(new Parameter());
@@ -288,14 +273,14 @@ public class ResultDataSetUploaderTest extends AssertJUnit
             new SampleIdentifier(new GroupIdentifier(DB_INSTANCE, GROUP_CODE), CELL_LYSATE1
                     .toUpperCase());
         context.checking(new Expectations()
-        {
             {
-                one(service).tryGetSampleWithExperiment(sampleIdentifier);
-                will(returnValue(null));
-            }
-        });
+                {
+                    one(service).tryGetSampleWithExperiment(sampleIdentifier);
+                    will(returnValue(null));
+                }
+            });
         p1.setPeptides(Collections.<Peptide> emptyList());
-        summary.getProteinGroups().add(createProteinGroup(probability, p1));
+        summary.getProteinGroups().add(createProteinGroup(p1));
         prepareForRollback();
         
         try
@@ -323,12 +308,12 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         prepareForCommit();
         
         ProteinSummary summary = createProteinSummary();
-        Protein p1 = createProtein(a1);
+        Protein p1 = createProtein(probability, a1);
         final Peptide peptide = new Peptide();
         peptide.setSequence("abcd");
         peptide.setCharge(3);
         p1.setPeptides(Arrays.asList(peptide));
-        summary.getProteinGroups().add(createProteinGroup(probability, p1));
+        summary.getProteinGroups().add(createProteinGroup(p1));
         context.checking(new Expectations()
             {
                 {
@@ -353,26 +338,31 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         prepareForCommit();
 
         ProteinSummary summary = createProteinSummary();
-        Protein p1 = createProtein(a1);
+        Protein p1 = createProtein(probability, a1);
         final Peptide peptide = new Peptide();
         peptide.setSequence("abcd");
         peptide.setCharge(3);
-        PeptideModification peptideModification = new PeptideModification();
+        final PeptideModification modification = new PeptideModification();
+        modification.setNTermMass(42);
+        modification.setCTermMass(4711);
         final AminoAcidMass mass = new AminoAcidMass();
         mass.setMass(123);
         mass.setPosition(1);
-        peptideModification.setAminoAcidMasses(Arrays.asList(mass));
-        peptide.getModifications().add(peptideModification);
+        modification.setAminoAcidMasses(Arrays.asList(mass));
+        peptide.getModifications().add(modification);
         p1.setPeptides(Arrays.asList(peptide));
-        summary.getProteinGroups().add(createProteinGroup(probability, p1));
+        summary.getProteinGroups().add(createProteinGroup(p1));
         context.checking(new Expectations()
             {
                 {
                     one(dao).createPeptide(PROTEIN1_ID, peptide.getSequence(), peptide.getCharge());
                     will(returnValue(PEPTIDE_ID));
                     
-                    one(dao).createModification(PEPTIDE_ID, MODIFICATION_TYPE_ID,
-                            mass.getPosition(), mass.getMass());
+                    one(dao).createModifiedPeptide(PEPTIDE_ID, modification.getNTermMass(),
+                            modification.getCTermMass());
+                    will(returnValue(MOD_PEPTIDE_ID));
+                    
+                    one(dao).createModification(MOD_PEPTIDE_ID, mass.getPosition(), mass.getMass());
                 }
             });
 
@@ -390,9 +380,10 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         return parameter;
     }
     
-    private Protein createProtein(ProteinAnnotation... annotations)
+    private Protein createProtein(double probability, ProteinAnnotation... annotations)
     {
         Protein protein = new Protein();
+        protein.setProbability(probability);
         if (annotations.length > 0)
         {
             protein.setAnnotation(annotations[0]);
@@ -419,10 +410,9 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         return proteinAnnotation;
     }
 
-    private ProteinGroup createProteinGroup(double probability, Protein... proteins)
+    private ProteinGroup createProteinGroup(Protein... proteins)
     {
         ProteinGroup proteinGroup = new ProteinGroup();
-        proteinGroup.setProbability(probability);
         proteinGroup.setProteins(Arrays.asList(proteins));
         return proteinGroup;
     }

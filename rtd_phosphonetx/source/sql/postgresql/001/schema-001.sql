@@ -5,8 +5,8 @@
 /* Project name:                                                          */
 /* Author:                                                                */
 /* Script type:           Database creation script                        */
-/* Created on:            2009-07-07 08:01                                */
-/* Model version:         Version 2009-07-07                              */
+/* Created on:            2009-07-15 15:53                                */
+/* Model version:         Version 2009-07-15 1                            */
 /* ---------------------------------------------------------------------- */
 
 
@@ -73,30 +73,10 @@ CREATE INDEX IX_FK_DATA_SETS_SAMPLES ON DATA_SETS (SAMP_ID);
 
 CREATE TABLE MODIFICATIONS (
     ID BIGSERIAL  NOT NULL,
-    PEPT_ID TECH_ID  NOT NULL,
-    MOTY_ID TECH_ID  NOT NULL,
+    MOPE_ID TECH_ID  NOT NULL,
     POS INTEGER_NUMBER  NOT NULL,
     MASS REAL_NUMBER  NOT NULL,
     CONSTRAINT PK_MODIFICATIONS PRIMARY KEY (ID)
-);
-
-CREATE INDEX IX_FK_MODIFICATIONS_PEPTIDES ON MODIFICATIONS (PEPT_ID);
-
-CREATE INDEX IX_FK_MODIFICATIONS_MODIFICATION_TYPES ON MODIFICATIONS (MOTY_ID);
-
-/* ---------------------------------------------------------------------- */
-/* Add table "MODIFICATION_TYPES"                                         */
-/* ---------------------------------------------------------------------- */
-
-CREATE TABLE MODIFICATION_TYPES (
-    ID BIGSERIAL  NOT NULL,
-    CODE CODE  NOT NULL,
-    DESCRIPTION SHORT_DESCRIPTION,
-    AMINO_ACID CHARACTER(1),
-    MASS REAL_NUMBER,
-    MASS_TOLERANCE REAL_NUMBER,
-    CONSTRAINT PK_MODIFICATION_TYPES PRIMARY KEY (ID),
-    CONSTRAINT TUC_MODIFICATION_TYPES_1 UNIQUE (CODE)
 );
 
 /* ---------------------------------------------------------------------- */
@@ -212,6 +192,18 @@ CREATE TABLE DATABASES (
 );
 
 /* ---------------------------------------------------------------------- */
+/* Add table "MODIFIED_PEPTIDES"                                          */
+/* ---------------------------------------------------------------------- */
+
+CREATE TABLE MODIFIED_PEPTIDES (
+    ID BIGSERIAL  NOT NULL,
+    PEPT_ID TECH_ID  NOT NULL,
+    NTERM_MASS REAL_NUMBER  NOT NULL,
+    CTERM_MASS REAL_NUMBER  NOT NULL,
+    CONSTRAINT PK_MODIFIED_PEPTIDES PRIMARY KEY (ID)
+);
+
+/* ---------------------------------------------------------------------- */
 /* Foreign key constraints                                                */
 /* ---------------------------------------------------------------------- */
 
@@ -224,11 +216,8 @@ ALTER TABLE DATA_SETS ADD CONSTRAINT DA_SA_FK
 ALTER TABLE DATA_SETS ADD CONSTRAINT DATABASES_DATA_SETS 
     FOREIGN KEY (DB_ID) REFERENCES DATABASES (ID);
 
-ALTER TABLE MODIFICATIONS ADD CONSTRAINT MO_PE_FK 
-    FOREIGN KEY (PEPT_ID) REFERENCES PEPTIDES (ID);
-
-ALTER TABLE MODIFICATIONS ADD CONSTRAINT MO_MT_FK 
-    FOREIGN KEY (MOTY_ID) REFERENCES MODIFICATION_TYPES (ID);
+ALTER TABLE MODIFICATIONS ADD CONSTRAINT MODIFIED_PEPTIDES_MODIFICATIONS 
+    FOREIGN KEY (MOPE_ID) REFERENCES MODIFIED_PEPTIDES (ID);
 
 ALTER TABLE PEPTIDES ADD CONSTRAINT PE_PR_FK 
     FOREIGN KEY (PROT_ID) REFERENCES PROTEINS (ID);
@@ -256,3 +245,6 @@ ALTER TABLE ABUNDANCES ADD CONSTRAINT PROTEINS_ABUNDANCES
 
 ALTER TABLE PROBABILITY_FDR_MAPPINGS ADD CONSTRAINT DATA_SETS_PROBABILITY_FDR_MAPPINGS 
     FOREIGN KEY (DASE_ID) REFERENCES DATA_SETS (ID);
+
+ALTER TABLE MODIFIED_PEPTIDES ADD CONSTRAINT PEPTIDES_MODIFIED_PEPTIDES 
+    FOREIGN KEY (PEPT_ID) REFERENCES PEPTIDES (ID);

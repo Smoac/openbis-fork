@@ -156,26 +156,23 @@ class ResultDataSetUploader extends AbstractHandler
                 new GroupIdentifier(group.getDatabaseInstance().getCode(), group.getCode());
         AbundanceHandler abundanceHandler =
                 new AbundanceHandler(openbisService, dao, groupIdentifier, experiment);
-        ModificationHandler modificationHandler = new ModificationHandler(dao);
         createProbabilityToFDRMapping(dataSetID, summary);
         List<ProteinGroup> proteinGroups = summary.getProteinGroups();
         for (ProteinGroup proteinGroup : proteinGroups)
         {
-            double probability = proteinGroup.getProbability();
             List<Protein> proteins = proteinGroup.getProteins();
             if (proteins.isEmpty() == false)
             {
                 // Only the first protein of a ProteinGroup is valid
-                addProtein(proteins.get(0), probability, dataSetID, databaseID, abundanceHandler,
-                        modificationHandler);
+                addProtein(proteins.get(0), dataSetID, databaseID, abundanceHandler);
             }
         }
     }
 
-    private void addProtein(Protein protein, double probability, long dataSetID, Long databaseID,
-            AbundanceHandler abundanceHandler, ModificationHandler modificationHandler)
+    private void addProtein(Protein protein, long dataSetID, Long databaseID,
+            AbundanceHandler abundanceHandler)
     {
-        long proteinID = dao.createProtein(dataSetID, probability);
+        long proteinID = dao.createProtein(dataSetID, protein.getProbability());
         for (Parameter parameter : protein.getParameters())
         {
             if (PARAMETER_TYPE_ABUNDANCE.equals(parameter.getType()))
@@ -197,15 +194,20 @@ class ResultDataSetUploader extends AbstractHandler
             List<PeptideModification> modifications = peptide.getModifications();
             for (PeptideModification modification : modifications)
             {
+                double ntermMass = modification.getNTermMass();
+                double ctermMass = modification.getCTermMass();
+                long modPeptideID = dao.createModifiedPeptide(peptideID, ntermMass, ctermMass);
                 List<AminoAcidMass> aminoAcidMasses = modification.getAminoAcidMasses();
                 for (AminoAcidMass aminoAcidMass : aminoAcidMasses)
                 {
-                    modificationHandler.createModification(peptideID, peptideSequence, aminoAcidMass);
+                    double mass = aminoAcidMass.getMass();
+                    int position = aminoAcidMass.getPosition();
+                    dao.createModification(modPeptideID, position, mass);
                 }
             }
         }
     }
-
+    
     private void createIdentifiedProtein(long proteinID, Long databaseID,
             ProteinAnnotation annotation)
     {

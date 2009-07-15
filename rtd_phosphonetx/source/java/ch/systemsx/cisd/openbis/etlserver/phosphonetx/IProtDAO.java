@@ -17,13 +17,11 @@
 package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
 import net.lemnik.eodsql.BaseQuery;
-import net.lemnik.eodsql.DataSet;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.Update;
 
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Database;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Experiment;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ModificationType;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinReference;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sample;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sequence;
@@ -35,9 +33,6 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sequence;
  */
 public interface IProtDAO extends BaseQuery
 {
-    @Select(sql = "select * from modification_types", disconnected = true)
-    public DataSet<ModificationType> listModificationTypes();
-    
     @Select("select * from experiments where perm_id = ?{1}")
     public Experiment tryToGetExperimentByPermID(String permID);
     
@@ -74,9 +69,11 @@ public interface IProtDAO extends BaseQuery
     @Select("insert into peptides (prot_id, sequence, charge) values (?{1}, ?{2}, ?{3}) returning id")
     public long createPeptide(long proteinID, String sequence, int charge);
     
-    @Update("insert into modifications (pept_id, moty_id, pos, mass) values (?{1}, ?{2}, ?{3}, ?{4})")
-    public void createModification(long peptideID, long modificationTypeID, int position,
-            double mass);
+    @Select("insert into modified_peptides (pept_id, nterm_mass, cterm_mass) values (?{1}, ?{2}, ?{3}) returning id")
+    public long createModifiedPeptide(long peptideID, double nTermMass, double cTermMass);
+    
+    @Update("insert into modifications (mope_id, pos, mass) values (?{1}, ?{2}, ?{3})")
+    public void createModification(long modPeptideID, int position, double mass);
     
     @Select("select * from protein_references where uniprot_id = ?{1}")
     public ProteinReference tryToGetProteinReference(String uniprotID);

@@ -34,8 +34,8 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.Constants;
 public class PeptideModification
 {
     private String modifiedPeptide;
-    private String nTermMass;
-    private String cTermMass;
+    private double nTermMass;
+    private double cTermMass;
     private List<AminoAcidMass> aminoAcidMasses;
 
     @XmlAttribute(name = "modified_peptide")
@@ -50,23 +50,23 @@ public class PeptideModification
     }
 
     @XmlAttribute(name = "mod_nterm_mass")
-    public final String getNTermMass()
+    public final double getNTermMass()
     {
         return nTermMass;
     }
 
-    public final void setNTermMass(String termMass)
+    public final void setNTermMass(double termMass)
     {
         nTermMass = termMass;
     }
 
     @XmlAttribute(name = "mod_cterm_mass")
-    public final String getCTermMass()
+    public final double getCTermMass()
     {
         return cTermMass;
     }
 
-    public final void setCTermMass(String termMass)
+    public final void setCTermMass(double termMass)
     {
         cTermMass = termMass;
     }

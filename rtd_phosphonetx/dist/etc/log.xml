@@ -57,8 +57,8 @@
 
         <param name="BufferSize" value="512" />
         <param name="SMTPHost" value="localhost" />
-        <param name="From" value="dmc@localhost" />
-        <param name="To" value="root@localhost" />
+        <param name="From" value="phosphonetx@localhost" />
+        <param name="To" value="lars@imsb.biol.ethz.ch" />
         <param name="Subject" value="ATTENTION: openBIS Server" />
         <param name="EvaluatorClass"
             value="ch.systemsx.cisd.common.logging.AlwaysTrueTriggeringEventEvaluator" />
