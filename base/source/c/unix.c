@@ -28,6 +28,14 @@
 #define SYMLINK 2
 #define OTHER 3
 
+#ifndef __STAT
+#define __STAT stat
+#endif
+
+#ifndef __LSTAT
+#define __LSTAT lstat
+#endif
+
 /* Global references. */
 jclass stringClass;
 jclass passwordClass;
@@ -126,12 +134,12 @@ JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_base_unix_Unix_symlink
 }
 
 /* Function pointer for stat function calls. */
-typedef int (*stat_func_ptr)(const char *path, struct stat *buf);
+typedef int (*stat_func_ptr)(const char *path, struct __STAT *buf);
 
 jobject call_stat(JNIEnv *env, jclass clss, jstring filename, stat_func_ptr statf)
 {
     const char* pfilename;
-    struct stat s;
+    struct __STAT s;
     jobject result;
     int retval;
     jbyte type;
@@ -167,12 +175,12 @@ jobject call_stat(JNIEnv *env, jclass clss, jstring filename, stat_func_ptr stat
 
 JNIEXPORT jobject JNICALL Java_ch_systemsx_cisd_base_unix_Unix_stat(JNIEnv *env, jclass clss, jstring filename)
 {
-    return call_stat(env, clss, filename, &stat);
+    return call_stat(env, clss, filename, &__STAT);
 }
 
 JNIEXPORT jobject JNICALL Java_ch_systemsx_cisd_base_unix_Unix_lstat(JNIEnv *env, jclass clss, jstring filename)
 {
-    return call_stat(env, clss, filename, &lstat);
+    return call_stat(env, clss, filename, &__LSTAT);
 }
 
 JNIEXPORT jstring JNICALL Java_ch_systemsx_cisd_base_unix_Unix_readlink(JNIEnv *env, jclass clss, jstring linkname, jint linkvallen)
