@@ -1,0 +1,582 @@
+/*
+ * Copyright 2009 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.testng.AssertJUnit;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.AminoAcidMass;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.AnnotatedProtein;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.DataSet;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Database;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Experiment;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ModificationType;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Parameter;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Peptide;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.PeptideModification;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProgramDetails;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Protein;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinAnnotation;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinGroup;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinProphetDetails;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinReference;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummary;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummaryDataFilter;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummaryHeader;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sample;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sequence;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.MockDataSet;
+
+/**
+ * 
+ *
+ * @author Franz-Josef Elmer
+ */
+public class ResultDataSetUploaderTest extends AssertJUnit
+{
+    private static final long PEPTIDE_ID = 99L;
+    private static final long CELL_LYSATE_ID1 = 88L;
+    private static final String CELL_LYSATE1 = "cell_lysate1";
+    private static final String CELL_LYSATE_PERM_ID1 = "c1";
+    private static final long SEQUENCE_ID = 77L;
+    private static final long PROTEIN_REFERENCE_ID = 66L;
+    private static final String UNIPROT_ID1 = "unipr1";
+    private static final String PROTEIN_NAME1 = "my protein";
+    private static final String SEQUENCE1 = "seq";
+    private static final String UNIPROT_ID2 = "unipr2";
+    private static final String PROTEIN_NAME2 = "my 2. protein";
+    private static final String SEQUENCE2 = "seqe";
+    private static final long PROTEIN1_ID = 55L;
+    private static final long DATA_SET_ID = 42L;
+    private static final String DATA_SET_CODE = "ds1";
+    private static final long DATABASE_ID = 33l;
+    private static final String NAME_AND_VERSION = "uniprot.HUMAN.v123.fasta";
+    private static final String REFERENCE_DATABASE = "/here/and/there/" + NAME_AND_VERSION;
+    private static final long EXPERIMENT_ID = 11l;
+    private static final String EXPERIMENT_PERM_ID = "e1234";
+    private static final long SAMPLE_ID = 22l;
+    private static final String SAMPLE_PERM_ID = "s1234";
+    private static final String DB_INSTANCE = "DB";
+    private static final String GROUP_CODE = "G1";
+    private static final long MODIFICATION_TYPE_ID = 1L;
+    
+    private Mockery context;
+    private Connection connection;
+    private IEncapsulatedOpenBISService service;
+    private IProtDAO dao;
+    private ResultDataSetUploader uploader;
+
+    @BeforeMethod
+    public void beforeMethod()
+    {
+        context = new Mockery();
+        connection = context.mock(Connection.class);
+        dao = context.mock(IProtDAO.class);
+        service = context.mock(IEncapsulatedOpenBISService.class);
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).listModificationTypes();
+                    MockDataSet<ModificationType> types = new MockDataSet<ModificationType>();
+                    ModificationType modificationType = new ModificationType();
+                    modificationType.setId(MODIFICATION_TYPE_ID);
+                    modificationType.setMass(0);
+                    modificationType.setMassTolerance(1e5);
+                    types.add(modificationType);
+                    will(returnValue(types));
+                }
+            });
+        
+        uploader = new ResultDataSetUploader(dao, connection, service);
+    }
+    
+    @AfterMethod
+    public void afterMethod()
+    {
+        // To following line of code should also be called at the end of each test method.
+        // Otherwise one do not known which test failed.
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testNoProteinsGetExperimentSampleDatabaseAndDataSet()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).tryToGetExperimentByPermID(EXPERIMENT_PERM_ID);
+                    Experiment experiment = new Experiment();
+                    experiment.setPermID(EXPERIMENT_PERM_ID);
+                    experiment.setId(EXPERIMENT_ID);
+                    will(returnValue(experiment));
+
+                    one(dao).tryToGetSampleByPermID(SAMPLE_PERM_ID);
+                    Sample sample = new Sample();
+                    sample.setPermID(SAMPLE_PERM_ID);
+                    sample.setId(SAMPLE_ID);
+                    will(returnValue(sample));
+
+                    one(dao).tryToGetDatabaseByName(NAME_AND_VERSION);
+                    Database database = new Database();
+                    database.setNameAndVersion(NAME_AND_VERSION);
+                    database.setId(DATABASE_ID);
+                    will(returnValue(database));
+
+                    one(dao).tryToGetDataSetByPermID(DATA_SET_CODE);
+                    DataSet dataSet = new DataSet();
+                    dataSet.setId(DATA_SET_ID);
+                    dataSet.setDatabaseID(DATABASE_ID);
+                    will(returnValue(dataSet));
+                }
+            });
+        prepareForCommit();
+        
+        uploader.upload(createDataSetInfo(), createProteinSummary());
+        
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testNoProteinsCreateExperimentSampleDatabaseAndDataSet()
+    {
+        prepareForCreatingExperimentSampleDatabaseAndDataSet();
+        prepareForCommit();
+        
+        uploader.upload(createDataSetInfo(), createProteinSummary());
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testEmptyProteinGroup()
+    {
+        prepareForCreatingExperimentSampleDatabaseAndDataSet();
+        prepareForCommit();
+        
+        ProteinSummary summary = createProteinSummary();
+        summary.getProteinGroups().add(createProteinGroup(1.0));
+        uploader.upload(createDataSetInfo(), summary);
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testProteinGroupWithTwoProteins()
+    {
+        prepareForCreatingExperimentSampleDatabaseAndDataSet();
+        double probability = 1.0;
+        prepareForCreatingProtein(probability);
+        ProteinAnnotation a1 = createAnnotation(UNIPROT_ID1, PROTEIN_NAME1, SEQUENCE1);
+        prepareForCreatingIdentifiedProtein(a1, false);
+        ProteinAnnotation a2 = createAnnotation(UNIPROT_ID2, PROTEIN_NAME2, SEQUENCE2);
+        prepareForCreatingIdentifiedProtein(a2, true);
+        prepareForCommit();
+        
+        ProteinSummary summary = createProteinSummary();
+        Protein p1 = createProtein(a1, a2);
+        p1.setPeptides(Collections.<Peptide>emptyList());
+        summary.getProteinGroups().add(createProteinGroup(probability, p1, new Protein()));
+        
+        uploader.upload(createDataSetInfo(), summary);
+        
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testAbundancesForSameSampleInTwoDifferentProteins()
+    {
+        prepareForCreatingExperimentSampleDatabaseAndDataSet();
+        double probability = 0.75;
+        ProteinSummary summary = createProteinSummary();
+        prepareForCreatingProtein(probability);
+        ProteinAnnotation a1 = createAnnotation(UNIPROT_ID1, PROTEIN_NAME1, SEQUENCE1);
+        prepareForCreatingIdentifiedProtein(a1, false);
+        Protein p1 = createProtein(a1);
+        p1.setName(PROTEIN_NAME1);
+        p1.getParameters().add(createAbundance(CELL_LYSATE1, 2.5));
+        p1.getParameters().add(new Parameter());
+        final SampleIdentifier sampleIdentifier =
+                new SampleIdentifier(new GroupIdentifier(DB_INSTANCE, GROUP_CODE), CELL_LYSATE1
+                        .toUpperCase());
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).tryGetSampleWithExperiment(sampleIdentifier);
+                    SamplePE samplePE = new SamplePE();
+                    samplePE.setPermId(CELL_LYSATE_PERM_ID1);
+                    will(returnValue(samplePE));
+
+                    one(dao).tryToGetSampleByPermID(CELL_LYSATE_PERM_ID1);
+                    will(returnValue(null));
+                    one(dao).createSample(EXPERIMENT_ID, CELL_LYSATE_PERM_ID1);
+                    will(returnValue(CELL_LYSATE_ID1));
+                    
+                    one(dao).createAbundance(PROTEIN1_ID, CELL_LYSATE_ID1, 2.5);
+                }
+            });
+        p1.setPeptides(Collections.<Peptide> emptyList());
+        
+        prepareForCreatingProtein(probability);
+        summary.getProteinGroups().add(createProteinGroup(probability, p1));
+        ProteinAnnotation a2 = createAnnotation(UNIPROT_ID2, PROTEIN_NAME2, SEQUENCE2);
+        prepareForCreatingIdentifiedProtein(a2, false);
+        Protein p2 = createProtein(a2);
+        p2.setName(PROTEIN_NAME1);
+        p2.getParameters().add(createAbundance(CELL_LYSATE1, 42.5));
+        context.checking(new Expectations()
+        {
+            {
+                one(dao).createAbundance(PROTEIN1_ID, CELL_LYSATE_ID1, 42.5);
+            }
+        });
+        p2.setPeptides(Collections.<Peptide> emptyList());
+        summary.getProteinGroups().add(createProteinGroup(probability, p2));
+        prepareForCommit();
+
+        uploader.upload(createDataSetInfo(), summary);
+
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testAbundancesForNonExistingSample()
+    {
+        prepareForCreatingExperimentSampleDatabaseAndDataSet();
+        double probability = 0.75;
+        prepareForCreatingProtein(probability);
+        ProteinSummary summary = createProteinSummary();
+        Protein p1 = createProtein();
+        p1.setName(PROTEIN_NAME1);
+        p1.getParameters().add(createAbundance(CELL_LYSATE1, 2.5));
+        p1.getParameters().add(new Parameter());
+        final SampleIdentifier sampleIdentifier =
+            new SampleIdentifier(new GroupIdentifier(DB_INSTANCE, GROUP_CODE), CELL_LYSATE1
+                    .toUpperCase());
+        context.checking(new Expectations()
+        {
+            {
+                one(service).tryGetSampleWithExperiment(sampleIdentifier);
+                will(returnValue(null));
+            }
+        });
+        p1.setPeptides(Collections.<Peptide> emptyList());
+        summary.getProteinGroups().add(createProteinGroup(probability, p1));
+        prepareForRollback();
+        
+        try
+        {
+            uploader.upload(createDataSetInfo(), summary);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Protein '" + PROTEIN_NAME1
+                    + "' has an abundance value for a non-existing sample: " + sampleIdentifier, ex
+                    .getMessage());
+        }
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testProteinWithUnmodifiedPeptide()
+    {
+        prepareForCreatingExperimentSampleDatabaseAndDataSet();
+        double probability = 1.0;
+        prepareForCreatingProtein(probability);
+        ProteinAnnotation a1 = createAnnotation(UNIPROT_ID1, PROTEIN_NAME1, SEQUENCE1);
+        prepareForCreatingIdentifiedProtein(a1, false);
+        prepareForCommit();
+        
+        ProteinSummary summary = createProteinSummary();
+        Protein p1 = createProtein(a1);
+        final Peptide peptide = new Peptide();
+        peptide.setSequence("abcd");
+        peptide.setCharge(3);
+        p1.setPeptides(Arrays.asList(peptide));
+        summary.getProteinGroups().add(createProteinGroup(probability, p1));
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).createPeptide(PROTEIN1_ID, peptide.getSequence(), peptide.getCharge());
+                    will(returnValue(PEPTIDE_ID));
+                }
+            });
+        
+        uploader.upload(createDataSetInfo(), summary);
+        
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testProteinWithModifiedPeptide()
+    {
+        prepareForCreatingExperimentSampleDatabaseAndDataSet();
+        double probability = 1.0;
+        prepareForCreatingProtein(probability);
+        ProteinAnnotation a1 = createAnnotation(UNIPROT_ID1, PROTEIN_NAME1, SEQUENCE1);
+        prepareForCreatingIdentifiedProtein(a1, false);
+        prepareForCommit();
+
+        ProteinSummary summary = createProteinSummary();
+        Protein p1 = createProtein(a1);
+        final Peptide peptide = new Peptide();
+        peptide.setSequence("abcd");
+        peptide.setCharge(3);
+        PeptideModification peptideModification = new PeptideModification();
+        final AminoAcidMass mass = new AminoAcidMass();
+        mass.setMass(123);
+        mass.setPosition(1);
+        peptideModification.setAminoAcidMasses(Arrays.asList(mass));
+        peptide.getModifications().add(peptideModification);
+        p1.setPeptides(Arrays.asList(peptide));
+        summary.getProteinGroups().add(createProteinGroup(probability, p1));
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).createPeptide(PROTEIN1_ID, peptide.getSequence(), peptide.getCharge());
+                    will(returnValue(PEPTIDE_ID));
+                    
+                    one(dao).createModification(PEPTIDE_ID, MODIFICATION_TYPE_ID,
+                            mass.getPosition(), mass.getMass());
+                }
+            });
+
+        uploader.upload(createDataSetInfo(), summary);
+
+        context.assertIsSatisfied();
+    }
+    
+    private Parameter createAbundance(String sampleCode, double value)
+    {
+        Parameter parameter = new Parameter();
+        parameter.setName(sampleCode);
+        parameter.setValue(Double.toString(value));
+        parameter.setType(ResultDataSetUploader.PARAMETER_TYPE_ABUNDANCE);
+        return parameter;
+    }
+    
+    private Protein createProtein(ProteinAnnotation... annotations)
+    {
+        Protein protein = new Protein();
+        if (annotations.length > 0)
+        {
+            protein.setAnnotation(annotations[0]);
+        }
+        List<AnnotatedProtein> indistinguishableProteins = new ArrayList<AnnotatedProtein>();
+        for (int i = 1; i < annotations.length; i++)
+        {
+            AnnotatedProtein annotatedProtein = new AnnotatedProtein();
+            annotatedProtein.setAnnotation(annotations[i]);
+            indistinguishableProteins.add(annotatedProtein);
+        }
+        protein.setIndistinguishableProteins(indistinguishableProteins);
+        return protein;
+    }
+    
+    private ProteinAnnotation createAnnotation(String uniprotID, String description, String sequence)
+    {
+        ProteinAnnotation proteinAnnotation = new ProteinAnnotation();
+        proteinAnnotation.setDescription(uniprotID
+                + " "
+                + ProteinDescription.createKeyValuePair(ProteinDescription.DESCRIPTION_KEY,
+                        description) + " "
+                + ProteinDescription.createKeyValuePair(ProteinDescription.SEQUENCE_KEY, sequence));
+        return proteinAnnotation;
+    }
+
+    private ProteinGroup createProteinGroup(double probability, Protein... proteins)
+    {
+        ProteinGroup proteinGroup = new ProteinGroup();
+        proteinGroup.setProbability(probability);
+        proteinGroup.setProteins(Arrays.asList(proteins));
+        return proteinGroup;
+    }
+    
+    private void prepareForCreatingProtein(final double probability)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).createProtein(DATA_SET_ID, probability);
+                    will(returnValue(PROTEIN1_ID));
+                }
+            });
+    }
+    
+    private void prepareForCreatingIdentifiedProtein(ProteinAnnotation annotation,
+            final boolean referenceExist)
+    {
+        ProteinDescription proteinDescription = new ProteinDescription(annotation.getDescription());
+        final String uniprotID = proteinDescription.getUniprotID();
+        final String description = proteinDescription.getDescription();
+        final String sequence = proteinDescription.getSequence();
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).tryToGetProteinReference(uniprotID);
+                    if (referenceExist == false)
+                    {
+                        will(returnValue(null));
+                        
+                        one(dao).createProteinReference(uniprotID, description);
+                        will(returnValue(PROTEIN_REFERENCE_ID));
+                    } else
+                    {
+                        ProteinReference proteinReference = new ProteinReference();
+                        proteinReference.setId(PROTEIN_REFERENCE_ID);
+                        will(returnValue(proteinReference));
+                        
+                        one(dao).updateProteinReferenceDescription(PROTEIN_REFERENCE_ID, description);
+                    }
+                    
+                    one(dao).tryToGetSequenceByReferenceAndDatabase(PROTEIN_REFERENCE_ID, DATABASE_ID);
+                    Sequence seq = new Sequence(sequence);
+                    seq.setId(SEQUENCE_ID);
+                    if (referenceExist == false)
+                    {
+                        will(returnValue(null));
+
+                        seq.setDatabaseID(DATABASE_ID);
+                        seq.setProteinReferenceID(PROTEIN_REFERENCE_ID);
+                        one(dao).createSequence(seq);
+                        will(returnValue(SEQUENCE_ID));
+                    } else
+                    {
+                        will(returnValue(seq));
+                    }
+                    
+                    one(dao).createIdentifiedProtein(PROTEIN1_ID, SEQUENCE_ID);
+                }
+            });
+    }
+
+    private void prepareForCreatingExperimentSampleDatabaseAndDataSet()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).tryToGetExperimentByPermID(EXPERIMENT_PERM_ID);
+                    will(returnValue(null));
+                    one(dao).createExperiment(EXPERIMENT_PERM_ID);
+                    will(returnValue(EXPERIMENT_ID));
+
+                    one(dao).tryToGetSampleByPermID(SAMPLE_PERM_ID);
+                    will(returnValue(null));
+                    one(dao).createSample(EXPERIMENT_ID, SAMPLE_PERM_ID);
+                    will(returnValue(SAMPLE_ID));
+
+                    one(dao).tryToGetDatabaseByName(NAME_AND_VERSION);
+                    will(returnValue(null));
+                    one(dao).createDatabase(NAME_AND_VERSION);
+                    will(returnValue(DATABASE_ID));
+
+                    one(dao).tryToGetDataSetByPermID(DATA_SET_CODE);
+                    will(returnValue(null));
+                    one(dao).createDataSet(EXPERIMENT_ID, SAMPLE_ID, DATA_SET_CODE, DATABASE_ID);
+                    will(returnValue(DATA_SET_ID));
+                }
+            });
+    }
+
+    private void prepareForCommit()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    try
+                    {
+                        one(connection).commit();
+                    } catch (SQLException ex)
+                    {
+                        throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                    }
+                }
+            });
+    }
+    
+    private void prepareForRollback()
+    {
+        context.checking(new Expectations()
+        {
+            {
+                try
+                {
+                    one(connection).rollback();
+                } catch (SQLException ex)
+                {
+                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                }
+            }
+        });
+    }
+    
+    private DataSetInformation createDataSetInfo()
+    {
+        DataSetInformation info = new DataSetInformation();
+        info.setDataSetCode(DATA_SET_CODE);
+        SamplePE sample = new SamplePE();
+        sample.setPermId(SAMPLE_PERM_ID);
+        ExperimentPE experiment = new ExperimentPE();
+        experiment.setPermId(EXPERIMENT_PERM_ID);
+        sample.setExperiment(experiment);
+        GroupPE group = new GroupPE();
+        DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
+        databaseInstance.setCode(DB_INSTANCE);
+        group.setDatabaseInstance(databaseInstance);
+        group.setCode(GROUP_CODE);
+        sample.setGroup(group);
+        info.setSample(sample);
+        return info;
+    }
+    
+    private ProteinSummary createProteinSummary(ProteinSummaryDataFilter... dataFilters)
+    {
+        ProteinSummary proteinSummary = new ProteinSummary();
+        ProteinSummaryHeader proteinSummaryHeader = new ProteinSummaryHeader();
+        proteinSummaryHeader.setReferenceDatabase(REFERENCE_DATABASE);
+        ProgramDetails programDetails = new ProgramDetails();
+        ProteinProphetDetails proteinProphetDetails = new ProteinProphetDetails();
+        proteinProphetDetails.setDataFilters(Arrays.asList(dataFilters));
+        programDetails.setSummary(new Object[] {proteinProphetDetails});
+        proteinSummaryHeader.setProgramDetails(programDetails);
+        proteinSummary.setSummaryHeader(proteinSummaryHeader);
+        proteinSummary.setProteinGroups(new ArrayList<ProteinGroup>());
+        return proteinSummary;
+    }
+    
+}

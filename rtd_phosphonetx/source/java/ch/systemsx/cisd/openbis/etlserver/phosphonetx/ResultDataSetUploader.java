@@ -53,63 +53,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
  */
 class ResultDataSetUploader extends AbstractHandler
 {
-    private static final String PARAMETER_TYPE_ABUNDANCE = "abundance";
-    
-    private static final class ProteinDescription
-    {
-        private final String uniprotID;
-        private final String description;
-        private final String sequence;
-
-        public ProteinDescription(String proteinDescription)
-        {
-            String[] items = proteinDescription.split("\\\\");
-            uniprotID = tryToGetUniprotID(items);
-            description = tryToGetValue(items, "DE");
-            sequence = tryToGetValue(items, "SEQ");
-        }
-        
-        public final String getUniprotID()
-        {
-            return uniprotID;
-        }
-
-        public final String getDescription()
-        {
-            return description;
-        }
-
-        public final String getSequence()
-        {
-            return sequence;
-        }
-
-        private String tryToGetUniprotID(String[] items)
-        {
-            return items == null || items.length == 0 ? null : items[0].trim(); 
-        }
-        
-        private String tryToGetValue(String[] items, String key)
-        {
-            for (String item : items)
-            {
-                int indexOfEqualSign = item.indexOf('=');
-                if (indexOfEqualSign > 0
-                        && item.substring(0, indexOfEqualSign).trim().equalsIgnoreCase(key))
-                {
-                    return item.substring(indexOfEqualSign + 1).trim();
-                }
-            }
-            return null;
-        }
-    }
+    static final String PARAMETER_TYPE_ABUNDANCE = "abundance";
     
     private final Connection connection;
     private final IEncapsulatedOpenBISService openbisService;
     
     ResultDataSetUploader(Connection connection, IEncapsulatedOpenBISService openbisService)
     {
-        super(QueryTool.getQuery(connection, IProtDAO.class));
+        this(QueryTool.getQuery(connection, IProtDAO.class), connection, openbisService);
+    }
+    
+    ResultDataSetUploader(IProtDAO dao, Connection connection, IEncapsulatedOpenBISService openbisService)
+    {
+        super(dao);
         this.connection = connection;
         this.openbisService = openbisService;
     }
@@ -260,8 +216,6 @@ class ResultDataSetUploader extends AbstractHandler
         if (proteinReference == null)
         {
             proteinReference = new ProteinReference();
-            proteinReference.setUniprotID(uniprotID);
-            proteinReference.setDescription(description);
             proteinReference.setId(dao.createProteinReference(uniprotID, description));
         } else if (description.equals(proteinReference.getDescription()) == false)
         {

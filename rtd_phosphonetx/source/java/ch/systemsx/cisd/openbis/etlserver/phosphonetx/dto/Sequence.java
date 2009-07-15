@@ -97,9 +97,30 @@ public class Sequence extends AbstractDTOWithID
     }
 
     @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj instanceof Sequence == false)
+        {
+            return false;
+        }
+        return ((Sequence) obj).toString().equals(toString());
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return toString().hashCode();
+    }
+
+    @Override
     public String toString()
     {
-        return getId() + ":" + sequence + "[" + checksum + "]";
+        return getDatabaseID() + "-" + getProteinReferenceID() + ":" + sequence
+                + "[" + checksum + "]";
     }
     
     
