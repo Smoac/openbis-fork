@@ -174,29 +174,29 @@ public class DataSetComputeMenu extends TextToolItem
                                             new ProcessingDisplayCallback(viewContext));
                                 }
                             }
-
-                            private Dialog createAndShowProgressBar()
-                            {
-                                ProgressBar progressBar = new ProgressBar();
-                                progressBar.auto();
-
-                                Dialog dialog = new Dialog();
-                                String title = "Generating the report...";
-                                dialog.setTitle(title);
-
-                                dialog.add(progressBar);
-                                dialog.setButtons("");
-                                dialog.setAutoHeight(true);
-                                dialog.setClosable(false);
-                                dialog.addText(title);
-                                dialog.setResizable(false);
-                                dialog.show();
-                                return dialog;
-                            }
                         };
                 }
 
             };
+    }
+
+    private static Dialog createAndShowProgressBar()
+    {
+        ProgressBar progressBar = new ProgressBar();
+        progressBar.auto();
+
+        Dialog dialog = new Dialog();
+        String title = "Generating the report...";
+        dialog.setTitle(title);
+
+        dialog.add(progressBar);
+        dialog.setButtons("");
+        dialog.setAutoHeight(true);
+        dialog.setClosable(false);
+        dialog.addText(title);
+        dialog.setResizable(false);
+        dialog.show();
+        return dialog;
     }
 
     private static DisplayedOrSelectedDatasetCriteria createCriteria(
