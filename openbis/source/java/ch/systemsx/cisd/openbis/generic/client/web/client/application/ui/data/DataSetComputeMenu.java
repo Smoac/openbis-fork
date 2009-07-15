@@ -132,13 +132,12 @@ public class DataSetComputeMenu extends TextToolItem
     {
         return new IDelegatedAction()
             {
-
                 public void execute()
                 {
                     final SelectedAndDisplayedItems selectedAndDisplayedItems =
                             selectedDataSetsGetter.execute();
                     final IComputationAction computationAction =
-                            createComputationAction(selectedAndDisplayedItems);
+                            createComputationAction(selectedAndDisplayedItems, pluginTaskKind);
                     final ComputationData data =
                             new ComputationData(pluginTaskKind, computationAction,
                                     selectedAndDisplayedItems);
@@ -151,32 +150,30 @@ public class DataSetComputeMenu extends TextToolItem
                             "Perform " + pluginTaskKind.getDescription() + " Computation";
                     return new PerformComputationDialog(viewContext, data, title);
                 }
+            };
+    }
 
-                private IComputationAction createComputationAction(
-                        final SelectedAndDisplayedItems selectedAndDisplayedItems)
+    private IComputationAction createComputationAction(
+            final SelectedAndDisplayedItems selectedAndDisplayedItems,
+            final DataStoreServiceKind pluginTaskKind)
+    {
+        return new IComputationAction()
+            {
+                public void execute(DatastoreServiceDescription service, boolean computeOnSelected)
                 {
-                    return new IComputationAction()
-                        {
-                            public void execute(DatastoreServiceDescription service,
-                                    boolean computeOnSelected)
-                            {
-                                DisplayedOrSelectedDatasetCriteria criteria =
-                                        createCriteria(selectedAndDisplayedItems, computeOnSelected);
-                                if (pluginTaskKind == DataStoreServiceKind.QUERIES)
-                                {
-                                    Dialog progressBar = createAndShowProgressBar();
-                                    viewContext.getService().createReportFromDatasets(service,
-                                            criteria,
-                                            new ReportDisplayCallback(viewContext, progressBar));
-                                } else
-                                {
-                                    viewContext.getService().processDatasets(service, criteria,
-                                            new ProcessingDisplayCallback(viewContext));
-                                }
-                            }
-                        };
+                    DisplayedOrSelectedDatasetCriteria criteria =
+                            createCriteria(selectedAndDisplayedItems, computeOnSelected);
+                    if (pluginTaskKind == DataStoreServiceKind.QUERIES)
+                    {
+                        Dialog progressBar = createAndShowProgressBar();
+                        viewContext.getService().createReportFromDatasets(service, criteria,
+                                new ReportDisplayCallback(viewContext, progressBar));
+                    } else
+                    {
+                        viewContext.getService().processDatasets(service, criteria,
+                                new ProcessingDisplayCallback(viewContext));
+                    }
                 }
-
             };
     }
 
