@@ -23,9 +23,6 @@ import java.util.List;
 import java.util.Properties;
 
 import javax.sql.DataSource;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 
 import org.apache.log4j.Logger;
 
@@ -39,7 +36,6 @@ import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinProphetDetails;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummary;
 
 /**
@@ -72,7 +68,7 @@ public class ResultDataSetHandler implements IDataSetHandler
     }
     
     private final IDataSetHandler delegator;
-    private final Unmarshaller unmarshaller;
+    private final ProtXMLLoader loader;
     private final IEncapsulatedOpenBISService openbisService;
     private final DataSource dataSource;
 
@@ -84,21 +80,13 @@ public class ResultDataSetHandler implements IDataSetHandler
                         IDataSetHandler.DATASET_HANDLER_KEY + '.', true));
         this.delegator = delegator;
         this.openbisService = openbisService;
-        try
-        {
-            JAXBContext context =
-                    JAXBContext.newInstance(ProteinSummary.class, ProteinProphetDetails.class);
-            unmarshaller = context.createUnmarshaller();
-        } catch (JAXBException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
+        loader = new ProtXMLLoader();
     }
 
     public List<DataSetInformation> handleDataSet(File dataSet)
     {
         long time = System.currentTimeMillis();
-        ProteinSummary summary = readProtXML(dataSet);
+        ProteinSummary summary = loader.readProtXML(dataSet);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(summary.getProteinGroups().size()
@@ -145,21 +133,4 @@ public class ResultDataSetHandler implements IDataSetHandler
         return dataSets;
     }
     
-    private ProteinSummary readProtXML(File dataSet)
-    {
-        try
-        {
-            Object object = unmarshaller.unmarshal(dataSet);
-            if (object instanceof ProteinSummary == false)
-            {
-                throw new IllegalArgumentException("Wrong type: " + object);
-            }
-            ProteinSummary summary = (ProteinSummary) object;
-            return summary;
-        } catch (JAXBException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
-    }
-
 }
