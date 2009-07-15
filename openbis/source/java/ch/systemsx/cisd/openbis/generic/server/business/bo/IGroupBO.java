@@ -17,15 +17,16 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
- * Business object of a project. Holds an instance of {@link GroupPE}.
+ * Business object of a group. Holds an instance of {@link GroupPE}.
  * 
  * @author Christian Ribeaud
  */
-public interface IGroupBO extends IBusinessObject
+public interface IGroupBO extends IEntityBusinessObject
 {
 
     /**
@@ -35,8 +36,8 @@ public interface IGroupBO extends IBusinessObject
      * 
      * @throws UserFailureException if <code>group</code> does already exist.
      */
-    public void define(String groupCode, String descriptionOrNull,
-            String groupLeaderOrNull) throws UserFailureException;
+    public void define(String groupCode, String descriptionOrNull, String groupLeaderOrNull)
+            throws UserFailureException;
 
     /**
      * Loads a group described by identifier from Database Layer.
@@ -50,5 +51,13 @@ public interface IGroupBO extends IBusinessObject
      * Returns the group or null.
      */
     public GroupPE getGroup() throws UserFailureException;
+
+    /**
+     * Deletes group for specified reason.
+     * 
+     * @param groupId group technical identifier
+     * @throws UserFailureException if group with given technical identifier is not found.
+     */
+    public void deleteByTechId(TechId groupId, String reason);
 
 }

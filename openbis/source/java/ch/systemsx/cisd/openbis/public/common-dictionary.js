@@ -108,14 +108,6 @@ var common = {
   header_userWithHomegroup: "{0} ({1})",
   
   //
-  // Authorization Management Console
-  // 
-  
-  personsView_heading: "Persons",
-  groupsView_heading: "Groups",
-  rolesView_heading: "Roles",
-
-  //
   // Search
   //
   
@@ -296,10 +288,6 @@ var common = {
 
   change_user_home_group_dialog_title: "Change Home Group",  
   
-  //
-  // Group View
-  //
-  leader: "Head",
   
   //
   // Role View
@@ -339,6 +327,12 @@ var common = {
  delete_vocabulary_terms_confirmation_message_no_replacements: "Do you want to delete the {0} selected terms?",
  delete_vocabulary_terms_confirmation_message_for_replacements: "{0} terms will be deleted.\n\nThe terms below are used. They have to be replaced by one of the remaining terms.",
  
+ //
+ // Group Browser
+ //
+ group_browser: "Group Browser",
+ leader: "Head",
+
  //
  // Project Browser
  //

@@ -144,7 +144,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                             return true;
                         }
                     }));
-        allowMultipleSelection(); // we allow deletion of multiple attachments
+        allowMultipleSelection(); // we allow deletion of multiple vocabularies
 
         addEntityOperationsSeparator();
     }

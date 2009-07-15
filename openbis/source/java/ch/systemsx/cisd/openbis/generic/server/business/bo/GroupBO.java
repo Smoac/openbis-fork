@@ -17,14 +17,19 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataRetrievalFailureException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -101,5 +106,47 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
             throw new UserFailureException(String.format("Group '%s' does not exist.",
                     groupIdentifier));
         }
+    }
+
+    public void loadDataByTechId(TechId groupId)
+    {
+        try
+        {
+            group = getGroupDAO().getByTechId(groupId);
+        } catch (DataRetrievalFailureException exception)
+        {
+            throw new UserFailureException(exception.getMessage());
+        }
+    }
+
+    public void deleteByTechId(TechId groupId, String reason) throws UserFailureException
+    {
+        loadDataByTechId(groupId);
+        try
+        {
+            getGroupDAO().delete(group);
+            getEventDAO().persist(createDeletionEvent(group, session.tryGetPerson(), reason));
+        } catch (final DataAccessException ex)
+        {
+            throwException(ex, String.format("Group '%s'", group.getCode()));
+        }
+    }
+
+    public static EventPE createDeletionEvent(GroupPE group, PersonPE registrator, String reason)
+    {
+        EventPE event = new EventPE();
+        event.setEventType(EventType.DELETION);
+        event.setEntityType(EntityType.GROUP);
+        event.setIdentifier(group.getCode());
+        event.setDescription(getDeletionDescription(group));
+        event.setReason(reason);
+        event.setRegistrator(registrator);
+
+        return event;
+    }
+
+    private static String getDeletionDescription(GroupPE group)
+    {
+        return String.format("%s", group.getCode());
     }
 }

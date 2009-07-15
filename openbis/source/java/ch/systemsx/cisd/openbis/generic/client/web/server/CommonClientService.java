@@ -282,26 +282,6 @@ public final class CommonClientService extends AbstractClientService implements
     // IGenericClientService
     //
 
-    public final List<Group> listGroups(final String databaseInstanceCode)
-    {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final DatabaseInstanceIdentifier identifier =
-                    new DatabaseInstanceIdentifier(databaseInstanceCode);
-            final List<Group> result = new ArrayList<Group>();
-            final List<GroupPE> groups = commonServer.listGroups(sessionToken, identifier);
-            for (final GroupPE group : groups)
-            {
-                result.add(GroupTranslator.translate(group));
-            }
-            return result;
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-    }
-
     public final void registerGroup(final String groupCode, final String descriptionOrNull,
             final String groupLeaderOrNull)
     {
@@ -538,6 +518,12 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
+    public String prepareExportGroups(TableExportCriteria<Group> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return prepareExportEntities(criteria);
+    }
+
     // ---------------- methods which list entities using cache
 
     public final ResultSet<Sample> listSamples(final ListSampleCriteria listCriteria)
@@ -633,6 +619,33 @@ public final class CommonClientService extends AbstractClientService implements
         for (DataSetTypePropertyType etpt : propertyType.getDataSetTypePropertyTypes())
         {
             result.add(etpt);
+        }
+    }
+
+    public ResultSet<Group> listGroups(DefaultResultSetConfig<String, Group> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return listEntities(criteria, new IOriginalDataProvider<Group>()
+            {
+                public List<Group> getOriginalData() throws UserFailureException
+                {
+                    return listGroups();
+                }
+            });
+    }
+
+    private List<Group> listGroups()
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final DatabaseInstanceIdentifier identifier = new DatabaseInstanceIdentifier(null);
+            final List<GroupPE> groups = commonServer.listGroups(sessionToken, identifier);
+            return GroupTranslator.translate(groups);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
@@ -1421,6 +1434,32 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public void deleteProjects(List<TechId> projectIds, String reason)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.deleteProjects(sessionToken, projectIds, reason);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public void deleteGroups(List<TechId> groupIds, String reason)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.deleteGroups(sessionToken, groupIds, reason);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
     public void deleteAttachments(TechId holderId, AttachmentHolderKind holderKind,
             List<String> fileNames, String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -1718,19 +1757,6 @@ public final class CommonClientService extends AbstractClientService implements
                     commonServer.updateProjectAttachments(sessionToken, holderId, attachment);
                     break;
             }
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-    }
-
-    public void deleteProjects(List<TechId> projectIds, String reason)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.deleteProjects(sessionToken, projectIds, reason);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

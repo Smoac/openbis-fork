@@ -56,4 +56,9 @@ public class GroupModel extends BaseModelData
         }
         return result;
     }
+
+    public final Group getBaseObject()
+    {
+        return get(ModelDataPropertyNames.OBJECT);
+    }
 }

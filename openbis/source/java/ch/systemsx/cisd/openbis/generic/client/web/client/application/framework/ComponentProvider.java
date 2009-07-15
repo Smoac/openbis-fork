@@ -20,9 +20,9 @@ import com.extjs.gxt.ui.client.widget.Component;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GroupsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PersonsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetUploadForm;
@@ -129,18 +129,19 @@ public final class ComponentProvider
             };
     }
 
-    public final ITabItemFactory getGroupsView()
+    public final ITabItemFactory getGroupBrowser()
     {
         return new ITabItemFactory()
             {
                 public ITabItem create()
                 {
-                    return DefaultTabItem.createUnaware(new GroupsView(viewContext), false);
+                    IDisposableComponent component = GroupGrid.create(viewContext);
+                    return createTab(Dict.GROUP_BROWSER, component);
                 }
 
                 public String getId()
                 {
-                    return GroupsView.ID;
+                    return GroupGrid.BROWSER_ID;
                 }
             };
     }

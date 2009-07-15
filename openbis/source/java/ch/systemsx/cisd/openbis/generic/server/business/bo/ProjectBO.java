@@ -263,7 +263,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
             getEventDAO().persist(createDeletionEvent(project, session.tryGetPerson(), reason));
         } catch (final DataAccessException ex)
         {
-            throwException(ex, String.format("Project '%s'", project.getCode()), null);
+            throwException(ex, String.format("Project '%s'", project.getCode()));
         }
     }
 

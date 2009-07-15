@@ -1350,13 +1350,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         public void componentSelected(ButtonEvent ce)
         {
             List<T> data = getSelectedBaseObjects();
-            if (data.isEmpty() == false)
+            IBrowserGridActionInvoker invoker = asActionInvoker();
+            if (validateSelectedData(data))
             {
-                IBrowserGridActionInvoker invoker = asActionInvoker();
-                if (validateSelectedData(data))
-                {
-                    createDialog(data, invoker).show();
-                }
+                createDialog(data, invoker).show();
             }
         }
 

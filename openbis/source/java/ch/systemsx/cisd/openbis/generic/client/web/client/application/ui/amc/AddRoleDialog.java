@@ -25,8 +25,8 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 
@@ -129,7 +129,6 @@ public class AddRoleDialog extends Window
                                 roleLoadingCallback);
                     } else
                     {
-
                         viewContext.getService().registerGroupRole(
                                 ((RoleListBox) roleBox.getWidget()).getValue(), group.getValue(),
                                 user.getValue(), roleLoadingCallback);

@@ -874,6 +874,39 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
     }
 
+    // TODO 2009-06-24 IA: add unit tests to project deletion (all layers)
+    public void deleteProjects(String sessionToken, List<TechId> projectIds, String reason)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
+            for (TechId id : projectIds)
+            {
+                projectBO.deleteByTechId(id, reason);
+            }
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
+    public void deleteGroups(String sessionToken, List<TechId> groupIds, String reason)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IGroupBO groupBO = businessObjectFactory.createGroupBO(session);
+            for (TechId id : groupIds)
+            {
+                groupBO.deleteByTechId(id, reason);
+            }
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
     public void deleteExperimentAttachments(String sessionToken, TechId experimentId,
             List<String> fileNames, String reason)
     {
@@ -1251,23 +1284,6 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             IAttachmentBO attachmentBO = businessObjectFactory.createAttachmentBO(session);
             attachmentBO.updateAttachment(bo.getSample(), attachment);
             attachmentBO.save();
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
-    }
-
-    // TODO 2009-06-24 IA: add unit tests to project deletion (all layers)
-    public void deleteProjects(String sessionToken, List<TechId> projectIds, String reason)
-    {
-        Session session = getSessionManager().getSession(sessionToken);
-        try
-        {
-            IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
-            for (TechId id : projectIds)
-            {
-                projectBO.deleteByTechId(id, reason);
-            }
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);

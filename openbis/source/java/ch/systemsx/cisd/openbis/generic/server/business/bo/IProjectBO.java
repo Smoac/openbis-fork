@@ -73,7 +73,10 @@ public interface IProjectBO extends IEntityBusinessObject
     public void update(ProjectUpdatesDTO updates);
 
     /**
-     * Deletes the project.
+     * Deletes project for specified reason.
+     * 
+     * @param projectId project technical identifier
+     * @throws UserFailureException if project with given technical identifier is not found.
      */
-    public void deleteByTechId(TechId id, String reason);
+    public void deleteByTechId(TechId projectId, String reason);
 }

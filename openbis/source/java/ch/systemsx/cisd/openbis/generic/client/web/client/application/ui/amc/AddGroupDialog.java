@@ -20,7 +20,8 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
@@ -32,13 +33,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
  */
 public class AddGroupDialog extends AbstractRegistrationDialog
 {
-    private final CommonViewContext viewContext;
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private final TextField<String> codeField;
 
     private final TextField<String> descriptionField;
 
-    public AddGroupDialog(final CommonViewContext viewContext,
+    public AddGroupDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
             final IDelegatedAction postRegistrationCallback)
     {
         super(viewContext, "Add a new group", postRegistrationCallback);

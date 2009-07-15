@@ -160,16 +160,6 @@ public abstract class Dict
     public static final String HEADER_USER_WITH_HOMEGROUP = "header_userWithHomegroup";
 
     //
-    // Authorization Management Console
-    // 
-
-    public static final String PERSONS_VIEW_HEADING = "personsView_heading";
-
-    public static final String GROUPS_VIEW_HEADING = "groupsView_heading";
-
-    public static final String ROLES_VIEW_HEADING = "rolesView_heading";
-
-    //
     // Search
     //
 
@@ -543,6 +533,13 @@ public abstract class Dict
             "delete_vocabulary_terms_confirmation_message_for_replacements";
 
     //
+    // Group Browser
+    //
+    public static final String GROUP_BROWSER = "group_browser";
+
+    public static final String LEADER = "leader";
+
+    //
     // Project Browser
     //
     public static final String PROJECT_BROWSER = "project_browser";
@@ -614,8 +611,6 @@ public abstract class Dict
     public static final String MATERIAL = "material";
 
     public static final String DATA_SET = "data_set";
-
-    public static final String LEADER = "leader";
 
     public static final String FILTER = "filter";
 

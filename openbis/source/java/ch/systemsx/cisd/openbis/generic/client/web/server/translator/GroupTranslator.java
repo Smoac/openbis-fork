@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
@@ -33,6 +36,16 @@ public final class GroupTranslator
     private GroupTranslator()
     {
         // Can not be instantiated.
+    }
+
+    public final static List<Group> translate(final List<GroupPE> groups)
+    {
+        final List<Group> result = new ArrayList<Group>();
+        for (final GroupPE group : groups)
+        {
+            result.add(GroupTranslator.translate(group));
+        }
+        return result;
     }
 
     public static Group translate(final GroupPE group)

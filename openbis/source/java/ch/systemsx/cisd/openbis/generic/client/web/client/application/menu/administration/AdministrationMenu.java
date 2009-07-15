@@ -38,7 +38,7 @@ public class AdministrationMenu extends TopMenuItem
 
         Menu menu = new Menu();
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.ADMINISTRATION_MENU_MANAGE_GROUPS,
-                messageProvider, componentProvider.getGroupsView()));
+                messageProvider, componentProvider.getGroupBrowser()));
         menu.add(new ProjectMenu(messageProvider, componentProvider));
         menu.add(new VocabularyMenu(messageProvider, componentProvider));
         menu.add(new PropertyTypesMenu(messageProvider, componentProvider));

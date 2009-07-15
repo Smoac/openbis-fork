@@ -447,6 +447,16 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 reason);
     }
 
+    public void deleteProjects(String sessionToken, List<TechId> projectIds, String reason)
+    {
+        logTracking(sessionToken, "delete_projects", "IDS(%s) REASON(%s)", projectIds, reason);
+    }
+
+    public void deleteGroups(String sessionToken, List<TechId> groupIds, String reason)
+    {
+        logTracking(sessionToken, "delete_groups", "IDS(%s) REASON(%s)", groupIds, reason);
+    }
+
     public void deleteExperimentAttachments(String sessionToken, TechId experimentId,
             List<String> fileNames, String reason)
     {
@@ -617,11 +627,6 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logTracking(sessionToken, "update_samle_attachment", "SAMPLE_ID(%s) ATTACHMENT(%s)",
                 sampleId, attachment.getFileName());
 
-    }
-
-    public void deleteProjects(String sessionToken, List<TechId> projectIds, String reason)
-    {
-        logTracking(sessionToken, "delete_projects", "IDS(%s) REASON(%s)", projectIds, reason);
     }
 
     public List<DatastoreServiceDescription> listDataStoreServices(String sessionToken,

@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
@@ -52,7 +53,7 @@ public final class ProjectListDeletionConfirmationDialog extends
     @Override
     protected String getEntityName()
     {
-        return "project";
+        return messageProvider.getMessage(Dict.PROJECT);
     }
 
 }

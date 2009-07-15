@@ -78,8 +78,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplaceme
  */
 public interface ICommonClientServiceAsync extends IClientServiceAsync
 {
-    /** @see ICommonClientService#listGroups(String) */
-    public void listGroups(String databaseInstanceCode, AsyncCallback<List<Group>> callback);
+    /** @see ICommonClientService#listGroups(DefaultResultSetConfig) */
+    public void listGroups(DefaultResultSetConfig<String, Group> criteria,
+            final AsyncCallback<ResultSet<Group>> asyncCallback);
+
+    /** @see ICommonClientService#prepareExportGroups(TableExportCriteria) */
+    public void prepareExportGroups(TableExportCriteria<Group> exportCriteria,
+            AsyncCallback<String> callback);
 
     /** @see ICommonClientService#registerGroup(String, String, String) */
     public void registerGroup(String groupCode, String descriptionOrNull, String groupLeaderOrNull,
@@ -416,6 +421,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#deleteProjects(List, String) */
     public void deleteProjects(List<TechId> projectIds, String value,
             AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#deleteGroups(List, String) */
+    public void deleteGroups(List<TechId> groupIds, String value, AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteVocabularies(List, String) */
     public void deleteVocabularies(List<TechId> vocabularyIds, String value,

@@ -18,14 +18,16 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddPersonDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckGroup;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckGroupTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckPerson;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckRole;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CreateGroup;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CreatePerson;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CreateRole;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GroupColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 
@@ -45,8 +47,10 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
     {
         final String groupCode = TEST_GROUP;
         loginAndInvokeAction(ActionMenuKind.ADMINISTRATION_MENU_MANAGE_GROUPS);
+
         remoteConsole.prepare(new CreateGroup(groupCode));
-        remoteConsole.prepare(new CheckGroup(groupCode.toUpperCase()));
+        final CheckGroupTable table = new CheckGroupTable();
+        table.expectedRow(new Row().withCell(GroupColDefKind.CODE.id(), groupCode.toUpperCase()));
 
         launchTest(20000);
     }

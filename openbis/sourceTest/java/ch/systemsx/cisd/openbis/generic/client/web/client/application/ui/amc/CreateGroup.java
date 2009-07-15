@@ -16,9 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GroupsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
 /**
@@ -26,13 +27,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
  * 
  * @author Franz-Josef Elmer
  */
-public final class CreateGroup extends AbstractDefaultTestCommand
+public final class CreateGroup extends CheckTableCommand
 {
     private final String groupCode;
 
     public CreateGroup(final String groupCode)
     {
-        super(GroupsView.ListGroupsCallback.class);
+        super(GroupGrid.GRID_ID);
         this.groupCode = groupCode;
     }
 
@@ -40,10 +41,12 @@ public final class CreateGroup extends AbstractDefaultTestCommand
     // AbstractDefaultTestCommand
     //
 
+    @Override
     public final void execute()
     {
-        GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, GroupsView.ID + MainTabPanel.TAB_SUFFIX);
-        GWTTestUtil.clickButtonWithID(GroupsView.ADD_BUTTON_ID);
+        GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, GroupGrid.BROWSER_ID
+                + MainTabPanel.TAB_SUFFIX);
+        GWTTestUtil.clickButtonWithID(GroupGrid.ADD_BUTTON_ID);
         GWTTestUtil.getTextFieldWithID(AddGroupDialog.CODE_FIELD_ID).setValue(groupCode);
         GWTTestUtil.clickButtonWithID(AddGroupDialog.SAVE_BUTTON_ID);
     }

@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIden
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.GroupTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExternalDataValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
@@ -381,6 +382,26 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY)
     public void deleteVocabularies(String sessionToken, List<TechId> vocabularyIds, String reason);
+
+    /**
+     * Deletes specified projects.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.POWER_USER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.PROJECT)
+    public void deleteProjects(String sessionToken,
+            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) List<TechId> projectIds,
+            String reason);
+
+    /**
+     * Deletes specified groups.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.POWER_USER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.GROUP)
+    public void deleteGroups(String sessionToken,
+            @AuthorizationGuard(guardClass = GroupTechIdPredicate.class) List<TechId> groupIds,
+            String reason);
 
     /**
      * Adds new terms to a vocabulary.
@@ -756,16 +777,6 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.PROJECT)
     public void updateProjectAttachments(String sessionToken, TechId projectId,
             Attachment attachment);
-
-    /**
-     * Deletes specified projects.
-     */
-    @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.PROJECT)
-    public void deleteProjects(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) List<TechId> projectIds,
-            String reason);
 
     /** Lists all available datastore services of the specified kind */
     @Transactional(readOnly = true)

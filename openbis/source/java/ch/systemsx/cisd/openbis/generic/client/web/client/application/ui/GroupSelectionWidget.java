@@ -28,7 +28,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Grou
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -97,7 +99,7 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
         return group;
     }
 
-    public final class ListGroupsCallback extends AbstractAsyncCallback<List<Group>>
+    public final class ListGroupsCallback extends AbstractAsyncCallback<ResultSet<Group>>
     {
         ListGroupsCallback(final IViewContext<?> viewContext)
         {
@@ -105,7 +107,7 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
         }
 
         @Override
-        protected final void process(final List<Group> result)
+        protected final void process(final ResultSet<Group> result)
         {
             final ListStore<GroupModel> groupStore = getStore();
             groupStore.removeAll();
@@ -113,7 +115,7 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
             {
                 groupStore.add(new GroupModel(createSharedGroup()));
             }
-            groupStore.add(convertItems(result));
+            groupStore.add(convertItems(result.getList()));
             if (groupStore.getCount() > 0)
             {
                 setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, CHOOSE_SUFFIX));
@@ -172,7 +174,8 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
     @Override
     protected void loadData(AbstractAsyncCallback<List<Group>> callback)
     {
-        viewContext.getCommonService().listGroups(null, new ListGroupsCallback(viewContext));
+        DefaultResultSetConfig<String, Group> config = DefaultResultSetConfig.createFetchAll();
+        viewContext.getCommonService().listGroups(config, new ListGroupsCallback(viewContext));
     }
 
     public DatabaseModificationKind[] getRelevantModifications()

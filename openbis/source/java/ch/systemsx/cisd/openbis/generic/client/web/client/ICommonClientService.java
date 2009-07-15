@@ -83,9 +83,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplaceme
 public interface ICommonClientService extends IClientService
 {
     /**
-     * Returns a list of all groups which belong to the specified database instance.
+     * Returns a list of all groups.
      */
-    public List<Group> listGroups(String databaseInstanceCode) throws UserFailureException;
+    public ResultSet<Group> listGroups(DefaultResultSetConfig<String, Group> criteria)
+            throws UserFailureException;
+
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for groups.
+     */
+    public String prepareExportGroups(final TableExportCriteria<Group> criteria)
+            throws UserFailureException;
 
     /**
      * Registers a new group with specified code and optional description and group leader ID.
@@ -480,6 +487,9 @@ public interface ICommonClientService extends IClientService
 
     /** Deletes the specified projects. */
     public void deleteProjects(List<TechId> projectIds, String reason) throws UserFailureException;
+
+    /** Deletes the specified groups. */
+    public void deleteGroups(List<TechId> groupIds, String reason) throws UserFailureException;
 
     /** Deletes the specified vocabularies. */
     public void deleteVocabularies(List<TechId> vocabualryIds, String reason)

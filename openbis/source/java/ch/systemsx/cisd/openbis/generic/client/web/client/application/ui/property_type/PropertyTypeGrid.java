@@ -130,7 +130,7 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
                             return true;
                         }
                     }));
-        allowMultipleSelection(); // we allow deletion of multiple attachments
+        allowMultipleSelection(); // we allow deletion of multiple property types
 
         addEntityOperationsSeparator();
     }
