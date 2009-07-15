@@ -23,8 +23,6 @@ import java.sql.Types;
 
 import net.lemnik.eodsql.TypeMapper;
 
-import org.apache.commons.lang.StringUtils;
-
 /**
  * {@link TypeMapper} for <code>float[]</var> columns.
  * 
@@ -35,13 +33,7 @@ class FloatArrayMapper implements TypeMapper<float[]>
 
     public float[] get(ResultSet results, int column) throws SQLException
     {
-        final String[] floatStr = StringUtils.split(results.getString(column), ',');
-        final float[] floatArr = new float[floatStr.length];
-        for (int i = 0; i < floatStr.length; ++i)
-        {
-            floatArr[i] = Float.parseFloat(floatStr[i]);
-        }
-        return floatArr;
+        return Convert.csvToFloatArray(results.getString(column));
     }
 
     public void set(ResultSet results, int column, float[] obj) throws SQLException

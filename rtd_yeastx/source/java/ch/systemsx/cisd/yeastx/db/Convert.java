@@ -1,3 +1,4 @@
+package ch.systemsx.cisd.yeastx.db;
 /*
  * Copyright 2009 ETH Zuerich, CISD
  *
@@ -15,9 +16,7 @@
  */
 
 /**
- * A class featuring a conversion of CSV strings to float arrays. We keep it in the default package
- * even when this is deprecated because it is used from Matlab and not having to type any package
- * name is preferred by Matlab users.
+ * A class featuring a conversion of CSV strings to float arrays.
  * 
  * @author Bernd Rinn
  */
