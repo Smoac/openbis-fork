@@ -33,13 +33,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -312,6 +313,25 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     {
         checkSessionToken();
         return service.tryGetDataSet(sToken, dataSetCode);
+    }
+
+    synchronized public List<SimpleDataSetInformationDTO> listDataSets()
+            throws UserFailureException
+    {
+        checkSessionToken();
+        try
+        {
+            return primListDataSets();
+        } catch (final InvalidSessionException ex)
+        {
+            authenticate();
+            return primListDataSets();
+        }
+    }
+
+    private List<SimpleDataSetInformationDTO> primListDataSets()
+    {
+        return service.listDataSets(sessionToken, dataStoreCode);
     }
 
 }

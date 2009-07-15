@@ -17,11 +17,12 @@
 package ch.systemsx.cisd.openbis.dss.generic;
 
 import ch.systemsx.cisd.etlserver.ETLDaemon;
+import ch.systemsx.cisd.openbis.dss.generic.server.HierarchicalStorageDaemon;
 
 /**
- * Main class starting {@link ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer}
- * and {@link ETLDaemon}.
- *
+ * Main class starting {@link ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer},
+ * {@link ETLDaemon} and {@link HierarchicalStorageDaemon}.
+ * 
  * @author Franz-Josef Elmer
  */
 public class DataStoreServer
@@ -30,5 +31,6 @@ public class DataStoreServer
     {
         ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer.main(args);
         ETLDaemon.main(args);
+        HierarchicalStorageDaemon.main(args);
     }
 }

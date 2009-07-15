@@ -378,9 +378,9 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     private ConfigurationFailureException createUnknownDataStoreServerException()
     {
         return new ConfigurationFailureException(
-                "Connection to Data Store Server has not been configured. "
-                        + "Conntact your administrator.");
-    }
+                    "Connection to Data Store Server has not been configured. "
+                            + "Conntact your administrator.");
+        }
 
     public TableModel createReportFromDatasets(DatastoreServiceDescription serviceDescription,
             List<String> datasetCodes)
@@ -424,4 +424,11 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         return dataStore;
     }
 
+    public void loadByDataStore(DataStorePE dataStore)
+    {
+        assert dataStore != null : "Unspecified data store";
+        assert externalData == null : "Data already loaded";
+        externalData = new ArrayList<ExternalDataPE>();
+        externalData.addAll(getExternalDataDAO().listExternalData(dataStore));
+    }
 }

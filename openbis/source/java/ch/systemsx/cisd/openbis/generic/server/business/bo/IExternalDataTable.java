@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
@@ -75,4 +76,9 @@ public interface IExternalDataTable
 
     /** Schedules processing of specified datasets using the specified datastore service. */
     void processDatasets(DatastoreServiceDescription serviceDescription, List<String> datasetCodes);
+
+    /**
+     * Loads data sets that belong to chosen data store.
+     */
+    public void loadByDataStore(DataStorePE dataStore);
 }

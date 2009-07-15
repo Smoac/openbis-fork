@@ -32,8 +32,10 @@ import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.SimpleDataSetHelper;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
@@ -58,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -444,5 +447,20 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
             codes.add(sample.getCode());
         }
         return codes;
+    }
+
+    public List<SimpleDataSetInformationDTO> listDataSets(String sessionToken, String dataStoreCode)
+            throws UserFailureException
+    {
+        Session session = sessionManager.getSession(sessionToken);
+        DataStorePE dataStore =
+                getDAOFactory().getDataStoreDAO().tryToFindDataStoreByCode(dataStoreCode);
+        if (dataStore == null)
+        {
+            throw new UserFailureException(String.format("Unknown data store '%s'", dataStoreCode));
+        }
+        IExternalDataTable dataSetTable = boFactory.createExternalDataTable(session);
+        dataSetTable.loadByDataStore(dataStore);
+        return SimpleDataSetHelper.translate(dataSetTable.getExternalData());
     }
 }

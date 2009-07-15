@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -102,6 +103,13 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
             ListSamplesByPropertyCriteria criteria) throws UserFailureException
     {
         logAccess(sessionToken, "listSamplesByCriteria", "criteria(%s)", criteria);
+        return null;
+    }
+
+    public List<SimpleDataSetInformationDTO> listDataSets(String sessionToken, String dataStore)
+            throws UserFailureException
+    {
+        logAccess(sessionToken, "listDataSets", "DATA_STORE(%s)", dataStore);
         return null;
     }
 

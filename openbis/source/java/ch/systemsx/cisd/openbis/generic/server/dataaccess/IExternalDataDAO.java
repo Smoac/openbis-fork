@@ -21,6 +21,7 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -66,5 +67,10 @@ public interface IExternalDataDAO extends IGenericDAO<ExternalDataPE>
      * Updates the specified data set.
      */
     public void updateDataSet(ExternalDataPE dataset);
+
+    /**
+     * Lists external data belongig to given data store.
+     */
+    public List<ExternalDataPE> listExternalData(final DataStorePE dataStore);
 
 }

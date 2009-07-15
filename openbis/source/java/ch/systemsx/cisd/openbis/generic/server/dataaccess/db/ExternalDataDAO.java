@@ -36,6 +36,7 @@ import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -90,6 +91,21 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         {
             operationLog.debug(String.format("%d external data have been found for [sample=%s].",
                     list.size(), sample));
+        }
+        return list;
+    }
+
+    public final List<ExternalDataPE> listExternalData(final DataStorePE dataStore)
+            throws DataAccessException
+    {
+        assert dataStore != null : "Unspecified data store.";
+        final DetachedCriteria criteria = DetachedCriteria.forClass(ExternalDataPE.class);
+        criteria.add(Restrictions.eq("dataStore", dataStore));
+        final List<ExternalDataPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s(%s): %d data set(s) have been found.", MethodUtils
+                    .getCurrentMethod().getName(), dataStore, list.size()));
         }
         return list;
     }
