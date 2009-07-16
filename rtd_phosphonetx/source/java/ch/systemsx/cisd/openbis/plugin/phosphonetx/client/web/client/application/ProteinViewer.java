@@ -47,8 +47,6 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.Protein
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ProteinViewer extends
@@ -58,7 +56,7 @@ public class ProteinViewer extends
     private static final String PREFIX = "protein-viewer_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
-    
+
     static ITabItemFactory createTabItemFactory(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
             final Experiment experimentOrNull, final ProteinInfo proteinInfo)
@@ -85,16 +83,18 @@ public class ProteinViewer extends
                 }
             };
     }
-    
+
     static String createWidgetID(TechId proteinReferenceID)
     {
         return ID_PREFIX + proteinReferenceID.getId();
     }
-    
+
     private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
+
     private final Experiment experimentOrNull;
+
     private final TechId proteinReferenceID;
-    
+
     private ProteinViewer(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
             Experiment experimentOrNull, TechId proteinReferenceID)
     {
@@ -104,7 +104,7 @@ public class ProteinViewer extends
         this.proteinReferenceID = proteinReferenceID;
         reloadAllData();
     }
-    
+
     private void reloadAllData()
     {
         if (experimentOrNull != null)
@@ -115,6 +115,18 @@ public class ProteinViewer extends
     }
 
     private void recreateUI(ProteinByExperiment protein)
+    {
+        if (protein.getDetails() == null)
+        {
+            recreateUIWithDatasetTable(protein);
+        } else
+        {
+            // TODO 2009-07-16, Tomasz Pylak: write the viewer
+            recreateUIWithDatasetTable(protein);
+        }
+    }
+
+    private void recreateUIWithDatasetTable(ProteinByExperiment protein)
     {
         setLayout(new BorderLayout());
         removeAll();
@@ -171,7 +183,5 @@ public class ProteinViewer extends
         }
 
     }
-
-
 
 }

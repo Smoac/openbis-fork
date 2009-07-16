@@ -24,24 +24,22 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataSetProtein implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     private String dataSetPermID;
-    
+
     private TechId dataSetID;
-    
+
     private TechId proteinID;
-    
+
     private String sequenceName;
-    
+
     private int peptideCount;
-    
+
     private double falseDiscoveryRate;
 
     public final String getDataSetPermID()

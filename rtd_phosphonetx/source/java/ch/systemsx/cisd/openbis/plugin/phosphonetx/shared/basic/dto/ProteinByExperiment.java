@@ -23,19 +23,19 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ProteinByExperiment implements IsSerializable, Serializable
 {
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     private String uniprotID;
-    
+
     private String description;
-    
+
+    private ProteinDetails details;
+
     public final String getUniprotID()
     {
         return uniprotID;
@@ -54,6 +54,16 @@ public class ProteinByExperiment implements IsSerializable, Serializable
     public final void setDescription(String description)
     {
         this.description = description;
+    }
+
+    public ProteinDetails getDetails()
+    {
+        return details;
+    }
+
+    public void setDetails(ProteinDetails details)
+    {
+        this.details = details;
     }
 
 }
