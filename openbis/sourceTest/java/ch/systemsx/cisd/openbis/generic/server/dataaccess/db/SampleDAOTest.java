@@ -23,7 +23,9 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.classic.Session;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -100,6 +102,30 @@ public final class SampleDAOTest extends AbstractDAOTest
         assertTrue(HibernateUtils.isInitialized(sampleC.getGeneratedFrom()));
         final SamplePE parent = sampleC.getGeneratedFrom();
         assertFalse(HibernateUtils.isInitialized(parent.getGeneratedFrom()));
+    }
+    
+    @Test
+    public void testTryToFindByPermID()
+    {
+        String permID = "200811050919915-8";
+        SamplePE sample = daoFactory.getSampleDAO().tryToFindByPermID(permID);
+        
+        assertEquals(permID, sample.getPermId());
+        Set<SamplePropertyPE> properties = sample.getProperties();
+        assertEquals(2, properties.size());
+        Iterator<SamplePropertyPE> iterator = properties.iterator();
+        SamplePropertyPE description = iterator.next();
+        SamplePropertyPE plateGeometry = iterator.next();
+        if (plateGeometry.getVocabularyTerm() == null)
+        {
+            SamplePropertyPE p = plateGeometry;
+            plateGeometry = description;
+            description = p;
+        }
+        assertEquals("USER.DESCRIPTION", description.getEntityTypePropertyType().getPropertyType().getCode());
+        assertEquals("test control layout", description.getValue());
+        assertEquals("PLATE_GEOMETRY", plateGeometry.getEntityTypePropertyType().getPropertyType().getCode());
+        assertEquals("384_WELLS_16X24", plateGeometry.getVocabularyTerm().getCode());
     }
 
     @Test
