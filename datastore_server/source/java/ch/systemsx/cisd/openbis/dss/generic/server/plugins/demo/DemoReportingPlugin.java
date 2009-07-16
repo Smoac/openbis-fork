@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelCo
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Reporting plugin which can be used for demonstration purposes.
+ * Reporting plugin which can be used for demonstration purposes. Shows size of the datasets.
  * 
  * @author Tomasz Pylak
  */
