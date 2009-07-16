@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IDataSetProte
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinDetailsBO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinReferenceTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinSequenceTable;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
@@ -44,6 +45,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
 
 /**
@@ -135,6 +137,15 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         IDataSetProteinTable dataSetProteinTable = specificBOFactory.createDataSetProteinTable(session);
         dataSetProteinTable.load(getExperimentPermIDFor(experimentId), proteinReferenceID, sequenceTable);
         return dataSetProteinTable.getDataSetProteins();
+    }
+
+    public List<SampleWithPropertiesAndAbundance> listSamplesWithAbundanceByProtein(
+            String sessionToken, TechId proteinID) throws UserFailureException
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        ISampleTable sampleTable = specificBOFactory.createSampleTable(session);
+        sampleTable.loadSamplesWithAbundance(proteinID);
+        return sampleTable.getSamples();
     }
 
     private String getExperimentPermIDFor(TechId experimentId)

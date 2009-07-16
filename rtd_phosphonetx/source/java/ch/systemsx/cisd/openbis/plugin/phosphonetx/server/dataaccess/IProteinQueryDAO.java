@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProbabilityFDRMapping;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.SampleAbundance;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.Sequence;
 
 /**
@@ -69,5 +70,9 @@ public interface IProteinQueryDAO extends BaseQuery
 
     @Select("select * from peptides where prot_id = ?{1}")
     public DataSet<IdentifiedPeptide> listIdentifiedPeptidesByProtein(long proteinID);
+    
+    @Select("select a.id, perm_id, value from abundances as a join samples as s on a.samp_id = s.id "
+            + "where a.prot_id = ?{1}")
+    public DataSet<SampleAbundance> listSampleAbundanceByProtein(long proteinID);
     
 }

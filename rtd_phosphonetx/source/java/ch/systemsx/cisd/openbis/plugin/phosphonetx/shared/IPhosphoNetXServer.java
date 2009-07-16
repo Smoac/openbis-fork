@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
 
 /**
@@ -61,5 +62,10 @@ public interface IPhosphoNetXServer extends IServer
     public List<DataSetProtein> listProteinsByExperimentAndReference(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
             TechId experimentId, TechId proteinReferenceID) throws UserFailureException;
+    
+    @Transactional
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<SampleWithPropertiesAndAbundance> listSamplesWithAbundanceByProtein(
+            String sessionToken, TechId proteinID) throws UserFailureException; 
     
 }

@@ -21,6 +21,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -41,6 +42,8 @@ public class ProteinDetails implements IsSerializable, Serializable
     private Long dataSetTechID;
 
     private String dataSetTypeCode;
+    
+    private TechId proteinID;
 
     private List<Peptide> peptides;
 
@@ -82,6 +85,16 @@ public class ProteinDetails implements IsSerializable, Serializable
     public void setDataSetPermID(String dataSetPermID)
     {
         this.dataSetPermID = dataSetPermID;
+    }
+
+    public final TechId getProteinID()
+    {
+        return proteinID;
+    }
+
+    public final void setProteinID(TechId proteinID)
+    {
+        this.proteinID = proteinID;
     }
 
     public List<Peptide> getPeptides()

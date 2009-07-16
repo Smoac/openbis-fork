@@ -14,24 +14,42 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
+package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import net.lemnik.eodsql.ResultColumn;
+
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IBusinessObjectFactory
+public class SampleAbundance extends AbstractDTOWithID
 {
-    public IProteinReferenceTable createProteinReferenceTable(Session session);
+    @ResultColumn("value")
+    private double abundance;
     
-    public IProteinSequenceTable createProteinSequenceTable(Session session);
-    
-    public IDataSetProteinTable createDataSetProteinTable(Session session);
-    
-    public IProteinDetailsBO createProteinDetailsBO(Session session);
-    
-    public ISampleTable createSampleTable(Session session);
+    @ResultColumn("perm_id")
+    private String samplePermID;
+
+    public final double getAbundance()
+    {
+        return abundance;
+    }
+
+    public final void setAbundance(double abundance)
+    {
+        this.abundance = abundance;
+    }
+
+    public final String getSamplePermID()
+    {
+        return samplePermID;
+    }
+
+    public final void setSamplePermID(String samplePermID)
+    {
+        this.samplePermID = samplePermID;
+    }
+
 }

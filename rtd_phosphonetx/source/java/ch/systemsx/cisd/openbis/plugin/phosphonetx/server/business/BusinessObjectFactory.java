@@ -56,4 +56,9 @@ public class BusinessObjectFactory implements IBusinessObjectFactory
         return new ProteinDetailsBO(daoFactory, specificDAOFactory, session);
     }
 
+    public ISampleTable createSampleTable(Session session)
+    {
+        return new SampleTable(daoFactory, specificDAOFactory, session);
+    }
+
 }

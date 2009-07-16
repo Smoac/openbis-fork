@@ -78,6 +78,7 @@ class ProteinDetailsBO extends AbstractBusinessObject implements IProteinDetails
                 details.setDataSetTypeCode(ds.getDataSetType().getCode());
             }
             details.setPeptides(loadPeptides(protein));
+            details.setProteinID(new TechId(protein.getProteinID()));
         }
         proteins.close();
     }

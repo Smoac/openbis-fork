@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
 
 /**
@@ -69,6 +70,14 @@ public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPh
     {
         logAccess(sessionToken, "list_proteins_by_experiment_and_reference",
                 "EXPERIMENT_ID(%s) PROTEIN_REFERENCE_ID(%s)", experimentId, proteinReferenceID);
+        return null;
+    }
+
+    public List<SampleWithPropertiesAndAbundance> listSamplesWithAbundanceByProtein(
+            String sessionToken, TechId proteinID) throws UserFailureException
+    {
+        logAccess(sessionToken, "list_samples_with_abundance_by_protein", "PROTEIN_ID(%s)",
+                proteinID);
         return null;
     }
 
