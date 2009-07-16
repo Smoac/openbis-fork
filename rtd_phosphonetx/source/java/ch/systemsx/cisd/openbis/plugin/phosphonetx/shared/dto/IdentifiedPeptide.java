@@ -14,30 +14,30 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto;
+package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto;
 
-import java.io.Serializable;
+import net.lemnik.eodsql.ResultColumn;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * @author Tomasz Pylak
+ * 
+ *
+ * @author Franz-Josef Elmer
  */
-public class Peptide implements IsSerializable, Serializable
+public class IdentifiedPeptide extends AbstractDTOWithID
 {
-    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-
+    @ResultColumn("sequence")
     private String sequence;
+    
+    @ResultColumn("charge")
     private int charge;
 
-    public String getSequence()
+    public final String getSequence()
     {
         return sequence;
     }
 
-    public void setSequence(String sequence)
+    public final void setSequence(String sequence)
     {
         this.sequence = sequence;
     }
@@ -51,5 +51,4 @@ public class Peptide implements IsSerializable, Serializable
     {
         this.charge = charge;
     }
-
 }

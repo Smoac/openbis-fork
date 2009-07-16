@@ -51,4 +51,9 @@ public class BusinessObjectFactory implements IBusinessObjectFactory
         return new DataSetProteinTable(daoFactory, specificDAOFactory, session);
     }
 
+    public IProteinDetailsBO createProteinDetailsBO(Session session)
+    {
+        return new ProteinDetailsBO(daoFactory, specificDAOFactory, session);
+    }
+
 }

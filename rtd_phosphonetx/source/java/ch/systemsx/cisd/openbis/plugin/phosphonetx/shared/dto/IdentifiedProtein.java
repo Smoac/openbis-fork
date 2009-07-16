@@ -43,6 +43,9 @@ public class IdentifiedProtein extends AbstractDTOWithID
     @ResultColumn("db_id")
     private long databaseID;
     
+    @ResultColumn("name_and_version")
+    private String databaseNameAndVersion;
+    
     @ResultColumn("probability")
     private double probability;
     
@@ -128,5 +131,14 @@ public class IdentifiedProtein extends AbstractDTOWithID
         this.databaseID = databaseID;
     }
 
+    public final String getDatabaseNameAndVersion()
+    {
+        return databaseNameAndVersion;
+    }
+
+    public final void setDatabaseNameAndVersion(String databaseNameAndVersion)
+    {
+        this.databaseNameAndVersion = databaseNameAndVersion;
+    }
 
 }

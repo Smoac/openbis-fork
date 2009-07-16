@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IDataSetProteinTable;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinDetailsBO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinReferenceTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinSequenceTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
@@ -99,7 +100,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     public ProteinByExperiment getProteinByExperiment(String sessionToken, TechId experimentID,
             TechId proteinReferenceID) throws UserFailureException
     {
-        getSessionManager().getSession(sessionToken);
+        Session session = getSessionManager().getSession(sessionToken);
         IProteinQueryDAO proteinQueryDAO = specificDAOFactory.getProteinQueryDAO();
         ProteinByExperiment proteinByExperiment = new ProteinByExperiment();
         ProteinReference proteinReference =
@@ -110,6 +111,9 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         }
         proteinByExperiment.setUniprotID(proteinReference.getUniprotID());
         proteinByExperiment.setDescription(proteinReference.getDescription());
+        IProteinDetailsBO proteinDetailsBO = specificBOFactory.createProteinDetailsBO(session);
+        proteinDetailsBO.loadByExperimentAndReference(experimentID, proteinReferenceID);
+        proteinByExperiment.setDetails(proteinDetailsBO.getDetailsOrNull());
         return proteinByExperiment;
     }
     

@@ -20,6 +20,7 @@ import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.DataSet;
 import net.lemnik.eodsql.Select;
 
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedPeptide;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProbabilityFDRMapping;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
@@ -53,7 +54,7 @@ public interface IProteinQueryDAO extends BaseQuery
     public DataSet<Sequence> listProteinSequencesByProteinReference(long proteinReferenceID);
     
     @Select("select ds.id as data_set_id, ds.perm_id as data_set_perm_id, p.id as protein_id, "
-            + "probability, count(pe.id) as peptide_count, amino_acid_sequence, s.db_id "
+            + "probability, count(pe.id) as peptide_count, amino_acid_sequence, s.db_id, name_and_version "
             + "from data_sets as ds join experiments as e on ds.expe_id = e.id "
             + "                     join proteins as p on p.dase_id = ds.id "
             + "                     join identified_proteins as i on i.prot_id = p.id "
@@ -62,7 +63,11 @@ public interface IProteinQueryDAO extends BaseQuery
             + "                     left join peptides as pe on pe.prot_id = p.id "
             + "where s.prre_id = ?{2} and e.perm_id = ?{1} "
             + "group by data_set_id, data_set_perm_id, protein_id, probability, "
-            + "         amino_acid_sequence, s.db_id order by data_set_perm_id")
+            + "         amino_acid_sequence, s.db_id, name_and_version order by data_set_perm_id")
     public DataSet<IdentifiedProtein> listProteinsByProteinReferenceAndExperiment(
             String experimentPermID, long proteinReferenceID);
+
+    @Select("select * from peptides where prot_id = ?{1}")
+    public DataSet<IdentifiedPeptide> listIdentifiedPeptidesByProtein(long proteinID);
+    
 }
