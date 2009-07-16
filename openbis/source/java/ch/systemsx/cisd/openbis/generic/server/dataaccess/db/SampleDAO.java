@@ -33,6 +33,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -317,6 +318,21 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
             samples.add(prop.getEntity());
         }
         return samples;
+    }
+
+    public SamplePE tryToFindByPermID(String permID) throws DataAccessException
+    {
+        assert permID != null : "Unspecified permanent ID.";
+        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        criteria.add(Restrictions.eq(ColumnNames.PERM_ID_COLUMN, permID));
+        criteria.setFetchMode("sampleType.sampleTypePropertyTypesInternal", FetchMode.JOIN);
+        final SamplePE sample = (SamplePE) criteria.uniqueResult();
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("Following sample '%s' has been found for "
+                    + "permanent ID '%s'.", sample, permID));
+        }
+        return sample;
     }
 
     public final SamplePE tryFindByCodeAndDatabaseInstance(final String sampleCode,

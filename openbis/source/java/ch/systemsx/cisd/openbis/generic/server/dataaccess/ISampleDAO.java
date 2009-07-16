@@ -41,6 +41,11 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
     void createSample(final SamplePE sample) throws DataAccessException;
 
     /**
+     * Tries to find a sample by its permanent ID. Returns <code>null</code> if not found.
+     */
+    SamplePE tryToFindByPermID(String permID) throws DataAccessException;
+
+    /**
      * Returns the sample specified by given <var>sampleCode</var> and given
      * <var>databaseInstance</var>.
      */
