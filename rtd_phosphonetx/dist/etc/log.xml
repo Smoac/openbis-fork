@@ -59,7 +59,7 @@
         <param name="SMTPHost" value="localhost" />
         <param name="From" value="phosphonetx@localhost" />
         <param name="To" value="lars@imsb.biol.ethz.ch" />
-        <param name="Subject" value="ATTENTION: openBIS Server" />
+        <param name="Subject" value="ATTENTION: PhosphoNetX openBIS" />
         <param name="EvaluatorClass"
             value="ch.systemsx.cisd.common.logging.AlwaysTrueTriggeringEventEvaluator" />
 
