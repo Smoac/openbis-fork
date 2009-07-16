@@ -19,12 +19,14 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.applicatio
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers.EntityInformationHolderPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.AbstractPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.ProteinViewer.DatasetInformationHolder;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 
 /**
@@ -57,6 +59,13 @@ public final class PropertyValueRenderers
     {
         return ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers
                 .createExperimentPropertyValueRenderer(viewContext);
+    }
+
+    public final static IPropertyValueRenderer<DatasetInformationHolder> createEntityInformationPropertyValueRenderer(
+            final IViewContext<?> viewContext)
+    {
+        return new EntityInformationHolderPropertyValueRenderer<DatasetInformationHolder>(
+                viewContext);
     }
 
     private final static class ProteinByExperimentRenderer extends

@@ -98,6 +98,17 @@ public final class PropertyValueRenderers
     }
 
     /**
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering any
+     * {@link IEntityInformationHolder}.
+     */
+    public final static IPropertyValueRenderer<IEntityInformationHolder> createEntityInformationPropertyValueRenderer(
+            final IViewContext<?> viewContext)
+    {
+        return new EntityInformationHolderPropertyValueRenderer<IEntityInformationHolder>(
+                viewContext);
+    }
+
+    /**
      * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link SampleType}.
      */
     public final static IPropertyValueRenderer<SampleType> createSampleTypePropertyValueRenderer(
@@ -405,13 +416,13 @@ public final class PropertyValueRenderers
      * 
      * @author Piotr Buczek
      */
-    private static class EntityInformationHolderPropertyValueRenderer<T extends IEntityInformationHolder>
+    public static class EntityInformationHolderPropertyValueRenderer<T extends IEntityInformationHolder>
             extends AbstractPropertyValueRenderer<T>
     {
 
         private final IViewContext<?> viewContext;
 
-        EntityInformationHolderPropertyValueRenderer(final IViewContext<?> viewContext)
+        public EntityInformationHolderPropertyValueRenderer(final IViewContext<?> viewContext)
         {
             super(viewContext);
             this.viewContext = viewContext;

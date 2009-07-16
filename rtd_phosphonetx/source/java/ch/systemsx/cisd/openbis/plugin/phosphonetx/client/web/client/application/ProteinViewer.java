@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -41,9 +44,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Strin
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Peptide;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinDetails;
 
@@ -132,6 +139,7 @@ public class ProteinViewer extends
             // TODO 2009-07-16, Tomasz Pylak: write sample viewer
             BorderLayoutData layoutData = createBorderLayoutData(LayoutRegion.CENTER);
             add(propertyPanel, layoutData);
+            layout();
         }
     }
 
@@ -142,9 +150,26 @@ public class ProteinViewer extends
         details.setDatabaseNameAndVersion("database");
         details
                 .setSequence("ISDFHSJDGJHFGHHJKDGHJGBGBKJBGSHDFYUERGFUYEWBGCHJEBVHJERBCVUYERBFYUEWBCYUWERBCUYEBCUYEBR");
-        details.setDataSetPermID("12312312873812973");
+        details.setDataSetPermID("20090716105149429-34");
+        details.setDataSetTechID(15L);
+        details.setDataSetTypeCode("PROT_RESULT");
         details.setFalseDiscoveryRate(123);
+
+        // - more than once
+        // - overlapping
+        List<Peptide> peptides =
+                Arrays.asList(createPeptide("SJDGJHFGHHJ"), createPeptide("FUYEWBGCHJEBVH"),
+                        createPeptide("YERBFYUEWBCYU"),
+                        createPeptide("ERBCVUYERBFYUEWBCYUWERBCUYEB"));
+        details.setPeptides(peptides);
         protein.setDetails(details);
+    }
+
+    private static Peptide createPeptide(String sequence)
+    {
+        Peptide peptide = new Peptide();
+        peptide.setSequence(sequence);
+        return peptide;
     }
 
     private void recreateUIWithDatasetTable(ProteinByExperiment protein, ContentPanel propertyPanel)
@@ -199,9 +224,71 @@ public class ProteinViewer extends
         properties.put(viewContext.getMessage(Dict.DATABASE_NAME_AND_VERSION), proteinDetails
                 .getDatabaseNameAndVersion());
         properties.put(viewContext.getMessage(Dict.SEQUENCE_NAME), proteinDetails.getSequence());
+        properties.put(viewContext.getMessage(Dict.PEPTIDE_COUNT), proteinDetails.getPeptides()
+                .size());
+        String markedSequence =
+                markPeptides(proteinDetails.getSequence(), proteinDetails.getPeptides());
+        properties.put(viewContext.getMessage(Dict.PEPTIDE), markedSequence);
+
         properties.put(viewContext.getMessage(Dict.FDR), proteinDetails.getFalseDiscoveryRate());
-        properties.put(viewContext.getMessage(Dict.DATA_SET_PERM_ID), proteinDetails
-                .getDataSetPermID());
+
+        DatasetInformationHolder dataset = new DatasetInformationHolder(proteinDetails);
+        properties.put(viewContext.getMessage(Dict.DATA_SET_PERM_ID), dataset);
+        propertyGrid.registerPropertyValueRenderer(DatasetInformationHolder.class,
+                PropertyValueRenderers.createEntityInformationPropertyValueRenderer(viewContext));
+    }
+
+    private static String markPeptides(String sequence, List<Peptide> peptides)
+    {
+        List<String> peptideSequences = extractSequences(peptides);
+        return PeptidesMarker.markPeptides(sequence, peptideSequences);
+    }
+
+    private static List<String> extractSequences(List<Peptide> peptides)
+    {
+        List<String> result = new ArrayList<String>();
+        for (Peptide peptide : peptides)
+        {
+            result.add(peptide.getSequence());
+        }
+        return result;
+    }
+
+    public static class DatasetInformationHolder implements IEntityInformationHolder
+    {
+        private final ProteinDetails proteinDetails;
+
+        public DatasetInformationHolder(ProteinDetails proteinDetails)
+        {
+            this.proteinDetails = proteinDetails;
+        }
+
+        public EntityKind getEntityKind()
+        {
+            return EntityKind.DATA_SET;
+        }
+
+        public EntityType getEntityType()
+        {
+            DataSetType dataSetType = new DataSetType();
+            dataSetType.setCode(proteinDetails.getDataSetTypeCode());
+            return dataSetType;
+        }
+
+        public String getIdentifier()
+        {
+            return proteinDetails.getDataSetPermID();
+        }
+
+        public Long getId()
+        {
+            return proteinDetails.getDataSetTechID();
+        }
+
+        public String getCode()
+        {
+            return proteinDetails.getDataSetPermID();
+        }
     }
 
     public DatabaseModificationKind[] getRelevantModifications()
