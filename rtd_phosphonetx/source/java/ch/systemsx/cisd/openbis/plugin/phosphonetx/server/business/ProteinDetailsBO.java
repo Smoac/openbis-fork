@@ -23,6 +23,7 @@ import net.lemnik.eodsql.DataSet;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
@@ -68,20 +69,34 @@ class ProteinDetailsBO extends AbstractBusinessObject implements IProteinDetails
             details.setSequence(protein.getSequence());
             details.setDatabaseNameAndVersion(protein.getDatabaseNameAndVersion());
             details.setFalseDiscoveryRate(protein.getFalseDiscoveryRate());
-            details.setDataSetPermID(protein.getDataSetPermID());
-            DataSet<IdentifiedPeptide> identifiedPeptides = proteinQueryDAO.listIdentifiedPeptidesByProtein(protein.getProteinID());
-            List<Peptide> peptides = new ArrayList<Peptide>();
-            for (IdentifiedPeptide identifiedPeptide : identifiedPeptides)
+            String dataSetPermID = protein.getDataSetPermID();
+            details.setDataSetPermID(dataSetPermID);
+            DataPE ds = getDaoFactory().getExternalDataDAO().tryToFindDataSetByCode(dataSetPermID);
+            if (ds != null)
             {
-                Peptide peptide = new Peptide();
-                peptide.setSequence(identifiedPeptide.getSequence());
-                peptide.setCharge(identifiedPeptide.getCharge());
-                peptides.add(peptide);
+                details.setDataSetTechID(ds.getId());
+                details.setDataSetTypeCode(ds.getDataSetType().getCode());
             }
-            identifiedPeptides.close();
-            details.setPeptides(peptides);
+            details.setPeptides(loadPeptides(protein));
         }
         proteins.close();
+    }
+
+    private List<Peptide> loadPeptides(IdentifiedProtein protein)
+    {
+        IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO();
+        DataSet<IdentifiedPeptide> identifiedPeptides =
+                proteinQueryDAO.listIdentifiedPeptidesByProtein(protein.getProteinID());
+        List<Peptide> peptides = new ArrayList<Peptide>();
+        for (IdentifiedPeptide identifiedPeptide : identifiedPeptides)
+        {
+            Peptide peptide = new Peptide();
+            peptide.setSequence(identifiedPeptide.getSequence());
+            peptide.setCharge(identifiedPeptide.getCharge());
+            peptides.add(peptide);
+        }
+        identifiedPeptides.close();
+        return peptides;
     }
 
     private String getExperimentPermIDFor(TechId experimentId)
