@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.AminoAcidMass;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.AnnotatedProtein;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Parameter;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Peptide;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.PeptideModification;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Protein;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinGroup;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinProphetDetails;
@@ -58,7 +59,7 @@ public class ProtXMLLoaderTest extends AbstractFileSystemTestCase
         + "  <indistinguishable_protein><annotation protein_description='P43'/></indistinguishable_protein>\n"
         + "  <indistinguishable_protein><annotation protein_description='P44'/></indistinguishable_protein>\n"
         + "  <peptide peptide_sequence='VYQIDGNYSR'>\n"
-        + "   <modification_info>\n"
+        + "   <modification_info mod_nterm_mass='42' mod_cterm_mass='24.25'>\n"
         + "    <mod_aminoacid_mass position='1' mass='115.25'/>\n" 
         + "    <mod_aminoacid_mass position='4' mass='31.75'/>\n" 
         + "   </modification_info>\n"
@@ -119,7 +120,10 @@ public class ProtXMLLoaderTest extends AbstractFileSystemTestCase
         assertEquals(2, peptides.size());
         assertEquals("VYQIDGNYSR", peptides.get(0).getSequence());
         assertEquals(1, peptides.get(0).getModifications().size());
-        List<AminoAcidMass> masses = peptides.get(0).getModifications().get(0).getAminoAcidMasses();
+        PeptideModification peptideModification = peptides.get(0).getModifications().get(0);
+        assertEquals(42.0, peptideModification.getNTermMass());
+        assertEquals(24.25, peptideModification.getCTermMass());
+        List<AminoAcidMass> masses = peptideModification.getAminoAcidMasses();
         assertEquals(2, masses.size());
         assertEquals(1, masses.get(0).getPosition());
         assertEquals(115.25, masses.get(0).getMass());
