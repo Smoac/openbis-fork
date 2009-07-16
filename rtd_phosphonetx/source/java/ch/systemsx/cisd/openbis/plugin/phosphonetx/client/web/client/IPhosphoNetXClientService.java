@@ -24,10 +24,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentAndReferenceCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinSequenceCriteria;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListSampleAbundanceByProteinCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
 
 /**
  * 
@@ -56,5 +58,13 @@ public interface IPhosphoNetXClientService extends IClientService
     
     public String prepareExportDataSetProteins(TableExportCriteria<DataSetProtein> exportCriteria)
             throws UserFailureException;
+    
+    public ResultSet<SampleWithPropertiesAndAbundance> listSamplesWithAbundanceByProtein(
+            ListSampleAbundanceByProteinCriteria criteria) throws UserFailureException; 
+
+    public String prepareExportSamplesWithAbundance(
+            TableExportCriteria<SampleWithPropertiesAndAbundance> exportCriteria)
+            throws UserFailureException;
+
     
 }

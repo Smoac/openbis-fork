@@ -32,12 +32,14 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNet
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentAndReferenceCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinSequenceCriteria;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListSampleAbundanceByProteinCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
 
 /**
  * @author Franz-Josef Elmer
@@ -117,6 +119,22 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     }
 
     public String prepareExportDataSetProteins(TableExportCriteria<DataSetProtein> exportCriteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return prepareExportEntities(exportCriteria);
+    }
+
+    public ResultSet<SampleWithPropertiesAndAbundance> listSamplesWithAbundanceByProtein(
+            ListSampleAbundanceByProteinCriteria criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+        return listEntities(criteria, new ListSampleAbundanceDataProvider(server, sessionToken,
+                criteria.getProteinID()));
+    }
+
+    public String prepareExportSamplesWithAbundance(
+            TableExportCriteria<SampleWithPropertiesAndAbundance> exportCriteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(exportCriteria);
