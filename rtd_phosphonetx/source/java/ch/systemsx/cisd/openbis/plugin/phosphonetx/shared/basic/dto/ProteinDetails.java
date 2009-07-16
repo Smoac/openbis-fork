@@ -40,6 +40,8 @@ public class ProteinDetails implements IsSerializable, Serializable
 
     private Long dataSetTechID;
 
+    private String dataSetTypeCode;
+
     private List<Peptide> peptides;
 
     public String getSequence()
@@ -102,4 +104,13 @@ public class ProteinDetails implements IsSerializable, Serializable
         this.dataSetTechID = dataSetTechID;
     }
 
+    public String getDataSetTypeCode()
+    {
+        return dataSetTypeCode;
+    }
+
+    public void setDataSetTypeCode(String dataSetTypeCode)
+    {
+        this.dataSetTypeCode = dataSetTypeCode;
+    }
 }
