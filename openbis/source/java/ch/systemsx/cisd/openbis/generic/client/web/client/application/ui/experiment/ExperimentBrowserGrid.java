@@ -113,7 +113,6 @@ public class ExperimentBrowserGrid extends
     {
         super(viewContext, GRID_ID, criteriaProvider);
         setId(BROWSER_ID);
-        setEntityKindForDisplayTypeIDGeneration(EntityKind.EXPERIMENT);
     }
 
     private void extendBottomToolbar()
@@ -257,6 +256,12 @@ public class ExperimentBrowserGrid extends
     protected Set<DatabaseModificationKind> getGridRelevantModifications()
     {
         return getGridRelevantModifications(ObjectKind.EXPERIMENT);
+    }
+
+    @Override
+    protected EntityKind getEntityKind()
+    {
+        return EntityKind.EXPERIMENT;
     }
 
 }

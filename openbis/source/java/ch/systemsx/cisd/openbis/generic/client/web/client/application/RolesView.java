@@ -138,8 +138,7 @@ public class RolesView extends ContentPanel
         grid.setBorders(true);
         grid.setId(TABLE_ID);
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
-        String displayTypeID =
-                DisplayTypeIDGenerator.ROLE_ASSIGNMENT_BROWSER_GRID.createID(null, null);
+        String displayTypeID = DisplayTypeIDGenerator.ROLE_ASSIGNMENT_BROWSER_GRID.createID();
         viewContext.getDisplaySettingsManager().prepareGrid(displayTypeID, grid);
 
         cp.add(grid);

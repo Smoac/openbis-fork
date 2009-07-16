@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnHeader;
 
@@ -59,9 +60,10 @@ public class DataSetReporterGrid extends
 
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            TableModelReference tableModelReference)
+            TableModelReference tableModelReference, DatastoreServiceDescription service)
     {
-        final DataSetReporterGrid grid = new DataSetReporterGrid(viewContext, tableModelReference);
+        final DataSetReporterGrid grid =
+                new DataSetReporterGrid(viewContext, tableModelReference, service.getKey());
         return grid.asDisposableWithoutToolbar();
     }
 
@@ -112,16 +114,24 @@ public class DataSetReporterGrid extends
 
     private final String resultSetKey;
 
+    private final String reportKind;
+
     private DataSetReporterGrid(IViewContext<ICommonClientServiceAsync> viewContext,
-            TableModelReference tableModelReference)
+            TableModelReference tableModelReference, String reportKind)
     {
         super(viewContext, GRID_ID, false, true);
         setId(BROWSER_ID);
         this.tableHeader = tableModelReference.getHeader();
         this.resultSetKey = tableModelReference.getResultSetKey();
+        this.reportKind = reportKind;
         updateDefaultRefreshButton();
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.DATA_SET_REPORTING_GRID);
+    }
 
+    @Override
+    protected String getGridDisplayTypeID()
+    {
+        return createGridDisplayTypeID(reportKind);
     }
 
     @Override

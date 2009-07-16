@@ -93,8 +93,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo.SortDir;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 
 /**
  * @author Tomasz Pylak
@@ -135,8 +133,18 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     /** @return should the refresh button be enabled? */
     abstract protected boolean isRefreshEnabled();
 
-    /** @return on which fields user can set filters? */
+    /** @return on which fields filters should be switched on by default? */
     abstract protected List<IColumnDefinition<T>> getInitialFilters();
+
+    /**
+     * To be subclassed if columns in the grid depend on the internal grid configuration.
+     * 
+     * @return id at which grid display settings are saved.
+     */
+    protected String getGridDisplayTypeID()
+    {
+        return createGridDisplayTypeID(null);
+    }
 
     // --------
 
@@ -175,8 +183,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private IDataRefreshCallback refreshCallback;
 
     private IDisplayTypeIDGenerator displayTypeIDGenerator;
-
-    private EntityKind entityKind;
 
     protected AbstractBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             String gridId)
@@ -261,17 +267,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     protected final void setDisplayTypeIDGenerator(IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
         this.displayTypeIDGenerator = displayTypeIDGenerator;
-    }
-
-    protected final void setEntityKindForDisplayTypeIDGeneration(EntityKind entityKind)
-    {
-        this.entityKind = entityKind;
-    }
-
-    /** to be overriden by subclasses if different entity types can be displayed */
-    protected EntityType tryToGetEntityType()
-    {
-        return null;
     }
 
     private List<PagingColumnFilter<T>> createFilterWidgets(
@@ -948,13 +943,19 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return columns;
     }
 
-    private String getGridDisplayTypeID()
+    protected final String createGridDisplayTypeID(String suffixOrNull)
     {
         if (displayTypeIDGenerator == null)
         {
             throw new IllegalStateException("Undefined display type ID generator.");
         }
-        return displayTypeIDGenerator.createID(entityKind, tryToGetEntityType());
+        if (suffixOrNull == null)
+        {
+            return displayTypeIDGenerator.createID();
+        } else
+        {
+            return displayTypeIDGenerator.createID(suffixOrNull);
+        }
     }
 
     private IDataRefreshCallback createRefreshCallback(
@@ -972,12 +973,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private IDataRefreshCallback createInternalPostRefreshCallback()
     {
-        final boolean originalRefreshEnabled = pagingToolbar.isDefaultRefreshButtonEnabled();
         return new IDataRefreshCallback()
             {
                 public void postRefresh(boolean wasSuccessful)
                 {
-                    pagingToolbar.updateDefaultRefreshButton(originalRefreshEnabled);
+                    updateDefaultRefreshButton();
                     if (wasSuccessful)
                     {
                         pagingToolbar.updateDefaultConfigButton(true);

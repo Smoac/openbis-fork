@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.SetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -69,6 +70,10 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
 
     /** @return text which should be used as a grid header */
     abstract protected String createHeader();
+
+    abstract protected EntityType tryToGetEntityType();
+
+    abstract protected EntityKind getEntityKind();
 
     private final ICriteriaProvider<K> criteriaProvider;
 
@@ -105,6 +110,28 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
         super(viewContext, gridId, showHeader, refreshAutomatically);
         this.criteriaProvider = criteriaProvider;
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
+    }
+
+    @Override
+    protected String getGridDisplayTypeID()
+    {
+        String suffix = createDisplayIdSuffix(getEntityKind(), tryToGetEntityType());
+        return createGridDisplayTypeID(suffix);
+    }
+
+    private static String createDisplayIdSuffix(EntityKind entityKindOrNull,
+            EntityType entityTypeOrNull)
+    {
+        String suffix = "";
+        if (entityKindOrNull != null)
+        {
+            suffix += "-" + entityKindOrNull.toString();
+        }
+        if (entityTypeOrNull != null)
+        {
+            suffix += "-" + entityTypeOrNull.getCode();
+        }
+        return suffix;
     }
 
     /**

@@ -52,7 +52,6 @@ public class MaterialTypeGrid extends AbstractEntityTypeGrid
     private MaterialTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID, GRID_ID);
-        setEntityKindForDisplayTypeIDGeneration(EntityKind.MATERIAL);
     }
 
     @Override

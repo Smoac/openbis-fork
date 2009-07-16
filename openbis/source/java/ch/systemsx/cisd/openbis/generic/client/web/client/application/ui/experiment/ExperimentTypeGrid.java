@@ -52,7 +52,6 @@ public class ExperimentTypeGrid extends AbstractEntityTypeGrid
     private ExperimentTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID, GRID_ID);
-        setEntityKindForDisplayTypeIDGeneration(EntityKind.EXPERIMENT);
     }
 
     @Override

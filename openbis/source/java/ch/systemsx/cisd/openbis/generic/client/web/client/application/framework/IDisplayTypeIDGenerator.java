@@ -16,19 +16,21 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-
 /**
  * Generator of diplay type ID as used by {@link DisplaySettingsManager}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IDisplayTypeIDGenerator
 {
     /**
-     * Creates an ID for the optionally specified entity kind and entity type.
+     * Creates an ID.
      */
-    public String createID(EntityKind entityKindOrNull, EntityType entityTypeOrNull);
+    public String createID();
+
+    /**
+     * Creates an ID with the optionally specified suffix.
+     */
+    public String createID(String suffix);
 
 }

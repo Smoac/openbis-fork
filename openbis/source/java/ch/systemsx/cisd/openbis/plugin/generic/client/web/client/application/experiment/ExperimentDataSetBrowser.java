@@ -27,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
  * @author Franz-Josef Elmer
@@ -54,7 +53,6 @@ public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
         super(viewContext, createBrowserId(experimentId), createGridId(experimentId), true);
         this.experimentId = experimentId;
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
-        setEntityKindForDisplayTypeIDGeneration(EntityKind.DATA_SET);
     }
 
     public static String createGridId(TechId experimentId)

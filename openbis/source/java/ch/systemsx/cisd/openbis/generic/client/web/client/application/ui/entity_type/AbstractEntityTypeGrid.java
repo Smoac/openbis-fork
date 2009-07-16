@@ -69,8 +69,15 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
     {
         super(viewContext, browserId, gridId);
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.TYPE_BROWSER_GRID);
+
         postRegistrationCallback = createRefreshGridAction();
         extendBottomToolbar();
+    }
+
+    @Override
+    protected String getGridDisplayTypeID()
+    {
+        return createGridDisplayTypeID("-" + getEntityKind().toString());
     }
 
     private void extendBottomToolbar()

@@ -17,40 +17,33 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public enum PhosphoNetXDisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 {
     PROTEIN_BY_EXPERIMENT_BROWSER_GRID("protein-by-experiment-browser-grid"),
+
     PROTEIN_SEQUENCE_BROWSER_GRID("protein-sequence-browser-grid"),
-    DATA_SET_PROTEIN_BROWSER_GRID("data-set-protein-browser-grid"),
-    ;
-    
+
+    DATA_SET_PROTEIN_BROWSER_GRID("data-set-protein-browser-grid"), ;
+
     private final String genericNameOrPrefix;
 
     private PhosphoNetXDisplayTypeIDGenerator(String genericNameOrPrefix)
     {
         this.genericNameOrPrefix = genericNameOrPrefix;
     }
-    
-    public String createID(EntityKind entityKindOrNull, EntityType entityTypeOrNull)
+
+    public String createID()
     {
-        String id = genericNameOrPrefix;
-        if (entityKindOrNull != null)
-        {
-            id += "-" + entityKindOrNull.toString();
-        }
-        if (entityTypeOrNull != null)
-        {
-            id += "-" + entityTypeOrNull.getCode();
-        }
-        return id;
+        return genericNameOrPrefix;
+    }
+
+    public String createID(String suffix)
+    {
+        return genericNameOrPrefix + suffix;
     }
 
 }

@@ -136,7 +136,6 @@ public class SampleBrowserGrid extends
                         refreshAutomatically);
         browserGrid.updateCriteriaProviderAndRefresh();
         browserGrid.setDisplayTypeIDGenerator(DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
-        browserGrid.setEntityKindForDisplayTypeIDGeneration(EntityKind.SAMPLE);
         return browserGrid.asDisposableWithoutToolbar();
     }
 
@@ -226,7 +225,6 @@ public class SampleBrowserGrid extends
                         }
                     });
         setId(BROWSER_ID);
-        setEntityKindForDisplayTypeIDGeneration(EntityKind.SAMPLE);
     }
 
     // adds show, show-details and invalidate buttons
@@ -408,6 +406,12 @@ public class SampleBrowserGrid extends
     protected IColumnDefinitionKind<Sample>[] getStaticColumnsDefinition()
     {
         return CommonSampleColDefKind.values();
+    }
+
+    @Override
+    protected EntityKind getEntityKind()
+    {
+        return EntityKind.SAMPLE;
     }
 
 }

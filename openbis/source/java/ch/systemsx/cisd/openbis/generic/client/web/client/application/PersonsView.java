@@ -156,7 +156,7 @@ public class PersonsView extends ContentPanel
         grid.setId(TABLE_ID);
         grid.setBorders(true);
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
-        String displayTypeID = DisplayTypeIDGenerator.PERSON_BROWSER_GRID.createID(null, null);
+        String displayTypeID = DisplayTypeIDGenerator.PERSON_BROWSER_GRID.createID();
         viewContext.getDisplaySettingsManager().prepareGrid(displayTypeID, grid);
         cp.add(grid);
 

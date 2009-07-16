@@ -52,7 +52,6 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid
     private DataSetTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID, GRID_ID);
-        setEntityKindForDisplayTypeIDGeneration(EntityKind.DATA_SET);
     }
 
     @Override

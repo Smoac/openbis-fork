@@ -165,9 +165,10 @@ public class DataSetComputeMenu extends TextToolItem
                             createCriteria(selectedAndDisplayedItems, computeOnSelected);
                     if (pluginTaskKind == DataStoreServiceKind.QUERIES)
                     {
-                        Dialog progressBar = createAndShowProgressBar();
+                        ReportDisplayCallback callback =
+                                new ReportDisplayCallback(viewContext, service);
                         viewContext.getService().createReportFromDatasets(service, criteria,
-                                new ReportDisplayCallback(viewContext, progressBar));
+                                callback);
                     } else
                     {
                         viewContext.getService().processDatasets(service, criteria,
@@ -223,12 +224,15 @@ public class DataSetComputeMenu extends TextToolItem
 
         private final Dialog progressBar;
 
+        private final DatastoreServiceDescription service;
+
         public ReportDisplayCallback(IViewContext<ICommonClientServiceAsync> viewContext,
-                Dialog progressBar)
+                DatastoreServiceDescription service)
         {
             super(viewContext);
             this.viewContext = viewContext;
-            this.progressBar = progressBar;
+            this.progressBar = createAndShowProgressBar();
+            this.service = service;
         }
 
         @Override
@@ -240,8 +244,10 @@ public class DataSetComputeMenu extends TextToolItem
                     public ITabItem create()
                     {
                         IDisposableComponent component =
-                                DataSetReporterGrid.create(viewContext, tableModelReference);
-                        return DefaultTabItem.create("Data Store Report", component, viewContext);
+                                DataSetReporterGrid.create(viewContext, tableModelReference,
+                                        service);
+                        String reportTitle = service.getLabel();
+                        return DefaultTabItem.create(reportTitle, component, viewContext);
                     }
 
                     public String getId()

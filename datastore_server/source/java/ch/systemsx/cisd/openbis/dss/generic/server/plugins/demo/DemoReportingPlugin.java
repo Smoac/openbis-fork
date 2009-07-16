@@ -44,7 +44,6 @@ public class DemoReportingPlugin extends AbstractDatastorePlugin implements IRep
 
     public TableModel createReport(List<DatasetDescription> datasets)
     {
-        System.out.println("Reporting from the following datasets has been requested: " + datasets);
         TableModelBuilder builder = new TableModelBuilder();
         builder.addHeader("Dataset code", TableModelColumnType.TEXT);
         builder.addHeader("Name", TableModelColumnType.TEXT);

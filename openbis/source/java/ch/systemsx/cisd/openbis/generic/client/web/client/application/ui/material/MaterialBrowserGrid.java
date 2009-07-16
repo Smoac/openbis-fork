@@ -145,7 +145,6 @@ public class MaterialBrowserGrid extends
     {
         super(viewContext, GRID_ID, true, refreshAutomatically, criteriaProvider);
         setId(BROWSER_ID);
-        setEntityKindForDisplayTypeIDGeneration(EntityKind.MATERIAL);
     }
 
     private void extendBottomToolbar(boolean detailsAvailable)
@@ -274,5 +273,11 @@ public class MaterialBrowserGrid extends
     protected IColumnDefinitionKind<Material>[] getStaticColumnsDefinition()
     {
         return CommonMaterialColDefKind.values();
+    }
+
+    @Override
+    protected EntityKind getEntityKind()
+    {
+        return EntityKind.MATERIAL;
     }
 }

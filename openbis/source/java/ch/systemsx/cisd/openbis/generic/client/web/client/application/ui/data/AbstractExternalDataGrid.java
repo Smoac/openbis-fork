@@ -250,7 +250,6 @@ public abstract class AbstractExternalDataGrid
         super(viewContext, gridId, false, false, createCriteriaProvider(viewContext,
                 displayOnlyDatasetProperties));
         setId(browserId);
-        setEntityKindForDisplayTypeIDGeneration(EntityKind.DATA_SET);
         super.updateCriteriaProviderAndRefresh();
 
         addEntityOperationsLabel();
@@ -489,4 +488,15 @@ public abstract class AbstractExternalDataGrid
         DispatcherHelper.dispatchNaviEvent(tabView);
     }
 
+    @Override
+    protected EntityKind getEntityKind()
+    {
+        return EntityKind.DATA_SET;
+    }
+
+    @Override
+    protected EntityType tryToGetEntityType()
+    {
+        return null;
+    }
 }

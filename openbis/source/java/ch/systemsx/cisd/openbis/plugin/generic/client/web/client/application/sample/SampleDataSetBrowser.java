@@ -26,7 +26,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
  * @author Franz-Josef Elmer
@@ -58,7 +57,6 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
         super(viewContext, createBrowserId(sampleId), createGridId(sampleId), true);
         this.sampleId = sampleId;
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
-        setEntityKindForDisplayTypeIDGeneration(EntityKind.DATA_SET);
     }
 
     @Override

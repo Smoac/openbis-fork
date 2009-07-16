@@ -170,7 +170,8 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         partOfSamplesGrid = new Grid<ModelData>(sampleListStore, createPartOfSamplesColumnModel());
         partOfSamplesGrid.setId(getId() + COMPONENTS_POSTFIX);
         String displayTypeID =
-                DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID.createID(EntityKind.SAMPLE, null);
+                DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID.createID("-"
+                        + EntityKind.SAMPLE.toString());
         viewContext.getDisplaySettingsManager().prepareGrid(displayTypeID, partOfSamplesGrid);
         partOfSamplesGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         partOfSamplesGrid.setLoadMask(true);

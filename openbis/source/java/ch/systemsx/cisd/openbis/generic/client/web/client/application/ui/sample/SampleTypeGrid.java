@@ -52,7 +52,6 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid
     private SampleTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID, GRID_ID);
-        setEntityKindForDisplayTypeIDGeneration(EntityKind.SAMPLE);
     }
 
     @Override
