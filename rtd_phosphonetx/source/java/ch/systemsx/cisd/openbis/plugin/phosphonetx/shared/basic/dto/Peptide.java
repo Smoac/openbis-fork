@@ -17,13 +17,20 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto;
 
 /**
- * 
- *
  * @author Tomasz Pylak
  */
 public class Peptide
 {
     private String sequence;
-    
-    
+
+    public String getSequence()
+    {
+        return sequence;
+    }
+
+    public void setSequence(String sequence)
+    {
+        this.sequence = sequence;
+    }
+
 }
