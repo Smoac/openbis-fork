@@ -76,7 +76,6 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
         return (Class<? extends IPredicate<String>>) stringPredicate.getClass();
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public final void testEvaluateWithSimpleObject()
     {
@@ -100,7 +99,6 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
         context.assertIsSatisfied();
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public final void testEvaluateWithArray()
     {
@@ -127,7 +125,6 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
         context.assertIsSatisfied();
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public final void testEvaluateWithCollection()
     {
