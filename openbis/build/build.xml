@@ -229,7 +229,7 @@
 				<include name="**/*.xml" />
 				<exclude name="**/*.gwt.xml" />
 			</classes>
-			<classes dir="${original.dist}">
+			<classes dir="${original.server.dist}">
 				<include name="etc/log.xml" />
 				<include name="etc/passwd" />
 			</classes>
