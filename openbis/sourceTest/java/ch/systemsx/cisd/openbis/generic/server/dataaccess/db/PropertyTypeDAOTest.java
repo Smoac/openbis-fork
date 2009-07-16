@@ -23,6 +23,7 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -30,6 +31,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
@@ -139,17 +141,75 @@ public final class PropertyTypeDAOTest extends AbstractDAOTest
         assertFalse(fail);
         try
         {
-            propertyTypeDAO.createPropertyType(createPropertyType(propertyTypeDAO
-                    .getDataTypeByCode(entityDataType), "code", null, null));
+            createPropertyType(entityDataType, "code");
             fail(String.format("'%s' expected.", DataIntegrityViolationException.class
                     .getSimpleName()));
         } catch (final DataIntegrityViolationException ex)
         {
             // Nothing to do here.
         }
-        propertyTypeDAO.createPropertyType(createPropertyType(propertyTypeDAO
-                .getDataTypeByCode(entityDataType), "user.code", null, null));
+        createPropertyType(entityDataType, "user.code");
         assertNotNull(propertyTypeDAO.tryFindPropertyTypeByCode("user.code"));
         assertNull(propertyTypeDAO.tryFindPropertyTypeByCode("code"));
+    }
+
+    private final void createPropertyType(final EntityDataType entityDataType, final String code)
+    {
+        final IPropertyTypeDAO propertyTypeDAO = daoFactory.getPropertyTypeDAO();
+        propertyTypeDAO.createPropertyType(createPropertyType(propertyTypeDAO
+                .getDataTypeByCode(entityDataType), code, null, null));
+    }
+
+    @Test
+    public final void testDelete()
+    {
+        // create new property type with no connections
+        final EntityDataType entityDataType = EntityDataType.BOOLEAN;
+        final String propertyTypeCode = "user.bool";
+        createPropertyType(entityDataType, propertyTypeCode);
+
+        final IPropertyTypeDAO propertyTypeDAO = daoFactory.getPropertyTypeDAO();
+        final PropertyTypePE deletedPropertyType = findPropertyType(propertyTypeCode);
+
+        // Deleted property type should have no connections which prevent it from deletion.
+        assertTrue(getConnectionsPreventingDeletion(deletedPropertyType).isEmpty());
+
+        // delete
+        propertyTypeDAO.delete(deletedPropertyType);
+
+        // test successful deletion of vocabulary
+        assertNull(propertyTypeDAO.tryGetByTechId(TechId.create(deletedPropertyType)));
+    }
+
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
+    public final void testDeleteFail()
+    {
+        final IPropertyTypeDAO propertyTypeDAO = daoFactory.getPropertyTypeDAO();
+        final PropertyTypePE deletedPropertyType = findPropertyType("USER.COMMENT");
+
+        // Deleted property type should have at least one connection which prevent it from deletion.
+        assertFalse(getConnectionsPreventingDeletion(deletedPropertyType).isEmpty());
+
+        // delete
+        propertyTypeDAO.delete(deletedPropertyType);
+    }
+
+    private final PropertyTypePE findPropertyType(String code)
+    {
+        final IPropertyTypeDAO propertyTypeDAO = daoFactory.getPropertyTypeDAO();
+        final PropertyTypePE propertyType = propertyTypeDAO.tryFindPropertyTypeByCode(code);
+        assertNotNull(propertyType);
+
+        return propertyType;
+    }
+
+    private final List<Object> getConnectionsPreventingDeletion(final PropertyTypePE propertyType)
+    {
+        List<Object> result = new ArrayList<Object>();
+        result.addAll(propertyType.getDataSetTypePropertyTypes());
+        result.addAll(propertyType.getExperimentTypePropertyTypes());
+        result.addAll(propertyType.getMaterialTypePropertyTypes());
+        result.addAll(propertyType.getSampleTypePropertyTypes());
+        return result;
     }
 }

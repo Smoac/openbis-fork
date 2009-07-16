@@ -403,7 +403,6 @@ public final class SampleDAOTest extends AbstractDAOTest
     {
         final SampleTypePE sampleType = getSampleType(SampleTypeCode.MASTER_PLATE);
         final GroupPE group = createGroup("xxx");
-        daoFactory.getGroupDAO().createGroup(group);
         final SamplePE sample =
                 createSample(sampleType, "code", null, SampleOwner.createGroup(group));
         save(sample);

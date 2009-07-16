@@ -20,6 +20,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.List;
@@ -27,7 +28,9 @@ import java.util.List;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
@@ -40,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 @Test(groups =
     { "db" })
+@Friend(toClasses = VocabularyPE.class)
 public final class VocabularyDAOTest extends AbstractDAOTest
 {
     private final VocabularyTermPE createVocabularyTerm(final String code)
@@ -166,5 +170,50 @@ public final class VocabularyDAOTest extends AbstractDAOTest
         assertEquals(5, vocabularies.size());
         final VocabularyPE vocabularyPE = vocabularies.get(0);
         assertFalse(HibernateUtils.isInitialized(vocabularyPE.getTerms()));
+    }
+
+    @Test
+    public final void testDeleteWithVocabularyTerms()
+    {
+        final IVocabularyDAO vocabularyDAO = daoFactory.getVocabularyDAO();
+        final VocabularyPE deletedVocabulary = findVocabulary("USER.HUMAN");
+
+        // Deleted vocabulary should have all collections which prevent it from deletion empty.
+        assertTrue(deletedVocabulary.getPropertyTypes().isEmpty());
+
+        // delete
+        vocabularyDAO.delete(deletedVocabulary);
+
+        // test successful deletion of vocabulary
+        assertNull(vocabularyDAO.tryGetByTechId(TechId.create(deletedVocabulary)));
+
+        // test successful deletion of vocabulary terms
+        assertFalse(deletedVocabulary.getTerms().isEmpty());
+        for (VocabularyTermPE term : deletedVocabulary.getTerms())
+        {
+            assertNull(vocabularyDAO.tryFindVocabularyTermByCode(deletedVocabulary, term.getCode()));
+        }
+    }
+
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
+    public final void testDeleteFail()
+    {
+        final IVocabularyDAO vocabularyDAO = daoFactory.getVocabularyDAO();
+        final VocabularyPE deletedVocabulary = findVocabulary("USER.ORGANISM");
+
+        // Deleted project should have property types which prevent it from deletion.
+        assertFalse(deletedVocabulary.getPropertyTypes().isEmpty());
+
+        // delete
+        vocabularyDAO.delete(deletedVocabulary);
+    }
+
+    private final VocabularyPE findVocabulary(String code)
+    {
+        final IVocabularyDAO vocablaryDAO = daoFactory.getVocabularyDAO();
+        final VocabularyPE vocabulary = vocablaryDAO.tryFindVocabularyByCode(code);
+        assertNotNull(vocabulary);
+
+        return vocabulary;
     }
 }

@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,6 +28,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -41,6 +44,7 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -216,5 +220,24 @@ public final class GroupPE extends HibernateAbstractRegistrationHolder implement
     public final int compareTo(final GroupPE o)
     {
         return AbstractIdAndCodeHolder.compare(this, o);
+    }
+
+    //
+    // connected projects for use only in tests (no bidirectional support for connection)
+    //
+
+    private List<ProjectPE> projects = new ArrayList<ProjectPE>();
+
+    @Private
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "group")
+    public List<ProjectPE> getProjects()
+    {
+        return projects;
+    }
+
+    @SuppressWarnings("unused")
+    private void setProjects(List<ProjectPE> projects)
+    {
+        this.projects = projects;
     }
 }

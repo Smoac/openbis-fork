@@ -564,10 +564,10 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     // connected samples for use only in tests (no bidirectional support for connection)
     //
 
-    /** children of container hierarchy - added only to allow cascade deletion */
+    /** children of container hierarchy - added only to simplify testing */
     private List<SamplePE> contained = new ArrayList<SamplePE>();
 
-    /** children of generatedFrom hierarchy - added only to allow cascade deletion */
+    /** children of generatedFrom hierarchy - added only to simplify testing */
     private List<SamplePE> generated = new ArrayList<SamplePE>();
 
     @Private

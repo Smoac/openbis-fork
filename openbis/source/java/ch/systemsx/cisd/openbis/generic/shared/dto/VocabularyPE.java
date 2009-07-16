@@ -17,8 +17,10 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -45,6 +47,7 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -339,6 +342,26 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
     public final int compareTo(final VocabularyPE o)
     {
         return AbstractIdAndCodeHolder.compare(this, o);
+    }
+
+    //
+    // connected property types for use only in tests (no bidirectional support for connection)
+    //
+
+    /** children of container hierarchy - added only to simplify testing */
+    private List<PropertyTypePE> propertyTypes = new ArrayList<PropertyTypePE>();
+
+    @Private
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "vocabulary")
+    public List<PropertyTypePE> getPropertyTypes()
+    {
+        return propertyTypes;
+    }
+
+    @SuppressWarnings("unused")
+    private void setPropertyTypes(List<PropertyTypePE> propertyTypes)
+    {
+        this.propertyTypes = propertyTypes;
     }
 
 }
