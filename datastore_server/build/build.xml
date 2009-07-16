@@ -93,10 +93,10 @@
 		          value="${dist.file.prefix}-${version.number}-r${revision.number}.zip" />
 		<zip basedir="${dist}" destfile="${dist.file}" excludes="*.zip *.jar">
 			<zipfileset dir="${dss.original.dist}" 
-				    excludes="**/datastore_server.sh, **/service.properties" 
+				    excludes="**/datastore_server.sh, **/service.properties, **/log.xml" 
 				    prefix="${dss}" />
 			<zipfileset dir="dist" 
-				    includes="**/service.properties" 
+				    includes="**/service.properties, **/log.xml" 
 				    prefix="${dss}" />
 			<zipfileset file="${dss.original.dist}/datastore_server.sh"
 			            filemode="755"
