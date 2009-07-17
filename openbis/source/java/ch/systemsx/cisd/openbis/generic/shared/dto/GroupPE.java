@@ -206,8 +206,13 @@ public final class GroupPE extends HibernateAbstractRegistrationHolder implement
     @Override
     public final String toString()
     {
-        return ToStringBuilder.reflectionToString(this,
-                ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
+        final ToStringBuilder builder =
+                new ToStringBuilder(this,
+                        ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
+        builder.append("code", getCode());
+        builder.append("description", getDescription());
+        builder.append("home", isHome());
+        return builder.toString();
     }
 
     //
