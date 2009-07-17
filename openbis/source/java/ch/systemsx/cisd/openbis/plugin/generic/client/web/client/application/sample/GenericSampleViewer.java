@@ -298,6 +298,12 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
             properties.put(messageProvider.getMessage(Dict.GENERATED_FROM, i + 1), generatedFrom);
             generatedFrom = generatedFrom.getGeneratedFrom();
         }
+        Sample partOf = sample.getContainer();
+        for (int i = 0; i < sampleType.getPartOfHierarchyDepth() && partOf != null; i++)
+        {
+            properties.put(messageProvider.getMessage(Dict.PART_OF, i + 1), partOf);
+            partOf = partOf.getContainer();
+        }
         final List<SampleProperty> sampleProperties = sample.getProperties();
         Collections.sort(sampleProperties);
         for (final SampleProperty property : sampleProperties)
