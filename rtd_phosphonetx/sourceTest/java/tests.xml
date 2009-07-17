@@ -6,7 +6,8 @@
       </run>
     </groups>
     <packages>
-      <package name="ch.systemsx.cisd.phosphonetx.*" />
+      <package name="ch.systemsx.cisd.openbis.etlserver.phosphonetx.*" />
+      <package name="ch.systemsx.cisd.openbis.plugin.phosphonetx.*" />
    </packages>
  </test>
 </suite>

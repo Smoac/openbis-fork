@@ -124,7 +124,7 @@ public class ProteinViewer extends
 
     private void recreateUI(ProteinByExperiment protein)
     {
-        fillDebugData(protein);
+        // fillDebugData(protein);
 
         setLayout(new BorderLayout());
         removeAll();
@@ -241,7 +241,7 @@ public class ProteinViewer extends
     private static String markPeptides(String sequence, List<Peptide> peptides)
     {
         List<String> peptideSequences = extractSequences(peptides);
-        return PeptidesMarker.markPeptides(sequence, peptideSequences);
+        return OccurrencesMarker.markOccurrencesWithHtml(sequence, peptideSequences);
     }
 
     private static List<String> extractSequences(List<Peptide> peptides)
