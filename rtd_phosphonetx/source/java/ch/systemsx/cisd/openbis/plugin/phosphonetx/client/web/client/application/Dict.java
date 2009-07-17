@@ -52,8 +52,6 @@ public class Dict
 
     public static final String DATA_SET_PERM_ID = "data_set_perm_id";
 
-    public static final String PEPTIDE = "peptide";
-
     public static final String PEPTIDE_COUNT = "peptide_count";
 
     public static final String SEQUENCE_NAME = "sequence_name";

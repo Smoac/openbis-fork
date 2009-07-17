@@ -17,43 +17,77 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
+
 /**
  * @author Tomasz Pylak
  */
+@Friend(toClasses = OccurrencesMarker.class)
 public class OccurrencesMarkerTest extends AssertJUnit
 {
     @Test
     public void testFindNonOverlappingOccurrences()
     {
-        OccurrencesMarker marker = new OccurrencesMarker("<", ">");
-        List<String> marked =
-                marker.mark("hello, my beautiful world!", Arrays.asList("hello", "world"));
-        assertEquals(1, marked.size());
-        assertEquals("<hello>, my beautiful <world>!", marked.get(0));
+        OccurrencesMarker marker = createMarker();
+        String marked = marker.mark("hello, my beautiful world!", Arrays.asList("hello", "world"));
+        assertEquals("<hello>, my beautiful <world>!", marked);
+    }
+
+    private OccurrencesMarker createMarker()
+    {
+        return new OccurrencesMarker('<', '>');
     }
 
     @Test
     public void testFindOverlappingOccurrences()
     {
-        OccurrencesMarker marker = new OccurrencesMarker("<", ">");
-        List<String> marked = marker.mark("aaaa", Arrays.asList("aa"));
-        assertEquals(2, marked.size());
-        assertEquals("<aa><aa>", marked.get(0));
-        assertEquals("a<aa>a", marked.get(1));
+        OccurrencesMarker marker = createMarker();
+        String marked = marker.mark("aaaa", Arrays.asList("aa"));
+        assertEquals("<aaaa>", marked);
     }
 
     @Test
     public void testFindNoOccurrences()
     {
-        OccurrencesMarker marker = new OccurrencesMarker("<", ">");
-        List<String> marked = marker.mark("aaaa", Arrays.asList("x"));
-        assertEquals(1, marked.size());
-        assertEquals("aaaa", marked.get(0));
+        OccurrencesMarker marker = createMarker();
+        String marked = marker.mark("aaaa", Arrays.asList("x"));
+        assertEquals("aaaa", marked);
+    }
+
+    @Test
+    public void testFindContainingOccurrences()
+    {
+        OccurrencesMarker marker = createMarker();
+        String marked = marker.mark("xabcx", Arrays.asList("abc", "b"));
+        assertEquals("x<abc>x", marked);
+    }
+
+    @Test
+    public void testBreakLinesLastLineNotFull()
+    {
+        String lines = OccurrencesMarker.breakLines("1234567", 3, "x");
+        assertEquals("123x456x7", lines);
+    }
+
+    @Test
+    public void testBreakLinesLastLineFull()
+    {
+        String lines = OccurrencesMarker.breakLines("123456", 3, "x");
+        assertEquals("123x456", lines);
+    }
+
+    @Test
+    public void testReplaceTags()
+    {
+        String marked = new OccurrencesMarker('(', ')').replaceTags("a(a)a", "<", ">");
+        assertEquals("a<a>a", marked);
+
+        marked = new OccurrencesMarker('<', '>').replaceTags("a<a>a", "(", ")");
+        assertEquals("a(a)a", marked);
     }
 
 }

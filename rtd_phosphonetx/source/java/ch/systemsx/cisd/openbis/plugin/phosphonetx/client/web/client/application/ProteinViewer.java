@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +60,8 @@ public class ProteinViewer extends
         AbstractViewer<IPhosphoNetXClientServiceAsync, IEntityInformationHolder> implements
         IDatabaseModificationObserver
 {
+    private static final int AMINOACIDS_IN_SEQUENCE_PER_LINE = 60;
+
     private static final String PREFIX = "protein-viewer_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
@@ -124,8 +125,6 @@ public class ProteinViewer extends
 
     private void recreateUI(ProteinByExperiment protein)
     {
-        // fillDebugData(protein);
-
         setLayout(new BorderLayout());
         removeAll();
         setScrollMode(Scroll.AUTO);
@@ -141,28 +140,6 @@ public class ProteinViewer extends
             add(propertyPanel, layoutData);
             layout();
         }
-    }
-
-    // TODO 2009-07-17, Tomasz Pylak: remove me!!!!!!!!!!!!!!!!!!!!!!!!!
-    private static void fillDebugData(ProteinByExperiment protein)
-    {
-        ProteinDetails details = new ProteinDetails();
-        details.setDatabaseNameAndVersion("database");
-        details
-                .setSequence("ISDFHSJDGJHFGHHJKDGHJGBGBKJBGSHDFYUERGFUYEWBGCHJEBVHJERBCVUYERBFYUEWBCYUWERBCUYEBCUYEBR");
-        details.setDataSetPermID("20090716105149429-34");
-        details.setDataSetTechID(15L);
-        details.setDataSetTypeCode("PROT_RESULT");
-        details.setFalseDiscoveryRate(123);
-
-        // - more than once
-        // - overlapping
-        List<Peptide> peptides =
-                Arrays.asList(createPeptide("SJDGJHFGHHJ"), createPeptide("FUYEWBGCHJEBVH"),
-                        createPeptide("YERBFYUEWBCYU"),
-                        createPeptide("ERBCVUYERBFYUEWBCYUWERBCUYEB"));
-        details.setPeptides(peptides);
-        protein.setDetails(details);
     }
 
     private static Peptide createPeptide(String sequence)
@@ -223,12 +200,11 @@ public class ProteinViewer extends
     {
         properties.put(viewContext.getMessage(Dict.DATABASE_NAME_AND_VERSION), proteinDetails
                 .getDatabaseNameAndVersion());
-        properties.put(viewContext.getMessage(Dict.SEQUENCE_NAME), proteinDetails.getSequence());
-        properties.put(viewContext.getMessage(Dict.PEPTIDE_COUNT), proteinDetails.getPeptides()
-                .size());
         String markedSequence =
                 markPeptides(proteinDetails.getSequence(), proteinDetails.getPeptides());
-        properties.put(viewContext.getMessage(Dict.PEPTIDE), markedSequence);
+        properties.put(viewContext.getMessage(Dict.SEQUENCE_NAME), markedSequence);
+        properties.put(viewContext.getMessage(Dict.PEPTIDE_COUNT), proteinDetails.getPeptides()
+                .size());
 
         properties.put(viewContext.getMessage(Dict.FDR), proteinDetails.getFalseDiscoveryRate());
 
@@ -241,7 +217,11 @@ public class ProteinViewer extends
     private static String markPeptides(String sequence, List<Peptide> peptides)
     {
         List<String> peptideSequences = extractSequences(peptides);
-        return OccurrencesMarker.markOccurrencesWithHtml(sequence, peptideSequences);
+        String markedSequence =
+                OccurrencesMarker.markOccurrencesWithHtml(sequence, peptideSequences,
+                        AMINOACIDS_IN_SEQUENCE_PER_LINE);
+        // the letters should have fixed width
+        return "<font style=\"font-family:monospace\">" + markedSequence + "</font>";
     }
 
     private static List<String> extractSequences(List<Peptide> peptides)

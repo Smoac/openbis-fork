@@ -17,51 +17,74 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 /**
  * This class is able to find all occurrences of the given set of words in the provided template and
- * mark the beginning and end of those words. Cases when occurrences overlap are handles properly.
+ * mark the beginning and end of those words. Note that when occurrences overlap the overlaps are
+ * merged and the border between them is not visualized.
  * 
  * @author Tomasz Pylak
  */
 public class OccurrencesMarker
 {
-    private final String startMarker;
+    private final char startMarker;
 
-    private final String endMarker;
+    private final char endMarker;
 
     /** Produces an HTML code whih all occurrences properly marked */
-    public static String markOccurrencesWithHtml(String template, List<String> words)
+    public static String markOccurrencesWithHtml(String template, List<String> words, int lineLength)
     {
-        String start = "(";
-        String end = ")";
-        List<String> markedTemplates = new OccurrencesMarker(start, end).mark(template, words);
+        char start = '(';
+        char end = ')';
+        OccurrencesMarker marker = new OccurrencesMarker(start, end);
+        String markedTemplate = marker.mark(template, words);
+        markedTemplate = breakLines(markedTemplate, lineLength, "<br>");
+        markedTemplate = marker.replaceTags(markedTemplate, "<font color='red'>", "</font>");
+        return markedTemplate;
+    }
+
+    // @Private
+    String replaceTags(String text, String startTag, String endTag)
+    {
+        String newText = text;
+        newText = newText.replaceAll("\\" + startMarker, startTag);
+        newText = newText.replaceAll("\\" + endMarker, endTag);
+        return newText;
+    }
+
+    /** split lines, so that each line has lineLength characters at most */
+    static String breakLines(String text, int lineLength, String endOfLine)
+    {
         StringBuffer sb = new StringBuffer();
-        for (String markedTemplate : markedTemplates)
+        String textToBreak = text;
+        while (textToBreak.length() > lineLength)
         {
-            markedTemplate.replaceAll(start, "<font color='red'>");
-            markedTemplate.replaceAll(end, "</font>");
-            sb.append(markedTemplate);
-            sb.append("<BR>");
+            String line = textToBreak.substring(0, lineLength);
+            sb.append(line);
+            sb.append(endOfLine);
+            textToBreak = textToBreak.substring(lineLength);
         }
+        sb.append(textToBreak);
         return sb.toString();
     }
 
-    public OccurrencesMarker(String startMarker, String endMarker)
+    public OccurrencesMarker(char startMarker, char endMarker)
     {
         this.startMarker = startMarker;
         this.endMarker = endMarker;
     }
 
     /**
-     * If the words occurrences do not overlap in the template, the returned list has only one
-     * element. Otherwise there are several elements, each contains non-overlapping marks. skips
-     * words which do not occur in the template.
+     * All letters which belong to the matching words are marked. If some words overlap, the markers
+     * are merged. E.g. for the template 'xabcx' and words 'ab' and 'bc', the result will be
+     * 'x(abc)x'.
+     * <p>
+     * Words which do not occur in the template are ignored.
+     * </p>
      */
-    public List<String> mark(String template, List<String> words)
+    public String mark(String template, List<String> words)
     {
         List<Occurrence> occurrences = calcSortedOccurrences(template, words);
         if (hasOverlapping(occurrences))
@@ -69,7 +92,7 @@ public class OccurrencesMarker
             return markOverlapping(template, occurrences);
         } else
         {
-            return Arrays.asList(markNonoverlapping(template, occurrences));
+            return markNonoverlapping(template, occurrences);
         }
     }
 
@@ -118,64 +141,57 @@ public class OccurrencesMarker
         {
             return getStartIndex() - o.getStartIndex();
         }
-    }
 
-    private List<String> markOverlapping(String template, List<Occurrence> sortedOccurrences)
-    {
-        List<List<Occurrence>> distinctOccurrencesList = splitToDistinctGroups(sortedOccurrences);
-        List<String> result = new ArrayList<String>();
-        for (List<Occurrence> distinctOccurrences : distinctOccurrencesList)
+        @Override
+        public String toString()
         {
-            String marked = markNonoverlapping(template, distinctOccurrences);
-            result.add(marked);
+            return "[" + word + "@" + startIndex + "]";
         }
-        return result;
     }
 
-    // Splits all occurrences into many groups in such a way, that occurrences in one group do not
-    // overlap with each other.
-    private static List<List<Occurrence>> splitToDistinctGroups(List<Occurrence> sortedOccurrences)
+    private String markOverlapping(String template, List<Occurrence> sortedOccurrences)
     {
-        setVisitedFlag(sortedOccurrences, false);
-        List<List<Occurrence>> result = new ArrayList<List<Occurrence>>();
-        int unvisited = sortedOccurrences.size();
-        while (unvisited > 0)
+        List<Occurrence> mergedOccurrences = mergeOverlaps(template, sortedOccurrences);
+        return markNonoverlapping(template, mergedOccurrences);
+    }
+
+    private List<Occurrence> mergeOverlaps(String template, List<Occurrence> sortedOccurrences)
+    {
+        List<Occurrence> result = new ArrayList<Occurrence>();
+        if (sortedOccurrences.size() == 0)
         {
-            List<Occurrence> distinctOccurrences =
-                    chooseDistinctUnvisitedOccurrences(sortedOccurrences);
-            result.add(distinctOccurrences);
-
-            setVisitedFlag(distinctOccurrences, true);
-            unvisited -= distinctOccurrences.size();
+            return result;
         }
-        return result;
-    }
-
-    private static List<Occurrence> chooseDistinctUnvisitedOccurrences(
-            List<Occurrence> sortedOccurrences)
-    {
-        List<Occurrence> distinctOccurrences = new ArrayList<Occurrence>();
-        int lastIncludedCharIndex = -1;
+        int startIndex = -1;
+        int endIndex = -1;
         for (Occurrence occurrence : sortedOccurrences)
         {
-            if (occurrence.isVisited() == false)
-            {
-                if (occurrence.getStartIndex() > lastIncludedCharIndex)
-                {
-                    distinctOccurrences.add(occurrence);
-                    lastIncludedCharIndex = occurrence.getEndIndex();
+            if (occurrence.getStartIndex() <= endIndex)
+            { // overlap
+                endIndex = Math.max(endIndex, occurrence.getEndIndex());
+            } else
+            { // current word does not overlap with the words browsed before
+                if (startIndex != -1)
+                { // create a new word from the words browsed before
+                    Occurrence newOccurrence = createOccurence(template, startIndex, endIndex);
+                    result.add(newOccurrence);
                 }
+                startIndex = occurrence.getStartIndex();
+                endIndex = occurrence.getEndIndex();
             }
         }
-        return distinctOccurrences;
+        Occurrence newOccurrence = createOccurence(template, startIndex, endIndex);
+        result.add(newOccurrence);
+        return result;
     }
 
-    private static void setVisitedFlag(List<Occurrence> occurrences, boolean visited)
+    private static Occurrence createOccurence(String template, int startIndex, int endIndex)
     {
-        for (Occurrence occurrence : occurrences)
-        {
-            occurrence.setVisited(visited);
-        }
+        assert startIndex != -1 : "start index should be initialized";
+        assert endIndex != -1 : "end index should be initialized";
+        String mergedWord = template.substring(startIndex, endIndex + 1);
+        Occurrence newOccurrence = new Occurrence(mergedWord, startIndex);
+        return newOccurrence;
     }
 
     // marks all occurrences in the template, assuming that all occurrences do not
@@ -207,7 +223,7 @@ public class OccurrencesMarker
             {
                 return true;
             }
-            prevEndIndex = occurrence.getEndIndex();
+            prevEndIndex = Math.max(prevEndIndex, occurrence.getEndIndex());
         }
         return false;
     }
@@ -240,5 +256,4 @@ public class OccurrencesMarker
         }
         return result;
     }
-
 }
