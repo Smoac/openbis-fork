@@ -80,6 +80,8 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
     // criteria used in the previous refresh operation or null if it has not occurred yet
     protected K criteria;
 
+    protected IDataRefreshCallback externalRefreshCallbackOrNull;
+
     public interface ICriteriaProvider<K>
     {
         /** @return criteria used as the main grid filter */
@@ -153,7 +155,12 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
         this.criteria = newCriteria;
         String newHeader = createHeader();
 
-        super.refresh(newHeader, refreshColumnsDefinition);
+        super.refresh(externalRefreshCallbackOrNull, newHeader, refreshColumnsDefinition);
+    }
+
+    protected final void setExternalRefreshCallback(IDataRefreshCallback externalRefreshCallback)
+    {
+        this.externalRefreshCallbackOrNull = externalRefreshCallback;
     }
 
     @Override

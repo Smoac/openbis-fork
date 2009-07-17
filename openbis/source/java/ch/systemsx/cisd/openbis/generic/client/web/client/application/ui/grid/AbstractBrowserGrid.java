@@ -310,13 +310,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         container.add(toolbar);
         container.add(this, new RowData(1, 1));
 
-        return asDisposableMaterialChooser(container);
+        return asDisposableEntityChooser(container);
     }
 
     /** @return this grid as a disposable component */
     protected final DisposableEntityChooser<T> asDisposableWithoutToolbar()
     {
-        return asDisposableMaterialChooser(this);
+        return asDisposableEntityChooser(this);
     }
 
     /**
@@ -337,7 +337,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
         container.add(subContainer, new RowData(1, 1));
 
-        return asDisposableMaterialChooser(container);
+        return asDisposableEntityChooser(container);
     }
 
     private BorderLayoutData createLeftBorderLayoutData()
@@ -350,7 +350,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return BorderLayoutDataFactory.create(LayoutRegion.CENTER);
     }
 
-    private DisposableEntityChooser<T> asDisposableMaterialChooser(final Component mainComponent)
+    private DisposableEntityChooser<T> asDisposableEntityChooser(final Component mainComponent)
     {
         final AbstractBrowserGrid<T, M> self = this;
         return new DisposableEntityChooser<T>()
@@ -386,6 +386,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 {
                     self.update(observedModifications);
                 }
+
             };
     }
 

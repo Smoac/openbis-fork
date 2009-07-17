@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractGridDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
@@ -120,9 +121,32 @@ public class SampleBrowserGrid extends
         return browserGrid.asDisposableWithToolbar(toolbar);
     }
 
+    public static IDisposableComponent createGridForContainerSamples(
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            final TechId containerSampleId, final String gridId,
+            final AbstractGridDataRefreshCallback<Sample> refreshCallback)
+    {
+        final ListSampleCriteria criteria =
+                ListSampleCriteria.createForContainer(containerSampleId, getBaseIndexURL());
+        ISampleCriteriaProvider criteriaProvider =
+                new SampleCriteriaProvider(viewContext, criteria);
+        // we do not refresh the grid, the criteria provider will do this when property types will
+        // be loaded
+        boolean refreshAutomatically = false;
+        final SampleBrowserGrid browserGrid =
+                new SampleBrowserGrid(viewContext, criteriaProvider, gridId, false,
+                        refreshAutomatically);
+        refreshCallback.setGrid(browserGrid);
+        browserGrid.setExternalRefreshCallback(refreshCallback);
+        browserGrid.updateCriteriaProviderAndRefresh();
+        browserGrid.setDisplayTypeIDGenerator(DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
+        browserGrid.extendBottomToolbar();
+        return browserGrid.asDisposableWithoutToolbar();
+    }
+
     public static IDisposableComponent createGridForExperimentSamples(
             final IViewContext<ICommonClientServiceAsync> viewContext, final TechId experimentId,
-            String gridId, ExperimentType experimentType)
+            final String gridId, final ExperimentType experimentType)
     {
         final ListSampleCriteria criteria =
                 ListSampleCriteria.createForExperiment(experimentId, getBaseIndexURL());
@@ -321,6 +345,10 @@ public class SampleBrowserGrid extends
 
     private static final String doCreateHeader(ListSampleCriteria criteria)
     {
+        if (criteria.getExperimentId() != null || criteria.getContainerSampleId() != null)
+        {
+            return null;
+        }
         SampleType sampleType = criteria.getSampleType();
         final StringBuilder builder = new StringBuilder("Samples");
         if (sampleType != null)
@@ -342,10 +370,6 @@ public class SampleBrowserGrid extends
             {
                 builder.append(" which are shared among all the groups");
             }
-        }
-        if (criteria.getExperimentId() != null)
-        {
-            return null;
         }
         return builder.toString();
     }

@@ -186,7 +186,7 @@ public final class GenericExperimentViewer extends
         container.add(attachmentsSection, createBorderLayoutData(LayoutRegion.NORTH));
         observer.addObserver(attachmentsSection.getDatabaseModificationObserver());
 
-        ExperimentSamplesSection sampleSection = new ExperimentSamplesSection(result, viewContext);
+        ExperimentSamplesSection sampleSection = new ExperimentSamplesSection(viewContext, result);
         container.add(sampleSection, createBorderLayoutData(LayoutRegion.SOUTH));
         observer.addObserver(sampleSection.getDatabaseModificationObserver());
 

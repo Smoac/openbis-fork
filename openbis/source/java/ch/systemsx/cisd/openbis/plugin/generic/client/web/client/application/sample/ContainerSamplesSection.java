@@ -14,38 +14,47 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
+package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractGridDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
- * {@link SectionPanel} containing experiment samples.
+ * {@link SectionPanel} containing samples with specified container sample.
  * 
- * @author Izabela Adamczyk
+ * @author Piotr Buczek
  */
-public class ExperimentSamplesSection extends SectionPanel
+public class ContainerSamplesSection extends SectionPanel
 {
-    private static final String PREFIX = "experiment-samples-section_";
+    private static final String PREFIX = "container-samples-section_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
+    private final IViewContext<?> viewContext;
+
     private IDisposableComponent sampleDisposableGrid;
 
-    public ExperimentSamplesSection(final IViewContext<?> viewContext, final Experiment experiment)
+    public ContainerSamplesSection(final IViewContext<?> viewContext)
     {
-        super("Samples");
-        TechId experimentId = TechId.create(experiment);
+        super(viewContext.getMessage(Dict.PART_OF_HEADING));
+        this.viewContext = viewContext;
+    }
+
+    public void addSamplesGrid(final Sample container,
+            final AbstractGridDataRefreshCallback<Sample> refreshCallback)
+    {
+        TechId containerId = TechId.create(container);
         sampleDisposableGrid =
-                SampleBrowserGrid.createGridForExperimentSamples(
-                        viewContext.getCommonViewContext(), experimentId,
-                        createGridId(experimentId), experiment.getExperimentType());
+                SampleBrowserGrid.createGridForContainerSamples(viewContext.getCommonViewContext(),
+                        containerId, createGridId(containerId), refreshCallback);
         add(sampleDisposableGrid.getComponent());
     }
 
@@ -55,9 +64,9 @@ public class ExperimentSamplesSection extends SectionPanel
     }
 
     // @Private
-    static String createGridId(TechId experimentId)
+    static String createGridId(TechId containerId)
     {
-        return ID_PREFIX + experimentId + "-grid";
+        return ID_PREFIX + containerId + "-grid";
     }
 
     @Override

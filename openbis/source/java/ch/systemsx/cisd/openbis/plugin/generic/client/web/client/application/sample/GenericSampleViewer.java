@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,22 +24,10 @@ import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.Style.SelectionMode;
-import com.extjs.gxt.ui.client.data.BaseListLoadConfig;
-import com.extjs.gxt.ui.client.data.BaseListLoadResult;
-import com.extjs.gxt.ui.client.data.BaseListLoader;
-import com.extjs.gxt.ui.client.data.ListLoader;
-import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentVersionsSection;
@@ -52,28 +39,22 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserverWithMainObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModelFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleListDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractGridDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -99,13 +80,11 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
     public static final String DATA_POSTFIX = "-data";
 
-    private Grid<ModelData> partOfSamplesGrid;
-
-    private IDelegatedAction showComponentsPanelAction;
-
     private final TechId sampleId;
 
     private AttachmentVersionsSection<Sample> attachmentsSection;
+
+    private ContainerSamplesSection containerSamplesSection;
 
     private IDisposableComponent dataSetBrowser;
 
@@ -156,26 +135,38 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
     private final Component createRightPanel(SampleGeneration sampleGeneration)
     {
+        final Sample generator = sampleGeneration.getGenerator();
+
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new BorderLayout());
 
-        attachmentsSection = createAttachmentsSection(sampleGeneration.getGenerator());
+        // Attachments
+        attachmentsSection = createAttachmentsSection(generator);
         container.add(attachmentsSection, createBorderLayoutData(LayoutRegion.NORTH));
         // 'Part of' samples
-        final ContentPanel componentsPanel =
-                createContentPanel(viewContext.getMessage(Dict.PART_OF_HEADING));
-        final ListLoader<BaseListLoadConfig> sampleLoader =
-                createListLoader(createRpcProxyForPartOfSamples());
-        final ListStore<ModelData> sampleListStore = createListStore(sampleLoader);
-        partOfSamplesGrid = new Grid<ModelData>(sampleListStore, createPartOfSamplesColumnModel());
-        partOfSamplesGrid.setId(getId() + COMPONENTS_POSTFIX);
-        String displayTypeID =
-                DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID.createID("-"
-                        + EntityKind.SAMPLE.toString());
-        viewContext.getDisplaySettingsManager().prepareGrid(displayTypeID, partOfSamplesGrid);
-        partOfSamplesGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        partOfSamplesGrid.setLoadMask(true);
-        componentsPanel.add(partOfSamplesGrid);
+        containerSamplesSection = new ContainerSamplesSection(viewContext);
+        IDelegatedAction showContainerSamplesSectionAction = new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    container.add(containerSamplesSection,
+                            createBorderLayoutData(LayoutRegion.SOUTH));
+                }
+            };
+        IDelegatedAction hideContainerSamplesSectionAction = new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    if (container.getItemByItemId(containerSamplesSection.getId()) != null)
+                    {
+                        container.remove(containerSamplesSection);
+                    }
+                }
+            };
+        containerSamplesSection.addSamplesGrid(generator,
+                new ContainerSamplesGridDataRefreshCallback(showContainerSamplesSectionAction,
+                        hideContainerSamplesSectionAction));
+        // Data Sets
         final ContentPanel externalDataPanel =
                 createContentPanel(viewContext.getMessage(Dict.EXTERNAL_DATA_HEADING));
         dataSetBrowser = SampleDataSetBrowser.create(viewContext, sampleId);
@@ -183,14 +174,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         container.add(externalDataPanel, createBorderLayoutData(LayoutRegion.CENTER));
 
         container.setLayoutOnChange(true);
-        showComponentsPanelAction = new IDelegatedAction()
-            {
-                public void execute()
-                {
-                    container.add(componentsPanel, createBorderLayoutData(LayoutRegion.SOUTH));
-                }
-            };
-
         container.layout();
         return container;
     }
@@ -213,55 +196,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     private final static ContentPanel createContentPanel(final String heading)
     {
         return new SectionPanel(heading);
-    }
-
-    private final <T> ListLoader<BaseListLoadConfig> createListLoader(
-            final RpcProxy<BaseListLoadConfig, BaseListLoadResult<T>> rpcProxy)
-    {
-        final BaseListLoader<BaseListLoadConfig, BaseListLoadResult<T>> baseListLoader =
-                new BaseListLoader<BaseListLoadConfig, BaseListLoadResult<T>>(rpcProxy);
-        return baseListLoader;
-    }
-
-    private final RpcProxy<BaseListLoadConfig, BaseListLoadResult<ModelData>> createRpcProxyForPartOfSamples()
-    {
-        return new RpcProxy<BaseListLoadConfig, BaseListLoadResult<ModelData>>()
-            {
-
-                //
-                // RpcProxy
-                //
-
-                @Override
-                public final void load(final BaseListLoadConfig loadConfig,
-                        final AsyncCallback<BaseListLoadResult<ModelData>> callback)
-                {
-                    final ListSampleCriteria sampleCriteria =
-                            ListSampleCriteria.createForContainer(sampleId, getBaseIndexURL());
-                    ListSamplesCallback listCallback =
-                            new ListSamplesCallback(viewContext, callback,
-                                    showComponentsPanelAction);
-                    viewContext.getCommonService().listSamples(sampleCriteria, listCallback);
-                }
-            };
-    }
-
-    private final <T extends ModelData> ListStore<T> createListStore(
-            final ListLoader<BaseListLoadConfig> loader)
-    {
-        return new ListStore<T>(loader);
-    }
-
-    private final ColumnModel createPartOfSamplesColumnModel()
-    {
-        final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        configs.add(ColumnConfigFactory.createCodeColumnConfig(viewContext,
-                CommonSampleColDefKind.CODE.id()));
-        configs.add(ColumnConfigFactory.createRegistrationDateColumnConfig(viewContext,
-                CommonSampleColDefKind.REGISTRATION_DATE.id()));
-        configs.add(ColumnConfigFactory.createRegistratorColumnConfig(viewContext,
-                CommonSampleColDefKind.REGISTRATOR.id()));
-        return new ColumnModel(configs);
     }
 
     private final static Map<String, Object> createProperties(
@@ -354,16 +288,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         propertyGrid.setProperties(properties);
     }
 
-    private final void loadStores()
-    {
-        loadComponentsStore();
-    }
-
-    private final void loadComponentsStore()
-    {
-        partOfSamplesGrid.getStore().getLoader().load();
-    }
-
     /**
      * Load the {@link SampleGeneration} information.
      */
@@ -372,57 +296,9 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         viewContext.getService().getSampleGenerationInfo(sampleId, getBaseIndexURL(), callback);
     }
 
-    /**
-     * Load the sample information for components panel.
-     */
-    private void reloadComponentsPanelData()
-    {
-        loadComponentsStore();
-    }
-
     //
     // Helper classes
     //
-
-    final static class ListSamplesCallback extends AbstractAsyncCallback<ResultSet<Sample>>
-    {
-        private final AsyncCallback<BaseListLoadResult<ModelData>> delegate;
-
-        private final IDelegatedAction showResultsAction;
-
-        ListSamplesCallback(final IViewContext<IGenericClientServiceAsync> viewContext,
-                final AsyncCallback<BaseListLoadResult<ModelData>> callback,
-                final IDelegatedAction noResultsAction)
-        {
-            super(viewContext);
-            this.delegate = callback;
-            this.showResultsAction = noResultsAction;
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        @Override
-        protected void finishOnFailure(final Throwable caught)
-        {
-            delegate.onFailure(caught);
-        }
-
-        @Override
-        protected final void process(final ResultSet<Sample> result)
-        {
-            final List<ModelData> sampleModels =
-                    SampleModelFactory.asSampleModels(result.getList());
-            final BaseListLoadResult<ModelData> baseListLoadResult =
-                    new BaseListLoadResult<ModelData>(sampleModels);
-            delegate.onSuccess(baseListLoadResult);
-            if (result.getTotalLength() > 0)
-            {
-                showResultsAction.execute();
-            }
-        }
-    }
 
     public static final class SampleGenerationInfoCallback extends
             AbstractAsyncCallback<SampleGeneration>
@@ -460,7 +336,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
             final Component rightPanel = genericSampleViewer.createRightPanel(result);
             genericSampleViewer.add(rightPanel, createRightBorderLayoutData());
             genericSampleViewer.layout();
-            genericSampleViewer.loadStores();
         }
 
     }
@@ -488,9 +363,9 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         {
             observer.addObserver(attachmentsSection.getDatabaseModificationObserver());
         }
-        if (partOfSamplesGrid != null)
+        if (containerSamplesSection != null)
         {
-            observer.addObserver(new ComponentsPanelDatabaseModificationObserver());
+            observer.addObserver(containerSamplesSection.getDatabaseModificationObserver());
         }
         return observer;
     }
@@ -551,20 +426,33 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
     }
 
-    private class ComponentsPanelDatabaseModificationObserver implements
-            IDatabaseModificationObserver
+    public final class ContainerSamplesGridDataRefreshCallback extends
+            AbstractGridDataRefreshCallback<Sample>
     {
 
-        public DatabaseModificationKind[] getRelevantModifications()
+        private final IDelegatedAction showContainerSamplesSectionAction;
+
+        private final IDelegatedAction hideContainerSamplesSectionAction;
+
+        public ContainerSamplesGridDataRefreshCallback(
+                IDelegatedAction showContainerSamplesSectionAction,
+                IDelegatedAction hideContainerSamplesSectionAction)
         {
-            return new DatabaseModificationKind[]
-                { DatabaseModificationKind.createOrDelete(ObjectKind.SAMPLE), };
+            this.showContainerSamplesSectionAction = showContainerSamplesSectionAction;
+            this.hideContainerSamplesSectionAction = hideContainerSamplesSectionAction;
         }
 
-        public void update(Set<DatabaseModificationKind> observedModifications)
+        public void postRefresh(boolean wasSuccessful)
         {
-            reloadComponentsPanelData();
+            if (getGrid().getRowNumber() > 0)
+            {
+                showContainerSamplesSectionAction.execute();
+            } else
+            {
+                hideContainerSamplesSectionAction.execute();
+            }
         }
+
     }
 
 }
