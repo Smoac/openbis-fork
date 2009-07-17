@@ -136,6 +136,7 @@ public class SampleBrowserGrid extends
                         refreshAutomatically);
         browserGrid.updateCriteriaProviderAndRefresh();
         browserGrid.setDisplayTypeIDGenerator(DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
+        browserGrid.extendBottomToolbar();
         return browserGrid.asDisposableWithoutToolbar();
     }
 
@@ -304,8 +305,6 @@ public class SampleBrowserGrid extends
                 clientPluginFactory.createClientPlugin(entityKind);
         if (editMode)
         {
-            SampleType sampleType = criteria.getSampleType();
-            assert sampleType != null : "sample type is not provided";
             tabView = createClientPlugin.createEntityEditor(sample);
         } else
         {
