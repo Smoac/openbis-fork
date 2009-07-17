@@ -566,18 +566,19 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns example file format of new entities.
      */
-    public String getTemplate(EntityKind kind, String type, boolean autoGenerate);
+    public String getTemplate(EntityKind kind, String type, boolean autoGenerate)
+            throws UserFailureException;
 
     /**
      * Updates the file format.
      */
-    public void updateFileFormatType(AbstractType type);
+    public void updateFileFormatType(AbstractType type) throws UserFailureException;
 
     /**
      * Updates the attachment.
      */
     public void updateAttachment(TechId holderId, AttachmentHolderKind holderKind,
-            Attachment attachment);
+            Attachment attachment) throws UserFailureException;
 
     /**
      * For given {@link DataStoreServiceKind} returns a list of all corresponding
@@ -591,22 +592,25 @@ public interface ICommonClientService extends IClientService
      */
     public TableModelReference createReportFromDatasets(
             DatastoreServiceDescription serviceDescription,
-            DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria);
+            DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
+            throws UserFailureException;
 
     /**
      * Returns a list of datasets report rows.
      */
     public ResultSet<TableModelRow> listDatasetReport(
-            DefaultResultSetConfig<String, TableModelRow> resultSetConfig);
+            DefaultResultSetConfig<String, TableModelRow> resultSetConfig)
+            throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for TableModelRow.
      */
-    public String prepareExportDatasetReport(TableExportCriteria<TableModelRow> exportCriteria);
+    public String prepareExportDatasetReport(TableExportCriteria<TableModelRow> exportCriteria)
+            throws UserFailureException;
 
     /**
      * Uses the specified datastore service to schedule processing of the specified datasets.
      */
     public void processDatasets(DatastoreServiceDescription service,
-            DisplayedOrSelectedDatasetCriteria criteria);
+            DisplayedOrSelectedDatasetCriteria criteria) throws UserFailureException;
 }

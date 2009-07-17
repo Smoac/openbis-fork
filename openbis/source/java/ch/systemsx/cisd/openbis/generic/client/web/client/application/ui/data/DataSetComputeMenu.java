@@ -257,6 +257,13 @@ public class DataSetComputeMenu extends TextToolItem
                 };
             DispatcherHelper.dispatchNaviEvent(tabFactory);
         }
+
+        @Override
+        protected void finishOnFailure(Throwable caught)
+        {
+            progressBar.close();
+            super.finishOnFailure(caught);
+        }
     }
 
     private class ComputationData
