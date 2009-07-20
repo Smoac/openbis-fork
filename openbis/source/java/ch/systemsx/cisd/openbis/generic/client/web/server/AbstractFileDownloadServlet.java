@@ -79,8 +79,8 @@ abstract public class AbstractFileDownloadServlet extends AbstractController
             if (fileContent != null)
             {
                 response.setContentLength(fileContent.getContent().length);
-                response.setHeader("Content-Disposition", "attachment; filename="
-                        + fileContent.getFileName());
+                response.setHeader("Content-Disposition", "attachment; filename=\""
+                        + fileContent.getFileName() + "\"");
                 final ServletOutputStream outputStream = response.getOutputStream();
                 outputStream.write(fileContent.getContent());
                 outputStream.flush();
