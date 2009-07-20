@@ -51,6 +51,11 @@ public final class PropertyTypeTable extends AbstractBusinessObject implements I
         propertyTypes = getPropertyTypeDAO().listAllPropertyTypes();
     }
 
+    public void loadWithRelations()
+    {
+        propertyTypes = getPropertyTypeDAO().listAllPropertyTypesWithRelations();
+    }
+
     public final void enrichWithRelations()
     {
         if (propertyTypes == null)
@@ -65,11 +70,6 @@ public final class PropertyTypeTable extends AbstractBusinessObject implements I
             HibernateUtils.initialize(pt.getExperimentTypePropertyTypes());
             HibernateUtils.initialize(pt.getDataSetTypePropertyTypes());
             HibernateUtils.initialize(pt.getVocabulary());
-            // TODO 2009-05-28, Piotr Buczek: terms are still loaded even for browsers
-            if (pt.getVocabulary() != null && pt.getVocabulary().isChosenFromList())
-            {
-                HibernateUtils.initialize(pt.getVocabulary().getTerms());
-            }
         }
     }
 }

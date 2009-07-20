@@ -33,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DatabaseVersionHolder;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -88,40 +87,36 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public final class DBCreator extends AbstractDAOTest
 {
     /** a sufix that will be used in the created DB name */
-    private static final String DB_KIND = "test_scalability";
+    private static final String DB_KIND = "test_scalability_80000";
 
     /** directory with TSV files used to create the DB from scratch */
-    private static final String TSV_DIRECTORY =
-            "sourceTest/sql/postgresql/" + DatabaseVersionHolder.getDatabaseVersion();
-
+    // private static final String TSV_DIRECTORY =
+    // "sourceTest/sql/postgresql/" + DatabaseVersionHolder.getDatabaseVersion();
     // number properties
-
     /** a factor for scaling number of all created entities */
-    private static final int FACTOR = 1;
-
+    // private static final int FACTOR = 1;
     /** the overall number of Materials created */
-    private static final int MATERIALS_NO = FACTOR * 20000;
+    // private static final int MATERIALS_NO = 0;// FACTOR * 1000;
+    // private static final int EXPERIMENTS_NO = 5;
+    // private static final int BIG_EXPERIMENTS_NO = 1;
+    // private static final int BIG_SAMPLES_NO = 1;
+    // private static final int DEFAULT_EXPERIMENT_SAMPLES_SIZE = 0;
+    // private static final int BIG_EXPERIMENT_SAMPLES_SIZE = 10;
+    // private static final int DEFAULT_SAMPLE_DATASETS_SIZE = 100;
+    // private static final int BIG_SAMPLE_DATASETS_SIZE = 400;
+    private static final int EXPERIMENTS_NO = 200;
 
-    /** the overall number of Experiments created (including big ones) */
-    private static final int EXPERIMENTS_NO = FACTOR * 5;
+    private static final int BIG_EXPERIMENTS_NO = 0;
 
-    /** the number of big Experiments (with many Samples connected) created */
-    private static final int BIG_EXPERIMENTS_NO = 1;
+    private static final int BIG_SAMPLES_NO = 0;
 
-    /** the number of big Samples (with many DataSets connected) created */
-    private static final int BIG_SAMPLES_NO = 1;
+    private static final int DEFAULT_EXPERIMENT_SAMPLES_SIZE = 200;
 
-    /** the default number of Samples connected to a created Experiment */
-    private static final int DEFAULT_EXPERIMENT_SAMPLES_SIZE = 10;
+    private static final int BIG_EXPERIMENT_SAMPLES_SIZE = DEFAULT_EXPERIMENT_SAMPLES_SIZE;
 
-    /** the number of Samples connected to a created big Experiment */
-    private static final int BIG_EXPERIMENT_SAMPLES_SIZE = DEFAULT_EXPERIMENT_SAMPLES_SIZE * FACTOR;
+    private static final int DEFAULT_SAMPLE_DATASETS_SIZE = 2;
 
-    /** the default number of DataSets connected to a created Sample */
-    private static final int DEFAULT_SAMPLE_DATASETS_SIZE = 1;
-
-    /** the number of DataSets connected to a created big Sample */
-    private static final int BIG_SAMPLE_DATASETS_SIZE = DEFAULT_SAMPLE_DATASETS_SIZE * FACTOR * 10;
+    private static final int BIG_SAMPLE_DATASETS_SIZE = DEFAULT_SAMPLE_DATASETS_SIZE;
 
     //
 
@@ -142,7 +137,8 @@ public final class DBCreator extends AbstractDAOTest
         System.setProperty("database.kind", DB_KIND);
         System.setProperty("database.create-from-scratch", "true");
         System.setProperty("authorization-component-factory", "no-authorization");
-        MaterialHelper.createMaterialsTSVFile(TSV_DIRECTORY, MATERIALS_NO);
+        System.setProperty("hibernate.search.batch-size", "10");
+        // MaterialHelper.createMaterialsTSVFile(TSV_DIRECTORY, MATERIALS_NO);
         log("created materials TSV file");
     }
 
@@ -250,11 +246,15 @@ public final class DBCreator extends AbstractDAOTest
     {
         for (int i = 1; i <= EXPERIMENTS_NO; i++)
         {
+            long start = System.currentTimeMillis();
             log("creating experiment: %d/%d", i, EXPERIMENTS_NO);
             ExperimentPE experiment = generateExperiment();
             daoFactory.getExperimentDAO().createExperiment(experiment);
             createSamplesWithDataSetsForExperiment(experiment);
             flushAndClearSession();
+            long time = (System.currentTimeMillis() - start) / 1000;
+            System.err.println(String.format("Created %s out of %s (%s sec,to go: %s min)", i,
+                    EXPERIMENTS_NO, time, (EXPERIMENTS_NO - i) * time / 60));
         }
         log("created experiments");
     }
@@ -382,7 +382,7 @@ public final class DBCreator extends AbstractDAOTest
      */
     private static class CodeGenerator
     {
-        private static final String CODE_PREFIX = "_";
+        private static final String CODE_PREFIX = "my_";
 
         private static int counter = 1000000;
 

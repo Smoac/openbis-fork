@@ -562,7 +562,7 @@ public final class CommonClientService extends AbstractClientService implements
             {
                 public List<PropertyType> getOriginalData() throws UserFailureException
                 {
-                    return listPropertyTypes();
+                    return listPropertyTypes(true);
                 }
             });
     }
@@ -587,7 +587,7 @@ public final class CommonClientService extends AbstractClientService implements
                 public List<EntityTypePropertyType<?>> getOriginalData()
                         throws UserFailureException
                 {
-                    return extractAssignments(listPropertyTypes());
+                    return extractAssignments(listPropertyTypes(true));
                 }
             });
     }
@@ -863,13 +863,14 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    private List<PropertyType> listPropertyTypes()
+    public List<PropertyType> listPropertyTypes(boolean withRelations)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
-            final List<PropertyTypePE> propertyTypes = commonServer.listPropertyTypes(sessionToken);
+            final List<PropertyTypePE> propertyTypes =
+                    commonServer.listPropertyTypes(sessionToken, withRelations);
             return PropertyTypeTranslator.translate(propertyTypes);
         } catch (final UserFailureException e)
         {

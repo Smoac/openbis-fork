@@ -267,7 +267,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<PropertyTypePE> listPropertyTypes(final String sessionToken);
+    public List<PropertyTypePE> listPropertyTypes(final String sessionToken, boolean withRelations);
 
     /**
      * Lists data types.

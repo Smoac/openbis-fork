@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -86,6 +88,23 @@ final class PropertyTypeDAO extends AbstractGenericEntityDAO<PropertyTypePE> imp
     {
         final List<PropertyTypePE> list =
                 cast(getHibernateTemplate().loadAll(PropertyTypePE.class));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s(): %d property types(s) have been found.",
+                    MethodUtils.getCurrentMethod().getName(), list.size()));
+        }
+        return list;
+    }
+
+    public List<PropertyTypePE> listAllPropertyTypesWithRelations()
+    {
+        final Criteria criteria = getSession().createCriteria(PropertyTypePE.class);
+        criteria.setFetchMode("materialTypePropertyTypesInternal", FetchMode.JOIN);
+        criteria.setFetchMode("sampleTypePropertyTypesInternal", FetchMode.JOIN);
+        criteria.setFetchMode("experimentTypePropertyTypesInternal", FetchMode.JOIN);
+        criteria.setFetchMode("dataSetTypePropertyTypesInternal", FetchMode.JOIN);
+        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+        final List<PropertyTypePE> list = cast(criteria.list());
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(): %d property types(s) have been found.",

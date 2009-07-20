@@ -171,6 +171,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void prepareExportDataSetSearchHits(TableExportCriteria<ExternalData> exportCriteria,
             AsyncCallback<String> callback);
 
+    /** @see ICommonClientService#listPropertyTypes(boolean) */
+    public void listPropertyTypes(boolean withRelations,
+            AsyncCallback<List<PropertyType>> asyncCallback);
+
     /** @see ICommonClientService#listPropertyTypes(DefaultResultSetConfig) */
     public void listPropertyTypes(DefaultResultSetConfig<String, PropertyType> criteria,
             final AsyncCallback<ResultSet<PropertyType>> asyncCallback);

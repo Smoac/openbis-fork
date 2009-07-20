@@ -249,9 +249,9 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public List<PropertyTypePE> listPropertyTypes(final String sessionToken)
+    public List<PropertyTypePE> listPropertyTypes(final String sessionToken, boolean withRelations)
     {
-        logAccess(sessionToken, "list_property_types");
+        logAccess(sessionToken, "list_property_types", withRelations ? "WITH_RELATIONS" : "");
         return null;
     }
 

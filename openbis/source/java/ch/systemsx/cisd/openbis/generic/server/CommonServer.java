@@ -401,13 +401,16 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return externalData;
     }
 
-    public final List<PropertyTypePE> listPropertyTypes(final String sessionToken)
+    public final List<PropertyTypePE> listPropertyTypes(final String sessionToken,
+            boolean withRelations)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IPropertyTypeTable propertyTypeTable =
                 businessObjectFactory.createPropertyTypeTable(session);
-        propertyTypeTable.load();
-        propertyTypeTable.enrichWithRelations();
+        if (withRelations)
+            propertyTypeTable.loadWithRelations();
+        else
+            propertyTypeTable.load();
         final List<PropertyTypePE> propertyTypes = propertyTypeTable.getPropertyTypes();
         Collections.sort(propertyTypes);
         return propertyTypes;

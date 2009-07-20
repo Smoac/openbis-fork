@@ -43,6 +43,11 @@ public interface IPropertyTypeDAO extends IGenericDAO<PropertyTypePE>
     public List<PropertyTypePE> listAllPropertyTypes() throws DataAccessException;
 
     /**
+     * Returns all property types including internally managed and relations.
+     */
+    public List<PropertyTypePE> listAllPropertyTypesWithRelations() throws DataAccessException;
+
+    /**
      * Returns property types excluding those which are internally managed.
      */
     public List<PropertyTypePE> listPropertyTypes() throws DataAccessException;

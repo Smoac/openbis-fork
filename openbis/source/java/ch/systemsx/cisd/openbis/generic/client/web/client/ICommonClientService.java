@@ -198,6 +198,11 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
+     * Returns all property types.
+     */
+    public List<PropertyType> listPropertyTypes(boolean withRelations) throws UserFailureException;
+
+    /**
      * Returns a chunk of the property types list.
      */
     public ResultSet<PropertyType> listPropertyTypes(

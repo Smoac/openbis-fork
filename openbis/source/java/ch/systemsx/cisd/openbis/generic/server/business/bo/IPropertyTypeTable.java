@@ -33,6 +33,11 @@ public interface IPropertyTypeTable
     void load();
 
     /**
+     * Loads the internal {@link PropertyTypePE}s with relations.
+     */
+    void loadWithRelations();
+
+    /**
      * Returns the loaded {@link PropertyTypePE}s.
      */
     List<PropertyTypePE> getPropertyTypes();

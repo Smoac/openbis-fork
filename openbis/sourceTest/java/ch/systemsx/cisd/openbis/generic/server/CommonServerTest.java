@@ -576,14 +576,13 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(commonBusinessObjectFactory).createPropertyTypeTable(SESSION);
                     will(returnValue(propertyTypeTable));
 
-                    one(propertyTypeTable).load();
-                    one(propertyTypeTable).enrichWithRelations();
+                    one(propertyTypeTable).loadWithRelations();
 
                     one(propertyTypeTable).getPropertyTypes();
                     will(returnValue(new ArrayList<PropertyTypePE>()));
                 }
             });
-        createServer().listPropertyTypes(SESSION_TOKEN);
+        createServer().listPropertyTypes(SESSION_TOKEN, true);
         context.assertIsSatisfied();
     }
 
