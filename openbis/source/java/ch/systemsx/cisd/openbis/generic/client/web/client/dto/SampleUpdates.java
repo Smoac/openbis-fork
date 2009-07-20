@@ -16,13 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicSampleUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
@@ -30,21 +28,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 /**
  * @author Izabela Adamczyk
  */
-public class SampleUpdates implements IsSerializable, Serializable
+public class SampleUpdates extends BasicSampleUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private String sessionKey;
 
-    private TechId sampleId;
-
-    private List<SampleProperty> properties;
-
     private List<NewAttachment> attachments;
 
     private ExperimentIdentifier experimentIdentifierOrNull;
-
-    private Date version;
 
     public SampleUpdates()
     {
@@ -54,12 +46,10 @@ public class SampleUpdates implements IsSerializable, Serializable
             List<NewAttachment> attachments, ExperimentIdentifier experimentIdentifierOrNull,
             Date version)
     {
+        super(sampleId, properties, version);
         this.sessionKey = sessionKey;
-        this.sampleId = sampleId;
-        this.properties = properties;
         this.attachments = attachments;
         this.experimentIdentifierOrNull = experimentIdentifierOrNull;
-        this.version = version;
     }
 
     public String getSessionKey()
@@ -70,21 +60,6 @@ public class SampleUpdates implements IsSerializable, Serializable
     public void setSessionKey(String sessionKey)
     {
         this.sessionKey = sessionKey;
-    }
-
-    public TechId getSampleId()
-    {
-        return sampleId;
-    }
-
-    public List<SampleProperty> getProperties()
-    {
-        return properties;
-    }
-
-    public void setProperties(List<SampleProperty> properties)
-    {
-        this.properties = properties;
     }
 
     public List<NewAttachment> getAttachments()
@@ -107,13 +82,4 @@ public class SampleUpdates implements IsSerializable, Serializable
         this.experimentIdentifierOrNull = experimentIdentifierOrNull;
     }
 
-    public Date getVersion()
-    {
-        return version;
-    }
-
-    public void setVersion(Date version)
-    {
-        this.version = version;
-    }
 }

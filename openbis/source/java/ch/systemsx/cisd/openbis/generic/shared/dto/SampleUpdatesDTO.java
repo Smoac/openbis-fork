@@ -16,11 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicSampleUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -28,49 +28,21 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 /**
  * @author Izabela Adamczyk
  */
-public class SampleUpdatesDTO implements Serializable
+public class SampleUpdatesDTO extends BasicSampleUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-
-    private TechId sampleId;
-
-    private List<SampleProperty> properties;
 
     private ExperimentIdentifier experimentIdentifierOrNull;
 
     private List<AttachmentPE> attachments;
 
-    private Date version;
-
     public SampleUpdatesDTO(TechId sampleId, List<SampleProperty> properties,
             ExperimentIdentifier experimentIdentifierOrNull, List<AttachmentPE> attachments,
             Date version)
     {
-        this.sampleId = sampleId;
-        this.properties = properties;
+        super(sampleId, properties, version);
         this.experimentIdentifierOrNull = experimentIdentifierOrNull;
         this.attachments = attachments;
-        this.version = version;
-    }
-
-    public TechId getSampleId()
-    {
-        return sampleId;
-    }
-
-    public void setSampleId(TechId sampleId)
-    {
-        this.sampleId = sampleId;
-    }
-
-    public List<SampleProperty> getProperties()
-    {
-        return properties;
-    }
-
-    public void setProperties(List<SampleProperty> properties)
-    {
-        this.properties = properties;
     }
 
     public ExperimentIdentifier getExperimentIdentifierOrNull()
@@ -91,15 +63,5 @@ public class SampleUpdatesDTO implements Serializable
     public void setAttachments(List<AttachmentPE> attachments)
     {
         this.attachments = attachments;
-    }
-
-    public Date getVersion()
-    {
-        return version;
-    }
-
-    public void setVersion(Date version)
-    {
-        this.version = version;
     }
 }
