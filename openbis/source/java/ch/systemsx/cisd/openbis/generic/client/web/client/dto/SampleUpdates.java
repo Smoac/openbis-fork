@@ -46,6 +46,10 @@ public class SampleUpdates implements IsSerializable, Serializable
 
     private Date version;
 
+    public SampleUpdates()
+    {
+    }
+
     public SampleUpdates(String sessionKey, TechId sampleId, List<SampleProperty> properties,
             List<NewAttachment> attachments, ExperimentIdentifier experimentIdentifierOrNull,
             Date version)
