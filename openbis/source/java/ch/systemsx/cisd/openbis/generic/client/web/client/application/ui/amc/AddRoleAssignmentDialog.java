@@ -16,18 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 
@@ -36,9 +34,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Strin
  * 
  * @author Izabela Adamczyk
  */
-// TODO 2009-02-20, Piotr Buczek: refactor, extend AbstractRegistrationDialog
-public class AddRoleAssignmentDialog extends Window
+public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
 {
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
+
     private static final String PREFIX = "add-role_";
 
     static final String GROUP_FIELD_ID = GenericConstants.ID_PREFIX + PREFIX + "group-field";
@@ -46,8 +45,6 @@ public class AddRoleAssignmentDialog extends Window
     static final String PERSON_FIELD_ID = GenericConstants.ID_PREFIX + PREFIX + "person-field";
 
     static final String ROLE_FIELD_ID = GenericConstants.ID_PREFIX + PREFIX + "role-field";
-
-    static final String SAVE_BUTTON_ID = GenericConstants.ID_PREFIX + PREFIX + "save-button";
 
     private final TextField<String> group;
 
@@ -58,88 +55,39 @@ public class AddRoleAssignmentDialog extends Window
     public AddRoleAssignmentDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
             final IDelegatedAction postRegistrationCallback)
     {
+        super(viewContext, "Assign a Role to a Person", postRegistrationCallback);
+        this.viewContext = viewContext;
 
-        setHeading("Assign a Role to a Person");
-        setModal(true);
-        setWidth(400);
-        FormPanel form = new FormPanel();
-        form.setHeaderVisible(false);
-        form.setBorders(false);
-        form.setBodyBorder(false);
-        add(form);
-
-        group = new TextField<String>();
+        group = new VarcharField("Group", true);
         group.setWidth(100);
-        group.setFieldLabel("Group");
-        group.setAllowBlank(false);
         group.setId(GROUP_FIELD_ID);
 
         roleBox = new AdapterField(new RoleListBox(group));
         roleBox.setFieldLabel("Role");
         roleBox.setWidth(100);
         roleBox.setId(ROLE_FIELD_ID);
-        form.add(roleBox);
-        form.add(group);
+        addField(roleBox);
+        addField(group);
 
-        user = new TextField<String>();
+        user = new VarcharField("Person", true);
         user.setWidth(100);
-        user.setFieldLabel("Person");
-        user.setAllowBlank(false);
         user.setId(PERSON_FIELD_ID);
-        form.add(user);
-
-        addButton(createSaveButton(viewContext, postRegistrationCallback));
-        addButton(new Button("Cancel", new SelectionListener<ComponentEvent>()
-            {
-                @Override
-                public void componentSelected(ComponentEvent ce)
-                {
-                    hide();
-                }
-            }));
+        addField(user);
     }
 
-    private final Button createSaveButton(
-            final IViewContext<ICommonClientServiceAsync> viewContext,
-            final IDelegatedAction postRegistrationCallback)
+    @Override
+    protected void register(AsyncCallback<Void> registrationCallback)
     {
-        final Button button = new Button("Save", new SelectionListener<ComponentEvent>()
-            {
-                //
-                // SelectionListener
-                //
-
-                @Override
-                public final void componentSelected(final ComponentEvent ce)
-                {
-                    final AbstractAsyncCallback<Void> roleLoadingCallback =
-                            new AbstractAsyncCallback<Void>(viewContext)
-                                {
-                                    //
-                                    // AbstractAsyncCallback
-                                    //
-
-                                    @Override
-                                    public final void process(final Void result)
-                                    {
-                                        hide();
-                                        postRegistrationCallback.execute();
-                                    }
-                                };
-                    if (StringUtils.isBlank(group.getValue()))
-                    {
-                        viewContext.getService().registerInstanceRole(
-                                ((RoleListBox) roleBox.getWidget()).getValue(), user.getValue(),
-                                roleLoadingCallback);
-                    } else
-                    {
-                        viewContext.getService().registerGroupRole(
-                                ((RoleListBox) roleBox.getWidget()).getValue(), group.getValue(),
-                                user.getValue(), roleLoadingCallback);
-                    }
-                }
-            });
-        button.setId(SAVE_BUTTON_ID);
-        return button;
+        if (StringUtils.isBlank(group.getValue()))
+        {
+            viewContext.getService().registerInstanceRole(
+                    ((RoleListBox) roleBox.getWidget()).getValue(), user.getValue(),
+                    registrationCallback);
+        } else
+        {
+            viewContext.getService().registerGroupRole(
+                    ((RoleListBox) roleBox.getWidget()).getValue(), group.getValue(),
+                    user.getValue(), registrationCallback);
+        }
     }
 }

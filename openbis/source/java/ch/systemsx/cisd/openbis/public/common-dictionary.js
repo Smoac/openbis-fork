@@ -334,7 +334,7 @@ var common = {
  first_name: "First Name",
  last_name: "Last Name",
  email: "Email",
- button_add_group: "Add Person",
+ button_add_person: "Add Person",
  
  //
  // Role Browser

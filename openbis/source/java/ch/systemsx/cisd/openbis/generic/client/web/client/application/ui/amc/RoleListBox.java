@@ -21,6 +21,7 @@ import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 
 /**
@@ -30,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
  */
 public class RoleListBox extends ListBox
 {
-    public RoleListBox(final TextField<String> group)
+    public RoleListBox(final TextField<String> groupField)
     {
         RoleSetCode[] values = RoleSetCode.values();
         for (RoleSetCode visibleRoleCode : values)
@@ -48,15 +49,8 @@ public class RoleListBox extends ListBox
                 public final void onChange(final Widget sender)
                 {
                     boolean groupLevel = RoleSetCode.values()[getSelectedIndex()].isGroupLevel();
-                    if (groupLevel)
-                    {
-                        group.show();
-                        group.setAllowBlank(false);
-                    } else
-                    {
-                        group.hide();
-                        group.setAllowBlank(true);
-                    }
+                    FieldUtil.setMandatoryFlag(groupField, groupLevel);
+                    groupField.setVisible(groupLevel);
                 }
             });
 

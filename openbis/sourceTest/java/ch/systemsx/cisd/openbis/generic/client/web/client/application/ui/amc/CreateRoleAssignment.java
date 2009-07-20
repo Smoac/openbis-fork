@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RoleAssignmentGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractSaveDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
@@ -72,6 +73,6 @@ public final class CreateRoleAssignment extends CheckTableCommand
         }
         GWTTestUtil.getTextFieldWithID(AddRoleAssignmentDialog.PERSON_FIELD_ID)
                 .setValue(personName);
-        GWTTestUtil.clickButtonWithID(AddRoleAssignmentDialog.SAVE_BUTTON_ID);
+        GWTTestUtil.clickButtonWithID(AbstractSaveDialog.SAVE_BUTTON_ID);
     }
 }
