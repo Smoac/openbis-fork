@@ -59,9 +59,6 @@ public abstract class AbstractDataConfirmationDialog<T> extends Dialog
                 }
 
             };
-        addText(createMessage());
-        extendForm();
-        add(formPanel);
     }
 
     protected abstract String createMessage();
@@ -76,12 +73,12 @@ public abstract class AbstractDataConfirmationDialog<T> extends Dialog
         // by default nothing to do
     }
 
-	/** Sets OK button state to disabled if validation fails. */
+    /** Sets OK button state to disabled if validation fails. */
     protected final void updateOkButtonState()
     {
         okBtn.setEnabled(validate());
     }
-    
+
     /**
      * Validates data provided in the dialog. By default validates form values.
      * 
@@ -91,7 +88,6 @@ public abstract class AbstractDataConfirmationDialog<T> extends Dialog
     {
         return formPanel.isValid();
     }
-    
 
     private FormPanel createForm()
     {
@@ -121,6 +117,9 @@ public abstract class AbstractDataConfirmationDialog<T> extends Dialog
     protected void onRender(Element parent, int pos)
     {
         super.onRender(parent, pos);
+        addText(createMessage());
+        extendForm();
+        add(formPanel);
         updateOkButtonState();
     }
 
