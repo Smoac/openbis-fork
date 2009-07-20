@@ -47,7 +47,7 @@ public class DatabaseModificationKind implements IsSerializable
         PROPERTY_TYPE_ASSIGNMENT,
         VOCABULARY,
         VOCABULARY_TERM,
-        ROLE,
+        ROLE_ASSIGNMENT,
         PERSON
     }
 

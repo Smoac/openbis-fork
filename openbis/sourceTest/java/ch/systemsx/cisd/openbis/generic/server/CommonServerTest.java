@@ -443,7 +443,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
 
-        final List<RoleAssignmentPE> roles = createServer().listRoles(SESSION_TOKEN);
+        final List<RoleAssignmentPE> roles = createServer().listRoleAssignments(SESSION_TOKEN);
 
         assertSame(role, roles.get(0));
         assertEquals(1, roles.size());

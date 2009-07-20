@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -30,6 +33,16 @@ public final class RoleAssignmentTranslator
     private RoleAssignmentTranslator()
     {
         // Can not be instantiated.
+    }
+
+    public final static List<RoleAssignment> translate(final List<RoleAssignmentPE> roles)
+    {
+        final List<RoleAssignment> result = new ArrayList<RoleAssignment>();
+        for (final RoleAssignmentPE role : roles)
+        {
+            result.add(RoleAssignmentTranslator.translate(role));
+        }
+        return result;
     }
 
     public final static RoleAssignment translate(final RoleAssignmentPE role)

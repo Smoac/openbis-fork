@@ -119,9 +119,16 @@ public interface ICommonClientService extends IClientService
     public void registerPerson(String code) throws UserFailureException;
 
     /**
-     * Returns a list of all roles.
+     * Returns a list of all role assignments.
      */
-    public List<RoleAssignment> listRoles() throws UserFailureException;
+    public ResultSet<RoleAssignment> listRoleAssignments(
+            DefaultResultSetConfig<String, RoleAssignment> criteria) throws UserFailureException;
+
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for role assignments.
+     */
+    public String prepareExportRoleAssignments(final TableExportCriteria<RoleAssignment> criteria)
+            throws UserFailureException;
 
     /**
      * Registers a new role from given role set code, group code and person code

@@ -16,19 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RoleAssignmentGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension for creating a role.
+ * A {@link AbstractDefaultTestCommand} extension for assigning a role to a person.
  * 
  * @author Christian Ribeaud
  */
-public final class CreateRole extends AbstractDefaultTestCommand
+public final class CreateRoleAssignment extends CheckTableCommand
 {
 
     private final String groupNameOrNull;
@@ -37,10 +38,10 @@ public final class CreateRole extends AbstractDefaultTestCommand
 
     private final String roleNameOrNull;
 
-    public CreateRole(final String groupNameOrNull, final String personName,
+    public CreateRoleAssignment(final String groupNameOrNull, final String personName,
             final String roleNameOrNull)
     {
-        super(RolesView.ListRolesCallback.class);
+        super(RoleAssignmentGrid.GRID_ID);
         assert groupNameOrNull == null && roleNameOrNull == null || groupNameOrNull != null
                 && roleNameOrNull != null;
         this.groupNameOrNull = groupNameOrNull;
@@ -52,21 +53,25 @@ public final class CreateRole extends AbstractDefaultTestCommand
     // AbstractDefaultTestCommand
     //
 
+    @Override
     public final void execute()
     {
-        GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, RolesView.ID + MainTabPanel.TAB_SUFFIX);
-        GWTTestUtil.clickButtonWithID(RolesView.ADD_BUTTON_ID);
+        GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, RoleAssignmentGrid.BROWSER_ID
+                + MainTabPanel.TAB_SUFFIX);
+        GWTTestUtil.clickButtonWithID(RoleAssignmentGrid.ASSIGN_BUTTON_ID);
         final RoleListBox listBox =
-                (RoleListBox) GWTTestUtil.getListBoxWithID(AddRoleDialog.ROLE_FIELD_ID);
+                (RoleListBox) GWTTestUtil.getListBoxWithID(AddRoleAssignmentDialog.ROLE_FIELD_ID);
         if (groupNameOrNull != null)
         {
-            GWTTestUtil.getTextFieldWithID(AddRoleDialog.GROUP_FIELD_ID).setValue(groupNameOrNull);
+            GWTTestUtil.getTextFieldWithID(AddRoleAssignmentDialog.GROUP_FIELD_ID).setValue(
+                    groupNameOrNull);
             GWTUtils.setSelectedItem(listBox, roleNameOrNull);
         } else
         {
             GWTUtils.setSelectedItem(listBox, RoleSetCode.INSTANCE_ADMIN.toString());
         }
-        GWTTestUtil.getTextFieldWithID(AddRoleDialog.PERSON_FIELD_ID).setValue(personName);
-        GWTTestUtil.clickButtonWithID(AddRoleDialog.SAVE_BUTTON_ID);
+        GWTTestUtil.getTextFieldWithID(AddRoleAssignmentDialog.PERSON_FIELD_ID)
+                .setValue(personName);
+        GWTTestUtil.clickButtonWithID(AddRoleAssignmentDialog.SAVE_BUTTON_ID);
     }
 }

@@ -127,8 +127,6 @@ public abstract class Dict
 
     public static final String BUTTON_EXPORT_TABLE = "button_exportTable";
 
-    public static final String BUTTON_ADD_GROUP = "button_add_group";
-
     //
     // LoginWidget
     //
@@ -539,6 +537,8 @@ public abstract class Dict
 
     public static final String LEADER = "leader";
 
+    public static final String BUTTON_ADD_GROUP = "button_add_group";
+
     //
     // Person Browser
     //
@@ -551,6 +551,19 @@ public abstract class Dict
     public static final String LAST_NAME = "last_name";
 
     public static final String EMAIL = "email";
+
+    public static final String BUTTON_ADD_PERSON = "button_add_person";
+
+    //
+    // Role Browser
+    //
+    public static final String ROLE_ASSIGNMENT_BROWSER = "role_assignment_browser";
+
+    public static final String PERSON = "person";
+
+    public static final String BUTTON_ASSIGN_ROLE = "button_assign_role";
+
+    public static final String BUTTON_RELEASE_ROLE_ASSIGNMENT = "button_release_role_assignment";
 
     //
     // Project Browser

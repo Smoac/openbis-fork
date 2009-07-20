@@ -24,18 +24,20 @@ import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 
 /**
- * {@link Window} containing role registration form.
+ * {@link Window} containing role assignment registration form.
  * 
  * @author Izabela Adamczyk
  */
-public class AddRoleDialog extends Window
+// TODO 2009-02-20, Piotr Buczek: refactor, extend AbstractRegistrationDialog
+public class AddRoleAssignmentDialog extends Window
 {
     private static final String PREFIX = "add-role_";
 
@@ -53,10 +55,11 @@ public class AddRoleDialog extends Window
 
     private final AdapterField roleBox;
 
-    public AddRoleDialog(final CommonViewContext viewContext, final RolesView roleList)
+    public AddRoleAssignmentDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
+            final IDelegatedAction postRegistrationCallback)
     {
 
-        setHeading("Add a new role");
+        setHeading("Assign a Role to a Person");
         setModal(true);
         setWidth(400);
         FormPanel form = new FormPanel();
@@ -85,7 +88,7 @@ public class AddRoleDialog extends Window
         user.setId(PERSON_FIELD_ID);
         form.add(user);
 
-        addButton(createSaveButton(viewContext, roleList));
+        addButton(createSaveButton(viewContext, postRegistrationCallback));
         addButton(new Button("Cancel", new SelectionListener<ComponentEvent>()
             {
                 @Override
@@ -96,8 +99,9 @@ public class AddRoleDialog extends Window
             }));
     }
 
-    private final Button createSaveButton(final CommonViewContext viewContext,
-            final RolesView roleList)
+    private final Button createSaveButton(
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            final IDelegatedAction postRegistrationCallback)
     {
         final Button button = new Button("Save", new SelectionListener<ComponentEvent>()
             {
@@ -119,7 +123,7 @@ public class AddRoleDialog extends Window
                                     public final void process(final Void result)
                                     {
                                         hide();
-                                        roleList.refresh();
+                                        postRegistrationCallback.execute();
                                     }
                                 };
                     if (StringUtils.isBlank(group.getValue()))

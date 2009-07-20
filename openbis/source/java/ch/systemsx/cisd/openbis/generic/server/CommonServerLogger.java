@@ -136,7 +136,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     }
 
-    public List<RoleAssignmentPE> listRoles(final String sessionToken)
+    public List<RoleAssignmentPE> listRoleAssignments(final String sessionToken)
     {
         logAccess(sessionToken, "list_roles");
         return null;

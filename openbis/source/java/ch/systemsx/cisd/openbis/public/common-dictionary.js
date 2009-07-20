@@ -65,7 +65,6 @@ var common = {
   button_refresh: "Refresh",
   button_show: "Show",
   button_exportTable: "Export",
-  button_add_group: "Add Group",
   button_show_details: "Show Details",
   button_browse: "Browse",
   button_view: "View",
@@ -335,12 +334,22 @@ var common = {
  first_name: "First Name",
  last_name: "Last Name",
  email: "Email",
+ button_add_group: "Add Person",
+ 
+ //
+ // Role Browser
+ //
+ role_assignment_browser: "Role Assignment Browser",
+ person: "Person",
+ button_assign_role: "Assign Role",
+ button_release_role_assignment: "Release Assignment",
  
  //
  // Group Browser
  //
  group_browser: "Group Browser",
  leader: "Head",
+ button_add_group: "Add Group",
 
  //
  // Project Browser

@@ -75,7 +75,7 @@ public class PersonGrid extends AbstractSimpleBrowserGrid<Person>
         addEntityOperationsLabel();
 
         final Button addGroupButton =
-                new Button(viewContext.getMessage(Dict.BUTTON_ADD_GROUP),
+                new Button(viewContext.getMessage(Dict.BUTTON_ADD_PERSON),
                         new SelectionListener<ComponentEvent>()
                             {
                                 @Override
@@ -126,7 +126,7 @@ public class PersonGrid extends AbstractSimpleBrowserGrid<Person>
     }
 
     @Override
-    protected void showEntityViewer(final Person group, boolean editMode)
+    protected void showEntityViewer(final Person person, boolean editMode)
     {
         assert false : "not implemented";
     }

@@ -148,14 +148,14 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.GROUP_ADMIN)
-    public List<RoleAssignmentPE> listRoles(String sessionToken);
+    public List<RoleAssignmentPE> listRoleAssignments(String sessionToken);
 
     /**
      * Registers a new group role.
      */
     @Transactional
     @RolesAllowed(RoleSet.GROUP_ADMIN)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE_ASSIGNMENT)
     public void registerGroupRole(
             String sessionToken,
             RoleCode roleCode,
@@ -167,7 +167,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE_ASSIGNMENT)
     public void registerInstanceRole(String sessionToken, RoleCode roleCode, String person);
 
     /**
@@ -175,7 +175,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.GROUP_ADMIN)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE_ASSIGNMENT)
     public void deleteGroupRole(
             String sessionToken,
             RoleCode roleCode,
@@ -187,7 +187,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE_ASSIGNMENT)
     public void deleteInstanceRole(String sessionToken, RoleCode roleCode, String person);
 
     /**

@@ -310,25 +310,6 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public final List<RoleAssignment> listRoles()
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final List<RoleAssignment> result = new ArrayList<RoleAssignment>();
-            final List<RoleAssignmentPE> roles = commonServer.listRoles(sessionToken);
-            for (final RoleAssignmentPE role : roles)
-            {
-                result.add(RoleAssignmentTranslator.translate(role));
-            }
-            return result;
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-    }
-
     public final void registerGroupRole(final RoleSetCode roleSetCode, final String group,
             final String person)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -512,6 +493,12 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
+    public String prepareExportRoleAssignments(TableExportCriteria<RoleAssignment> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return prepareExportEntities(criteria);
+    }
+
     // ---------------- methods which list entities using cache
 
     public final ResultSet<Sample> listSamples(final ListSampleCriteria listCriteria)
@@ -657,6 +644,33 @@ public final class CommonClientService extends AbstractClientService implements
             final String sessionToken = getSessionToken();
             final List<PersonPE> persons = commonServer.listPersons(sessionToken);
             return PersonTranslator.translate(persons);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public ResultSet<RoleAssignment> listRoleAssignments(
+            DefaultResultSetConfig<String, RoleAssignment> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return listEntities(criteria, new IOriginalDataProvider<RoleAssignment>()
+            {
+                public List<RoleAssignment> getOriginalData() throws UserFailureException
+                {
+                    return listRoleAssignments();
+                }
+            });
+    }
+
+    public final List<RoleAssignment> listRoleAssignments()
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final List<RoleAssignmentPE> roles = commonServer.listRoleAssignments(sessionToken);
+            return RoleAssignmentTranslator.translate(roles);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -1885,10 +1899,10 @@ public final class CommonClientService extends AbstractClientService implements
             {
                 String datasetDatastoreCode = dataset.getDataStore().getCode();
                 if (datasetDatastoreCode.equals(serviceDatastoreCode))
-            {
-                result.add(dataset);
+                {
+                    result.add(dataset);
+                }
             }
-        }
         }
         return result;
     }

@@ -242,7 +242,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
     }
 
-    public final List<RoleAssignmentPE> listRoles(final String sessionToken)
+    public final List<RoleAssignmentPE> listRoleAssignments(final String sessionToken)
     {
         checkSession(sessionToken);
         return getDAOFactory().getRoleAssignmentDAO().listRoleAssignments();
