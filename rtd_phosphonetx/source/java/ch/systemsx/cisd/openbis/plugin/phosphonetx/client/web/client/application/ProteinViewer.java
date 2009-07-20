@@ -142,13 +142,6 @@ public class ProteinViewer extends
         }
     }
 
-    private static Peptide createPeptide(String sequence)
-    {
-        Peptide peptide = new Peptide();
-        peptide.setSequence(sequence);
-        return peptide;
-    }
-
     private void recreateUIWithDatasetTable(ProteinByExperiment protein, ContentPanel propertyPanel)
     {
         BorderLayoutData layoutData = createBorderLayoutData(LayoutRegion.WEST);
