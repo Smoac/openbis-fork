@@ -1850,23 +1850,31 @@ public final class CommonClientService extends AbstractClientService implements
             List<ExternalData> datasets = fetchCachedEntities(displayedItemsCriteria);
             if (serviceDescriptionOrNull != null)
             {
-                datasets = filterDatasets(datasets, serviceDescriptionOrNull.getDatasetTypeCodes());
+                datasets = filterDatasets(datasets, serviceDescriptionOrNull);
             }
             return ExternalData.extractCodes(datasets);
         }
     }
 
-    // returns datasets which have type code belonging to the specified set
+    // returns datasets which have type code belonging to the specified set and belong to the same
+    // dataset store as the plugin
     private static List<ExternalData> filterDatasets(List<ExternalData> datasets,
-            String[] datasetTypeCodes)
+            DatastoreServiceDescription serviceDescription)
     {
+        String[] datasetTypeCodes = serviceDescription.getDatasetTypeCodes();
         Set<String> datasetTypeCodesMap = new HashSet<String>(Arrays.asList(datasetTypeCodes));
         List<ExternalData> result = new ArrayList<ExternalData>();
+        String serviceDatastoreCode = serviceDescription.getDatastoreCode();
         for (ExternalData dataset : datasets)
         {
-            if (datasetTypeCodesMap.contains(dataset.getDataSetType().getCode()))
+            String datasetTypeCode = dataset.getDataSetType().getCode();
+            if (datasetTypeCodesMap.contains(datasetTypeCode))
             {
-                result.add(dataset);
+                String datasetDatastoreCode = dataset.getDataStore().getCode();
+                if (datasetDatastoreCode.equals(serviceDatastoreCode))
+                {
+                    result.add(dataset);
+                }
             }
         }
         return result;
