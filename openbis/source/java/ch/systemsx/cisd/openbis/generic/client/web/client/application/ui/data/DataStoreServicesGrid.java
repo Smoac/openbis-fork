@@ -33,18 +33,17 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PluginTaskDescriptionModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 
 /**
@@ -54,7 +53,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
  */
 class DataStoreServicesGrid extends ContentPanel
 {
-    public static final String ID = GenericConstants.ID_PREFIX + "datastore-services-view";
+    private static final String ID = GenericConstants.ID_PREFIX + "datastore-services-view";
+
+    private static final String TABLE_ID = ID + "_table";
 
     private static final String HEADING = "Data Store Services";
 
@@ -62,24 +63,19 @@ class DataStoreServicesGrid extends ContentPanel
 
     private static final String DATA_SET_TYPES = "Handled Data Set Types";
 
-    public static final String ADD_BUTTON_ID = ID + "_add-button";
-
-    public static final String TABLE_ID = ID + "_table";
-
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
+    private final DisplaySettingsManager displaySettingsManager;
 
     private final List<Listener<SelectionEvent<ModelData>>> gridSelectionChangedListeners =
             new ArrayList<Listener<SelectionEvent<ModelData>>>();
 
-    private final DataStoreServiceKind pluginTaskKind;
+    // null if not fetched asynchronously yet
+    private List<DatastoreServiceDescription> servicesOrNull;
 
     private Grid<PluginTaskDescriptionModel> grid;
 
-    public DataStoreServicesGrid(IViewContext<ICommonClientServiceAsync> viewContext,
-            DataStoreServiceKind pluginTaskKind)
+    public DataStoreServicesGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        this.viewContext = viewContext;
-        this.pluginTaskKind = pluginTaskKind;
+        this.displaySettingsManager = viewContext.getDisplaySettingsManager();
         setLayout(new FitLayout());
 
         setWidth(4 * ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
@@ -88,17 +84,13 @@ class DataStoreServicesGrid extends ContentPanel
         setHeaderVisible(true);
         setHeading(HEADING);
         setId(ID);
+
+        add(new Text("data loading..."));
     }
 
-    @Override
-    protected void onRender(final Element parent, final int pos)
+    public void display(final List<DatastoreServiceDescription> fetchedServices)
     {
-        super.onRender(parent, pos);
-        refresh();
-    }
-
-    private void display(final List<DatastoreServiceDescription> plugins)
-    {
+        this.servicesOrNull = fetchedServices;
         removeAll();
 
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
@@ -116,12 +108,8 @@ class DataStoreServicesGrid extends ContentPanel
         configs.add(codesNameColumnConfig);
 
         final ColumnModel cm = new ColumnModel(configs);
-
-        final ListStore<PluginTaskDescriptionModel> store =
-                new ListStore<PluginTaskDescriptionModel>();
-        store.add(getPluginTaskModels(plugins));
-        store.setSortField(ModelDataPropertyNames.LABEL);
-        store.setSortDir(SortDir.ASC);
+        ListStore<PluginTaskDescriptionModel> store = new ListStore<PluginTaskDescriptionModel>();
+        setStoreContent(servicesOrNull, store);
 
         final ContentPanel cp = new ContentPanel();
 
@@ -139,7 +127,7 @@ class DataStoreServicesGrid extends ContentPanel
         grid.setBorders(true);
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
         String displayTypeID = DisplayTypeIDGenerator.PLUGIN_TASKS_BROWSER_GRID.createID();
-        viewContext.getDisplaySettingsManager().prepareGrid(displayTypeID, grid);
+        displaySettingsManager.prepareGrid(displayTypeID, grid);
         cp.add(grid);
 
         add(cp);
@@ -147,7 +135,42 @@ class DataStoreServicesGrid extends ContentPanel
 
     }
 
-    private List<PluginTaskDescriptionModel> getPluginTaskModels(
+    public void filterServicesByDataStore(DataStore dataStoreOrNull)
+    {
+        List<DatastoreServiceDescription> filteredPlugins = servicesOrNull;
+        if (filteredPlugins != null)
+        {
+            if (dataStoreOrNull != null)
+            {
+                filteredPlugins = filterPlugins(dataStoreOrNull, filteredPlugins);
+            }
+            setStoreContent(filteredPlugins, grid.getStore());
+        }
+    }
+
+    private static List<DatastoreServiceDescription> filterPlugins(DataStore dataStore,
+            List<DatastoreServiceDescription> services)
+    {
+        List<DatastoreServiceDescription> result = new ArrayList<DatastoreServiceDescription>();
+        for (DatastoreServiceDescription service : services)
+        {
+            if (service.getDatastoreCode().equals(dataStore.getCode()))
+            {
+                result.add(service);
+            }
+        }
+        return result;
+    }
+
+    private static void setStoreContent(final List<DatastoreServiceDescription> plugins,
+            ListStore<PluginTaskDescriptionModel> store)
+    {
+        store.removeAll();
+        store.add(getPluginTaskModels(plugins));
+        store.sort(ModelDataPropertyNames.LABEL, SortDir.ASC);
+    }
+
+    private static List<PluginTaskDescriptionModel> getPluginTaskModels(
             final List<DatastoreServiceDescription> services)
     {
         final List<PluginTaskDescriptionModel> result = new ArrayList<PluginTaskDescriptionModel>();
@@ -214,38 +237,6 @@ class DataStoreServicesGrid extends ContentPanel
         {
             assert model.size() == 1 : "more than one plugin selected";
             return model.get(0).getBaseObject();
-        }
-    }
-
-    public void refresh()
-    {
-        removeAll();
-        add(new Text("data loading..."));
-        viewContext.getService().listDataStoreServices(pluginTaskKind,
-                new ListServicesDescriptionsCallback(viewContext));
-    }
-
-    //
-    // Helper classes
-    //
-
-    public final class ListServicesDescriptionsCallback extends
-            AbstractAsyncCallback<List<DatastoreServiceDescription>>
-    {
-        private ListServicesDescriptionsCallback(
-                final IViewContext<ICommonClientServiceAsync> viewContext)
-        {
-            super(viewContext);
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        @Override
-        public final void process(final List<DatastoreServiceDescription> plugins)
-        {
-            display(plugins);
         }
     }
 }

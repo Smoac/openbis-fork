@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
@@ -93,7 +94,7 @@ public class DataSetComputeMenu extends TextToolItem
     //
 
     /** {@link ActionMenu} kind enum with names matching dictionary keys */
-    public static enum PluginTaskActionMenuKind implements IActionMenuItem
+    private static enum PluginTaskActionMenuKind implements IActionMenuItem
     {
         COMPUTE_MENU_QUERIES(DataStoreServiceKind.QUERIES), COMPUTE_MENU_PROCESSING(
                 DataStoreServiceKind.PROCESSING);
@@ -203,7 +204,7 @@ public class DataSetComputeMenu extends TextToolItem
         return selectedAndDisplayedItems.createCriteria(computeOnSelected);
     }
 
-    public final class ProcessingDisplayCallback extends AbstractAsyncCallback<Void>
+    private final class ProcessingDisplayCallback extends AbstractAsyncCallback<Void>
     {
         private ProcessingDisplayCallback(IViewContext<?> viewContext)
         {
@@ -266,7 +267,7 @@ public class DataSetComputeMenu extends TextToolItem
         }
     }
 
-    private class ComputationData
+    private static class ComputationData
     {
         private final DataStoreServiceKind pluginTaskKind;
 
@@ -300,7 +301,8 @@ public class DataSetComputeMenu extends TextToolItem
         }
     }
 
-    private class PerformComputationDialog extends AbstractDataConfirmationDialog<ComputationData>
+    private static class PerformComputationDialog extends
+            AbstractDataConfirmationDialog<ComputationData>
     {
 
         private static final int LABEL_WIDTH = ColumnConfigFactory.DEFAULT_COLUMN_WIDTH - 20;
@@ -311,7 +313,12 @@ public class DataSetComputeMenu extends TextToolItem
 
         private static final String BR = "<br/>";
 
+        private final IViewContext<ICommonClientServiceAsync> viewContext;
+
         private List<String> selectedDataSetTypeCodes;
+
+        // not null only if all selected datasets come from the same datastore
+        private final DataStore dataStoreOrNull;
 
         private Radio computeOnSelectedRadio;
 
@@ -319,12 +326,15 @@ public class DataSetComputeMenu extends TextToolItem
 
         private Html selectedDataSetTypesText;
 
-        private DataStoreServicesGrid pluginTasksGrid;
+        private DataStoreServicesGrid servicesGrid;
 
-        protected PerformComputationDialog(IViewContext<ICommonClientServiceAsync> messageProvider,
+        protected PerformComputationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
                 ComputationData data, String title)
         {
-            super(messageProvider, data, title);
+            super(viewContext, data, title);
+            this.viewContext = viewContext;
+
+            this.dataStoreOrNull = tryGetSingleDatastore(data);
             setWidth(DIALOG_WIDTH);
         }
 
@@ -357,23 +367,27 @@ public class DataSetComputeMenu extends TextToolItem
             int size = data.getSelectedDataSets().size();
             String computationName = data.getPluginTaskKind().getDescription();
             // TODO 2009-07-03, Piotr Buczek: externalize to dictionary with parameters
-            switch (size)
+            if (size == 0)
             {
-                case 0:
-                    return "No Data Sets were selected. "
-                            + "Select a data store service to perform " + computationName
-                            + " computation on all Data Sets "
-                            + "of appropriate types and click on a Run button.";
-                case 1:
-                    return "Select between performing " + computationName
-                            + " computation only on selected Data Sets "
-                            + "or on all Data Sets of appropriate types, "
-                            + "then select a data store service and click on a Run button.";
-                default:
+                return "No Data Sets were selected. " + "Select a data store service to perform "
+                        + computationName + " computation on all Data Sets "
+                        + "of appropriate types and click on a Run button.";
+            } else
+            {
+                if (dataStoreOrNull == null)
+                {
+                    return "Datasets from different Data Stores have been selected, "
+                            + "so no operation can be performed on them. "
+                            + "The operation will be performed on all datasets of appropriate "
+                            + "types in the grid. "
+                            + "Select a data store service and click on a Run button.";
+                } else
+                {
                     return "Select between performing " + computationName + " computation only on "
-                            + size
-                            + " selected Data Sets or on all Data Sets of appropriate types, "
+                            + "selected Data Sets (" + size
+                            + ") or on all Data Sets of appropriate types, "
                             + "then select a data store service and click on a Run button.";
+                }
             }
         }
 
@@ -432,7 +446,7 @@ public class DataSetComputeMenu extends TextToolItem
 
         private DatastoreServiceDescription tryGetSelectedPluginTask()
         {
-            return pluginTasksGrid.tryGetSelectedItem();
+            return servicesGrid.tryGetSelectedItem();
         }
 
         private boolean getComputeOnSelected()
@@ -452,19 +466,20 @@ public class DataSetComputeMenu extends TextToolItem
             formPanel.setLabelWidth(LABEL_WIDTH);
             formPanel.setFieldWidth(FIELD_WIDTH);
 
-            if (data.getSelectedDataSets().size() > 0)
+            if (data.getSelectedDataSets().size() > 0 && dataStoreOrNull != null)
             {
                 formPanel.add(createComputationDataSetsRadio());
                 selectedDataSetTypesText = formPanel.addText(createSelectedDataSetTypesText());
                 updateComputationDataSetsState();
             }
 
-            pluginTasksGrid = new DataStoreServicesGrid(viewContext, data.getPluginTaskKind());
-            formPanel.add(pluginTasksGrid);
+            servicesGrid = new DataStoreServicesGrid(viewContext);
+            formPanel.add(servicesGrid);
+            loadAvailableServices();
 
             Button confirmButton = getButtonById(Dialog.OK);
             confirmButton.setText("Run");
-            pluginTasksGrid
+            servicesGrid
                     .registerGridSelectionChangeListener(new Listener<SelectionEvent<ModelData>>()
                         {
                             public void handleEvent(SelectionEvent<ModelData> se)
@@ -472,6 +487,29 @@ public class DataSetComputeMenu extends TextToolItem
                                 updateOkButtonState();
                             }
                         });
+        }
+
+        private void loadAvailableServices()
+        {
+            viewContext.getService().listDataStoreServices(data.getPluginTaskKind(),
+                    new ListServicesDescriptionsCallback(viewContext));
+        }
+
+        private final class ListServicesDescriptionsCallback extends
+                AbstractAsyncCallback<List<DatastoreServiceDescription>>
+        {
+            private ListServicesDescriptionsCallback(
+                    final IViewContext<ICommonClientServiceAsync> viewContext)
+            {
+                super(viewContext);
+            }
+
+            @Override
+            public final void process(final List<DatastoreServiceDescription> plugins)
+            {
+                servicesGrid.display(plugins);
+                updateAvailablePlugins();
+            }
         }
 
         private final String createSelectedDataSetTypesText()
@@ -505,6 +543,7 @@ public class DataSetComputeMenu extends TextToolItem
                 {
                     public void handleEvent(BaseEvent be)
                     {
+                        updateAvailablePlugins();
                         updateComputationDataSetsState();
                         updateOkButtonState();
                     }
@@ -532,6 +571,41 @@ public class DataSetComputeMenu extends TextToolItem
             return result;
         }
 
+        private void updateAvailablePlugins()
+        {
+            if (getComputeOnSelected())
+            {
+                assert dataStoreOrNull != null : "cannot use selected datasets, they belong to different data store";
+                servicesGrid.filterServicesByDataStore(dataStoreOrNull);
+            } else
+            {
+                servicesGrid.filterServicesByDataStore(null);
+            }
+        }
+
+        private static DataStore tryGetSingleDatastore(ComputationData data)
+        {
+            return tryGetSingleDatastore(data.getSelectedDataSets());
+        }
+
+        // if all datasets come from one datastore, that datastore is returned. Otherwise returns
+        // null.
+        private static DataStore tryGetSingleDatastore(List<ExternalData> datasets)
+        {
+            if (datasets.size() == 0)
+            {
+                return null;
+            }
+            DataStore store = datasets.get(0).getDataStore();
+            for (ExternalData dataset : datasets)
+            {
+                if (store.equals(dataset.getDataStore()) == false)
+                {
+                    return null;
+                }
+            }
+            return store;
+        }
     }
 
     private static interface IComputationAction
