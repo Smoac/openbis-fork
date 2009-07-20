@@ -328,6 +328,15 @@ var common = {
  delete_vocabulary_terms_confirmation_message_for_replacements: "{0} terms will be deleted.\n\nThe terms below are used. They have to be replaced by one of the remaining terms.",
  
  //
+ // Person Browser
+ //
+ person_browser: "Person Browser",
+ user_id: "User ID",
+ first_name: "First Name",
+ last_name: "Last Name",
+ email: "Email",
+ 
+ //
  // Group Browser
  //
  group_browser: "Group Browser",

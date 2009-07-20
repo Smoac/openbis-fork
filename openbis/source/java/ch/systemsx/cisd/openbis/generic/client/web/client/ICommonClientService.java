@@ -104,7 +104,14 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of all persons which belong to the current database instance.
      */
-    public List<Person> listPersons() throws UserFailureException;
+    public ResultSet<Person> listPersons(DefaultResultSetConfig<String, Person> criteria)
+            throws UserFailureException;
+
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for persons.
+     */
+    public String prepareExportPersons(final TableExportCriteria<Person> criteria)
+            throws UserFailureException;
 
     /**
      * Registers a new person with specified code.

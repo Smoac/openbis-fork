@@ -19,12 +19,13 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddPersonDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckGroupTable;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckPerson;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckPersonTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckRole;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CreateGroup;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CreatePerson;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CreateRole;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GroupColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PersonColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
@@ -60,8 +61,10 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         // This userId must be one of the ones located on 'etc/passwd' (file based authentication).
         final String userId = USER_ID;
         loginAndInvokeAction(ActionMenuKind.AUTHORIZATION_MENU_USERS);
+
         remoteConsole.prepare(new CreatePerson(userId));
-        remoteConsole.prepare(new CheckPerson(userId));
+        final CheckPersonTable table = new CheckPersonTable();
+        table.expectedRow(new Row().withCell(PersonColDefKind.USER_ID.id(), userId)); // prepare
 
         launchTest(20000);
     }

@@ -39,7 +39,7 @@ public class AuthorizationMenu extends MenuItem
 
         Menu menu = new Menu();
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.AUTHORIZATION_MENU_USERS, messageProvider,
-                componentProvider.getPersonsView()));
+                componentProvider.getPersonBrowser()));
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.AUTHORIZATION_MENU_ROLES, messageProvider,
                 componentProvider.getRolesView()));
         setSubMenu(menu);

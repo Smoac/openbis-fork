@@ -20,7 +20,6 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -29,49 +28,43 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddGroupDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddPersonDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GroupColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PersonColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
- * Grid displaying groups.
+ * Grid displaying persons.
  * 
  * @author Piotr Buczek
  */
-public class GroupGrid extends AbstractSimpleBrowserGrid<Group>
+public class PersonGrid extends AbstractSimpleBrowserGrid<Person>
 {
     // browser consists of the grid and the paging toolbar
-    public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "group-browser";
+    public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "person-browser";
 
     public static final String GRID_ID = BROWSER_ID + "_grid";
 
     public static final String ADD_BUTTON_ID = BROWSER_ID + "_add-button";
 
-    public static final String DELETE_BUTTON_ID = BROWSER_ID + "_delete-button";
-
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        final GroupGrid grid = new GroupGrid(viewContext);
+        final PersonGrid grid = new PersonGrid(viewContext);
         grid.extendBottomToolbar();
         return grid.asDisposableWithoutToolbar();
     }
 
-    private GroupGrid(IViewContext<ICommonClientServiceAsync> viewContext)
+    private PersonGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID, GRID_ID);
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.PROJECT_BROWSER_GRID);
@@ -88,8 +81,8 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Group>
                                 @Override
                                 public void componentSelected(ComponentEvent ce)
                                 {
-                                    AddGroupDialog dialog =
-                                            new AddGroupDialog(viewContext, new IDelegatedAction()
+                                    AddPersonDialog dialog =
+                                            new AddPersonDialog(viewContext, new IDelegatedAction()
                                                 {
                                                     public void execute()
                                                     {
@@ -102,62 +95,38 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Group>
         addGroupButton.setId(ADD_BUTTON_ID);
         addButton(addGroupButton);
 
-        Button deleteButton =
-                createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
-                        new AbstractCreateDialogListener()
-                            {
-                                @Override
-                                protected Dialog createDialog(List<Group> groups,
-                                        IBrowserGridActionInvoker invoker)
-                                {
-                                    return new GroupListDeletionConfirmationDialog(viewContext,
-                                            groups, createDeletionCallback(invoker));
-                                }
-                            });
-        addButton(deleteButton);
-        allowMultipleSelection(); // we allow deletion of multiple projects
-
         addEntityOperationsSeparator();
     }
 
     @Override
-    protected IColumnDefinitionKind<Group>[] getStaticColumnsDefinition()
+    protected IColumnDefinitionKind<Person>[] getStaticColumnsDefinition()
     {
-        return GroupColDefKind.values();
+        return PersonColDefKind.values();
     }
 
     @Override
-    protected ColumnDefsAndConfigs<Group> createColumnsDefinition()
+    protected void listEntities(DefaultResultSetConfig<String, Person> resultSetConfig,
+            AbstractAsyncCallback<ResultSet<Person>> callback)
     {
-        ColumnDefsAndConfigs<Group> schema = super.createColumnsDefinition();
-        schema.setGridCellRendererFor(GroupColDefKind.DESCRIPTION.id(),
-                createMultilineStringCellRenderer());
-        return schema;
+        viewContext.getService().listPersons(resultSetConfig, callback);
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, Group> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<Group>> callback)
-    {
-        viewContext.getService().listGroups(resultSetConfig, callback);
-    }
-
-    @Override
-    protected void prepareExportEntities(TableExportCriteria<Group> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<Person> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
-        viewContext.getService().prepareExportGroups(exportCriteria, callback);
+        viewContext.getService().prepareExportPersons(exportCriteria, callback);
     }
 
     @Override
-    protected List<IColumnDefinition<Group>> getInitialFilters()
+    protected List<IColumnDefinition<Person>> getInitialFilters()
     {
-        return asColumnFilters(new GroupColDefKind[]
-            { GroupColDefKind.CODE });
+        return asColumnFilters(new PersonColDefKind[]
+            { PersonColDefKind.USER_ID });
     }
 
     @Override
-    protected void showEntityViewer(final Group group, boolean editMode)
+    protected void showEntityViewer(final Person group, boolean editMode)
     {
         assert false : "not implemented";
     }
@@ -165,39 +134,8 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Group>
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.GROUP),
-                    DatabaseModificationKind.edit(ObjectKind.GROUP) };
+            { DatabaseModificationKind.createOrDelete(ObjectKind.PERSON),
+                    DatabaseModificationKind.edit(ObjectKind.PERSON) };
     }
 
-    private static final class GroupListDeletionConfirmationDialog extends
-            AbstractDataListDeletionConfirmationDialog<Group>
-    {
-
-        private final IViewContext<ICommonClientServiceAsync> viewContext;
-
-        private final AbstractAsyncCallback<Void> callback;
-
-        public GroupListDeletionConfirmationDialog(
-                IViewContext<ICommonClientServiceAsync> viewContext, List<Group> data,
-                AbstractAsyncCallback<Void> callback)
-        {
-            super(viewContext, data);
-            this.viewContext = viewContext;
-            this.callback = callback;
-        }
-
-        @Override
-        protected void executeConfirmedAction()
-        {
-            viewContext.getCommonService().deleteGroups(TechId.createList(data), reason.getValue(),
-                    callback);
-        }
-
-        @Override
-        protected String getEntityName()
-        {
-            return messageProvider.getMessage(Dict.PROJECT);
-        }
-
-    }
 }

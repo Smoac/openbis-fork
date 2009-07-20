@@ -103,10 +103,10 @@ public abstract class AbstractColumnDefinitionKind<T>
 
     protected final String renderRegistrator(final AbstractRegistrationHolder entity)
     {
-        return renderRegistrator(entity.getRegistrator());
+        return renderRegistratorPerson(entity.getRegistrator());
     }
 
-    protected final String renderRegistrator(final Person person)
+    protected final String renderRegistratorPerson(final Person person)
     {
         return SimplePersonRenderer.createPersonName(person).toString();
     }

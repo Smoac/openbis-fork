@@ -91,8 +91,13 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void registerGroup(String groupCode, String descriptionOrNull, String groupLeaderOrNull,
             AsyncCallback<Void> callback);
 
-    /** @see ICommonClientService#listPersons() */
-    public void listPersons(AsyncCallback<List<Person>> asyncCallback);
+    /** @see ICommonClientService#listPersons(DefaultResultSetConfig) */
+    public void listPersons(DefaultResultSetConfig<String, Person> criteria,
+            AsyncCallback<ResultSet<Person>> asyncCallback);
+
+    /** @see ICommonClientService#prepareExportPersons(TableExportCriteria) */
+    public void prepareExportPersons(TableExportCriteria<Person> exportCriteria,
+            AsyncCallback<String> callback);
 
     /** @see ICommonClientService#registerPerson(String) */
     public void registerPerson(String code, AsyncCallback<Void> asyncCallback);

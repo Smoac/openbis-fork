@@ -540,6 +540,19 @@ public abstract class Dict
     public static final String LEADER = "leader";
 
     //
+    // Person Browser
+    //
+    public static final String PERSON_BROWSER = "person_browser";
+
+    public static final String USER_ID = "user_id";
+
+    public static final String FIRST_NAME = "first_name";
+
+    public static final String LAST_NAME = "last_name";
+
+    public static final String EMAIL = "email";
+
+    //
     // Project Browser
     //
     public static final String PROJECT_BROWSER = "project_browser";

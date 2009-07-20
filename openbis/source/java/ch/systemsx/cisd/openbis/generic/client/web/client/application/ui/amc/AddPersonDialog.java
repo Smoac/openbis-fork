@@ -20,7 +20,8 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
@@ -31,15 +32,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
  */
 public class AddPersonDialog extends AbstractRegistrationDialog
 {
-    private final CommonViewContext viewContext;
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private final TextField<String> codeField;
 
-    public AddPersonDialog(final CommonViewContext viewContext,
+    public AddPersonDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
             final IDelegatedAction postRegistrationCallback)
     {
         super(viewContext, "Add a new person", postRegistrationCallback);
-
         this.viewContext = viewContext;
         this.codeField = createCodeField(viewContext);
         addField(codeField);

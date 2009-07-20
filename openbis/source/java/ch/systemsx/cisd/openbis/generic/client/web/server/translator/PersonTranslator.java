@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -31,6 +34,16 @@ public class PersonTranslator
     private PersonTranslator()
     {
         // Can not be instantiated.
+    }
+
+    public final static List<Person> translate(final List<PersonPE> persons)
+    {
+        final List<Person> result = new ArrayList<Person>();
+        for (final PersonPE person : persons)
+        {
+            result.add(PersonTranslator.translate(person));
+        }
+        return result;
     }
 
     public final static Person translate(final PersonPE person)

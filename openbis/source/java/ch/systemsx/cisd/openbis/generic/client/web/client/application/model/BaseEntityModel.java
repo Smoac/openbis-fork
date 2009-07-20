@@ -113,7 +113,10 @@ public class BaseEntityModel<T> extends BaseModelData
                     && entity instanceof AbstractRegistrationHolder)
             {
                 Person registrator = ((AbstractRegistrationHolder) entity).getRegistrator();
-                value = PersonRenderer.createPersonAnchor(registrator, value);
+                if (registrator != null)
+                {
+                    value = PersonRenderer.createPersonAnchor(registrator, value);
+                }
             } else if (headerMsgKey.equals(Dict.CODE) && entity instanceof IInvalidationProvider)
             {
                 value = InvalidableWithCodeRenderer.render((IInvalidationProvider) entity, value);

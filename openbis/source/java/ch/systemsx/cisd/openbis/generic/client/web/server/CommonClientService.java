@@ -298,26 +298,6 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public final List<Person> listPersons()
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final List<Person> result = new ArrayList<Person>();
-            final List<PersonPE> persons = commonServer.listPersons(sessionToken);
-            for (final PersonPE person : persons)
-            {
-                result.add(PersonTranslator.translate(person));
-            }
-            return result;
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-    }
-
     public final void registerPerson(final String code)
     {
         try
@@ -526,6 +506,12 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
+    public String prepareExportPersons(TableExportCriteria<Person> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return prepareExportEntities(criteria);
+    }
+
     // ---------------- methods which list entities using cache
 
     public final ResultSet<Sample> listSamples(final ListSampleCriteria listCriteria)
@@ -645,6 +631,32 @@ public final class CommonClientService extends AbstractClientService implements
             final DatabaseInstanceIdentifier identifier = new DatabaseInstanceIdentifier(null);
             final List<GroupPE> groups = commonServer.listGroups(sessionToken, identifier);
             return GroupTranslator.translate(groups);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public ResultSet<Person> listPersons(DefaultResultSetConfig<String, Person> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return listEntities(criteria, new IOriginalDataProvider<Person>()
+            {
+                public List<Person> getOriginalData() throws UserFailureException
+                {
+                    return listPersons();
+                }
+            });
+    }
+
+    public final List<Person> listPersons()
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final List<PersonPE> persons = commonServer.listPersons(sessionToken);
+            return PersonTranslator.translate(persons);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -1873,10 +1885,10 @@ public final class CommonClientService extends AbstractClientService implements
             {
                 String datasetDatastoreCode = dataset.getDataStore().getCode();
                 if (datasetDatastoreCode.equals(serviceDatastoreCode))
-                {
-                    result.add(dataset);
-                }
+            {
+                result.add(dataset);
             }
+        }
         }
         return result;
     }

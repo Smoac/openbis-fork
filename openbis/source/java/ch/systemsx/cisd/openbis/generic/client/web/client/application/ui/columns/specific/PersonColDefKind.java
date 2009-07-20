@@ -19,62 +19,71 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
  * @author Piotr Buczek
  */
-public enum GroupColDefKind implements IColumnDefinitionKind<Group>
+public enum PersonColDefKind implements IColumnDefinitionKind<Person>
 {
-    CODE(new AbstractColumnDefinitionKind<Group>(Dict.CODE)
+    USER_ID(new AbstractColumnDefinitionKind<Person>(Dict.USER_ID)
         {
             @Override
-            public String tryGetValue(Group entity)
+            public String tryGetValue(Person entity)
             {
-                return entity.getCode();
+                return entity.getUserId();
             }
         }),
 
-    DESCRIPTION(new AbstractColumnDefinitionKind<Group>(Dict.DESCRIPTION)
+    FIRST_NAME(new AbstractColumnDefinitionKind<Person>(Dict.FIRST_NAME)
         {
             @Override
-            public String tryGetValue(Group entity)
+            public String tryGetValue(Person entity)
             {
-                return entity.getDescription();
+                return entity.getFirstName();
             }
         }),
 
-    LEADER(new AbstractColumnDefinitionKind<Group>(Dict.LEADER)
+    LAST_NAME(new AbstractColumnDefinitionKind<Person>(Dict.LAST_NAME)
         {
             @Override
-            public String tryGetValue(Group entity)
+            public String tryGetValue(Person entity)
             {
-                return (entity.getLeader() == null) ? null : entity.getLeader().toString();
+                return entity.getLastName();
             }
         }),
 
-    REGISTRATOR(new AbstractColumnDefinitionKind<Group>(Dict.REGISTRATOR)
+    EMAIL(new AbstractColumnDefinitionKind<Person>(Dict.EMAIL, 200)
         {
             @Override
-            public String tryGetValue(Group entity)
+            public String tryGetValue(Person entity)
             {
-                return renderRegistrator(entity);
+                return entity.getEmail();
             }
         }),
 
-    REGISTRATION_DATE(new AbstractColumnDefinitionKind<Group>(Dict.REGISTRATION_DATE,
+    REGISTRATOR(new AbstractColumnDefinitionKind<Person>(Dict.REGISTRATOR)
+        {
+            @Override
+            public String tryGetValue(Person entity)
+            {
+                return (entity.getRegistrator() == null) ? null : renderRegistrator(entity);
+            }
+        }),
+
+    REGISTRATION_DATE(new AbstractColumnDefinitionKind<Person>(Dict.REGISTRATION_DATE,
             AbstractColumnDefinitionKind.DATE_COLUMN_WIDTH, false)
         {
             @Override
-            public String tryGetValue(Group entity)
+            public String tryGetValue(Person entity)
             {
                 return renderRegistrationDate(entity);
             }
         });
 
-    private final AbstractColumnDefinitionKind<Group> columnDefinitionKind;
+    private final AbstractColumnDefinitionKind<Person> columnDefinitionKind;
 
-    private GroupColDefKind(AbstractColumnDefinitionKind<Group> columnDefinitionKind)
+    private PersonColDefKind(AbstractColumnDefinitionKind<Person> columnDefinitionKind)
     {
         this.columnDefinitionKind = columnDefinitionKind;
     }
@@ -84,7 +93,7 @@ public enum GroupColDefKind implements IColumnDefinitionKind<Group>
         return name();
     }
 
-    public AbstractColumnDefinitionKind<Group> getDescriptor()
+    public AbstractColumnDefinitionKind<Person> getDescriptor()
     {
         return columnDefinitionKind;
     }

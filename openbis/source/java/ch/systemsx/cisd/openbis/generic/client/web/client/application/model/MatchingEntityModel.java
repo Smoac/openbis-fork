@@ -81,7 +81,7 @@ public final class MatchingEntityModel extends BaseEntityModel<MatchingEntity>
                 @Override
                 public String tryGetValue(MatchingEntity entity)
                 {
-                    return renderRegistrator(entity.getRegistrator());
+                    return renderRegistratorPerson(entity.getRegistrator());
                 }
             }),
 
