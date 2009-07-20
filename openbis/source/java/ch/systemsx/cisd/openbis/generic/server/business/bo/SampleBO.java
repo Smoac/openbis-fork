@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -40,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -261,18 +261,16 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         }
     }
 
-    public void update(TechId sampleId, List<SampleProperty> properties,
-            ExperimentIdentifier experimentIdentifierOrNull, List<AttachmentPE> newAttachments,
-            Date version)
+    public void update(SampleUpdatesDTO updates)
     {
-        loadDataByTechId(sampleId);
-        if (version.equals(sample.getModificationDate()) == false)
+        loadDataByTechId(updates.getSampleId());
+        if (updates.getVersion().equals(sample.getModificationDate()) == false)
         {
             throwModifiedEntityException("Sample");
         }
-        updateProperties(properties);
-        updateExperiment(experimentIdentifierOrNull);
-        for (AttachmentPE a : newAttachments)
+        updateProperties(updates.getProperties());
+        updateExperiment(updates.getExperimentIdentifierOrNull());
+        for (AttachmentPE a : updates.getAttachments())
         {
             addAttachment(a);
         }

@@ -58,18 +58,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
@@ -453,13 +453,7 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
-    public Date updateSample(
-            String sessionKey,
-            final TechId sampleId,
-            final List<SampleProperty> properties,
-            final List<NewAttachment> newAttachments,
-            final ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier experimentIdentifierOrNull,
-            final Date version)
+    public Date updateSample(final SampleUpdates updates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
@@ -470,18 +464,21 @@ public final class GenericClientService extends AbstractClientService implements
                 public void register(List<AttachmentPE> attachments)
                 {
                     ExperimentIdentifier convExperimentIdentifierOrNull = null;
-                    if (experimentIdentifierOrNull != null)
+                    if (updates.getExperimentIdentifierOrNull() != null)
                     {
                         convExperimentIdentifierOrNull =
-                                new ExperimentIdentifierFactory(experimentIdentifierOrNull
-                                        .getIdentifier()).createIdentifier();
+                                new ExperimentIdentifierFactory(updates
+                                        .getExperimentIdentifierOrNull().getIdentifier())
+                                        .createIdentifier();
                     }
                     Date date =
-                            genericServer.updateSample(sessionToken, sampleId, properties,
-                                    convExperimentIdentifierOrNull, attachments, version);
+                            genericServer.updateSample(sessionToken, new SampleUpdatesDTO(updates
+                                    .getSampleId(), updates.getProperties(),
+                                    convExperimentIdentifierOrNull, attachments, updates
+                                            .getVersion()));
                     modificationDate.setTime(date.getTime());
                 }
-            }.process(sessionKey, getHttpSession(), newAttachments);
+            }.process(updates.getSessionKey(), getHttpSession(), updates.getAttachments());
         return modificationDate;
     }
 

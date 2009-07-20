@@ -24,7 +24,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
@@ -36,11 +35,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdates;
 
 /**
  * Asynchronous version of {@link IGenericClientService}.
@@ -124,13 +122,10 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             Date version, final AsyncCallback<Date> asyncCallback) throws UserFailureException;
 
     /**
-     * @see IGenericClientService#updateSample(String, TechId, List, List, ExperimentIdentifier,
-     *      Date)
+     * @see IGenericClientService#updateSample(SampleUpdates)
      */
-    public void updateSample(String sessionKey, final TechId sampleId,
-            List<SampleProperty> properties, List<NewAttachment> attachments,
-            ExperimentIdentifier experimentIdentifierOrNull, Date version,
-            final AsyncCallback<Date> asyncCallback) throws UserFailureException;
+    public void updateSample(SampleUpdates updates, final AsyncCallback<Date> asyncCallback)
+            throws UserFailureException;
 
     /**
      * @see IGenericClientService#updateDataSet(TechId, String, List, Date)

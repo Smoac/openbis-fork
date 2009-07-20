@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -588,7 +589,10 @@ public final class SampleBOTest extends AbstractBOTest
         prepareTryToLoadOfSampleWithId(sample);
         try
         {
-            createSampleBO().update(SAMPLE_TECH_ID, null, null, new ArrayList<AttachmentPE>(), now);
+            SampleUpdatesDTO updates =
+                    new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, new ArrayList<AttachmentPE>(),
+                            now);
+            createSampleBO().update(updates);
         } catch (UserFailureException e)
         {
             return;
@@ -651,8 +655,9 @@ public final class SampleBOTest extends AbstractBOTest
     private void updateSampleExperiment(final TechId sampleId, final SamplePE sample,
             ExperimentIdentifier experimentIdentifier)
     {
-        createSampleBO().update(sampleId, null, experimentIdentifier,
-                new ArrayList<AttachmentPE>(), sample.getModificationDate());
+        createSampleBO().update(
+                new SampleUpdatesDTO(sampleId, null, experimentIdentifier,
+                        new ArrayList<AttachmentPE>(), sample.getModificationDate()));
     }
 
     private void prepareExperimentUpdateOnly(final SamplePE sample)
@@ -735,8 +740,9 @@ public final class SampleBOTest extends AbstractBOTest
                     will(returnValue(new ArrayList<ExternalDataPE>()));
                 }
             });
-        createSampleBO().update(SAMPLE_TECH_ID, null, experimentIdentifier,
-                new ArrayList<AttachmentPE>(), now);
+        createSampleBO().update(
+                new SampleUpdatesDTO(SAMPLE_TECH_ID, null, experimentIdentifier,
+                        new ArrayList<AttachmentPE>(), now));
 
         assertEquals(experimentToAttach, sample.getExperiment());
     }

@@ -1,0 +1,105 @@
+/*
+ * Copyright 2009 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.generic.shared.dto;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+
+/**
+ * @author Izabela Adamczyk
+ */
+public class SampleUpdatesDTO implements Serializable
+{
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+    private TechId sampleId;
+
+    private List<SampleProperty> properties;
+
+    private ExperimentIdentifier experimentIdentifierOrNull;
+
+    private List<AttachmentPE> attachments;
+
+    private Date version;
+
+    public SampleUpdatesDTO(TechId sampleId, List<SampleProperty> properties,
+            ExperimentIdentifier experimentIdentifierOrNull, List<AttachmentPE> attachments,
+            Date version)
+    {
+        this.sampleId = sampleId;
+        this.properties = properties;
+        this.experimentIdentifierOrNull = experimentIdentifierOrNull;
+        this.attachments = attachments;
+        this.version = version;
+    }
+
+    public TechId getSampleId()
+    {
+        return sampleId;
+    }
+
+    public void setSampleId(TechId sampleId)
+    {
+        this.sampleId = sampleId;
+    }
+
+    public List<SampleProperty> getProperties()
+    {
+        return properties;
+    }
+
+    public void setProperties(List<SampleProperty> properties)
+    {
+        this.properties = properties;
+    }
+
+    public ExperimentIdentifier getExperimentIdentifierOrNull()
+    {
+        return experimentIdentifierOrNull;
+    }
+
+    public void setExperimentIdentifierOrNull(ExperimentIdentifier experimentIdentifierOrNull)
+    {
+        this.experimentIdentifierOrNull = experimentIdentifierOrNull;
+    }
+
+    public List<AttachmentPE> getAttachments()
+    {
+        return attachments;
+    }
+
+    public void setAttachments(List<AttachmentPE> attachments)
+    {
+        this.attachments = attachments;
+    }
+
+    public Date getVersion()
+    {
+        return version;
+    }
+
+    public void setVersion(Date version)
+    {
+        this.version = version;
+    }
+}

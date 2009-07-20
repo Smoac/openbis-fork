@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdates;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
@@ -105,8 +106,9 @@ public final class GenericSampleEditForm extends
         final List<NewAttachment> attachments = attachmentsManager.extractAttachments();
         ExperimentIdentifier experimentIdent =
                 experimentFieldOrNull != null ? experimentFieldOrNull.tryToGetValue() : null;
-        viewContext.getService().updateSample(sessionKey, techIdOrNull, properties, attachments,
-                experimentIdent, originalSample.getModificationDate(),
+        viewContext.getService().updateSample(
+                new SampleUpdates(sessionKey, techIdOrNull, properties, attachments,
+                        experimentIdent, originalSample.getModificationDate()),
                 new UpdateSampleCallback(viewContext));
     }
 

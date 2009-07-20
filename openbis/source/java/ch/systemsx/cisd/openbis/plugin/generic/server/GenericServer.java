@@ -46,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -57,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -398,13 +398,11 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     }
 
-    public Date updateSample(String sessionToken, TechId sampleId, List<SampleProperty> properties,
-            ExperimentIdentifier experimentIdentifierOrNull, List<AttachmentPE> attachments,
-            Date version)
+    public Date updateSample(String sessionToken, SampleUpdatesDTO updates)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-        sampleBO.update(sampleId, properties, experimentIdentifierOrNull, attachments, version);
+        sampleBO.update(updates);
         sampleBO.save();
         return sampleBO.getSample().getModificationDate();
 

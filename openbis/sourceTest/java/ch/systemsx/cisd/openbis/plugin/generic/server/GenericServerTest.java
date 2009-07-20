@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -457,20 +458,21 @@ public final class GenericServerTest extends AbstractServerTestCase
         final SamplePE sample = new SamplePE();
         Date newModificationDate = new Date(2);
         sample.setModificationDate(newModificationDate);
+        final SampleUpdatesDTO updates =
+                new SampleUpdatesDTO(sampleId, properties, null, attachments, version);
         context.checking(new Expectations()
             {
                 {
                     one(genericBusinessObjectFactory).createSampleBO(SESSION);
                     will(returnValue(sampleBO));
 
-                    one(sampleBO).update(sampleId, properties, null, attachments, version);
+                    one(sampleBO).update(updates);
                     one(sampleBO).save();
                     one(sampleBO).getSample();
                     will(returnValue(sample));
                 }
             });
-        assertEquals(newModificationDate, createServer().updateSample(SESSION_TOKEN, sampleId,
-                properties, null, attachments, version));
+        assertEquals(newModificationDate, createServer().updateSample(SESSION_TOKEN, updates));
         context.assertIsSatisfied();
     }
 

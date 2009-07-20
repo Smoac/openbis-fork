@@ -16,17 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import java.util.Date;
-import java.util.List;
-
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -78,12 +74,9 @@ public interface ISampleBO extends IEntityBusinessObject
     void setExperiment(ExperimentPE experiment);
 
     /**
-     * Changes given sample. Currently allowed changes: properties and experiment to which the
-     * sample is connected.
+     * Changes given sample.
      */
-    void update(TechId sampleId, List<SampleProperty> properties,
-            ExperimentIdentifier experimentIdentifierOrNul, List<AttachmentPE> attachments,
-            Date version);
+    void update(SampleUpdatesDTO updates);
 
     /**
      * Adds the specified experiment attachment to the sample.
