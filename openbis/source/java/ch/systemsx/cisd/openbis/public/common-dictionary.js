@@ -162,6 +162,15 @@ var common = {
   edit_type_title_template: "Edit {0} Type {1}",
   delete_confirmation_title: "Confirm Deletion",
   delete_confirmation_message: "Are you sure you want to delete [{0}]?",
+  
+  //
+  // Sample Type Browser
+  //
+  
+  listable: "Listable",
+  is_listable: "Listable?",
+  generated_from_hierarchy_depth: "Derived Hierarchy Depth",
+  part_of_hierarchy_depth: "Container Hierarchy Depth",
    
   //
   // Property Type Browser
@@ -176,6 +185,7 @@ var common = {
   data_set_types: "Data Set Types",
   file_format_types: "File Types",
   experiment_types: "Experiment Types",
+  mandatory: "Mandatory",
   is_mandatory: "Mandatory?",
   property_type: "Property Type",
   property_type_code: "Property Type Code",
@@ -189,7 +199,6 @@ var common = {
   confirm_vocabulary_show_available_terms_in_chooosers_msg: "If this vocabulary has many terms (more than 100) application will slow down.<br><br>Are you sure?",
   vocabulary_show_available_terms_in_choosers: "Show available terms in choosers",
   missing_vocabulary_terms: "Missing vocabulary term.",
-  mandatory: "Mandatory",
   default_value: "Initial Value",
   default_value_tooltip: "The value of the assigned property for all currently existing entities.",
   entity_type_assignments: "{0} Type Assignment{1}",

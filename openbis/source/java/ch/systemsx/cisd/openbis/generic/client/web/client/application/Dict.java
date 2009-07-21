@@ -234,6 +234,18 @@ public abstract class Dict
     public static final String EDIT_TYPE_TITLE_TEMPLATE = "edit_type_title_template";
 
     //
+    // Sample Type Browser
+    //
+
+    public static final String LISTABLE = "listable";
+
+    public static final String IS_LISTABLE = "is_listable";
+
+    public static final String GENERATED_FROM_HIERARCHY_DEPTH = "generated_from_hierarchy_depth";
+
+    public static final String PART_OF_HIERARCHY_DEPTH = "part_of_hierarchy_depth";
+
+    //
     // Property Type Browser
     //
 

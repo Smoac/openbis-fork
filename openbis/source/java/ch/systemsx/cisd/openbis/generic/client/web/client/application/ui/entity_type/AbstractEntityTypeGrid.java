@@ -57,7 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
  */
 abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<EntityType>
 {
-    private IDelegatedAction postRegistrationCallback;
+    protected IDelegatedAction postRegistrationCallback;
 
     abstract protected EntityKind getEntityKind();
 
@@ -175,7 +175,7 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
             };
     }
 
-    private Window createEditEntityTypeDialog(final EntityKind entityKind,
+    protected Window createEditEntityTypeDialog(final EntityKind entityKind,
             final EntityType entityType)
     {
         final String code = entityType.getCode();
@@ -190,7 +190,6 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
                     descriptionField.setValue(StringEscapeUtils.unescapeHtml(entityType
                             .getDescription()));
                     addField(descriptionField);
-
                 }
 
                 @Override

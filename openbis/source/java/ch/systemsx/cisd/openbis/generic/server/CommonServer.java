@@ -772,10 +772,25 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             EntityTypePE entityTypePE =
                     entityTypeDAO.tryToFindEntityTypeByCode(entityType.getCode());
             entityTypePE.setDescription(entityType.getDescription());
+            updateSpecificEntityTypeProperties(entityKind, entityTypePE, entityType);
             entityTypeDAO.createOrUpdateEntityType(entityTypePE);
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
+        }
+    }
+
+    private void updateSpecificEntityTypeProperties(EntityKind entityKind,
+            EntityTypePE entityTypePE, EntityType entityType)
+    {
+        if (entityKind == EntityKind.SAMPLE)
+        {
+            SampleTypePE sampleTypePE = (SampleTypePE) entityTypePE;
+            SampleType sampleType = (SampleType) entityType;
+            sampleTypePE.setListable(sampleType.isListable());
+            sampleTypePE.setContainerHierarchyDepth(sampleType.getPartOfHierarchyDepth());
+            sampleTypePE
+                    .setGeneratedFromHierarchyDepth(sampleType.getGeneratedFromHierarchyDepth());
         }
     }
 
