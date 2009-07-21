@@ -456,7 +456,7 @@ public final class SampleBOTest extends AbstractBOTest
                     one(permIdDAO).createPermId();
                     will(returnValue("2009010112341234-1"));
 
-                    one(sampleDAO).createSample(with(new BaseMatcher<SamplePE>()
+                    BaseMatcher<SamplePE> matcher = new BaseMatcher<SamplePE>()
                         {
                             public void describeTo(final Description description)
                             {
@@ -476,7 +476,11 @@ public final class SampleBOTest extends AbstractBOTest
                                 assertEquals(EXAMPLE_PERSON, sample.getRegistrator());
                                 return true;
                             }
-                        }));
+                        };
+                    one(sampleDAO).createSample(with(matcher));
+
+                    allowing(externalDataDAO).listExternalData(with(matcher));
+                    will(returnValue(new ArrayList<ExternalDataPE>()));
 
                     extracted(sampleType);
 
@@ -591,7 +595,7 @@ public final class SampleBOTest extends AbstractBOTest
         {
             SampleUpdatesDTO updates =
                     new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, new ArrayList<AttachmentPE>(),
-                            now);
+                            now, null, null, null);
             createSampleBO().update(updates);
         } catch (UserFailureException e)
         {
@@ -657,7 +661,8 @@ public final class SampleBOTest extends AbstractBOTest
     {
         createSampleBO().update(
                 new SampleUpdatesDTO(sampleId, null, experimentIdentifier,
-                        new ArrayList<AttachmentPE>(), sample.getModificationDate()));
+                        new ArrayList<AttachmentPE>(), sample.getModificationDate(), null, null,
+                        null));
     }
 
     private void prepareExperimentUpdateOnly(final SamplePE sample)
@@ -742,7 +747,7 @@ public final class SampleBOTest extends AbstractBOTest
             });
         createSampleBO().update(
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, experimentIdentifier,
-                        new ArrayList<AttachmentPE>(), now));
+                        new ArrayList<AttachmentPE>(), now, null, null, null));
 
         assertEquals(experimentToAttach, sample.getExperiment());
     }

@@ -88,22 +88,35 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         samplePE.setGroup(sampleOwner.tryGetGroup());
         samplePE.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
         defineSampleProperties(samplePE, newSample.getProperties());
-        final SamplePE parentPE =
-                tryGetValidSample(newSample.getParentIdentifier(), sampleIdentifier);
+        String parentIdentifier = newSample.getParentIdentifier();
+        setGeneratedFrom(sampleIdentifier, samplePE, parentIdentifier);
+        String containerIdentifier = newSample.getContainerIdentifier();
+        setContainer(sampleIdentifier, samplePE, containerIdentifier);
+        samplePE.setPermId(getPermIdDAO().createPermId());
+        SampleGenericBusinessRules.assertValidParents(samplePE);
+        return samplePE;
+    }
+
+    protected void setContainer(final SampleIdentifier sampleIdentifier, final SamplePE samplePE,
+            String containerIdentifier)
+    {
+        final SamplePE containerPE = tryGetValidSample(containerIdentifier, sampleIdentifier);
+        samplePE.setContainer(containerPE);
+    }
+
+    protected void setGeneratedFrom(final SampleIdentifier sampleIdentifier,
+            final SamplePE samplePE, String parentIdentifier)
+    {
+        final SamplePE parentPE = tryGetValidSample(parentIdentifier, sampleIdentifier);
         if (parentPE != null)
         {
             samplePE.setGeneratedFrom(parentPE);
             samplePE.setTop(parentPE.getTop() == null ? parentPE : parentPE.getTop());
-        }
-        final SamplePE containerPE =
-                tryGetValidSample(newSample.getContainerIdentifier(), sampleIdentifier);
-        if (containerPE != null)
+        } else
         {
-            samplePE.setContainer(containerPE);
+            samplePE.setGeneratedFrom(null);
+            samplePE.setTop(null);
         }
-        samplePE.setPermId(getPermIdDAO().createPermId());
-        SampleGenericBusinessRules.assertValidParents(samplePE);
-        return samplePE;
     }
 
     private SamplePE tryGetValidSample(final String parentIdentifierOrNull,

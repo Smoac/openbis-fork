@@ -378,9 +378,9 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     private ConfigurationFailureException createUnknownDataStoreServerException()
     {
         return new ConfigurationFailureException(
-                    "Connection to Data Store Server has not been configured. "
-                            + "Conntact your administrator.");
-        }
+                "Connection to Data Store Server has not been configured. "
+                        + "Conntact your administrator.");
+    }
 
     public TableModel createReportFromDatasets(DatastoreServiceDescription serviceDescription,
             List<String> datasetCodes)

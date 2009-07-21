@@ -16,59 +16,34 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
-
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.AttachmentsFileFieldManager;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
 
 /**
  * The <i>generic</i> sample edit form.
  * 
  * @author Izabela Adamczyk
  */
-public final class GenericSampleEditForm extends
-        AbstractGenericEntityRegistrationForm<SampleType, SampleTypePropertyType, SampleProperty>
+public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEditForm
 {
 
-    private AttachmentsFileFieldManager attachmentsManager;
-
-    private String sessionKey;
-
     private Sample originalSample;
-
-    // null if sample cannot be attached to an experiment
-    private ExperimentChooserFieldAdaptor experimentFieldOrNull;
 
     public static DatabaseModificationAwareComponent create(
             IViewContext<IGenericClientServiceAsync> viewContext, IIdentifiable identifiable)
@@ -80,35 +55,21 @@ public final class GenericSampleEditForm extends
     private GenericSampleEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
             IIdentifiable identifiable)
     {
-        super(viewContext, identifiable, EntityKind.SAMPLE);
-        sessionKey = createSimpleId(identifiable, EntityKind.SAMPLE);
-        addUploadFeatures(sessionKey);
-    }
-
-    private ExperimentChooserFieldAdaptor createExperimentField()
-    {
-        String label = viewContext.getMessage(Dict.EXPERIMENT);
-        Experiment experiment = originalSample.getExperiment();
-        ExperimentIdentifier originalExperiment =
-                experiment == null ? null : ExperimentIdentifier.createIdentifier(experiment);
-        return ExperimentChooserField.create(label, false, originalExperiment, viewContext
-                .getCommonViewContext());
+        super(viewContext, identifiable);
     }
 
     @Override
-    public final void submitValidForm()
-    {
-    }
-
-    private void save()
+    protected void save()
     {
         final List<SampleProperty> properties = extractProperties();
         final List<NewAttachment> attachments = attachmentsManager.extractAttachments();
         ExperimentIdentifier experimentIdent =
-                experimentFieldOrNull != null ? experimentFieldOrNull.tryToGetValue() : null;
+                experimentField != null ? experimentField.tryToGetValue() : null;
         viewContext.getService().updateSample(
-                new SampleUpdates(sessionKey, techIdOrNull, properties, attachments,
-                        experimentIdent, originalSample.getModificationDate()),
+                new SampleUpdates(attachmentsSessionKey, techIdOrNull, properties, attachments,
+                        experimentIdent, originalSample.getModificationDate(),
+                        createSampleIdentifier(), StringUtils.trimToNull(parent.getValue()),
+                        StringUtils.trimToNull(container.getValue())),
                 new UpdateSampleCallback(viewContext));
     }
 
@@ -139,95 +100,10 @@ public final class GenericSampleEditForm extends
     public void updateOriginalValues()
     {
         updatePropertyFieldsOriginalValues();
-        if (experimentFieldOrNull != null)
-            experimentFieldOrNull.updateOriginalValue();
-    }
-
-    @Override
-    protected PropertiesEditor<SampleType, SampleTypePropertyType, SampleProperty> createPropertiesEditor(
-
-    String id, IViewContext<ICommonClientServiceAsync> context)
-    {
-        SamplePropertyEditor editor = new SamplePropertyEditor(id, context);
-        return editor;
-    }
-
-    @Override
-    protected List<DatabaseModificationAwareField<?>> getEntitySpecificFormFields()
-    {
-        ArrayList<DatabaseModificationAwareField<?>> fields =
-                new ArrayList<DatabaseModificationAwareField<?>>();
-        if (experimentFieldOrNull != null)
-        {
-            fields.add(wrapUnaware(experimentFieldOrNull.getField()));
-        }
-        return fields;
-    }
-
-    @Override
-    protected void addFormFieldsToPanel(FormPanel panel)
-    {
-        super.addFormFieldsToPanel(panel);
-        attachmentsManager.addAttachmentFieldSetsToPanel(panel);
-    }
-
-    @Override
-    protected void resetPanel()
-    {
-        super.resetPanel();
-        attachmentsManager.resetAttachmentFieldSetsInPanel(formPanel);
-    }
-
-    private static boolean canAttachToExperiment(Sample sample)
-    {
-        return sample.getGroup() != null;
-    }
-
-    @Override
-    protected void createEntitySpecificFormFields()
-    {
-        experimentFieldOrNull =
-                canAttachToExperiment(originalSample) ? createExperimentField() : null;
-        attachmentsManager = new AttachmentsFileFieldManager(sessionKey, viewContext);
-        formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
-            {
-                @Override
-                protected void onSuccessfullUpload()
-                {
-                    save();
-                }
-
-                @Override
-                protected void setUploadEnabled()
-                {
-                    GenericSampleEditForm.this.setUploadEnabled(true);
-                }
-            });
-        redefineSaveListeners();
-
-    }
-
-    void redefineSaveListeners()
-    {
-        saveButton.removeAllListeners();
-        saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-            {
-                @Override
-                public final void componentSelected(final ButtonEvent ce)
-                {
-                    if (formPanel.isValid())
-                    {
-                        if (attachmentsManager.filesDefined() > 0)
-                        {
-                            setUploadEnabled(false);
-                            formPanel.submit();
-                        } else
-                        {
-                            save();
-                        }
-                    }
-                }
-            });
+        experimentField.updateOriginalValue();
+        groupSelectionWidget.updateOriginalValue(groupSelectionWidget.getValue());
+        container.setOriginalValue(container.getValue());
+        parent.setOriginalValue(parent.getValue());
     }
 
     private void setOriginalSample(Sample sample)
@@ -241,7 +117,46 @@ public final class GenericSampleEditForm extends
         propertiesEditor.initWithProperties(originalSample.getSampleType()
                 .getAssignedPropertyTypes(), originalSample.getProperties());
         codeField.setValue(originalSample.getCode());
+        Experiment experiment = originalSample.getExperiment();
+        ExperimentIdentifier originalExperiment =
+                experiment == null ? null : ExperimentIdentifier.createIdentifier(experiment);
+        experimentField.updateValue(originalExperiment);
+        initializeGroup();
+        initializeContainedInParent();
+        initializeGeneratedFromParent();
+    }
 
+    private void initializeGroup()
+    {
+        Group groupOrNull = originalSample.getGroup();
+        if (groupOrNull != null)
+        {
+            groupSelectionWidget.selectGroupAndUpdateOriginal(groupOrNull.getCode());
+        } else
+        {
+            groupSelectionWidget
+                    .selectGroupAndUpdateOriginal(GroupSelectionWidget.SHARED_GROUP_CODE);
+        }
+    }
+
+    private void initializeContainedInParent()
+    {
+        Sample containerSample = originalSample.getContainer();
+        if (containerSample != null)
+        {
+            container.setValue(containerSample.getIdentifier());
+            container.setOriginalValue(container.getValue());
+        }
+    }
+
+    private void initializeGeneratedFromParent()
+    {
+        Sample parentSample = originalSample.getGeneratedFrom();
+        if (parentSample != null)
+        {
+            parent.setValue(parentSample.getIdentifier());
+            parent.setOriginalValue(parent.getValue());
+        }
     }
 
     @Override

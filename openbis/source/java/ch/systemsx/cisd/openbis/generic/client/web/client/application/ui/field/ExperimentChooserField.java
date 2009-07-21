@@ -46,15 +46,17 @@ public final class ExperimentChooserField extends ChosenEntitySetter<Experiment>
     public interface ExperimentChooserFieldAdaptor
     {
         Field<?> getField();
-        
+
         ExperimentChooserField getChooserField();
-        
+
         Button getChooseButton();
 
         /** @return the experiment identifier which is set as a field value */
         ExperimentIdentifier tryToGetValue();
 
         void updateOriginalValue();
+
+        void updateValue(ExperimentIdentifier identifierOrNull);
     }
 
     /**
@@ -108,6 +110,11 @@ public final class ExperimentChooserField extends ChosenEntitySetter<Experiment>
                     String textValue = (valueOrNull == null ? "" : valueOrNull.getIdentifier());
                     chooserField.setOriginalValue(textValue);
                 }
+
+                public void updateValue(ExperimentIdentifier identifierOrNull)
+                {
+                    chooserField.updateValue(identifierOrNull);
+                }
             };
     }
 
@@ -135,7 +142,7 @@ public final class ExperimentChooserField extends ChosenEntitySetter<Experiment>
                     + EXPERIMENT_IDENTIFIER_WITHOUT_GROUP_PATTERN + ")";
 
     private final boolean mandatory;
-    
+
     @Override
     public String renderEntity(Experiment entity)
     {
@@ -169,6 +176,11 @@ public final class ExperimentChooserField extends ChosenEntitySetter<Experiment>
 
         setRegex(EXPERIMENT_IDENTIFIER_PATTERN);
         getMessages().setRegexText(viewContext.getMessage(Dict.INCORRECT_EXPERIMENT_SYNTAX));
+        updateValue(initialValueOrNull);
+    }
+
+    public void updateValue(ExperimentIdentifier initialValueOrNull)
+    {
         if (initialValueOrNull != null)
         {
             super.setValue(print(initialValueOrNull));

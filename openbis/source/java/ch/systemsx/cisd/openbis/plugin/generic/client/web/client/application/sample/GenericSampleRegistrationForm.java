@@ -16,27 +16,11 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
-
-import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.TextField;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.AttachmentsFileFieldManager;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
@@ -44,66 +28,27 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
 
 /**
  * The <i>generic</i> sample registration form.
  * 
  * @author Izabela Adamczyk
  */
-public final class GenericSampleRegistrationForm extends
-        AbstractGenericEntityRegistrationForm<SampleType, SampleTypePropertyType, SampleProperty>
+public final class GenericSampleRegistrationForm extends AbstractGenericSampleRegisterEditForm
 {
     private static final IIdentifiable REGISTRATION_IDENTIFIER = null;
 
+    // For tests only
     public static final String ID = createId(REGISTRATION_IDENTIFIER, EntityKind.SAMPLE);
 
-    public static final String ID_SUFFIX_CONTAINER = "container";
-
-    public static final String ID_SUFFIX_PARENT = "parent";
-
-    public static final String SESSION_KEY =
-            createSimpleId(REGISTRATION_IDENTIFIER, EntityKind.SAMPLE);
-
     private final SampleType sampleType;
-
-    private GroupSelectionWidget groupSelectionWidget;
-
-    private TextField<String> container;
-
-    private TextField<String> parent;
-
-    private AttachmentsFileFieldManager attachmentsManager =
-            new AttachmentsFileFieldManager(SESSION_KEY, viewContext);
 
     public GenericSampleRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
     {
-        super(viewContext, EntityKind.SAMPLE);
+        super(viewContext);
         this.sampleType = sampleType;
-        addUploadFeatures(SESSION_KEY);
-    }
-
-    private final String createSampleIdentifier()
-    {
-        final Group group = groupSelectionWidget.tryGetSelectedGroup();
-        final boolean shared = GroupSelectionWidget.isSharedGroup(group);
-        final String code = codeField.getValue();
-        final StringBuilder builder = new StringBuilder("/");
-        if (shared == false)
-        {
-            builder.append(group.getCode() + "/");
-        }
-        builder.append(code);
-        return builder.toString().toUpperCase();
-    }
-
-    @Override
-    public final void submitValidForm()
-    {
     }
 
     @Override
@@ -111,18 +56,6 @@ public final class GenericSampleRegistrationForm extends
     {
         codeField.reset();
         attachmentsManager.resetAttachmentFieldSetsInPanel(formPanel);
-    }
-
-    public final void registerSample()
-    {
-        final NewSample newSample =
-                new NewSample(createSampleIdentifier(), sampleType, StringUtils.trimToNull(parent
-                        .getValue()), StringUtils.trimToNull(container.getValue()));
-        final List<SampleProperty> properties = extractProperties();
-        newSample.setProperties(properties.toArray(SampleProperty.EMPTY_ARRAY));
-        newSample.setAttachments(attachmentsManager.extractAttachments());
-        viewContext.getService().registerSample(SESSION_KEY, newSample,
-                new RegisterSampleCallback(viewContext));
     }
 
     public final class RegisterSampleCallback extends
@@ -152,101 +85,29 @@ public final class GenericSampleRegistrationForm extends
     }
 
     @Override
-    protected void createEntitySpecificFormFields()
-    {
-        groupSelectionWidget = new GroupSelectionWidget(viewContext, getId(), true);
-        FieldUtil.markAsMandatory(groupSelectionWidget);
-        groupSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.GROUP));
-
-        parent = new VarcharField(viewContext.getMessage(Dict.GENERATED_FROM_SAMPLE), false);
-        parent.setId(getId() + ID_SUFFIX_PARENT);
-
-        container = new VarcharField(viewContext.getMessage(Dict.PART_OF_SAMPLE), false);
-        container.setId(getId() + ID_SUFFIX_CONTAINER);
-
-        formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
-            {
-                @Override
-                protected void onSuccessfullUpload()
-                {
-                    registerSample();
-                }
-
-                @Override
-                protected void setUploadEnabled()
-                {
-                    GenericSampleRegistrationForm.this.setUploadEnabled(true);
-                }
-            });
-        redefineSaveListeners();
-    }
-
-    void redefineSaveListeners()
-    {
-        saveButton.removeAllListeners();
-        saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-            {
-                @Override
-                public final void componentSelected(final ButtonEvent ce)
-                {
-                    if (formPanel.isValid())
-                    {
-                        if (attachmentsManager.filesDefined() > 0)
-                        {
-                            setUploadEnabled(false);
-                            formPanel.submit();
-                        } else
-                        {
-                            registerSample();
-                        }
-                    }
-                }
-            });
-    }
-
-    @Override
-    protected List<DatabaseModificationAwareField<?>> getEntitySpecificFormFields()
-    {
-        List<DatabaseModificationAwareField<?>> fields =
-                new ArrayList<DatabaseModificationAwareField<?>>();
-        fields.add(groupSelectionWidget.asDatabaseModificationAware());
-        fields.add(wrapUnaware(parent));
-        fields.add(wrapUnaware(container));
-        return fields;
-    }
-
-    @Override
-    protected void addFormFieldsToPanel(FormPanel panel)
-    {
-        super.addFormFieldsToPanel(panel);
-        attachmentsManager.addAttachmentFieldSetsToPanel(panel);
-    }
-
-    @Override
-    protected void resetPanel()
-    {
-        super.resetPanel();
-        attachmentsManager.resetAttachmentFieldSetsInPanel(formPanel);
-    }
-
-    @Override
-    protected PropertiesEditor<SampleType, SampleTypePropertyType, SampleProperty> createPropertiesEditor(
-            String string, IViewContext<ICommonClientServiceAsync> context)
-    {
-        SamplePropertyEditor editor = new SamplePropertyEditor(string, context);
-        return editor;
-    }
-
-    @Override
     protected void initializeFormFields()
     {
         propertiesEditor.initWithoutProperties(sampleType.getAssignedPropertyTypes());
+        experimentField.getField().setVisible(false);
     }
 
     @Override
     protected void loadForm()
     {
         initGUI();
+    }
+
+    @Override
+    protected void save()
+    {
+        final NewSample newSample =
+                new NewSample(createSampleIdentifier(), sampleType, StringUtils.trimToNull(parent
+                        .getValue()), StringUtils.trimToNull(container.getValue()));
+        final List<SampleProperty> properties = extractProperties();
+        newSample.setProperties(properties.toArray(SampleProperty.EMPTY_ARRAY));
+        newSample.setAttachments(attachmentsManager.extractAttachments());
+        viewContext.getService().registerSample(attachmentsSessionKey, newSample,
+                new RegisterSampleCallback(viewContext));
     }
 
 }

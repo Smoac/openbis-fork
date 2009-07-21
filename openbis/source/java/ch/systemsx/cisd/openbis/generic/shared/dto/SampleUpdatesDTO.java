@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicSampleUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * @author Izabela Adamczyk
@@ -34,15 +35,29 @@ public class SampleUpdatesDTO extends BasicSampleUpdates
 
     private ExperimentIdentifier experimentIdentifierOrNull;
 
+    private SampleIdentifier sampleIdentifier;
+
     private List<AttachmentPE> attachments;
 
     public SampleUpdatesDTO(TechId sampleId, List<SampleProperty> properties,
             ExperimentIdentifier experimentIdentifierOrNull, List<AttachmentPE> attachments,
-            Date version)
+            Date version, SampleIdentifier sampleIdentifier, String parentIdentifierOrNull,
+            String containerIdentifierOrNull)
     {
-        super(sampleId, properties, version);
+        super(sampleId, properties, version, parentIdentifierOrNull, containerIdentifierOrNull);
         this.experimentIdentifierOrNull = experimentIdentifierOrNull;
         this.attachments = attachments;
+        this.sampleIdentifier = sampleIdentifier;
+    }
+
+    public SampleIdentifier getSampleIdentifier()
+    {
+        return sampleIdentifier;
+    }
+
+    public void setSampleIdentifier(SampleIdentifier sampleIdentifier)
+    {
+        this.sampleIdentifier = sampleIdentifier;
     }
 
     public ExperimentIdentifier getExperimentIdentifierOrNull()

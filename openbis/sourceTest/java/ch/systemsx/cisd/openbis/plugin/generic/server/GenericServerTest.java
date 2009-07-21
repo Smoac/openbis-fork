@@ -448,9 +448,6 @@ public final class GenericServerTest extends AbstractServerTestCase
     public void testEditSampleNothingChanged() throws Exception
     {
         final TechId sampleId = CommonTestUtils.TECH_ID;
-        // final SampleIdentifier identifier =
-        // SampleIdentifier.createOwnedBy(new SampleOwnerIdentifier(new GroupIdentifier(
-        // DATABASE_1, GROUP_1)), SAMPLE_1);
         final List<SampleProperty> properties = new ArrayList<SampleProperty>();
         prepareGetSession();
         final Date version = new Date();
@@ -459,7 +456,8 @@ public final class GenericServerTest extends AbstractServerTestCase
         Date newModificationDate = new Date(2);
         sample.setModificationDate(newModificationDate);
         final SampleUpdatesDTO updates =
-                new SampleUpdatesDTO(sampleId, properties, null, attachments, version);
+                new SampleUpdatesDTO(sampleId, properties, null, attachments, version, null, null,
+                        null);
         context.checking(new Expectations()
             {
                 {

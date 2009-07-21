@@ -209,7 +209,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = false)
+    @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = true)
     public DatabaseInstancePE getDatabaseInstance()
     {
         return databaseInstance;
@@ -286,7 +286,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = ColumnNames.PART_OF_SAMPLE_COLUMN, updatable = false)
+    @JoinColumn(name = ColumnNames.PART_OF_SAMPLE_COLUMN, updatable = true)
     public SamplePE getContainer()
     {
         return container;
@@ -310,7 +310,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = ColumnNames.GENERATED_FROM_SAMPLE_COLUMN)
+    @JoinColumn(name = ColumnNames.GENERATED_FROM_SAMPLE_COLUMN, updatable = true)
     public SamplePE getGeneratedFrom()
     {
         return generatedFrom;

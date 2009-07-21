@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperi
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
@@ -187,7 +188,8 @@ public interface IGenericServer extends IPluginCommonServer
     @Transactional
     @RolesAllowed(RoleSet.USER)
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
-    public Date updateSample(String sessionToken, SampleUpdatesDTO updates);
+    public Date updateSample(String sessionToken,
+            @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class) SampleUpdatesDTO updates);
 
     /**
      * Saves changed data set.

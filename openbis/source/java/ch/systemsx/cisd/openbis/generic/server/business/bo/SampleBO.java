@@ -23,6 +23,7 @@ import java.util.Set;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -45,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -203,6 +205,27 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     {
         entityPropertiesConverter.checkMandatoryProperties(sample.getProperties(), sample
                 .getSampleType());
+        if (hasDatasets() && sample.getExperiment() == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "Cannot detach the sample '%s' from the experiment "
+                            + "because there are already datasets attached to the sample.", sample
+                            .getIdentifier());
+        }
+        if (hasDatasets() && sample.getGroup() == null)
+        {
+            throw UserFailureException.fromTemplate("Cannot detach the sample '%s' from the group "
+                    + "because there are already datasets attached to the sample.", sample
+                    .getIdentifier());
+        }
+        if (sample.getExperiment() != null
+                && (sample.getGroup() == null || sample.getExperiment().getProject().getGroup()
+                        .equals(sample.getGroup()) == false))
+        {
+            throw new UserFailureException(
+                    "Sample group must be the same as experiment group. Shared samples cannot be attached to experiments.");
+        }
+        SampleGenericBusinessRules.assertValidParents(sample);
     }
 
     public void setExperiment(ExperimentPE experiment)
@@ -262,14 +285,17 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     }
 
     public void update(SampleUpdatesDTO updates)
-    {
+    {// FIXME: tests needed
         loadDataByTechId(updates.getSampleId());
         if (updates.getVersion().equals(sample.getModificationDate()) == false)
         {
             throwModifiedEntityException("Sample");
         }
         updateProperties(updates.getProperties());
+        updateGroup(updates.getSampleIdentifier());
         updateExperiment(updates.getExperimentIdentifierOrNull());
+        setGeneratedFrom(updates.getSampleIdentifier(), sample, updates.getParentIdentifierOrNull());
+        setContainer(updates.getSampleIdentifier(), sample, updates.getContainerIdentifierOrNull());
         for (AttachmentPE a : updates.getAttachments())
         {
             addAttachment(a);
@@ -277,17 +303,28 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         dataChanged = true;
     }
 
-    private void updateExperiment(ExperimentIdentifier identifierOrNull)
+    private void updateGroup(SampleOwnerIdentifier sampleOwnerIdentifier)
     {
-        if (identifierOrNull == null)
+        if (sampleOwnerIdentifier != null)
         {
-            removeFromExperiment();
+            final SampleOwner sampleOwner =
+                    getSampleOwnerFinder().figureSampleOwner(sampleOwnerIdentifier);
+            GroupPE group = sampleOwner.tryGetGroup();
+            sample.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
+            sample.setGroup(group);
+        }
+    }
+
+    private void updateExperiment(ExperimentIdentifier expIdentifierOrNull)
+    {
+        if (expIdentifierOrNull != null)
+        {
+            fillGroupIdentifier(expIdentifierOrNull);
+            changeExperiment(expIdentifierOrNull);
         } else
         {
-            fillGroupIdentifier(identifierOrNull);
-            changeExperiment(identifierOrNull);
+            removeFromExperiment();
         }
-
     }
 
     private void removeFromExperiment()
@@ -312,9 +349,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         ensureExperimentIsValid(identifier, newExperiment);
         ensureSampleAttachableToExperiment();
 
-        GroupPE experimentGroup = newExperiment.getProject().getGroup();
         changeDatasetsExperiment(sample.getDatasets(), newExperiment);
-        sample.setGroup(experimentGroup);
         sample.setExperiment(newExperiment);
     }
 

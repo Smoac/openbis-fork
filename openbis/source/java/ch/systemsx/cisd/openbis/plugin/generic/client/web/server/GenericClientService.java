@@ -24,6 +24,7 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
@@ -464,6 +465,7 @@ public final class GenericClientService extends AbstractClientService implements
                 public void register(List<AttachmentPE> attachments)
                 {
                     ExperimentIdentifier convExperimentIdentifierOrNull = null;
+                    SampleIdentifier sampleOwner = null;
                     if (updates.getExperimentIdentifierOrNull() != null)
                     {
                         convExperimentIdentifierOrNull =
@@ -471,11 +473,19 @@ public final class GenericClientService extends AbstractClientService implements
                                         .getExperimentIdentifierOrNull().getIdentifier())
                                         .createIdentifier();
                     }
+                    if (StringUtils.isBlank(updates.getSampleIdentifier()) == false)
+                    {
+                        sampleOwner =
+                                new SampleIdentifierFactory(updates.getSampleIdentifier())
+                                        .createIdentifier();
+                    }
                     Date date =
                             genericServer.updateSample(sessionToken, new SampleUpdatesDTO(updates
                                     .getSampleId(), updates.getProperties(),
                                     convExperimentIdentifierOrNull, attachments, updates
-                                            .getVersion()));
+                                            .getVersion(), sampleOwner, updates
+                                            .getParentIdentifierOrNull(), updates
+                                            .getContainerIdentifierOrNull()));
                     modificationDate.setTime(date.getTime());
                 }
             }.process(updates.getSessionKey(), getHttpSession(), updates.getAttachments());

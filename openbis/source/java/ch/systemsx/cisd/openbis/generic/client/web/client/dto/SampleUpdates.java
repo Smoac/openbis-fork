@@ -38,18 +38,32 @@ public class SampleUpdates extends BasicSampleUpdates
 
     private ExperimentIdentifier experimentIdentifierOrNull;
 
+    private String sampleIdentifier;
+
+    public String getSampleIdentifier()
+    {
+        return sampleIdentifier;
+    }
+
+    public void setSampleIdentifier(String sampleIdentifier)
+    {
+        this.sampleIdentifier = sampleIdentifier;
+    }
+
     public SampleUpdates()
     {
     }
 
     public SampleUpdates(String sessionKey, TechId sampleId, List<SampleProperty> properties,
             List<NewAttachment> attachments, ExperimentIdentifier experimentIdentifierOrNull,
-            Date version)
+            Date version, String sampleIdentifier, String parentIdentifierOrNull,
+            String containerIdentifierOrNull)
     {
-        super(sampleId, properties, version);
+        super(sampleId, properties, version, parentIdentifierOrNull, containerIdentifierOrNull);
         this.sessionKey = sessionKey;
         this.attachments = attachments;
         this.experimentIdentifierOrNull = experimentIdentifierOrNull;
+        this.sampleIdentifier = sampleIdentifier;
     }
 
     public String getSessionKey()
