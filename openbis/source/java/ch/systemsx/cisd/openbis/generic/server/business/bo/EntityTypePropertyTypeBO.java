@@ -97,6 +97,8 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         PropertyTypePE propertyType = findPropertyType(propertyTypeCode);
         assignment = createAssignment(isMandatory, entityType, propertyType);
         // fill initial mandatory property values
+        // FIXME 2009-07-20, Tomasz Pylak: filing the default value should also work for
+        // non-mandatory properties
         if (isMandatory)
         {
             List<IEntityPropertiesHolder> entities =
