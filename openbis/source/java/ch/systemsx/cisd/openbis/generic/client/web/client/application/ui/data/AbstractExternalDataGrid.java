@@ -116,7 +116,9 @@ public abstract class AbstractExternalDataGrid
         public UploadConfirmationDialog(List<ExternalData> dataSets)
         {
             super(viewContext, dataSets, viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_TITLE));
-
+            cifexURL = viewContext.getModel().getApplicationInfo().getCIFEXURL();
+            addText(viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_MSG, dataSets.size(),
+                    cifexURL));
             setWidth(LABEL_WIDTH_IN_UPLOAD_DIALOG + FIELD_WIDTH_IN_UPLOAD_DIALOG + 50);
         }
 
