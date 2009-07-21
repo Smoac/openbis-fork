@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.etlserver;
 
-import static ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessorWithDropbox.DATASET_CODE_SEPARATOR_PROPERTY;
-
 import java.io.File;
 import java.util.Properties;
 
@@ -90,37 +88,53 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
 
         public final static String COPY_NAME = "datasetCopy";
 
-        private final File dropboxDir;
-
         public StorageProcessorWithDropboxTest(Properties properties)
         {
-            super(properties);
-            this.dropboxDir = tryGetDropboxDir(properties);
+            super(properties, new DatasetDropboxHandler(properties));
         }
 
-        private File tryGetDropboxDir(Properties properties)
-        {
-            return tryGetDirectory(DROPBOX_INCOMING_DIRECTORY_PROPERTY, properties);
-        }
-
-        StorageProcessorWithDropboxTest(Properties properties,
+        public StorageProcessorWithDropboxTest(Properties properties,
                 IStorageProcessor delegateStorageProcessor, IFileOperations fileOperations)
         {
-            super(properties, delegateStorageProcessor, fileOperations);
-            this.dropboxDir = tryGetDropboxDir(properties);
+            super(properties, new DatasetDropboxHandler(properties, fileOperations),
+                    delegateStorageProcessor, fileOperations);
         }
 
-        @Override
-        protected File tryGetDropboxDir(File originalData, DataSetInformation dataSetInformation)
+        private static class DatasetDropboxHandler extends AbstractDatasetDropboxHandler
         {
-            return dropboxDir;
-        }
+            private static final long serialVersionUID = 1L;
 
-        @Override
-        protected String createDropboxDestinationFileName(DataSetInformation dataSetInformation,
-                File incomingDataSetDirectory)
-        {
-            return COPY_NAME;
+            private final File dropboxDir;
+
+            public DatasetDropboxHandler(Properties properties)
+            {
+                super(properties);
+                this.dropboxDir = tryGetDropboxDir(properties);
+            }
+
+            public DatasetDropboxHandler(Properties properties, IFileOperations fileOperations)
+            {
+                super(properties, fileOperations);
+                this.dropboxDir = tryGetDropboxDir(properties);
+            }
+
+            private File tryGetDropboxDir(Properties properties)
+            {
+                return tryGetDirectory(DROPBOX_INCOMING_DIRECTORY_PROPERTY, properties);
+            }
+
+            @Override
+            protected File tryGetDropboxDir(File originalData, DataSetInformation dataSetInformation)
+            {
+                return dropboxDir;
+            }
+
+            @Override
+            protected String createDropboxDestinationFileName(
+                    DataSetInformation dataSetInformation, File incomingDataSetDirectory)
+            {
+                return COPY_NAME;
+            }
         }
     }
 
@@ -169,7 +183,8 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
         properties.setProperty(prefix
                 + StorageProcessorWithDropboxTest.DROPBOX_INCOMING_DIRECTORY_PROPERTY, dropbox2
                 .getAbsolutePath());
-        properties.setProperty(prefix + DATASET_CODE_SEPARATOR_PROPERTY, "-");
+        properties.setProperty(prefix
+                + AbstractDatasetDropboxHandler.DATASET_CODE_SEPARATOR_PROPERTY, "-");
         AbstractDelegatingStorageProcessorWithDropbox processor =
                 new StorageProcessorWithDropboxTest(properties);
         DataSetInformation dataSetInfo = new DataSetInformation();

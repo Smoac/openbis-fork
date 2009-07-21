@@ -25,6 +25,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.List;
 
 import org.apache.commons.io.FileCopyUtils;
@@ -50,8 +51,9 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * 
  * @author Bernd Rinn
  */
-public class FileOperations implements IFileOperations
+public class FileOperations implements IFileOperations, Serializable
 {
+    private static final long serialVersionUID = 1L;
 
     @Private
     final static Logger operationLog =

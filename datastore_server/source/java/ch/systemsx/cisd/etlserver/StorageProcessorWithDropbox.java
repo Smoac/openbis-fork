@@ -22,12 +22,14 @@ import java.util.Properties;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
+ * Note: this class is currently used only in integration tests.<br>
  * Storage processor which is able to create a copy of incoming data for additional processing. The
  * copy has a changed name to trace back the dataset to which the original data belong.
  * <p>
  * The processor uses following properties: {@link #DELEGATE_PROCESSOR_CLASS_PROPERTY},
- * {@link #DROPBOX_INCOMING_DIRECTORY_PROPERTY} and {@link #DATASET_CODE_SEPARATOR_PROPERTY}. All
- * the properties are also passed for the default processor.
+ * {@link #DROPBOX_INCOMING_DIRECTORY_PROPERTY} and
+ * {@link AbstractDatasetDropboxHandler#DATASET_CODE_SEPARATOR_PROPERTY}. All the properties are
+ * also passed for the default processor.
  * </p>
  * 
  * @author Tomasz Pylak
@@ -40,65 +42,74 @@ public class StorageProcessorWithDropbox extends AbstractDelegatingStorageProces
      */
     public final static String DROPBOX_INCOMING_DIRECTORY_PROPERTY = "dropbox-dir";
 
-    private final File dropboxIncomingDir;
-
     public StorageProcessorWithDropbox(Properties properties)
     {
-        super(properties);
-        this.dropboxIncomingDir = tryGetDirectory(DROPBOX_INCOMING_DIRECTORY_PROPERTY, properties);
+        super(properties, new DatasetDropboxHandler(properties));
     }
 
-    //
-    // AbstractStorageProcessor
-    //
-
-    @Override
-    protected File tryGetDropboxDir(File originalData, DataSetInformation dataSetInformation)
+    private static class DatasetDropboxHandler extends AbstractDatasetDropboxHandler
     {
-        return dropboxIncomingDir;
-    }
+        private static final long serialVersionUID = 1L;
+        
+        private final File dropboxIncomingDir;
 
-    @Override
-    protected String createDropboxDestinationFileName(DataSetInformation dataSetInformation,
-            File incomingDataSetDirectory)
-    {
-        return createDropboxDestinationFileName(dataSetInformation, incomingDataSetDirectory,
-                datasetCodeSeparator);
-    }
-
-    private static String createDropboxDestinationFileName(DataSetInformation dataSetInformation,
-            File incomingDataSetDirectory, String datasetCodeSeparator)
-    {
-        String dataSetCode = dataSetInformation.getDataSetCode();
-        String originalName = incomingDataSetDirectory.getName();
-        String newFileName =
-                stripFileName(originalName) + datasetCodeSeparator + dataSetCode
-                        + stripFileExtension(originalName);
-        return newFileName;
-    }
-
-    // returns file extension with the "." at the beginning or empty string if file has no extension
-    private static String stripFileExtension(String originalName)
-    {
-        int ix = originalName.lastIndexOf(".");
-        if (ix == -1)
+        public DatasetDropboxHandler(Properties properties)
         {
-            return "";
-        } else
-        {
-            return originalName.substring(ix);
+            super(properties);
+            this.dropboxIncomingDir =
+                    tryGetDirectory(DROPBOX_INCOMING_DIRECTORY_PROPERTY, properties);
         }
-    }
 
-    private static String stripFileName(String originalName)
-    {
-        int ix = originalName.lastIndexOf(".");
-        if (ix == -1)
+        @Override
+        protected File tryGetDropboxDir(File originalData, DataSetInformation dataSetInformation)
         {
-            return originalName;
-        } else
+            return dropboxIncomingDir;
+        }
+
+        @Override
+        protected String createDropboxDestinationFileName(DataSetInformation dataSetInformation,
+                File incomingDataSetDirectory)
         {
-            return originalName.substring(0, ix);
+            return createDropboxDestinationFileName(dataSetInformation, incomingDataSetDirectory,
+                    datasetCodeSeparator);
+        }
+
+        private static String createDropboxDestinationFileName(
+                DataSetInformation dataSetInformation, File incomingDataSetDirectory,
+                String datasetCodeSeparator)
+        {
+            String dataSetCode = dataSetInformation.getDataSetCode();
+            String originalName = incomingDataSetDirectory.getName();
+            String newFileName =
+                    stripFileName(originalName) + datasetCodeSeparator + dataSetCode
+                            + stripFileExtension(originalName);
+            return newFileName;
+        }
+
+        // returns file extension with the "." at the beginning or empty string if file has no
+        // extension
+        private static String stripFileExtension(String originalName)
+        {
+            int ix = originalName.lastIndexOf(".");
+            if (ix == -1)
+            {
+                return "";
+            } else
+            {
+                return originalName.substring(ix);
+            }
+        }
+
+        private static String stripFileName(String originalName)
+        {
+            int ix = originalName.lastIndexOf(".");
+            if (ix == -1)
+            {
+                return originalName;
+            } else
+            {
+                return originalName.substring(0, ix);
+            }
         }
     }
 }

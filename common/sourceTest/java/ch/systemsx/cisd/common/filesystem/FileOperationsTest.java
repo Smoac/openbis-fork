@@ -115,6 +115,8 @@ public class FileOperationsTest extends AbstractFileSystemTestCase
     static class HangingFileOperations extends FileOperations
     {
 
+        private static final long serialVersionUID = 1L;
+
         private final long hangMillis;
 
         HangingFileOperations(TimingParameters parameters, IActivityObserver observer,

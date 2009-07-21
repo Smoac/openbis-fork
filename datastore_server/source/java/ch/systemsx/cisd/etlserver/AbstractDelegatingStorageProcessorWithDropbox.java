@@ -20,23 +20,17 @@ import java.io.File;
 import java.util.Properties;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
- * Storage processor which is able to create a copy of incoming data for additional processing. The
- * copy has a changed name to trace back the dataset to which the original data belong.
+ * Storage processor which is able to create a copy of incoming data for additional processing.
  * <p>
- * The processor uses following properties: {@link #DELEGATE_PROCESSOR_CLASS_PROPERTY} and
- * {@link #DATASET_CODE_SEPARATOR_PROPERTY}. All the properties are also passed for the default
- * processor.
+ * The processor uses following properties: {@link #DELEGATE_PROCESSOR_CLASS_PROPERTY}. All the
+ * properties are also passed for the default processor.
  * </p>
  * 
  * @author Tomasz Pylak
@@ -44,66 +38,26 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 abstract public class AbstractDelegatingStorageProcessorWithDropbox extends
         AbstractDelegatingStorageProcessor
 {
-    /**
-     * @return the directory where copy of the original data should be created
-     */
-    abstract protected File tryGetDropboxDir(File originalData,
-            DataSetInformation dataSetInformation);
+    private final AbstractDatasetDropboxHandler dropboxHandler;
 
     /**
-     * @return the name of the dataset copy file
+     * Note that this class is not a valid storage processor as it does not provide the appropriate
+     * constructor which takes only properties parameter.
      */
-    abstract protected String createDropboxDestinationFileName(
-            DataSetInformation dataSetInformation, File incomingDataSetDirectory);
-
-    // --------
-
-    private static final String DEFAULT_DATASET_CODE_SEPARATOR = ".";
-
-    /**
-     * Property name which is used to specify the text which will be used to separate the sample
-     * code and dataset code in the name of the file which will be created in the dropbox.
-     */
-    public final static String DATASET_CODE_SEPARATOR_PROPERTY = "entity-separator";
-
-    protected final String datasetCodeSeparator;
-
-    private final IFileOperations fileOperations;
-
-    private File recentlyStoredDropboxDataset;
-
-    public AbstractDelegatingStorageProcessorWithDropbox(Properties properties)
+    public AbstractDelegatingStorageProcessorWithDropbox(Properties properties,
+            AbstractDatasetDropboxHandler dropboxHandler)
     {
-        this(properties, AbstractDelegatingStorageProcessor
+        this(properties, dropboxHandler, AbstractDelegatingStorageProcessor
                 .createDelegateStorageProcessor(properties), FileOperations.getInstance());
     }
 
     @Private
     AbstractDelegatingStorageProcessorWithDropbox(Properties properties,
+            AbstractDatasetDropboxHandler dropboxHandler,
             IStorageProcessor delegateStorageProcessor, IFileOperations fileOperations)
     {
         super(delegateStorageProcessor);
-        this.fileOperations = fileOperations;
-        this.datasetCodeSeparator =
-                PropertyUtils.getProperty(properties, DATASET_CODE_SEPARATOR_PROPERTY,
-                        DEFAULT_DATASET_CODE_SEPARATOR);
-    }
-
-    protected final File tryGetDirectory(String propertyName, Properties properties)
-    {
-        String filePath = PropertyUtils.getProperty(properties, propertyName);
-        if (filePath == null)
-        {
-            return null;
-        }
-        File file = new File(filePath);
-        if (fileOperations.isDirectory(file) == false)
-        {
-            throw ConfigurationFailureException.fromTemplate(
-                    "The directory '%s' set for '%s' property does not exist.", filePath,
-                    propertyName);
-        }
-        return file;
+        this.dropboxHandler = dropboxHandler;
     }
 
     //
@@ -119,42 +73,15 @@ abstract public class AbstractDelegatingStorageProcessorWithDropbox extends
                 super.storeData(sample, dataSetInformation, typeExtractor, mailClient,
                         incomingDataSetDirectory, rootDir);
         File originalData = super.tryGetProprietaryData(storeData);
-        File dropboxDir = tryGetDropboxDir(originalData, dataSetInformation);
-        if (dropboxDir != null)
-        {
-            String destinationFileName =
-                    createDropboxDestinationFileName(dataSetInformation, originalData);
-            copy(originalData, dropboxDir, destinationFileName);
-        }
+        dropboxHandler.handle(originalData, dataSetInformation);
         return storeData;
-    }
-
-    private void copy(File originalData, File dropboxDir, String destinationFileName)
-    {
-        File destFile = new File(dropboxDir, destinationFileName);
-        try
-        {
-            fileOperations.copyToDirectoryAs(originalData, dropboxDir, destinationFileName);
-
-            operationLog.info(String.format("Dataset '%s' copied into dropbox as '%s'.",
-                    originalData.getPath(), destFile.getPath()));
-        } catch (IOExceptionUnchecked ex)
-        {
-            throw EnvironmentFailureException.fromTemplate("Cannot copy '%s' to '%s': %s.",
-                    originalData.getPath(), destFile.getPath(), ex.getMessage());
-        }
-        this.recentlyStoredDropboxDataset = destFile;
     }
 
     @Override
     public UnstoreDataAction unstoreData(final File incomingDataSetDirectory,
             final File storedDataDirectory, Throwable exception)
     {
-        if (recentlyStoredDropboxDataset != null && recentlyStoredDropboxDataset.exists())
-        {
-            fileOperations.deleteRecursively(recentlyStoredDropboxDataset);
-        }
-        recentlyStoredDropboxDataset = null;
+        dropboxHandler.undoLastOperation();
         return super.unstoreData(incomingDataSetDirectory, storedDataDirectory, exception);
     }
 }

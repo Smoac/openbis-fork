@@ -28,11 +28,14 @@ abstract class AbstractDatastorePlugin
 {
     private final File storeRoot;
 
+    protected final Properties properties;
+
     protected AbstractDatastorePlugin(Properties properties, File storeRoot)
     {
         assert storeRoot.exists() : "storeRoot does not exist " + storeRoot;
 
         this.storeRoot = storeRoot;
+        this.properties = properties;
     }
 
     protected File getOriginalDir(DatasetDescription dataset)
@@ -42,6 +45,8 @@ abstract class AbstractDatastorePlugin
 
     protected File getDatasetDir(DatasetDescription dataset)
     {
-        return new File(storeRoot, dataset.getDataSetLocation());
+        String location = dataset.getDataSetLocation();
+        location = location.replace("\\", File.separator);
+        return new File(storeRoot, location);
     }
 }

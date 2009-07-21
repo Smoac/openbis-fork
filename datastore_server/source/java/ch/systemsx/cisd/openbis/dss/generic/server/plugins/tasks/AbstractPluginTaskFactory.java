@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 
 /**
@@ -107,7 +108,7 @@ public abstract class AbstractPluginTaskFactory<T>
     private static Properties extractInstanceParameters(final Properties pluginProperties)
     {
         String parametersFilePath = pluginProperties.getProperty(PARAMS_FILE_PATH_PROPERTY_NAME);
-        if (parametersFilePath == null)
+        if (StringUtils.isBlank(parametersFilePath) == false)
         {
             return PropertyUtils.loadProperties(parametersFilePath);
         } else

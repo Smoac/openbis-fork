@@ -407,7 +407,10 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             if (dataSet != null)
             {
                 String location = dataSet.getLocation();
-                result.add(new DatasetDescription(datasetCode, location));
+                SamplePE sample = dataSet.getSample();
+                String sampleCode = sample.getCode();
+                String groupCode = sample.getGroup().getCode();
+                result.add(new DatasetDescription(datasetCode, location, sampleCode, groupCode));
             }
         }
         return result;

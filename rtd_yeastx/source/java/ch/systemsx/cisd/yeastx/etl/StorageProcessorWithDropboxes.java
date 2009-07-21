@@ -19,6 +19,7 @@ package ch.systemsx.cisd.yeastx.etl;
 import java.io.File;
 import java.util.Properties;
 
+import ch.systemsx.cisd.etlserver.AbstractDatasetDropboxHandler;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessorWithDropbox;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -33,8 +34,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * <p>
  * The processor uses following properties: {@link #DELEGATE_PROCESSOR_CLASS_PROPERTY},
  * {@link #DROPBOX_EICML_INCOMING_DIRECTORY_PROPERTY},
- * {@link #DROPBOX_FIAML_INCOMING_DIRECTORY_PROPERTY} and {@link #DATASET_CODE_SEPARATOR_PROPERTY}.
- * All the properties are also passed for the default processor.
+ * {@link #DROPBOX_FIAML_INCOMING_DIRECTORY_PROPERTY} and
+ * {@link AbstractDatasetDropboxHandler#DATASET_CODE_SEPARATOR_PROPERTY}. All the properties are
+ * also passed for the default processor.
  * </p>
  * 
  * @author Tomasz Pylak
@@ -53,62 +55,44 @@ public class StorageProcessorWithDropboxes extends AbstractDelegatingStorageProc
      */
     public final static String DROPBOX_FIAML_INCOMING_DIRECTORY_PROPERTY = "fiaml-dropbox-dir";
 
-    private final File eicmlDropboxOrNull;
-
-    private final File fiamlDropboxOrNull;
-
     public StorageProcessorWithDropboxes(Properties properties)
     {
-        super(properties);
-        this.eicmlDropboxOrNull =
-                tryGetDirectory(DROPBOX_EICML_INCOMING_DIRECTORY_PROPERTY, properties);
-        this.fiamlDropboxOrNull =
-                tryGetDirectory(DROPBOX_FIAML_INCOMING_DIRECTORY_PROPERTY, properties);
+        super(properties, new DatasetDropboxHandler(properties));
+
     }
 
-    @Override
-    protected File tryGetDropboxDir(File originalData, DataSetInformation dataSetInformation)
+    private static class DatasetDropboxHandler extends AbstractDatasetDropboxHandlerYeastX
     {
-        DataSetInformationYeastX info = (DataSetInformationYeastX) dataSetInformation;
-        MLConversionType conversion = info.getConversion();
-        if (conversion == MLConversionType.EICML)
+        private static final long serialVersionUID = 1L;
+
+        private final File eicmlDropboxOrNull;
+
+        private final File fiamlDropboxOrNull;
+
+        public DatasetDropboxHandler(Properties properties)
         {
-            return eicmlDropboxOrNull;
-        } else if (conversion == MLConversionType.FIAML)
+            super(properties);
+            this.eicmlDropboxOrNull =
+                    tryGetDirectory(DROPBOX_EICML_INCOMING_DIRECTORY_PROPERTY, properties);
+            this.fiamlDropboxOrNull =
+                    tryGetDirectory(DROPBOX_FIAML_INCOMING_DIRECTORY_PROPERTY, properties);
+        }
+
+        @Override
+        protected File tryGetDropboxDir(File originalData, DataSetInformation dataSetInformation)
         {
-            return fiamlDropboxOrNull;
-        } else
-        {
-            return null;
+            DataSetInformationYeastX info = (DataSetInformationYeastX) dataSetInformation;
+            MLConversionType conversion = info.getConversion();
+            if (conversion == MLConversionType.EICML)
+            {
+                return eicmlDropboxOrNull;
+            } else if (conversion == MLConversionType.FIAML)
+            {
+                return fiamlDropboxOrNull;
+            } else
+            {
+                return null;
+            }
         }
     }
-
-    // sampleCode-groupCode-datasetCode.originalFileExtension
-    @Override
-    protected final String createDropboxDestinationFileName(DataSetInformation dataSetInformation,
-            File incomingDataSetDirectory)
-    {
-        String dataSetCode = dataSetInformation.getDataSetCode();
-        String originalName = incomingDataSetDirectory.getName();
-        String sampleCode = dataSetInformation.getSampleCode();
-        String groupCode = dataSetInformation.getGroupCode();
-        String newFileName =
-                sampleCode + datasetCodeSeparator + groupCode + datasetCodeSeparator + dataSetCode
-                        + stripFileExtension(originalName);
-        return newFileName;
-    }
-
-    // returns file extension with the "." at the beginning or empty string if file has no extension
-    private static String stripFileExtension(String originalName)
-    {
-        int ix = originalName.lastIndexOf(".");
-        if (ix == -1)
-        {
-            return "";
-        } else
-        {
-            return originalName.substring(ix);
-        }
-    }
-
 }
