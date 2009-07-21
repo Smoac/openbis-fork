@@ -34,6 +34,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchFieldKind;
 public class DataSetSearchTest extends AbstractGWTTestCase
 {
 
+    private static final int TOTAL_NUM_OF_COLUMNS = 27;
+
     public final void testSearch()
     {
         loginAndGotoTab();
@@ -49,7 +51,7 @@ public class DataSetSearchTest extends AbstractGWTTestCase
         row.withCell(DataSetSearchHitColDefKind.LOCATION.id(), "a/3");
         row.withPropertyCell("comment", "no comment");
         checkResultTableCmd.expectedRow(row);
-        checkResultTableCmd.expectedColumnsNumber(26);
+        checkResultTableCmd.expectedColumnsNumber(TOTAL_NUM_OF_COLUMNS);
         remoteConsole.prepare(checkResultTableCmd);
 
         launchTest(30000);
@@ -68,7 +70,7 @@ public class DataSetSearchTest extends AbstractGWTTestCase
         row.withCell(DataSetSearchHitColDefKind.LOCATION.id(), "a/1");
         row.withPropertyCell("comment", "no comment");
         checkResultTableCmd.expectedRow(row);
-        checkResultTableCmd.expectedColumnsNumber(26);
+        checkResultTableCmd.expectedColumnsNumber(TOTAL_NUM_OF_COLUMNS);
         remoteConsole.prepare(checkResultTableCmd);
 
         launchTest(20000);
