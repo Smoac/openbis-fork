@@ -19,8 +19,8 @@ package ch.systemsx.cisd.yeastx.etl;
 import java.io.File;
 import java.util.Properties;
 
-import ch.systemsx.cisd.etlserver.AbstractDatasetDropboxHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxHandler;
 
 /**
  * @author Tomasz Pylak

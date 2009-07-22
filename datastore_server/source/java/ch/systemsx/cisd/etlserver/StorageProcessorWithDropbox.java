@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.Properties;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxHandler;
 
 /**
  * Note: this class is currently used only in integration tests.<br>

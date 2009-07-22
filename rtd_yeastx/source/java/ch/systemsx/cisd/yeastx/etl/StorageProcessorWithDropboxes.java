@@ -19,10 +19,10 @@ package ch.systemsx.cisd.yeastx.etl;
 import java.io.File;
 import java.util.Properties;
 
-import ch.systemsx.cisd.etlserver.AbstractDatasetDropboxHandler;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessorWithDropbox;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxHandler;
 
 /**
  * Storage processor which is able to create a copy of incoming data for additional processing. The
