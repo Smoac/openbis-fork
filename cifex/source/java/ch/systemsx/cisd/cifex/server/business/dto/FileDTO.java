@@ -143,9 +143,19 @@ public final class FileDTO extends ID
         return basicFileDTO.getSize();
     }
 
-    public final void setSize(final Long size)
+    public final void setSize(final long size)
     {
         this.basicFileDTO.setSize(size);
+    }
+
+    public Integer getCrc32Value()
+    {
+        return basicFileDTO.getCrc32Value();
+    }
+
+    public void setCrc32Value(int crc32Value)
+    {
+        basicFileDTO.setCrc32Value(crc32Value);
     }
 
     public String getComment()

@@ -347,13 +347,14 @@ final class FileManager extends AbstractManager implements IFileManager
                 IOUtils.copy(inputStream, outputStream);
                 outputStream.close();
                 final long byteCount = countingAndChecksummingInputStream.getByteCount();
-                final int crc32 = countingAndChecksummingInputStream.getCRC32Value();
-                operationLog.info(String.format("File %s has crc32 checksum %x.", fileName, crc32));
+                final int crc32Value = countingAndChecksummingInputStream.getCRC32Value();
+                operationLog.info(String.format("File %s has crc32 checksum %x.", fileName,
+                        crc32Value));
                 if (byteCount > 0)
                 {
                     final FileDTO fileDTO =
                             registerFile(user, fileName, comment, contentType, file, byteCount,
-                                    crc32);
+                                    crc32Value);
                     success = true;
                     return fileDTO;
                 } else
@@ -405,6 +406,7 @@ final class FileManager extends AbstractManager implements IFileManager
         fileDTO.setComment(comment);
         fileDTO.setExpirationDate(caluclateExpirationDate(user));
         fileDTO.setSize(byteCount);
+        fileDTO.setCrc32Value(crc32Value);
         daoFactory.getFileDAO().createFile(fileDTO);
         return fileDTO;
     }

@@ -56,10 +56,12 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
                     + "f.USER_ID as f_user_id, "
                     + "f.REGISTRATION_TIMESTAMP as f_registration_timestamp, "
                     + "f.EXPIRATION_TIMESTAMP as f_expiration_timestamp, "
-                    + "f.CONTENT_TYPE as f_content_type," + "f.SIZE as f_size";
+                    + "f.CONTENT_TYPE as f_content_type, f.SIZE as f_size, "
+                    + "f.CRC32_CHECKSUM as f_crc32_checkum";
 
     private static final String FILES_JOIN_USERS =
-            SELECT_FILES + ", u.* " + " from files as f " + " left join users as u on f.user_id = u.id";
+            SELECT_FILES + ", u.* " + " from files as f "
+                    + " left join users as u on f.user_id = u.id";
 
     private static final String FILES_JOIN_USERS_WHERE_ID = FILES_JOIN_USERS + " where f.id = ?";
 
@@ -95,11 +97,9 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
 
     public boolean deleteSharingLink(long fileID, String userCode) throws DataAccessException
     {
-        String sql =
-                String
-                        .format(
-                                "delete from file_shares where file_id = %s and user_id in  (select id from users where user_id like '%s')",
-                                fileID, userCode);
+        final String sql =
+                String.format("delete from file_shares where file_id = %s and user_id in "
+                        + "(select id from users where user_id like '%s')", fileID, userCode);
         final int affectedRows = getSimpleJdbcTemplate().update(sql);
         return affectedRows > 0;
 
@@ -110,13 +110,13 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         assert file != null : "Given file cannot be null.";
 
         final long id = createID();
-        getSimpleJdbcTemplate()
-                .update(
-                        "insert into files (ID, NAME, PATH, COMMENT, USER_ID, CONTENT_TYPE, SIZE, EXPIRATION_TIMESTAMP) values (?,?,?,?,?,?,?,?)",
-                        id, file.getName(), file.getPath(),
-                        StringUtils.abbreviate(file.getComment(), MAX_COMMENT_LENGTH),
-                        file.getRegistratorId(), file.getContentType(), file.getSize(),
-                        file.getExpirationDate());
+        getSimpleJdbcTemplate().update(
+                "insert into files (ID, NAME, PATH, COMMENT, USER_ID, CONTENT_TYPE, SIZE, "
+                        + "CRC32_CHECKSUM, EXPIRATION_TIMESTAMP) values (?,?,?,?,?,?,?,?,?)", id,
+                file.getName(), file.getPath(),
+                StringUtils.abbreviate(file.getComment(), MAX_COMMENT_LENGTH),
+                file.getRegistratorId(), file.getContentType(), file.getSize(),
+                file.getCrc32Value(), file.getExpirationDate());
         file.setID(id);
     }
 
@@ -131,10 +131,11 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
 
         template.update(
                 "update files set name = ?, path = ?, comment = ?, expiration_timestamp = ?, "
-                        + "user_id = ?, content_type = ?, size = ? where id = ?", file.getName(),
-                file.getPath(), StringUtils.abbreviate(file.getComment(), MAX_COMMENT_LENGTH), file
-                        .getExpirationDate(), file.getRegistratorId(), file.getContentType(), file
-                        .getSize(), file.getID());
+                        + "user_id = ?, content_type = ?, size = ?, crc32_checksum = ? "
+                        + "where id = ?", file.getName(), file.getPath(), StringUtils.abbreviate(
+                        file.getComment(), MAX_COMMENT_LENGTH), file.getExpirationDate(), file
+                        .getRegistratorId(), file.getContentType(), file.getSize(), file
+                        .getCrc32Value(), file.getID());
     }
 
     public boolean deleteFile(final long id) throws DataAccessException
@@ -193,10 +194,12 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     public final List<FileDTO> listDownloadFiles(final long userId) throws DataAccessException
     {
         final List<FileDTO> list =
-                getSimpleJdbcTemplate().query(
-                        SELECT_FILES + ", u.* from files f left join users u "
-                                + "on f.user_id = u.id left join file_shares s on s.file_id = f.id where s.user_id = ?",
-                        FILE_WITH_REGISTERER_ROW_MAPPER, userId);
+                getSimpleJdbcTemplate()
+                        .query(
+                                SELECT_FILES
+                                        + ", u.* from files f left join users u "
+                                        + "on f.user_id = u.id left join file_shares s on s.file_id = f.id where s.user_id = ?",
+                                FILE_WITH_REGISTERER_ROW_MAPPER, userId);
         return list;
     }
 
@@ -240,6 +243,11 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
             if (rs.wasNull() == false)
             {
                 file.setSize(size);
+            }
+            final int crc32Value = rs.getInt("f_crc32_checkum");
+            if (rs.wasNull() == false)
+            {
+                file.setCrc32Value(crc32Value);
             }
             final Date regDate = new Date(rs.getTimestamp("f_REGISTRATION_TIMESTAMP").getTime());
             file.setRegistrationDate(regDate);

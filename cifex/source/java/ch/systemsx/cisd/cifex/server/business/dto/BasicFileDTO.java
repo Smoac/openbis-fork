@@ -38,6 +38,8 @@ public final class BasicFileDTO implements Serializable
      * </p>
      */
     private Long size;
+    
+    private Integer crc32Value;
 
     /** The content type of the file. */
     private String contentType;
@@ -57,9 +59,19 @@ public final class BasicFileDTO implements Serializable
         return size;
     }
 
-    public final void setSize(final Long size)
+    public final void setSize(final long size)
     {
         this.size = size;
+    }
+
+    public Integer getCrc32Value()
+    {
+        return crc32Value;
+    }
+
+    public void setCrc32Value(int crc32Value)
+    {
+        this.crc32Value = crc32Value;
     }
 
     public final String getContentType()
