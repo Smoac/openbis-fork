@@ -135,7 +135,9 @@ public interface ICIFEXRPCService
             throws InvalidSessionException, IOExceptionUnchecked;
 
     /**
-     * Start downloading the file with <var>fileID</var>.
+     * Download a block of size <var>blockSize</var> from the file currently under download,
+     * starting from <var>filePointer</var>. Note that {@link #startDownloading(String, long)} needs
+     * to have been called before.
      * 
      * @throws InvalidSessionException if there is no session with specified session ID.
      * @throws IOExceptionUnchecked if an I/O error occurred during the download.
