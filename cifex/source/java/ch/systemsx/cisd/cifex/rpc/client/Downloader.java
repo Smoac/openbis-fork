@@ -60,8 +60,10 @@ public final class Downloader extends AbstractUploadDownload
      *            if the file should be downloaded to the current working directory.
      * @param fileNameOrNull The file name to save the file to, or <code>null</code>, if the name
      *            stored in CIFEX should be used.
+     * @param resume If <code>true</code>, the file download will be resumed.
      */
-    public void download(long fileID, File directoryToDownloadOrNull, String fileNameOrNull)
+    public void download(long fileID, File directoryToDownloadOrNull, String fileNameOrNull,
+            boolean resume)
     {
         try
         {
@@ -75,7 +77,11 @@ public final class Downloader extends AbstractUploadDownload
             final RandomAccessFileProvider fileProvider = new RandomAccessFileProvider(file, "rw");
             try
             {
-                long filePointer = 0L;
+                if (resume == false)
+                {
+                    fileProvider.getRandomAccessFile().setLength(0L);
+                }
+                long filePointer = fileProvider.getRandomAccessFile().length();
                 while (filePointer < fileSize)
                 {
                     final int blockSize =

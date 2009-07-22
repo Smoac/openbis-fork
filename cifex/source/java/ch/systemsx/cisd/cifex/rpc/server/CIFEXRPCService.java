@@ -450,7 +450,8 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
                 throw new IOExceptionUnchecked(new IOException("File pointer > file size."));
             }
             buf = new byte[(int) Math.min(blockSize, bytesLeft)];
-            session.getRandomAccessFile().readFully(buf);
+            randomAccessFileOrNull.seek(filePointer);
+            randomAccessFileOrNull.readFully(buf);
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
