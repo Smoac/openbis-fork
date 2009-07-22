@@ -41,13 +41,12 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListPro
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinInfo>
 {
-    private static final String PREFIX = GenericConstants.ID_PREFIX + "protein-by-experiment-browser";
+    private static final String PREFIX =
+            GenericConstants.ID_PREFIX + "protein-by-experiment-browser";
 
     // browser consists of the grid and additional toolbars (paging, filtering)
     public static final String BROWSER_ID = PREFIX + "_main";
@@ -57,9 +56,9 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
     private final IViewContext<IPhosphoNetXClientServiceAsync> specificViewContext;
 
     private final ProteinByExperimentBrowerToolBar toolbar;
-    
+
     private ListProteinByExperimentCriteria criteria;
-    
+
     static IDisposableComponent create(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
@@ -67,8 +66,9 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
                 new ProteinByExperimentBrowserGrid(viewContext);
         return browserGrid.asDisposableWithToolbar(browserGrid.toolbar);
     }
-    
-    private ProteinByExperimentBrowserGrid(final IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
+
+    private ProteinByExperimentBrowserGrid(
+            final IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID, false);
         specificViewContext = viewContext;
@@ -85,13 +85,13 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
                         }
                     });
     }
-    
+
     void update(TechId experimentID, double falseDiscoveryRate)
     {
         criteria = new ListProteinByExperimentCriteria();
         criteria.setExperimentID(experimentID);
         criteria.setFalseDiscoveryRate(falseDiscoveryRate);
-        refresh();           
+        refresh();
     }
 
     @Override
@@ -104,16 +104,18 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
     protected ColumnDefsAndConfigs<ProteinInfo> createColumnsDefinition()
     {
         ColumnDefsAndConfigs<ProteinInfo> definitions = super.createColumnsDefinition();
-        definitions.setGridCellRendererFor(ProteinColDefKind.DESCRIPTION.id(), LinkRenderer.createLinkRenderer());
+        definitions.setGridCellRendererFor(ProteinColDefKind.DESCRIPTION.id(), LinkRenderer
+                .createLinkRenderer());
         return definitions;
     }
 
     @Override
     protected List<IColumnDefinition<ProteinInfo>> getInitialFilters()
     {
-        return asColumnFilters(new ProteinColDefKind[] {ProteinColDefKind.DESCRIPTION});
+        return asColumnFilters(new ProteinColDefKind[]
+            { ProteinColDefKind.DESCRIPTION });
     }
-    
+
     @Override
     protected void listEntities(DefaultResultSetConfig<String, ProteinInfo> resultSetConfig,
             AbstractAsyncCallback<ResultSet<ProteinInfo>> callback)

@@ -37,8 +37,6 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListPro
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class DataSetProteinGrid extends AbstractSimpleBrowserGrid<DataSetProtein>
@@ -55,7 +53,7 @@ class DataSetProteinGrid extends AbstractSimpleBrowserGrid<DataSetProtein>
         return new DataSetProteinGrid(viewContext, experimentOrNull, proteinReferenceID)
                 .asDisposableWithoutToolbar();
     }
-    
+
     private static String createWidgetID(Experiment experimentOrNull, TechId proteinReferenceID)
     {
         return "-" + (experimentOrNull == null ? "" : experimentOrNull.getIdentifier() + "-")
@@ -65,7 +63,7 @@ class DataSetProteinGrid extends AbstractSimpleBrowserGrid<DataSetProtein>
     private final IViewContext<IPhosphoNetXClientServiceAsync> specificViewContext;
 
     private ListProteinByExperimentAndReferenceCriteria criteria;
-    
+
     private DataSetProteinGrid(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
             Experiment experimentOrNull, TechId proteinReferenceID)
     {

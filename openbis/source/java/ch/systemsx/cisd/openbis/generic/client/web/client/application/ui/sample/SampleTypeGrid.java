@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -26,8 +27,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.SampleTypeColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.SampleTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AbstractEntityTypeGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AddTypeDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IntegerField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -37,19 +39,25 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
  * Grid displaying sample types.
  * 
  * @author Tomasz Pylak
+ * @author Piotr Buczek
  */
-public class SampleTypeGrid extends AbstractEntityTypeGrid
+public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
 {
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "sample-type-browser";
 
     public static final String GRID_ID = BROWSER_ID + "_grid";
+
+    private static final Boolean DEFAULT_LISTABLE_VALUE = true;
+
+    private static final Number DEFAULT_GENERATED_FROM_HIERARCHY_DEPTH_VALUE = 3;
+
+    private static final Number DEFAULT_PART_OF_HIERARCHY_DEPTH_VALUE = 0;
 
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
@@ -64,32 +72,17 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, EntityType> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<EntityType>> callback)
+    protected void listEntities(DefaultResultSetConfig<String, SampleType> resultSetConfig,
+            AbstractAsyncCallback<ResultSet<SampleType>> callback)
     {
         viewContext.getService().listSampleTypes(resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<EntityType> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<SampleType> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportSampleTypes(exportCriteria, callback);
-    }
-
-    @Override
-    protected void registerEntityType(String code, String descriptionOrNull,
-            AsyncCallback<Void> registrationCallback)
-    {
-        SampleType sampleType = new SampleType();
-        sampleType.setCode(code);
-        sampleType.setDescription(descriptionOrNull);
-        // FIXME
-        sampleType.setListable(true);
-        sampleType.setPartOfHierarchyDepth(0);
-        sampleType.setGeneratedFromHierarchyDepth(3);
-
-        viewContext.getService().registerSampleType(sampleType, registrationCallback);
     }
 
     @Override
@@ -100,11 +93,9 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid
 
     @Override
     protected Window createEditEntityTypeDialog(final EntityKind entityKind,
-            final EntityType entityType)
+            final SampleType sampleType)
     {
-        assert entityType instanceof SampleType : "SampleType expected";
-        final SampleType sampleType = (SampleType) entityType;
-        final String code = entityType.getCode();
+        final String code = sampleType.getCode();
         String title =
                 viewContext.getMessage(Dict.EDIT_TYPE_TITLE_TEMPLATE, entityKind.getDescription(),
                         code);
@@ -112,44 +103,43 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid
             {
                 private final TextField<String> descriptionField;
 
-                private final TextField<Number> generatedFromDepthField;
+                private final TextField<Number> generatedFromHierarchyDepthField;
 
-                private final TextField<Number> partOfDepthField;
+                private final TextField<Number> partOfHierarchyDepthField;
 
-                private final CheckBoxField isListableField;
+                private final CheckBoxField listableField;
 
                 {
                     descriptionField = createDescriptionField(viewContext);
-                    descriptionField.setValue(StringEscapeUtils.unescapeHtml(entityType
+                    descriptionField.setValue(StringEscapeUtils.unescapeHtml(sampleType
                             .getDescription()));
                     addField(descriptionField);
 
-                    String listableFieldTitle = viewContext.getMessage(Dict.LISTABLE);
-                    isListableField = new CheckBoxField(listableFieldTitle, false);
-                    isListableField.setValue(sampleType.isListable());
-                    addField(isListableField);
+                    listableField =
+                            SampleTypeDialogFieldHelper.createListableField(viewContext, sampleType
+                                    .isListable());
+                    addField(listableField);
 
-                    String generatedFromDepthFieldTitle =
-                            viewContext.getMessage(Dict.GENERATED_FROM_HIERARCHY_DEPTH);
-                    generatedFromDepthField = new IntegerField(generatedFromDepthFieldTitle, true);
-                    generatedFromDepthField.setValue(sampleType.getGeneratedFromHierarchyDepth());
-                    addField(generatedFromDepthField);
+                    generatedFromHierarchyDepthField =
+                            SampleTypeDialogFieldHelper
+                                    .createGeneratedFromHierarchyDepthFieldTitle(viewContext,
+                                            sampleType.getGeneratedFromHierarchyDepth());
+                    addField(generatedFromHierarchyDepthField);
 
-                    String partOfDepthFieldTitle =
-                            viewContext.getMessage(Dict.PART_OF_HIERARCHY_DEPTH);
-                    partOfDepthField = new IntegerField(partOfDepthFieldTitle, true);
-                    partOfDepthField.setValue(sampleType.getPartOfHierarchyDepth());
-                    addField(partOfDepthField);
+                    partOfHierarchyDepthField =
+                            SampleTypeDialogFieldHelper.createPartOfHierarchyDepthFieldTitle(
+                                    viewContext, sampleType.getPartOfHierarchyDepth());
+                    addField(partOfHierarchyDepthField);
                 }
 
                 @Override
                 protected void register(AsyncCallback<Void> registrationCallback)
                 {
                     sampleType.setDescription(descriptionField.getValue());
-                    sampleType.setListable(isListableField.getValue());
-                    sampleType.setGeneratedFromHierarchyDepth(generatedFromDepthField.getValue()
-                            .intValue());
-                    sampleType.setPartOfHierarchyDepth(generatedFromDepthField.getValue()
+                    sampleType.setListable(listableField.getValue());
+                    sampleType.setGeneratedFromHierarchyDepth(generatedFromHierarchyDepthField
+                            .getValue().intValue());
+                    sampleType.setPartOfHierarchyDepth(partOfHierarchyDepthField.getValue()
                             .intValue());
                     viewContext.getService().updateEntityType(entityKind, sampleType,
                             registrationCallback);
@@ -158,8 +148,104 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid
     }
 
     @Override
-    protected IColumnDefinitionKind<EntityType>[] getStaticColumnsDefinition()
+    protected Window createRegisterEntityTypeDialog(String title, SampleType newEntityType)
+    {
+        return new AddTypeDialog<SampleType>(viewContext, title, postRegistrationCallback,
+                newEntityType)
+            {
+
+                private TextField<Number> generatedFromHierarchyDepthField;
+
+                private TextField<Number> partOfHierarchyDepthField;
+
+                private CheckBoxField listableField;
+
+                @Override
+                protected void onRender(Element parent, int pos)
+                {
+                    listableField =
+                            SampleTypeDialogFieldHelper.createListableField(viewContext,
+                                    DEFAULT_LISTABLE_VALUE);
+                    addField(listableField);
+
+                    generatedFromHierarchyDepthField =
+                            SampleTypeDialogFieldHelper
+                                    .createGeneratedFromHierarchyDepthFieldTitle(viewContext,
+                                            DEFAULT_GENERATED_FROM_HIERARCHY_DEPTH_VALUE);
+                    addField(generatedFromHierarchyDepthField);
+
+                    partOfHierarchyDepthField =
+                            SampleTypeDialogFieldHelper.createPartOfHierarchyDepthFieldTitle(
+                                    viewContext, DEFAULT_PART_OF_HIERARCHY_DEPTH_VALUE);
+                    addField(partOfHierarchyDepthField);
+
+                    super.onRender(parent, pos);
+                }
+
+                @Override
+                protected void register(SampleType sampleType,
+                        AsyncCallback<Void> registrationCallback)
+                {
+                    sampleType.setGeneratedFromHierarchyDepth(generatedFromHierarchyDepthField
+                            .getValue().intValue());
+                    sampleType.setPartOfHierarchyDepth(partOfHierarchyDepthField.getValue()
+                            .intValue());
+                    sampleType.setListable(listableField.getValue());
+                    SampleTypeGrid.this.register(sampleType, registrationCallback);
+                }
+            };
+    }
+
+    @Override
+    protected void register(SampleType sampleType, AsyncCallback<Void> registrationCallback)
+    {
+        viewContext.getService().registerSampleType(sampleType, registrationCallback);
+    }
+
+    @Override
+    protected SampleType createNewEntityType()
+    {
+        return new SampleType();
+    }
+
+    @Override
+    protected IColumnDefinitionKind<SampleType>[] getStaticColumnsDefinition()
     {
         return SampleTypeColDefKind.values();
     }
+
+    // 
+    // Helpers
+    // 
+
+    private static final class SampleTypeDialogFieldHelper
+    {
+        public static CheckBoxField createListableField(
+                final IViewContext<ICommonClientServiceAsync> viewContext, Boolean value)
+        {
+            final String title = viewContext.getMessage(Dict.LISTABLE);
+            final CheckBoxField field = new CheckBoxField(title, false);
+            field.setValue(value);
+            return field;
+        }
+
+        public static TextField<Number> createGeneratedFromHierarchyDepthFieldTitle(
+                final IViewContext<ICommonClientServiceAsync> viewContext, Number value)
+        {
+            final String title = viewContext.getMessage(Dict.GENERATED_FROM_HIERARCHY_DEPTH);
+            final TextField<Number> field = new IntegerField(title, true);
+            field.setValue(value);
+            return field;
+        }
+
+        public static TextField<Number> createPartOfHierarchyDepthFieldTitle(
+                final IViewContext<ICommonClientServiceAsync> viewContext, Number value)
+        {
+            final String title = viewContext.getMessage(Dict.PART_OF_HIERARCHY_DEPTH);
+            final TextField<Number> field = new IntegerField(title, true);
+            field.setValue(value);
+            return field;
+        }
+    }
+
 }

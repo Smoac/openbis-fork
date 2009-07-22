@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample;
+
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.EntityTypeColDefKindFactory.sampleTypeColDefKindFactory;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
@@ -28,37 +29,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * 
  * @author Piotr Buczek
  */
-public enum SampleTypeColDefKind implements IColumnDefinitionKind<EntityType>
+public enum SampleTypeColDefKind implements IColumnDefinitionKind<SampleType>
 {
+    // copy from EntityTypeColDefKind (cannot extend an enum)
 
-    // Copy & Paste from EntityTypeColDefKind (cannot extend an enum)
+    CODE(sampleTypeColDefKindFactory.createCodeColDefKind()),
 
-    CODE(new AbstractColumnDefinitionKind<SampleType>(Dict.CODE)
-        {
-            @Override
-            public String tryGetValue(SampleType entity)
-            {
-                return entity.getCode();
-            }
-        }),
+    DESCRIPTION(sampleTypeColDefKindFactory.createDescriptionColDefKind()),
 
-    DESCRIPTION(new AbstractColumnDefinitionKind<SampleType>(Dict.DESCRIPTION, 300)
-        {
-            @Override
-            public String tryGetValue(SampleType entity)
-            {
-                return entity.getDescription();
-            }
-        }),
-
-    DATABASE_INSTANCE(new AbstractColumnDefinitionKind<SampleType>(Dict.DATABASE_INSTANCE, true)
-        {
-            @Override
-            public String tryGetValue(SampleType entity)
-            {
-                return entity.getDatabaseInstance().getCode();
-            }
-        }),
+    DATABASE_INSTANCE(sampleTypeColDefKindFactory.createDatabaseInstanceColDefKind()),
 
     // specific Sample Type columns
 
@@ -103,17 +82,9 @@ public enum SampleTypeColDefKind implements IColumnDefinitionKind<EntityType>
         return name();
     }
 
-    public AbstractColumnDefinitionKind<EntityType> getDescriptor()
+    public AbstractColumnDefinitionKind<SampleType> getDescriptor()
     {
-        // cannot cast: (AbstractColumnDefinitionKind<EntityType>) columnDefinitionKind;
-        return new AbstractColumnDefinitionKind<EntityType>(columnDefinitionKind.getHeaderMsgKey(),
-                columnDefinitionKind.getWidth(), columnDefinitionKind.isHidden())
-            {
-                @Override
-                public String tryGetValue(EntityType entity)
-                {
-                    return columnDefinitionKind.tryGetValue((SampleType) entity);
-                }
-            };
+        return columnDefinitionKind;
     }
+
 }

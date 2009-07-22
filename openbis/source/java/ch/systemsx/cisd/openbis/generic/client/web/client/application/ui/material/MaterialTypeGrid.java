@@ -22,13 +22,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.material.MaterialTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AbstractEntityTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 
 /**
@@ -36,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
  * 
  * @author Tomasz Pylak
  */
-public class MaterialTypeGrid extends AbstractEntityTypeGrid
+public class MaterialTypeGrid extends AbstractEntityTypeGrid<MaterialType>
 {
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "material-type-browser";
 
@@ -55,32 +56,40 @@ public class MaterialTypeGrid extends AbstractEntityTypeGrid
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, EntityType> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<EntityType>> callback)
+    protected void listEntities(DefaultResultSetConfig<String, MaterialType> resultSetConfig,
+            AbstractAsyncCallback<ResultSet<MaterialType>> callback)
     {
         viewContext.getService().listMaterialTypes(resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<EntityType> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<MaterialType> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportMaterialTypes(exportCriteria, callback);
     }
 
     @Override
-    protected void registerEntityType(String code, String descriptionOrNull,
-            AsyncCallback<Void> registrationCallback)
+    protected void register(MaterialType materialType, AsyncCallback<Void> registrationCallback)
     {
-        MaterialType entityType = new MaterialType();
-        entityType.setCode(code);
-        entityType.setDescription(descriptionOrNull);
-        viewContext.getService().registerMaterialType(entityType, registrationCallback);
+        viewContext.getService().registerMaterialType(materialType, registrationCallback);
     }
 
     @Override
     protected EntityKind getEntityKind()
     {
         return EntityKind.MATERIAL;
+    }
+
+    @Override
+    protected MaterialType createNewEntityType()
+    {
+        return new MaterialType();
+    }
+
+    @Override
+    protected IColumnDefinitionKind<MaterialType>[] getStaticColumnsDefinition()
+    {
+        return MaterialTypeColDefKind.values();
     }
 }

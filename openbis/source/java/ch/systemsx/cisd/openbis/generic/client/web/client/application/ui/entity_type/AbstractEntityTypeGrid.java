@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.EntityTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
@@ -55,14 +56,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
  * 
  * @author Tomasz Pylak
  */
-abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<EntityType>
+abstract public class AbstractEntityTypeGrid<T extends EntityType> extends
+        AbstractSimpleBrowserGrid<T>
 {
     protected IDelegatedAction postRegistrationCallback;
 
     abstract protected EntityKind getEntityKind();
 
-    abstract protected void registerEntityType(String code, String descriptionOrNull,
-            AsyncCallback<Void> registrationCallback);
+    abstract protected void register(T entityType, AsyncCallback<Void> registrationCallback);
 
     protected AbstractEntityTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             String browserId, String gridId)
@@ -99,12 +100,12 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
 
         Button editButton =
                 createSelectedItemButton(viewContext.getMessage(Dict.EDIT_TYPE_BUTTON),
-                        new ISelectedEntityInvoker<BaseEntityModel<EntityType>>()
+                        new ISelectedEntityInvoker<BaseEntityModel<T>>()
                             {
 
-                                public void invoke(BaseEntityModel<EntityType> selectedItem)
+                                public void invoke(BaseEntityModel<T> selectedItem)
                                 {
-                                    EntityType entityType = selectedItem.getBaseObject();
+                                    T entityType = selectedItem.getBaseObject();
                                     createEditEntityTypeDialog(entityKind, entityType).show();
                                 }
 
@@ -130,13 +131,13 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
-                    List<BaseEntityModel<EntityType>> types = getSelectedItems();
+                    List<BaseEntityModel<T>> types = getSelectedItems();
                     if (types.isEmpty())
                     {
                         return;
                     }
                     final List<String> selectedTypeCodes = new ArrayList<String>();
-                    for (BaseEntityModel<EntityType> model : types)
+                    for (BaseEntityModel<T> model : types)
                     {
                         EntityType term = model.getBaseObject();
                         selectedTypeCodes.add(term.getCode());
@@ -164,19 +165,26 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
     {
         String title =
                 viewContext.getMessage(Dict.ADD_TYPE_TITLE_TEMPLATE, entityKind.getDescription());
-        return new AddTypeDialog(viewContext, title, postRegistrationCallback)
+
+        T newEntityType = createNewEntityType();
+        return createRegisterEntityTypeDialog(title, newEntityType);
+    }
+
+    abstract protected T createNewEntityType();
+
+    protected Window createRegisterEntityTypeDialog(String title, T newEntityType)
+    {
+        return new AddTypeDialog<T>(viewContext, title, postRegistrationCallback, newEntityType)
             {
                 @Override
-                protected void register(String code, String descriptionOrNull,
-                        AsyncCallback<Void> registrationCallback)
+                protected void register(T entityType, AsyncCallback<Void> registrationCallback)
                 {
-                    registerEntityType(code, descriptionOrNull, registrationCallback);
+                    AbstractEntityTypeGrid.this.register(entityType, registrationCallback);
                 }
             };
     }
 
-    protected Window createEditEntityTypeDialog(final EntityKind entityKind,
-            final EntityType entityType)
+    protected Window createEditEntityTypeDialog(final EntityKind entityKind, final T entityType)
     {
         final String code = entityType.getCode();
         String title =
@@ -216,26 +224,58 @@ abstract public class AbstractEntityTypeGrid extends AbstractSimpleBrowserGrid<E
         }
     }
 
-    @Override
-    protected IColumnDefinitionKind<EntityType>[] getStaticColumnsDefinition()
+    protected IColumnDefinitionKind<T> cast(final IColumnDefinitionKind<EntityType> colDefKind)
     {
-        return EntityTypeColDefKind.values();
+        final AbstractColumnDefinitionKind<EntityType> descriptor = colDefKind.getDescriptor();
+        return new IColumnDefinitionKind<T>()
+            {
+
+                public AbstractColumnDefinitionKind<T> getDescriptor()
+                {
+                    return new AbstractColumnDefinitionKind<T>(descriptor.getHeaderMsgKey(),
+                            descriptor.getWidth(), descriptor.isHidden())
+                        {
+                            @Override
+                            public String tryGetValue(T entity)
+                            {
+                                return descriptor.tryGetValue(entity);
+                            }
+                        };
+                }
+
+                public String id()
+                {
+                    return colDefKind.id();
+                }
+            };
+    }
+
+    protected List<IColumnDefinitionKind<T>> asList(final IColumnDefinitionKind<EntityType>[] table)
+    {
+        final List<IColumnDefinitionKind<T>> list =
+                new ArrayList<IColumnDefinitionKind<T>>(table.length);
+        for (IColumnDefinitionKind<EntityType> colDefKind : table)
+        {
+            list.add(cast(colDefKind));
+        }
+        return list;
     }
 
     @Override
-    protected ColumnDefsAndConfigs<EntityType> createColumnsDefinition()
+    protected ColumnDefsAndConfigs<T> createColumnsDefinition()
     {
-        ColumnDefsAndConfigs<EntityType> schema = super.createColumnsDefinition();
+        ColumnDefsAndConfigs<T> schema = super.createColumnsDefinition();
         schema.setGridCellRendererFor(EntityTypeColDefKind.DESCRIPTION.id(),
                 createMultilineStringCellRenderer());
         return schema;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    protected List<IColumnDefinition<EntityType>> getInitialFilters()
+    protected List<IColumnDefinition<T>> getInitialFilters()
     {
-        return asColumnFilters(new EntityTypeColDefKind[]
-            { EntityTypeColDefKind.CODE });
+        return asColumnFilters((new IColumnDefinitionKind[]
+            { cast(EntityTypeColDefKind.CODE) }));
     }
 
     public DatabaseModificationKind[] getRelevantModifications()

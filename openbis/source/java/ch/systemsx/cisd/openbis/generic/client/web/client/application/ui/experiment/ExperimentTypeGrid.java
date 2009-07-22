@@ -22,13 +22,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.ExperimentTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AbstractEntityTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 
 /**
@@ -36,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
  * 
  * @author Tomasz Pylak
  */
-public class ExperimentTypeGrid extends AbstractEntityTypeGrid
+public class ExperimentTypeGrid extends AbstractEntityTypeGrid<ExperimentType>
 {
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "experiment-type-browser";
 
@@ -55,32 +56,40 @@ public class ExperimentTypeGrid extends AbstractEntityTypeGrid
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, EntityType> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<EntityType>> callback)
+    protected void listEntities(DefaultResultSetConfig<String, ExperimentType> resultSetConfig,
+            AbstractAsyncCallback<ResultSet<ExperimentType>> callback)
     {
         viewContext.getService().listExperimentTypes(resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<EntityType> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<ExperimentType> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportExperimentTypes(exportCriteria, callback);
     }
 
     @Override
-    protected void registerEntityType(String code, String descriptionOrNull,
-            AsyncCallback<Void> registrationCallback)
+    protected void register(ExperimentType experimentType, AsyncCallback<Void> registrationCallback)
     {
-        ExperimentType entityType = new ExperimentType();
-        entityType.setCode(code);
-        entityType.setDescription(descriptionOrNull);
-        viewContext.getService().registerExperimentType(entityType, registrationCallback);
+        viewContext.getService().registerExperimentType(experimentType, registrationCallback);
     }
 
     @Override
     protected EntityKind getEntityKind()
     {
         return EntityKind.EXPERIMENT;
+    }
+
+    @Override
+    protected ExperimentType createNewEntityType()
+    {
+        return new ExperimentType();
+    }
+
+    @Override
+    protected IColumnDefinitionKind<ExperimentType>[] getStaticColumnsDefinition()
+    {
+        return ExperimentTypeColDefKind.values();
     }
 }

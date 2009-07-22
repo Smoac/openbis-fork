@@ -747,7 +747,7 @@ public final class CommonClientService extends AbstractClientService implements
             });
     }
 
-    public ResultSet<? extends EntityType> listMaterialTypes(
+    public ResultSet<MaterialType> listMaterialTypes(
             DefaultResultSetConfig<String, MaterialType> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -760,8 +760,7 @@ public final class CommonClientService extends AbstractClientService implements
             });
     }
 
-    public ResultSet<? extends EntityType> listSampleTypes(
-            DefaultResultSetConfig<String, SampleType> criteria)
+    public ResultSet<SampleType> listSampleTypes(DefaultResultSetConfig<String, SampleType> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return listEntities(criteria, new IOriginalDataProvider<SampleType>()
@@ -773,7 +772,7 @@ public final class CommonClientService extends AbstractClientService implements
             });
     }
 
-    public ResultSet<? extends EntityType> listExperimentTypes(
+    public ResultSet<ExperimentType> listExperimentTypes(
             DefaultResultSetConfig<String, ExperimentType> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -786,7 +785,7 @@ public final class CommonClientService extends AbstractClientService implements
             });
     }
 
-    public ResultSet<? extends EntityType> listDataSetTypes(
+    public ResultSet<DataSetType> listDataSetTypes(
             DefaultResultSetConfig<String, DataSetType> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {

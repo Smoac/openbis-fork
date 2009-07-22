@@ -22,6 +22,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AbstractEntityTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -29,14 +31,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 
 /**
  * Grid displaying data set types.
  * 
  * @author Piotr Buczek
  */
-public class DataSetTypeGrid extends AbstractEntityTypeGrid
+public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
 {
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "data-set-type-browser";
 
@@ -55,32 +56,40 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, EntityType> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<EntityType>> callback)
+    protected void listEntities(DefaultResultSetConfig<String, DataSetType> resultSetConfig,
+            AbstractAsyncCallback<ResultSet<DataSetType>> callback)
     {
         viewContext.getService().listDataSetTypes(resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<EntityType> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<DataSetType> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportDataSetTypes(exportCriteria, callback);
     }
 
     @Override
-    protected void registerEntityType(String code, String descriptionOrNull,
-            AsyncCallback<Void> registrationCallback)
+    protected void register(DataSetType dataSetType, AsyncCallback<Void> registrationCallback)
     {
-        DataSetType entityType = new DataSetType();
-        entityType.setCode(code);
-        entityType.setDescription(descriptionOrNull);
-        viewContext.getService().registerDataSetType(entityType, registrationCallback);
+        viewContext.getService().registerDataSetType(dataSetType, registrationCallback);
     }
 
     @Override
     protected EntityKind getEntityKind()
     {
         return EntityKind.DATA_SET;
+    }
+
+    @Override
+    protected DataSetType createNewEntityType()
+    {
+        return new DataSetType();
+    }
+
+    @Override
+    protected IColumnDefinitionKind<DataSetType>[] getStaticColumnsDefinition()
+    {
+        return DataSetTypeColDefKind.values();
     }
 }

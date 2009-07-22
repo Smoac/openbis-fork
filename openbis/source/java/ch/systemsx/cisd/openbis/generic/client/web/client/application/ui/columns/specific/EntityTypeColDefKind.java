@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.EntityTypeColDefKindFactory.entityTypeColDefKindFactory;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -28,32 +29,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
  */
 public enum EntityTypeColDefKind implements IColumnDefinitionKind<EntityType>
 {
-    CODE(new AbstractColumnDefinitionKind<EntityType>(Dict.CODE)
-        {
-            @Override
-            public String tryGetValue(EntityType entity)
-            {
-                return entity.getCode();
-            }
-        }),
+    CODE(entityTypeColDefKindFactory.createCodeColDefKind()),
 
-    DESCRIPTION(new AbstractColumnDefinitionKind<EntityType>(Dict.DESCRIPTION, 300)
-        {
-            @Override
-            public String tryGetValue(EntityType entity)
-            {
-                return entity.getDescription();
-            }
-        }),
+    DESCRIPTION(entityTypeColDefKindFactory.createDescriptionColDefKind()),
 
-    DATABASE_INSTANCE(new AbstractColumnDefinitionKind<EntityType>(Dict.DATABASE_INSTANCE, true)
-        {
-            @Override
-            public String tryGetValue(EntityType entity)
-            {
-                return entity.getDatabaseInstance().getCode();
-            }
-        });
+    DATABASE_INSTANCE(entityTypeColDefKindFactory.createDatabaseInstanceColDefKind());
 
     private final AbstractColumnDefinitionKind<EntityType> columnDefinitionKind;
 
@@ -71,4 +51,5 @@ public enum EntityTypeColDefKind implements IColumnDefinitionKind<EntityType>
     {
         return columnDefinitionKind;
     }
+
 }

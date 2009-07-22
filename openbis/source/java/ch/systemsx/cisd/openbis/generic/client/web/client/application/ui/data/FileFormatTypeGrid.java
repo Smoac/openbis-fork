@@ -124,17 +124,16 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
     private Window createRegisterFileTypeDialog()
     {
         String title = viewContext.getMessage(Dict.ADD_TYPE_TITLE_TEMPLATE, "File");
-        return new AddTypeDialog(viewContext, title, postRegistrationCallback)
+        return new AddTypeDialog<FileFormatType>(viewContext, title, postRegistrationCallback,
+                new FileFormatType())
             {
                 @Override
-                protected void register(String code, String descriptionOrNull,
+                protected void register(FileFormatType type,
                         AsyncCallback<Void> registrationCallback)
                 {
-                    FileFormatType type = new FileFormatType();
-                    type.setCode(code);
-                    type.setDescription(descriptionOrNull);
                     viewContext.getService().registerFileType(type, registrationCallback);
                 }
+
             };
     }
 

@@ -24,31 +24,35 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 
 /**
  * Abstract super class of all dialogs adding a new entity type.
  * 
  * @author Tomasz Pylak
  */
-public abstract class AddTypeDialog extends AbstractRegistrationDialog
+public abstract class AddTypeDialog<T extends AbstractType> extends AbstractRegistrationDialog
 {
     public static final String DIALOG_ID = GenericConstants.ID_PREFIX + "add-type-dialog";
 
     public static final String DESCRIPTION_FIELD_ID = DIALOG_ID + "-description-field";
 
-    /** Registers a new property type and calls the specified callback at the end */
-    abstract protected void register(String code, String descriptionOrNull,
-            AsyncCallback<Void> registrationCallback);
+    /** Registers a new entity type and calls the specified callback at the end */
+    abstract protected void register(T entityType, AsyncCallback<Void> registrationCallback);
 
     private final TextField<String> codeField;
 
     private final TextField<String> descriptionField;
 
+    protected final T newEntityType;
+
     public AddTypeDialog(final IViewContext<ICommonClientServiceAsync> viewContext, String title,
-            final IDelegatedAction postRegistrationCallback)
+            final IDelegatedAction postRegistrationCallback, T newEntityType)
     {
         super(viewContext, title, postRegistrationCallback);
         setId(DIALOG_ID);
+
+        this.newEntityType = newEntityType;
 
         codeField = createCodeField(viewContext);
         addField(codeField);
@@ -61,6 +65,8 @@ public abstract class AddTypeDialog extends AbstractRegistrationDialog
     @Override
     protected void register(AsyncCallback<Void> registrationCallback)
     {
-        register(codeField.getValue(), descriptionField.getValue(), registrationCallback);
+        newEntityType.setCode(codeField.getValue());
+        newEntityType.setDescription(descriptionField.getValue());
+        register(newEntityType, registrationCallback);
     }
 }

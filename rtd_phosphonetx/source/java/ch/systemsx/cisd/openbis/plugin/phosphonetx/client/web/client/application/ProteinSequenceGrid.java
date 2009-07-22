@@ -36,8 +36,6 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListPro
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ProteinSequenceGrid extends AbstractSimpleBrowserGrid<ProteinSequence>
@@ -47,21 +45,23 @@ public class ProteinSequenceGrid extends AbstractSimpleBrowserGrid<ProteinSequen
     public static final String BROWSER_ID = PREFIX + "_main";
 
     public static final String GRID_ID = PREFIX + "_grid";
-    
-    static IDisposableComponent create(IViewContext<IPhosphoNetXClientServiceAsync> viewContext, TechId proteinReferenceID)
+
+    static IDisposableComponent create(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
+            TechId proteinReferenceID)
     {
-        return new ProteinSequenceGrid(viewContext, proteinReferenceID).asDisposableWithoutToolbar();
+        return new ProteinSequenceGrid(viewContext, proteinReferenceID)
+                .asDisposableWithoutToolbar();
     }
 
     private final IViewContext<IPhosphoNetXClientServiceAsync> specificViewContext;
-    
+
     private ListProteinSequenceCriteria criteria;
 
     private ProteinSequenceGrid(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
             TechId proteinReferenceID)
     {
-        super(viewContext.getCommonViewContext(), BROWSER_ID + proteinReferenceID,
-                GRID_ID + proteinReferenceID, true);
+        super(viewContext.getCommonViewContext(), BROWSER_ID + proteinReferenceID, GRID_ID
+                + proteinReferenceID, true);
         specificViewContext = viewContext;
         criteria = new ListProteinSequenceCriteria();
         criteria.setProteinReferenceID(proteinReferenceID);

@@ -238,39 +238,39 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#listMaterialTypes(DefaultResultSetConfig) */
-    public void listMaterialTypes(DefaultResultSetConfig<String, EntityType> criteria,
-            final AsyncCallback<ResultSet<EntityType>> asyncCallback)
+    public void listMaterialTypes(DefaultResultSetConfig<String, MaterialType> criteria,
+            final AsyncCallback<ResultSet<MaterialType>> asyncCallback)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
     /** @see ICommonClientService#prepareExportMaterialTypes(TableExportCriteria) */
-    public void prepareExportMaterialTypes(final TableExportCriteria<EntityType> criteria,
+    public void prepareExportMaterialTypes(final TableExportCriteria<MaterialType> criteria,
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#listSampleTypes(DefaultResultSetConfig) */
-    public void listSampleTypes(DefaultResultSetConfig<String, EntityType> criteria,
-            final AsyncCallback<ResultSet<EntityType>> asyncCallback)
+    public void listSampleTypes(DefaultResultSetConfig<String, SampleType> criteria,
+            final AsyncCallback<ResultSet<SampleType>> asyncCallback)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
     /** @see ICommonClientService#prepareExportSampleTypes(TableExportCriteria) */
-    public void prepareExportSampleTypes(final TableExportCriteria<EntityType> criteria,
+    public void prepareExportSampleTypes(final TableExportCriteria<SampleType> criteria,
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#listExperimentTypes(DefaultResultSetConfig) */
-    public void listExperimentTypes(DefaultResultSetConfig<String, EntityType> criteria,
-            final AsyncCallback<ResultSet<EntityType>> asyncCallback)
+    public void listExperimentTypes(DefaultResultSetConfig<String, ExperimentType> criteria,
+            final AsyncCallback<ResultSet<ExperimentType>> asyncCallback)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
     /** @see ICommonClientService#prepareExportExperimentTypes(TableExportCriteria) */
-    public void prepareExportExperimentTypes(final TableExportCriteria<EntityType> criteria,
+    public void prepareExportExperimentTypes(final TableExportCriteria<ExperimentType> criteria,
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#listDataSetTypes(DefaultResultSetConfig) */
-    public void listDataSetTypes(DefaultResultSetConfig<String, EntityType> criteria,
-            final AsyncCallback<ResultSet<EntityType>> asyncCallback)
+    public void listDataSetTypes(DefaultResultSetConfig<String, DataSetType> criteria,
+            final AsyncCallback<ResultSet<DataSetType>> asyncCallback)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
     /** @see ICommonClientService#prepareExportDataSetTypes(TableExportCriteria) */
-    public void prepareExportDataSetTypes(final TableExportCriteria<EntityType> criteria,
+    public void prepareExportDataSetTypes(final TableExportCriteria<DataSetType> criteria,
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#listFileTypes(DefaultResultSetConfig) */
