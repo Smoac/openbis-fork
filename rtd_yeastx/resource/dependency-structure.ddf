@@ -23,7 +23,9 @@ check [yeastx] independentOf [private_openbis]
 # Check dependencies of yeastx to dss
 
 [dss.shared] = ${dss}.generic.shared.*
-[private_dss] = ${dss}.* excluding [dss.shared] ${dss}.generic.DataStoreServer 
+# TODO TPK: move plugins package interface to shared
+[dss.plugins] = ${dss}.generic.server.plugins.*
+[private_dss] = ${dss}.* excluding [dss.shared] [dss.plugins] ${dss}.generic.DataStoreServer 
 
 layer l1 = [dss.shared]
 layer l2 = [yeastx] [private_dss]
