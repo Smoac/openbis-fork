@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -67,9 +68,13 @@ public class UploadingIntegrationTest extends AssertJUnit
 
     private static final long SMALL_FILE_SIZE = 10;
 
+    private static int smallFileCRC32;
+
     private static final String LARGE_FILE = "large-file";
 
     private static final long LARGE_FILE_SIZE = 4000;
+
+    private static int largeFileCRC32;
 
     private static void createRandomData(File file, long sizeInKB)
     {
@@ -113,7 +118,7 @@ public class UploadingIntegrationTest extends AssertJUnit
     private UserDTO user;
 
     @BeforeMethod
-    public void setUp()
+    public void setUp() throws IOException
     {
         context = new Mockery();
         fileManager = context.mock(IFileManager.class);
@@ -133,8 +138,12 @@ public class UploadingIntegrationTest extends AssertJUnit
         FileUtilities.deleteRecursively(PLAYGROUND);
         CLIENT_FOLDER.mkdirs();
         FILE_STORE.mkdirs();
-        createRandomData(new File(CLIENT_FOLDER, SMALL_FILE), SMALL_FILE_SIZE);
-        createRandomData(new File(CLIENT_FOLDER, LARGE_FILE), LARGE_FILE_SIZE);
+        final File smallFile = new File(CLIENT_FOLDER, SMALL_FILE);
+        createRandomData(smallFile, SMALL_FILE_SIZE);
+        smallFileCRC32 = (int) FileUtils.checksumCRC32(smallFile);
+        final File largeFile = new File(CLIENT_FOLDER, LARGE_FILE);
+        createRandomData(largeFile, LARGE_FILE_SIZE);
+        largeFileCRC32 = (int) FileUtils.checksumCRC32(largeFile);
     }
 
     @AfterMethod
@@ -181,7 +190,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(fileInFileStore));
 
                     one(fileManager).registerFileLinkAndInformRecipients(user, SMALL_FILE,
-                            "no comment", "application/octet-stream", fileInFileStore, new String[]
+                            "no comment", "application/octet-stream", fileInFileStore,
+                            smallFileCRC32, new String[]
                                 { "Albert", "Galileo" }, TEST_URL);
                     will(returnValue(Collections.emptyList()));
 
@@ -200,30 +210,30 @@ public class UploadingIntegrationTest extends AssertJUnit
     private void addRegularProgressExpectations()
     {
         context.checking(new Expectations()
-        {
             {
-                one(listener).reportProgress(0, 0);
-                one(listener).reportProgress(6, BLOCK_SIZE);
-                one(listener).reportProgress(12, 2 * BLOCK_SIZE);
-                one(listener).reportProgress(19, 3 * BLOCK_SIZE);
-                one(listener).reportProgress(25, 4 * BLOCK_SIZE);
-                one(listener).reportProgress(32, 5 * BLOCK_SIZE);
-                one(listener).reportProgress(38, 6 * BLOCK_SIZE);
-                one(listener).reportProgress(44, 7 * BLOCK_SIZE);
-                one(listener).reportProgress(51, 8 * BLOCK_SIZE);
-                one(listener).reportProgress(57, 9 * BLOCK_SIZE);
-                one(listener).reportProgress(64, 10 * BLOCK_SIZE);
-                one(listener).reportProgress(70, 11 * BLOCK_SIZE);
-                one(listener).reportProgress(76, 12 * BLOCK_SIZE);
-                one(listener).reportProgress(83, 13 * BLOCK_SIZE);
-                one(listener).reportProgress(89, 14 * BLOCK_SIZE);
-                one(listener).reportProgress(96, 15 * BLOCK_SIZE);
-                one(listener).finished(true);
-                one(listener).reset();
-            }
-        });
+                {
+                    one(listener).reportProgress(0, 0);
+                    one(listener).reportProgress(6, BLOCK_SIZE);
+                    one(listener).reportProgress(12, 2 * BLOCK_SIZE);
+                    one(listener).reportProgress(19, 3 * BLOCK_SIZE);
+                    one(listener).reportProgress(25, 4 * BLOCK_SIZE);
+                    one(listener).reportProgress(32, 5 * BLOCK_SIZE);
+                    one(listener).reportProgress(38, 6 * BLOCK_SIZE);
+                    one(listener).reportProgress(44, 7 * BLOCK_SIZE);
+                    one(listener).reportProgress(51, 8 * BLOCK_SIZE);
+                    one(listener).reportProgress(57, 9 * BLOCK_SIZE);
+                    one(listener).reportProgress(64, 10 * BLOCK_SIZE);
+                    one(listener).reportProgress(70, 11 * BLOCK_SIZE);
+                    one(listener).reportProgress(76, 12 * BLOCK_SIZE);
+                    one(listener).reportProgress(83, 13 * BLOCK_SIZE);
+                    one(listener).reportProgress(89, 14 * BLOCK_SIZE);
+                    one(listener).reportProgress(96, 15 * BLOCK_SIZE);
+                    one(listener).finished(true);
+                    one(listener).reset();
+                }
+            });
     }
-    
+
     @Test
     public void testSingleLargeFile() throws IOException
     {
@@ -244,13 +254,14 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(fileInFileStore));
 
                     one(fileManager).registerFileLinkAndInformRecipients(user, LARGE_FILE,
-                            "no comment", "application/octet-stream", fileInFileStore, new String[]
+                            "no comment", "application/octet-stream", fileInFileStore,
+                            largeFileCRC32, new String[]
                                 { "Albert", "Galileo" }, TEST_URL);
                     will(returnValue(Collections.emptyList()));
                 }
             });
         addRegularProgressExpectations();
-        
+
         uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", "no comment");
 
         assertEqualContent(fileOnClient, fileInFileStore);
@@ -284,7 +295,7 @@ public class UploadingIntegrationTest extends AssertJUnit
 
                     one(fileManager).registerFileLinkAndInformRecipients(user, SMALL_FILE,
                             "no comment", "application/octet-stream", fileInFileStore1,
-                            new String[]
+                            smallFileCRC32, new String[]
                                 { "Albert", "Galileo" }, TEST_URL);
                     will(returnValue(Collections.emptyList()));
 
@@ -295,7 +306,7 @@ public class UploadingIntegrationTest extends AssertJUnit
 
                     one(fileManager).registerFileLinkAndInformRecipients(user, LARGE_FILE,
                             "no comment", "application/octet-stream", fileInFileStore2,
-                            new String[]
+                            largeFileCRC32, new String[]
                                 { "Albert", "Galileo" }, TEST_URL);
                     will(returnValue(Collections.emptyList()));
                 }
@@ -330,7 +341,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(fileInFileStore));
 
                     one(fileManager).registerFileLinkAndInformRecipients(user, SMALL_FILE,
-                            "no comment", "application/octet-stream", fileInFileStore, new String[]
+                            "no comment", "application/octet-stream", fileInFileStore,
+                            smallFileCRC32, new String[]
                                 { "Albert", "Galileo" }, TEST_URL);
                     will(returnValue(Arrays.asList("id:unknown")));
 
@@ -390,7 +402,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(fileInFileStore));
 
                     one(fileManager).registerFileLinkAndInformRecipients(user, SMALL_FILE,
-                            "no comment", "application/octet-stream", fileInFileStore, new String[]
+                            "no comment", "application/octet-stream", fileInFileStore,
+                            smallFileCRC32, new String[]
                                 { "Albert", "Galileo" }, TEST_URL);
                     will(throwException(exception));
 
@@ -435,27 +448,27 @@ public class UploadingIntegrationTest extends AssertJUnit
 
                     one(listener).reportProgress(6, BLOCK_SIZE);
                     one(listener).reportProgress(with(equal(12)), with(new BaseMatcher<Long>()
-                            {
-                        public void describeTo(Description description)
                         {
-                        }
-
-                        public boolean matches(Object item)
-                        {
-                            if (item instanceof Long)
+                            public void describeTo(Description description)
                             {
-                                long numberOfBytes = (Long) item;
-                                if (numberOfBytes == 2 * BLOCK_SIZE)
-                                {
-                                    assertEquals(true, tempFileInStore.exists());
-                                    assertEquals(numberOfBytes, tempFileInStore.length());
-                                    uploader.cancel();
-                                    return true;
-                                }
                             }
-                            return false;
-                        }
-                    }));
+
+                            public boolean matches(Object item)
+                            {
+                                if (item instanceof Long)
+                                {
+                                    long numberOfBytes = (Long) item;
+                                    if (numberOfBytes == 2 * BLOCK_SIZE)
+                                    {
+                                        assertEquals(true, tempFileInStore.exists());
+                                        assertEquals(numberOfBytes, tempFileInStore.length());
+                                        uploader.cancel();
+                                        return true;
+                                    }
+                                }
+                                return false;
+                            }
+                        }));
                     one(listener).finished(false);
                     one(listener).reset();
                 }
@@ -495,7 +508,7 @@ public class UploadingIntegrationTest extends AssertJUnit
 
                     one(fileManager).registerFileLinkAndInformRecipients(user, SMALL_FILE,
                             "no comment", "application/octet-stream", fileInFileStore1,
-                            new String[]
+                            smallFileCRC32, new String[]
                                 { "Albert", "Galileo" }, TEST_URL);
                     will(returnValue(Collections.emptyList()));
 
@@ -534,8 +547,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(fileInFileStore2));
 
                     one(fileManager).registerFileLinkAndInformRecipients(user, LARGE_FILE,
-                            "2. try", "application/octet-stream", fileInFileStore2, new String[0],
-                            TEST_URL);
+                            "2. try", "application/octet-stream", fileInFileStore2, largeFileCRC32,
+                            new String[0], TEST_URL);
                     will(returnValue(Collections.emptyList()));
                 }
             });
