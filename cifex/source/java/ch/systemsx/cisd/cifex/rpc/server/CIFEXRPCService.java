@@ -334,6 +334,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         {
             throw new FileSizeExceededException(maxUploadSize);
         }
+        session.getCrc32().update(block);
         try
         {
             randomAccessFileOrNull.seek(filePointer);
@@ -353,9 +354,11 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
                     final String nameOfCurrentFile = status.getNameOfCurrentFile();
                     final String[] recipients = session.getRecipients();
                     final String url = session.getUrl();
+                    final int crc32Value = (int) session.getCrc32().getValue();
                     final List<String> invalidUserIdentifiers =
                             fileManager.registerFileLinkAndInformRecipients(user,
-                                    nameOfCurrentFile, comment, contentType, file, recipients, url);
+                                    nameOfCurrentFile, comment, contentType, file, crc32Value, 
+                                    recipients, url);
                     success = true;
                     if (invalidUserIdentifiers.isEmpty() == false)
                     {

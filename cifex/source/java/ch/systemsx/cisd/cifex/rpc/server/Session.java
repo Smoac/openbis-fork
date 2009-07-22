@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.CRC32;
 
 import ch.systemsx.cisd.cifex.rpc.UploadStatus;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
@@ -60,6 +61,8 @@ public final class Session
     private Operation operation;
     
     private long lastActiveMillis;
+    
+    private CRC32 crc32;
 
     Session(String sessionID, UserDTO user, String url)
     {
@@ -67,6 +70,7 @@ public final class Session
         this.user = user;
         this.url = url;
         this.uploadStatus = new UploadStatus();
+        this.crc32 = new CRC32();
         touchSession();
     }
     
@@ -76,6 +80,7 @@ public final class Session
         temporaryFiles.clear();
         setFile(null);
         setRandomAccessFile(null);
+        crc32.reset();
         uploadStatus.reset();
     }
 
@@ -147,6 +152,12 @@ public final class Session
     public final void setRandomAccessFile(RandomAccessFile randomAccessFile)
     {
         this.randomAccessFile = randomAccessFile;
+        crc32.reset();
+    }
+
+    public CRC32 getCrc32()
+    {
+        return crc32;
     }
 
     final UploadStatus getUploadStatus()

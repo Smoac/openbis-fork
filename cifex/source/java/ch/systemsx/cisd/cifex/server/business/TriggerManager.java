@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server.business;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -32,6 +33,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -151,8 +153,16 @@ class TriggerManager implements ITriggerManager
         public void upload(File fileToUpload, String mimeType, String[] recipients, String comment)
         {
             final File uploadedFile = copy(fileManager, triggerUser, fileToUpload);
+            final int crc32Value;
+            try
+            {
+                crc32Value = (int) FileUtils.checksumCRC32(uploadedFile);
+            } catch (IOException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
             fileManager.registerFileLinkAndInformRecipients(triggerUser, uploadedFile.getName(),
-                    comment, mimeType, uploadedFile, recipients, url);
+                    comment, mimeType, uploadedFile, crc32Value, recipients, url);
         }
 
         public void sendMessage(String subject, String content, String replyTo,

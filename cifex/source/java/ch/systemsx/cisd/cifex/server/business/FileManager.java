@@ -37,7 +37,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.CountingInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
@@ -55,6 +54,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.FileContent;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.common.Password;
+import ch.systemsx.cisd.cifex.server.util.ChecksummingInputStream;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
@@ -338,18 +338,22 @@ final class FileManager extends AbstractManager implements IFileManager
             try
             {
                 outputStream = new FileOutputStream(file);
-                final CountingInputStream countingInputStream = new CountingInputStream(input);
-                inputStream = countingInputStream;
+                final ChecksummingInputStream countingAndChecksummingInputStream =
+                        new ChecksummingInputStream(input);
+                inputStream = countingAndChecksummingInputStream;
                 // Uncomment the following line if you want a more perceptible effect in the file
                 // upload feedback. inputStream = new SlowInputStream(countingInputStream, 100 *
                 // FileUtils.ONE_KB);
                 IOUtils.copy(inputStream, outputStream);
                 outputStream.close();
-                final long byteCount = countingInputStream.getByteCount();
+                final long byteCount = countingAndChecksummingInputStream.getByteCount();
+                final int crc32 = countingAndChecksummingInputStream.getCRC32Value();
+                operationLog.info(String.format("File %s has crc32 checksum %x.", fileName, crc32));
                 if (byteCount > 0)
                 {
                     final FileDTO fileDTO =
-                            registerFile(user, fileName, comment, contentType, file, byteCount);
+                            registerFile(user, fileName, comment, contentType, file, byteCount,
+                                    crc32);
                     success = true;
                     return fileDTO;
                 } else
@@ -379,19 +383,21 @@ final class FileManager extends AbstractManager implements IFileManager
 
     @Transactional
     public List<String> registerFileLinkAndInformRecipients(UserDTO user, String fileName,
-            String comment, String contentTypeOrNull, File file, String[] recipients, String url)
+            String comment, String contentTypeOrNull, File file, int crc32Value,
+            String[] recipients, String url)
     {
         final String contentType =
                 (contentTypeOrNull != null) ? contentTypeOrNull : DEFAULT_CONTENT_TYPE;
         final FileDTO fileDTO =
-                registerFile(user, fileName, comment, contentType, file, file.length());
+                registerFile(user, fileName, comment, contentType, file, file.length(), crc32Value);
         return shareFilesWith(url, user, Arrays.asList(recipients), Collections.singleton(fileDTO),
                 comment);
     }
 
     private FileDTO registerFile(final UserDTO user, final String fileName, final String comment,
-            final String contentType, final File file, final long byteCount)
+            final String contentType, final File file, final long byteCount, final int crc32Value)
     {
+        operationLog.info(String.format("File %s has crc32 checksum %x.", fileName, crc32Value));
         final FileDTO fileDTO = new FileDTO(user.getID());
         fileDTO.setName(fileName);
         fileDTO.setContentType(contentType);

@@ -50,22 +50,22 @@ public interface IFileManager
      * Returns the file DTO for given <var>fileId</var> even if the file does not exist in the file
      * store.
      * 
-     * @return The file DTO, or <code>null</code>, if no file object exists in the database for
-     *         this <var>fileId</var>.
+     * @return The file DTO, or <code>null</code>, if no file object exists in the database for this
+     *         <var>fileId</var>.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
     public FileInformation getFileInformationFilestoreUnimportant(final long fileId);
 
     /**
-     * Returns <code>true</code>, if the user given by <var>userDTO</var> is allowed access to
-     * file <var>fileDTO</var>.
+     * Returns <code>true</code>, if the user given by <var>userDTO</var> is allowed access to file
+     * <var>fileDTO</var>.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
     public boolean isAllowedAccess(final UserDTO userDTO, final FileDTO fileDTO);
 
     /**
-     * Returns <code>true</code>, if the user given by <var>userDTO</var> is allowed to delete
-     * file <var>fileDTO</var>.
+     * Returns <code>true</code>, if the user given by <var>userDTO</var> is allowed to delete file
+     * <var>fileDTO</var>.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
     public boolean isAllowedDeletion(final UserDTO userDTO, final FileDTO fileDTO);
@@ -105,7 +105,7 @@ public interface IFileManager
     @LogAnnotation(logCategory = LogCategory.OPERATION)
     public FileDTO saveFile(final UserDTO user, final String fileName, String comment,
             final String contentType, final InputStream inputStream);
-    
+
     /**
      * Registers specified file for the specified user and sends an e-mail to all specified
      * recipients.
@@ -114,9 +114,9 @@ public interface IFileManager
      *         users.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public List<String> registerFileLinkAndInformRecipients(final UserDTO user, final String fileName,
-            final String comment, final String contentType, final File file, String[] recipients,
-            String url);
+    public List<String> registerFileLinkAndInformRecipients(final UserDTO user,
+            final String fileName, final String comment, final String contentType, final File file,
+            int crc32Value, String[] recipients, String url);
 
     /**
      * Creates sharing links between the users specified by their e-mail addresses or user id (with
@@ -142,7 +142,7 @@ public interface IFileManager
 
     @LogAnnotation(logCategory = LogCategory.OPERATION)
     public File createFile(final UserDTO user, final String fileName);
-    
+
     /**
      * @throws UserFailureException indicating that <var>filename</var> does not exist and thus has
      *             not been saved.
@@ -172,9 +172,9 @@ public interface IFileManager
      */
     @LogAnnotation(logCategory = LogCategory.TRACKING)
     public void deleteSharingLink(long fileId, String userCode);
-    
+
     /**
-     * Returns the file on the file system for the given <var>fileDTO</var>. 
+     * Returns the file on the file system for the given <var>fileDTO</var>.
      */
     public File getRealFile(final FileDTO fileDTO);
 
