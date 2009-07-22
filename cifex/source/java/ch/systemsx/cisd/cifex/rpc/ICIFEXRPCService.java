@@ -31,7 +31,7 @@ public interface ICIFEXRPCService
 {
 
     /** The version of this service interface. */
-    public static final int VERSION = 1;
+    public static final int VERSION = 2;
 
     /** Returns the version of the server side interface. */
     public int getVersion();

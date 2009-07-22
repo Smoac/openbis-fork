@@ -49,6 +49,8 @@ public class FileInfoDTO implements IsSerializable, Serializable
      * </p>
      */
     private Long size;
+    
+    private Integer crc32Value;
 
     /**
      * Person who registered the file.
@@ -132,6 +134,16 @@ public class FileInfoDTO implements IsSerializable, Serializable
     public final void setSize(final Long size)
     {
         this.size = size;
+    }
+
+    public void setCrc32Value(Integer crc32Value)
+    {
+        this.crc32Value = crc32Value;
+    }
+
+    public Integer getCrc32Value()
+    {
+        return crc32Value;
     }
 
     public final String getContentType()

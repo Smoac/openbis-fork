@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.rpc.client;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.springframework.remoting.RemoteAccessException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -26,6 +27,7 @@ import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * Class which downloads file via an implementation of {@link ICIFEXRPCService}, handling the
@@ -89,6 +91,13 @@ public final class Downloader extends AbstractUploadDownload
                     downloadAndStoreBlock(fileProvider, filePointer, blockSize);
                     filePointer += blockSize;
                     fireProgressEvent(filePointer, fileSize);
+                }
+                final int crc32Value = (int) FileUtils.checksumCRC32(file);
+                if (fileInfo.getCrc32Value() != null && crc32Value != fileInfo.getCrc32Value())
+                {
+                    throw new EnvironmentFailureException(String.format(
+                            "Checksum error (expected: %x, found: %x", fileInfo.getCrc32Value(),
+                            crc32Value));
                 }
                 service.finish(sessionID, true);
                 fireFinishedEvent(true);
