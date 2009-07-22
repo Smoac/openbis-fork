@@ -139,6 +139,8 @@ public final class GenericClientService extends AbstractClientService implements
     public final Sample getSampleInfo(final TechId sampleId, String baseIndexURL)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
+        // FIXME: load container and generator even if appropriate depths are 0, otherwise data will
+        // not be initialized correctly in the edit form
         return getSampleGenerationInfo(sampleId, baseIndexURL).getGenerator();
     }
 

@@ -47,7 +47,10 @@ public final class SampleChooserField extends ChosenEntitySetter<Sample>
         String getValue();
 
         void updateOriginalValue();
+
+        void updateValue(String identifierOrNull);
     }
+
 
     /**
      * Creates a text field with the additional browse button which allow to choose a sample from
@@ -58,8 +61,22 @@ public final class SampleChooserField extends ChosenEntitySetter<Sample>
             final boolean excludeWithoutExperiment,
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
+        return create(labelField, mandatory, initialValueOrNull, addShared,
+                excludeWithoutExperiment, viewContext, null);
+
+    }
+
+    public static SampleChooserFieldAdaptor create(final String labelField,
+            final boolean mandatory, final String initialValueOrNull, final boolean addShared,
+            final boolean excludeWithoutExperiment,
+            final IViewContext<ICommonClientServiceAsync> viewContext, String idOrNull)
+    {
         final SampleChooserField chooserField =
                 new SampleChooserField(mandatory, initialValueOrNull, viewContext);
+        if (idOrNull != null)
+        {
+            chooserField.setId(idOrNull);
+        }
 
         Button chooseButton = new Button(viewContext.getMessage(Dict.BUTTON_BROWSE));
         chooseButton.addSelectionListener(new SelectionListener<ComponentEvent>()
@@ -97,6 +114,11 @@ public final class SampleChooserField extends ChosenEntitySetter<Sample>
                     String textValue = (valueOrNull == null ? "" : valueOrNull);
                     chooserField.setOriginalValue(textValue);
                 }
+
+                public void updateValue(String identifierOrNull)
+                {
+                    chooserField.updateValue(identifierOrNull);
+                }
             };
     }
 
@@ -131,9 +153,14 @@ public final class SampleChooserField extends ChosenEntitySetter<Sample>
         // no regexp validation is done
         // we use plain string identifiers which currently can be parsed only on the server side
 
-        if (initialValueOrNull != null)
+        updateValue(initialValueOrNull);
+    }
+
+    public void updateValue(String valueOrNull)
+    {
+        if (valueOrNull != null)
         {
-            setValue(initialValueOrNull);
+            setValue(valueOrNull);
         }
     }
 

@@ -25,7 +25,6 @@ import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -34,8 +33,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField.SampleChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.AttachmentsFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
@@ -70,9 +70,9 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     protected GroupSelectionWidget groupSelectionWidget;
 
-    protected TextField<String> container;
+    protected SampleChooserFieldAdaptor container;
 
-    protected TextField<String> parent;
+    protected SampleChooserFieldAdaptor parent;
 
     protected AbstractGenericSampleRegisterEditForm(
             IViewContext<IGenericClientServiceAsync> viewContext)
@@ -144,8 +144,8 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                 new ArrayList<DatabaseModificationAwareField<?>>();
         fields.add(wrapUnaware(experimentField.getField()));
         fields.add(groupSelectionWidget.asDatabaseModificationAware());
-        fields.add(wrapUnaware(parent));
-        fields.add(wrapUnaware(container));
+        fields.add(wrapUnaware(parent.getField()));
+        fields.add(wrapUnaware(container.getField()));
         return fields;
     }
 
@@ -169,12 +169,14 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
         groupSelectionWidget = new GroupSelectionWidget(viewContext, getId(), true);
         FieldUtil.markAsMandatory(groupSelectionWidget);
         groupSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.GROUP));
-
-        parent = new VarcharField(viewContext.getMessage(Dict.GENERATED_FROM_SAMPLE), false);
-        parent.setId(getId() + ID_SUFFIX_PARENT);
-
-        container = new VarcharField(viewContext.getMessage(Dict.PART_OF_SAMPLE), false);
-        container.setId(getId() + ID_SUFFIX_CONTAINER);
+        parent =
+                SampleChooserField.create(viewContext.getMessage(Dict.GENERATED_FROM_SAMPLE),
+                        false, null, true, false, viewContext.getCommonViewContext(), getId()
+                                + ID_SUFFIX_PARENT);
+        container =
+                SampleChooserField.create(viewContext.getMessage(Dict.PART_OF_SAMPLE), false, null,
+                        true, false, viewContext.getCommonViewContext(), getId()
+                                + ID_SUFFIX_CONTAINER);
         experimentField = createExperimentField();
         attachmentsManager = new AttachmentsFileFieldManager(attachmentsSessionKey, viewContext);
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)

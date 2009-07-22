@@ -102,8 +102,8 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
         updatePropertyFieldsOriginalValues();
         experimentField.updateOriginalValue();
         groupSelectionWidget.updateOriginalValue(groupSelectionWidget.getValue());
-        container.setOriginalValue(container.getValue());
-        parent.setOriginalValue(parent.getValue());
+        container.updateOriginalValue();
+        parent.updateOriginalValue();
     }
 
     private void setOriginalSample(Sample sample)
@@ -144,8 +144,7 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
         Sample containerSample = originalSample.getContainer();
         if (containerSample != null)
         {
-            container.setValue(containerSample.getIdentifier());
-            container.setOriginalValue(container.getValue());
+            container.updateValue(containerSample.getIdentifier());
         }
     }
 
@@ -154,8 +153,7 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
         Sample parentSample = originalSample.getGeneratedFrom();
         if (parentSample != null)
         {
-            parent.setValue(parentSample.getIdentifier());
-            parent.setOriginalValue(parent.getValue());
+            parent.updateValue(parentSample.getIdentifier());
         }
     }
 

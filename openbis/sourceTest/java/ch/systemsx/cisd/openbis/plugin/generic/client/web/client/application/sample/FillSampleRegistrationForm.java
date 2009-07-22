@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VocabularyTermSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
@@ -98,13 +99,19 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
 
         if (StringUtils.isBlank(parent) == false)
         {
-            GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.ID
-                    + GenericSampleRegistrationForm.ID_SUFFIX_PARENT, parent);
+            final SampleChooserField parentField =
+                    (SampleChooserField) GWTTestUtil
+                            .getWidgetWithID(GenericSampleRegistrationForm.ID
+                                    + GenericSampleRegistrationForm.ID_SUFFIX_PARENT);
+            parentField.setValue(parent);
         }
         if (StringUtils.isBlank(container) == false)
         {
-            GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.ID
-                    + GenericSampleRegistrationForm.ID_SUFFIX_CONTAINER, container);
+            final SampleChooserField containerField =
+                (SampleChooserField) GWTTestUtil
+                        .getWidgetWithID(GenericSampleRegistrationForm.ID
+                    + GenericSampleRegistrationForm.ID_SUFFIX_CONTAINER);
+            containerField.setValue(container);
         }
         for (final PropertyField property : properties)
         {
@@ -120,5 +127,4 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
         GWTTestUtil.clickButtonWithID(GenericSampleRegistrationForm.ID
                 + AbstractRegistrationForm.SAVE_BUTTON);
     }
-
 }
