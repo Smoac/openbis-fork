@@ -181,7 +181,7 @@ public class MergedDataReportingPlugin extends AbstractDatastorePlugin implement
             {
                 throw UserFailureException.fromTemplate(
                         "Data Set '%s' file has has wrong number of lines (%s instead of 2).",
-                        dataset.getDatasetCode());
+                        dataset.getDatasetCode(), lines.size());
             }
             this.headerTokens = parseLine(lines.get(0));
             this.dataTokens = parseLine(lines.get(1));
