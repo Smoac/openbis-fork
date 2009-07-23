@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.dbmigration.DatabaseEngine;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
@@ -77,7 +78,9 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         externalDataDAO = new ExternalDataDAO(sessionFactory, homeDatabaseInstance);
         experimentDAO = new ExperimentDAO(sessionFactory, homeDatabaseInstance);
         projectDAO = new ProjectDAO(sessionFactory, homeDatabaseInstance);
-        sampleDAO = new SampleDAO(sessionFactory, homeDatabaseInstance);
+        final boolean isPostgreSQL =
+                DatabaseEngine.POSTGRESQL.getCode().equals(context.getDatabaseEngineCode());
+        sampleDAO = new SampleDAO(sessionFactory, homeDatabaseInstance, isPostgreSQL);
     }
 
     private final DatabaseInstancePE getDatabaseInstanceId(final String databaseInstanceCode)

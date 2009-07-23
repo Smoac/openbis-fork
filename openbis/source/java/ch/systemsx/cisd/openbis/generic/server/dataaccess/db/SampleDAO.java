@@ -60,10 +60,13 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
 
     private static final String LOCK_TABLE_SQL =
             "LOCK TABLE " + TableNames.SAMPLES_TABLE + " IN EXCLUSIVE MODE";
+    
+    private final boolean doLock;
 
-    SampleDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
+    SampleDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance, boolean doLock)
     {
         super(sessionFactory, databaseInstance, SamplePE.class);
+        this.doLock = doLock;
     }
 
     private final Criteria createListAllSamplesCriteria()
@@ -148,7 +151,10 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
      */
     private final void lockTable()
     {
-        executeUpdate(LOCK_TABLE_SQL);
+        if (doLock)
+        {
+            executeUpdate(LOCK_TABLE_SQL);
+        }
     }
 
     /**
