@@ -50,5 +50,6 @@
 	<classpathentry kind="lib" path="/libraries/apgdiff/apgdiff.jar" sourcepath="/libraries/apgdiff/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base-test.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
+	<classpathentry kind="lib" path="/libraries/h2/h2.jar" sourcepath="/libraries/h2/src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
