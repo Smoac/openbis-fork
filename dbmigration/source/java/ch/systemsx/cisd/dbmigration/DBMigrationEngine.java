@@ -215,6 +215,14 @@ public final class DBMigrationEngine
 
     private final void executeSchemaScript(final String version)
     {
+        final Script domainsScript = scriptProvider.tryGetDomainsScript(version);
+        if (domainsScript == null)
+        {
+            operationLog.debug("No domains script found for version " + version);
+        } else
+        {
+            scriptExecutor.execute(domainsScript, true, logDAO);
+        }
         final Script schemaScript = scriptProvider.tryGetSchemaScript(version);
         if (schemaScript == null)
         {
@@ -230,6 +238,14 @@ public final class DBMigrationEngine
         } else
         {
             scriptExecutor.execute(functionScript, false, logDAO);
+        }
+        final Script grantsScript = scriptProvider.tryGetGrantsScript(version);
+        if (grantsScript == null)
+        {
+            operationLog.debug("No grants script found for version " + version);
+        } else
+        {
+            scriptExecutor.execute(grantsScript, true, logDAO);
         }
     }
 

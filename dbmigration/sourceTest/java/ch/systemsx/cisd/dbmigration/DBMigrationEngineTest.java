@@ -106,7 +106,8 @@ public class DBMigrationEngineTest
         logDAO = context.mock(IDatabaseVersionLogDAO.class);
         scriptExecutor = context.mock(ISqlScriptExecutor.class);
         migrationStepExecutor = context.mock(IMigrationStepExecutor.class, "migrationStepExecutor");
-        migrationStepExecutorAdmin = context.mock(IMigrationStepExecutor.class, "migrationStepExecutorAdmin");
+        migrationStepExecutorAdmin =
+                context.mock(IMigrationStepExecutor.class, "migrationStepExecutorAdmin");
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
     }
 
@@ -157,8 +158,12 @@ public class DBMigrationEngineTest
                     will(returnValue(false));
                     one(adminDAO).createDatabase();
 
+                    one(scriptProvider).tryGetDomainsScript(version);
+                    expectSuccessfulExecution(new Script("domains", "domains code", version), true);
                     one(scriptProvider).tryGetSchemaScript(version);
                     expectSuccessfulExecution(new Script("schema", "schema code", version), true);
+                    one(scriptProvider).tryGetGrantsScript(version);
+                    expectSuccessfulExecution(new Script("grants", "grants code", version), true);
                     one(scriptProvider).tryGetFunctionScript(version);
                     expectSuccessfulExecution(new Script("function", "db function code", version),
                             false);
@@ -304,10 +309,14 @@ public class DBMigrationEngineTest
                     one(scriptProvider).isDumpRestore(version);
                     will(returnValue(false));
                     one(adminDAO).createDatabase();
+                    one(scriptProvider).tryGetDomainsScript(version);
+                    expectSuccessfulExecution(new Script("domains", "domains code"), true);
                     one(scriptProvider).tryGetSchemaScript(version);
                     expectSuccessfulExecution(new Script("schema", "schema code"), true);
                     one(scriptProvider).tryGetFunctionScript(version);
                     expectSuccessfulExecution(new Script("function", "db function code"), false);
+                    one(scriptProvider).tryGetGrantsScript(version);
+                    expectSuccessfulExecution(new Script("grants", "grants code"), true);
                     one(scriptProvider).tryGetDataScript(version);
                     expectSuccessfulExecution(new Script("data", "data code"), true);
                     one(adminDAO).getDatabaseName();
@@ -355,8 +364,11 @@ public class DBMigrationEngineTest
                     will(returnValue(false));
                     one(adminDAO).createDatabase();
 
+                    one(scriptProvider).tryGetDomainsScript(version);
                     one(scriptProvider).tryGetSchemaScript(version);
                     expectSuccessfulExecution(new Script("schema", "schema code", version), true);
+                    one(scriptProvider).tryGetGrantsScript(version);
+                    expectSuccessfulExecution(new Script("domains", "domains code", version), true);
                     one(scriptProvider).tryGetFunctionScript(version);
                     expectSuccessfulExecution(new Script("function", "db function code", version),
                             false);
@@ -371,7 +383,8 @@ public class DBMigrationEngineTest
         migrationEngine.migrateTo(version);
         assertEquals("INFO  OPERATION.DBMigrationEngine - "
                 + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
-                + "INFO  OPERATION.DBMigrationEngine - "
+                + "DEBUG OPERATION.DBMigrationEngine - No domains script found for version 042"
+                + OSUtilities.LINE_SEPARATOR + "INFO  OPERATION.DBMigrationEngine - "
                 + "Database 'my 2. database' version 042 has been successfully created.",
                 logRecorder.getLogContent());
 
@@ -406,6 +419,8 @@ public class DBMigrationEngineTest
                     one(scriptProvider).isDumpRestore(version);
                     will(returnValue(false));
                     one(adminDAO).createDatabase();
+                    one(scriptProvider).tryGetDomainsScript(version);
+                    expectSuccessfulExecution(new Script("domains", "domains code", version), true);
                     one(scriptProvider).tryGetSchemaScript(version);
                     will(returnValue(null));
                 }
@@ -925,7 +940,7 @@ public class DBMigrationEngineTest
                     will(returnValue(migrationStepExecutor));
                     one(daoFactory).getMigrationStepExecutorAdmin();
                     will(returnValue(migrationStepExecutorAdmin));
-                    
+
                     one(adminDAO).createGroups();
 
                     one(logDAO).canConnectToDatabase();
@@ -948,7 +963,7 @@ public class DBMigrationEngineTest
 
                     one(migrationStepExecutorAdmin).init(script);
                     one(migrationStepExecutorAdmin).performPreMigration();
-}
+                }
             });
         final DBMigrationEngine migrationEngine =
                 new DBMigrationEngine(daoFactory, scriptProvider, false);

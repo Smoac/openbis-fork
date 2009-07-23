@@ -59,6 +59,26 @@ public interface ISqlScriptProvider
     public Script tryGetFunctionScript(String version);
 
     /**
+     * Returns the script containing all domain definitions for the specified version. The name of
+     * the script is expected to be
+     * 
+     * <pre>
+     * &lt;schema script folder&gt;/&lt;version&gt;/domains-&lt;version&gt;.sql
+     * </pre>
+     */
+    public Script tryGetDomainsScript(final String version);
+
+    /**
+     * Returns the script containing all grant declarations for the specified version. The name of
+     * the script is expected to be
+     * 
+     * <pre>
+     * &lt;schema script folder&gt;/&lt;version&gt;/grants-&lt;version&gt;.sql
+     * </pre>
+     */
+    public Script tryGetGrantsScript(final String version);
+    
+    /**
      * Returns the script to create initial data.
      * 
      * @param version Version of the database.

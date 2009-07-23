@@ -121,6 +121,32 @@ public class SqlScriptProvider implements ISqlScriptProvider
     }
 
     /**
+     * Returns the script containing all domain definitions for the specified version. The name of
+     * the script is expected to be
+     * 
+     * <pre>
+     * &lt;schema script folder&gt;/&lt;version&gt;/domains-&lt;version&gt;.sql
+     * </pre>
+     */
+    public Script tryGetDomainsScript(final String version)
+    {
+        return tryLoadScript("domains-" + version + SQL_FILE_TYPE, version);
+    }
+
+    /**
+     * Returns the script containing all grant declarations for the specified version. The name of
+     * the script is expected to be
+     * 
+     * <pre>
+     * &lt;schema script folder&gt;/&lt;version&gt;/grants-&lt;version&gt;.sql
+     * </pre>
+     */
+    public Script tryGetGrantsScript(final String version)
+    {
+        return tryLoadScript("grants-" + version + SQL_FILE_TYPE, version);
+    }
+
+    /**
      * Returns the data script for the specified version. The name of the script is expected to be
      * 
      * <pre>
@@ -151,7 +177,8 @@ public class SqlScriptProvider implements ISqlScriptProvider
         return tryLoadScript(scriptName, scriptVersion, scriptVersion);
     }
 
-    private Script tryLoadScript(final String scriptName, final String scriptVersion, final String prefix)
+    private Script tryLoadScript(final String scriptName, final String scriptVersion,
+            final String prefix)
     {
         Script script =
                 tryPrimLoadScript(specificScriptFolder + "/" + prefix, scriptName, scriptVersion);
@@ -163,7 +190,8 @@ public class SqlScriptProvider implements ISqlScriptProvider
         return script;
     }
 
-    private Script tryPrimLoadScript(final String scriptFolder, final String scriptName, final String scriptVersion)
+    private Script tryPrimLoadScript(final String scriptFolder, final String scriptName,
+            final String scriptVersion)
     {
         final String scriptPath = scriptFolder + "/" + scriptName;
         final String resource = "/" + scriptPath;
