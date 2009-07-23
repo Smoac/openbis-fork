@@ -89,4 +89,10 @@ public class Script
         return HashCodeBuilder.reflectionHashCode(this);
     }
 
+    @Override
+    public String toString()
+    {
+        return "Script [name=" + name + ", version=" + version + "]";
+    }
+
 }
