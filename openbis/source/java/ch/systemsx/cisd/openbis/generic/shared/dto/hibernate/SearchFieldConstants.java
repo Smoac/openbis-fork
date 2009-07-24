@@ -36,6 +36,10 @@ public final class SearchFieldConstants
 
     public static final String PREFIX_SAMPLE = "sample" + SEPARATOR;
 
+    public static final String PREFIX_SAMPLE_GENERATED_FROM = "parent sample" + SEPARATOR;
+
+    public static final String PREFIX_SAMPLE_PART_OF = "container sample" + SEPARATOR;
+
     public static final String PREFIX_DATASET_TYPE = "dataset type" + SEPARATOR;
 
     public static final String PREFIX_FILE_FORMAT_TYPE = "file format type" + SEPARATOR;
