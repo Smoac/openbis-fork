@@ -158,7 +158,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         SamplePE sample = dataset.getSample();
         if (sample != null)
         {
-            sample.getDatasets().remove(dataset);
+            sample.getDatasetsInternal().remove(dataset);
         }
         dataset.setSampleInternal(this);
         getDatasetsInternal().add(dataset);
@@ -287,6 +287,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = ColumnNames.PART_OF_SAMPLE_COLUMN, updatable = true)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SAMPLE_PART_OF, depth = 1)
     public SamplePE getContainer()
     {
         return container;
@@ -311,6 +312,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = ColumnNames.GENERATED_FROM_SAMPLE_COLUMN, updatable = true)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SAMPLE_GENERATED_FROM, depth = 3)
     public SamplePE getGeneratedFrom()
     {
         return generatedFrom;
