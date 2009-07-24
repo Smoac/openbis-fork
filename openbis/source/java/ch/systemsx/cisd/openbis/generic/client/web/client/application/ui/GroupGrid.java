@@ -196,7 +196,7 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Group>
         @Override
         protected String getEntityName()
         {
-            return messageProvider.getMessage(Dict.PROJECT);
+            return messageProvider.getMessage(Dict.GROUP);
         }
 
     }
