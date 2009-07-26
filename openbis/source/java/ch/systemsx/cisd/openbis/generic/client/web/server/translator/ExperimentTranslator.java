@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
+import java.util.ArrayList;
+
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -69,8 +72,7 @@ public final class ExperimentTranslator
             switch (field)
             {
                 case PROPERTIES:
-                    result.setProperties(ExperimentPropertyTranslator.translate(experiment
-                            .getProperties()));
+                    setProperties(experiment, result);
                     break;
                 case ATTACHMENTS:
                     result.setAttachments(AttachmentTranslator.translate(experiment
@@ -81,6 +83,17 @@ public final class ExperimentTranslator
             }
         }
         return result;
+    }
+
+    private static void setProperties(final ExperimentPE experiment, final Experiment result)
+    {
+        if (experiment.isPropertiesInitialized())
+        {
+            result.setProperties(ExperimentPropertyTranslator.translate(experiment.getProperties()));
+        } else
+        {
+            result.setProperties(new ArrayList<ExperimentProperty>());
+        }
     }
 
     public final static ExperimentType translate(final ExperimentTypePE experimentType)

@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -82,7 +83,7 @@ public final class SampleTranslator
                     .getDatabaseInstance()));
             result.setRegistrator(PersonTranslator.translate(samplePE.getRegistrator()));
             result.setRegistrationDate(samplePE.getRegistrationDate());
-            result.setProperties(SamplePropertyTranslator.translate(samplePE.getProperties()));
+            setProperties(result, samplePE);
             result.setExperiment(ExperimentTranslator.translate(samplePE.getExperiment(),
                     baseIndexURL));
             List<Attachment> attachments;
@@ -113,6 +114,17 @@ public final class SampleTranslator
         }
         result.setInvalidation(InvalidationTranslator.translate(samplePE.getInvalidation()));
         return result;
+    }
+
+    private static void setProperties(final Sample result, final SamplePE samplePE)
+    {
+        if (samplePE.isPropertiesInitialized())
+        {
+            result.setProperties(SamplePropertyTranslator.translate(samplePE.getProperties()));
+        } else
+        {
+            result.setProperties(new ArrayList<SampleProperty>());
+        }
     }
 
     public final static SampleGeneration translate(final SampleGenerationDTO sampleGenerationDTO,

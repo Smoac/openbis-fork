@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -70,9 +71,21 @@ public final class MaterialTranslator
         result.setRegistrationDate(materialPE.getRegistrationDate());
         if (withProperties)
         {
-            result.setProperties(MaterialPropertyTranslator.translate(materialPE.getProperties()));
+            setProperties(materialPE, result);
         }
         return result;
+    }
+
+    private static void setProperties(final MaterialPE materialPE, final Material result)
+    {
+        if (materialPE.isPropertiesInitialized())
+        {
+            result.setProperties(MaterialPropertyTranslator.translate(materialPE
+                    .getProperties()));
+        } else
+        {
+            result.setProperties(new ArrayList<MaterialProperty>());
+        }
     }
 
 }
