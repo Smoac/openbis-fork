@@ -28,6 +28,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
@@ -50,6 +51,8 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
     private IPredicateFactory predicateFactory;
 
     private IAuthorizationDAOFactory daoFactory;
+    
+    private IDatabaseInstanceDAO dbInstanceDAO;
 
     private List<RoleWithIdentifier> createAllowedRoles()
     {
@@ -66,7 +69,19 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
         stringPredicate = context.mock(IPredicate.class);
         predicateFactory = context.mock(IPredicateFactory.class);
         daoFactory = context.mock(IAuthorizationDAOFactory.class);
+        dbInstanceDAO = context.mock(IDatabaseInstanceDAO.class);
         PredicateExecutor.setPredicateFactory(predicateFactory);
+        context.checking(new Expectations()
+        {
+            {
+                allowing(daoFactory).getDatabaseInstanceDAO();
+                will(returnValue(dbInstanceDAO));
+                one(dbInstanceDAO).getHomeInstance();
+                will(returnValue(null));
+                one(dbInstanceDAO).listDatabaseInstances();
+                will(returnValue(Collections.EMPTY_LIST));
+            }
+        });
         PredicateExecutor.setDAOFactory(daoFactory);
     }
 

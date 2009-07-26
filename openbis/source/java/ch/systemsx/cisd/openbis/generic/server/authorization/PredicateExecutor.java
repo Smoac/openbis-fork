@@ -16,12 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.EntityWithGroupKind;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
@@ -164,9 +165,30 @@ public final class PredicateExecutor
     {
         private final IAuthorizationDAOFactory daoFactory;
 
+        private final Map<String, DatabaseInstancePE> codeToDbInstanceMap =
+                new HashMap<String, DatabaseInstancePE>();
+
+        private final Map<String, DatabaseInstancePE> uuidToDbInstanceMap =
+                new HashMap<String, DatabaseInstancePE>();
+        
+        private final DatabaseInstancePE homeDatabaseInstance;
+
         AuthorizationDataProvider(IAuthorizationDAOFactory daoFactory)
         {
             this.daoFactory = daoFactory;
+            if (daoFactory != null) // Make unit tests work
+            {
+                this.homeDatabaseInstance = daoFactory.getDatabaseInstanceDAO().getHomeInstance();
+                for (DatabaseInstancePE instance : daoFactory.getDatabaseInstanceDAO()
+                        .listDatabaseInstances())
+                {
+                    codeToDbInstanceMap.put(instance.getCode(), instance);
+                    uuidToDbInstanceMap.put(instance.getUuid(), instance);
+                }
+            } else
+            {
+                this.homeDatabaseInstance = null;
+            }
         }
 
         public List<GroupPE> listGroups()
@@ -176,19 +198,17 @@ public final class PredicateExecutor
 
         public DatabaseInstancePE getHomeDatabaseInstance()
         {
-            return daoFactory.getHomeDatabaseInstance();
+            return homeDatabaseInstance;
         }
 
         public DatabaseInstancePE tryFindDatabaseInstanceByCode(String databaseInstanceCode)
         {
-            IDatabaseInstanceDAO databaseInstancesDAO = daoFactory.getDatabaseInstanceDAO();
-            return databaseInstancesDAO.tryFindDatabaseInstanceByCode(databaseInstanceCode);
+            return codeToDbInstanceMap.get(databaseInstanceCode);
         }
 
         public DatabaseInstancePE tryFindDatabaseInstanceByUUID(String databaseInstanceUUID)
         {
-            IDatabaseInstanceDAO databaseInstancesDAO = daoFactory.getDatabaseInstanceDAO();
-            return databaseInstancesDAO.tryFindDatabaseInstanceByUUID(databaseInstanceUUID);
+            return uuidToDbInstanceMap.get(databaseInstanceUUID);
         }
 
         public ProjectPE tryToGetProject(String dataSetCode)
