@@ -84,6 +84,7 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
         System.setProperty("script-folder", "sourceTest");
         System.setProperty("hibernate.search.index-mode", "NO_INDEX");
         System.setProperty("hibernate.search.index-base", LUCENE_INDEX_PATH);
+        System.setProperty("hibernate.search.worker.execution", "sync");
         System.setProperty("mass-upload-folder", "sourceTest/sql/postgresql");
     }
 
