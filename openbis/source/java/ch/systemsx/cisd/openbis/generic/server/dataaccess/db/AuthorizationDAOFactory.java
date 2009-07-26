@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.hibernate.CacheMode;
 import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
 
@@ -67,9 +68,12 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
 
     private final ISampleDAO sampleDAO;
 
+    private final SessionFactory sessionFactory;
+
     public AuthorizationDAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory)
     {
+        this.sessionFactory = sessionFactory;
         databaseInstancesDAO = new DatabaseInstanceDAO(sessionFactory);
         homeDatabaseInstance = getDatabaseInstanceId(context.getDatabaseInstance());
         personDAO = new PersonDAO(sessionFactory, homeDatabaseInstance);
@@ -81,6 +85,11 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         final boolean isPostgreSQL =
                 DatabaseEngine.POSTGRESQL.getCode().equals(context.getDatabaseEngineCode());
         sampleDAO = new SampleDAO(sessionFactory, homeDatabaseInstance, isPostgreSQL);
+    }
+
+    protected SessionFactory getSessionFactory()
+    {
+        return sessionFactory;
     }
 
     private final DatabaseInstancePE getDatabaseInstanceId(final String databaseInstanceCode)
@@ -185,6 +194,11 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
     public final ISampleDAO getSampleDAO()
     {
         return sampleDAO;
+    }
+
+    public void disableSecondLevelCacheForSession()
+    {
+        sessionFactory.getCurrentSession().setCacheMode(CacheMode.IGNORE);
     }
 
 }

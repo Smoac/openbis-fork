@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -62,4 +63,11 @@ public interface IEntityPropertiesConverter
      */
     public <T extends EntityPropertyPE> void checkMandatoryProperties(Collection<T> properties,
             EntityTypePE entityTypePE);
+
+    /**
+     * Checks whether all mandatory properties are provided. It uses (and fills) the
+     * <var>cache</var> in order to avoid looking up the assigned properties time and again.
+     */
+    public <T extends EntityPropertyPE> void checkMandatoryProperties(Collection<T> properties,
+            EntityTypePE entityTypePE, Map<EntityTypePE, List<EntityTypePropertyTypePE>> cache);
 }

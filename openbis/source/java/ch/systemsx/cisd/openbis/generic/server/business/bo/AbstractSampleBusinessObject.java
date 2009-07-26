@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
@@ -33,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -76,15 +78,41 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
      * Does not trigger any insert in the database.
      * </p>
      */
-    final SamplePE createSample(final NewSample newSample) throws UserFailureException
+    final SamplePE createSample(final NewSample newSample,
+            Map<String, SampleTypePE> sampleTypeCacheOrNull,
+            Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCacheOrNull)
+            throws UserFailureException
     {
         final SampleIdentifier sampleIdentifier =
                 SampleIdentifierFactory.parse(newSample.getIdentifier());
-        final SampleOwner sampleOwner = getSampleOwnerFinder().figureSampleOwner(sampleIdentifier);
+        final SampleOwnerIdentifier sampleOwnerIdentifier =
+                sampleIdentifier.createSampleOwnerIdentifier();
+        SampleOwner sampleOwner =
+                (sampleOwnerCacheOrNull != null) ? sampleOwnerCacheOrNull
+                        .get(sampleOwnerIdentifier) : null;
+        if (sampleOwner == null)
+        {
+            sampleOwner = getSampleOwnerFinder().figureSampleOwner(sampleIdentifier);
+            if (sampleOwnerCacheOrNull != null)
+            {
+                sampleOwnerCacheOrNull.put(sampleOwnerIdentifier, sampleOwner);
+            }
+        }
+        SampleTypePE sampleTypePE =
+                (sampleTypeCacheOrNull != null) ? sampleTypeCacheOrNull.get(newSample
+                        .getSampleType().getCode()) : null;
+        if (sampleTypePE == null)
+        {
+            sampleTypePE = getSampleType(newSample.getSampleType().getCode());
+            if (sampleTypeCacheOrNull != null)
+            {
+                sampleTypeCacheOrNull.put(newSample.getSampleType().getCode(), sampleTypePE);
+            }
+        }
         final SamplePE samplePE = new SamplePE();
         samplePE.setCode(sampleIdentifier.getSampleCode());
         samplePE.setRegistrator(findRegistrator());
-        samplePE.setSampleType(getSampleType(newSample.getSampleType().getCode()));
+        samplePE.setSampleType(sampleTypePE);
         samplePE.setGroup(sampleOwner.tryGetGroup());
         samplePE.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
         defineSampleProperties(samplePE, newSample.getProperties());

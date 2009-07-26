@@ -31,6 +31,11 @@ public interface IEntityPropertiesHolder extends IIdAndCodeHolder
      * {@link #setProperties(Set)} or {@link #addProperty(EntityPropertyPE)} instead.
      */
     public Set<? extends EntityPropertyPE> getProperties();
+    
+    /**
+     * Returns <code>true</code>, if and only if the properties have been initialized.
+     */
+    public boolean isPropertiesInitialized();
 
     /**
      * Sets the entity properties.

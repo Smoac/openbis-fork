@@ -79,6 +79,15 @@ public class SampleIdentifier extends SampleOwnerIdentifier
         return sampleCode;
     }
 
+    /**
+     * Returns an object that only contains the owner information of this sample identifier.
+     * {@link #hashCode()} will be the same when called on two different samples with same owner.
+     */
+    public SampleOwnerIdentifier createSampleOwnerIdentifier()
+    {
+        return new SampleOwnerIdentifier(getDatabaseInstanceLevel(), getGroupLevel());
+    }
+
     @Override
     public String toString()
     {

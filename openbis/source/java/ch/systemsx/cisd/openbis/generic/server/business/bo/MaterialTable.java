@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.dao.DataAccessException;
 
@@ -27,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
@@ -128,10 +131,12 @@ public final class MaterialTable extends AbstractBusinessObject implements IMate
 
     private void checkBusinessRules()
     {
+        final Map<EntityTypePE, List<EntityTypePropertyTypePE>> cache =
+            new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
         for (MaterialPE m : materials)
         {
             entityPropertiesConverter.checkMandatoryProperties(m.getProperties(), m
-                    .getMaterialType());
+                    .getMaterialType(), cache);
         }
     }
 

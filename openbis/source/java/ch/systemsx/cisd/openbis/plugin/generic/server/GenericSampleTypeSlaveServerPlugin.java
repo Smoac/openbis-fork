@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -26,12 +28,15 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleHierarchyFiller;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
@@ -76,10 +81,14 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
         assert session != null : "Unspecified session.";
         assert newSamples != null && newSamples.size() > 0 : "Unspecified sample or empty samples.";
 
+        daoFactory.disableSecondLevelCacheForSession();
         final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
+        final Map<String, SampleTypePE> sampleTypeCache = new HashMap<String, SampleTypePE>();
+        final Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache =
+                new HashMap<SampleOwnerIdentifier, SampleOwner>();
         for (final NewSample newSample : newSamples)
         {
-            sampleTable.add(newSample);
+            sampleTable.add(newSample, sampleTypeCache, sampleOwnerCache);
         }
         sampleTable.save();
     }

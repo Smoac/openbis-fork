@@ -71,6 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Persistence Entity representing experiment.
@@ -279,6 +280,15 @@ public class ExperimentPE extends AttachmentHolderPE implements IEntityPropertie
         return new UnmodifiableSetDecorator<ExperimentPropertyPE>(getExperimentProperties());
     }
 
+    /**
+     * Returns <code>true</code>, if and only if the properties have been initialized.
+     */
+    @Transient
+    public boolean isPropertiesInitialized()
+    {
+        return HibernateUtils.isInitialized(getExperimentProperties());
+    }
+    
     public void setProperties(final Set<? extends EntityPropertyPE> properties)
     {
         getExperimentProperties().clear();

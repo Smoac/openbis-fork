@@ -17,12 +17,16 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
  * A generic sample <i>Business Object</i>.
@@ -54,6 +58,13 @@ public interface ISampleTable
      * Adds given <var>newSample</var> sample to this table.
      */
     public void add(final NewSample newSample) throws UserFailureException;
+
+    /**
+     * Adds given <var>newSample</var> sample to this table.
+     */
+    public void add(final NewSample newSample, final Map<String, SampleTypePE> sampleTypeCache,
+            final Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache)
+            throws UserFailureException;
 
     /**
      * Writes changed are added data to the Data Access Layers.

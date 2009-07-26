@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * A <i>Persistent Entity</i> which is a material.
@@ -221,6 +222,15 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         return new UnmodifiableSetDecorator<MaterialPropertyPE>(getMaterialProperties());
     }
 
+    /**
+     * Returns <code>true</code>, if and only if the properties have been initialized.
+     */
+    @Transient
+    public boolean isPropertiesInitialized()
+    {
+        return HibernateUtils.isInitialized(getMaterialProperties());
+    }
+    
     public void setProperties(final Set<? extends EntityPropertyPE> properties)
     {
         getMaterialProperties().clear();

@@ -24,7 +24,9 @@ import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.validator.ClassValidator;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.JdbcAccessor;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -52,6 +54,11 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
     private final static Class<SamplePE> ENTITY_CLASS = SamplePE.class;
 
     /**
+     * Don't try to get properties for more than 1000 samples.
+     */
+    private final static int MAX_COUNT_FOR_PROPERTIES = 1000;
+
+    /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an
      * appropriate debugging level for class {@link JdbcAccessor}. </p>
      */
@@ -60,10 +67,11 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
 
     private static final String LOCK_TABLE_SQL =
             "LOCK TABLE " + TableNames.SAMPLES_TABLE + " IN EXCLUSIVE MODE";
-    
+
     private final boolean doLock;
 
-    SampleDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance, boolean doLock)
+    SampleDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance,
+            boolean doLock)
     {
         super(sessionFactory, databaseInstance, SamplePE.class);
         this.doLock = doLock;
@@ -105,13 +113,30 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         {
             basicCriteria.add(criterion);
         }
+        final int count = getCount(basicCriteria);
         if (withExperimentAndProperties)
         {
             basicCriteria.setFetchMode("experimentInternal", FetchMode.JOIN);
-            basicCriteria.setFetchMode("sampleProperties", FetchMode.JOIN);
+            if (count < MAX_COUNT_FOR_PROPERTIES)
+            {
+                basicCriteria.setFetchMode("sampleProperties", FetchMode.JOIN);
+            } else
+            {
+                operationLog.info(String.format("Found %d samples, disable properties loading.",
+                        count));
+            }
         }
         basicCriteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         return cast(basicCriteria.list());
+    }
+
+    private int getCount(final Criteria basicCriteria)
+    {
+        int count = (Integer) basicCriteria.setProjection(Projections.rowCount()).uniqueResult();
+        // Undo the rowCount projection
+        basicCriteria.setProjection(null);
+        basicCriteria.setResultTransformer(Criteria.ROOT_ENTITY);
+        return count;
     }
 
     private List<SamplePE> listSamplesByCriteria(boolean withExperimentAndProperties,
@@ -164,13 +189,14 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
      * transaction.
      */
     private final void internalCreateSample(final SamplePE sample,
-            final HibernateTemplate hibernateTemplate)
+            final HibernateTemplate hibernateTemplate,
+            final ClassValidator<SamplePE> classValidator, final boolean doLog)
     {
-        validatePE(sample);
+        validatePE(sample, classValidator);
         sample.setCode(CodeConverter.tryToDatabase(sample.getCode()));
 
         hibernateTemplate.saveOrUpdate(sample);
-        if (operationLog.isInfoEnabled())
+        if (doLog && operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("ADD: sample '%s'.", sample));
         }
@@ -186,7 +212,8 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
         lockTable();
-        internalCreateSample(sample, hibernateTemplate);
+        internalCreateSample(sample, hibernateTemplate,
+                new ClassValidator<SamplePE>(SamplePE.class), true);
         hibernateTemplate.flush();
     }
 
@@ -393,9 +420,15 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
         lockTable();
+        final ClassValidator<SamplePE> classValidator =
+                new ClassValidator<SamplePE>(SamplePE.class);
         for (final SamplePE samplePE : samples)
         {
-            internalCreateSample(samplePE, hibernateTemplate);
+            internalCreateSample(samplePE, hibernateTemplate, classValidator, false);
+        }
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("ADD: %d samples.", samples.size()));
         }
         hibernateTemplate.flush();
     }

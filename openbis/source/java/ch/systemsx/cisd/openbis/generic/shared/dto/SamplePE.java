@@ -70,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * <i>Persistent Entity</i> object of an entity 'sample'.
@@ -472,6 +473,15 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         return new UnmodifiableSetDecorator<SamplePropertyPE>(getSampleProperties());
     }
 
+    /**
+     * Returns <code>true</code>, if and only if the properties have been initialized.
+     */
+    @Transient
+    public boolean isPropertiesInitialized()
+    {
+        return HibernateUtils.isInitialized(getSampleProperties());
+    }
+    
     public void setProperties(final Set<? extends EntityPropertyPE> properties)
     {
         getSampleProperties().clear();

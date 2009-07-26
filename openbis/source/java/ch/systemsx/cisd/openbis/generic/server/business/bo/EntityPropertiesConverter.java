@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ch.rinn.restrictions.Private;
@@ -260,9 +261,37 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             EntityTypePE entityTypePE)
     {
         assert properties != null;
-        List<EntityTypePropertyTypePE> assignedProperties =
-                daoFactory.getEntityPropertyTypeDAO(entityKind).listEntityPropertyTypes(
-                        entityTypePE);
+        checkMandatoryProperties(properties, entityTypePE, daoFactory.getEntityPropertyTypeDAO(
+                entityKind).listEntityPropertyTypes(entityTypePE));
+    }
+
+    public <T extends EntityPropertyPE> void checkMandatoryProperties(Collection<T> properties,
+            EntityTypePE entityTypePE, Map<EntityTypePE, List<EntityTypePropertyTypePE>> cache)
+    {
+        assert properties != null;
+        checkMandatoryProperties(properties, entityTypePE, getAssignedPropertiesForEntityType(
+                cache, entityTypePE));
+
+    }
+
+    private List<EntityTypePropertyTypePE> getAssignedPropertiesForEntityType(
+            Map<EntityTypePE, List<EntityTypePropertyTypePE>> cache, EntityTypePE entityTypePE)
+    {
+        List<EntityTypePropertyTypePE> assignedProperties = cache.get(entityTypePE);
+        if (assignedProperties == null)
+        {
+            assignedProperties =
+                    daoFactory.getEntityPropertyTypeDAO(entityKind).listEntityPropertyTypes(
+                            entityTypePE);
+            cache.put(entityTypePE, assignedProperties);
+        }
+        return assignedProperties;
+    }
+
+    private <T extends EntityPropertyPE> void checkMandatoryProperties(Collection<T> properties,
+            EntityTypePE entityTypePE, List<EntityTypePropertyTypePE> assignedProperties)
+    {
+        assert properties != null;
         if (assignedProperties == null || assignedProperties.size() == 0)
         {
             return;

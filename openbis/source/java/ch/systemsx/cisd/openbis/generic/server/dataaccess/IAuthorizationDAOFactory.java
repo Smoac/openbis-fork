@@ -70,4 +70,9 @@ public interface IAuthorizationDAOFactory
      * Returns the implementation of {@link ISampleDAO}.
      */
     public ISampleDAO getSampleDAO();
+    
+    /**
+     * Disables interaction with the second level cache for the current Hibernate session.
+     */
+    public void disableSecondLevelCacheForSession();
 }

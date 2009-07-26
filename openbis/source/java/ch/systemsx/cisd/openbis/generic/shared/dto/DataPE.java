@@ -61,6 +61,7 @@ import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Kind of <i>Java Bean</i> or <i>Value Object</i> which contains any information we would like to
@@ -482,6 +483,15 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
         return new UnmodifiableSetDecorator<DataSetPropertyPE>(getDataSetProperties());
     }
 
+    /**
+     * Returns <code>true</code>, if and only if the properties have been initialized.
+     */
+    @Transient
+    public boolean isPropertiesInitialized()
+    {
+        return HibernateUtils.isInitialized(getDataSetProperties());
+    }
+    
     @Transient
     public EntityKind getEntityKind()
     {
