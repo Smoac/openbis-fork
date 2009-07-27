@@ -34,7 +34,7 @@ public class ProjectRegistrationTest extends AbstractGWTTestCase
 {
     private static final String DESCRIPTION_PROJECT_007 = "Project No. 007";
 
-    private static final String PROJECT_CODE_HER_MAJESTY = "HER-MAJESTY";
+    private static final String PROJECT_CODE_HER_MAJESTY = "H.E.R-MAJESTY";
 
     public final void testRegisterProject()
     {
