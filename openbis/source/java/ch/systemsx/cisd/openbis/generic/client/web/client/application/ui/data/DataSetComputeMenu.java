@@ -369,24 +369,27 @@ public class DataSetComputeMenu extends TextToolItem
             // TODO 2009-07-03, Piotr Buczek: externalize to dictionary with parameters
             if (size == 0)
             {
-                return "No Data Sets were selected. " + "Select a data store service to perform "
-                        + computationName + " computation on all Data Sets "
-                        + "of appropriate types and click on a Run button.";
+                return "No Data Sets were selected. "
+                        + "Select a data store service to perform "
+                        + computationName
+                        + " computation on all Data Sets from the grid that have type and data store "
+                        + "appropriate to the selected service and click on a Run button.";
             } else
             {
-                if (dataStoreOrNull == null)
-                {
-                    return "Datasets from different Data Stores have been selected, "
-                            + "so no operation can be performed on them. "
-                            + "The operation will be performed on all datasets of appropriate "
-                            + "types in the grid. "
-                            + "Select a data store service and click on a Run button.";
-                } else
+                if (isSingleDatastore())
                 {
                     return "Select between performing " + computationName + " computation only on "
                             + "selected Data Sets (" + size
-                            + ") or on all Data Sets of appropriate types, "
+                            + ") or on all Data Sets of appropriate types from the grid, "
                             + "then select a data store service and click on a Run button.";
+                } else
+                {
+                    return "Datasets from different Data Stores have been selected, "
+                            + "so no operation can be performed on all of them. "
+                            + "Select a data store service to perform "
+                            + computationName
+                            + " computation on all Data Sets from the grid that have type "
+                            + "and data store appropriate to the selected service and click on a Run button.";
                 }
             }
         }
@@ -466,7 +469,7 @@ public class DataSetComputeMenu extends TextToolItem
             formPanel.setLabelWidth(LABEL_WIDTH);
             formPanel.setFieldWidth(FIELD_WIDTH);
 
-            if (data.getSelectedDataSets().size() > 0 && dataStoreOrNull != null)
+            if (data.getSelectedDataSets().size() > 0 && isSingleDatastore())
             {
                 formPanel.add(createComputationDataSetsRadio());
                 selectedDataSetTypesText = formPanel.addText(createSelectedDataSetTypesText());
@@ -575,12 +578,17 @@ public class DataSetComputeMenu extends TextToolItem
         {
             if (getComputeOnSelected())
             {
-                assert dataStoreOrNull != null : "cannot use selected datasets, they belong to different data store";
+                assert isSingleDatastore() : "cannot use selected datasets, they belong to different data store";
                 servicesGrid.filterServicesByDataStore(dataStoreOrNull);
             } else
             {
                 servicesGrid.filterServicesByDataStore(null);
             }
+        }
+
+        private boolean isSingleDatastore()
+        {
+            return dataStoreOrNull != null;
         }
 
         private static DataStore tryGetSingleDatastore(ComputationData data)
