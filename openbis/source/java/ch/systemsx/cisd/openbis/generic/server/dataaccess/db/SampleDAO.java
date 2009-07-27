@@ -18,9 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
-
-import javax.transaction.Synchronization;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
@@ -66,8 +63,6 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
      */
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, SampleDAO.class);
-
-    private final ReentrantLock sampleTableLock = new ReentrantLock();
 
     SampleDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
     {
@@ -165,58 +160,7 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         return list;
     }
 
-    /**
-     * Obtains a (reentrant) lock and releases it on current transaction completion. This function
-     * should always be executed before saving/updating a sample because we have a complex unique
-     * code check in a trigger and we don't want any race condition or deadlock (if lock is gathered
-     * in the trigger). See [LMS-814] for details.<br>
-     * <br>
-     * NOTE: Explicit exclusive lock on 'samples' table cannot be used because H2 database does not
-     * support it.
-     */
-    private final void lockUntilTransactionCompletion()
-    {
-        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
-        sampleTableLock.lock();
-        try
-        {
-            hibernateTemplate.getSessionFactory().getCurrentSession().getTransaction()
-                    .registerSynchronization(new Synchronization()
-                        {
-                            public void afterCompletion(int arg0)
-                            {
-                                if (sampleTableLock.isHeldByCurrentThread())
-                                {
-                                    sampleTableLock.unlock();
-                                }
-                            }
-
-                            public void beforeCompletion()
-                            {
-                            }
-                        });
-        } catch (Throwable th)
-        {
-            if (sampleTableLock.isHeldByCurrentThread())
-            {
-                sampleTableLock.unlock();
-            }
-            if (th instanceof RuntimeException)
-            {
-                throw (RuntimeException) th;
-            } else
-            {
-                throw (Error) th;
-            }
-        }
-    }
-
-    /**
-     * <b>IMPORTANT</b> - every method which executes this method should first obtain lock using
-     * {@link SampleDAO#lockUntilTransactionCompletion()}. The obtained lock is reentrant so this
-     * method could as well obtain it itself with a small additional cost if there are many saves in
-     * one transaction.
-     */
+    // LockSampleModificationsInterceptor automatically obtains lock
     private final void internalCreateSample(final SamplePE sample,
             final HibernateTemplate hibernateTemplate,
             final ClassValidator<SamplePE> classValidator, final boolean doLog)
@@ -240,8 +184,6 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         assert sample != null : "Unspecified sample";
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
-
-        lockUntilTransactionCompletion();
 
         internalCreateSample(sample, hibernateTemplate,
                 new ClassValidator<SamplePE>(SamplePE.class), true);
@@ -451,8 +393,6 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
 
-        lockUntilTransactionCompletion();
-
         final ClassValidator<SamplePE> classValidator =
                 new ClassValidator<SamplePE>(SamplePE.class);
         for (final SamplePE samplePE : samples)
@@ -472,8 +412,6 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         validatePE(sample);
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
-
-        lockUntilTransactionCompletion();
 
         hibernateTemplate.flush();
         if (operationLog.isInfoEnabled())
