@@ -18,10 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.widget.form.TextField;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ReasonField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
@@ -37,7 +35,7 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
 
     private static final int FIELD_WIDTH = 180;
 
-    protected TextField<String> reason;
+    protected ReasonField reason;
 
     public AbstractDataListDeletionConfirmationDialog(IMessageProvider messageProvider, List<T> data)
     {
@@ -50,9 +48,8 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
         formPanel.setLabelWidth(LABEL_WIDTH);
         formPanel.setFieldWidth(FIELD_WIDTH);
 
-        reason = new VarcharField(messageProvider.getMessage(Dict.REASON), true);
+        reason = new ReasonField(messageProvider, true);
         reason.focus();
-        reason.setMaxLength(250);
         reason.addKeyListener(keyListener);
         formPanel.add(reason);
     }
