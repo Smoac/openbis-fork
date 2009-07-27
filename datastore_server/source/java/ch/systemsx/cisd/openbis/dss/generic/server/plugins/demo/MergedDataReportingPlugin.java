@@ -49,6 +49,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 public class MergedDataReportingPlugin extends AbstractDatastorePlugin implements
         IReportingPluginTask
 {
+
+    /** pattern for files that should be excluded (e.g. data set properties files) */
+    public final static String EXCLUDED_FILE_NAMES_PATTERN = ".*\\.tsv";
+
     public MergedDataReportingPlugin(Properties properties, File storeRoot)
     {
         super(properties, storeRoot);
@@ -120,10 +124,39 @@ public class MergedDataReportingPlugin extends AbstractDatastorePlugin implement
                     + "' is not a directory.";
 
             File[] datasetFiles = FileUtilities.listFiles(dir);
-            assert datasetFiles.length == 1 : "Given directory '" + dir.getAbsolutePath()
-                    + "should contain exactly 1 file instead of " + datasetFiles.length;
+            List<File> datasetFilesToMerge = new ArrayList<File>();
+            for (File datasetFile : datasetFiles)
+            {
+                if (datasetFile.isDirectory())
+                {
+                    // recursively go down the directories
+                    return loadFromDirectory(dataset, datasetFile);
+                } else
+                {
+                    // exclude files with properties
+                    if (isFileExcluded(datasetFile) == false)
+                    {
+                        datasetFilesToMerge.add(datasetFile);
+                    }
+                }
 
-            return loadFromFile(dataset, datasetFiles[0]);
+            }
+            if (datasetFilesToMerge.size() != 1)
+            {
+                throw UserFailureException
+                        .fromTemplate(
+                                "Directory with Data Set '%s' data ('%s') should contain exactly 1 file with data but %s files were found.",
+                                dataset.getDatasetCode(), dir.getAbsolutePath(),
+                                datasetFilesToMerge.size());
+            } else
+            {
+                return loadFromFile(dataset, datasetFilesToMerge.get(0));
+            }
+        }
+
+        private static boolean isFileExcluded(File file)
+        {
+            return file.getName().matches(EXCLUDED_FILE_NAMES_PATTERN);
         }
 
         /**
