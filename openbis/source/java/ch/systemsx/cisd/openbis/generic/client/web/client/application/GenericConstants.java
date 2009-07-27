@@ -89,5 +89,5 @@ public final class GenericConstants
     /** The HTTP URL parameter used to specify if codes are automatically generated. */
     public static final String AUTO_GENERATE = "autoGenerate";
 
-    public static final int DESCRIPTION_250 = 250;
+    public static final int DESCRIPTION_1000 = 1000;
 }

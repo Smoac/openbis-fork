@@ -285,7 +285,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     }
 
     public void update(SampleUpdatesDTO updates)
-    {// FIXME: tests needed
+    {// TODO 2009-07-27, IA: tests needed
         loadDataByTechId(updates.getSampleId());
         if (updates.getVersion().equals(sample.getModificationDate()) == false)
         {

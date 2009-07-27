@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.L
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.AttachmentColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
@@ -233,11 +234,10 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                     addField(titleField);
                 }
 
-                private final TextField<String> descriptionField;
+                private final DescriptionField descriptionField;
                 {
                     descriptionField = createDescriptionField(viewContext);
-                    descriptionField.setValue(StringEscapeUtils.unescapeHtml(current
-                            .getDescription()));
+                    descriptionField.setValueAndUnescape(current.getDescription());
                     addField(descriptionField);
                 }
 

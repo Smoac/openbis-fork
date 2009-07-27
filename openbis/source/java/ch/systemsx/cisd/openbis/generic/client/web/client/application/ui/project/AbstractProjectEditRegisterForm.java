@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField.CodeFieldKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.AttachmentsFileFieldManager;
@@ -104,11 +105,7 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
 
     private final MultilineVarcharField createProjectDescriptionField()
     {
-        final MultilineVarcharField varcharField =
-                new MultilineVarcharField(viewContext.getMessage(Dict.DESCRIPTION), false);
-        varcharField.setId(getId() + "_description");
-        varcharField.setMaxLength(GenericConstants.DESCRIPTION_250);
-        return varcharField;
+        return new DescriptionField(viewContext, false, getId());
     }
 
     private final GroupSelectionWidget createGroupField()

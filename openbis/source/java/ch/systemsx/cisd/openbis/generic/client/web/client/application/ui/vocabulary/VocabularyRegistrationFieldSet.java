@@ -33,8 +33,8 @@ import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField.CodeFieldKind;
@@ -93,8 +93,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
         setLayout(createFormLayout());
         setWidth(labelWidth + fieldWidth + 40);
         add(vocabularyCodeField = createCodeField());
-        add(vocabularyDescriptionField =
-                createDescriptionField(messageProvider.getMessage(Dict.DESCRIPTION), false));
+        add(vocabularyDescriptionField = new DescriptionField(messageProvider, false, idPrefix));
         createVocabularyTermsSection();
         add(chosenFromListCheckbox = createChosenFromListCheckbox());
     }
@@ -119,16 +118,6 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
                         .createCodeField(messageProvider);
         codeField.setId(idPrefix + "_code");
         return codeField;
-    }
-
-    private final MultilineVarcharField createDescriptionField(final String descriptionLabel,
-            final boolean mandatory)
-    {
-        final MultilineVarcharField varcharField =
-                new MultilineVarcharField(descriptionLabel, mandatory);
-        varcharField.setMaxLength(GenericConstants.DESCRIPTION_250);
-        varcharField.setId(idPrefix + "_description");
-        return varcharField;
     }
 
     private CheckBox createChosenFromListCheckbox()

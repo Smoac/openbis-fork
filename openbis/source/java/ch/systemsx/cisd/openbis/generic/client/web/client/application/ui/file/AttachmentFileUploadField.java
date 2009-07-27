@@ -22,7 +22,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
@@ -99,7 +99,7 @@ public class AttachmentFileUploadField extends FileUploadField
 
         private VarcharField titleField;
 
-        private MultilineVarcharField descriptionField;
+        private DescriptionField descriptionField;
 
         public AttachmentsFileSet(final IMessageProvider messageProvider,
                 FileUploadField fileUploadField)
@@ -123,8 +123,7 @@ public class AttachmentFileUploadField extends FileUploadField
             setLayout(createFormLayout());
             setWidth(labelWidth + fieldWidth);
             add(fileUploadField);
-            add(descriptionField =
-                    createDescriptionField(messageProvider.getMessage(Dict.DESCRIPTION)));
+            add(descriptionField = new DescriptionField(messageProvider, false));
             add(titleField = createTitleField(messageProvider.getMessage(Dict.TITLE)));
         }
 
@@ -140,13 +139,6 @@ public class AttachmentFileUploadField extends FileUploadField
         {
             final VarcharField varcharField = new VarcharField(label, false);
             varcharField.setMaxLength(100);
-            return varcharField;
-        }
-
-        private final MultilineVarcharField createDescriptionField(final String label)
-        {
-            final MultilineVarcharField varcharField = new MultilineVarcharField(label, false);
-            varcharField.setMaxLength(1000);
             return varcharField;
         }
 

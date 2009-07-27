@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Data
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField.CodeFieldKind;
@@ -133,11 +134,7 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
 
     private final MultilineVarcharField createPropertyTypeDescriptionField()
     {
-        final MultilineVarcharField varcharField =
-                new MultilineVarcharField(viewContext.getMessage(Dict.DESCRIPTION), true);
-        varcharField.setId(getId() + "_description");
-        varcharField.setMaxLength(GenericConstants.DESCRIPTION_250);
-        return varcharField;
+        return new DescriptionField(viewContext, true, getId());
     }
 
     private final DataTypeSelectionWidget createDataTypeSelectionWidget()

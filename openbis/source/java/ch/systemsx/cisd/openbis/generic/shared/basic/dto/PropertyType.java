@@ -24,7 +24,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**
- * The <i>GWT</i> pendant to {@link PropertyTypePE}.
+ * The <i>GWT</i> version of {@link PropertyTypePE}.
  * 
  * @author Izabela Adamczyk
  */

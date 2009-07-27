@@ -23,7 +23,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -66,16 +66,16 @@ abstract public class AbstractRegistrationDialog extends AbstractSaveDialog
     }
 
     /** Creates multiline text field for description with mandatory flag set false. */
-    public static TextField<String> createDescriptionField(IMessageProvider messageProvider)
+    public static DescriptionField createDescriptionField(IMessageProvider messageProvider)
     {
         return createDescriptionField(messageProvider, false);
     }
 
     /** Creates multiline text field for description with mandatory flag set false. */
-    public static TextField<String> createDescriptionField(IMessageProvider messageProvider,
+    public static DescriptionField createDescriptionField(IMessageProvider messageProvider,
             boolean mandatory)
     {
-        return new MultilineVarcharField(messageProvider.getMessage(Dict.DESCRIPTION), mandatory);
+        return new DescriptionField(messageProvider, mandatory);
     }
 
     public static TextField<String> createCodeField(IMessageProvider messageProvider)

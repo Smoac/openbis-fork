@@ -31,10 +31,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AbstractEntityTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AddTypeDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IntegerField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -101,7 +101,7 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
                         code);
         return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
             {
-                private final TextField<String> descriptionField;
+                private final DescriptionField descriptionField;
 
                 private final TextField<Number> generatedFromHierarchyDepthField;
 
@@ -111,8 +111,7 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
 
                 {
                     descriptionField = createDescriptionField(viewContext);
-                    descriptionField.setValue(StringEscapeUtils.unescapeHtml(sampleType
-                            .getDescription()));
+                    descriptionField.setValueAndUnescape(sampleType.getDescription());
                     addField(descriptionField);
 
                     listableField =

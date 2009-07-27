@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
@@ -231,7 +232,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
             {
                 private final TextField<String> codeField;
 
-                private final TextField<String> descriptionField;
+                private final DescriptionField descriptionField;
 
                 private final TextField<String> urlTemplateField;
 
@@ -251,8 +252,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                     addField(codeField);
 
                     descriptionField = createDescriptionField(viewContext);
-                    descriptionField.setValue(StringEscapeUtils.unescapeHtml(vocabulary
-                            .getDescription()));
+                    descriptionField.setValueAndUnescape(vocabulary.getDescription());
                     addField(descriptionField);
 
                     urlTemplateField = createURLTemplateField();
