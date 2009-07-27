@@ -59,7 +59,7 @@ public abstract class AbstractIdentifierFactory
 
     // ----
 
-    private static final String ALLOWED_CODE_CHARACTERS = "A-Z0-9_\\-";
+    private static final String ALLOWED_CODE_CHARACTERS = "A-Z0-9_\\-\\.";
 
     private static final Pattern ALLOWED_CODE_REGEXP =
             Pattern.compile("^[" + ALLOWED_CODE_CHARACTERS + "]+$", Pattern.CASE_INSENSITIVE);
