@@ -82,7 +82,7 @@
         <property name="hibernateProperties">
             <props>
                 <!-- Set this to "true" in order to enable the second-level cache. --> 
-                <prop key="hibernate.cache.use_second_level_cache">false</prop>
+                    <prop key="hibernate.cache.use_second_level_cache">false</prop>
                 <prop key="hibernate.cache.provider_class">
                     org.hibernate.cache.EhCacheProvider
                 </prop>
@@ -112,6 +112,9 @@
         </property>
         <property name="lobHandler">
             <bean class="org.springframework.jdbc.support.lob.DefaultLobHandler" />
+        </property>
+        <property name="entityInterceptor">
+            <bean class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LockSampleModificationsInterceptor"/>
         </property>
     </bean>
 
