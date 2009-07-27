@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.C
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField.CodeFieldKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
@@ -186,8 +185,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
     {
         public static CodeField createCodeField(final IMessageProvider messageProvider)
         {
-            return new CodeField(messageProvider, messageProvider.getMessage(Dict.CODE),
-                    CodeFieldKind.CODE_WITH_DOT);
+            return new CodeField(messageProvider, messageProvider.getMessage(Dict.CODE));
         }
 
         public static CheckBox createChosenFromListCheckbox(final IMessageProvider messageProvider)

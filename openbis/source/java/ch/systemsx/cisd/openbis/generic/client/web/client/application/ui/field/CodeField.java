@@ -28,28 +28,24 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  */
 public class CodeField extends TriggerField<String>
 {
-    public static final String CODE_CHARS_OR_EMPTY = "[a-zA-Z0-9_\\-]";
+    public static final String CODE_CHARS_OR_EMPTY = "[a-zA-Z0-9_\\-\\.]";
 
     public static final String CODE_CHARS = CODE_CHARS_OR_EMPTY + "+";
 
     public final static String CODE_PATTERN = "^" + CODE_CHARS + "$";
 
-    private final static String CODE_PATTERN_ALLOWED_CHARACTERS = "letters, numbers, \"-\", \"_\"";
+    private final static String CODE_PATTERN_ALLOWED_CHARACTERS =
+            "letters, numbers, \"-\", \"_\", " + "\".\"";
 
-    public final static String CODE_PATTERN_WITH_DOT = "^[a-zA-Z0-9_\\-\\.]+$";
+    public final static String CODE_PATTERN_WITH_COLON = "^[a-zA-Z0-9_\\-\\.:]+$";
 
-    private final static String CODE_PATTERN_WITH_DOT_ALLOWED_CHARACTERS =
-            CODE_PATTERN_ALLOWED_CHARACTERS + ", \".\"";
-
-    public final static String CODE_PATTERN_WITH_DOT_AND_COLON = "^[a-zA-Z0-9_\\-\\.:]+$";
-
-    private final static String CODE_PATTERN_WITH_DOT_AND_COLON_ALLOWED_CHARACTERS =
-            CODE_PATTERN_WITH_DOT_ALLOWED_CHARACTERS + ", \":\"";
+    private final static String CODE_PATTERN_WITH_COLON_ALLOWED_CHARACTERS =
+            CODE_PATTERN_ALLOWED_CHARACTERS + ", \":\"";
 
     public enum CodeFieldKind
     {
         /**
-         * Field with a basic code pattern (letters, numbers, '-', '_').
+         * Field with a basic code pattern (letters, numbers, '-', '_', '.').
          * <p>
          * Note that this one accepts also letters in lower case.
          * </p>
@@ -57,21 +53,12 @@ public class CodeField extends TriggerField<String>
         BASIC_CODE(CODE_PATTERN, CODE_PATTERN_ALLOWED_CHARACTERS),
 
         /**
-         * Field with a basic code pattern extended by '.'.
-         * <p>
-         * Useful for user namespace codes.
-         * </p>
-         */
-        CODE_WITH_DOT(CODE_PATTERN_WITH_DOT, CODE_PATTERN_WITH_DOT_ALLOWED_CHARACTERS),
-
-        /**
-         * Field with a basic code pattern extended by '.' and ':'.
+         * Field with a basic code pattern extended by ':'.
          * <p>
          * Useful for user vocabulary term codes.
          * </p>
          */
-        CODE_WITH_DOT_AND_COLON(CODE_PATTERN_WITH_DOT_AND_COLON,
-                CODE_PATTERN_WITH_DOT_AND_COLON_ALLOWED_CHARACTERS);
+        CODE_WITH_COLON(CODE_PATTERN_WITH_COLON, CODE_PATTERN_WITH_COLON_ALLOWED_CHARACTERS);
 
         private final String pattern;
 

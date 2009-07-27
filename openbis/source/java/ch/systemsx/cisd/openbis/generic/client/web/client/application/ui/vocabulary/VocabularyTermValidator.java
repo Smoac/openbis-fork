@@ -72,7 +72,7 @@ final class VocabularyTermValidator implements Validator<String, TextArea>
         }
         for (final String term : terms)
         {
-            CodeFieldKind codeKind = CodeFieldKind.CODE_WITH_DOT_AND_COLON;
+            CodeFieldKind codeKind = CodeFieldKind.CODE_WITH_COLON;
             if (term.matches(codeKind.getPattern()) == false)
             {
                 return messageProvider.getMessage(Dict.INVALID_CODE_MESSAGE, codeKind

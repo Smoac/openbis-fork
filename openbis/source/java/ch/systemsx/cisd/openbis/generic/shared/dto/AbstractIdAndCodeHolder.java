@@ -37,7 +37,7 @@ public abstract class AbstractIdAndCodeHolder<T extends IIdAndCodeHolder> implem
 {
     private static final long serialVersionUID = IServer.VERSION;
 
-    public final static String CODE_PATTERN = "^[A-Z0-9_\\-]+$";
+    public final static String CODE_PATTERN = "^[A-Z0-9_\\-\\.]+$";
 
     public final static String TERM_CODE_PATTERN = "^[A-Z0-9_\\-\\.:]+$";
 

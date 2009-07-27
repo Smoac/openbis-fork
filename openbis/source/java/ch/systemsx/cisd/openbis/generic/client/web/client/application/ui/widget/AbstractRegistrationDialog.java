@@ -23,6 +23,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -80,11 +81,9 @@ abstract public class AbstractRegistrationDialog extends AbstractSaveDialog
 
     public static TextField<String> createCodeField(IMessageProvider messageProvider)
     {
-        final TextField<String> codeField = new TextField<String>();
+        final TextField<String> codeField =
+                new CodeField(messageProvider, messageProvider.getMessage(Dict.CODE));
         codeField.setWidth(100);
-        codeField.setFieldLabel(messageProvider.getMessage(Dict.CODE));
-        codeField.setAllowBlank(false);
-        codeField.setValidateOnBlur(true);
         codeField.setId(CODE_FIELD_ID);
         return codeField;
     }

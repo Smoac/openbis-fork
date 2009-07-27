@@ -30,7 +30,7 @@ public class VocabularyTermField extends CodeField
     public VocabularyTermField(IViewContext<ICommonClientServiceAsync> viewContext, String label,
             boolean isMandatory)
     {
-        super(viewContext, label, CodeFieldKind.CODE_WITH_DOT_AND_COLON);
+        super(viewContext, label, CodeFieldKind.CODE_WITH_COLON);
         // by default CodeField is mandatory
         if (isMandatory == false)
         {

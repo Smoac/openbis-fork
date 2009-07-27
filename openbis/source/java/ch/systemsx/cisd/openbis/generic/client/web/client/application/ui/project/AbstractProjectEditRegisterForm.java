@@ -34,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField.CodeFieldKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.AttachmentsFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -96,9 +95,7 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
 
     private final CodeField createProjectCodeField()
     {
-        final CodeField codeField =
-                new CodeField(viewContext, viewContext.getMessage(Dict.CODE),
-                        CodeFieldKind.CODE_WITH_DOT);
+        final CodeField codeField = new CodeField(viewContext, viewContext.getMessage(Dict.CODE));
         codeField.setId(getId() + "_code");
         return codeField;
     }
