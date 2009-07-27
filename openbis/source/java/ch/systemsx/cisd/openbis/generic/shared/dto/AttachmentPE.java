@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.io.ByteArrayInputStream;
+import java.io.Reader;
 import java.io.Serializable;
 
 import javax.persistence.CascadeType;
@@ -47,6 +49,8 @@ import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.LuceneOptions;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
+
+import com.sun.org.apache.xerces.internal.impl.io.UTF8Reader;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
@@ -113,7 +117,9 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
         {
             AttachmentPE attachment = (AttachmentPE) value;
             String attachmentName = attachment.getFileName();
-            indexFileContent(document, luceneOptions, attachment, attachmentName);
+            byte[] byteContent = attachment.getAttachmentContent().getValue();
+            Reader reader = new UTF8Reader(new ByteArrayInputStream(byteContent));
+            indexFileContent(document, luceneOptions, attachment, attachmentName, reader);
 
             // index the file name. Make the field code unique, so that we can recognize which field
             // has matched the query later on
@@ -126,16 +132,13 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
         }
 
         private void indexFileContent(Document document, LuceneOptions luceneOptions,
-                AttachmentPE attachment, String attachmentName)
+                AttachmentPE attachment, String attachmentName, Reader contentReader)
         {
             String fieldName =
                     SearchFieldConstants.PREFIX_ATTACHMENT + attachmentName + ", ver. "
                             + attachment.getVersion();
-            byte[] byteContent = attachment.getAttachmentContent().getValue();
-            String fieldValue = new String(byteContent);
-            Field field =
-                    new Field(fieldName, fieldValue, luceneOptions.getStore(), luceneOptions
-                            .getIndex());
+
+            Field field = new Field(fieldName, contentReader);
             if (luceneOptions.getBoost() != null)
             {
                 field.setBoost(luceneOptions.getBoost());
