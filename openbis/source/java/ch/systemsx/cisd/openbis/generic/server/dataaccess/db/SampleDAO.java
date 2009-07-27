@@ -18,6 +18,9 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
+
+import javax.transaction.Synchronization;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
@@ -42,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
 /**
  * Implementation of {@link ISampleDAO} for databases.
@@ -65,16 +67,11 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, SampleDAO.class);
 
-    private static final String LOCK_TABLE_SQL =
-            "LOCK TABLE " + TableNames.SAMPLES_TABLE + " IN EXCLUSIVE MODE";
+    private final ReentrantLock sampleTableLock = new ReentrantLock();
 
-    private final boolean doLock;
-
-    SampleDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance,
-            boolean doLock)
+    SampleDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
     {
         super(sessionFactory, databaseInstance, SamplePE.class);
-        this.doLock = doLock;
     }
 
     private final Criteria createListAllSamplesCriteria()
@@ -169,24 +166,56 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
     }
 
     /**
-     * Obtains an explicit exclusive lock on 'samples' table. This function should always be
-     * executed before saving a sample because we have a complex unique code check in a trigger and
-     * we don't want any race condition or deadlock (if lock is gathered in the trigger). See
-     * [LMS-814] for details.
+     * Obtains a (reentrant) lock and releases it on current transaction completion. This function
+     * should always be executed before saving/updating a sample because we have a complex unique
+     * code check in a trigger and we don't want any race condition or deadlock (if lock is gathered
+     * in the trigger). See [LMS-814] for details.<br>
+     * <br>
+     * NOTE: Explicit exclusive lock on 'samples' table cannot be used because H2 database does not
+     * support it.
      */
-    private final void lockTable()
+    private final void lockUntilTransactionCompletion()
     {
-        if (doLock)
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        sampleTableLock.lock();
+        try
         {
-            executeUpdate(LOCK_TABLE_SQL);
+            hibernateTemplate.getSessionFactory().getCurrentSession().getTransaction()
+                    .registerSynchronization(new Synchronization()
+                        {
+                            public void afterCompletion(int arg0)
+                            {
+                                if (sampleTableLock.isHeldByCurrentThread())
+                                {
+                                    sampleTableLock.unlock();
+                                }
+                            }
+
+                            public void beforeCompletion()
+                            {
+                            }
+                        });
+        } catch (Throwable th)
+        {
+            if (sampleTableLock.isHeldByCurrentThread())
+            {
+                sampleTableLock.unlock();
+            }
+            if (th instanceof RuntimeException)
+            {
+                throw (RuntimeException) th;
+            } else
+            {
+                throw (Error) th;
+            }
         }
     }
 
     /**
-     * <b>IMPORTANT</b> - every method which executes this method should first obtain lock on table
-     * using {@link SampleDAO#lockTable()}. The obtained lock is reentrant so this method could as
-     * well obtain it itself with a small additional cost if there are many saves in one
-     * transaction.
+     * <b>IMPORTANT</b> - every method which executes this method should first obtain lock using
+     * {@link SampleDAO#lockUntilTransactionCompletion()}. The obtained lock is reentrant so this
+     * method could as well obtain it itself with a small additional cost if there are many saves in
+     * one transaction.
      */
     private final void internalCreateSample(final SamplePE sample,
             final HibernateTemplate hibernateTemplate,
@@ -211,7 +240,9 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         assert sample != null : "Unspecified sample";
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
-        lockTable();
+
+        lockUntilTransactionCompletion();
+
         internalCreateSample(sample, hibernateTemplate,
                 new ClassValidator<SamplePE>(SamplePE.class), true);
         hibernateTemplate.flush();
@@ -419,7 +450,9 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         assert samples != null && samples.size() > 0 : "Unspecified or empty samples.";
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
-        lockTable();
+
+        lockUntilTransactionCompletion();
+
         final ClassValidator<SamplePE> classValidator =
                 new ClassValidator<SamplePE>(SamplePE.class);
         for (final SamplePE samplePE : samples)
@@ -439,8 +472,10 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         validatePE(sample);
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
-        hibernateTemplate.flush();
 
+        lockUntilTransactionCompletion();
+
+        hibernateTemplate.flush();
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("UPDATE: sample '" + sample + "'.");
