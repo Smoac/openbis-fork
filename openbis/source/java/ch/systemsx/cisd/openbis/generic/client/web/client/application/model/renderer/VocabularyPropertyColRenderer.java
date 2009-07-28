@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ren
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -27,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
  * 
  * @author Izabela Adamczyk
  */
-class VocabularyPropertyColRenderer<T extends IEntityPropertiesHolder> extends
+public class VocabularyPropertyColRenderer<T extends IEntityPropertiesHolder> extends
         AbstractPropertyColRenderer<T>
 {
     public VocabularyPropertyColRenderer(EntityPropertyColDef<T> colDef)
@@ -38,26 +39,39 @@ class VocabularyPropertyColRenderer<T extends IEntityPropertiesHolder> extends
     @Override
     protected String renderValue(T entity)
     {
-        EntityProperty<?, ?> property = colDef.tryGetProperty(entity);
+        final EntityProperty<?, ?> property = colDef.tryGetProperty(entity);
+        String result = "";
         if (property != null)
         {
-            VocabularyTerm term = property.getVocabularyTerm();
-            String code = null;
-            String url = null;
+            final VocabularyTerm term = property.getVocabularyTerm();
             if (term != null)
             {
-                code = term.getCode();
-                url = term.getUrl();
-            }
-            if (code != null && url != null)
-            {
-
-                return ExternalHyperlink.createAnchorString(code, url);
-            } else if (code != null)
-            {
-                return code;
+                result = renderTerm(term);
             }
         }
-        return "";
+        return result;
+    }
+
+    public static final String renderTerm(VocabularyTerm term)
+    {
+        assert term != null : "term is not set";
+
+        final String code = term.getCode();
+        final String label = term.getLabel();
+        final String description = term.getDescription();
+        final String url = term.getUrl();
+
+        String result = "[" + code + "]";
+        if (label != null)
+        {
+            result = label + " " + result;
+        }
+        if (url != null)
+        {
+            result = ExternalHyperlink.createAnchorString(result, url);
+        }
+        result = MultilineHTML.wrapUpInDivWithTooltip(result, description);
+
+        return result;
     }
 }

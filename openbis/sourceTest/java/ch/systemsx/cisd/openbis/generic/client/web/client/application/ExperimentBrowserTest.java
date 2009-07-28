@@ -43,7 +43,7 @@ public class ExperimentBrowserTest extends AbstractGWTTestCase
         table.expectedRow(new ExperimentRow("EXP-TEST-1", "COMPOUND_HCS").withUserPropertyCell(
                 "COMMENT", "cmnt")); // 'COMMENT' is assigned only to 'COMPOUND_HCS' experiment type
         table.expectedRow(new ExperimentRow("EXP-TEST-2", "SIRNA_HCS").withUserPropertyCell(
-                "GENDER", "FEMALE")); // 'GENDER' is assigned only to 'SIRNA_HCS' experiment type
+                "GENDER", "[FEMALE]")); // 'GENDER' is assigned only to 'SIRNA_HCS' experiment type
 
         table.expectedColumnsNumber(15);
         remoteConsole.prepare(table.expectedSize(5));

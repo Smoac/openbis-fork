@@ -178,7 +178,7 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
                     createOrDelete(ObjectKind.EXPERIMENT), edit(ObjectKind.EXPERIMENT),
                     createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                     edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                    createOrDelete(ObjectKind.VOCABULARY_TERM) };
+                    createOrDelete(ObjectKind.VOCABULARY_TERM), edit(ObjectKind.VOCABULARY_TERM) };
     }
 
     public void update(Set<DatabaseModificationKind> observedModifications)

@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -60,6 +61,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
             new HashMap<EntityKind, IEntityPropertyTypeDAO>();
 
     private final IVocabularyDAO vocabularyDAO;
+
+    private final IVocabularyTermDAO vocabularyTermDAO;
 
     private final IAttachmentDAO attachmentDAO;
 
@@ -88,6 +91,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         hibernateSearchDAO = new HibernateSearchDAO(sessionFactory);
         propertyTypeDAO = new PropertyTypeDAO(sessionFactory, databaseInstance);
         vocabularyDAO = new VocabularyDAO(sessionFactory, databaseInstance);
+        vocabularyTermDAO = new VocabularyTermDAO(sessionFactory, databaseInstance);
         attachmentDAO = new AttachmentDAO(sessionFactory, databaseInstance);
         dataSetTypeDAO = new DataSetTypeDAO(sessionFactory, databaseInstance);
         fileFormatTypeDAO = new FileFormatTypeDAO(sessionFactory, databaseInstance);
@@ -140,6 +144,11 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public final IVocabularyDAO getVocabularyDAO()
     {
         return vocabularyDAO;
+    }
+
+    public final IVocabularyTermDAO getVocabularyTermDAO()
+    {
+        return vocabularyTermDAO;
     }
 
     public final IAttachmentDAO getAttachmentDAO()

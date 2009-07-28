@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -320,7 +321,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public void updatePropertyType(String sessionToken, IPropertyTypeUpdates updates)
     {
-        logTracking(sessionToken, "update_property_type", "PROPERTY_TYPE(%s)", updates.getCode());
+        logTracking(sessionToken, "update_property_type", "PROPERTY_TYPE(%s)", updates);
     }
 
     public final void registerVocabulary(final String sessionToken, final NewVocabulary vocabulary)
@@ -339,6 +340,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "add_vocabulary_terms", "ID(%s) NUMBER_OF_TERMS(%s)",
                 vocabularyId, Integer.toString(vocabularyTerms.size()));
+    }
+
+    public void updateVocabularyTerm(String sessionToken, IVocabularyTermUpdates updates)
+    {
+        logTracking(sessionToken, "update_vocabulary_term", "VOCABULARY_TERM(%s)", updates);
     }
 
     public void deleteVocabularyTerms(String sessionToken, TechId vocabularyId,

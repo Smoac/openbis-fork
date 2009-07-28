@@ -58,6 +58,9 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
      */
     public IVocabularyDAO getVocabularyDAO();
 
+    /** Returns an implementation of {@link IVocabularyTermDAO}. */
+    public IVocabularyTermDAO getVocabularyTermDAO();
+
     /** Returns an implementation of {@link IAttachmentDAO}. */
     public IAttachmentDAO getAttachmentDAO();
 

@@ -80,10 +80,10 @@ public class SampleBrowserTest extends AbstractGWTTestCase
 
         // 'ORGANISM' is assigned only to 'CELL_PLATE' sample type
         table.expectedRow(new SampleRow("CP-TEST-1", "CELL_PLATE").identifier("CISD", "CISD")
-                .withUserPropertyCell("ORGANISM", "HUMAN"));
+                .withUserPropertyCell("ORGANISM", "[HUMAN]"));
         // 'PLATE_GEOMETRY' is assigned only to 'CONTROL_LAYOUT' and 'MASTER PLATE' sample types
         table.expectedRow(new SampleRow("C1", "CONTROL_LAYOUT").identifier("CISD", "CISD")
-                .withInternalPropertyCell("PLATE_GEOMETRY", "384_WELLS_16X24"));
+                .withInternalPropertyCell("PLATE_GEOMETRY", "[384_WELLS_16X24]"));
 
         table.expectedColumnsNumber(19);
         remoteConsole.prepare(table.expectedSize(40));
@@ -99,9 +99,9 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         table.expectedColumnHidden(CommonSampleColDefKind.CODE.name(), false);
         table.expectedColumnWidth(CommonSampleColDefKind.REGISTRATOR.name(), DEFAULT_COLUMN_WIDTH);
         table.expectedRow(new SampleRow("MP001-1").identifier("CISD", "CISD").invalid()
-                .noExperiment().withInternalPropertyCell("PLATE_GEOMETRY", "384_WELLS_16X24"));
+                .noExperiment().withInternalPropertyCell("PLATE_GEOMETRY", "[384_WELLS_16X24]"));
         table.expectedRow(new SampleRow("MP002-1").identifier("CISD", "CISD").valid()
-                .noExperiment().withInternalPropertyCell("PLATE_GEOMETRY", "384_WELLS_16X24"));
+                .noExperiment().withInternalPropertyCell("PLATE_GEOMETRY", "[384_WELLS_16X24]"));
         remoteConsole.prepare(table.expectedSize(5));
 
         launchTest(20000);
@@ -129,7 +129,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         CheckSampleTable table = new CheckSampleTable();
         Row expectedRow =
                 new SampleRow("MP").identifier("CISD").valid().noExperiment()
-                        .withInternalPropertyCell("PLATE_GEOMETRY", "384_WELLS_16X24");
+                        .withInternalPropertyCell("PLATE_GEOMETRY", "[384_WELLS_16X24]");
         table.expectedRow(expectedRow);
         remoteConsole.prepare(table.expectedSize(1));
 

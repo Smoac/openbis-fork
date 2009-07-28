@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWith
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * @author Izabela Adamczyk
@@ -40,7 +41,10 @@ public class VocabularyTermTranslator
             return null;
         }
         VocabularyTerm result = new VocabularyTerm();
+        result.setId(HibernateUtils.getId(vt));
         result.setCode(StringEscapeUtils.escapeHtml(vt.getCode()));
+        result.setLabel(StringEscapeUtils.escapeHtml(vt.getLabel()));
+        result.setDescription(StringEscapeUtils.escapeHtml(vt.getDescription()));
         result.setUrl(StringEscapeUtils.escapeHtml(vt.getUrl()));
         result.setRegistrationDate(vt.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(vt.getRegistrator()));

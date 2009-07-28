@@ -51,6 +51,8 @@ public interface ICommonBusinessObjectFactory
 
     public IVocabularyBO createVocabularyBO(final Session session);
 
+    public IVocabularyTermBO createVocabularyTermBO(final Session session);
+
     public IEntityTypePropertyTypeBO createEntityTypePropertyTypeBO(Session session,
             EntityKind entityKind);
 

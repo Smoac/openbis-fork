@@ -53,7 +53,7 @@ public final class MultilineHTML extends HTML
         return wrapUpInDivWithTooltip(result, html);
     }
 
-    private static String wrapUpInDivWithTooltip(String text, String tooltip)
+    public static String wrapUpInDivWithTooltip(String text, String tooltip)
     {
         final Element div = DOM.createDiv();
         div.setInnerHTML(text);

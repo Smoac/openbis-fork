@@ -234,6 +234,7 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
         result.add(edit(entity));
         result.add(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT));
         result.add(edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT));
+        result.add(edit(ObjectKind.VOCABULARY_TERM));
         return result;
     }
 

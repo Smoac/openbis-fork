@@ -231,9 +231,10 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
             final String fieldLabel =
                     messageProvider.getMessage(Dict.VOCABULARY_TERMS_URL_TEMPLATE);
             final String templatePart = BasicConstant.VOCABULARY_URL_TEMPLATE_TERM_PART;
+            final String templatePattern = BasicConstant.VOCABULARY_URL_TEMPLATE_TERM_PATTERN;
             final String emptyText =
                     "for example http://www.ebi.ac.uk/QuickGO/GTerm?id=" + templatePart;
-            final String regex = ".*" + templatePart + ".*";
+            final String regex = ".*" + templatePattern + ".*";
             final String regexTextMsg =
                     "URL template must contain '" + templatePart + "', "
                             + "which will be substituted with appropriate term automatically.";

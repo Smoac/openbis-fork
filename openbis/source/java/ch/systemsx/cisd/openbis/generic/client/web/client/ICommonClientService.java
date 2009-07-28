@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -430,6 +431,12 @@ public interface ICommonClientService extends IClientService
 
     /** Adds specified terms to the specified vocabulary. */
     public void addVocabularyTerms(TechId vocabularyId, List<String> vocabularyTerms)
+            throws UserFailureException;
+
+    /**
+     * Updates vocabulary term.
+     */
+    public void updateVocabularyTerm(final IVocabularyTermUpdates updates)
             throws UserFailureException;
 
     /**

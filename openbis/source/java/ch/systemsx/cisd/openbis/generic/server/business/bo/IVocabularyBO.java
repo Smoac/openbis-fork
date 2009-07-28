@@ -69,7 +69,7 @@ public interface IVocabularyBO extends IEntityBusinessObject
     Set<VocabularyTermPE> enrichWithTerms();
 
     /**
-     * Add the specified terms to a loaded vocabulary.
+     * Add terms with specified codes to a loaded vocabulary.
      */
     void addNewTerms(List<String> newTerms);
 

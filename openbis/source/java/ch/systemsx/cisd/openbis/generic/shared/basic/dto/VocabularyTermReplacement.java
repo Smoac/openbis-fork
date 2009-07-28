@@ -31,7 +31,7 @@ public class VocabularyTermReplacement implements IsSerializable, Serializable
 
     private VocabularyTerm term;
 
-    private String replacement;
+    private String replacementCode;
 
     public final VocabularyTerm getTerm()
     {
@@ -43,19 +43,19 @@ public class VocabularyTermReplacement implements IsSerializable, Serializable
         this.term = term;
     }
 
-    public final String getReplacement()
+    public final String getReplacementCode()
     {
-        return replacement;
+        return replacementCode;
     }
 
-    public final void setReplacement(String replacement)
+    public final void setReplacementCode(String replacementCode)
     {
-        this.replacement = replacement;
+        this.replacementCode = replacementCode;
     }
 
     @Override
     public String toString()
     {
-        return term + " -> " + replacement;
+        return term + " -> [" + replacementCode + "]";
     }
 }

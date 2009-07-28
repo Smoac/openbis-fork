@@ -39,7 +39,11 @@ public class BasicConstant
     public static final String USER_NAMESPACE_PREFIX = "USER.";
 
     /** Template part of Vocabulary URL that that is replaced with vocabulary term code. */
-    public static final String VOCABULARY_URL_TEMPLATE_TERM_PART = "\\$term\\$";
+    public static final String VOCABULARY_URL_TEMPLATE_TERM_PART = "$term$";
+
+    /** Pattern for template part of Vocabulary URL that that is replaced with vocabulary term code. */
+    public static final String VOCABULARY_URL_TEMPLATE_TERM_PATTERN =
+            VOCABULARY_URL_TEMPLATE_TERM_PART.replaceAll("\\$", "\\\\\\$");
 
     /**
      * Canonical date format pattern used to save dates in DB. Holds date, time and time zone

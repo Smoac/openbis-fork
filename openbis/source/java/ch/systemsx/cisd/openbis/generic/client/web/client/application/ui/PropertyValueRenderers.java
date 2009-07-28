@@ -24,6 +24,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.VocabularyPropertyColRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
@@ -346,9 +347,14 @@ public final class PropertyValueRenderers
                     .createMultilineHtmlWidget(object.getValue());
         }
 
+        private Widget createHtmlWidget(String html)
+        {
+            return new InlineHTML(html);
+        }
+
         private Widget createHtmlWidget(T object)
         {
-            return new InlineHTML(object.getValue());
+            return createHtmlWidget(object.getValue());
         }
 
         private Widget createHyperlink(T object)
@@ -359,19 +365,13 @@ public final class PropertyValueRenderers
 
         private Widget createVocabularyTermLink(T object)
         {
-            VocabularyTerm term = object.getVocabularyTerm();
-            String code = null;
-            String url = null;
+            final VocabularyTerm term = object.getVocabularyTerm();
+            String html = "";
             if (term != null)
             {
-                code = term.getCode();
-                url = term.getUrl();
+                html = VocabularyPropertyColRenderer.renderTerm(term);
             }
-            if (code != null && url != null)
-            {
-                return new ExternalHyperlink(code, url);
-            }
-            return createHtmlWidget(object);
+            return createHtmlWidget(html);
         }
 
         private boolean isAllowedMaterialTypeUnspecified(T property)

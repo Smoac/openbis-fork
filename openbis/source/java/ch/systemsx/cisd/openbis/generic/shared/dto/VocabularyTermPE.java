@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -38,6 +39,7 @@ import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
@@ -64,6 +66,10 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
 
     private String code;
 
+    private String label;
+
+    private String description;
+
     private VocabularyPE vocabulary;
 
     public VocabularyTermPE()
@@ -81,6 +87,30 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
     public void setCode(final String code)
     {
         this.code = CodeConverter.tryToDatabase(code);
+    }
+
+    @Column(name = ColumnNames.DESCRIPTION_COLUMN)
+    @Length(max = GenericConstants.DESCRIPTION_1000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
+    public String getDescription()
+    {
+        return description;
+    }
+
+    public void setDescription(final String descriptionOrNull)
+    {
+        this.description = descriptionOrNull;
+    }
+
+    @Column(name = ColumnNames.LABEL_COLUMN)
+    @Length(max = GenericConstants.LABEL_40, message = ValidationMessages.LABEL_LENGTH_MESSAGE)
+    public final String getLabel()
+    {
+        return label;
+    }
+
+    public final void setLabel(final String label)
+    {
+        this.label = label;
     }
 
     public void setId(final long id)
@@ -170,6 +200,7 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
                 new ToStringBuilder(this,
                         ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
         builder.append("code", getCode());
+        builder.append("label", getLabel());
         return builder.toString();
     }
 
@@ -187,7 +218,7 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
     {
         String template = getVocabulary().getURLTemplate();
         return template != null ? (template.replaceAll(
-                BasicConstant.VOCABULARY_URL_TEMPLATE_TERM_PART, getCode())) : null;
+                BasicConstant.VOCABULARY_URL_TEMPLATE_TERM_PATTERN, getCode())) : null;
     }
 
 }

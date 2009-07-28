@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyTermBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
@@ -70,6 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -617,6 +619,18 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         vocabularyBO.loadDataByTechId(vocabularyId);
         vocabularyBO.addNewTerms(vocabularyTerms);
         vocabularyBO.save();
+    }
+
+    public final void updateVocabularyTerm(final String sessionToken,
+            final IVocabularyTermUpdates updates)
+    {
+        assert sessionToken != null : "Unspecified session token";
+        assert updates != null : "Unspecified updates";
+
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IVocabularyTermBO vocabularyTermBO =
+                businessObjectFactory.createVocabularyTermBO(session);
+        vocabularyTermBO.update(updates);
     }
 
     public void deleteVocabularyTerms(String sessionToken, TechId vocabularyId,

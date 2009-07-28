@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyTermBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ProjectBO;
@@ -53,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.RoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.VocabularyBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.VocabularyTermBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -134,6 +136,11 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     public final IVocabularyBO createVocabularyBO(Session session)
     {
         return new VocabularyBO(getDaoFactory(), session);
+    }
+
+    public final IVocabularyTermBO createVocabularyTermBO(Session session)
+    {
+        return new VocabularyTermBO(getDaoFactory(), session);
     }
 
     public IEntityTypePropertyTypeBO createEntityTypePropertyTypeBO(Session session,

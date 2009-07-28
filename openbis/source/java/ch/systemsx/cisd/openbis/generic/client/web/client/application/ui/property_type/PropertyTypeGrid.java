@@ -153,6 +153,7 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
                     boolean mandatory = true;
 
                     labelField = createTextField(viewContext.getMessage(Dict.LABEL), mandatory);
+                    labelField.setMaxLength(GenericConstants.LABEL_40);
                     labelField.setValue(StringEscapeUtils.unescapeHtml(label));
                     addField(labelField);
 

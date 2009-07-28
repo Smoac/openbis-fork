@@ -344,8 +344,9 @@ public final class VocabularyBOTest extends AbstractBOTest
             fail("IllegalArgumentException expected.");
         } catch (IllegalArgumentException e)
         {
-            assertEquals("Invalid vocabulary replacement because of unknown replacement: 2 -> 1", e
-                    .getMessage());
+            assertEquals(
+                    "Invalid vocabulary replacement because of unknown replacement: [2] -> [1]", e
+                            .getMessage());
         }
         context.assertIsSatisfied();
     }
@@ -376,8 +377,9 @@ public final class VocabularyBOTest extends AbstractBOTest
             fail("IllegalArgumentException expected.");
         } catch (IllegalArgumentException e)
         {
-            assertEquals("Invalid vocabulary replacement because of unknown replacement: 1 -> 3", e
-                    .getMessage());
+            assertEquals(
+                    "Invalid vocabulary replacement because of unknown replacement: [1] -> [3]", e
+                            .getMessage());
         }
         context.assertIsSatisfied();
     }
@@ -462,7 +464,7 @@ public final class VocabularyBOTest extends AbstractBOTest
     {
         VocabularyTermReplacement vocabularyTermReplacement = new VocabularyTermReplacement();
         vocabularyTermReplacement.setTerm(term);
-        vocabularyTermReplacement.setReplacement(replacement.getCode());
+        vocabularyTermReplacement.setReplacementCode(replacement.getCode());
         return vocabularyTermReplacement;
     }
 

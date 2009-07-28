@@ -23,14 +23,31 @@ import ch.systemsx.cisd.common.annotation.BeanProperty;
  * 
  * @author Izabela Adamczyk
  */
-public final class VocabularyTerm extends CodeWithRegistration<Vocabulary>
+public final class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements
+        IVocabularyTermUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+    private Long id;
+
+    private String description;
+
+    private String label;
 
     private String url;
 
     public VocabularyTerm()
     {
+    }
+
+    public Long getId()
+    {
+        return id;
+    }
+
+    public void setId(Long id)
+    {
+        this.id = id;
     }
 
     @Override
@@ -40,10 +57,32 @@ public final class VocabularyTerm extends CodeWithRegistration<Vocabulary>
         super.setCode(code);
     }
 
+    @BeanProperty(label = "label", optional = true)
+    public void setLabel(String label)
+    {
+        this.label = label;
+    }
+
+    public String getLabel()
+    {
+        return label;
+    }
+
+    @BeanProperty(label = "description", optional = true)
+    public void setDescription(String description)
+    {
+        this.description = description;
+    }
+
+    public String getDescription()
+    {
+        return description;
+    }
+
     @Override
     public String toString()
     {
-        return getCode();
+        return (getLabel() != null ? getLabel() + " " : "") + "[" + getCode() + "]";
     }
 
     public String getUrl()

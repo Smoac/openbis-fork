@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ICodeSequenceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
@@ -212,6 +213,11 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public final IVocabularyDAO getVocabularyDAO()
     {
         return daoFactory.getVocabularyDAO();
+    }
+
+    public final IVocabularyTermDAO getVocabularyTermDAO()
+    {
+        return daoFactory.getVocabularyTermDAO();
     }
 
     public final IAttachmentDAO getAttachmentDAO()

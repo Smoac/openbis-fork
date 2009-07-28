@@ -472,12 +472,5 @@ REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM postgres;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
-REVOKE ALL ON SEQUENCE authorization_group_id_seq FROM PUBLIC;
-GRANT SELECT ON SEQUENCE authorization_group_id_seq TO openbis_readonly;
-REVOKE ALL ON SEQUENCE authorization_group_person_id_seq FROM PUBLIC;
-GRANT SELECT ON SEQUENCE authorization_group_person_id_seq TO openbis_readonly;
-REVOKE ALL ON TABLE authorization_group_persons FROM PUBLIC;
-GRANT SELECT ON TABLE authorization_group_persons TO openbis_readonly;
-REVOKE ALL ON TABLE authorization_groups FROM PUBLIC;
-GRANT SELECT ON TABLE authorization_groups TO openbis_readonly;
+
 

@@ -542,6 +542,8 @@ public abstract class Dict
     public static final String DELETE_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_FOR_REPLACEMENTS =
             "delete_vocabulary_terms_confirmation_message_for_replacements";
 
+    public static final String EDIT_VOCABULARY_TERM_BUTTON = "edit_vocabulary_term_button";
+
     //
     // Group Browser
     //

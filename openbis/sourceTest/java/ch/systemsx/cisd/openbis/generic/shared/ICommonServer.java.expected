@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -413,10 +414,18 @@ public interface ICommonServer extends IServer
             List<String> vocabularyTerms);
 
     /**
+     * Updates a vocabulary term.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.POWER_USER)
+    @DatabaseUpdateModification(value = ObjectKind.VOCABULARY_TERM)
+    public void updateVocabularyTerm(final String sessionToken, final IVocabularyTermUpdates updates);
+
+    /**
      * Deletes from the specified vocabulary the specified terms.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleSet.POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
     public void deleteVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<VocabularyTerm> termsToBeDeleted, List<VocabularyTermReplacement> termsToBeReplaced);

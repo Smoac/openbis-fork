@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -365,6 +366,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#addVocabularyTerms(TechId, List) */
     public void addVocabularyTerms(TechId vocabularyId, List<String> vocabularyTerms,
             AsyncCallback<Void> callback);
+
+    /** @see ICommonClientService#updateVocabularyTerm(IVocabularyTermUpdates) */
+    public void updateVocabularyTerm(final IVocabularyTermUpdates updates,
+            final AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteVocabularyTerms(TechId, List, List) */
     public void deleteVocabularyTerms(TechId vocabularyId, List<VocabularyTerm> termsToBeDeleted,

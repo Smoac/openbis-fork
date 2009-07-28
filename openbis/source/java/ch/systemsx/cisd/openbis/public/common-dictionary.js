@@ -323,8 +323,8 @@ var common = {
  TERM_FOR_EXPERIMENTS_USAGE: "Usages for Experiments",
  TERM_FOR_MATERIALS_USAGE: "Usages for Materials",
  TERM_TOTAL_USAGE: "Total Usages Number",
- add_vocabulary_terms_button: "Add New Terms",
- add_vocabulary_terms_title: "Add New Terms",
+ add_vocabulary_terms_button: "Add Terms",
+ add_vocabulary_terms_title: "Add Terms",
  add_vocabulary_terms_ok_button: "OK",
  vocabulary_terms_validation_message: "Term '{0}' already exists.", 
  delete_vocabulary_terms_button: "Delete/Replace Terms",
@@ -334,6 +334,7 @@ var common = {
  delete_vocabulary_terms_confirmation_message_no_replacements_singular: "Do you want to delete the selected term?",
  delete_vocabulary_terms_confirmation_message_no_replacements: "Do you want to delete the {0} selected terms?",
  delete_vocabulary_terms_confirmation_message_for_replacements: "{0} terms will be deleted.\n\nThe terms below are used. They have to be replaced by one of the remaining terms.",
+ edit_vocabulary_term_button: "Edit Term",
  
  //
  // Person Browser

@@ -198,6 +198,7 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
         Set<DatabaseModificationKind> relevantMods = super.getGridRelevantModifications();
         relevantMods.add(edit(ObjectKind.EXPERIMENT));
         relevantMods.add(edit(ObjectKind.SAMPLE));
+        relevantMods.add(edit(ObjectKind.VOCABULARY_TERM));
         relevantMods.add(createOrDelete(ObjectKind.VOCABULARY_TERM));
         return relevantMods;
     }

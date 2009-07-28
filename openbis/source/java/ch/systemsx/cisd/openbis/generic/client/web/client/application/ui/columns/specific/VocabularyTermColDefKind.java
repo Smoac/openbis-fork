@@ -27,12 +27,31 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
  */
 public enum VocabularyTermColDefKind implements IColumnDefinitionKind<VocabularyTermWithStats>
 {
-    CODE(new AbstractColumnDefinitionKind<VocabularyTermWithStats>(Dict.CODE, 200)
+    CODE(new AbstractColumnDefinitionKind<VocabularyTermWithStats>(Dict.CODE)
         {
             @Override
             public String tryGetValue(VocabularyTermWithStats entity)
             {
                 return entity.getTerm().getCode();
+            }
+        }),
+
+    LABEL(new AbstractColumnDefinitionKind<VocabularyTermWithStats>(Dict.LABEL, 200)
+        {
+            @Override
+            public String tryGetValue(VocabularyTermWithStats entity)
+            {
+                return entity.getTerm().getLabel();
+            }
+        }),
+
+    DESCRIPTION(new AbstractColumnDefinitionKind<VocabularyTermWithStats>(Dict.DESCRIPTION, 300,
+            true)
+        {
+            @Override
+            public String tryGetValue(VocabularyTermWithStats entity)
+            {
+                return entity.getTerm().getDescription();
             }
         }),
 

@@ -32,10 +32,12 @@ import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -48,13 +50,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Voca
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyTermColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VocabularyTermSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -94,6 +99,8 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         }
     }
 
+    private final IDelegatedAction postRegistrationCallback;
+
     private final Vocabulary vocabulary;
 
     public static IDisposableComponent create(
@@ -107,6 +114,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
     {
         super(viewContext, createBrowserId(vocabulary), createGridId(vocabulary));
         this.vocabulary = vocabulary;
+        this.postRegistrationCallback = createRefreshGridAction();
         extendBottomToolbar();
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.VOCABULARY_TERMS_GRID);
     }
@@ -124,23 +132,41 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                     askForNewTerms();
                 }
             });
-        pagingToolbar.add(new AdapterToolItem(addButton));
+        addButton(addButton);
+
+        Button editButton =
+                createSelectedItemButton(viewContext.getMessage(Dict.EDIT_VOCABULARY_TERM_BUTTON),
+                        new ISelectedEntityInvoker<BaseEntityModel<VocabularyTermWithStats>>()
+                            {
+
+                                public void invoke(
+                                        BaseEntityModel<VocabularyTermWithStats> selectedItem)
+                                {
+                                    final VocabularyTermWithStats term =
+                                            selectedItem.getBaseObject();
+                                    createEditDialog(term.getTerm()).show();
+                                }
+                            });
+        addButton(editButton);
+
         Button deleteButton =
-                new Button(viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_BUTTON));
-        deleteButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-            {
-                @Override
-                public void componentSelected(ButtonEvent ce)
-                {
-                    deleteTerms();
-                }
-            });
-        pagingToolbar.add(new AdapterToolItem(deleteButton));
+                createSelectedItemsButton(viewContext
+                        .getMessage(Dict.DELETE_VOCABULARY_TERMS_BUTTON),
+                        new SelectionListener<ButtonEvent>()
+                            {
+                                @Override
+                                public void componentSelected(ButtonEvent ce)
+                                {
+                                    deleteTerms();
+                                }
+                            });
+        addButton(deleteButton);
 
         if (vocabulary.isManagedInternally())
         {
             String tooltip = viewContext.getMessage(Dict.TOOLTIP_VOCABULARY_MANAGED_INTERNALLY);
             disableButton(addButton, tooltip);
+            disableButton(editButton, tooltip);
             disableButton(deleteButton, tooltip);
         } else
         {
@@ -148,6 +174,44 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         }
 
         addEntityOperationsSeparator();
+    }
+
+    private Window createEditDialog(final VocabularyTerm term)
+    {
+        final String code = term.getCode();
+        final String description = term.getDescription();
+        final String label = term.getLabel();
+        final String title = viewContext.getMessage(Dict.EDIT_TITLE, "Vocabulary Term", code);
+
+        return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
+            {
+                private final DescriptionField descriptionField;
+
+                private final TextField<String> labelField;
+
+                {
+                    boolean mandatory = false;
+
+                    labelField = createTextField(viewContext.getMessage(Dict.LABEL), mandatory);
+
+                    labelField.setValue(StringEscapeUtils.unescapeHtml(label));
+                    labelField.setMaxLength(GenericConstants.LABEL_40);
+                    addField(labelField);
+
+                    descriptionField = createDescriptionField(viewContext, mandatory);
+                    descriptionField.setValue(StringEscapeUtils.unescapeHtml(description));
+                    addField(descriptionField);
+                }
+
+                @Override
+                protected void register(AsyncCallback<Void> registrationCallback)
+                {
+                    term.setDescription(descriptionField.getValue());
+                    term.setLabel(labelField.getValue());
+
+                    viewContext.getService().updateVocabularyTerm(term, registrationCallback);
+                }
+            };
     }
 
     private void disableButton(Button button, String tooltip)
@@ -195,7 +259,15 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
     protected List<IColumnDefinition<VocabularyTermWithStats>> getInitialFilters()
     {
         return asColumnFilters(new VocabularyTermColDefKind[]
-            { VocabularyTermColDefKind.CODE });
+            { VocabularyTermColDefKind.CODE, VocabularyTermColDefKind.LABEL });
+    }
+
+    @Override
+    protected BaseEntityModel<VocabularyTermWithStats> createModel(VocabularyTermWithStats entity)
+    {
+        BaseEntityModel<VocabularyTermWithStats> model = super.createModel(entity);
+        model.renderAsMultilineStringWithTooltip(VocabularyTermColDefKind.DESCRIPTION.id());
+        return model;
     }
 
     @Override
@@ -381,7 +453,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                     public void selectionChanged(SelectionChangedEvent<VocabularyTermModel> se)
                     {
                         VocabularyTermModel selectedItem = se.getSelectedItem();
-                        termToBeReplaced.setReplacement(selectedItem == null ? null : selectedItem
+                        termToBeReplaced.setReplacementCode(selectedItem == null ? null : selectedItem
                                 .getTerm());
                         dialog.setEnableOfAcceptButton(formPanel.isValid());
                     }

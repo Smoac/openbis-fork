@@ -77,11 +77,11 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         vocabularyPE.setURLTemplate(vocabulary.getURLTemplate());
         for (final VocabularyTerm term : vocabulary.getTerms())
         {
-            addTerm(term.getCode());
+            addTerm(term);
         }
     }
 
-    public void addNewTerms(List<String> newTerms)
+    public void addNewTerms(List<String> newTermCodes)
     {
         assert vocabularyPE != null : "Unspecified vocabulary";
         if (vocabularyPE.isManagedInternally())
@@ -90,18 +90,30 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
                     "Not allowed to add terms to an internally managed vocabulary.");
         }
 
-        for (String term : newTerms)
+        for (String code : newTermCodes)
         {
-            addTerm(term);
+            addTerm(code);
         }
     }
 
-    private void addTerm(String term)
+    private void addTerm(String code, String description, String label)
     {
         final VocabularyTermPE vocabularyTermPE = new VocabularyTermPE();
-        vocabularyTermPE.setCode(term);
+        vocabularyTermPE.setCode(code);
+        vocabularyTermPE.setDescription(description);
+        vocabularyTermPE.setLabel(label);
         vocabularyTermPE.setRegistrator(findRegistrator());
         vocabularyPE.addTerm(vocabularyTermPE);
+    }
+
+    private void addTerm(String code)
+    {
+        addTerm(code, null, null);
+    }
+
+    private void addTerm(VocabularyTerm term)
+    {
+        addTerm(term.getCode(), term.getDescription(), term.getLabel());
     }
 
     public void delete(List<VocabularyTerm> termsToBeDeleted,
@@ -136,7 +148,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         for (VocabularyTermReplacement termToBeReplaced : termsToBeReplaced)
         {
             String code = termToBeReplaced.getTerm().getCode();
-            String replacement = termToBeReplaced.getReplacement();
+            String replacement = termToBeReplaced.getReplacementCode();
             VocabularyTermPE term = termsMap.tryGet(replacement);
             if (term == null || remainingTerms.contains(replacement) == false)
             {
