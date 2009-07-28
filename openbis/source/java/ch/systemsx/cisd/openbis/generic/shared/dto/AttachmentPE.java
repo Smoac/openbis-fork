@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.Serializable;
 
@@ -35,6 +36,8 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -112,15 +115,21 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
      */
     public static class AttachmentSearchBridge implements FieldBridge
     {
+        /**
+         * The user can force indexing of the attachment by putting this prefix into attachment
+         * description.
+         */
+        private static final String SEARCHABLE_ATTACHMENT_MARKER = "[searchable]";
+
         public void set(String name, Object/* AttachmentPE */value,
                 Document/* Lucene document */document, LuceneOptions luceneOptions)
         {
             AttachmentPE attachment = (AttachmentPE) value;
             String attachmentName = attachment.getFileName();
-            byte[] byteContent = attachment.getAttachmentContent().getValue();
-            Reader reader = new UTF8Reader(new ByteArrayInputStream(byteContent));
-            indexFileContent(document, luceneOptions, attachment, attachmentName, reader);
-
+            if (isSearchable(attachment))
+            {
+                indexFileContent(document, luceneOptions, attachment, attachmentName);
+            }
             // index the file name. Make the field code unique, so that we can recognize which field
             // has matched the query later on
             String attachmentNameFieldName =
@@ -129,6 +138,49 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
                     new Field(attachmentNameFieldName, attachmentName, Field.Store.YES,
                             luceneOptions.getIndex());
             document.add(field);
+        }
+
+        private static boolean isSearchable(AttachmentPE attachment)
+        {
+            String fileExt = FilenameUtils.getExtension(attachment.getFileName()).toLowerCase();
+            if (fileExt.equals("txt") || fileExt.equals("pdf"))
+            {
+                return true;
+            }
+            String desc = attachment.getDescription();
+            if (StringUtils.isNotBlank(desc) && desc.startsWith(SEARCHABLE_ATTACHMENT_MARKER))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private void indexFileContent(Document document, LuceneOptions luceneOptions,
+                AttachmentPE attachment, String attachmentName)
+        {
+            byte[] byteContent = attachment.getAttachmentContent().getValue();
+            Reader reader = createAttachmentReader(byteContent);
+            indexFileContent(document, luceneOptions, attachment, attachmentName, reader);
+        }
+
+        private static Reader createAttachmentReader(byte[] byteContent)
+        {
+            // By default the UTF8 reader throws exception when the file content is binary.
+            // In this case we just stop reading the file.
+            return new UTF8Reader(new ByteArrayInputStream(byteContent))
+                {
+                    @Override
+                    public int read(char cbuf[], int off, int len) throws IOException
+                    {
+                        try
+                        {
+                            return super.read(cbuf, off, len);
+                        } catch (Exception e)
+                        {
+                            return -1;
+                        }
+                    }
+                };
         }
 
         private void indexFileContent(Document document, LuceneOptions luceneOptions,
