@@ -73,6 +73,7 @@
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE</value>
                 
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE</value>
             </list>
         </property>
         <!-- 

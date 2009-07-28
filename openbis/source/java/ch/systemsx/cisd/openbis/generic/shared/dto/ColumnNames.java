@@ -204,6 +204,12 @@ public final class ColumnNames
 
     public static final String IS_CHOSEN_FROM_LIST = "is_chosen_from_list";
 
+    public static final String AUTHORIZATION_GROUP_ID_COLUMN = "ag_id";
+
+    public static final String PERSON_ID_COLUMN = "pers_id";
+
+    public static final String AUTHORIZATION_GROUP_ID_GRANTEE_COLUMN = "ag_id_grantee";
+
     private ColumnNames()
     {
         // Can not be instantiated.

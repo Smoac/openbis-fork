@@ -39,7 +39,7 @@ public final class SequenceNames
     public static final String DATA_STORE_SEQUENCE = "DATA_STORE_ID_SEQ";
 
     public static final String DATA_STORE_SERVICE_SEQUENCE = "DATA_STORE_SERVICES_ID_SEQ";
-    
+
     public static final String DATA_TYPE_SEQUENCE = "DATA_TYPE_ID_SEQ";
 
     public static final String DATABASE_INSTANCE_SEQUENCE = "DATABASE_INSTANCE_ID_SEQ";
@@ -101,6 +101,11 @@ public final class SequenceNames
     public static final String EVENT_SEQUENCE = "EVENT_ID_SEQ";
 
     public static final String CODE_SEQUENCE = "CODE_SEQ";
+
+    public static final String AUTHORIZATION_GROUP_ID_SEQUENCE = "AUTHORIZATION_GROUP_ID_SEQ";
+
+    public static final String AUTHORIZATION_GROUP_PERSON_ID_SEQUENCE =
+            "AUTHORIZATION_GROUP_PERSON_ID_SEQ";
 
     private SequenceNames()
     {

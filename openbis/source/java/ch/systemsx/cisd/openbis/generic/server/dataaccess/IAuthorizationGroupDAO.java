@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
+package ch.systemsx.cisd.openbis.generic.server.dataaccess;
+
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 
 /**
- * A static class which holds the database version.
+ * <i>Data Access Object</i> for {@link AuthorizationGroupPE}.
  * 
- * @author Christian Ribeaud
+ * @author Izabela Adamczyk
  */
-public final class DatabaseVersionHolder
+public interface IAuthorizationGroupDAO extends IGenericDAO<AuthorizationGroupPE>
 {
-    /** Current version of the database. */
-    private static final String DATABASE_VERSION = "039";
+    /**
+     * Lists all authorization groups.
+     */
+    public List<AuthorizationGroupPE> list();
 
-    private DatabaseVersionHolder()
-    {
-        // Can not be instantiated
-    }
-
-    /** Returns the current version of the database. */
-    public final static String getDatabaseVersion()
-    {
-        return DATABASE_VERSION;
-    }
+    /**
+     * Creates a new authorization group.
+     */
+    public void create(AuthorizationGroupPE authorizationGroup);
 }

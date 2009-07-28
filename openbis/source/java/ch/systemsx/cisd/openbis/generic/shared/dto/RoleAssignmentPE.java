@@ -31,7 +31,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -46,21 +45,20 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
- * Persistent Entity corresponding containing informations about role assignment.
+ * Persistent Entity containing informations about role assignment.
  * 
  * @author Izabela Adamczyk
  */
+
 @Entity
-@Check(constraints = ColumnNames.DATABASE_INSTANCE_COLUMN + " IS NOT NULL AND "
-        + ColumnNames.GROUP_COLUMN + " IS NULL OR " + ColumnNames.DATABASE_INSTANCE_COLUMN
-        + " IS NULL AND " + ColumnNames.GROUP_COLUMN + " IS NOT NULL")
-@Table(name = TableNames.ROLE_ASSIGNMENTS_TABLE, uniqueConstraints =
-    { @UniqueConstraint(columnNames =
-        { ColumnNames.PERSON_GRANTEE_COLUMN, ColumnNames.ROLE_COLUMN, ColumnNames.GROUP_COLUMN,
-                ColumnNames.DATABASE_INSTANCE_COLUMN }) })
+@Check(constraints = "((DBIN_ID IS NOT NULL AND GROU_ID IS NULL) OR (DBIN_ID IS NULL AND GROU_ID IS NOT NULL))"
+        + " AND "
+        + "((AG_ID_GRANTEE IS NOT NULL AND PERS_ID_GRANTEE IS NULL) OR (AG_ID_GRANTEE IS NULL AND PERS_ID_GRANTEE IS NOT NULL))")
+@Table(name = TableNames.ROLE_ASSIGNMENTS_TABLE)
 public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder implements
         IIdHolder, Serializable
 {
+
     private static final long serialVersionUID = IServer.VERSION;
 
     public static final RoleAssignmentPE[] EMPTY_ARRAY = new RoleAssignmentPE[0];
@@ -72,6 +70,8 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder 
     private GroupPE group;
 
     private PersonPE person;
+
+    private AuthorizationGroupPE authorizationGroup;
 
     private RoleCode role;
 
@@ -88,7 +88,6 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder 
         this.role = role;
     }
 
-    @NotNull(message = ValidationMessages.PERSON_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.PERSON_GRANTEE_COLUMN, updatable = false)
     @Private
@@ -103,10 +102,30 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder 
         this.person = person;
     }
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.AUTHORIZATION_GROUP_ID_GRANTEE_COLUMN, updatable = false)
+    @Private
+    public final AuthorizationGroupPE getAuthorizationGroupInternal()
+    {
+        return authorizationGroup;
+    }
+
+    @Private
+    public final void setAuthorizationGroupInternal(final AuthorizationGroupPE authorizationGroup)
+    {
+        this.authorizationGroup = authorizationGroup;
+    }
+
     @Transient
     public final PersonPE getPerson()
     {
         return getPersonInternal();
+    }
+
+    @Transient
+    public final AuthorizationGroupPE getAuthorizationGroup()
+    {
+        return getAuthorizationGroupInternal();
     }
 
     public final void setId(final Long id)
@@ -158,7 +177,10 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder 
     public final boolean equals(final Object obj)
     {
         EqualsHashUtils.assertDefined(getRole(), "role");
-        EqualsHashUtils.assertDefined(getPerson(), "person");
+        if (getPerson() == null)
+        {
+            EqualsHashUtils.assertDefined(getAuthorizationGroupInternal(), "authorization group");
+        }
         if (getGroup() == null)
         {
             EqualsHashUtils.assertDefined(getDatabaseInstance(), "db");
@@ -175,6 +197,7 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder 
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getRole(), that.getRole());
         builder.append(getPerson(), that.getPerson());
+        builder.append(getAuthorizationGroup(), that.getAuthorizationGroup());
         builder.append(getDatabaseInstance(), that.getDatabaseInstance());
         builder.append(getGroup(), that.getGroup());
         return builder.isEquals();

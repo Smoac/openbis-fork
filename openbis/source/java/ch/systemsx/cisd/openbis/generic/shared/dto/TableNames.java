@@ -106,6 +106,10 @@ public final class TableNames
 
     public static final String EVENTS_TABLE = "events";
 
+    public static final String AUTHORIZATION_GROUPS_TABLE = "authorization_groups";
+
+    public static final String AUTHORIZATION_GROUP_PERSONS_TABLE = "authorization_group_persons";
+
     private TableNames()
     {
         // This class can not be instantiated.
