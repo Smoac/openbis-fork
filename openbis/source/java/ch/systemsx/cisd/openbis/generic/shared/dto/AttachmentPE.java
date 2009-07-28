@@ -128,7 +128,8 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
             String attachmentName = attachment.getFileName();
             if (isSearchable(attachment))
             {
-                indexFileContent(document, luceneOptions, attachment, attachmentName);
+                // TODO 2009-07-28, Tomasz Pylak: switch on indexing attachments
+                // indexFileContent(document, luceneOptions, attachment, attachmentName);
             }
             // index the file name. Make the field code unique, so that we can recognize which field
             // has matched the query later on
