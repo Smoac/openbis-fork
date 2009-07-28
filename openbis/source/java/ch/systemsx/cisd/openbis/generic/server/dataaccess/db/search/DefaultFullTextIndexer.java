@@ -76,18 +76,33 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         {
             index++;
             final Object object = results.get(0);
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug(String.format("Indexing entity '%s'.", object));
-            }
-            fullTextSession.index(object);
-            if (batchSize > 0 && index % batchSize == 0)
-            {
-                hibernateSession.clear();
-            }
+            indexEntity(hibernateSession, fullTextSession, index, object);
         }
         transaction.commit();
         operationLog
                 .info(String.format("%d '%s' have been indexed.", index, clazz.getSimpleName()));
     }
+
+    private <T> void indexEntity(final Session hibernateSession,
+            final FullTextSession fullTextSession, int index, T object)
+    {
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("Indexing entity '%s'.", object));
+        }
+        try
+        {
+            fullTextSession.index(object);
+        } catch (Exception e)
+        {
+            operationLog.error("Error while indexing the object " + object + ": " + e.getMessage()
+                    + ". Indexing will be continued.");
+        }
+        if (batchSize > 0 && index % batchSize == 0)
+        {
+            fullTextSession.flushToIndexes();
+            hibernateSession.clear();
+        }
+    }
+
 }
