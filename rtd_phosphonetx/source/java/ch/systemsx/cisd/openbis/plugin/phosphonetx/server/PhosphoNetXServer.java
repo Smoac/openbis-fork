@@ -78,12 +78,6 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         this.specificBOFactory = specificBOFactory;
     }
 
-    @Override
-    protected Class<IPhosphoNetXServer> getProxyInterface()
-    {
-        return IPhosphoNetXServer.class;
-    }
-
     public IPhosphoNetXServer createLogger(boolean invocationSuccessful, long elapsedTime)
     {
         return new PhosphoNetXServerLogger(getSessionManager(), invocationSuccessful, elapsedTime);

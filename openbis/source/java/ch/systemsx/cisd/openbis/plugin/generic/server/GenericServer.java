@@ -92,16 +92,6 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     //
-    // AbstractServerWithLogger
-    //
-
-    @Override
-    protected final Class<IGenericServer> getProxyInterface()
-    {
-        return IGenericServer.class;
-    }
-
-    //
     // IInvocationLoggerFactory
     //
 

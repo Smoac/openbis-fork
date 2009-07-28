@@ -168,16 +168,6 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     //
-    // AbstractServerWithLogger
-    //
-
-    @Override
-    protected final Class<ICommonServer> getProxyInterface()
-    {
-        return ICommonServer.class;
-    }
-
-    //
     // IInvocationLoggerFactory
     //
 

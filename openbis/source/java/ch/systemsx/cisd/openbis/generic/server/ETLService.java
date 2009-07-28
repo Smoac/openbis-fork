@@ -101,12 +101,6 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         this.dssFactory = dssFactory;
     }
 
-    @Override
-    protected Class<IETLService> getProxyInterface()
-    {
-        return IETLService.class;
-    }
-
     public IETLService createLogger(final boolean invocationSuccessful, final long elapsedTime)
     {
         return new ETLServiceLogger(getSessionManager(), invocationSuccessful, elapsedTime);

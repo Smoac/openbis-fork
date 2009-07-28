@@ -175,6 +175,12 @@
         <constructor-arg ref="dao-factory" />
     </bean>
 
+    <!-- 
+        // Logging
+    -->
+
+    <bean class="ch.systemsx.cisd.common.spring.LogAdvisor" />
+
     <!--
         // Plugins
     -->

@@ -115,12 +115,6 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         commandExecuter.start();
     }
 
-    @Override
-    protected Class<IDataStoreService> getProxyInterface()
-    {
-        return IDataStoreService.class;
-    }
-
     public IDataStoreService createLogger(final boolean invocationSuccessful, final long elapsedTime)
     {
         return new DataStoreServiceLogger(operationLog, invocationSuccessful, elapsedTime);

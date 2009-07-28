@@ -66,16 +66,6 @@ public final class DemoServer extends AbstractServer<IDemoServer> implements IDe
     }
 
     //
-    // AbstractServerWithLogger
-    //
-
-    @Override
-    protected final Class<IDemoServer> getProxyInterface()
-    {
-        return IDemoServer.class;
-    }
-
-    //
     // IInvocationLoggerFactory
     //
 
