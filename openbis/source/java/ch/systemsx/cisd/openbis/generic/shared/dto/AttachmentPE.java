@@ -156,6 +156,7 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
             return false;
         }
 
+        @SuppressWarnings("unused")
         private void indexFileContent(Document document, LuceneOptions luceneOptions,
                 AttachmentPE attachment, String attachmentName)
         {
