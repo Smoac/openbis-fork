@@ -16,20 +16,19 @@
 
 package ch.systemsx.cisd.yeastx.db;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import net.lemnik.eodsql.QueryTool;
+import net.lemnik.eodsql.TransactionQuery;
 
 import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 
 /**
- * Factory for database connections.
+ * Database utilities. Call {@link #init(DatabaseConfigurationContext)} before working with the
+ * database.
  * 
  * @author Bernd Rinn
  */
-public class DBFactory
+public class DBUtils
 {
     /** Current version of the database. */
     public static final String DATABASE_VERSION = "001";
@@ -37,21 +36,6 @@ public class DBFactory
     static
     {
         QueryTool.getTypeMap().put(float[].class, new FloatArrayMapper());
-    }
-
-    private final DatabaseConfigurationContext context;
-
-    public DBFactory(DatabaseConfigurationContext context)
-    {
-        this.context = context;
-        DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, DATABASE_VERSION);
-    }
-
-    public Connection getConnection() throws SQLException
-    {
-        final Connection conn = context.getDataSource().getConnection();
-        conn.setAutoCommit(false);
-        return conn;
     }
 
     public static DatabaseConfigurationContext createDefaultDBContext()
@@ -67,11 +51,36 @@ public class DBFactory
     }
 
     /**
-     * Returns the data access object for the generic tables of the data mart.
+     * Checks the database specified by <var>context</var> and migrates it to the current version if
+     * necessary.
      */
-    public static IGenericDAO getDAO(Connection conn)
+    public static void init(DatabaseConfigurationContext context)
     {
-        return QueryTool.getQuery(conn, IGenericDAO.class);
+        DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, DATABASE_VERSION);
+    }
+
+    /**
+     * Rolls backs and closes the given <var>transactionOrNull</var>, if it is not <code>null</code>
+     * .
+     */
+    public static void rollbackAndClose(TransactionQuery transactionOrNull)
+    {
+        if (transactionOrNull != null)
+        {
+            transactionOrNull.rollback();
+            transactionOrNull.close();
+        }
+    }
+
+    /**
+     * Closes the given <var>transactionOrNull</var>, if it is not <code>null</code> .
+     */
+    public static void close(TransactionQuery transactionOrNull)
+    {
+        if (transactionOrNull != null)
+        {
+            transactionOrNull.close();
+        }
     }
 
     /**
@@ -84,7 +93,8 @@ public class DBFactory
         DMSampleDTO sample = dao.getSampleByPermId(dataSet.getSample().getPermId());
         if (sample == null)
         {
-            DMExperimentDTO experiment = dao.getExperimentByPermId(dataSet.getExperiment().getPermId());
+            DMExperimentDTO experiment =
+                    dao.getExperimentByPermId(dataSet.getExperiment().getPermId());
             if (experiment == null)
             {
                 experiment = dataSet.getExperiment();

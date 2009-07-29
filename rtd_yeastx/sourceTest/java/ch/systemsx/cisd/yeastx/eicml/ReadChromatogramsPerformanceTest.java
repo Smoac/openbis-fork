@@ -16,10 +16,13 @@
 
 package ch.systemsx.cisd.yeastx.eicml;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
-import ch.systemsx.cisd.yeastx.db.DBFactory;
+import net.lemnik.eodsql.QueryTool;
+import net.lemnik.eodsql.TransactionQuery;
+
+import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.yeastx.db.DBUtils;
 
 /**
  * A performance test of reading all chromatograms from the database.
@@ -31,11 +34,13 @@ public class ReadChromatogramsPerformanceTest
 
     public static void main(String[] args) throws SQLException
     {
-        final Connection conn = new DBFactory(DBFactory.createDefaultDBContext()).getConnection();
+        final DatabaseConfigurationContext context = DBUtils.createDefaultDBContext();
+        DBUtils.init(context);
+        TransactionQuery transaction = null;
         long start = System.currentTimeMillis();
         try
         {
-            final IEICMSRunDAO dao = EICML2Database.getDAO(conn);
+            final IEICMSRunDAO dao = QueryTool.getQuery(context.getDataSource(), IEICMSRunDAO.class);
             for (EICMSRunDTO run : dao.getMsRuns())
             {
                 // We need to iterate over the chromatograms to make sure they are really read.
@@ -47,7 +52,7 @@ public class ReadChromatogramsPerformanceTest
             }
         } finally
         {
-            conn.close();
+            DBUtils.close(transaction);
         }
         System.out.println((System.currentTimeMillis() - start) / 1000.0f);
     }

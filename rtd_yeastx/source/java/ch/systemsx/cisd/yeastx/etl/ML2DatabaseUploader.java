@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.yeastx.etl;
 
 import java.io.File;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.Set;
@@ -32,7 +31,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.yeastx.db.DBFactory;
+import ch.systemsx.cisd.yeastx.db.DBUtils;
 import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
 import ch.systemsx.cisd.yeastx.eicml.EICML2Database;
 import ch.systemsx.cisd.yeastx.fiaml.FIAML2Database;
@@ -47,8 +46,10 @@ public class ML2DatabaseUploader
 {
     private static final String DATABASE_PROPERTIES_PREFIX = "database.";
 
-    private final Connection connection;
-
+    private final EICML2Database eicML2Database;
+    
+    private final FIAML2Database fiaML2Database;
+    
     private final String uniqueSampleNamePropertyCode;
 
     private final String uniqueExperimentNamePropertyCode;
@@ -58,26 +59,15 @@ public class ML2DatabaseUploader
         final Properties dbProps =
                 ExtendedProperties.getSubset(properties, DATABASE_PROPERTIES_PREFIX, true);
         final DatabaseConfigurationContext dbContext =
-                (dbProps.isEmpty() ? DBFactory.createDefaultDBContext() : BeanUtils.createBean(
+                (dbProps.isEmpty() ? DBUtils.createDefaultDBContext() : BeanUtils.createBean(
                         DatabaseConfigurationContext.class, dbProps));
-        this.connection = getDatabaseConnection(dbContext);
+        DBUtils.init(dbContext);
+        this.eicML2Database = new EICML2Database(dbContext.getDataSource());
+        this.fiaML2Database = new FIAML2Database(dbContext.getDataSource());
         this.uniqueExperimentNamePropertyCode =
                 DatasetMappingResolver.getUniqueExperimentNamePropertyCode(properties);
         this.uniqueSampleNamePropertyCode =
                 DatasetMappingResolver.getUniqueSampleNamePropertyCode(properties);
-    }
-
-    private static Connection getDatabaseConnection(DatabaseConfigurationContext dbContext)
-            throws EnvironmentFailureException
-    {
-        try
-        {
-            return new DBFactory(dbContext).getConnection();
-        } catch (SQLException e)
-        {
-            throw EnvironmentFailureException.fromTemplate(e,
-                    "Cannot connect to the database which stores transformed mzXML files.");
-        }
     }
 
     /** uploads files with recognized extensions to the additional database */
@@ -111,14 +101,14 @@ public class ML2DatabaseUploader
             throws SQLException
     {
         DMDataSetDTO openbisBacklink = createBacklink(dataSetInformation);
-        EICML2Database.uploadEicMLFile(connection, dataSet, openbisBacklink);
+        eicML2Database.uploadEicMLFile(dataSet, openbisBacklink);
     }
 
     private void translateFIA(File dataSet, DataSetInformation dataSetInformation)
             throws SQLException
     {
         DMDataSetDTO openbisBacklink = createBacklink(dataSetInformation);
-        FIAML2Database.uploadFiaMLFile(connection, dataSet, openbisBacklink);
+        fiaML2Database.uploadFiaMLFile(dataSet, openbisBacklink);
     }
 
     private DMDataSetDTO createBacklink(DataSetInformation dataSetInformation)

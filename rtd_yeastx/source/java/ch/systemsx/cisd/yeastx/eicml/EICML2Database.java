@@ -18,19 +18,20 @@ package ch.systemsx.cisd.yeastx.eicml;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.DataSource;
 import javax.xml.parsers.ParserConfigurationException;
 
 import net.lemnik.eodsql.QueryTool;
+import net.lemnik.eodsql.TransactionQuery;
 
 import org.xml.sax.SAXException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.yeastx.db.DBFactory;
+import ch.systemsx.cisd.yeastx.db.DBUtils;
 import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
 import ch.systemsx.cisd.yeastx.eicml.EICMLParser.IChromatogramObserver;
 import ch.systemsx.cisd.yeastx.eicml.EICMLParser.IMSRunObserver;
@@ -45,11 +46,6 @@ public class EICML2Database
 
     private final static int CHROMATOGRAM_BATCH_SIZE = 100;
 
-    public static IEICMSRunDAO getDAO(Connection conn)
-    {
-        return QueryTool.getQuery(conn, IEICMSRunDAO.class);
-    }
-
     private static void addChromatograms(IEICMSRunDAO dao, long eicMLId,
             List<ChromatogramDTO> chromatograms, int threshold)
     {
@@ -60,19 +56,26 @@ public class EICML2Database
         }
     }
 
+    private final IEICMSRunDAO dao;
+
+    public EICML2Database(DataSource datasource)
+    {
+        this.dao = QueryTool.getQuery(datasource, IEICMSRunDAO.class);
+    }
+
     /**
      * Method for uploading an <var>eicMLFile</var> to the database.
      */
-    public static void uploadEicMLFile(final Connection conn, final File eicMLFile,
-            final DMDataSetDTO dataSet) throws SQLException
+    public void uploadEicMLFile(final File eicMLFile, final DMDataSetDTO dataSet)
     {
         final long[] eicMLId = new long[1];
         final List<ChromatogramDTO> chromatograms =
                 new ArrayList<ChromatogramDTO>(CHROMATOGRAM_BATCH_SIZE);
+        TransactionQuery transaction = null;
         try
         {
-            DBFactory.createDataSet(DBFactory.getDAO(conn), dataSet);
-            final IEICMSRunDAO dao = getDAO(conn);
+            transaction = dao;
+            DBUtils.createDataSet(dao, dataSet);
             new EICMLParser(eicMLFile.getPath(), new IMSRunObserver()
                 {
                     public void observe(EICMSRunDTO run)
@@ -94,17 +97,11 @@ public class EICML2Database
                     }
                 });
             addChromatograms(dao, eicMLId[0], chromatograms, 1);
-            conn.commit();
+            transaction.close(true);
         } catch (Throwable th)
         {
-            conn.rollback();
-            if (th instanceof SQLException)
-            {
-                throw (SQLException) th;
-            } else
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(th);
-            }
+            DBUtils.rollbackAndClose(transaction);
+            throw CheckedExceptionTunnel.wrapIfNecessary(th);
         }
     }
 
@@ -112,20 +109,15 @@ public class EICML2Database
             IOException, SQLException
     {
         final long start = System.currentTimeMillis();
-        final Connection conn = new DBFactory(DBFactory.createDefaultDBContext()).getConnection();
-        try
+        final EICML2Database eicML2Database =
+                new EICML2Database(DBUtils.createDefaultDBContext().getDataSource());
+        final String dir = args[0];
+        int permId = 0;
+        for (String f : new File(dir).list(new EICMLFilenameFilter()))
         {
-            final String dir = args[0];
-            int permId = 0;
-            for (String f : new File(dir).list(new EICMLFilenameFilter()))
-            {
-                uploadEicMLFile(conn, new File(dir, f), new DMDataSetDTO(
-                        Integer.toString(++permId), "sample1", "the sample name", "experiment1",
-                        "the experiment name"));
-            }
-        } finally
-        {
-            conn.close();
+            eicML2Database.uploadEicMLFile(new File(dir, f), new DMDataSetDTO(
+                    Integer.toString(++permId), "sample1", "the sample name", "experiment1",
+                    "the experiment name"));
         }
         System.out.println((System.currentTimeMillis() - start) / 1000.0);
     }

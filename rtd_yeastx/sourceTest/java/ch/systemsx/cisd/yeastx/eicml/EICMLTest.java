@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 
 import net.lemnik.eodsql.DataIterator;
+import net.lemnik.eodsql.QueryTool;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.BeforeMethod;
@@ -45,13 +46,14 @@ public class EICMLTest extends AbstractDBTest
     @BeforeMethod(alwaysRun = true)
     public void setDAO() throws SQLException
     {
-        eicmlDAO = getEICMLDAO();
+        eicmlDAO = QueryTool.getQuery(datasource, IEICMSRunDAO.class);
     }
 
     @Test
     public void testUploadEicML() throws SQLException
     {
-        EICML2Database.uploadEicMLFile(conn, new File("resource/examples/example.eicML"),
+        EICML2Database db = new EICML2Database(datasource);
+        db.uploadEicMLFile(new File("resource/examples/example.eicML"),
                 new DMDataSetDTO("data set perm id", "sample perm id", "sample name",
                         "experiment perm id", "experiment name"));
     }
@@ -138,7 +140,6 @@ public class EICMLTest extends AbstractDBTest
         assertEquals(17L, run.getMsRunId().longValue());
         assertEquals(32L, run.getSetId().longValue());
         assertEquals("???", run.getOperator());
-        runs.close(); // Shoudn't be necessary, just to be sure.
         final DataIterator<ChromatogramDTO> chromatograms = eicmlDAO.getChromatogramsForRun(run);
         int count = 0;
         while (chromatograms.hasNext())
@@ -148,6 +149,5 @@ public class EICMLTest extends AbstractDBTest
             ++count;
         }
         assertEquals(run.getChromCount(), count);
-        chromatograms.close(); // Shoudn't be necessary, just to be sure.
     }
 }

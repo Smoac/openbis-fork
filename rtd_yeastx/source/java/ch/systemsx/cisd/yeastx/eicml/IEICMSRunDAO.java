@@ -18,7 +18,8 @@ package ch.systemsx.cisd.yeastx.eicml;
 
 import java.util.List;
 
-import net.lemnik.eodsql.BaseQuery;
+import ch.systemsx.cisd.yeastx.db.IGenericDAO;
+
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.Update;
@@ -28,7 +29,7 @@ import net.lemnik.eodsql.Update;
  * 
  * @author Bernd Rinn
  */
-public interface IEICMSRunDAO extends BaseQuery
+public interface IEICMSRunDAO extends IGenericDAO
 {
     final String ALL_EIC_MSRUN_COLUMNS =
             "EIC_MS_RUNS.ID, EIC_MS_RUNS.EXPE_ID, EIC_MS_RUNS.SAMP_ID, EIC_MS_RUNS.DS_ID, "

@@ -16,12 +16,14 @@
 
 package ch.systemsx.cisd.yeastx.eicml;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
-import ch.systemsx.cisd.yeastx.db.DBFactory;
-
 import net.lemnik.eodsql.DataIterator;
+import net.lemnik.eodsql.QueryTool;
+import net.lemnik.eodsql.TransactionQuery;
+
+import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.yeastx.db.DBUtils;
 
 /**
  * A method for listing all chromatogram labels of all runs.
@@ -33,10 +35,13 @@ public class ListChromatogramLabels
 
     public static void main(String[] args) throws SQLException
     {
-        final Connection conn = new DBFactory(DBFactory.createDefaultDBContext()).getConnection();
+        final DatabaseConfigurationContext context = DBUtils.createDefaultDBContext();
+        DBUtils.init(context);
+        TransactionQuery transaction = null;
         try
         {
-            final IEICMSRunDAO dao = EICML2Database.getDAO(conn);
+            final IEICMSRunDAO dao = QueryTool.getQuery(context.getDataSource(), IEICMSRunDAO.class);
+            transaction = dao;
             if (args.length > 0)
             {
                 for (String fn : args)
@@ -54,7 +59,7 @@ public class ListChromatogramLabels
             }
         } finally
         {
-            conn.close();
+            DBUtils.close(transaction);
         }
     }
 

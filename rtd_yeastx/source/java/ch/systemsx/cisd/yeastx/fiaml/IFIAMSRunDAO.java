@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.yeastx.fiaml;
 
-import net.lemnik.eodsql.BaseQuery;
+import ch.systemsx.cisd.yeastx.db.IGenericDAO;
+
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.Update;
@@ -26,7 +27,7 @@ import net.lemnik.eodsql.Update;
  * 
  * @author Bernd Rinn
  */
-public interface IFIAMSRunDAO extends BaseQuery
+public interface IFIAMSRunDAO extends IGenericDAO
 {
     final String ALL_FIA_MSRUN_COLUMNS =
             "FIA_MS_RUNS.ID, FIA_MS_RUNS.EXPE_ID, "

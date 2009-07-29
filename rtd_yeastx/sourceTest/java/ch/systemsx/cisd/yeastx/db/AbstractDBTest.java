@@ -16,19 +16,14 @@
 
 package ch.systemsx.cisd.yeastx.db;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
-import net.lemnik.eodsql.QueryTool;
+import javax.sql.DataSource;
 
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
-import ch.systemsx.cisd.yeastx.eicml.IEICMSRunDAO;
-import ch.systemsx.cisd.yeastx.fiaml.IFIAMSRunDAO;
 
 /**
  * Abstract test case for database related unit testing.
@@ -42,40 +37,16 @@ public abstract class AbstractDBTest
         LogInitializer.init();
     }
     
-    protected Connection conn;
+    protected DataSource datasource;
     
     @BeforeClass(alwaysRun = true)
     public void setUpClass() throws SQLException
     {
-        final DatabaseConfigurationContext context = DBFactory.createDefaultDBContext();
+        final DatabaseConfigurationContext context = DBUtils.createDefaultDBContext();
         context.setDatabaseKind("dbtest");
         context.setCreateFromScratch(true);
-        new DBFactory(context).getConnection();
-    }
-
-    @BeforeMethod(alwaysRun = true)
-    public void setUpMethod() throws SQLException
-    {
-        final DatabaseConfigurationContext context = DBFactory.createDefaultDBContext();
-        context.setDatabaseKind("dbtest");
-        conn = new DBFactory(context).getConnection();
-    }
-
-    @AfterMethod(alwaysRun = true)
-    public void closeConnection() throws SQLException
-    {
-        conn.close();
-        conn = null;
-    }
-    
-    protected IEICMSRunDAO getEICMLDAO()
-    {
-        return QueryTool.getQuery(conn, IEICMSRunDAO.class);
-    }
-
-    protected IFIAMSRunDAO getFIAMLDAO()
-    {
-        return QueryTool.getQuery(conn, IFIAMSRunDAO.class);
+        DBUtils.init(context);
+        datasource = context.getDataSource();
     }
 
 }
