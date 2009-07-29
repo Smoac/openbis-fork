@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.D
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 public class PropertyFieldFactory
 {
@@ -108,7 +109,8 @@ public class PropertyFieldFactory
             return DateRenderer.renderDate((Date) value);
         } else if (value instanceof VocabularyTermModel)
         {
-            return ((VocabularyTermModel) value).getTerm();
+            final VocabularyTerm term = ((VocabularyTermModel) value).getTerm();
+            return term.getCode();
         } else
         {
             return value.toString();

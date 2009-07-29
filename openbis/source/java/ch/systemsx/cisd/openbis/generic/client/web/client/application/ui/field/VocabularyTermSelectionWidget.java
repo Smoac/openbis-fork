@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -59,10 +60,10 @@ public class VocabularyTermSelectionWidget extends
      */
     public static DatabaseModificationAwareField<VocabularyTermModel> create(String idSuffix,
             String label, Vocabulary vocabulary, final boolean mandatory,
-            IViewContext<?> viewContext, String initialTermOrNull)
+            IViewContext<?> viewContext, String initialTermCodeOrNull)
     {
         return new VocabularyTermSelectionWidget(idSuffix, label, mandatory, vocabulary,
-                viewContext, null, initialTermOrNull).asDatabaseModificationAware();
+                viewContext, null, initialTermCodeOrNull).asDatabaseModificationAware();
     }
 
     /**
@@ -76,13 +77,13 @@ public class VocabularyTermSelectionWidget extends
 
     private VocabularyTermSelectionWidget(String idSuffix, String label, boolean mandatory,
             Vocabulary vocabularyOrNull, IViewContext<?> viewContextOrNull,
-            List<VocabularyTerm> termsOrNull, String initialTermOrNull)
+            List<VocabularyTerm> termsOrNull, String initialTermCodeOrNull)
     {
-        super(idSuffix, ModelDataPropertyNames.CODE, label, CHOOSE_MSG, EMPTY_MSG,
+        super(idSuffix, ModelDataPropertyNames.CODE_WITH_LABEL, label, CHOOSE_MSG, EMPTY_MSG,
                 VALUE_NOT_IN_LIST_MSG, mandatory, viewContextOrNull, termsOrNull == null);
         this.viewContextOrNull = viewContextOrNull;
         this.vocabularyOrNull = vocabularyOrNull;
-        this.initialTermCodeOrNull = initialTermOrNull;
+        this.initialTermCodeOrNull = initialTermCodeOrNull;
         FieldUtil.setMandatoryFlag(this, mandatory);
         setAllowBlank(mandatory == false);
         if (termsOrNull != null)
@@ -94,8 +95,8 @@ public class VocabularyTermSelectionWidget extends
     private void setTerms(List<VocabularyTerm> terms)
     {
         final List<VocabularyTermModel> models = new ArrayList<VocabularyTermModel>();
-        models.add(new VocabularyTermModel(GWTUtils.NONE_LIST_ITEM));
         models.addAll(convertItems(terms));
+        Collections.sort(models);
         updateStore(models);
         getPropertyEditor().setList(store.getModels());
     }

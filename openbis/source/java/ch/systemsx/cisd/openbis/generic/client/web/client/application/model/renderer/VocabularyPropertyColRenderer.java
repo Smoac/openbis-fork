@@ -56,16 +56,10 @@ public class VocabularyPropertyColRenderer<T extends IEntityPropertiesHolder> ex
     {
         assert term != null : "term is not set";
 
-        final String code = term.getCode();
-        final String label = term.getLabel();
         final String description = term.getDescription();
         final String url = term.getUrl();
 
-        String result = "[" + code + "]";
-        if (label != null)
-        {
-            result = label + " " + result;
-        }
+        String result = renderCodeWithLabel(term);
         if (url != null)
         {
             result = ExternalHyperlink.createAnchorString(result, url);
@@ -73,5 +67,12 @@ public class VocabularyPropertyColRenderer<T extends IEntityPropertiesHolder> ex
         result = MultilineHTML.wrapUpInDivWithTooltip(result, description);
 
         return result;
+    }
+
+    public static final String renderCodeWithLabel(VocabularyTerm term)
+    {
+        final String code = term.getCode();
+        final String label = term.getLabel();
+        return (label != null ? label + " " : "") + "[" + code + "]";
     }
 }

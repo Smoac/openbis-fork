@@ -17,34 +17,32 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BaseModel;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.VocabularyPropertyColRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 /**
  * @author Izabela Adamczyk
  */
-public class VocabularyTermModel extends BaseModel
+public class VocabularyTermModel extends BaseModel implements Comparable<VocabularyTermModel>
 {
 
     private static final long serialVersionUID = 1L;
 
     public VocabularyTermModel(VocabularyTerm term)
     {
-        this(term.getCode());
+        set(ModelDataPropertyNames.CODE, term.getCode());
+        set(ModelDataPropertyNames.CODE_WITH_LABEL, getCodeWithLabel(term));
+        set(ModelDataPropertyNames.OBJECT, term);
     }
 
-    public VocabularyTermModel(String termCode)
+    private String getCodeWithLabel(VocabularyTerm term)
     {
-        this(termCode, termCode);
-    }
-
-    private VocabularyTermModel(String termCode, String object)
-    {
-        set(ModelDataPropertyNames.CODE, termCode);
-        set(ModelDataPropertyNames.OBJECT, object);
+        return VocabularyPropertyColRenderer.renderCodeWithLabel(term);
     }
 
     public static final List<VocabularyTermModel> convert(List<VocabularyTerm> terms)
@@ -54,13 +52,28 @@ public class VocabularyTermModel extends BaseModel
         {
             list.add(new VocabularyTermModel(t));
         }
+        Collections.sort(list);
         return list;
     }
 
-    public String getTerm()
+    public VocabularyTerm getTerm()
     {
-        final String code = get(ModelDataPropertyNames.OBJECT);
-        return code;
+        return (VocabularyTerm) get(ModelDataPropertyNames.OBJECT);
+    }
+
+    //
+    // Comparable
+    //
+
+    public int compareTo(VocabularyTermModel o)
+    {
+        return getValueToCompare().compareTo(o.getValueToCompare());
+    }
+
+    /** @return value that will be used to compare Vocabulary Terms and display them in order */
+    private String getValueToCompare()
+    {
+        return get(ModelDataPropertyNames.CODE_WITH_LABEL);
     }
 
 }

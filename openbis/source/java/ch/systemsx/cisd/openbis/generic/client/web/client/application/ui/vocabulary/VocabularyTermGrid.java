@@ -453,8 +453,8 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                     public void selectionChanged(SelectionChangedEvent<VocabularyTermModel> se)
                     {
                         VocabularyTermModel selectedItem = se.getSelectedItem();
-                        termToBeReplaced.setReplacementCode(selectedItem == null ? null : selectedItem
-                                .getTerm());
+                        termToBeReplaced.setReplacementCode(selectedItem == null ? null
+                                : selectedItem.getTerm().getCode());
                         dialog.setEnableOfAcceptButton(formPanel.isValid());
                     }
                 });

@@ -67,7 +67,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         loginAndPreprareRegistration(sampleTypeCode);
         remoteConsole.prepare(new FillSampleRegistrationForm("CISD", GROUP_CL, true)
                 .addProperty(new PropertyField(GenericSampleRegistrationForm.ID + "plate-geometry",
-                        "1536_WELLS_32X48")));
+                        "[1536_WELLS_32X48]")));
         remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE,
                 GenericSampleRegistrationForm.RegisterSampleCallback.class));
         remoteConsole.prepare(new ListSamples("CISD", sampleTypeCode));
@@ -86,7 +86,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ChooseTypeOfNewSample(CONTROL_LAYOUT));
         remoteConsole.prepare(new FillSampleRegistrationForm("TESTGROUP", GROUP_CL + "1", true)
                 .addProperty(new PropertyField(GenericSampleRegistrationForm.ID + "plate-geometry",
-                        "1536_WELLS_32X48")));
+                        "[1536_WELLS_32X48]")));
         FailureExpectation failureExpectation =
                 new FailureExpectation(GenericSampleRegistrationForm.RegisterSampleCallback.class)
                         .with("Authorization failure: None of method roles "
@@ -143,7 +143,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
                 new PropertyField(GenericSampleRegistrationForm.ID + "user-description",
                         description)).addProperty(
                 new PropertyField(GenericSampleRegistrationForm.ID + "plate-geometry",
-                        "1536_WELLS_32X48")));
+                        "[1536_WELLS_32X48]")));
         remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE,
                 GenericSampleRegistrationForm.RegisterSampleCallback.class));
         remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_GROUP_CODE,
