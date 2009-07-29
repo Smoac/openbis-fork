@@ -305,6 +305,7 @@ var common = {
   role: "Role",
   confirm_role_removal_msg: "Do you want to remove selected role?",
   confirm_role_removal_title: "Role removal confirmation",
+  authorization_group: "Authorization Group",
   
   //
   // Experiment Registration
