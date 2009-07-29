@@ -40,7 +40,7 @@ public class SampleTypeTranslator
         result.setListable(sampleTypePE.isListable());
         result.setDescription(StringEscapeUtils.escapeHtml(sampleTypePE.getDescription()));
         result.setGeneratedFromHierarchyDepth(sampleTypePE.getGeneratedFromHierarchyDepth());
-        result.setShowContainer(getShowContainer(sampleTypePE));
+        result.setContainerHierarchyDepth(sampleTypePE.getContainerHierarchyDepth());
         result.setSampleTypePropertyTypes(SampleTypePropertyTypeTranslator.translate(sampleTypePE
                 .getSampleTypePropertyTypes(), result));
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(sampleTypePE
@@ -61,8 +61,4 @@ public class SampleTypeTranslator
         return sampleTypePE.getContainerHierarchyDepth() > 0;
     }
 
-    public static int getContainerHierarchyDepth(final SampleType sampleType)
-    {
-        return sampleType.isShowContainer() ? 1 : 0;
-    }
 }

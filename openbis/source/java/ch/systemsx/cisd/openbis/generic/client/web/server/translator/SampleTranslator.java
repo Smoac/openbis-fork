@@ -23,7 +23,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleHierarchyFiller;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -58,11 +57,9 @@ public final class SampleTranslator
         }
         // we want at least one container/parent sample to be translated if it is loaded [LMS-1053]
         final int containerDep =
-                SampleHierarchyFiller.getPositiveIntegerValue(samplePE.getSampleType()
-                        .getContainerHierarchyDepth());
+                getPositiveIntegerValue(samplePE.getSampleType().getContainerHierarchyDepth());
         final int generatedFromDep =
-                SampleHierarchyFiller.getPositiveIntegerValue(samplePE.getSampleType()
-                        .getGeneratedFromHierarchyDepth());
+                getPositiveIntegerValue(samplePE.getSampleType().getGeneratedFromHierarchyDepth());
         return translate(samplePE, baseIndexURL, containerDep, generatedFromDep, withDetails);
 
     }
@@ -148,6 +145,11 @@ public final class SampleTranslator
         }
         sampleGeneration.setGenerated(generated.toArray(new Sample[generated.size()]));
         return sampleGeneration;
+    }
+
+    public final static int getPositiveIntegerValue(int integer)
+    {
+        return integer == 0 ? 1 : integer;
     }
 
 }

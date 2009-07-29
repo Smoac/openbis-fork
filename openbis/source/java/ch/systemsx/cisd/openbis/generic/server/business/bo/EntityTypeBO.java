@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -76,8 +75,7 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         SampleTypePE sampleTypePE = new SampleTypePE();
         sampleTypePE.setCode(entityType.getCode());
         sampleTypePE.setDescription(entityType.getDescription());
-        sampleTypePE.setContainerHierarchyDepth(SampleTypeTranslator
-                .getContainerHierarchyDepth(entityType));
+        sampleTypePE.setContainerHierarchyDepth(entityType.getContainerHierarchyDepth());
         sampleTypePE.setGeneratedFromHierarchyDepth(entityType.getGeneratedFromHierarchyDepth());
         sampleTypePE.setListable(entityType.isListable());
         sampleTypePE.setDatabaseInstance(getHomeDatabaseInstance());

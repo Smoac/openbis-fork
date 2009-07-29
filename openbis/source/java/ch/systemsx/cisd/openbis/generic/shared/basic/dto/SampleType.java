@@ -40,14 +40,24 @@ public final class SampleType extends EntityType implements IsSerializable
 
     private List<SampleTypePropertyType> sampleTypePropertyTypes;
 
+    public final int getGeneratedFromHierarchyDepth()
+    {
+        return generatedFromHierarchyDepth;
+    }
+
     public final void setGeneratedFromHierarchyDepth(final int generatedFromHierarchyDepth)
     {
         this.generatedFromHierarchyDepth = generatedFromHierarchyDepth;
     }
 
-    public final int getGeneratedFromHierarchyDepth()
+    public final int getContainerHierarchyDepth()
     {
-        return generatedFromHierarchyDepth;
+        return isShowContainer() ? 1 : 0;
+    }
+
+    public final void setContainerHierarchyDepth(final int partOfHierarchyDepth)
+    {
+        setShowContainer(partOfHierarchyDepth > 0);
     }
 
     public final void setShowContainer(final boolean showContainer)
