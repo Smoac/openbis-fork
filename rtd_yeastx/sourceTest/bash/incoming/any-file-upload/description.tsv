@@ -1,0 +1,6 @@
+# openbis-user@mailinator.pl
+file_name	sample	group
+file.pdf	s32	IMSB_ZAMBONI
+file.zip	s32	IMSB_ZAMBONI
+file.mat	s32	IMSB_ZAMBONI
+file.any	s32	IMSB_ZAMBONI
