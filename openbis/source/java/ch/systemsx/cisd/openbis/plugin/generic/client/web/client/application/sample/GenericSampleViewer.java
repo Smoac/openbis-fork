@@ -227,12 +227,13 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
             properties.put(messageProvider.getMessage(Dict.GENERATED_SAMPLES), generated);
         }
         Sample generatedFrom = sample.getGeneratedFrom();
-        for (int i = 0; i < sampleType.getGeneratedFromHierarchyDepth() && generatedFrom != null; i++)
+        int depth = getPositiveGeneratedFromHierarchyDepth(sampleType);
+        for (int i = 0; i < depth && generatedFrom != null; i++)
         {
             properties.put(messageProvider.getMessage(Dict.GENERATED_FROM, i + 1), generatedFrom);
             generatedFrom = generatedFrom.getGeneratedFrom();
         }
-        Sample partOf = sample.getContainer(); 
+        Sample partOf = sample.getContainer();
         if (partOf != null)
         {
             properties.put(messageProvider.getMessage(Dict.PART_OF), partOf);
@@ -245,6 +246,12 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
             properties.put(label, property);
         }
         return properties;
+    }
+
+    private static int getPositiveGeneratedFromHierarchyDepth(SampleType sampleType)
+    {
+        int result = sampleType.getGeneratedFromHierarchyDepth();
+        return result == 0 ? 1 : result;
     }
 
     private final Component createLeftPanel(final SampleGeneration sampleGeneration)
