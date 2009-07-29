@@ -283,6 +283,8 @@ public abstract class Dict
 
     public static final String VOCABULARY_TERMS = "vocabulary_terms";
 
+    public static final String VOCABULARY_TERMS_FILE_FORMAT = "vocabulary_terms_file_format";
+
     public static final String VOCABULARY_TERMS_URL_TEMPLATE = "vocabulary_terms_url_template";
 
     public static final String VOCABULARY_TERMS_EMPTY = "vocabulary_terms_empty";

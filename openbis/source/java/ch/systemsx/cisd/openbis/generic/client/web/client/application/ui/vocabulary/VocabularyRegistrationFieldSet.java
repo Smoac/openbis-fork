@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
@@ -270,6 +271,8 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
 
         private FileUploadField uploadFileField;
 
+        private LabelField fileFormatField;
+
         public VocabularyTermsSection()
         {
             add(createSourceRadio());
@@ -277,14 +280,15 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
             add(termsArea = createTermsArea());
             // fromFile
             add(uploadFileField = createImportFileField());
-            add(urlTemplateField = createURLTemplateField());
+            add(fileFormatField = createFileFormatField());
             //
+            add(urlTemplateField = createURLTemplateField());
             updateSection();
         }
 
         public void setVisible(boolean visible)
         {
-            FieldUtil.setVisibility(visible, termsArea, uploadFileField);
+            FieldUtil.setVisibility(visible, termsArea, uploadFileField, fileFormatField);
             if (visible)
             {
                 updateSection();
@@ -336,6 +340,15 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
             return fileManager.getFields().get(0);
         }
 
+        private LabelField createFileFormatField()
+        {
+            LabelField result =
+                    new LabelField(messageProvider.getMessage(Dict.VOCABULARY_TERMS_FILE_FORMAT));
+            result.setFieldLabel("File format");
+            result.setLabelSeparator(":");
+            return result;
+        }
+
         private final TextArea createTermsArea()
         {
             final TextArea textArea = new TextArea();
@@ -352,7 +365,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
         {
             Boolean useFreeText = freeText.getValue();
             FieldUtil.setVisibility(useFreeText, termsArea);
-            FieldUtil.setVisibility(useFreeText == false, uploadFileField);
+            FieldUtil.setVisibility(useFreeText == false, uploadFileField, fileFormatField);
         }
 
         public void setValues(NewVocabulary vocabulary)

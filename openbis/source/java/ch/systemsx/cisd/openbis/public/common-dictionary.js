@@ -194,6 +194,7 @@ var common = {
   type_of: "Entity",
   vocabulary: "Vocabulary",
   vocabulary_terms: "Terms",
+  vocabulary_terms_file_format: "<pre>code		label (optional)		description (optional)</pre>",
   vocabulary_terms_url_template: "URL Template",
   vocabulary_terms_empty: "Space or comma separated list of terms.",
   vocabulary_show_available_terms_in_choosers: "Show available terms in choosers",

@@ -31,6 +31,7 @@ public class VocabularyTermField extends CodeField
             boolean isMandatory)
     {
         super(viewContext, label, CodeFieldKind.CODE_WITH_COLON);
+        setEmptyText("Vocabulary term code");
         // by default CodeField is mandatory
         if (isMandatory == false)
         {
