@@ -32,6 +32,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAttachmentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
@@ -792,7 +793,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             SampleTypePE sampleTypePE = (SampleTypePE) entityTypePE;
             SampleType sampleType = (SampleType) entityType;
             sampleTypePE.setListable(sampleType.isListable());
-            sampleTypePE.setContainerHierarchyDepth(sampleType.getPartOfHierarchyDepth());
+            sampleTypePE.setContainerHierarchyDepth(SampleTypeTranslator
+                    .getContainerHierarchyDepth(sampleType));
             sampleTypePE
                     .setGeneratedFromHierarchyDepth(sampleType.getGeneratedFromHierarchyDepth());
         }

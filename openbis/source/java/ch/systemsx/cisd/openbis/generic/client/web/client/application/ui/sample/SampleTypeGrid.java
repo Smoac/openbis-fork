@@ -55,9 +55,9 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
 
     private static final Boolean DEFAULT_LISTABLE_VALUE = true;
 
-    private static final Number DEFAULT_GENERATED_FROM_HIERARCHY_DEPTH_VALUE = 3;
+    private static final Boolean DEFAULT_SHOW_CONTAINER_VALUE = false;
 
-    private static final Number DEFAULT_PART_OF_HIERARCHY_DEPTH_VALUE = 0;
+    private static final Number DEFAULT_GENERATED_FROM_HIERARCHY_DEPTH_VALUE = 2;
 
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
@@ -105,7 +105,7 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
 
                 private final TextField<Number> generatedFromHierarchyDepthField;
 
-                private final TextField<Number> partOfHierarchyDepthField;
+                private final CheckBoxField showContainerField;
 
                 private final CheckBoxField listableField;
 
@@ -119,16 +119,15 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
                                     .isListable());
                     addField(listableField);
 
-                    generatedFromHierarchyDepthField =
-                            SampleTypeDialogFieldHelper
-                                    .createGeneratedFromHierarchyDepthFieldTitle(viewContext,
-                                            sampleType.getGeneratedFromHierarchyDepth());
-                    addField(generatedFromHierarchyDepthField);
+                    showContainerField =
+                            SampleTypeDialogFieldHelper.createShowContainerField(viewContext,
+                                    sampleType.isShowContainer());
+                    addField(showContainerField);
 
-                    partOfHierarchyDepthField =
-                            SampleTypeDialogFieldHelper.createPartOfHierarchyDepthFieldTitle(
-                                    viewContext, sampleType.getPartOfHierarchyDepth());
-                    addField(partOfHierarchyDepthField);
+                    generatedFromHierarchyDepthField =
+                            SampleTypeDialogFieldHelper.createGeneratedFromHierarchyDepthField(
+                                    viewContext, sampleType.getGeneratedFromHierarchyDepth());
+                    addField(generatedFromHierarchyDepthField);
                 }
 
                 @Override
@@ -138,8 +137,7 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
                     sampleType.setListable(listableField.getValue());
                     sampleType.setGeneratedFromHierarchyDepth(generatedFromHierarchyDepthField
                             .getValue().intValue());
-                    sampleType.setPartOfHierarchyDepth(partOfHierarchyDepthField.getValue()
-                            .intValue());
+                    sampleType.setShowContainer(showContainerField.getValue());
                     viewContext.getService().updateEntityType(entityKind, sampleType,
                             registrationCallback);
                 }
@@ -155,7 +153,7 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
 
                 private TextField<Number> generatedFromHierarchyDepthField;
 
-                private TextField<Number> partOfHierarchyDepthField;
+                private CheckBoxField showContainerField;
 
                 private CheckBoxField listableField;
 
@@ -167,16 +165,15 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
                                     DEFAULT_LISTABLE_VALUE);
                     addField(listableField);
 
-                    generatedFromHierarchyDepthField =
-                            SampleTypeDialogFieldHelper
-                                    .createGeneratedFromHierarchyDepthFieldTitle(viewContext,
-                                            DEFAULT_GENERATED_FROM_HIERARCHY_DEPTH_VALUE);
-                    addField(generatedFromHierarchyDepthField);
+                    showContainerField =
+                            SampleTypeDialogFieldHelper.createShowContainerField(viewContext,
+                                    DEFAULT_SHOW_CONTAINER_VALUE);
+                    addField(showContainerField);
 
-                    partOfHierarchyDepthField =
-                            SampleTypeDialogFieldHelper.createPartOfHierarchyDepthFieldTitle(
-                                    viewContext, DEFAULT_PART_OF_HIERARCHY_DEPTH_VALUE);
-                    addField(partOfHierarchyDepthField);
+                    generatedFromHierarchyDepthField =
+                            SampleTypeDialogFieldHelper.createGeneratedFromHierarchyDepthField(
+                                    viewContext, DEFAULT_GENERATED_FROM_HIERARCHY_DEPTH_VALUE);
+                    addField(generatedFromHierarchyDepthField);
 
                     super.onRender(parent, pos);
                 }
@@ -187,8 +184,7 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
                 {
                     sampleType.setGeneratedFromHierarchyDepth(generatedFromHierarchyDepthField
                             .getValue().intValue());
-                    sampleType.setPartOfHierarchyDepth(partOfHierarchyDepthField.getValue()
-                            .intValue());
+                    sampleType.setShowContainer(showContainerField.getValue());
                     sampleType.setListable(listableField.getValue());
                     SampleTypeGrid.this.register(sampleType, registrationCallback);
                 }
@@ -228,7 +224,7 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
             return field;
         }
 
-        public static TextField<Number> createGeneratedFromHierarchyDepthFieldTitle(
+        public static TextField<Number> createGeneratedFromHierarchyDepthField(
                 final IViewContext<ICommonClientServiceAsync> viewContext, Number value)
         {
             final String title = viewContext.getMessage(Dict.GENERATED_FROM_HIERARCHY_DEPTH);
@@ -237,11 +233,11 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
             return field;
         }
 
-        public static TextField<Number> createPartOfHierarchyDepthFieldTitle(
-                final IViewContext<ICommonClientServiceAsync> viewContext, Number value)
+        public static CheckBoxField createShowContainerField(
+                final IViewContext<ICommonClientServiceAsync> viewContext, Boolean value)
         {
-            final String title = viewContext.getMessage(Dict.PART_OF_HIERARCHY_DEPTH);
-            final TextField<Number> field = new IntegerField(title, true);
+            final String title = viewContext.getMessage(Dict.SHOW_CONTAINER);
+            final CheckBoxField field = new CheckBoxField(title, false);
             field.setValue(value);
             return field;
         }

@@ -50,6 +50,16 @@ public enum SampleTypeColDefKind implements IColumnDefinitionKind<SampleType>
             }
         }),
 
+    IS_SHOW_CONTAINER(new AbstractColumnDefinitionKind<SampleType>(Dict.IS_SHOW_CONTAINER, 200,
+            true)
+        {
+            @Override
+            public String tryGetValue(SampleType entity)
+            {
+                return SimpleYesNoRenderer.render(entity.isShowContainer());
+            }
+        }),
+
     GENERATED_FROM_HIERARCHY_DEPTH(new AbstractColumnDefinitionKind<SampleType>(
             Dict.GENERATED_FROM_HIERARCHY_DEPTH, 200, true)
         {
@@ -57,16 +67,6 @@ public enum SampleTypeColDefKind implements IColumnDefinitionKind<SampleType>
             public String tryGetValue(SampleType entity)
             {
                 return Integer.toString(entity.getGeneratedFromHierarchyDepth());
-            }
-        }),
-
-    PART_OF_HIERARCHY_DEPTH(new AbstractColumnDefinitionKind<SampleType>(
-            Dict.PART_OF_HIERARCHY_DEPTH, 200, true)
-        {
-            @Override
-            public String tryGetValue(SampleType entity)
-            {
-                return Integer.toString(entity.getPartOfHierarchyDepth());
             }
         });
 

@@ -56,7 +56,7 @@ public final class SampleHierarchyFiller
         SamplePE container = sample;
         final Integer integer = sample.getSampleType().getContainerHierarchyDepth();
         assert integer != null : "'partOf' hierarchy depth not specified.";
-        int containerHierarchyDepth = integer;
+        int containerHierarchyDepth = getPositiveIntegerValue(integer);
         while (containerHierarchyDepth-- > 0 && container != null)
         {
             container = container.getContainer();
@@ -69,12 +69,17 @@ public final class SampleHierarchyFiller
         SamplePE generatedFrom = sample;
         final Integer integer = sample.getSampleType().getGeneratedFromHierarchyDepth();
         assert integer != null : "'generatedFrom' hierarchy depth not specified.";
-        int generatedFromHierarchyDepth = integer;
+        int generatedFromHierarchyDepth = getPositiveIntegerValue(integer);
         while (generatedFromHierarchyDepth-- > 0 && generatedFrom != null)
         {
             generatedFrom = generatedFrom.getGeneratedFrom();
             initialize(generatedFrom);
         }
+    }
+
+    public final static int getPositiveIntegerValue(int integer)
+    {
+        return integer == 0 ? 1 : integer;
     }
 
     private final static void initialize(final SamplePE sample)

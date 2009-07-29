@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleHierarchyFiller;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -55,8 +56,13 @@ public final class SampleTranslator
         {
             return null;
         }
-        final int containerDep = samplePE.getSampleType().getContainerHierarchyDepth();
-        final int generatedFromDep = samplePE.getSampleType().getGeneratedFromHierarchyDepth();
+        // we want at least one container/parent sample to be translated if it is loaded [LMS-1053]
+        final int containerDep =
+                SampleHierarchyFiller.getPositiveIntegerValue(samplePE.getSampleType()
+                        .getContainerHierarchyDepth());
+        final int generatedFromDep =
+                SampleHierarchyFiller.getPositiveIntegerValue(samplePE.getSampleType()
+                        .getGeneratedFromHierarchyDepth());
         return translate(samplePE, baseIndexURL, containerDep, generatedFromDep, withDetails);
 
     }

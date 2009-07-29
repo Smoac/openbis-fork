@@ -243,7 +243,9 @@ public abstract class Dict
 
     public static final String GENERATED_FROM_HIERARCHY_DEPTH = "generated_from_hierarchy_depth";
 
-    public static final String PART_OF_HIERARCHY_DEPTH = "part_of_hierarchy_depth";
+    public static final String SHOW_CONTAINER = "show_container";
+
+    public static final String IS_SHOW_CONTAINER = "is_show_container";
 
     //
     // Property Type Browser

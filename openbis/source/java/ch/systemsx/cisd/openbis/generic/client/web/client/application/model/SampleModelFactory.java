@@ -102,10 +102,11 @@ public final class SampleModelFactory
                     getParentColumnHeader(msgProviderOrNull, Dict.GENERATED_FROM, depth);
             list.add(new ParentGeneratedFromSampleColDef(depth, headerText));
         }
-        for (int depth = 1; depth <= sampleType.getPartOfHierarchyDepth(); depth++)
+        if (sampleType.isShowContainer())
         {
-            String headerText = getParentColumnHeader(msgProviderOrNull, Dict.PART_OF, depth);
-            list.add(new ParentContainerSampleColDef(depth, headerText));
+            String headerText =
+                    msgProviderOrNull == null ? null : msgProviderOrNull.getMessage(Dict.PART_OF);
+            list.add(new ParentContainerSampleColDef(1, headerText));
         }
         return list;
     }

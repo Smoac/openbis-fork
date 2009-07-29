@@ -136,7 +136,7 @@ var common = {
   experiment_identifier: "Experiment Identifier",
   generated_samples: "Generated Samples",
   generated_from: "Parent {0}",
-  part_of: "Container {0}",
+  part_of: "Container",
   invalidation: "Invalidation",
   invalidation_template: "Invalidated by: {0}<br>Invalidation Date: {1}<br>Invalidation Reason: {2}",
   
@@ -169,8 +169,9 @@ var common = {
   
   listable: "Listable",
   is_listable: "Listable?",
+  show_container: "Show Container",
+  is_show_container: "Show Container?",
   generated_from_hierarchy_depth: "Derived Hierarchy Depth",
-  part_of_hierarchy_depth: "Container Hierarchy Depth",
    
   //
   // Property Type Browser
