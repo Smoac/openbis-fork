@@ -42,19 +42,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IInvalidationProvi
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
@@ -146,42 +142,12 @@ public final class PropertyValueRenderers
     }
 
     /**
-     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link SampleProperty}.
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link IEntityProperty}.
      */
-    public final static IPropertyValueRenderer<SampleProperty> createSamplePropertyPropertyValueRenderer(
+    public final static IPropertyValueRenderer<IEntityProperty> createEntityPropertyPropertyValueRenderer(
             final IViewContext<?> viewContext)
     {
-        return new EntityPropertyPropertyValueRenderer<SampleProperty>(viewContext);
-    }
-
-    /**
-     * Creates a {@link IPropertyValueRenderer} implementation for rendering
-     * {@link ExperimentProperty}.
-     */
-    public final static IPropertyValueRenderer<ExperimentProperty> createExperimentPropertyPropertyValueRenderer(
-            final IViewContext<?> viewContext)
-    {
-        return new EntityPropertyPropertyValueRenderer<ExperimentProperty>(viewContext);
-    }
-
-    /**
-     * Creates a {@link IPropertyValueRenderer} implementation for rendering
-     * {@link MaterialProperty}.
-     */
-    public final static IPropertyValueRenderer<MaterialProperty> createMaterialPropertyPropertyValueRenderer(
-            final IViewContext<?> viewContext)
-    {
-        return new EntityPropertyPropertyValueRenderer<MaterialProperty>(viewContext);
-    }
-
-    /**
-     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link DataSetProperty}
-     * .
-     */
-    public final static IPropertyValueRenderer<DataSetProperty> createDataSetPropertyPropertyValueRenderer(
-            final IViewContext<?> viewContext)
-    {
-        return new EntityPropertyPropertyValueRenderer<DataSetProperty>(viewContext);
+        return new EntityPropertyPropertyValueRenderer(viewContext);
     }
 
     /**
@@ -275,12 +241,12 @@ public final class PropertyValueRenderers
     }
 
     /**
-     * Renderer for {@link EntityProperty}.
+     * Renderer for {@link IEntityProperty}.
      * 
      * @author Christian Ribeaud
      */
-    private final static class EntityPropertyPropertyValueRenderer<T extends EntityProperty<?, ?>>
-            extends AbstractPropertyValueRenderer<T>
+    private final static class EntityPropertyPropertyValueRenderer extends
+            AbstractPropertyValueRenderer<IEntityProperty>
     {
 
         private final IViewContext<?> viewContext;
@@ -292,10 +258,10 @@ public final class PropertyValueRenderers
         }
 
         //
-        // AbstractPropertyValueRenderer
+        // IPropertyValueRenderer
         //
 
-        public Widget getAsWidget(T object)
+        public Widget getAsWidget(IEntityProperty object)
         {
             switch (getDataTypeCode(object))
             {
@@ -312,12 +278,12 @@ public final class PropertyValueRenderers
             }
         }
 
-        private DataTypeCode getDataTypeCode(T property)
+        private DataTypeCode getDataTypeCode(IEntityProperty property)
         {
             return getPropertyType(property).getDataType().getCode();
         }
 
-        private Widget createLinkToMaterial(T object)
+        private Widget createLinkToMaterial(IEntityProperty object)
         {
             Material material = object.getMaterial();
             if (material != null)
@@ -341,7 +307,7 @@ public final class PropertyValueRenderers
             }
         }
 
-        private Widget createMultilineHtmlWidget(T object)
+        private Widget createMultilineHtmlWidget(IEntityProperty object)
         {
             return MultilineStringPropertyValueRenderer
                     .createMultilineHtmlWidget(object.getValue());
@@ -352,18 +318,18 @@ public final class PropertyValueRenderers
             return new InlineHTML(html);
         }
 
-        private Widget createHtmlWidget(T object)
+        private Widget createHtmlWidget(IEntityProperty object)
         {
             return createHtmlWidget(object.getValue());
         }
 
-        private Widget createHyperlink(T object)
+        private Widget createHyperlink(IEntityProperty object)
         {
             String value = object.getValue();
             return new ExternalHyperlink(value, value);
         }
 
-        private Widget createVocabularyTermLink(T object)
+        private Widget createVocabularyTermLink(IEntityProperty object)
         {
             final VocabularyTerm term = object.getVocabularyTerm();
             String html = "";
@@ -374,14 +340,14 @@ public final class PropertyValueRenderers
             return createHtmlWidget(html);
         }
 
-        private boolean isAllowedMaterialTypeUnspecified(T property)
+        private boolean isAllowedMaterialTypeUnspecified(IEntityProperty property)
         {
             return getPropertyType(property).getMaterialType() == null;
         }
 
-        private PropertyType getPropertyType(T property)
+        private PropertyType getPropertyType(IEntityProperty property)
         {
-            return property.getEntityTypePropertyType().getPropertyType();
+            return property.getPropertyType();
         }
 
     }

@@ -29,8 +29,8 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.parser.DefaultPropertyMapper;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.ParserException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
@@ -171,10 +171,10 @@ public final class NewSampleParserObjectFactoryTest
                 createNewSampleParserObjectFactory(createPropertyMapperWithoutIdentifier(), false);
         final NewSample objectCreated = parserObjectFactory.createObject(lineTokens);
         AssertJUnit.assertNull(objectCreated.getIdentifier());
-        final SampleProperty[] properties = objectCreated.getProperties();
+        final IEntityProperty[] properties = objectCreated.getProperties();
         assertEquals(numberOfProperties, properties.length);
         int index = 0;
-        for (final SampleProperty sampleProperty : properties)
+        for (final IEntityProperty sampleProperty : properties)
         {
             sampleProperty.getValue().equals(lineTokens[index++]);
         }
@@ -191,10 +191,10 @@ public final class NewSampleParserObjectFactoryTest
                 StringUtils.isEmpty(lineTokens[1]) ? null : lineTokens[1]);
         assertEquals(objectCreated.getParentIdentifier(), StringUtils.isEmpty(lineTokens[2]) ? null
                 : lineTokens[2]);
-        final SampleProperty[] properties = objectCreated.getProperties();
+        final IEntityProperty[] properties = objectCreated.getProperties();
         assertEquals(numberOfProperties, properties.length);
         int index = 3;
-        for (final SampleProperty sampleProperty : properties)
+        for (final IEntityProperty sampleProperty : properties)
         {
             sampleProperty.getValue().equals(lineTokens[index++]);
         }

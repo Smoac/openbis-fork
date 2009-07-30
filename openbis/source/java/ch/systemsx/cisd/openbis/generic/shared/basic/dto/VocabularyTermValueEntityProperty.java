@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2009 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,28 +17,27 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 /**
- * The generic entity property.
+ * A {@link IEntityProperty} class that only stores the vocabulary term value, but not a generic
+ * value or a material value.
  * 
- * @author Christian Ribeaud
+ * @author Bernd Rinn
  */
-public class EntityProperty extends GenericValueEntityProperty
+public class VocabularyTermValueEntityProperty extends AbstractEntityProperty
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private VocabularyTerm vocabularyTermOrNull;
 
-    private Material materialOrNull;
-
     @Override
-    public Material getMaterial()
+    public void setPropertyType(PropertyType propertyType)
     {
-        return materialOrNull;
-    }
-
-    @Override
-    public void setMaterial(Material material)
-    {
-        this.materialOrNull = material;
+        if (DataTypeCode.CONTROLLEDVOCABULARY.equals(propertyType.getDataType().getCode()) == false)
+        {
+            throw new IllegalArgumentException(
+                    "Only property types with data type CONTROLLEDVOCABULARY supported, found '"
+                            + propertyType.getDataType().getCode() + "'.");
+        }
+        super.setPropertyType(propertyType);
     }
 
     @Override

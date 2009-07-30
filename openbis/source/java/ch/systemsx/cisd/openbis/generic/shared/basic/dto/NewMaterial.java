@@ -25,7 +25,7 @@ public final class NewMaterial extends Code<NewMaterial>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private MaterialProperty[] properties = MaterialProperty.EMPTY_ARRAY;
+    private IEntityProperty[] properties = IEntityProperty.EMPTY_ARRAY;
 
     public NewMaterial()
     {
@@ -36,12 +36,12 @@ public final class NewMaterial extends Code<NewMaterial>
         setCode(code);
     }
 
-    public final MaterialProperty[] getProperties()
+    public final IEntityProperty[] getProperties()
     {
         return properties;
     }
 
-    public final void setProperties(final MaterialProperty[] properties)
+    public final void setProperties(final IEntityProperty[] properties)
     {
         this.properties = properties;
     }

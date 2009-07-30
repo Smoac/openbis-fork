@@ -31,7 +31,7 @@ public final class NewExperiment extends Identifier<NewExperiment>
 
     private String[] samples = new String[0];
 
-    private ExperimentProperty[] properties = ExperimentProperty.EMPTY_ARRAY;
+    private IEntityProperty[] properties = IEntityProperty.EMPTY_ARRAY;
 
     private SampleType sampleType = null;
 
@@ -63,12 +63,12 @@ public final class NewExperiment extends Identifier<NewExperiment>
         this.experimentTypeCode = experimentTypeCode;
     }
 
-    public final ExperimentProperty[] getProperties()
+    public final IEntityProperty[] getProperties()
     {
         return properties;
     }
 
-    public final void setProperties(final ExperimentProperty[] properties)
+    public final void setProperties(final IEntityProperty[] properties)
     {
         this.properties = properties;
     }

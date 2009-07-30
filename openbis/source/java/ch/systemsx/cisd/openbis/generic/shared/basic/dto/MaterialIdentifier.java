@@ -110,7 +110,13 @@ public final class MaterialIdentifier implements IsSerializable, Serializable
     /** Prints the identifier in the canonical form */
     public String print()
     {
-        return getCode() + TYPE_SEPARATOR_PREFIX + getTypeCode() + TYPE_SEPARATOR_SUFFIX;
+        return print(getCode(), getTypeCode());
+    }
+
+    /** Prints the identifier in the canonical form */
+    public static String print(String code, String typeCode)
+    {
+        return code + TYPE_SEPARATOR_PREFIX + typeCode + TYPE_SEPARATOR_SUFFIX;
     }
 
     //

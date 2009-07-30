@@ -18,24 +18,17 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.da
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
 
 public class DataSetPropertyEditor extends
-        PropertiesEditor<DataSetType, DataSetTypePropertyType, DataSetProperty>
+        PropertiesEditor<DataSetType, DataSetTypePropertyType>
 {
 
     public DataSetPropertyEditor(String id, IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(id, viewContext);
-    }
-
-    @Override
-    protected DataSetProperty createEntityProperty()
-    {
-        return new DataSetProperty();
     }
 
 }

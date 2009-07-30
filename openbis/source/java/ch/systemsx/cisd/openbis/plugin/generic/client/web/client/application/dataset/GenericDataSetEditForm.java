@@ -33,10 +33,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.S
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField.SampleChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
@@ -47,8 +47,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.exp
  * @author Piotr Buczek
  */
 public final class GenericDataSetEditForm
-        extends
-        AbstractGenericEntityRegistrationForm<DataSetType, DataSetTypePropertyType, DataSetProperty>
+        extends AbstractGenericEntityRegistrationForm<DataSetType, DataSetTypePropertyType>
 {
 
     private static final String SAMPLE_FIELD_ID_SUFFIX = "sample_field";
@@ -78,7 +77,7 @@ public final class GenericDataSetEditForm
     @Override
     public final void submitValidForm()
     {
-        final List<DataSetProperty> properties = extractProperties();
+        final List<IEntityProperty> properties = extractProperties();
         final String sampleIdentifier = extractSampleIdentifier();
         viewContext.getService().updateDataSet(techIdOrNull, sampleIdentifier, properties,
                 originalDataSet.getModificationDate(), new UpdateDataSetCallback(viewContext));
@@ -120,7 +119,7 @@ public final class GenericDataSetEditForm
     }
 
     @Override
-    protected PropertiesEditor<DataSetType, DataSetTypePropertyType, DataSetProperty> createPropertiesEditor(
+    protected PropertiesEditor<DataSetType, DataSetTypePropertyType> createPropertiesEditor(
             String id, IViewContext<ICommonClientServiceAsync> context)
     {
         DataSetPropertyEditor editor = new DataSetPropertyEditor(id, context);

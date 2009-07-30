@@ -22,8 +22,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
@@ -97,19 +97,19 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
     @Override
     protected final String tryGetValue(T entity)
     {
-        for (EntityProperty<?, ?> prop : getProperties(entity))
+        for (IEntityProperty prop : getProperties(entity))
         {
             if (isMatching(prop))
             {
-                return prop.getValue();
+                return prop.tryGetAsString();
             }
         }
         return null;
     }
 
-    public EntityProperty<?, ?> tryGetProperty(T entity)
+    public IEntityProperty tryGetProperty(T entity)
     {
-        for (EntityProperty<?, ?> prop : getProperties(entity))
+        for (IEntityProperty prop : getProperties(entity))
         {
             if (isMatching(prop))
             {
@@ -119,14 +119,14 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
         return null;
     }
 
-    protected List<? extends EntityProperty<?, ?>> getProperties(T entity)
+    protected List<? extends IEntityProperty> getProperties(T entity)
     {
         return entity.getProperties();
     }
 
-    private boolean isMatching(EntityProperty<?, ?> prop)
+    private boolean isMatching(IEntityProperty prop)
     {
-        PropertyType propType = prop.getEntityTypePropertyType().getPropertyType();
+        final PropertyType propType = prop.getPropertyType();
         return propType.isInternalNamespace() == isInternalNamespace
                 && propType.getSimpleCode().equals(simpleCode);
     }

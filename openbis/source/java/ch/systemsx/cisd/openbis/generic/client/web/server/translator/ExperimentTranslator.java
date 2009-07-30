@@ -23,8 +23,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -92,7 +92,7 @@ public final class ExperimentTranslator
             result.setProperties(ExperimentPropertyTranslator.translate(experiment.getProperties()));
         } else
         {
-            result.setProperties(new ArrayList<ExperimentProperty>());
+            result.setProperties(new ArrayList<IEntityProperty>());
         }
     }
 

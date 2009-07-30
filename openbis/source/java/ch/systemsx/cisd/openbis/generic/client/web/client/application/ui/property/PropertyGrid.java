@@ -99,8 +99,8 @@ public final class PropertyGrid extends Grid
     }
 
     /** For given <var>clazz</var> registers given <var>propertyValueRenderer</var>. */
-    public final <T> void registerPropertyValueRenderer(final Class<T> clazz,
-            final IPropertyValueRenderer<T> propertyValueRenderer)
+    public final <V, T extends V> void registerPropertyValueRenderer(final Class<T> clazz,
+            final IPropertyValueRenderer<V> propertyValueRenderer)
     {
         propertyValueRenderers.put(clazz, propertyValueRenderer);
     }

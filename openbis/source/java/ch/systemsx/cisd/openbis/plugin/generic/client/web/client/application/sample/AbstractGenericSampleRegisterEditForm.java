@@ -41,7 +41,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -54,7 +53,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.exp
  * @author Izabela Adamczyk
  */
 abstract public class AbstractGenericSampleRegisterEditForm extends
-        AbstractGenericEntityRegistrationForm<SampleType, SampleTypePropertyType, SampleProperty>
+        AbstractGenericEntityRegistrationForm<SampleType, SampleTypePropertyType>
 {
     public static final String ID_SUFFIX_CONTAINER = "container";
 
@@ -130,7 +129,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
     }
 
     @Override
-    protected PropertiesEditor<SampleType, SampleTypePropertyType, SampleProperty> createPropertiesEditor(
+    protected PropertiesEditor<SampleType, SampleTypePropertyType> createPropertiesEditor(
             String id, IViewContext<ICommonClientServiceAsync> context)
     {
         SamplePropertyEditor editor = new SamplePropertyEditor(id, context);

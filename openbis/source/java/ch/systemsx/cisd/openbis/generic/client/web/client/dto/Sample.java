@@ -28,9 +28,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
@@ -59,7 +60,7 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
 
     private Sample generatedFrom;
 
-    private List<SampleProperty> properties;
+    private List<IEntityProperty> properties;
 
     private Invalidation invalidation;
 
@@ -146,13 +147,13 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
         this.generatedFrom = generatedFrom;
     }
 
-    public List<SampleProperty> getProperties()
+    public List<IEntityProperty> getProperties()
     {
         return properties;
     }
 
-    @CollectionMapping(collectionClass = ArrayList.class, elementClass = SampleProperty.class)
-    public void setProperties(final List<SampleProperty> properties)
+    @CollectionMapping(collectionClass = ArrayList.class, elementClass = EntityProperty.class)
+    public void setProperties(final List<IEntityProperty> properties)
     {
         this.properties = properties;
     }

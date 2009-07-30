@@ -41,7 +41,7 @@ public class Material extends CodeWithRegistration<Material> implements IEntityI
 
     private Date modificationDate;
 
-    private List<MaterialProperty> properties;
+    private List<IEntityProperty> properties;
 
     public MaterialType getMaterialType()
     {
@@ -53,12 +53,12 @@ public class Material extends CodeWithRegistration<Material> implements IEntityI
         this.MaterialType = experimentType;
     }
 
-    public List<MaterialProperty> getProperties()
+    public List<IEntityProperty> getProperties()
     {
         return properties;
     }
 
-    public void setProperties(List<MaterialProperty> properties)
+    public void setProperties(List<IEntityProperty> properties)
     {
         this.properties = properties;
     }

@@ -18,23 +18,16 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ex
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 
 public class ExperimentPropertyEditor extends
-        PropertiesEditor<ExperimentType, ExperimentTypePropertyType, ExperimentProperty>
+        PropertiesEditor<ExperimentType, ExperimentTypePropertyType>
 {
 
     public ExperimentPropertyEditor(String id, IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(id, viewContext);
-    }
-
-    @Override
-    protected ExperimentProperty createEntityProperty()
-    {
-        return new ExperimentProperty();
     }
 
 }

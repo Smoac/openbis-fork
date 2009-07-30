@@ -25,11 +25,13 @@ import ch.systemsx.cisd.common.parser.AbstractParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.IPropertyModel;
 import ch.systemsx.cisd.common.parser.ParserException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 
 /**
  * A {@link AbstractParserObjectFactory} extension for creating {@link NewSample}.
@@ -50,32 +52,32 @@ final class NewSampleParserObjectFactory extends AbstractParserObjectFactory<New
         this.identifierExpectedInFile = identifierExpectedInFile;
     }
 
-    private final SampleTypePropertyType createSampleTypePropertyType(final String propertyTypeCode)
+    private final PropertyType createPropertyType(final String propertyTypeCode)
     {
-        final SampleTypePropertyType sampleTypePropertyType = new SampleTypePropertyType();
         final PropertyType propertyType = new PropertyType();
+        final DataType dataType = new DataType();
+        dataType.setCode(DataTypeCode.VARCHAR);
         propertyType.setCode(propertyTypeCode);
-        sampleTypePropertyType.setPropertyType(propertyType);
-        sampleTypePropertyType.setEntityType(sampleType);
-        return sampleTypePropertyType;
+        propertyType.setDataType(dataType);
+        return propertyType;
     }
 
     private final void setProperties(final NewSample newSample, final String[] lineTokens)
     {
-        final List<SampleProperty> properties = new ArrayList<SampleProperty>();
+        final List<IEntityProperty> properties = new ArrayList<IEntityProperty>();
         for (final String unmatchedProperty : getUnmatchedProperties())
         {
             final IPropertyModel propertyModel = tryGetPropertyModel(unmatchedProperty);
             final String propertyValue = getPropertyValue(lineTokens, propertyModel);
             if (StringUtils.isEmpty(propertyValue) == false)
             {
-                final SampleProperty property = new SampleProperty();
-                property.setEntityTypePropertyType(createSampleTypePropertyType(unmatchedProperty));
+                final IEntityProperty property = new EntityProperty();
+                property.setPropertyType(createPropertyType(unmatchedProperty));
                 property.setValue(propertyValue);
                 properties.add(property);
             }
         }
-        newSample.setProperties(properties.toArray(SampleProperty.EMPTY_ARRAY));
+        newSample.setProperties(properties.toArray(IEntityProperty.EMPTY_ARRAY));
     }
 
     //

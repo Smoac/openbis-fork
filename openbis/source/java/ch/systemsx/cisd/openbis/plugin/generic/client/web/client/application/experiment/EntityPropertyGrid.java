@@ -22,19 +22,20 @@ import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
 
 /**
  * @author Izabela Adamczyk
  */
-public class EntityPropertyGrid<T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>>
+public class EntityPropertyGrid<T extends EntityType, S extends EntityTypePropertyType<T>, P extends IEntityProperty>
 {
     private PropertyGrid grid;
 
@@ -54,14 +55,12 @@ public class EntityPropertyGrid<T extends EntityType, S extends EntityTypeProper
 
     private void registerRenderers()
     {
-        grid.registerPropertyValueRenderer(ExperimentProperty.class, PropertyValueRenderers
-                .createExperimentPropertyPropertyValueRenderer(viewContext));
-        grid.registerPropertyValueRenderer(SampleProperty.class, PropertyValueRenderers
-                .createSamplePropertyPropertyValueRenderer(viewContext));
-        grid.registerPropertyValueRenderer(MaterialProperty.class, PropertyValueRenderers
-                .createMaterialPropertyPropertyValueRenderer(viewContext));
-        grid.registerPropertyValueRenderer(DataSetProperty.class, PropertyValueRenderers
-                .createDataSetPropertyPropertyValueRenderer(viewContext));
+        final IPropertyValueRenderer<IEntityProperty> renderer = PropertyValueRenderers
+                .createEntityPropertyPropertyValueRenderer(viewContext);
+        grid.registerPropertyValueRenderer(EntityProperty.class, renderer);
+        grid.registerPropertyValueRenderer(GenericValueEntityProperty.class, renderer);
+        grid.registerPropertyValueRenderer(VocabularyTermValueEntityProperty.class, renderer);
+        grid.registerPropertyValueRenderer(MaterialValueEntityProperty.class, renderer);
     }
 
     private final Map<String, Object> createProperties(List<P> list)
@@ -69,8 +68,7 @@ public class EntityPropertyGrid<T extends EntityType, S extends EntityTypeProper
         final Map<String, Object> map = new LinkedHashMap<String, Object>();
         for (final P property : list)
         {
-            final String simpleCode =
-                    property.getEntityTypePropertyType().getPropertyType().getLabel();
+            final String simpleCode = property.getPropertyType().getLabel();
             map.put(simpleCode, property);
         }
         return map;

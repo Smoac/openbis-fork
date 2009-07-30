@@ -40,9 +40,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -378,7 +377,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     public Date updateMaterial(String sessionToken, TechId materialId,
-            List<MaterialProperty> properties, Date version)
+            List<IEntityProperty> properties, Date version)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
@@ -399,7 +398,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     public Date updateDataSet(String sessionToken, TechId datasetId,
-            SampleIdentifier sampleIdentifier, List<DataSetProperty> properties, Date version)
+            SampleIdentifier sampleIdentifier, List<IEntityProperty> properties, Date version)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IExternalDataBO dataSetBO = businessObjectFactory.createExternalDataBO(session);

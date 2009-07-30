@@ -26,9 +26,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
@@ -64,9 +64,9 @@ public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
             IEntityPropertiesHolder entity)
     {
         List<IColumnDefinitionUI<T>> list = createStaticColumnDefinitions(null);
-        for (EntityProperty<?, ?> prop : entity.getProperties())
+        for (IEntityProperty prop : entity.getProperties())
         {
-            PropertyType propertyType = prop.getEntityTypePropertyType().getPropertyType();
+            PropertyType propertyType = prop.getPropertyType();
             EntityPropertyColDef<T> colDef = new EntityPropertyColDef<T>(propertyType, true, null);
             list.add(AbstractPropertyColRenderer.getPropertyColRenderer(colDef));
         }

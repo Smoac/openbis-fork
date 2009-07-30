@@ -26,9 +26,8 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -174,7 +173,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     }
 
     public Date updateMaterial(String sessionToken, TechId materialId,
-            List<MaterialProperty> properties, Date version)
+            List<IEntityProperty> properties, Date version)
     {
         logTracking(sessionToken, "edit_material", "MATERIAL(%s)", materialId);
         return null;
@@ -189,7 +188,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     }
 
     public Date updateDataSet(String sessionToken, TechId datasetId,
-            SampleIdentifier sampleIdentifier, List<DataSetProperty> properties, Date version)
+            SampleIdentifier sampleIdentifier, List<IEntityProperty> properties, Date version)
     {
         logTracking(sessionToken, "edit_data_set", "DATA_SET(%s)", datasetId);
         return null;

@@ -28,11 +28,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.P
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 
 /**
  * @author Izabela Adamczyk
  */
-abstract public class PropertiesEditor<T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>>
+abstract public class PropertiesEditor<T extends EntityType, S extends EntityTypePropertyType<T>>
 
 {
     private static final String ETPT = "PROPERTY_TYPE";
@@ -43,7 +44,10 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    abstract protected P createEntityProperty();
+    protected IEntityProperty createEntityProperty()
+    {
+        return new EntityProperty();
+    }
 
     /**
      * Requires initial values of properties.
@@ -54,7 +58,7 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         this.viewContext = viewContext;
     }
 
-    public void initWithProperties(final List<S> entityTypesPropertyTypes, final List<P> properties)
+    public void initWithProperties(final List<S> entityTypesPropertyTypes, final List<IEntityProperty> properties)
     {
         assert properties != null : "Undefined properties.";
         assert propertyFields == null : "Already initialized.";
@@ -68,7 +72,7 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         assert propertyFields == null : "Already initialized.";
         this.propertyFields =
                 createPropertyFields(entityTypesPropertyTypes,
-                        createInitialProperties(new ArrayList<P>()));
+                        createInitialProperties(new ArrayList<IEntityProperty>()));
 
     }
 
@@ -85,12 +89,12 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         return result;
     }
 
-    private Map<String, String> createInitialProperties(final List<P> properties)
+    private Map<String, String> createInitialProperties(final List<IEntityProperty> properties)
     {
         Map<String, String> result = new HashMap<String, String>();
-        for (P p : properties)
+        for (IEntityProperty p : properties)
         {
-            result.put(p.getEntityTypePropertyType().getPropertyType().getCode(), p.getValue());
+            result.put(p.getPropertyType().getCode(), p.tryGetAsString());
         }
         return result;
     }
@@ -121,22 +125,22 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
     }
 
     /**
-     * Returns a list of {@link EntityProperty} for property types with selected values.
+     * Returns a list of {@link IEntityProperty} for property types with selected values.
      */
-    public final List<P> extractProperties()
+    public final List<IEntityProperty> extractProperties()
     {
         assert propertyFields != null : "Not initialized.";
-        final List<P> properties = new ArrayList<P>();
+        final List<IEntityProperty> properties = new ArrayList<IEntityProperty>();
         for (final DatabaseModificationAwareField<?> field : propertyFields)
         {
             Object value = field.get().getValue();
             if (value != null && PropertyFieldFactory.valueToString(value) != null)
             {
-                final S stpt = field.get().getData(ETPT);
-                final P sampleProperty = createEntityProperty();
-                sampleProperty.setValue(PropertyFieldFactory.valueToString(value));
-                sampleProperty.setEntityTypePropertyType(stpt);
-                properties.add(sampleProperty);
+                final S etpt = field.get().getData(ETPT);
+                final IEntityProperty entityProperty = createEntityProperty();
+                entityProperty.setValue(PropertyFieldFactory.valueToString(value));
+                entityProperty.setPropertyType(etpt.getPropertyType());
+                properties.add(entityProperty);
             }
         }
         return properties;

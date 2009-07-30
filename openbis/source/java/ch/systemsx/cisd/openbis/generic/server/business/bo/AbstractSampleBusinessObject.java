@@ -22,8 +22,8 @@ import java.util.Map;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -60,7 +60,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     }
 
     private final void defineSampleProperties(final SamplePE sample,
-            final SampleProperty[] sampleProperties)
+            final IEntityProperty[] sampleProperties)
     {
         final String sampleTypeCode = sample.getSampleType().getCode();
         final List<SamplePropertyPE> properties =

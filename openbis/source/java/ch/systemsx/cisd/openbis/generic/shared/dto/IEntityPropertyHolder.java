@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
  * 
  * @author Christian Ribeaud
  */
-public interface IEntityProperty extends IIdHolder
+public interface IEntityPropertyHolder extends IIdHolder
 {
     /**
      * Returns the entity type property type for this entity property.

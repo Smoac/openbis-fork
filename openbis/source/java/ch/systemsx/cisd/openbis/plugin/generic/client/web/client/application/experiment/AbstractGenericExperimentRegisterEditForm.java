@@ -52,7 +52,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -65,9 +64,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Abs
  * 
  * @author Izabela Adamczyk
  */
-abstract public class AbstractGenericExperimentRegisterEditForm
-        extends
-        AbstractGenericEntityRegistrationForm<ExperimentType, ExperimentTypePropertyType, ExperimentProperty>
+abstract public class AbstractGenericExperimentRegisterEditForm extends
+        AbstractGenericEntityRegistrationForm<ExperimentType, ExperimentTypePropertyType>
 {
     protected AttachmentsFileFieldManager attachmentsManager;
 
@@ -158,7 +156,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm
     }
 
     @Override
-    protected PropertiesEditor<ExperimentType, ExperimentTypePropertyType, ExperimentProperty> createPropertiesEditor(
+    protected PropertiesEditor<ExperimentType, ExperimentTypePropertyType> createPropertiesEditor(
             String id, IViewContext<ICommonClientServiceAsync> context)
     {
         ExperimentPropertyEditor editor = new ExperimentPropertyEditor(id, context);

@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
@@ -114,12 +114,12 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
     }
 
     private static List<PropertyType> extractPropertyTypes(
-            List<? extends EntityProperty<?, ?>> properties)
+            List<? extends IEntityProperty> properties)
     {
         List<PropertyType> propertyTypes = new ArrayList<PropertyType>();
-        for (EntityProperty<?, ?> prop : properties)
+        for (IEntityProperty prop : properties)
         {
-            PropertyType propertyType = prop.getEntityTypePropertyType().getPropertyType();
+            PropertyType propertyType = prop.getPropertyType();
             propertyTypes.add(propertyType);
         }
         return propertyTypes;

@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -126,7 +126,7 @@ public final class SampleTranslator
             result.setProperties(SamplePropertyTranslator.translate(samplePE.getProperties()));
         } else
         {
-            result.setProperties(new ArrayList<SampleProperty>());
+            result.setProperties(new ArrayList<IEntityProperty>());
         }
     }
 

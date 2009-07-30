@@ -21,8 +21,8 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicSampleUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -54,7 +54,7 @@ public class SampleUpdates extends BasicSampleUpdates
     {
     }
 
-    public SampleUpdates(String sessionKey, TechId sampleId, List<SampleProperty> properties,
+    public SampleUpdates(String sessionKey, TechId sampleId, List<IEntityProperty> properties,
             List<NewAttachment> attachments, ExperimentIdentifier experimentIdentifierOrNull,
             Date version, String sampleIdentifier, String parentIdentifierOrNull,
             String containerIdentifierOrNull)

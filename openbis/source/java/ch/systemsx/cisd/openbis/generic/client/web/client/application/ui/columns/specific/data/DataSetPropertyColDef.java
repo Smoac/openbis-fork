@@ -20,8 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 public final class DataSetPropertyColDef extends EntityPropertyColDef<ExternalData>
@@ -40,12 +39,12 @@ public final class DataSetPropertyColDef extends EntityPropertyColDef<ExternalDa
     }
 
     @Override
-    protected List<? extends EntityProperty<?, ?>> getProperties(ExternalData entity)
+    protected List<? extends IEntityProperty> getProperties(ExternalData entity)
     {
         return getDataSetProperties(entity);
     }
 
-    public static List<DataSetProperty> getDataSetProperties(ExternalData entity)
+    public static List<IEntityProperty> getDataSetProperties(ExternalData entity)
     {
         return entity.getProperties();
     }

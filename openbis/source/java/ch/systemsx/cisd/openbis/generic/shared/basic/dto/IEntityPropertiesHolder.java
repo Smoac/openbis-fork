@@ -26,5 +26,5 @@ import java.util.List;
  */
 public interface IEntityPropertiesHolder
 {
-    List<? extends EntityProperty<?, ?>> getProperties();
+    List<? extends IEntityProperty> getProperties();
 }

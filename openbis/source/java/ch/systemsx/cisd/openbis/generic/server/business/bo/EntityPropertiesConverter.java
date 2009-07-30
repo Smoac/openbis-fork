@@ -31,8 +31,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.IPropertyValueValidator;
 import ch.systemsx.cisd.openbis.generic.server.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.PropertyValidator;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -189,12 +188,11 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     }
 
     private final <T extends EntityPropertyPE> T tryConvertProperty(final PersonPE registrator,
-            final EntityTypePE entityTypePE, final EntityProperty<?, ?> property)
+            final EntityTypePE entityTypePE, final IEntityProperty property)
     {
-        EntityTypePropertyType<?> entityTypePropertyType = property.getEntityTypePropertyType();
-        final String propertyCode = entityTypePropertyType.getPropertyType().getCode();
+        final String propertyCode = property.getPropertyType().getCode();
         final PropertyTypePE propertyType = getPropertyType(propertyCode);
-        final String valueOrNull = property.getValue();
+        final String valueOrNull = property.tryGetAsString();
         final EntityTypePropertyTypePE entityTypePropertyTypePE =
                 getEntityTypePropertyType(entityTypePE, propertyType);
         if (entityTypePropertyTypePE.isMandatory() && valueOrNull == null)
@@ -229,15 +227,15 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     //
 
     private final <T extends EntityPropertyPE> List<T> convertProperties(
-            final List<? extends EntityProperty<?, ?>> properties, final String entityTypeCode,
+            final List<? extends IEntityProperty> properties, final String entityTypeCode,
             final PersonPE registrator)
     {
-        EntityProperty<?, ?>[] propsArray = properties.toArray(new EntityProperty<?, ?>[0]);
+        IEntityProperty[] propsArray = properties.toArray(new IEntityProperty[0]);
         return convertProperties(propsArray, entityTypeCode, registrator);
     }
 
     public final <T extends EntityPropertyPE> List<T> convertProperties(
-            final EntityProperty<?, ?>[] properties, final String entityTypeCode,
+            final IEntityProperty[] properties, final String entityTypeCode,
             final PersonPE registrator)
     {
         assert entityTypeCode != null : "Unspecified entity type code.";
@@ -245,7 +243,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         assert properties != null : "Unspecified entity properties";
         final EntityTypePE entityTypePE = getEntityType(entityTypeCode);
         final List<T> list = new ArrayList<T>();
-        for (final EntityProperty<?, ?> property : properties)
+        for (final IEntityProperty property : properties)
         {
             final T convertedPropertyOrNull =
                     tryConvertProperty(registrator, entityTypePE, property);
@@ -328,7 +326,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return null;
     }
 
-    public <T extends EntityPropertyPE, P extends EntityProperty<?, ?>> Set<T> updateProperties(
+    public <T extends EntityPropertyPE, P extends IEntityProperty> Set<T> updateProperties(
             Collection<T> oldProperties, EntityTypePE entityType, List<P> newProperties,
             PersonPE registrator)
     {

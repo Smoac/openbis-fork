@@ -53,7 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 @MappedSuperclass
 @ClassBridge(index = Index.TOKENIZED, store = Store.YES, impl = EntityPropertyPE.EntityPropertySearchBridge.class)
 public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHolder implements
-        IUntypedValueSetter, IEntityProperty
+        IUntypedValueSetter, IEntityPropertyHolder
 {
     private static final long serialVersionUID = IServer.VERSION;
 

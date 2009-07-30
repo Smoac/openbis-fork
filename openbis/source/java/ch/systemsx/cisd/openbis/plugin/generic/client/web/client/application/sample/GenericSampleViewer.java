@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractGridDataRefreshCallback;
@@ -55,9 +56,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
@@ -238,11 +243,11 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         {
             properties.put(messageProvider.getMessage(Dict.PART_OF), partOf);
         }
-        final List<SampleProperty> sampleProperties = sample.getProperties();
+        final List<IEntityProperty> sampleProperties = sample.getProperties();
         Collections.sort(sampleProperties);
-        for (final SampleProperty property : sampleProperties)
+        for (final IEntityProperty property : sampleProperties)
         {
-            final String label = property.getEntityTypePropertyType().getPropertyType().getLabel();
+            final String label = property.getPropertyType().getLabel();
             properties.put(label, property);
         }
         return properties;
@@ -278,8 +283,15 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
                 .createSamplePropertyValueRenderer(viewContext, true));
         propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
                 .createInvalidationPropertyValueRenderer(viewContext));
-        propertyGrid.registerPropertyValueRenderer(SampleProperty.class, PropertyValueRenderers
-                .createSamplePropertyPropertyValueRenderer(viewContext));
+        final IPropertyValueRenderer<IEntityProperty> propertyValueRenderer =
+                PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
+        propertyGrid.registerPropertyValueRenderer(EntityProperty.class, propertyValueRenderer);
+        propertyGrid.registerPropertyValueRenderer(GenericValueEntityProperty.class,
+                propertyValueRenderer);
+        propertyGrid.registerPropertyValueRenderer(VocabularyTermValueEntityProperty.class,
+                propertyValueRenderer);
+        propertyGrid.registerPropertyValueRenderer(MaterialValueEntityProperty.class,
+                propertyValueRenderer);
         propertyGrid.registerPropertyValueRenderer(Experiment.class, PropertyValueRenderers
                 .createExperimentPropertyValueRenderer(viewContext));
         propertyGrid.setProperties(properties);

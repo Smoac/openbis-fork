@@ -31,8 +31,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -61,7 +61,7 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
     @Override
     protected void save()
     {
-        final List<SampleProperty> properties = extractProperties();
+        final List<IEntityProperty> properties = extractProperties();
         final List<NewAttachment> attachments = attachmentsManager.extractAttachments();
         ExperimentIdentifier experimentIdent =
                 experimentField != null ? experimentField.tryToGetValue() : null;

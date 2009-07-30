@@ -26,9 +26,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
@@ -49,7 +49,7 @@ public class Experiment extends CodeWithRegistration<Experiment> implements IInv
 
     private String identifier;
 
-    private List<ExperimentProperty> properties;
+    private List<IEntityProperty> properties;
 
     private Invalidation invalidation;
 
@@ -103,12 +103,12 @@ public class Experiment extends CodeWithRegistration<Experiment> implements IInv
         this.identifier = experimentIdentifier;
     }
 
-    public List<ExperimentProperty> getProperties()
+    public List<IEntityProperty> getProperties()
     {
         return properties;
     }
 
-    public void setProperties(final List<ExperimentProperty> properties)
+    public void setProperties(final List<IEntityProperty> properties)
     {
         this.properties = properties;
     }

@@ -34,7 +34,7 @@ public class BasicSampleUpdates implements IsSerializable, Serializable
 
     private TechId sampleId;
 
-    private List<SampleProperty> properties;
+    private List<IEntityProperty> properties;
 
     private Date version;
 
@@ -66,7 +66,7 @@ public class BasicSampleUpdates implements IsSerializable, Serializable
     {
     }
 
-    public BasicSampleUpdates(TechId sampleId, List<SampleProperty> properties, Date version,
+    public BasicSampleUpdates(TechId sampleId, List<IEntityProperty> properties, Date version,
             String parentIdentifierOrNull, String containerIdentifierOrNull)
     {
         this.sampleId = sampleId;
@@ -86,12 +86,12 @@ public class BasicSampleUpdates implements IsSerializable, Serializable
         this.sampleId = sampleId;
     }
 
-    public List<SampleProperty> getProperties()
+    public List<IEntityProperty> getProperties()
     {
         return properties;
     }
 
-    public void setProperties(List<SampleProperty> properties)
+    public void setProperties(List<IEntityProperty> properties)
     {
         this.properties = properties;
     }

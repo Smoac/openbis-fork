@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IInvalidationProvi
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 
 /**
  * Abstract superclass of a generic {@link IProperty} which implements convenient property value
@@ -154,11 +155,11 @@ public abstract class AbstractProperty<C extends IPropertyChecker<?>> implements
      */
     public C asProperty(final String expectedValue)
     {
-        return by(new IValueAssertion<EntityProperty<?, ?>>()
+        return by(new IValueAssertion<IEntityProperty>()
             {
-                public void assertValue(final EntityProperty<?, ?> value)
+                public void assertValue(final IEntityProperty value)
                 {
-                    Assert.assertEquals(message, expectedValue, value.getValue());
+                    Assert.assertEquals(message, expectedValue, value.tryGetAsString());
                 }
             });
     }

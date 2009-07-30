@@ -39,9 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractT
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -180,7 +179,7 @@ public interface IGenericServer extends IPluginCommonServer
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.MATERIAL)
     public Date updateMaterial(String sessionToken, TechId materialId,
-            List<MaterialProperty> properties, Date version);
+            List<IEntityProperty> properties, Date version);
 
     /**
      * Saves changed sample.
@@ -201,5 +200,5 @@ public interface IGenericServer extends IPluginCommonServer
             String sessionToken,
             @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) SampleIdentifier sampleIdentifier,
-            List<DataSetProperty> properties, Date version);
+            List<IEntityProperty> properties, Date version);
 }

@@ -24,9 +24,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
@@ -91,8 +91,8 @@ public final class GenericExperimentRegistrationForm extends
     {
         final NewExperiment newExp =
                 new NewExperiment(createExperimentIdentifier(), experimentType.getCode());
-        final List<ExperimentProperty> properties = extractProperties();
-        newExp.setProperties(properties.toArray(ExperimentProperty.EMPTY_ARRAY));
+        final List<IEntityProperty> properties = extractProperties();
+        newExp.setProperties(properties.toArray(IEntityProperty.EMPTY_ARRAY));
         newExp.setSamples(getSamples());
         newExp.setSampleType(getSampleType());
         newExp.setGenerateCodes(autoGenerateCodes.getValue().booleanValue());
@@ -103,7 +103,7 @@ public final class GenericExperimentRegistrationForm extends
     }
 
     @Override
-    protected PropertiesEditor<ExperimentType, ExperimentTypePropertyType, ExperimentProperty> createPropertiesEditor(
+    protected PropertiesEditor<ExperimentType, ExperimentTypePropertyType> createPropertiesEditor(
             String id, IViewContext<ICommonClientServiceAsync> context)
     {
         ExperimentPropertyEditor editor = new ExperimentPropertyEditor(id, context);

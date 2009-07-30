@@ -38,9 +38,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
 
@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.exp
  * 
  * @author Izabela Adamczyk
  */
-public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>>
+public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType, S extends EntityTypePropertyType<T>>
         extends AbstractRegistrationForm implements IDatabaseModificationObserver
 {
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX;
@@ -67,7 +67,7 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
 
     protected CodeFieldWithGenerator codeField;
 
-    protected PropertiesEditor<T, S, P> propertiesEditor;
+    protected PropertiesEditor<T, S> propertiesEditor;
 
     // ---------------------------------------------------------------------------------------------
     // Constructors
@@ -247,7 +247,7 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
     /**
      * @see PropertiesEditor#extractProperties()
      */
-    protected final List<P> extractProperties()
+    protected final List<IEntityProperty> extractProperties()
     {
         return propertiesEditor.extractProperties();
     }
@@ -279,7 +279,7 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
     /**
      * Returns the {@link PropertiesEditor} to be used for .
      */
-    abstract protected PropertiesEditor<T, S, P> createPropertiesEditor(String string,
+    abstract protected PropertiesEditor<T, S> createPropertiesEditor(String string,
             IViewContext<ICommonClientServiceAsync> context);
 
 }

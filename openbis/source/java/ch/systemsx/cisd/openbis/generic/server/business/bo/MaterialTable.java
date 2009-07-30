@@ -26,7 +26,7 @@ import org.springframework.dao.DataAccessException;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -155,7 +155,7 @@ public final class MaterialTable extends AbstractBusinessObject implements IMate
     }
 
     private final void defineMaterialProperties(final MaterialPE material,
-            final MaterialProperty[] materialProperties)
+            final IEntityProperty[] materialProperties)
     {
         final String materialTypeCode = material.getMaterialType().getCode();
         final List<MaterialPropertyPE> properties =

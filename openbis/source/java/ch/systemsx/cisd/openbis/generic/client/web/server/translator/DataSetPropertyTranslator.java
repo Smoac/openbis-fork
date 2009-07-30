@@ -22,12 +22,12 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE;
 
 /**
- * A {@link DataSetProperty} &lt;---&gt; {@link DataSetPropertyPE} translator.
+ * A {@link IEntityProperty} &lt;---&gt; {@link DataSetPropertyPE} translator.
  * 
  * @author Izabela Adamczyk
  */
@@ -38,27 +38,35 @@ public final class DataSetPropertyTranslator
         // Can not be instantiated.
     }
 
-    public final static DataSetProperty translate(final DataSetPropertyPE propertyPE)
+    public final static IEntityProperty translate(final DataSetPropertyPE propertyPE)
     {
-        final DataSetProperty result = new DataSetProperty();
-        result.setValue(StringEscapeUtils.escapeHtml(propertyPE.tryGetUntypedValue()));
-        result
-                .setVocabularyTerm(VocabularyTermTranslator.translate(propertyPE
+        final DataTypeCode typeCode = PropertyTranslatorUtils.getDataTypeCode(propertyPE);
+        final IEntityProperty result = PropertyTranslatorUtils.createEntityProperty(typeCode);
+        result.setPropertyType(PropertyTypeTranslator.translate(propertyPE
+                .getEntityTypePropertyType().getPropertyType()));
+        switch (typeCode)
+        {
+            case CONTROLLEDVOCABULARY:
+                result.setVocabularyTerm(VocabularyTermTranslator.translate(propertyPE
                         .getVocabularyTerm()));
-        result.setMaterial(MaterialTranslator.translate(propertyPE.getMaterialValue(), false));
-        result.setEntityTypePropertyType(DataSetTypePropertyTypeTranslator
-                .translate((DataSetTypePropertyTypePE) propertyPE.getEntityTypePropertyType()));
+                break;
+            case MATERIAL:
+                result.setMaterial(MaterialTranslator.translate(propertyPE.getMaterialValue(),
+                        false));
+                break;
+            default:
+                result.setValue(StringEscapeUtils.escapeHtml(propertyPE.tryGetUntypedValue()));
+        }
         return result;
-
     }
 
-    public final static List<DataSetProperty> translate(final Set<DataSetPropertyPE> list)
+    public final static List<IEntityProperty> translate(final Set<DataSetPropertyPE> list)
     {
         if (list == null)
         {
             return null;
         }
-        final List<DataSetProperty> result = new ArrayList<DataSetProperty>();
+        final List<IEntityProperty> result = new ArrayList<IEntityProperty>();
         for (final DataSetPropertyPE property : list)
         {
             result.add(translate(property));

@@ -22,13 +22,13 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;
 
 /**
- * A {@link MaterialProperty} &lt;---&gt; {@link ExperimentPropertyPE} translator.
+ * A {@link IEntityProperty} &lt;---&gt; {@link ExperimentPropertyPE} translator.
  * 
  * @author Izabela Adamczyk
  */
@@ -39,28 +39,35 @@ public final class MaterialPropertyTranslator
         // Can not be instantiated.
     }
 
-    public final static MaterialProperty translate(final MaterialPropertyPE materialPropertyPE)
+    public final static IEntityProperty translate(final MaterialPropertyPE materialPropertyPE)
     {
-        final MaterialProperty result = new MaterialProperty();
-        result.setValue(StringEscapeUtils.escapeHtml(materialPropertyPE.tryGetUntypedValue()));
-        result.setVocabularyTerm(VocabularyTermTranslator.translate(materialPropertyPE
-                .getVocabularyTerm()));
-        result.setMaterial(MaterialTranslator.translate(materialPropertyPE.getMaterialValue(),
-                false));
-        result.setEntityTypePropertyType(MaterialTypePropertyTypeTranslator
-                .translate((MaterialTypePropertyTypePE) materialPropertyPE
-                        .getEntityTypePropertyType()));
+        final DataTypeCode typeCode = PropertyTranslatorUtils.getDataTypeCode(materialPropertyPE);
+        final IEntityProperty result = PropertyTranslatorUtils.createEntityProperty(typeCode);
+        result.setPropertyType(PropertyTypeTranslator.translate(materialPropertyPE
+                .getEntityTypePropertyType().getPropertyType()));
+        switch (typeCode)
+        {
+            case CONTROLLEDVOCABULARY:
+                result.setVocabularyTerm(VocabularyTermTranslator.translate(materialPropertyPE
+                        .getVocabularyTerm()));
+                break;
+            case MATERIAL:
+                result.setMaterial(MaterialTranslator.translate(materialPropertyPE.getMaterialValue(),
+                        false));
+                break;
+            default:
+                result.setValue(StringEscapeUtils.escapeHtml(materialPropertyPE.tryGetUntypedValue()));
+        }
         return result;
-
     }
 
-    public final static List<MaterialProperty> translate(final Set<MaterialPropertyPE> list)
+    public final static List<IEntityProperty> translate(final Set<MaterialPropertyPE> list)
     {
         if (list == null)
         {
             return null;
         }
-        final List<MaterialProperty> result = new ArrayList<MaterialProperty>();
+        final List<IEntityProperty> result = new ArrayList<IEntityProperty>();
         for (final MaterialPropertyPE materialProperty : list)
         {
             result.add(translate(materialProperty));

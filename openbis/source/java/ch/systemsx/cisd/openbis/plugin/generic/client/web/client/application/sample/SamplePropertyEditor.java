@@ -18,24 +18,17 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sa
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
 
 public class SamplePropertyEditor extends
-        PropertiesEditor<SampleType, SampleTypePropertyType, SampleProperty>
+        PropertiesEditor<SampleType, SampleTypePropertyType>
 {
 
     public SamplePropertyEditor(String id, IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(id, viewContext);
-    }
-
-    @Override
-    protected SampleProperty createEntityProperty()
-    {
-        return new SampleProperty();
     }
 
 }

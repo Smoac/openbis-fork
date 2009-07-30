@@ -25,8 +25,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Strin
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
@@ -103,8 +103,8 @@ public final class GenericSampleRegistrationForm extends AbstractGenericSampleRe
         final NewSample newSample =
                 new NewSample(createSampleIdentifier(), sampleType, StringUtils.trimToNull(parent
                         .getValue()), StringUtils.trimToNull(container.getValue()));
-        final List<SampleProperty> properties = extractProperties();
-        newSample.setProperties(properties.toArray(SampleProperty.EMPTY_ARRAY));
+        final List<IEntityProperty> properties = extractProperties();
+        newSample.setProperties(properties.toArray(IEntityProperty.EMPTY_ARRAY));
         newSample.setAttachments(attachmentsManager.extractAttachments());
         viewContext.getService().registerSample(attachmentsSessionKey, newSample,
                 new RegisterSampleCallback(viewContext));

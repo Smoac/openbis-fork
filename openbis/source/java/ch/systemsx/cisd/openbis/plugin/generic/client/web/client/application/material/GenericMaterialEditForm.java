@@ -29,7 +29,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -42,8 +41,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.exp
  * @author Izabela Adamczyk
  */
 public final class GenericMaterialEditForm
-        extends
-        AbstractGenericEntityRegistrationForm<MaterialType, MaterialTypePropertyType, MaterialProperty>
+        extends AbstractGenericEntityRegistrationForm<MaterialType, MaterialTypePropertyType>
 {
     private Material originalMaterial;
 
@@ -100,7 +98,7 @@ public final class GenericMaterialEditForm
     }
 
     @Override
-    protected PropertiesEditor<MaterialType, MaterialTypePropertyType, MaterialProperty> createPropertiesEditor(
+    protected PropertiesEditor<MaterialType, MaterialTypePropertyType> createPropertiesEditor(
             String id, IViewContext<ICommonClientServiceAsync> context)
     {
         MaterialPropertyEditor editor = new MaterialPropertyEditor(id, context);

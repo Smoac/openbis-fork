@@ -28,7 +28,7 @@ import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
@@ -388,7 +388,7 @@ public class ExternalDataBOTest extends AbstractBOTest
                     one(locatorTypeDAO).tryToFindLocatorTypeByCode(LOCATOR_TYPE.getCode());
                     will(returnValue(locatorType));
 
-                    one(propertiesConverter).convertProperties(new DataSetProperty[0],
+                    one(propertiesConverter).convertProperties(new IEntityProperty[0],
                             dataSetType.getCode(), EXAMPLE_SESSION.tryGetPerson());
                     ArrayList<DataSetPropertyPE> properties = new ArrayList<DataSetPropertyPE>();
                     will(returnValue(properties));

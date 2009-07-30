@@ -21,8 +21,8 @@ import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -84,7 +84,7 @@ public final class MaterialTranslator
                     .getProperties()));
         } else
         {
-            result.setProperties(new ArrayList<MaterialProperty>());
+            result.setProperties(new ArrayList<IEntityProperty>());
         }
     }
 

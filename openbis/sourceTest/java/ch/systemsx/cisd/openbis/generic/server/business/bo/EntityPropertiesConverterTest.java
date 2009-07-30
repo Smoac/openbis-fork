@@ -29,9 +29,9 @@ import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.server.util.IPropertyValueValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -107,12 +107,11 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
         return sampleType;
     }
 
-    private final static SampleProperty createVarcharSampleProperty(final boolean lowerCase,
+    private final static IEntityProperty createVarcharSampleProperty(final boolean lowerCase,
             String code)
     {
-        final SampleProperty sampleProperty = new SampleProperty();
+        final IEntityProperty sampleProperty = new EntityProperty();
         sampleProperty.setValue("blue");
-        final SampleTypePropertyType sampleTypePropertyType = new SampleTypePropertyType();
         final PropertyType propertyType = new PropertyType();
         String newCode = code;
         if (lowerCase)
@@ -124,14 +123,13 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
         final DataType dataType = new DataType();
         dataType.setCode(DataTypeCode.VARCHAR);
         propertyType.setDataType(dataType);
-        sampleTypePropertyType.setPropertyType(propertyType);
-        sampleProperty.setEntityTypePropertyType(sampleTypePropertyType);
+        sampleProperty.setPropertyType(propertyType);
         return sampleProperty;
     }
 
-    private final SampleProperty[] createSampleProperties(final boolean lowerCase)
+    private final IEntityProperty[] createSampleProperties(final boolean lowerCase)
     {
-        return new SampleProperty[]
+        return new IEntityProperty[]
             { createVarcharSampleProperty(lowerCase, VARCHAR_PROPERTY_TYPE_CODE) };
     }
 
@@ -164,7 +162,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                 }
             });
         final List<EntityPropertyPE> properties =
-                entityPropertiesConverter.convertProperties(SampleProperty.EMPTY_ARRAY,
+                entityPropertiesConverter.convertProperties(IEntityProperty.EMPTY_ARRAY,
                         SAMPLE_TYPE_CODE, ManagerTestTool.EXAMPLE_PERSON);
         assertEquals(0, properties.size());
         context.assertIsSatisfied();
@@ -188,7 +186,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                     one(propertyValueValidator).validatePropertyValue(propertyTypePE, "blue");
                 }
             });
-        final SampleProperty[] properties = createSampleProperties(false);
+        final IEntityProperty[] properties = createSampleProperties(false);
         final List<EntityPropertyPE> convertedProperties =
                 entityPropertiesConverter.convertProperties(properties, SAMPLE_TYPE_CODE,
                         ManagerTestTool.EXAMPLE_PERSON);
@@ -214,7 +212,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                     one(propertyValueValidator).validatePropertyValue(propertyTypePE, "blue");
                 }
             });
-        final SampleProperty[] properties = createSampleProperties(true);
+        final IEntityProperty[] properties = createSampleProperties(true);
         final List<EntityPropertyPE> convertedProperties =
                 entityPropertiesConverter.convertProperties(properties, SAMPLE_TYPE_CODE
                         .toLowerCase(), ManagerTestTool.EXAMPLE_PERSON);

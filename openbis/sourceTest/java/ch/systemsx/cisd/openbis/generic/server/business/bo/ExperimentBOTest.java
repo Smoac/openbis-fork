@@ -36,7 +36,7 @@ import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -96,7 +96,7 @@ public final class ExperimentBOTest extends AbstractBOTest
     }
 
     private void prepareUpdateProperties(final Set<ExperimentPropertyPE> oldProperties,
-            final List<ExperimentProperty> newProperties, final EntityTypePE entityType,
+            final List<IEntityProperty> newProperties, final EntityTypePE entityType,
             final PersonPE registrator, final List<ExperimentPropertyPE> updated)
     {
         context.checking(new Expectations()
@@ -417,7 +417,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         assertTrue(bo.getExperiment().getProperties().contains(deletedProperty));
         assertFalse(bo.getExperiment().getProperties().contains(addedProperty));
 
-        List<ExperimentProperty> newProperties = createDummyProperties();
+        final List<IEntityProperty> newProperties = createDummyProperties();
         prepareUpdateProperties(exp.getProperties(), newProperties, experimentType,
                 ManagerTestTool.EXAMPLE_SESSION.tryGetPerson(), Arrays.asList(changedProperty,
                         addedProperty));
@@ -430,9 +430,9 @@ public final class ExperimentBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
-    private List<ExperimentProperty> createDummyProperties()
+    private List<IEntityProperty> createDummyProperties()
     {
-        return new ArrayList<ExperimentProperty>();
+        return new ArrayList<IEntityProperty>();
     }
 
     @Test

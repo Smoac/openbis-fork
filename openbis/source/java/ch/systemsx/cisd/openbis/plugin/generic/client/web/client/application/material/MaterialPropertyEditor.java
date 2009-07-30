@@ -18,24 +18,17 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ma
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
 
 public class MaterialPropertyEditor extends
-        PropertiesEditor<MaterialType, MaterialTypePropertyType, MaterialProperty>
+        PropertiesEditor<MaterialType, MaterialTypePropertyType>
 {
 
     public MaterialPropertyEditor(String id, IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(id, viewContext);
-    }
-
-    @Override
-    protected MaterialProperty createEntityProperty()
-    {
-        return new MaterialProperty();
     }
 
 }

@@ -22,12 +22,12 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 
 /**
- * A {@link SampleProperty} &lt;---&gt; {@link SamplePropertyPE} translator.
+ * A {@link IEntityProperty} &lt;---&gt; {@link SamplePropertyPE} translator.
  * 
  * @author Franz-Josef Elmer
  */
@@ -38,30 +38,37 @@ public final class SamplePropertyTranslator
         // Can not be instantiated.
     }
 
-    public final static SampleProperty translate(final SamplePropertyPE samplePropertyPE)
+    public final static IEntityProperty translate(final SamplePropertyPE samplePropertyPE)
     {
-        final SampleProperty result = new SampleProperty();
-        result.setValue(StringEscapeUtils.escapeHtml(samplePropertyPE.tryGetUntypedValue()));
-        result.setVocabularyTerm(VocabularyTermTranslator.translate(samplePropertyPE
-                .getVocabularyTerm()));
-        result
-                .setMaterial(MaterialTranslator.translate(samplePropertyPE.getMaterialValue(),
-                        false));
-        result
-                .setEntityTypePropertyType(SampleTypePropertyTypeTranslator
-                        .translate((SampleTypePropertyTypePE) samplePropertyPE
-                                .getEntityTypePropertyType()));
+        final DataTypeCode typeCode = PropertyTranslatorUtils.getDataTypeCode(samplePropertyPE);
+        final IEntityProperty result = PropertyTranslatorUtils.createEntityProperty(typeCode);
+        result.setPropertyType(PropertyTypeTranslator.translate(samplePropertyPE
+                .getEntityTypePropertyType().getPropertyType()));
+        switch (typeCode)
+        {
+            case CONTROLLEDVOCABULARY:
+                result.setVocabularyTerm(VocabularyTermTranslator.translate(samplePropertyPE
+                        .getVocabularyTerm()));
+                break;
+            case MATERIAL:
+                result.setMaterial(MaterialTranslator.translate(
+                        samplePropertyPE.getMaterialValue(), false));
+                break;
+            default:
+                result
+                        .setValue(StringEscapeUtils.escapeHtml(samplePropertyPE
+                                .tryGetUntypedValue()));
+        }
         return result;
-
     }
 
-    public final static List<SampleProperty> translate(final Set<SamplePropertyPE> set)
+    public final static List<IEntityProperty> translate(final Set<SamplePropertyPE> set)
     {
         if (set == null)
         {
             return null;
         }
-        final List<SampleProperty> result = new ArrayList<SampleProperty>();
+        final List<IEntityProperty> result = new ArrayList<IEntityProperty>();
         for (final SamplePropertyPE samplePropertyPE : set)
         {
             result.add(translate(samplePropertyPE));

@@ -22,7 +22,7 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -40,7 +40,7 @@ public class SampleWithPropertiesAndAbundance implements IsSerializable, Seriali
     
     private String sampleTypeCode;
     
-    private List<SampleProperty> properties;
+    private List<IEntityProperty> properties;
     
     private double abundance;
 
@@ -74,12 +74,12 @@ public class SampleWithPropertiesAndAbundance implements IsSerializable, Seriali
         this.sampleTypeCode = sampleTypeCode;
     }
 
-    public final List<SampleProperty> getProperties()
+    public final List<IEntityProperty> getProperties()
     {
         return properties;
     }
 
-    public final void setProperties(List<SampleProperty> properties)
+    public final void setProperties(List<IEntityProperty> properties)
     {
         this.properties = properties;
     }

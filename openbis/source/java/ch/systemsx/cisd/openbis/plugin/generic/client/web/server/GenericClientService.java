@@ -54,11 +54,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SampleTrans
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -418,8 +417,7 @@ public final class GenericClientService extends AbstractClientService implements
                                             final IPropertyMapper propertyMapper)
                                             throws ParserException
                                     {
-                                        return new NewMaterialParserObjectFactory(materialType,
-                                                propertyMapper);
+                                        return new NewMaterialParserObjectFactory(propertyMapper);
                                     }
                                 });
             final List<NewMaterial> newMaterials = new ArrayList<NewMaterial>();
@@ -492,7 +490,7 @@ public final class GenericClientService extends AbstractClientService implements
         return modificationDate;
     }
 
-    public Date updateMaterial(TechId materialId, List<MaterialProperty> properties, Date version)
+    public Date updateMaterial(TechId materialId, List<IEntityProperty> properties, Date version)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -539,7 +537,7 @@ public final class GenericClientService extends AbstractClientService implements
     }
 
     public Date updateDataSet(TechId datasetId, String sampleIdentifier,
-            List<DataSetProperty> properties, Date version)
+            List<IEntityProperty> properties, Date version)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try

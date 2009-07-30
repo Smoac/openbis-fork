@@ -26,8 +26,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -257,7 +257,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
     }
 
     public void update(TechId datasetId, SampleIdentifier sampleIdentifier,
-            List<DataSetProperty> properties, Date version)
+            List<IEntityProperty> properties, Date version)
     {
         loadDataByTechId(datasetId);
         if (version.equals(externalData.getModificationDate()) == false)
@@ -276,7 +276,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         getExternalDataDAO().validateAndSaveUpdatedEntity(externalData);
     }
 
-    private void updateProperties(List<DataSetProperty> properties)
+    private void updateProperties(List<IEntityProperty> properties)
     {
         final Set<DataSetPropertyPE> existingProperties = externalData.getProperties();
         final EntityTypePE type = externalData.getDataSetType();
@@ -319,7 +319,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
     }
 
     private final void defineDataSetProperties(final ExternalDataPE data,
-            final DataSetProperty[] newProperties)
+            final IEntityProperty[] newProperties)
     {
         final String dataSetTypeCode = data.getDataSetType().getCode();
         final List<DataSetPropertyPE> properties =
@@ -331,9 +331,9 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         }
     }
 
-    private static DataSetProperty[] convertToDataSetProperties(List<NewProperty> list)
+    private static IEntityProperty[] convertToDataSetProperties(List<NewProperty> list)
     {
-        DataSetProperty[] result = new DataSetProperty[list.size()];
+        IEntityProperty[] result = new IEntityProperty[list.size()];
         for (int i = 0; i < list.size(); i++)
         {
             result[i] = convertProperty(list.get(i));
@@ -341,15 +341,13 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         return result;
     }
 
-    private static DataSetProperty convertProperty(NewProperty newProperty)
+    private static IEntityProperty convertProperty(NewProperty newProperty)
     {
-        DataSetProperty result = new DataSetProperty();
+        IEntityProperty result = new EntityProperty();
         result.setValue(newProperty.getValue());
-        DataSetTypePropertyType etpt = new DataSetTypePropertyType();
         PropertyType propertyType = new PropertyType();
         propertyType.setCode(newProperty.getPropertyCode());
-        etpt.setPropertyType(propertyType);
-        result.setEntityTypePropertyType(etpt);
+        result.setPropertyType(propertyType);
         return result;
     }
 

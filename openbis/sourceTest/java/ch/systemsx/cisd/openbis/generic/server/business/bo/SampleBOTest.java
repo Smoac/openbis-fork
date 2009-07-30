@@ -39,11 +39,11 @@ import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
@@ -81,19 +81,17 @@ public final class SampleBOTest extends AbstractBOTest
 
     private static final String DEFAULT_SAMPLE_CODE = "xx";
 
-    private final static SampleProperty createSampleProperty()
+    private final static IEntityProperty createSampleProperty()
     {
-        final SampleProperty sampleProperty = new SampleProperty();
+        final IEntityProperty sampleProperty = new EntityProperty();
         sampleProperty.setValue("blue");
-        final SampleTypePropertyType sampleTypePropertyType = new SampleTypePropertyType();
         final PropertyType propertyType = new PropertyType();
         propertyType.setLabel("color");
         propertyType.setCode("color");
         final DataType dataType = new DataType();
         dataType.setCode(DataTypeCode.VARCHAR);
         propertyType.setDataType(dataType);
-        sampleTypePropertyType.setPropertyType(propertyType);
-        sampleProperty.setEntityTypePropertyType(sampleTypePropertyType);
+        sampleProperty.setPropertyType(propertyType);
         return sampleProperty;
     }
 
@@ -263,7 +261,7 @@ public final class SampleBOTest extends AbstractBOTest
         final SampleIdentifier parentGroupIdentifier = getGroupSampleIdentifier("SAMPLE_GENERATOR");
         newSharedSample.setParentIdentifier(parentGroupIdentifier.toString());
 
-        newSharedSample.setProperties(SampleProperty.EMPTY_ARRAY);
+        newSharedSample.setProperties(IEntityProperty.EMPTY_ARRAY);
 
         context.checking(new Expectations()
             {
@@ -349,7 +347,7 @@ public final class SampleBOTest extends AbstractBOTest
         final SampleIdentifier containerIdentifier = getGroupSampleIdentifier("SAMPLE_CONTAINER");
         newSample.setContainerIdentifier(containerIdentifier.toString());
 
-        newSample.setProperties(SampleProperty.EMPTY_ARRAY);
+        newSample.setProperties(IEntityProperty.EMPTY_ARRAY);
 
         final SamplePE generatedFrom = new SamplePE();
         generatedFrom.setRegistrator(EXAMPLE_PERSON);
@@ -427,8 +425,8 @@ public final class SampleBOTest extends AbstractBOTest
         sampleType.setCode(MASTER_PLATE);
         sampleType.setId(new Long(21L));
         sampleType.setDatabaseInstance(new DatabaseInstancePE());
-        final SampleProperty sampleProperty = createSampleProperty();
-        newSample.setProperties(new SampleProperty[]
+        final IEntityProperty sampleProperty = createSampleProperty();
+        newSample.setProperties(new IEntityProperty[]
             { sampleProperty });
         final SamplePropertyPE samplePropertyPE = new SamplePropertyPE();
         samplePropertyPE.setRegistrator(EXAMPLE_SESSION.tryGetPerson());
@@ -524,7 +522,7 @@ public final class SampleBOTest extends AbstractBOTest
                             SampleTypeCode.DILUTION_PLATE.getCode());
                     will(returnValue(new SampleTypePE()));
 
-                    one(propertiesConverter).convertProperties(SampleProperty.EMPTY_ARRAY, null,
+                    one(propertiesConverter).convertProperties(IEntityProperty.EMPTY_ARRAY, null,
                             EXAMPLE_PERSON);
 
                     one(sampleDAO).tryFindByCodeAndGroup("DOES_NOT_EXIST",
@@ -561,7 +559,7 @@ public final class SampleBOTest extends AbstractBOTest
                             SampleTypeCode.DILUTION_PLATE.getCode());
                     will(returnValue(new SampleTypePE()));
 
-                    one(propertiesConverter).convertProperties(SampleProperty.EMPTY_ARRAY, null,
+                    one(propertiesConverter).convertProperties(IEntityProperty.EMPTY_ARRAY, null,
                             EXAMPLE_PERSON);
 
                     one(sampleDAO).tryFindByCodeAndGroup("DOES_NOT_EXIST",

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2009 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,29 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 /**
- * The {@link EntityProperty} extension for <i>Sample</i>.
+ * A {@link IEntityProperty} class that only stores the generic value, but not a vocabulary term
+ * value or a material value.
  * 
- * @author Izabela Adamczyk
+ * @author Bernd Rinn
  */
-public final class SampleProperty extends EntityProperty<SampleType, SampleTypePropertyType>
-        implements IsSerializable
+public class GenericValueEntityProperty extends AbstractEntityProperty
 {
+
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    public static final SampleProperty[] EMPTY_ARRAY = new SampleProperty[0];
+    private String value;
+
+    @Override
+    public String getValue()
+    {
+        return value;
+    }
+
+    @Override
+    public void setValue(String value)
+    {
+        this.value = value;
+    }
+
 }

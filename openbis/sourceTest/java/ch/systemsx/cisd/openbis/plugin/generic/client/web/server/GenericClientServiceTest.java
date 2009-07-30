@@ -35,13 +35,12 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientServiceTest;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
@@ -60,7 +59,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
     private GenericClientService genericClientService;
 
     private final static NewSample createNewSample(final String sampleIdentifier,
-            final String sampleTypeCode, final SampleProperty[] properties, final String parent,
+            final String sampleTypeCode, final IEntityProperty[] properties, final String parent,
             final String container)
     {
         final NewSample newSample = new NewSample();
@@ -80,16 +79,14 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         return sampleType;
     }
 
-    private final static SampleProperty createSampleProperty(final String propertyTypeCode,
+    private final static IEntityProperty createSampleProperty(final String propertyTypeCode,
             final String value)
     {
-        final SampleProperty sampleProperty = new SampleProperty();
+        final IEntityProperty sampleProperty = new EntityProperty();
         sampleProperty.setValue(value);
-        final SampleTypePropertyType sampleTypePropertyType = new SampleTypePropertyType();
         final PropertyType propertyType = new PropertyType();
         propertyType.setCode(propertyTypeCode);
-        sampleTypePropertyType.setPropertyType(propertyType);
-        sampleProperty.setEntityTypePropertyType(sampleTypePropertyType);
+        sampleProperty.setPropertyType(propertyType);
         return sampleProperty;
     }
 
@@ -112,7 +109,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
     {
         final String sessionKey = "some-session-key";
         final NewSample newSample =
-                createNewSample("/group1/sample1", "MASTER_PLATE", SampleProperty.EMPTY_ARRAY,
+                createNewSample("/group1/sample1", "MASTER_PLATE", IEntityProperty.EMPTY_ARRAY,
                         null, null);
         context.checking(new Expectations()
             {
@@ -144,7 +141,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         newSample.setIdentifier("MP1");
         newSample.setContainerIdentifier("MP2");
         newSample.setParentIdentifier("MP3");
-        newSample.setProperties(new SampleProperty[]
+        newSample.setProperties(new IEntityProperty[]
             { createSampleProperty("prop1", "RED"), createSampleProperty("prop2", "1") });
         final SampleType sampleType = createSampleType("MASTER_PLATE");
         final String fileName = "originalFileName.txt";
@@ -187,7 +184,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
     {
         final NewExperiment newExperiment =
                 createNewExperiment("/group1/project1/exp1", "SIRNA_HCS",
-                        ExperimentProperty.EMPTY_ARRAY);
+                        IEntityProperty.EMPTY_ARRAY);
         final String attachmentSessionKey = "attachment-session-key";
         final String sampleSessionKey = "sample-session-key";
         context.checking(new Expectations()
@@ -218,7 +215,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
     //
 
     private NewExperiment createNewExperiment(String identifier, String type,
-            ExperimentProperty[] properties)
+            IEntityProperty[] properties)
     {
         final NewExperiment newExperiment = new NewExperiment();
         newExperiment.setIdentifier(identifier);
@@ -241,11 +238,11 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
             this.newSamples = newSamples;
         }
 
-        private final boolean equals(final SampleProperty[] properties,
-                final SampleProperty[] sampleProperties)
+        private final boolean equals(final IEntityProperty[] properties,
+                final IEntityProperty[] sampleProperties)
         {
             int i = -1;
-            for (final SampleProperty sampleProperty : sampleProperties)
+            for (final IEntityProperty sampleProperty : sampleProperties)
             {
                 if (StringUtils.equals(sampleProperty.getValue(), properties[++i].getValue()) == false
                         || StringUtils.equals(getPropertyTypeCode(sampleProperty),
@@ -257,9 +254,9 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
             return true;
         }
 
-        private final static String getPropertyTypeCode(final SampleProperty sampleProperty)
+        private final static String getPropertyTypeCode(final IEntityProperty sampleProperty)
         {
-            return sampleProperty.getEntityTypePropertyType().getPropertyType().getCode();
+            return sampleProperty.getPropertyType().getCode();
         }
 
         private final boolean equals(final NewSample newSample, final NewSample thatNewSample)

@@ -33,11 +33,10 @@ import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -421,7 +420,7 @@ public final class GenericServerTest extends AbstractServerTestCase
     public void testEditMaterialNothingChanged() throws Exception
     {
         final TechId materialId = CommonTestUtils.TECH_ID;
-        final List<MaterialProperty> properties = new ArrayList<MaterialProperty>();
+        final List<IEntityProperty> properties = new ArrayList<IEntityProperty>();
         prepareGetSession();
         final Date version = new Date(1);
         final MaterialPE material = new MaterialPE();
@@ -448,7 +447,7 @@ public final class GenericServerTest extends AbstractServerTestCase
     public void testEditSampleNothingChanged() throws Exception
     {
         final TechId sampleId = CommonTestUtils.TECH_ID;
-        final List<SampleProperty> properties = new ArrayList<SampleProperty>();
+        final List<IEntityProperty> properties = new ArrayList<IEntityProperty>();
         prepareGetSession();
         final Date version = new Date();
         final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();

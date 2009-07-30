@@ -24,13 +24,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
@@ -83,9 +82,9 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 
     private List<ExternalData> children;
 
-    private List<SampleProperty> sampleProperties;
+    private List<IEntityProperty> sampleProperties;
 
-    private List<DataSetProperty> dataSetProperties;
+    private List<IEntityProperty> dataSetProperties;
 
     private DataStore dataStore;
 
@@ -158,12 +157,12 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         this.children = children;
     }
 
-    public List<SampleProperty> getSampleProperties()
+    public List<IEntityProperty> getSampleProperties()
     {
         return sampleProperties;
     }
 
-    private void setSampleProperties(List<SampleProperty> sampleProperties)
+    private void setSampleProperties(List<IEntityProperty> sampleProperties)
     {
         this.sampleProperties = sampleProperties;
     }
@@ -293,12 +292,12 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         this.experiment = experiment;
     }
 
-    public void setDataSetProperties(List<DataSetProperty> dataSetProperties)
+    public void setDataSetProperties(List<IEntityProperty> dataSetProperties)
     {
         this.dataSetProperties = dataSetProperties;
     }
 
-    public List<DataSetProperty> getProperties()
+    public List<IEntityProperty> getProperties()
     {
         return dataSetProperties;
     }

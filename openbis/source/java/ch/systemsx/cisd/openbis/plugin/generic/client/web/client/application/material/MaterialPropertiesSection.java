@@ -26,13 +26,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
 
 /**
  * {@link SectionPanel} containing material properties.
@@ -68,8 +73,15 @@ public class MaterialPropertiesSection extends SectionPanel
                 .createMaterialTypePropertyValueRenderer(viewContext));
         propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
                 .createInvalidationPropertyValueRenderer(viewContext));
-        propertyGrid.registerPropertyValueRenderer(MaterialProperty.class, PropertyValueRenderers
-                .createMaterialPropertyPropertyValueRenderer(viewContext));
+        final IPropertyValueRenderer<IEntityProperty> propertyRenderer =
+                PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
+        propertyGrid.registerPropertyValueRenderer(EntityProperty.class, propertyRenderer);
+        propertyGrid.registerPropertyValueRenderer(GenericValueEntityProperty.class,
+                propertyRenderer);
+        propertyGrid.registerPropertyValueRenderer(VocabularyTermValueEntityProperty.class,
+                propertyRenderer);
+        propertyGrid.registerPropertyValueRenderer(MaterialValueEntityProperty.class,
+                propertyRenderer);
         propertyGrid.setProperties(properties);
         return propertyGrid;
     }
@@ -85,12 +97,11 @@ public class MaterialPropertiesSection extends SectionPanel
         properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE), material
                 .getRegistrationDate());
 
-        final List<MaterialProperty> materialProperties = material.getProperties();
+        final List<IEntityProperty> materialProperties = material.getProperties();
         Collections.sort(materialProperties);
-        for (final MaterialProperty property : materialProperties)
+        for (final IEntityProperty property : materialProperties)
         {
-            final String simpleCode =
-                    property.getEntityTypePropertyType().getPropertyType().getLabel();
+            final String simpleCode = property.getPropertyType().getLabel();
             properties.put(simpleCode, property);
         }
         return properties;

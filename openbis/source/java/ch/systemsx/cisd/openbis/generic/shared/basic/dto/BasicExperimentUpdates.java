@@ -34,7 +34,7 @@ public class BasicExperimentUpdates implements IsSerializable, Serializable
     // ----- the data which should be changed:
 
     // new set of properties for the experiment, they will replace the old set
-    private List<ExperimentProperty> properties;
+    private List<IEntityProperty> properties;
 
     // New set of sample codes which will replace the old ones. In this way some
     // samples can be unassigned and some assigned as a result. It will be assumed that
@@ -62,12 +62,12 @@ public class BasicExperimentUpdates implements IsSerializable, Serializable
         this.version = version;
     }
 
-    public List<ExperimentProperty> getProperties()
+    public List<IEntityProperty> getProperties()
     {
         return properties;
     }
 
-    public void setProperties(List<ExperimentProperty> properties)
+    public void setProperties(List<IEntityProperty> properties)
     {
         this.properties = properties;
     }

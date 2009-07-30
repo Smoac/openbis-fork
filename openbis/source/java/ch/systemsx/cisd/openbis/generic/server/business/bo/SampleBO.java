@@ -28,8 +28,8 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -395,7 +395,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
                 .equals(newExperimentOrNull);
     }
 
-    private void updateProperties(List<SampleProperty> properties)
+    private void updateProperties(List<IEntityProperty> properties)
     {
         final Set<SamplePropertyPE> existingProperties = sample.getProperties();
         final EntityTypePE type = sample.getSampleType();

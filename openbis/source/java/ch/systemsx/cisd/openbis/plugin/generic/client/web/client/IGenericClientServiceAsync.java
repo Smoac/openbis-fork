@@ -30,11 +30,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -118,7 +117,7 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
     /**
      * @see IGenericClientService#updateMaterial(TechId, List, Date)
      */
-    public void updateMaterial(final TechId materialId, List<MaterialProperty> properties,
+    public void updateMaterial(final TechId materialId, List<IEntityProperty> properties,
             Date version, final AsyncCallback<Date> asyncCallback) throws UserFailureException;
 
     /**
@@ -131,7 +130,7 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
      * @see IGenericClientService#updateDataSet(TechId, String, List, Date)
      */
     public void updateDataSet(final TechId datasetId, final String sampleIdentifier,
-            List<DataSetProperty> properties, Date version, final AsyncCallback<Date> asyncCallback)
+            List<IEntityProperty> properties, Date version, final AsyncCallback<Date> asyncCallback)
             throws UserFailureException;
 
 }

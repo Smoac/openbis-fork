@@ -28,11 +28,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -126,7 +125,7 @@ public interface IGenericClientService extends IClientService
     /**
      * Updates material.
      */
-    public Date updateMaterial(final TechId materialId, List<MaterialProperty> properties,
+    public Date updateMaterial(final TechId materialId, List<IEntityProperty> properties,
             Date version) throws UserFailureException;
 
     /**
@@ -139,5 +138,5 @@ public interface IGenericClientService extends IClientService
      * Updates data set.
      */
     public Date updateDataSet(final TechId datasetId, final String sampleIdentifier,
-            List<DataSetProperty> properties, Date version) throws UserFailureException;
+            List<IEntityProperty> properties, Date version) throws UserFailureException;
 }

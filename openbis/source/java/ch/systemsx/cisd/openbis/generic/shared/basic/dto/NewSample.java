@@ -50,7 +50,7 @@ public final class NewSample extends Identifier<NewSample>
      */
     private String containerIdentifier;
 
-    private SampleProperty[] properties = SampleProperty.EMPTY_ARRAY;
+    private IEntityProperty[] properties = IEntityProperty.EMPTY_ARRAY;
 
     private List<NewAttachment> attachments;
 
@@ -109,12 +109,12 @@ public final class NewSample extends Identifier<NewSample>
         this.containerIdentifier = container;
     }
 
-    public final SampleProperty[] getProperties()
+    public final IEntityProperty[] getProperties()
     {
         return properties;
     }
 
-    public final void setProperties(final SampleProperty[] properties)
+    public final void setProperties(final IEntityProperty[] properties)
     {
         this.properties = properties;
     }

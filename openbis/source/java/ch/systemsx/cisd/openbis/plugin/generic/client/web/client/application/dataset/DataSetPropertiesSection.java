@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataStore;
@@ -33,9 +34,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
 
 /**
  * {@link SectionPanel} containing dataset properties.
@@ -71,8 +76,12 @@ public class DataSetPropertiesSection extends SectionPanel
                 .createDataSetTypePropertyValueRenderer(viewContext));
         propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
                 .createInvalidationPropertyValueRenderer(viewContext));
-        propertyGrid.registerPropertyValueRenderer(DataSetProperty.class, PropertyValueRenderers
-                .createDataSetPropertyPropertyValueRenderer(viewContext));
+        final IPropertyValueRenderer<IEntityProperty> propertyRenderer = PropertyValueRenderers
+                .createEntityPropertyPropertyValueRenderer(viewContext);
+        propertyGrid.registerPropertyValueRenderer(EntityProperty.class, propertyRenderer);
+        propertyGrid.registerPropertyValueRenderer(GenericValueEntityProperty.class, propertyRenderer);
+        propertyGrid.registerPropertyValueRenderer(VocabularyTermValueEntityProperty.class, propertyRenderer);
+        propertyGrid.registerPropertyValueRenderer(MaterialValueEntityProperty.class, propertyRenderer);
         propertyGrid.registerPropertyValueRenderer(Sample.class, PropertyValueRenderers
                 .createSamplePropertyValueRenderer(viewContext, true));
         propertyGrid.registerPropertyValueRenderer(Experiment.class, PropertyValueRenderers
@@ -127,12 +136,12 @@ public class DataSetPropertiesSection extends SectionPanel
             properties.put(messageProvider.getMessage(Dict.CHILDREN_DATASETS), children);
         }
 
-        final List<DataSetProperty> datasetProperties = dataset.getProperties();
+        final List<IEntityProperty> datasetProperties = dataset.getProperties();
         Collections.sort(datasetProperties);
-        for (final DataSetProperty property : datasetProperties)
+        for (final IEntityProperty property : datasetProperties)
         {
             final String simpleCode =
-                    property.getEntityTypePropertyType().getPropertyType().getLabel();
+                    property.getPropertyType().getLabel();
             properties.put(simpleCode, property);
         }
         return properties;

@@ -27,8 +27,8 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
@@ -134,7 +134,7 @@ public final class MaterialBO extends AbstractBusinessObject implements IMateria
                 .getMaterialType());
     }
 
-    public void update(TechId materialId, List<MaterialProperty> properties, Date version)
+    public void update(TechId materialId, List<IEntityProperty> properties, Date version)
     {
         loadDataByTechId(materialId);
         if (version.equals(material.getModificationDate()) == false)
@@ -145,7 +145,7 @@ public final class MaterialBO extends AbstractBusinessObject implements IMateria
         dataChanged = true;
     }
 
-    private void updateProperties(List<MaterialProperty> properties)
+    private void updateProperties(List<IEntityProperty> properties)
     {
         final Set<MaterialPropertyPE> existingProperties = material.getProperties();
         final EntityTypePE type = material.getMaterialType();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2009 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,28 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 /**
- * The generic entity property.
+ * A {@link IEntityProperty} class that only stores the material value, but not a generic value or a
+ * vocabulary term value.
  * 
- * @author Christian Ribeaud
+ * @author Bernd Rinn
  */
-public class EntityProperty extends GenericValueEntityProperty
+public class MaterialValueEntityProperty extends AbstractEntityProperty
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private VocabularyTerm vocabularyTermOrNull;
-
     private Material materialOrNull;
+
+    @Override
+    public void setPropertyType(PropertyType propertyType)
+    {
+        if (DataTypeCode.MATERIAL.equals(propertyType.getDataType().getCode()) == false)
+        {
+            throw new IllegalArgumentException(
+                    "Only property types with data type MATERIAL supported, found '"
+                            + propertyType.getDataType().getCode() + "'.");
+        }
+        super.setPropertyType(propertyType);
+    }
 
     @Override
     public Material getMaterial()
@@ -39,18 +50,6 @@ public class EntityProperty extends GenericValueEntityProperty
     public void setMaterial(Material material)
     {
         this.materialOrNull = material;
-    }
-
-    @Override
-    public VocabularyTerm getVocabularyTerm()
-    {
-        return vocabularyTermOrNull;
-    }
-
-    @Override
-    public void setVocabularyTerm(VocabularyTerm vocabularyTerm)
-    {
-        this.vocabularyTermOrNull = vocabularyTerm;
     }
 
 }

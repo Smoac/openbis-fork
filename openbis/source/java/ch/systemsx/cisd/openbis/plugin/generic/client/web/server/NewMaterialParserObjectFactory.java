@@ -25,9 +25,8 @@ import ch.systemsx.cisd.common.parser.AbstractParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.IPropertyModel;
 import ch.systemsx.cisd.common.parser.ParserException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
@@ -39,43 +38,34 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
  */
 final class NewMaterialParserObjectFactory extends AbstractParserObjectFactory<NewMaterial>
 {
-    private final MaterialType materialType;
-
-    NewMaterialParserObjectFactory(final MaterialType materialType,
-            final IPropertyMapper propertyMapper)
+    NewMaterialParserObjectFactory(final IPropertyMapper propertyMapper)
     {
         super(NewMaterial.class, propertyMapper);
-        this.materialType = materialType;
     }
 
-    private final MaterialTypePropertyType createMaterialTypePropertyType(
-            final String propertyTypeCode)
+    private final PropertyType createPropertyType(final String propertyTypeCode)
     {
-        final MaterialTypePropertyType materialTypePropertyType = new MaterialTypePropertyType();
         final PropertyType propertyType = new PropertyType();
         propertyType.setCode(propertyTypeCode);
-        materialTypePropertyType.setPropertyType(propertyType);
-        materialTypePropertyType.setEntityType(materialType);
-        return materialTypePropertyType;
+        return propertyType;
     }
 
     private final void setProperties(final NewMaterial newMaterial, final String[] lineTokens)
     {
-        final List<MaterialProperty> properties = new ArrayList<MaterialProperty>();
+        final List<IEntityProperty> properties = new ArrayList<IEntityProperty>();
         for (final String unmatchedProperty : getUnmatchedProperties())
         {
             final IPropertyModel propertyModel = tryGetPropertyModel(unmatchedProperty);
             final String propertyValue = getPropertyValue(lineTokens, propertyModel);
             if (StringUtils.isEmpty(propertyValue) == false)
             {
-                final MaterialProperty property = new MaterialProperty();
-                property
-                        .setEntityTypePropertyType(createMaterialTypePropertyType(unmatchedProperty));
+                final IEntityProperty property = new EntityProperty();
+                property.setPropertyType(createPropertyType(unmatchedProperty));
                 property.setValue(propertyValue);
                 properties.add(property);
             }
         }
-        newMaterial.setProperties(properties.toArray(MaterialProperty.EMPTY_ARRAY));
+        newMaterial.setProperties(properties.toArray(IEntityProperty.EMPTY_ARRAY));
     }
 
     @Override

@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**
- * Converter between {@link EntityProperty} and {@link EntityPropertyPE}.
+ * Converter between {@link IEntityProperty} and {@link EntityPropertyPE}.
  * 
  * @author Christian Ribeaud
  */
@@ -37,13 +37,13 @@ public interface IEntityPropertiesConverter
 {
 
     /**
-     * Converts the set of {@link EntityProperty} objects obtained from the specified entity to an
+     * Converts the set of {@link IEntityProperty} objects obtained from the specified entity to an
      * array of {@link EntityPropertyPE} objects.
      * 
      * @param registrator Will appear in the objects of the output.
      */
     public <T extends EntityPropertyPE> List<T> convertProperties(
-            final EntityProperty<?, ?>[] properties, final String entityTypeCode,
+            final IEntityProperty[] properties, final String entityTypeCode,
             final PersonPE registrator);
 
     /**
@@ -54,7 +54,7 @@ public interface IEntityPropertiesConverter
             String value);
 
     /** Updates Set<T> of properties. */
-    public <T extends EntityPropertyPE, P extends EntityProperty<?, ?>> Set<T> updateProperties(
+    public <T extends EntityPropertyPE, P extends IEntityProperty> Set<T> updateProperties(
             Collection<T> oldProperties, EntityTypePE entityType, List<P> newProperties,
             PersonPE registrator);
 

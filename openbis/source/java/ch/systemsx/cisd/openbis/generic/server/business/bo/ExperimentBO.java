@@ -32,9 +32,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
@@ -105,7 +104,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     }
 
     @SuppressWarnings("unused")
-    private final void defineSampleProperties(final SampleProperty[] experimentProperties)
+    private final void defineSampleProperties(final IEntityProperty[] experimentProperties)
     {
         final String experimentTypeCode = experiment.getExperimentType().getCode();
         final List<ExperimentPropertyPE> properties =
@@ -349,7 +348,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     }
 
     private final void defineExperimentProperties(final String experimentTypeCode,
-            final ExperimentProperty[] experimentProperties, PersonPE registrator)
+            final IEntityProperty[] experimentProperties, PersonPE registrator)
     {
         final List<ExperimentPropertyPE> properties =
                 propertiesConverter.convertProperties(experimentProperties, experimentTypeCode,
@@ -543,7 +542,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     }
 
     @Private
-    void updateProperties(List<ExperimentProperty> properties)
+    void updateProperties(List<IEntityProperty> properties)
     {
         final Set<ExperimentPropertyPE> existingProperties = experiment.getProperties();
         final ExperimentTypePE type = experiment.getExperimentType();
