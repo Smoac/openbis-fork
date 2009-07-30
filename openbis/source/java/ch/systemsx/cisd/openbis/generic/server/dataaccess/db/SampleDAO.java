@@ -24,7 +24,6 @@ import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.validator.ClassValidator;
 import org.springframework.dao.DataAccessException;
@@ -51,11 +50,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISampleDAO
 {
     private final static Class<SamplePE> ENTITY_CLASS = SamplePE.class;
-
-    /**
-     * Don't try to get properties for more than 1000 samples.
-     */
-    private final static int MAX_COUNT_FOR_PROPERTIES = 1000;
 
     /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an
@@ -105,11 +99,11 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         {
             basicCriteria.add(criterion);
         }
-        final int count = getCount(basicCriteria);
+        final int count = DAOUtils.getCount(basicCriteria);
         if (withExperimentAndProperties)
         {
             basicCriteria.setFetchMode("experimentInternal", FetchMode.JOIN);
-            if (count < MAX_COUNT_FOR_PROPERTIES)
+            if (count <= DAOUtils.MAX_COUNT_FOR_PROPERTIES)
             {
                 basicCriteria.setFetchMode("sampleProperties", FetchMode.JOIN);
             } else
@@ -120,15 +114,6 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         }
         basicCriteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         return cast(basicCriteria.list());
-    }
-
-    private int getCount(final Criteria basicCriteria)
-    {
-        int count = (Integer) basicCriteria.setProjection(Projections.rowCount()).uniqueResult();
-        // Undo the rowCount projection
-        basicCriteria.setProjection(null);
-        basicCriteria.setResultTransformer(Criteria.ROOT_ENTITY);
-        return count;
     }
 
     private List<SamplePE> listSamplesByCriteria(boolean withExperimentAndProperties,
