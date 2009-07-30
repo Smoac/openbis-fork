@@ -36,7 +36,7 @@ public class MaterialBrowserTest extends AbstractGWTTestCase
 
         remoteConsole.prepare(new ListMaterials("BACTERIUM"));
         CheckMaterialTable table = new CheckMaterialTable();
-        table.expectedRow(new MaterialRow("BACTERIUM-X").withUserPropertyCell("ORGANISM", "[FLY]"));
+        table.expectedRow(new MaterialRow("BACTERIUM-X").withUserPropertyCell("ORGANISM", "FLY"));
         table.expectedRow(new MaterialRow("BACTERIUM-Y"));
         table.expectedRow(new MaterialRow("BACTERIUM1"));
         table.expectedRow(new MaterialRow("BACTERIUM2"));
