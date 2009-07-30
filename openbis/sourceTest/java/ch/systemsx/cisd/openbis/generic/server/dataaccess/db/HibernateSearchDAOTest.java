@@ -44,7 +44,6 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextIndexerRunnable;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchField;
@@ -181,23 +180,6 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
             MaterialPE material = (MaterialPE) searchHit.getEntity();
             ensureContains(material.getProperties(), propertyValue);
         }
-    }
-
-    @DataProvider(name = "queryEscaping")
-    protected Object[][] getQueriesToTest()
-    {
-        return new Object[][]
-            {
-                { "abc", "abc" },
-                { "code:CP registrator:Joe", "code\\:CP registrator\\:Joe" },
-                { "::", "\\:\\:" } };
-    }
-
-    @Test(dataProvider = "queryEscaping")
-    public final void testDisableAdvancedSearch(String unescapedQuery, String escapedQuery)
-    {
-        String query = LuceneQueryBuilder.disableFieldQuery(unescapedQuery);
-        assertEquals(escapedQuery, query);
     }
 
     private static void ensureContains(Set<MaterialPropertyPE> properties, String propertyValue)

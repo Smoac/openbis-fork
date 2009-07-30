@@ -33,11 +33,17 @@ import org.apache.lucene.analysis.standard.StandardTokenizer;
  */
 public class SeparatorSplitterTokenFilter extends TokenFilter
 {
+    static final char[] WORD_SEPARATORS = new char[]
+        { '.', ',', '-', '_' };
+
     private static final String ALPHANUM_TOKEN_TYPE =
             StandardTokenizer.TOKEN_TYPES[StandardTokenizer.ALPHANUM];
 
     private static final String HOST_TOKEN_TYPE =
             StandardTokenizer.TOKEN_TYPES[StandardTokenizer.HOST];
+
+    private static final String NUM_TOKEN_TYPE =
+            StandardTokenizer.TOKEN_TYPES[StandardTokenizer.NUM];
 
     private List<Token> tokens = new LinkedList<Token>();
 
@@ -81,7 +87,17 @@ public class SeparatorSplitterTokenFilter extends TokenFilter
     private static boolean isSplittableToken(Token token)
     {
         String type = token.type();
-        return type.equals(ALPHANUM_TOKEN_TYPE) || type.equals(HOST_TOKEN_TYPE);
+        if (type.equals(ALPHANUM_TOKEN_TYPE) || type.equals(HOST_TOKEN_TYPE))
+        {
+            return true;
+        }
+        if (type.equals(NUM_TOKEN_TYPE))
+        {
+            // sometimes the original tokenizer lies to us and reports terms like 'version_3' to be
+            // numbers. This is a heuristic to correct those lies.
+            return Character.isLetter(token.term().charAt(0));
+        }
+        return false;
     }
 
     // returns the position of the first separator character. Starts browsing at curPos.
@@ -99,7 +115,14 @@ public class SeparatorSplitterTokenFilter extends TokenFilter
 
     private static boolean isSeparator(char ch)
     {
-        return ch == '.' || ch == ',' || ch == '-' || ch == '_';
+        for (int i = 0; i < WORD_SEPARATORS.length; i++)
+        {
+            if (WORD_SEPARATORS[i] == ch)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Token extractFirstToken()

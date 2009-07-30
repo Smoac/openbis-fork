@@ -36,6 +36,7 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.BooleanClause.Occur;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -63,12 +64,12 @@ public class LuceneQueryBuilder
         List<DataSetSearchCriterion> criteria = dataSetCriteria.getCriteria();
         Occur occureCondition = createOccureCondition(dataSetCriteria.getConnection());
 
-        SearchAnalyzer analyzer = createSearchAnalyzer();
+        Analyzer analyzer = createSearchAnalyzer();
         BooleanQuery resultQuery = new BooleanQuery();
         for (DataSetSearchCriterion criterion : criteria)
         {
             List<String> fieldNames = getIndexFieldNames(criterion.getField());
-            String searchPattern = LuceneQueryBuilder.disableFieldQuery(criterion.getValue());
+            String searchPattern = LuceneQueryBuilder.adaptQuery(criterion.getValue());
 
             Query luceneQuery = parseQuery(fieldNames, searchPattern, analyzer);
             resultQuery.add(luceneQuery, occureCondition);
@@ -225,6 +226,32 @@ public class LuceneQueryBuilder
         return SearchFieldConstants.PREFIX_PROPERTIES + propertyCode;
     }
 
+    public static String adaptQuery(String userQuery)
+    {
+        String result = disableFieldQuery(userQuery);
+        result = replaceWordSeparators(result, SeparatorSplitterTokenFilter.WORD_SEPARATORS);
+        return result;
+    }
+
+    @Private
+    static String replaceWordSeparators(String query, char[] wordSeparators)
+    {
+        String charsRegexp = "[";
+        for (int i = 0; i < wordSeparators.length; i++)
+        {
+            charsRegexp += "\\" + wordSeparators[i];
+        }
+        charsRegexp += "]";
+        String queryWithoutSeparators = query.replaceAll(charsRegexp, " AND ");
+        if (queryWithoutSeparators.equals(query))
+        {
+            return query;
+        } else
+        {
+            return "(" + queryWithoutSeparators + ")";
+        }
+    }
+
     // disables field query by escaping all field separator characters.
     public static String disableFieldQuery(String userQuery)
     {
@@ -248,7 +275,7 @@ public class LuceneQueryBuilder
      * All the search query parsers should use this method to get the analyzer, because this is the
      * one which is used to build the index.
      */
-    public static SearchAnalyzer createSearchAnalyzer()
+    public static Analyzer createSearchAnalyzer()
     {
         return new SearchAnalyzer();
     }

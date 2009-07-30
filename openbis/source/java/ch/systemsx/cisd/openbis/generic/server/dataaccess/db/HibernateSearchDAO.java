@@ -29,9 +29,7 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReader.FieldOption;
-import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.highlight.Formatter;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
@@ -126,7 +124,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
         MyIndexReaderProvider<T> indexProvider =
                 new MyIndexReaderProvider<T>(fullTextSession, entityClass);
-        String searchQuery = LuceneQueryBuilder.disableFieldQuery(userQuery);
+        String searchQuery = LuceneQueryBuilder.adaptQuery(userQuery);
 
         try
         {
@@ -225,8 +223,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                                     highlighter.getBestFragment(content, fieldName, documentId);
                         } else
                         {
-                            // we do not store file content in the index
-                            matchingText = "file content";
+                            // in some cases (e.g. attachments) we do not store content in the index
+                            matchingText = "[content]";
                         }
                     } catch (IOException ex)
                     {
@@ -347,8 +345,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     private List<ExternalDataPE> searchForDataSets(Session session,
             DataSetSearchCriteria datasetSearchCriteria)
     {
-        BooleanQuery query = new BooleanQuery();
-        query.add(LuceneQueryBuilder.createQuery(datasetSearchCriteria), Occur.MUST);
+        Query query = LuceneQueryBuilder.createQuery(datasetSearchCriteria);
         final FullTextSession fullTextSession = Search.getFullTextSession(session);
         final FullTextQuery hibernateQuery =
                 fullTextSession.createFullTextQuery(query, ExternalDataPE.class);
