@@ -73,6 +73,12 @@ public class VocabularyPropertyColRenderer<T extends IEntityPropertiesHolder> ex
     {
         final String code = term.getCode();
         final String label = term.getLabel();
-        return (label != null ? label + " " : "") + "[" + code + "]";
+        if (label == null)
+        {
+            return code;
+        } else
+        {
+            return label + " [" + code + "]";
+        }
     }
 }
