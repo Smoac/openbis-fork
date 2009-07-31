@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.BrowserSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
@@ -104,6 +105,8 @@ public class ProteinViewer extends
 
     private final TechId proteinReferenceID;
 
+    private ProteinSamplesSection proteinSamplesSection;
+
     private ProteinViewer(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
             Experiment experimentOrNull, TechId proteinReferenceID)
     {
@@ -135,9 +138,9 @@ public class ProteinViewer extends
             recreateUIWithDatasetTable(protein, propertyPanel);
         } else
         {
-            // TODO 2009-07-16, Tomasz Pylak: write sample viewer
-            BorderLayoutData layoutData = createBorderLayoutData(LayoutRegion.CENTER);
-            add(propertyPanel, layoutData);
+            add(propertyPanel, createBorderLayoutData(LayoutRegion.CENTER));
+            proteinSamplesSection = new ProteinSamplesSection(viewContext, proteinReferenceID);
+            add(proteinSamplesSection, createBorderLayoutData(LayoutRegion.SOUTH));
             layout();
         }
     }
@@ -159,6 +162,7 @@ public class ProteinViewer extends
     {
         PropertyGrid propertyGrid = createPropertyGrid(protein);
         ContentPanel contentPanel = new ContentPanel();
+        contentPanel.setScrollMode(Scroll.AUTO);
         contentPanel.add(propertyGrid);
         return contentPanel;
     }
@@ -274,11 +278,24 @@ public class ProteinViewer extends
 
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        return new DatabaseModificationKind[0];
+        return createDatabaseModificationObserver().getRelevantModifications();
     }
 
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
+        createDatabaseModificationObserver().update(observedModifications);
+    }
+
+    private CompositeDatabaseModificationObserver createDatabaseModificationObserver()
+    {
+        CompositeDatabaseModificationObserver observer =
+                new CompositeDatabaseModificationObserver();
+        if (proteinSamplesSection != null)
+        {
+            observer.addObserver(proteinSamplesSection.getDatabaseModificationObserver());
+        }
+        // TODO 2009-07-31, Piotr Buczek: refresh properties panel?
+        return observer;
     }
 
     public static final class ProteinByExperimentCallback extends

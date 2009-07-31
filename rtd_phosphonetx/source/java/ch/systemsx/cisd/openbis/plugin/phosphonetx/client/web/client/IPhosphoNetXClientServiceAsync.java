@@ -33,8 +33,6 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSeque
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IPhosphoNetXClientServiceAsync extends IClientServiceAsync
@@ -63,11 +61,11 @@ public interface IPhosphoNetXClientServiceAsync extends IClientServiceAsync
     public void listProteinsByExperimentAndReference(
             ListProteinByExperimentAndReferenceCriteria criteria,
             AsyncCallback<ResultSet<DataSetProtein>> callback);
-    
+
     /** @see IPhosphoNetXClientService#prepareExportDataSetProteins(TableExportCriteria) */
     public void prepareExportDataSetProteins(TableExportCriteria<DataSetProtein> exportCriteria,
             AsyncCallback<String> callback);
-    
+
     /** @see IPhosphoNetXClientService#listSamplesWithAbundanceByProtein(ListSampleAbundanceByProteinCriteria) */
     public void listSamplesWithAbundanceByProtein(ListSampleAbundanceByProteinCriteria criteria,
             AsyncCallback<ResultSet<SampleWithPropertiesAndAbundance>> callback);

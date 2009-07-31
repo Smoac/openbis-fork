@@ -60,4 +60,7 @@ public class Dict
 
     public static final String FDR = "false_discovery_rate_column";
 
+    // SampleAbundance Browser
+
+    public static final String ABUNDANCE = "abundance";
 }

@@ -25,6 +25,9 @@ var phosphonetx = {
   sequence_name: "Sequence",
   false_discovery_rate_column: "FDR",
   
+  // SampleAbudndance Browser
+  abundance: "Abundance",
+  
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };

@@ -21,28 +21,43 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class SampleWithPropertiesAndAbundance implements IsSerializable, Serializable
+public class SampleWithPropertiesAndAbundance implements IsSerializable, Serializable,
+        IEntityInformationHolder, IEntityPropertiesHolder
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
- 
+
+    private Long id;
+
     private String identifier;
-    
-    private TechId id;
-    
-    private String sampleTypeCode;
-    
+
+    private String code;
+
+    private SampleType sampleType;
+
     private List<IEntityProperty> properties;
-    
+
     private double abundance;
+
+    public final Long getId()
+    {
+        return id;
+    }
+
+    public final void setId(Long id)
+    {
+        this.id = id;
+    }
 
     public final String getIdentifier()
     {
@@ -54,27 +69,37 @@ public class SampleWithPropertiesAndAbundance implements IsSerializable, Seriali
         this.identifier = identifier;
     }
 
-    public final TechId getId()
+    public final String getCode()
     {
-        return id;
+        return code;
     }
 
-    public final void setId(TechId id)
+    public void setCode(final String code)
     {
-        this.id = id;
+        this.code = code;
     }
 
-    public final String getSampleTypeCode()
+    public EntityType getEntityType()
     {
-        return sampleTypeCode;
+        return getSampleType();
     }
 
-    public final void setSampleTypeCode(String sampleTypeCode)
+    public EntityKind getEntityKind()
     {
-        this.sampleTypeCode = sampleTypeCode;
+        return EntityKind.SAMPLE;
     }
 
-    public final List<IEntityProperty> getProperties()
+    public SampleType getSampleType()
+    {
+        return sampleType;
+    }
+
+    public void setSampleType(final SampleType sampleType)
+    {
+        this.sampleType = sampleType;
+    }
+
+    public List<IEntityProperty> getProperties()
     {
         return properties;
     }
