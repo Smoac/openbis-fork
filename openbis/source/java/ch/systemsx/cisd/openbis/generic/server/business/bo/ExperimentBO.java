@@ -524,7 +524,6 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         if (project.getGroup().equals(previousProject.getGroup()) == false)
         {
             SampleUtils.setSamplesGroup(experiment, project.getGroup());
-            // FIXME 2009-07-27, Piotr Buczek: sample update - possible deadlock in trigger?
         }
         experiment.setProject(project);
     }

@@ -96,20 +96,26 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         EntityTypePE entityType = findEntityType(entityTypeCode);
         PropertyTypePE propertyType = findPropertyType(propertyTypeCode);
         assignment = createAssignment(isMandatory, entityType, propertyType);
-        // fill initial mandatory property values
-        // FIXME 2009-07-20, Tomasz Pylak: filing the default value should also work for
-        // non-mandatory properties
+        // fill default property values
         if (isMandatory)
         {
-            List<IEntityPropertiesHolder> entities =
-                    getEntityPropertyTypeDAO(entityKind).listEntities(entityType);
+            List<IEntityPropertiesHolder> entities = getAllEntities(entityType);
             String errorMsgTemplate =
                     "Cannot create mandatory assignment. "
                             + "Please specify 'Initial Value', which will be used for %s %s%s "
                             + "of type '%s' already existing in the database.";
             addPropertyWithDefaultValue(entityType, propertyType, defaultValue, entities,
                     errorMsgTemplate);
+        } else if (StringUtils.isEmpty(defaultValue) == false)
+        {
+            List<IEntityPropertiesHolder> entities = getAllEntities(entityType);
+            addPropertyWithDefaultValue(entityType, propertyType, defaultValue, entities, null);
         }
+    }
+
+    private List<IEntityPropertiesHolder> getAllEntities(EntityTypePE entityType)
+    {
+        return getEntityPropertyTypeDAO(entityKind).listEntities(entityType);
     }
 
     private void addPropertyWithDefaultValue(EntityTypePE entityType, PropertyTypePE propertyType,
