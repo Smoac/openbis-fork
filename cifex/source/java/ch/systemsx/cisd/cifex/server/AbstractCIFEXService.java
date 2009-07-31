@@ -28,6 +28,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.NullAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 import ch.systemsx.cisd.cifex.rpc.server.CIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.server.Session;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
@@ -261,112 +262,126 @@ abstract public class AbstractCIFEXService
     protected UserDTO tryExternalAuthenticationServiceLogin(final String userOrEmail,
             final String password) throws EnvironmentFailureException
     {
-        if (hasExternalAuthenticationService())
+        if (hasExternalAuthenticationService() == false)
         {
-            final String applicationToken = externalAuthenticationService.authenticateApplication();
-            if (applicationToken == null)
+            return null;
+        }
+        final String applicationToken = externalAuthenticationService.authenticateApplication();
+        if (applicationToken == null)
+        {
+            if (userBehaviorLogOrNull != null)
             {
-                if (userBehaviorLogOrNull != null)
-                {
-                    userBehaviorLogOrNull.logFailedLoginAttempt(userOrEmail);
-                }
-                final String msg =
-                        "User '" + userOrEmail
-                                + "' couldn't be authenticated because authentication of "
-                                + "the application at the external authentication service failed.";
-                operationLog.error(msg);
-                throw new EnvironmentFailureException(msg);
+                userBehaviorLogOrNull.logFailedLoginAttempt(userOrEmail);
             }
-            final boolean authenticated =
-                    externalAuthenticationService.authenticateUser(applicationToken, userOrEmail,
-                            password);
-            if (authenticated == false)
+            final String msg =
+                    "User '" + userOrEmail
+                            + "' couldn't be authenticated because authentication of "
+                            + "the application at the external authentication service failed.";
+            operationLog.error(msg);
+            throw new EnvironmentFailureException(msg);
+        }
+        final boolean authenticated =
+                externalAuthenticationService.authenticateUser(applicationToken, userOrEmail,
+                        password);
+        if (authenticated == false)
+        {
+            return null;
+        }
+        final Principal principal;
+        try
+        {
+            principal = externalAuthenticationService.getPrincipal(applicationToken, userOrEmail);
+        } catch (final IllegalArgumentException ex)
+        {
+            operationLog.error(ex.getMessage());
+            throw new EnvironmentFailureException(ex.getMessage());
+        }
+        final UserDTO userDTO =
+                createOrUpdateUserFromExternalAuthenticationService(principal, null);
+        if (userDTO.isActive() == false)
+        {
+            return null;
+        }
+        return userDTO;
+    }
+
+    protected UserDTO createOrUpdateUserFromExternalAuthenticationService(
+            final Principal principal, final UserInfoDTO userOrNull)
+    {
+        final String code = principal.getUserId();
+        final String email = principal.getEmail();
+        final String firstName = principal.getFirstName();
+        final String lastName = principal.getLastName();
+        final String displayName;
+        if (principal.getProperty(DISPLAY_NAME_PROPERTY) != null)
+        {
+            displayName = principal.getProperty(DISPLAY_NAME_PROPERTY);
+        } else
+        {
+            displayName = firstName + " " + lastName;
+        }
+        final IUserManager userManager = domainModel.getUserManager();
+        UserDTO userDTO = userManager.tryFindUserByCode(code);
+        if (userDTO == null)
+        {
+            userDTO = new UserDTO();
+            userDTO.setUserCode(code);
+            userDTO.setUserFullName(displayName);
+            userDTO.setEmail(email);
+            userDTO.setPassword(null);
+            userDTO.setExternallyAuthenticated(true);
+            if (userOrNull != null)
             {
-                return null;
-            }
-            final Principal principal;
-            try
-            {
-                principal =
-                        externalAuthenticationService.getPrincipal(applicationToken, userOrEmail);
-            } catch (final IllegalArgumentException ex)
-            {
-                operationLog.error(ex.getMessage());
-                throw new EnvironmentFailureException(ex.getMessage());
-            }
-            final String code = principal.getUserId();
-            final String email = principal.getEmail();
-            final String firstName = principal.getFirstName();
-            final String lastName = principal.getLastName();
-            final String displayName;
-            if (principal.getProperty(DISPLAY_NAME_PROPERTY) != null)
-            {
-                displayName = principal.getProperty(DISPLAY_NAME_PROPERTY);
+                userDTO.setAdmin(userOrNull.isAdmin());
+                userDTO.setPermanent(userOrNull.isPermanent());
+                userDTO.setActive(userOrNull.isActive());
+                
             } else
             {
-                displayName = firstName + " " + lastName;
-            }
-            final IUserManager userManager = domainModel.getUserManager();
-            UserDTO userDTO = userManager.tryFindUserByCode(code);
-            if (userDTO == null)
-            {
-                userDTO = new UserDTO();
-                userDTO.setUserCode(code);
-                userDTO.setUserFullName(displayName);
-                userDTO.setEmail(email);
-                userDTO.setPassword(null);
-                userDTO.setExternallyAuthenticated(true);
                 userDTO.setAdmin(false);
                 userDTO.setPermanent(true);
                 userDTO.setActive(domainModel.getBusinessContext()
                         .isNewExternallyAuthenticatedUserStartActive());
+            }
+            try
+            {
+                userManager.createUser(userDTO);
+            } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException ex)
+            {
+                operationLog.error(ex.getMessage(), ex);
+                // This is actually an environment failure since the user couldn't have done
+                // anything different.
+                throw new EnvironmentFailureException(ex.getMessage());
+            }
+        } else
+        { // check whether name or email of the principal have changed, and update, if
+            // necessary
+            boolean changed = false;
+            if (StringUtils.equals(displayName, userDTO.getUserFullName()) == false)
+            {
+                userDTO.setUserFullName(displayName);
+                changed = true;
+            }
+            if (StringUtils.equals(email, userDTO.getEmail()) == false)
+            {
+                userDTO.setEmail(email);
+                changed = true;
+            }
+            if (changed)
+            {
                 try
                 {
-                    userManager.createUser(userDTO);
-                } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException ex)
+                    userManager.updateUser(userDTO, null);
+                } catch (final DataIntegrityViolationException ex)
                 {
-                    operationLog.error(ex.getMessage(), ex);
-                    // This is actually an environment failure since the user couldn't have done
-                    // anything different.
-                    throw new EnvironmentFailureException(ex.getMessage());
-                }
-            } else
-            { // check whether name or email of the principal have changed, and update, if
-                // necessary
-                boolean changed = false;
-                if (StringUtils.equals(displayName, userDTO.getUserFullName()) == false)
-                {
-                    userDTO.setUserFullName(displayName);
-                    changed = true;
-                }
-                if (StringUtils.equals(email, userDTO.getEmail()) == false)
-                {
-                    userDTO.setEmail(email);
-                    changed = true;
-                }
-                if (changed)
-                {
-                    try
-                    {
-                        userManager.updateUser(userDTO, null);
-                    } catch (final DataIntegrityViolationException ex)
-                    {
-                        final String msg =
-                                "User '" + code + "' with email '" + email + "' cannot be updated.";
-                        operationLog.error(msg, ex);
-                        throw new EnvironmentFailureException(msg);
-                    }
+                    final String msg =
+                            "User '" + code + "' with email '" + email + "' cannot be updated.";
+                    operationLog.error(msg, ex);
+                    throw new EnvironmentFailureException(msg);
                 }
             }
-            if (userDTO.isActive() == false)
-            {
-                return null;
-            }
-            return userDTO;
-        } else
-        {
-            return null;
         }
+        return userDTO;
     }
 
     public final void logout()

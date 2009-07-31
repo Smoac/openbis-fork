@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
+import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.cifex.client.FileNotFoundException;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.InsufficientPrivilegesException;
@@ -107,7 +108,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         }
         return (UserDTO) session.getAttribute(SESSION_ATTRIBUTE_USER_NAME);
     }
-    
+
     private void updateCurrentUser(String userID) throws InvalidSessionException
     {
         if (userID.equals(privGetCurrentUser().getUserCode()) == false)
@@ -292,7 +293,10 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         ensureCodeIsValid(user.getUserCode());
         final IUserManager userManager = domainModel.getUserManager();
 
-        ensureUserCodeNotReservedByExternalAuthenticationService(user);
+        if (couldCreateUserFromExternalAuthenticationService(user))
+        {
+            return;
+        }
 
         final UserDTO userDTO = BeanUtils.createBean(UserDTO.class, user);
         final UserDTO registratorDTO = BeanUtils.createBean(UserDTO.class, registratorOrNull);
@@ -319,40 +323,44 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         }
     }
 
-    private void ensureUserCodeNotReservedByExternalAuthenticationService(final UserInfoDTO user)
+    private boolean couldCreateUserFromExternalAuthenticationService(final UserInfoDTO user)
             throws EnvironmentFailureException
     {
-        if (hasExternalAuthenticationService())
+        if (hasExternalAuthenticationService() == false)
         {
-            final String applicationToken = externalAuthenticationService.authenticateApplication();
-            final String userOrEmail = user.getUserCode();
-            if (applicationToken == null)
-            {
-                final String msg =
-                        "Authentication of the application at the external authentication service failed.";
-                throw new EnvironmentFailureException(msg);
-            }
+            return false;
+        }
+        final String applicationToken = externalAuthenticationService.authenticateApplication();
+        final String userOrEmail = user.getUserCode();
+        if (applicationToken == null)
+        {
+            final String msg =
+                    "Authentication of the application at the external authentication service failed.";
+            throw new EnvironmentFailureException(msg);
+        }
 
-            if (userExistsInExternalService(applicationToken, userOrEmail))
-            {
-                throw new EnvironmentFailureException(String.format(
-                        "Username '%s' is reserved by external authentication service.",
-                        userOrEmail));
-            }
+        final Principal principalOrNull =
+                tryGetUserFromExternalService(applicationToken, userOrEmail);
+        if (principalOrNull != null)
+        {
+            createOrUpdateUserFromExternalAuthenticationService(principalOrNull, user);
+            return true;
+        } else
+        {
+            return false;
         }
     }
 
-    private boolean userExistsInExternalService(final String applicationToken,
+    private Principal tryGetUserFromExternalService(final String applicationToken,
             final String userOrEmail)
     {
         try
         {
-            externalAuthenticationService.getPrincipal(applicationToken, userOrEmail);
+            return externalAuthenticationService.getPrincipal(applicationToken, userOrEmail);
         } catch (final IllegalArgumentException e)
         {
-            return false;
+            return null;
         }
-        return true;
     }
 
     private final String getBasicURL()
@@ -484,7 +492,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         final IUserManager userManager = domainModel.getUserManager();
         final UserDTO newUserDTO = BeanUtils.createBean(UserDTO.class, user);
         final UserDTO oldUserDTO = userManager.tryFindUserByCode(user.getUserCode());
-        
+
         checkUpdateOfUserIsAllowed(oldUserDTO, newUserDTO);
 
         userManager.updateUser(oldUserDTO, newUserDTO, new Password(plainPassword));
@@ -571,7 +579,8 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     private final void checkUpdateOfUserIsAllowed(final UserDTO oldUser, final UserDTO userToUpdate)
             throws InvalidSessionException, InsufficientPrivilegesException
     {
-        checkUpdateOfUserIsAllowed(oldUser, userToUpdate, privGetCurrentUser(), domainModel.getUserManager());
+        checkUpdateOfUserIsAllowed(oldUser, userToUpdate, privGetCurrentUser(), domainModel
+                .getUserManager());
     }
 
     @Private

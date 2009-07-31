@@ -298,7 +298,7 @@ public class CIFEXServiceImplTest
         context.assertIsSatisfied();
     }
 
-    @Test(expectedExceptions = EnvironmentFailureException.class)
+    @Test
     public void testCreateUserExistingInExternalService() throws InvalidSessionException,
             InsufficientPrivilegesException, EnvironmentFailureException, UserFailureException
     {
@@ -306,6 +306,7 @@ public class CIFEXServiceImplTest
         userToCreate.setEmail(DEFAULT_USER_EMAIL);
         userToCreate.setUserCode(DEFAULT_USER_CODE);
         userToCreate.setUserFullName(DEFAULT_USER_FIRST_NAME + " " + DEFAULT_USER_LAST_NAME);
+        userToCreate.setPermanent(true);
         final UserDTO admin = new UserDTO();
         admin.setAdmin(true);
         admin.setEmail("admin@admins.com");
@@ -325,7 +326,25 @@ public class CIFEXServiceImplTest
 
                     one(authenticationService).getPrincipal(APPLICATION_TOKEN_EXAMPLE,
                             userToCreate.getUserCode());
+                    final Principal principal =
+                            new Principal(userToCreate.getUserCode(), "First", "Last",
+                                    "email@dot.com");
+                    will(returnValue(principal));
+                    
+                    one(domainModel).getUserManager();
+                    will(returnValue(userManager));
 
+                    one(userManager).tryFindUserByCode(userToCreate.getUserCode());
+                    will(returnValue(null));
+                    
+                    final UserDTO userDTO = new UserDTO();
+                    userDTO.setUserCode(userToCreate.getUserCode());
+                    userDTO.setUserFullName("First Last");
+                    userDTO.setEmail("email@dot.com");
+                    userDTO.setExternallyAuthenticated(true);
+                    userDTO.setPermanent(true);
+                    userDTO.setActive(true);
+                    one(userManager).createUser(userDTO);
                 }
             });
         final CIFEXServiceImpl service = createService(authenticationService);
