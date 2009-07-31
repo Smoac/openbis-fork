@@ -76,8 +76,7 @@ public final class SampleTranslator
         // NOTE: we should always translate Id in this way
         // because getId() on HibernateProxy object always returns null
         result.setId(HibernateUtils.getId(samplePE));
-        result.setIdentifier(StringEscapeUtils
-                .escapeHtml(samplePE.getSampleIdentifier().toString()));
+        result.setIdentifier(StringEscapeUtils.escapeHtml(samplePE.getIdentifier()));
         result.setSampleType(SampleTypeTranslator.translate(samplePE.getSampleType()));
         if (withDetails)
         {
