@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.client.dto;
+package ch.systemsx.cisd.cifex.shared.basic.dto;
 
-import ch.systemsx.cisd.cifex.shared.basic.dto.BasicUserInfoDTO;
-import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 
 /**
  * A client <i>DTO</i> which describes a file with additional admin information.

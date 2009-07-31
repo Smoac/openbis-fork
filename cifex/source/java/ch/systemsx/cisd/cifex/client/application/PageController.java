@@ -18,7 +18,7 @@ package ch.systemsx.cisd.cifex.client.application;
 
 import com.google.gwt.user.client.ui.RootPanel;
 
-import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
  * Controller for creating pages.

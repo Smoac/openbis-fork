@@ -29,8 +29,8 @@ import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
-import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
+import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
  * The <code>GridCellListenerAdapter</code> for users grid.

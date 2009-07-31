@@ -19,8 +19,8 @@ package ch.systemsx.cisd.cifex.client;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
 
-import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
+import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
  * The asynchronous <i>GWT</i> <i>LIMS</i> service.

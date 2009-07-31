@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.client.dto;
+package ch.systemsx.cisd.cifex.client;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 

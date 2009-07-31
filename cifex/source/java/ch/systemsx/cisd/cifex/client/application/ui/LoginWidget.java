@@ -33,7 +33,7 @@ import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.Model;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
-import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
  * A <code>Form</code> extension that is the login panel we use to login to the <i>openBIS</i>

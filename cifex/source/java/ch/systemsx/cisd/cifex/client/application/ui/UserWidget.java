@@ -42,8 +42,8 @@ import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
-import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
+import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
  * A <code>Form</code> extension as base class to edit or create an user.

@@ -29,7 +29,7 @@ import com.gwtext.client.widgets.grid.Renderer;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
-import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
  * The model for the file sharing user grid.

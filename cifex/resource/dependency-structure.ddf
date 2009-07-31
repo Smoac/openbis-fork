@@ -36,9 +36,8 @@ check [client] independentOf [server]
 check sets [server.trigger] [server.business] [server-business-common] [server.common] [server.util]
 
 [client.application] = ${client}.application.*
-[client.dto] = ${client}.dto.*
 [client-application] = ${client}.* excluding [client.application]
-check sets [client.application] [client.dto] [client-application]
+check sets [client.application] [client-application]
 
 layer layer2 = [server-business-common] [client.application]
 layer layer1 = [server.business] [client-application]

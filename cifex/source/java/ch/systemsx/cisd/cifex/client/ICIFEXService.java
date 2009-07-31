@@ -18,12 +18,11 @@ package ch.systemsx.cisd.cifex.client;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 
-import ch.systemsx.cisd.cifex.client.dto.Configuration;
-import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
+import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
  * The <i>GWT</i> <i>CIFEX</i> service.

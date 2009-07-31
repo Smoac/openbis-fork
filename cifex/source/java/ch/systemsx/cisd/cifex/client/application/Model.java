@@ -19,8 +19,8 @@ package ch.systemsx.cisd.cifex.client.application;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.systemsx.cisd.cifex.client.dto.Configuration;
-import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
+import ch.systemsx.cisd.cifex.client.Configuration;
+import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
  * Some <code>static</code> data that are available in the whole application context.

@@ -27,8 +27,8 @@ import ch.systemsx.cisd.cifex.client.application.ui.CommentRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.FileUtils;
-import ch.systemsx.cisd.cifex.client.dto.AdminFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
+import ch.systemsx.cisd.cifex.shared.basic.dto.AdminFileInfoDTO;
 
 /**
  * A <code>AbstractFileGridModel</code> extension for files in the administration.

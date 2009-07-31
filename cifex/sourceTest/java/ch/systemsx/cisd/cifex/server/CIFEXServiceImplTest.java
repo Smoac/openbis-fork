@@ -46,7 +46,6 @@ import ch.systemsx.cisd.cifex.client.FileNotFoundException;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.InsufficientPrivilegesException;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
-import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 import ch.systemsx.cisd.cifex.server.business.DummyUserActionLog;
 import ch.systemsx.cisd.cifex.server.business.FileInformation;
 import ch.systemsx.cisd.cifex.server.business.IBusinessContext;
@@ -58,6 +57,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.common.Password;
 import ch.systemsx.cisd.cifex.shared.basic.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
+import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 

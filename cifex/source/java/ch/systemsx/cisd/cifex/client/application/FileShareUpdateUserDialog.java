@@ -25,8 +25,8 @@ import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 
 import ch.systemsx.cisd.cifex.client.application.model.FileShareUserGridModel;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
-import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
+import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
  * @author Basil Neff

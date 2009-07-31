@@ -31,7 +31,7 @@ import com.gwtext.client.widgets.form.TextFieldConfig;
 import com.gwtext.client.widgets.layout.ContentPanel;
 
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
-import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
  * An <code>AbstractMainPage</code> allowing to change authentication method to external service.

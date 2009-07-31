@@ -34,7 +34,7 @@ import com.gwtext.client.widgets.layout.LayoutRegionConfig;
 
 import ch.systemsx.cisd.cifex.client.application.ui.CreateUserWidget;
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
-import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
  * @author Franz-Josef Elmer

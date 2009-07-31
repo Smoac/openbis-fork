@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.client.dto;
+package ch.systemsx.cisd.cifex.shared.basic.dto;
 
 import java.util.Date;
 
-import ch.systemsx.cisd.cifex.shared.basic.dto.BasicUserInfoDTO;
 
 /**
  * A small class that describes an user.

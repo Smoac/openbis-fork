@@ -23,14 +23,14 @@ import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.gwtext.client.widgets.QuickTips;
 import com.gwtext.client.widgets.form.Field;
 
+import ch.systemsx.cisd.cifex.client.Configuration;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.application.ui.FileDownloadHelper;
 import ch.systemsx.cisd.cifex.client.application.utils.GWTUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
-import ch.systemsx.cisd.cifex.client.dto.Configuration;
-import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
  * Entry point of <i>GWT</i> <i>CIFEX</i>.
