@@ -132,7 +132,7 @@ public final class Principal extends AbstractHashable implements Serializable
      */
     public final String getProperty(final String key)
     {
-        return properties.get(key);
+        return (properties != null) ? properties.get(key) : null;
     }
 
     /** Retuns an unmodifiable <code>Set</code> of present properties. */
