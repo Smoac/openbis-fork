@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -27,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.ProteinViewer.DatasetInformationHolder;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Peptide;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 
 /**
@@ -52,6 +55,12 @@ public final class PropertyValueRenderers
             final IViewContext<?> viewContext)
     {
         return new ProteinByExperimentRenderer(viewContext);
+    }
+
+    public final static IPropertyValueRenderer<Peptide> createPeptideRenderer(
+            final IViewContext<?> viewContext)
+    {
+        return new PeptideRenderer(viewContext);
     }
 
     public final static IPropertyValueRenderer<Experiment> createExperimentPropertyValueRenderer(
@@ -88,5 +97,27 @@ public final class PropertyValueRenderers
         {
             return PROTEIN_DETAILS_PAGE_URL + uniprotID;
         }
+    }
+
+    private final static class PeptideRenderer extends AbstractPropertyValueRenderer<Peptide>
+    {
+
+        PeptideRenderer(final IMessageProvider messageProvider)
+        {
+            super(messageProvider);
+        }
+
+        public Widget getAsWidget(Peptide object)
+        {
+            final FlowPanel panel = new FlowPanel();
+            panel.add(new InlineHTML(getFixedWidthHTMLString(object.getSequence())));
+            return panel;
+        }
+
+        private static String getFixedWidthHTMLString(String text)
+        {
+            return "<font style=\"font-family:monospace\">" + text + "</font>";
+        }
+
     }
 }

@@ -54,6 +54,8 @@ public class Dict
 
     public static final String PEPTIDE_COUNT = "peptide_count";
 
+    public static final String PEPTIDES = "peptides";
+
     public static final String SEQUENCE_NAME = "sequence_name";
 
     public static final String FDR = "false_discovery_rate_column";

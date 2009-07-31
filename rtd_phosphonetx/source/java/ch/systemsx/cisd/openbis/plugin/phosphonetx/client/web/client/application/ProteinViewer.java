@@ -196,8 +196,11 @@ public class ProteinViewer extends
         String markedSequence =
                 markPeptides(proteinDetails.getSequence(), proteinDetails.getPeptides());
         properties.put(viewContext.getMessage(Dict.SEQUENCE_NAME), markedSequence);
-        properties.put(viewContext.getMessage(Dict.PEPTIDE_COUNT), proteinDetails.getPeptides()
-                .size());
+
+        propertyGrid.registerPropertyValueRenderer(Peptide.class, PropertyValueRenderers
+                .createPeptideRenderer(viewContext));
+        properties.put(viewContext.getMessage(Dict.PEPTIDES, proteinDetails.getPeptides().size()),
+                proteinDetails.getPeptides().toArray());
 
         properties.put(viewContext.getMessage(Dict.FDR), proteinDetails.getFalseDiscoveryRate());
 
@@ -214,7 +217,12 @@ public class ProteinViewer extends
                 OccurrencesMarker.markOccurrencesWithHtml(sequence, peptideSequences,
                         AMINOACIDS_IN_SEQUENCE_PER_LINE);
         // the letters should have fixed width
-        return "<font style=\"font-family:monospace\">" + markedSequence + "</font>";
+        return getFixedWidthHTMLString(markedSequence);
+    }
+
+    private static String getFixedWidthHTMLString(String text)
+    {
+        return "<font style=\"font-family:monospace\">" + text + "</font>";
     }
 
     private static List<String> extractSequences(List<Peptide> peptides)

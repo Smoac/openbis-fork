@@ -21,6 +21,7 @@ var phosphonetx = {
   data_set_proteins: "Data Sets",
   data_set_perm_id: "Data Set",
   peptide_count: "Peptides",
+  peptides: "Peptides ({0})",
   sequence_name: "Sequence",
   false_discovery_rate_column: "FDR",
   
