@@ -21,7 +21,9 @@ import java.util.List;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -29,15 +31,19 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddGroupDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GroupColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
@@ -63,6 +69,10 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Group>
 
     public static final String DELETE_BUTTON_ID = BROWSER_ID + "_delete-button";
 
+    public static final String EDIT_BUTTON_ID = BROWSER_ID + "-edit-button";
+
+    private final IDelegatedAction postRegistrationCallback;
+
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -75,6 +85,7 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Group>
     {
         super(viewContext, BROWSER_ID, GRID_ID);
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.PROJECT_BROWSER_GRID);
+        postRegistrationCallback = createRefreshGridAction();
     }
 
     private void extendBottomToolbar()
@@ -102,6 +113,19 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Group>
         addGroupButton.setId(ADD_BUTTON_ID);
         addButton(addGroupButton);
 
+        Button editButton =
+                createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
+                        new ISelectedEntityInvoker<BaseEntityModel<Group>>()
+                            {
+                                public void invoke(BaseEntityModel<Group> selectedItem)
+                                {
+                                    Group group = selectedItem.getBaseObject();
+                                    createEditDialog(group).show();
+                                }
+                            });
+        editButton.setId(EDIT_BUTTON_ID);
+        addButton(editButton);
+
         Button deleteButton =
                 createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
                         new AbstractCreateDialogListener()
@@ -118,6 +142,34 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Group>
         allowMultipleSelection(); // we allow deletion of multiple projects
 
         addEntityOperationsSeparator();
+    }
+
+    private Window createEditDialog(final Group group)
+    {
+        final String code = group.getCode();
+        final String description = group.getDescription();
+        final String title = viewContext.getMessage(Dict.EDIT_TITLE, "Group", code);
+
+        return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
+            {
+                private final DescriptionField descriptionField;
+
+                {
+                    boolean mandatory = false;
+
+                    descriptionField = createDescriptionField(viewContext, mandatory);
+                    descriptionField.setValue(StringEscapeUtils.unescapeHtml(description));
+                    addField(descriptionField);
+                }
+
+                @Override
+                protected void register(AsyncCallback<Void> registrationCallback)
+                {
+                    group.setDescription(descriptionField.getValue());
+
+                    viewContext.getService().updateGroup(group, registrationCallback);
+                }
+            };
     }
 
     @Override

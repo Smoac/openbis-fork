@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
@@ -36,8 +37,7 @@ public interface IGroupBO extends IEntityBusinessObject
      * 
      * @throws UserFailureException if <code>group</code> does already exist.
      */
-    public void define(String groupCode, String descriptionOrNull, String groupLeaderOrNull)
-            throws UserFailureException;
+    public void define(String groupCode, String descriptionOrNull) throws UserFailureException;
 
     /**
      * Loads a group described by identifier from Database Layer.
@@ -51,6 +51,11 @@ public interface IGroupBO extends IEntityBusinessObject
      * Returns the group or null.
      */
     public GroupPE getGroup() throws UserFailureException;
+
+    /**
+     * Updates the group.
+     */
+    public void update(IGroupUpdates updates);
 
     /**
      * Deletes group for specified reason.

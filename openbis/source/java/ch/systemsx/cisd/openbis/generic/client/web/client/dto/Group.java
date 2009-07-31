@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 
@@ -28,17 +28,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
  * 
  * @author Franz-Josef Elmer
  */
-public final class Group extends CodeWithRegistration<Group> implements IIdHolder
+public final class Group extends CodeWithRegistration<Group> implements IIdHolder, IGroupUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private Long id;
 
     private String description;
-
-    private Person leader;
-
-    private Group parent;
 
     private DatabaseInstance instance;
 
@@ -52,26 +48,6 @@ public final class Group extends CodeWithRegistration<Group> implements IIdHolde
     public final void setDescription(final String description)
     {
         this.description = description;
-    }
-
-    public Person getLeader()
-    {
-        return leader;
-    }
-
-    public void setLeader(final Person leader)
-    {
-        this.leader = leader;
-    }
-
-    public Group getParent()
-    {
-        return parent;
-    }
-
-    public void setParent(final Group parent)
-    {
-        this.parent = parent;
     }
 
     public DatabaseInstance getInstance()
@@ -137,4 +113,5 @@ public final class Group extends CodeWithRegistration<Group> implements IIdHolde
     {
         return this.toString().hashCode();
     }
+
 }

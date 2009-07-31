@@ -553,8 +553,6 @@ public abstract class Dict
     //
     public static final String GROUP_BROWSER = "group_browser";
 
-    public static final String LEADER = "leader";
-
     public static final String BUTTON_ADD_GROUP = "button_add_group";
 
     //

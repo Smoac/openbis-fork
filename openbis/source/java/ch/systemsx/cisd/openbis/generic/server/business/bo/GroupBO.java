@@ -23,6 +23,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
@@ -66,8 +67,22 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
         }
     }
 
-    public final void define(String groupCode, final String descriptionOrNull,
-            final String groupLeaderOrNull) throws UserFailureException
+    public void update(IGroupUpdates updates)
+    {
+        loadDataByTechId(TechId.create(updates));
+
+        group.setDescription(updates.getDescription());
+
+        validateAndSave();
+    }
+
+    private void validateAndSave()
+    {
+        getGroupDAO().validateAndSaveUpdatedEntity(group);
+    }
+
+    public final void define(String groupCode, final String descriptionOrNull)
+            throws UserFailureException
     {
         assert groupCode != null : "Unspecified group code.";
         group = new GroupPE();
@@ -79,18 +94,6 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
         group.setCode(groupIdentifier.getGroupCode());
         group.setDescription(descriptionOrNull);
         group.setRegistrator(findRegistrator());
-        if (groupLeaderOrNull != null)
-        {
-            final PersonPE groupLeader = getPersonDAO().tryFindPersonByUserId(groupLeaderOrNull);
-            if (groupLeader == null)
-            {
-                final String msg =
-                        "A group leader with the given user-name '" + groupLeaderOrNull
-                                + "' does not exist!";
-                throw new UserFailureException(msg);
-            }
-            group.setGroupLeader(groupLeader);
-        }
     }
 
     public GroupPE getGroup() throws UserFailureException

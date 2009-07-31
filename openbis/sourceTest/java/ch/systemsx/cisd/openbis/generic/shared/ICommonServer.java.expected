@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
@@ -109,13 +110,20 @@ public interface ICommonServer extends IServer
     public List<GroupPE> listGroups(String sessionToken, DatabaseInstanceIdentifier identifier);
 
     /**
-     * Registers a new group with specified code and optional description and group leader ID.
+     * Registers a new group with specified code and optional description.
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.GROUP)
-    public void registerGroup(String sessionToken, String groupCode, String descriptionOrNull,
-            String groupLeaderOrNull);
+    public void registerGroup(String sessionToken, String groupCode, String descriptionOrNull);
+
+    /**
+     * Updates a property type.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseUpdateModification(value = ObjectKind.GROUP)
+    public void updateGroup(final String sessionToken, final IGroupUpdates updates);
 
     /**
      * Returns all persons from current instance.

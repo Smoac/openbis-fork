@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
@@ -97,10 +98,15 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Registers a new group with specified code and optional description and group leader ID.
+     * Registers a new group with specified code and optional description.
      */
-    public void registerGroup(String groupCode, String descriptionOrNull, String groupLeaderOrNull)
+    public void registerGroup(String groupCode, String descriptionOrNull)
             throws UserFailureException;
+
+    /**
+     * Updates group.
+     */
+    public void updateGroup(final IGroupUpdates updates) throws UserFailureException;
 
     /**
      * Returns a list of all persons which belong to the current database instance.

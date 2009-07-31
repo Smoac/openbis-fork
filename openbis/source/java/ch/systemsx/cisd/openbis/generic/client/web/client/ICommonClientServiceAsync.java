@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
@@ -88,9 +89,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void prepareExportGroups(TableExportCriteria<Group> exportCriteria,
             AsyncCallback<String> callback);
 
-    /** @see ICommonClientService#registerGroup(String, String, String) */
-    public void registerGroup(String groupCode, String descriptionOrNull, String groupLeaderOrNull,
+    /** @see ICommonClientService#registerGroup(String, String) */
+    public void registerGroup(String groupCode, String descriptionOrNull,
             AsyncCallback<Void> callback);
+
+    /** @see ICommonClientService#updateGroup(IGroupUpdates) */
+    public void updateGroup(final IGroupUpdates updates, final AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#listPersons(DefaultResultSetConfig) */
     public void listPersons(DefaultResultSetConfig<String, Person> criteria,

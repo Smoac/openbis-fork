@@ -53,11 +53,11 @@ public final class GroupBOTest extends AbstractBOTest
     @Test
     public final void testDefineWithNullCode()
     {
-        final GroupBO projectBO = createGroupBO();
+        final GroupBO groupBO = createGroupBO();
         boolean fail = true;
         try
         {
-            projectBO.define(null, null, null);
+            groupBO.define(null, null);
         } catch (final AssertionError ex)
         {
             fail = false;
@@ -82,7 +82,7 @@ public final class GroupBOTest extends AbstractBOTest
                     one(groupDAO).createGroup(groupDTO);
                 }
             });
-        projectBO.define(groupDTO.getCode(), null, null);
+        projectBO.define(groupDTO.getCode(), null);
         projectBO.save();
         context.assertIsSatisfied();
     }

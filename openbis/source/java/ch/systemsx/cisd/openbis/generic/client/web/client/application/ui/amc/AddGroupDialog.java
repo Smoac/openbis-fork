@@ -56,6 +56,6 @@ public class AddGroupDialog extends AbstractRegistrationDialog
     protected void register(AsyncCallback<Void> registrationCallback)
     {
         viewContext.getService().registerGroup(codeField.getValue(), descriptionField.getValue(),
-                null, registrationCallback);
+                registrationCallback);
     }
 }

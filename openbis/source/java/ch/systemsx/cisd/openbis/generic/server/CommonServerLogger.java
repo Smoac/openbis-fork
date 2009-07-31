@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
@@ -120,9 +121,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public void registerGroup(final String sessionToken, final String groupCode,
-            final String descriptionOrNull, final String groupLeaderOrNull)
+            final String descriptionOrNull)
     {
         logTracking(sessionToken, "register_group", "CODE(%s)", groupCode);
+    }
+
+    public void updateGroup(String sessionToken, IGroupUpdates updates)
+    {
+        logTracking(sessionToken, "update_group", "GROUP(%s)", updates);
     }
 
     public List<PersonPE> listPersons(final String sessionToken)

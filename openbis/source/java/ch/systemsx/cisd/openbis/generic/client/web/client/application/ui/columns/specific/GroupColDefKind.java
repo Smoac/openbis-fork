@@ -44,15 +44,6 @@ public enum GroupColDefKind implements IColumnDefinitionKind<Group>
             }
         }),
 
-    LEADER(new AbstractColumnDefinitionKind<Group>(Dict.LEADER)
-        {
-            @Override
-            public String tryGetValue(Group entity)
-            {
-                return (entity.getLeader() == null) ? null : entity.getLeader().toString();
-            }
-        }),
-
     REGISTRATOR(new AbstractColumnDefinitionKind<Group>(Dict.REGISTRATOR)
         {
             @Override

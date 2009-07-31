@@ -66,8 +66,6 @@ public final class ModelDataPropertyNames
 
     public static final String LAST_NAME = "lastName";
 
-    public static final String LEADER = "leader";
-
     public static final String LOCATION = "location";
 
     public static final String OBJECT = "object";

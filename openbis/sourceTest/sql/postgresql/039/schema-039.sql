@@ -577,8 +577,6 @@ CREATE TABLE groups (
     id tech_id NOT NULL,
     code code NOT NULL,
     dbin_id tech_id NOT NULL,
-    grou_id_parent tech_id,
-    pers_id_leader tech_id,
     description description_1000,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     pers_id_registerer tech_id NOT NULL

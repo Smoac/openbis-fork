@@ -41,7 +41,6 @@ public class GroupModel extends BaseModelData
     {
         set(ModelDataPropertyNames.CODE, group.getCode());
         set(ModelDataPropertyNames.DESCRIPTION, group.getDescription());
-        set(ModelDataPropertyNames.LEADER, group.getLeader());
         set(ModelDataPropertyNames.REGISTRATOR, group.getRegistrator());
         set(ModelDataPropertyNames.REGISTRATION_DATE, group.getRegistrationDate());
         set(ModelDataPropertyNames.OBJECT, group);

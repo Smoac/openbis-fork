@@ -307,19 +307,18 @@ public final class CommonServerTest extends AbstractServerTestCase
         prepareGetSession();
         final String groupCode = "group";
         final String description = "description";
-        final String leader = "leader";
         context.checking(new Expectations()
             {
                 {
                     one(commonBusinessObjectFactory).createGroupBO(SESSION);
                     will(returnValue(groupBO));
 
-                    one(groupBO).define(groupCode, description, leader);
+                    one(groupBO).define(groupCode, description);
                     one(groupBO).save();
                 }
             });
 
-        createServer().registerGroup(SESSION_TOKEN, groupCode, description, leader);
+        createServer().registerGroup(SESSION_TOKEN, groupCode, description);
 
         context.assertIsSatisfied();
     }

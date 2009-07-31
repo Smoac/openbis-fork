@@ -72,11 +72,7 @@ public final class GroupPE extends HibernateAbstractRegistrationHolder implement
 
     private String description;
 
-    private PersonPE groupLeader;
-
     private DatabaseInstancePE databaseInstance;
-
-    private GroupPE parent;
 
     // null if unknown
     private Boolean home;
@@ -98,18 +94,6 @@ public final class GroupPE extends HibernateAbstractRegistrationHolder implement
         this.description = description;
     }
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.PERSON_LEADER_COLUMN, updatable = false)
-    public final PersonPE getGroupLeader()
-    {
-        return groupLeader;
-    }
-
-    public final void setGroupLeader(final PersonPE groupLeader)
-    {
-        this.groupLeader = groupLeader;
-    }
-
     public final void setId(final Long id)
     {
         this.id = id;
@@ -126,18 +110,6 @@ public final class GroupPE extends HibernateAbstractRegistrationHolder implement
     public final void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
     {
         this.databaseInstance = databaseInstance;
-    }
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.GROUP_PARENT_COLUMN, updatable = false)
-    public final GroupPE getParent()
-    {
-        return parent;
-    }
-
-    public final void setParent(final GroupPE parent)
-    {
-        this.parent = parent;
     }
 
     @Transient

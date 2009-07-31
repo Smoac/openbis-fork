@@ -70,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
@@ -201,12 +202,22 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     public final void registerGroup(final String sessionToken, final String groupCode,
-            final String descriptionOrNull, final String groupLeaderOrNull)
+            final String descriptionOrNull)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IGroupBO groupBO = businessObjectFactory.createGroupBO(session);
-        groupBO.define(groupCode, descriptionOrNull, groupLeaderOrNull);
+        groupBO.define(groupCode, descriptionOrNull);
         groupBO.save();
+    }
+
+    public final void updateGroup(final String sessionToken, final IGroupUpdates updates)
+    {
+        assert sessionToken != null : "Unspecified session token";
+        assert updates != null : "Unspecified updates";
+
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IGroupBO groupBO = businessObjectFactory.createGroupBO(session);
+        groupBO.update(updates);
     }
 
     public final void registerPerson(final String sessionToken, final String userID)

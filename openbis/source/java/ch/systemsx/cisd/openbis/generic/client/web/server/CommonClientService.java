@@ -106,6 +106,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
@@ -285,14 +286,27 @@ public final class CommonClientService extends AbstractClientService implements
     // IGenericClientService
     //
 
-    public final void registerGroup(final String groupCode, final String descriptionOrNull,
-            final String groupLeaderOrNull)
+    public final void registerGroup(final String groupCode, final String descriptionOrNull)
     {
         try
         {
             final String sessionToken = getSessionToken();
-            commonServer.registerGroup(sessionToken, groupCode, descriptionOrNull,
-                    groupLeaderOrNull);
+            commonServer.registerGroup(sessionToken, groupCode, descriptionOrNull);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public final void updateGroup(final IGroupUpdates updates)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        assert updates != null : "Unspecified updates.";
+
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.updateGroup(sessionToken, updates);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

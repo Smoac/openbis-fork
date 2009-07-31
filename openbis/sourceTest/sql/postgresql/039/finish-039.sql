@@ -190,8 +190,6 @@ CREATE INDEX expr_etpt_fk_i ON experiment_properties USING btree (etpt_id);
 CREATE INDEX expr_expe_fk_i ON experiment_properties USING btree (expe_id);
 CREATE INDEX expr_pers_fk_i ON experiment_properties USING btree (pers_id_registerer);
 CREATE INDEX grou_dbin_fk_i ON groups USING btree (dbin_id);
-CREATE INDEX grou_grou_fk_i ON groups USING btree (grou_id_parent);
-CREATE INDEX grou_pers_fk_i ON groups USING btree (pers_id_leader);
 CREATE INDEX grou_pers_registered_by_fk_i ON groups USING btree (pers_id_registerer);
 CREATE INDEX inva_pers_fk_i ON invalidations USING btree (pers_id_registerer);
 CREATE INDEX mapr_cvte_fk_i ON material_properties USING btree (cvte_id);
@@ -369,10 +367,6 @@ ALTER TABLE ONLY file_format_types
 ALTER TABLE ONLY groups
     ADD CONSTRAINT grou_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY groups
-    ADD CONSTRAINT grou_grou_fk FOREIGN KEY (grou_id_parent) REFERENCES groups(id);
-ALTER TABLE ONLY groups
-    ADD CONSTRAINT grou_pers_fk_leader FOREIGN KEY (pers_id_leader) REFERENCES persons(id);
-ALTER TABLE ONLY groups
     ADD CONSTRAINT grou_pers_fk_registerer FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY invalidations
     ADD CONSTRAINT inva_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
@@ -472,5 +466,4 @@ REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM postgres;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
-
 
