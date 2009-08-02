@@ -122,76 +122,73 @@ public class SampleCodeUniquenessCheckTrigger implements Trigger
 
     public void fire(Connection conn, Object[] oldRow, Object[] newRow) throws SQLException
     {
-        synchronized (SampleCodeUniquenessCheckTrigger.class)
+        final long id = getLong(newRow, ID);
+        final String code = getString(newRow, CODE);
+        final Long dbinId = getLong(newRow, DBIN_ID);
+        final Long groupId = getLong(newRow, GROU_ID);
+        final Long sampIdPartOf = getLong(newRow, SAMP_ID_PART_OF);
+        if (sampIdPartOf == null)
         {
-            final long id = getLong(newRow, ID);
-            final String code = getString(newRow, CODE);
-            final Long dbinId = getLong(newRow, DBIN_ID);
-            final Long groupId = getLong(newRow, GROU_ID);
-            final Long sampIdPartOf = getLong(newRow, SAMP_ID_PART_OF);
-            if (sampIdPartOf == null)
+            if (dbinId != null)
             {
-                if (dbinId != null)
+                final int count =
+                        getQueryResult(conn, String.format("SELECT count(*) FROM SAMPLES "
+                                + "WHERE id != %d and code = '%s' and "
+                                + "samp_id_part_of is NULL and dbin_id = %d", id, code, dbinId));
+                if (count > 0)
                 {
-                    final int count =
-                            getQueryResult(conn, String.format("SELECT count(*) FROM SAMPLES "
-                                    + "WHERE id != %d and code = '%s' and "
-                                    + "samp_id_part_of is NULL and dbin_id = %d", id, code, dbinId));
-                    if (count > 0)
-                    {
-                        throw new SQLException(
-                                "Insert/Update of Sample (Code: "
-                                        + code
-                                        + ") failed because database instance sample with the same code already exists.",
-                                SQLStateUtils.UNIQUE_VIOLATION);
-                    }
-                } else
-                {
-                    final int count =
-                            getQueryResult(conn, String
-                                    .format("SELECT count(*) FROM SAMPLES "
-                                            + "WHERE id != %d and code = '%s' and "
-                                            + "samp_id_part_of is NULL and grou_id = %d", id, code,
-                                            groupId));
-                    if (count > 0)
-                    {
-                        throw new SQLException(
-                                "Insert/Update of Sample (Code: "
-                                        + code
-                                        + ") failed because group sample with the same code already exists.",
-                                SQLStateUtils.UNIQUE_VIOLATION);
-                    }
+                    throw new SQLException(
+                            "Insert/Update of Sample (Code: "
+                                    + code
+                                    + ") failed because database instance sample with the same code already exists.",
+                            SQLStateUtils.UNIQUE_VIOLATION);
                 }
             } else
             {
-                if (dbinId != null)
+                final int count =
+                        getQueryResult(conn, String
+                                .format("SELECT count(*) FROM SAMPLES "
+                                        + "WHERE id != %d and code = '%s' and "
+                                        + "samp_id_part_of is NULL and grou_id = %d", id, code,
+                                        groupId));
+                if (count > 0)
                 {
-                    final int count =
-                            getQueryResult(conn, String.format("SELECT count(*) FROM SAMPLES "
-                                    + "where id != %d and code = %s and "
-                                    + "samp_id_part_of = %d and dbin_id = %d", id, code,
-                                    sampIdPartOf, dbinId));
-                    if (count > 0)
-                    {
-                        throw new SQLException("Insert/Update of Sample (Code: " + code
-                                + ") failed because database instance sample with the same code "
-                                + "and being the part of the same parent already exists.",
-                                SQLStateUtils.UNIQUE_VIOLATION);
-                    }
-                } else
+                    throw new SQLException(
+                            "Insert/Update of Sample (Code: "
+                                    + code
+                                    + ") failed because group sample with the same code already exists.",
+                            SQLStateUtils.UNIQUE_VIOLATION);
+                }
+            }
+        } else
+        {
+            if (dbinId != null)
+            {
+                final int count =
+                        getQueryResult(conn, String.format("SELECT count(*) FROM SAMPLES "
+                                + "where id != %d and code = %s and "
+                                + "samp_id_part_of = %d and dbin_id = %d", id, code,
+                                sampIdPartOf, dbinId));
+                if (count > 0)
                 {
-                    final int count =
-                            getQueryResult(conn, String.format("SELECT count(*) FROM SAMPLES "
-                                    + "where id != %d and code = %s and "
-                                    + "samp_id_part_of = %d and grou_id = %d", id, code,
-                                    sampIdPartOf, groupId));
-                    if (count > 0)
-                    {
-                        throw new SQLException("Insert/Update of Sample (Code: " + code
-                                + ") failed because group sample with the same code "
-                                + "and being the part of the same parent already exists.",
-                                SQLStateUtils.UNIQUE_VIOLATION);
-                    }
+                    throw new SQLException("Insert/Update of Sample (Code: " + code
+                            + ") failed because database instance sample with the same code "
+                            + "and being the part of the same parent already exists.",
+                            SQLStateUtils.UNIQUE_VIOLATION);
+                }
+            } else
+            {
+                final int count =
+                        getQueryResult(conn, String.format("SELECT count(*) FROM SAMPLES "
+                                + "where id != %d and code = %s and "
+                                + "samp_id_part_of = %d and grou_id = %d", id, code,
+                                sampIdPartOf, groupId));
+                if (count > 0)
+                {
+                    throw new SQLException("Insert/Update of Sample (Code: " + code
+                            + ") failed because group sample with the same code "
+                            + "and being the part of the same parent already exists.",
+                            SQLStateUtils.UNIQUE_VIOLATION);
                 }
             }
         }
