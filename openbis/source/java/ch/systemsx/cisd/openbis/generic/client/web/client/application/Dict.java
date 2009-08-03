@@ -383,6 +383,8 @@ public abstract class Dict
 
     public static final String SOURCE_TYPE = "source_type";
 
+    public static final String COMPLETE = "complete";
+
     public static final String IS_COMPLETE = "is_complete";
 
     public static final String PRODUCTION_DATE = "production_date";

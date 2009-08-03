@@ -21,6 +21,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
@@ -131,12 +132,10 @@ public interface IGenericClientService extends IClientService
     /**
      * Updates sample.
      */
-    public Date updateSample(SampleUpdates updates)
-            throws UserFailureException;
+    public Date updateSample(SampleUpdates updates) throws UserFailureException;
 
     /**
      * Updates data set.
      */
-    public Date updateDataSet(final TechId datasetId, final String sampleIdentifier,
-            List<IEntityProperty> properties, Date version) throws UserFailureException;
+    public Date updateDataSet(DataSetUpdates updates) throws UserFailureException;
 }

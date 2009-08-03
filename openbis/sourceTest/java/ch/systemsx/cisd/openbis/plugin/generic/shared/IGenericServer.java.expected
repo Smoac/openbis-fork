@@ -28,11 +28,11 @@ import ch.systemsx.cisd.openbis.generic.shared.IPluginCommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperimentPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
@@ -47,13 +47,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * Definition of the client-server interface.
@@ -194,11 +194,9 @@ public interface IGenericServer extends IPluginCommonServer
      * Saves changed data set.
      */
     @Transactional
-    @RolesAllowed(RoleSet.GROUP_ADMIN)
+    @RolesAllowed(RoleSet.POWER_USER)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public Date updateDataSet(
             String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) SampleIdentifier sampleIdentifier,
-            List<IEntityProperty> properties, Date version);
+            @AuthorizationGuard(guardClass = DataSetUpdatesPredicate.class) DataSetUpdatesDTO updates);
 }

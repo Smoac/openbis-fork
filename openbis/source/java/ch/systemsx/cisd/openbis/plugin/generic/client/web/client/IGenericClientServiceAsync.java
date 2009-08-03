@@ -23,6 +23,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
@@ -127,10 +128,9 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             throws UserFailureException;
 
     /**
-     * @see IGenericClientService#updateDataSet(TechId, String, List, Date)
+     * @see IGenericClientService#updateDataSet(DataSetUpdates)
      */
-    public void updateDataSet(final TechId datasetId, final String sampleIdentifier,
-            List<IEntityProperty> properties, Date version, final AsyncCallback<Date> asyncCallback)
+    public void updateDataSet(DataSetUpdates updates, final AsyncCallback<Date> asyncCallback)
             throws UserFailureException;
 
 }

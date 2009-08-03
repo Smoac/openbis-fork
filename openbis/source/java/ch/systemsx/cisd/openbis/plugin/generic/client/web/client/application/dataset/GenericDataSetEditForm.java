@@ -29,14 +29,19 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FileFormatTypeSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FileFormatTypeSelectionWidget.FileFormatTypeModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField.SampleChooserFieldAdaptor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
@@ -46,13 +51,16 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.exp
  * 
  * @author Piotr Buczek
  */
-public final class GenericDataSetEditForm
-        extends AbstractGenericEntityRegistrationForm<DataSetType, DataSetTypePropertyType>
+public final class GenericDataSetEditForm extends
+        AbstractGenericEntityRegistrationForm<DataSetType, DataSetTypePropertyType>
 {
-
     private static final String SAMPLE_FIELD_ID_SUFFIX = "sample_field";
 
+    private FileFormatTypeSelectionWidget fileFormatTypeSelectionWidget;
+
     private SampleChooserFieldAdaptor sampleField;
+
+    private CodeField parentField;
 
     private ExternalData originalDataSet;
 
@@ -77,15 +85,35 @@ public final class GenericDataSetEditForm
     @Override
     public final void submitValidForm()
     {
-        final List<IEntityProperty> properties = extractProperties();
-        final String sampleIdentifier = extractSampleIdentifier();
-        viewContext.getService().updateDataSet(techIdOrNull, sampleIdentifier, properties,
-                originalDataSet.getModificationDate(), new UpdateDataSetCallback(viewContext));
+        viewContext.getService().updateDataSet(createUpdates(),
+                new UpdateDataSetCallback(viewContext));
+    }
+
+    private DataSetUpdates createUpdates()
+    {
+        final DataSetUpdates result = new DataSetUpdates();
+        result.setDatasetId(techIdOrNull);
+        result.setProperties(extractProperties());
+        result.setVersion(originalDataSet.getModificationDate());
+        result.setParentDatasetCode(extractParentDatasetCode());
+        result.setSampleIdentifier(extractSampleIdentifier());
+        result.setFileFormatType(extractFileFormatType());
+        return result;
     }
 
     private String extractSampleIdentifier()
     {
         return sampleField.getValue();
+    }
+
+    private String extractParentDatasetCode()
+    {
+        return parentField.getValue();
+    }
+
+    private FileFormatType extractFileFormatType()
+    {
+        return fileFormatTypeSelectionWidget.tryGetSelectedFileFormatType();
     }
 
     public final class UpdateDataSetCallback extends
@@ -131,26 +159,48 @@ public final class GenericDataSetEditForm
     {
         ArrayList<DatabaseModificationAwareField<?>> fields =
                 new ArrayList<DatabaseModificationAwareField<?>>();
+        // TODO 2009-08-01, Piotr Buczek: uncomment and add other fields specified in LMS-1003
+        // fields.add(wrapUnaware(parentField));
         fields.add(wrapUnaware(sampleField.getField()));
+        // fields.add(wrapUnaware(fileFormatTypeSelectionWidget));
         return fields;
     }
 
     @Override
     protected void createEntitySpecificFormFields()
     {
+        this.parentField = createParentField();
         this.sampleField = createSampleField();
+        this.fileFormatTypeSelectionWidget = createFileFormatTypeField();
     }
 
+    private CodeField createParentField()
+    {
+        final CodeField result = new CodeField(viewContext, viewContext.getMessage(Dict.PARENT));
+        result.setEmptyText("Parent data set code");
+        // by default CodeField is mandatory
+        result.setLabelSeparator("");
+        result.setAllowBlank(true);
+        return result;
+    }
 
     private SampleChooserFieldAdaptor createSampleField()
     {
         String label = viewContext.getMessage(Dict.SAMPLE);
         String originalSample = originalDataSet.getSampleIdentifier();
         // one cannot select a sample from shared group or a sample that has no experiment
-        SampleChooserFieldAdaptor result =
+        final SampleChooserFieldAdaptor result =
                 SampleChooserField.create(label, true, originalSample, false, true, viewContext
                         .getCommonViewContext());
         result.getField().setId(createChildId(SAMPLE_FIELD_ID_SUFFIX));
+        return result;
+    }
+
+    private FileFormatTypeSelectionWidget createFileFormatTypeField()
+    {
+        final FileFormatTypeSelectionWidget result =
+                new FileFormatTypeSelectionWidget(viewContext.getCommonViewContext(), getId());
+        FieldUtil.markAsMandatory(result);
         return result;
     }
 
@@ -160,6 +210,9 @@ public final class GenericDataSetEditForm
         propertiesEditor.initWithProperties(originalDataSet.getDataSetType()
                 .getAssignedPropertyTypes(), originalDataSet.getProperties());
         codeField.setValue(originalDataSet.getCode());
+        parentField.setValue(originalDataSet.getParentCode());
+        fileFormatTypeSelectionWidget.setValue(new FileFormatTypeModel(originalDataSet
+                .getFileFormatType()));
     }
 
     private void setOriginalData(ExternalData data)

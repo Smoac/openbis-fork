@@ -38,6 +38,7 @@ import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
@@ -64,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -536,23 +538,6 @@ public final class GenericClientService extends AbstractClientService implements
         return result;
     }
 
-    public Date updateDataSet(TechId datasetId, String sampleIdentifier,
-            List<IEntityProperty> properties, Date version)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        try
-        {
-            final String sessionToken = getSessionToken();
-
-            SampleIdentifier convSampleIdentifier = SampleIdentifierFactory.parse(sampleIdentifier);
-            return genericServer.updateDataSet(sessionToken, datasetId, convSampleIdentifier,
-                    properties, version);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-    }
-
     private static ExperimentUpdatesDTO createExperimentUpdatesDTO(ExperimentUpdates updates,
             List<AttachmentPE> attachments)
     {
@@ -570,6 +555,32 @@ public final class GenericClientService extends AbstractClientService implements
         updatesDTO.setRegisterSamples(updates.isRegisterSamples());
         updatesDTO.setNewSamples(updates.getNewSamples());
         updatesDTO.setSampleType(updates.getSampleType());
+        return updatesDTO;
+    }
+
+    public Date updateDataSet(final DataSetUpdates updates)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+
+            return genericServer.updateDataSet(sessionToken, createDataSetUpdatesDTO(updates));
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    private static DataSetUpdatesDTO createDataSetUpdatesDTO(DataSetUpdates updates)
+    {
+        DataSetUpdatesDTO updatesDTO = new DataSetUpdatesDTO();
+
+        updatesDTO.setDatasetId(updates.getDatasetId());
+        updatesDTO.setProperties(updates.getProperties());
+        updatesDTO.setVersion(updates.getVersion());
+        updatesDTO
+                .setSampleIdentifier(SampleIdentifierFactory.parse(updates.getSampleIdentifier()));
         return updatesDTO;
     }
 }

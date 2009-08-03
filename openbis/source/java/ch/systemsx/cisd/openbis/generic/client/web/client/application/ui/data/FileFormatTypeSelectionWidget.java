@@ -28,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -49,13 +48,13 @@ public final class FileFormatTypeSelectionWidget extends
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    static final String DISPLAY_COLUMN_ID = "code";
+    private static final String DISPLAY_COLUMN_ID = "code";
 
-    static class FileFormatTypeModel extends BaseModelData
+    public static class FileFormatTypeModel extends BaseModelData
     {
         private static final long serialVersionUID = 1L;
 
-        public FileFormatTypeModel(AbstractType type)
+        public FileFormatTypeModel(FileFormatType type)
         {
             set(DISPLAY_COLUMN_ID, type.getCode());
             set(ModelDataPropertyNames.OBJECT, type);
@@ -76,7 +75,7 @@ public final class FileFormatTypeSelectionWidget extends
      * 
      * @return <code>null</code> if nothing is selected yet.
      */
-    public final FileFormatType tryGetSelectedDataSetType()
+    public final FileFormatType tryGetSelectedFileFormatType()
     {
         return super.tryGetSelected();
     }
@@ -85,7 +84,7 @@ public final class FileFormatTypeSelectionWidget extends
     protected List<FileFormatTypeModel> convertItems(List<FileFormatType> types)
     {
         final List<FileFormatTypeModel> result = new ArrayList<FileFormatTypeModel>();
-        for (final AbstractType type : types)
+        for (final FileFormatType type : types)
         {
             result.add(new FileFormatTypeModel(type));
         }

@@ -66,6 +66,8 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 
     private ExternalData parent;
 
+    private String parentCode;
+
     private String location;
 
     private FileFormatType fileFormatType;
@@ -235,11 +237,20 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     public void setParent(ExternalData parent)
     {
         this.parent = parent;
+        if (parent != null)
+        {
+            setParentCode(parent.getCode());
+        }
     }
 
     public final String getParentCode()
     {
-        return parent == null ? null : parent.getCode();
+        return parentCode;
+    }
+
+    public final void setParentCode(final String parentCode)
+    {
+        this.parentCode = parentCode;
     }
 
     public final String getLocation()

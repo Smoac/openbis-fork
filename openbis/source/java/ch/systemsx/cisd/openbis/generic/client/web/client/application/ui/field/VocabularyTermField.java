@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
@@ -27,8 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
  */
 public class VocabularyTermField extends CodeField
 {
-    public VocabularyTermField(IViewContext<ICommonClientServiceAsync> viewContext, String label,
-            boolean isMandatory)
+    public VocabularyTermField(IViewContext<?> viewContext, String label, boolean isMandatory)
     {
         super(viewContext, label, CodeFieldKind.CODE_WITH_COLON);
         setEmptyText("Vocabulary term code");

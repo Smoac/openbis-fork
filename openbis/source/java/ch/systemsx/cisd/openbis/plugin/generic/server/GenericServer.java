@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -384,7 +385,6 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         materialBO.update(materialId, properties, version);
         materialBO.save();
         return materialBO.getMaterial().getModificationDate();
-
     }
 
     public Date updateSample(String sessionToken, SampleUpdatesDTO updates)
@@ -394,15 +394,13 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         sampleBO.update(updates);
         sampleBO.save();
         return sampleBO.getSample().getModificationDate();
-
     }
 
-    public Date updateDataSet(String sessionToken, TechId datasetId,
-            SampleIdentifier sampleIdentifier, List<IEntityProperty> properties, Date version)
+    public Date updateDataSet(String sessionToken, DataSetUpdatesDTO updates)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IExternalDataBO dataSetBO = businessObjectFactory.createExternalDataBO(session);
-        dataSetBO.update(datasetId, sampleIdentifier, properties, version);
+        dataSetBO.update(updates);
         return dataSetBO.getExternalData().getModificationDate();
     }
 

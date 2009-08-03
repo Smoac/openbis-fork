@@ -390,6 +390,7 @@ var common = {
  external_data_sample: "Sample",
  source_type: "Source Type",
  is_complete: "Complete?",
+ complete: "Complete",
  data_set_type: "Data Set Type",
  parent: "Parent",
  parent_code: "Parent Code",

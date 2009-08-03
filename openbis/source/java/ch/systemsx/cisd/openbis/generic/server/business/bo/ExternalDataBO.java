@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -256,16 +257,15 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
                 externalData.getDataSetType());
     }
 
-    public void update(TechId datasetId, SampleIdentifier sampleIdentifier,
-            List<IEntityProperty> properties, Date version)
+    public void update(DataSetUpdatesDTO updates)
     {
-        loadDataByTechId(datasetId);
-        if (version.equals(externalData.getModificationDate()) == false)
+        loadDataByTechId(updates.getDatasetId());
+        if (updates.getVersion().equals(externalData.getModificationDate()) == false)
         {
             throwModifiedEntityException("Data set");
         }
-        updateProperties(properties);
-        updateSample(sampleIdentifier);
+        updateProperties(updates.getProperties());
+        updateSample(updates.getSampleIdentifier());
         entityPropertiesConverter.checkMandatoryProperties(externalData.getProperties(),
                 externalData.getDataSetType());
         validateAndSave();

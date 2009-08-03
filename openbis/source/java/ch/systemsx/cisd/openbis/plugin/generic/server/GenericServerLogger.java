@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -187,10 +188,9 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
-    public Date updateDataSet(String sessionToken, TechId datasetId,
-            SampleIdentifier sampleIdentifier, List<IEntityProperty> properties, Date version)
+    public Date updateDataSet(String sessionToken, DataSetUpdatesDTO updates)
     {
-        logTracking(sessionToken, "edit_data_set", "DATA_SET(%s)", datasetId);
+        logTracking(sessionToken, "edit_data_set", "DATA_SET(%s)", updates.getDatasetId());
         return null;
     }
 
