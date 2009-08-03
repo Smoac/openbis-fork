@@ -47,6 +47,7 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -60,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
  */
 @Entity
 @Table(name = TableNames.AUTHORIZATION_GROUPS_TABLE)
+@Friend(toClasses = RoleAssignmentPE.class)
 public class AuthorizationGroupPE extends HibernateAbstractRegistrationHolder implements
         Comparable<AuthorizationGroupPE>, IIdAndCodeHolder, Serializable
 {
