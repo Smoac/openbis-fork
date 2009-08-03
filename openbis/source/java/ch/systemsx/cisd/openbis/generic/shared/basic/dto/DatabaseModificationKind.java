@@ -32,6 +32,7 @@ public class DatabaseModificationKind implements IsSerializable
 
     public enum ObjectKind implements IsSerializable
     {
+        AUTHORIZATION_GROUP,
         SAMPLE,
         EXPERIMENT,
         MATERIAL,

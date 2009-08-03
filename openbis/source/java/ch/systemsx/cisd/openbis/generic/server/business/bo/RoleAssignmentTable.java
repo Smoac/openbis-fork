@@ -26,6 +26,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.server.util.KeyExtractorFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
@@ -48,6 +50,8 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
 
     private TableMap<String, PersonPE> personsByUserId;
 
+    private TableMap<String, AuthorizationGroupPE> authorizationGroupsByCode;
+
     public RoleAssignmentTable(final IDAOFactory daoFactory, final Session session)
     {
         super(daoFactory, session);
@@ -68,6 +72,23 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
                     userId);
         }
         return person;
+    }
+
+    private final AuthorizationGroupPE getAuthorizationGroup(final String authGroupId)
+    {
+        if (authorizationGroupsByCode == null)
+        {
+            authorizationGroupsByCode =
+                    new TableMap<String, AuthorizationGroupPE>(getAuthorizationGroupDAO().list(),
+                            KeyExtractorFactory.getAuthorizationGroupByCodeKeyExtractor());
+        }
+        final AuthorizationGroupPE authGroup = authorizationGroupsByCode.tryGet(authGroupId);
+        if (authGroup == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "No authorization group could be found for code '%s'", authGroupId);
+        }
+        return authGroup;
     }
 
     //
@@ -103,7 +124,14 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
         }
         roleAssignment.setRegistrator(findRegistrator());
         roleAssignment.setRole(newRoleAssignment.getRole());
-        getPerson(newRoleAssignment.getUserId()).addRoleAssignment(roleAssignment);
+        if (Grantee.GranteeType.PERSON.equals(newRoleAssignment.getGrantee().getType()))
+        {
+            getPerson(newRoleAssignment.getGrantee().getCode()).addRoleAssignment(roleAssignment);
+        } else
+        {
+            getAuthorizationGroup(newRoleAssignment.getGrantee().getCode().toUpperCase())
+                    .addRoleAssignment(roleAssignment);
+        }
         roleAssignments.add(roleAssignment);
     }
 

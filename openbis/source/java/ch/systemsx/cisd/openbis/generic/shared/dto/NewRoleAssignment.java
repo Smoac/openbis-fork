@@ -21,6 +21,7 @@ import java.io.Serializable;
 import ch.systemsx.cisd.common.annotation.BeanProperty;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
@@ -42,7 +43,7 @@ public final class NewRoleAssignment extends AbstractHashable implements Seriali
 
     private GroupIdentifier groupIdentifier;
 
-    private String userId;
+    private Grantee grantee;
 
     private RoleCode role;
 
@@ -80,15 +81,15 @@ public final class NewRoleAssignment extends AbstractHashable implements Seriali
         this.groupIdentifier = groupIdentifier;
     }
 
-    public final String getUserId()
+    public final Grantee getGrantee()
     {
-        return userId;
+        return grantee;
     }
 
-    @BeanProperty(label = "user")
-    public final void setUserId(final String userId)
+    @BeanProperty(label = "grantee")
+    public final void setGrantee(final Grantee grantee)
     {
-        this.userId = userId;
+        this.grantee = grantee;
     }
 
     //
@@ -99,7 +100,7 @@ public final class NewRoleAssignment extends AbstractHashable implements Seriali
     public final String toString()
     {
         final StringBuilder builder = new StringBuilder();
-        builder.append(userId).append("=").append(role).append("@");
+        builder.append(grantee).append("=").append(role).append("@");
         if (getGroupIdentifier() == null)
         {
             builder.append(getDatabaseInstanceIdentifier());

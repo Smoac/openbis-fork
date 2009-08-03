@@ -226,6 +226,7 @@ var common = {
   
   menu_authorization: "Authorization",
   AUTHORIZATION_MENU_USERS: "Users",
+  AUTHORIZATION_MENU_AUTHORIZATION_GROUPS: "User Groups",
   AUTHORIZATION_MENU_ROLES: "Roles",
 
   menu_data_set: "Data Set",
@@ -305,7 +306,7 @@ var common = {
   role: "Role",
   confirm_role_removal_msg: "Do you want to remove selected role?",
   confirm_role_removal_title: "Role removal confirmation",
-  authorization_group: "Authorization Group",
+  authorization_group: "User Group",
   
   //
   // Experiment Registration
@@ -456,6 +457,13 @@ incorrect_experiment_syntax: "Incorrect experiment specification. Please provide
     
 
   message_no_external_upload_service: "External upload service (CIFEX) has not been configured. Ask the administrator for more details.",
+ 
+ //
+ // Authorization Browser
+ //
+ authorization_group_browser: "User Groups Browser",
+ edit_persons: "Edit Users",
+ 
  
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

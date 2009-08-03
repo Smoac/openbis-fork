@@ -34,6 +34,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAttachmentBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IAuthorizationGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
@@ -63,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -70,12 +72,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
@@ -87,6 +91,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -252,12 +257,12 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     public final void registerGroupRole(final String sessionToken, final RoleCode roleCode,
-            final GroupIdentifier groupIdentifier, final String person)
+            final GroupIdentifier groupIdentifier, final Grantee grantee)
     {
         final Session session = getSessionManager().getSession(sessionToken);
 
         final NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
-        newRoleAssignment.setUserId(person);
+        newRoleAssignment.setGrantee(grantee);
         newRoleAssignment.setGroupIdentifier(groupIdentifier);
         newRoleAssignment.setRole(roleCode);
 
@@ -268,12 +273,12 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     public final void registerInstanceRole(final String sessionToken, final RoleCode roleCode,
-            final String person)
+            final Grantee grantee)
     {
         final Session session = getSessionManager().getSession(sessionToken);
 
         final NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
-        newRoleAssignment.setUserId(person);
+        newRoleAssignment.setGrantee(grantee);
         newRoleAssignment.setDatabaseInstanceIdentifier(new DatabaseInstanceIdentifier(
                 DatabaseInstanceIdentifier.HOME));
         newRoleAssignment.setRole(roleCode);
@@ -285,19 +290,19 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     public final void deleteGroupRole(final String sessionToken, final RoleCode roleCode,
-            final GroupIdentifier groupIdentifier, final String person)
+            final GroupIdentifier groupIdentifier, final Grantee grantee)
     {
         final Session session = getSessionManager().getSession(sessionToken);
 
         final RoleAssignmentPE roleAssignment =
                 getDAOFactory().getRoleAssignmentDAO().tryFindGroupRoleAssignment(roleCode,
-                        groupIdentifier.getGroupCode(), person);
+                        groupIdentifier.getGroupCode(), grantee);
         if (roleAssignment == null)
         {
             throw new UserFailureException("Given group role does not exist.");
         }
         final PersonPE personPE = session.tryGetPerson();
-        if (roleAssignment.getPerson().equals(personPE)
+        if (roleAssignment.getPerson() != null && roleAssignment.getPerson().equals(personPE)
                 && roleAssignment.getRole().equals(RoleCode.ADMIN))
         {
             boolean isInstanceAdmin = false;
@@ -320,17 +325,18 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     public final void deleteInstanceRole(final String sessionToken, final RoleCode roleCode,
-            final String person)
+            final Grantee grantee)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IRoleAssignmentDAO roleAssignmentDAO = getDAOFactory().getRoleAssignmentDAO();
         final RoleAssignmentPE roleAssignment =
-                roleAssignmentDAO.tryFindInstanceRoleAssignment(roleCode, person);
+                roleAssignmentDAO.tryFindInstanceRoleAssignment(roleCode, grantee);
         if (roleAssignment == null)
         {
             throw new UserFailureException("Given database instance role does not exist.");
         }
-        if (roleAssignment.getPerson().equals(session.tryGetPerson())
+        if (roleAssignment.getPerson() != null
+                && roleAssignment.getPerson().equals(session.tryGetPerson())
                 && roleAssignment.getRole().equals(RoleCode.ADMIN)
                 && roleAssignment.getDatabaseInstance() != null)
         {
@@ -1385,5 +1391,64 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
         externalDataTable.processDatasets(serviceDescription, datasetCodes);
+    }
+
+    public void registerAuthorizationGroup(String sessionToken,
+            NewAuthorizationGroup newAuthorizationGroup)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IAuthorizationGroupBO bo = businessObjectFactory.createAuthorizationGroupBO(session);
+            bo.define(newAuthorizationGroup);
+            bo.save();
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
+    public void deleteAuthorizationGroups(String sessionToken, List<TechId> groupIds, String reason)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IAuthorizationGroupBO authGroupBO =
+                    businessObjectFactory.createAuthorizationGroupBO(session);
+            for (TechId id : groupIds)
+            {
+                authGroupBO.deleteByTechId(id, reason);
+            }
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
+    public List<AuthorizationGroupPE> listAuthorizationGroups(String sessionToken)
+    {
+        checkSession(sessionToken);
+        final List<AuthorizationGroupPE> persons =
+                getDAOFactory().getAuthorizationGroupDAO().list();
+        Collections.sort(persons);
+        return persons;
+    }
+
+    public Date updateAuthorizationGroup(String sessionToken, AuthorizationGroupUpdates updates)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IAuthorizationGroupBO bo = businessObjectFactory.createAuthorizationGroupBO(session);
+        bo.update(updates);
+        bo.save();
+        return bo.getAuthorizationGroup().getModificationDate();
+    }
+
+    public List<PersonPE> listPersonInAuthorizationGroup(String sessionToken,
+            TechId authorizatonGroupId)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        IAuthorizationGroupBO bo = businessObjectFactory.createAuthorizationGroupBO(session);
+        bo.loadByTechId(authorizatonGroupId);
+        return new ArrayList<PersonPE>(bo.getAuthorizationGroup().getPersons());
     }
 }

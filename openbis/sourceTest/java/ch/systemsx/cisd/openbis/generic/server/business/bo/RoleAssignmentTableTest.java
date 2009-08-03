@@ -22,6 +22,7 @@ import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
@@ -53,7 +54,8 @@ public final class RoleAssignmentTableTest extends AbstractBOTest
         newRoleAssignment.setGroupIdentifier(groupIdentifier);
         newRoleAssignment.setRole(RoleCode.OBSERVER);
         final String userId = "test";
-        newRoleAssignment.setUserId(userId);
+        // TODO 2009-07-31,IA: add test for auth group
+        newRoleAssignment.setGrantee(Grantee.createPerson(userId));
         final PersonPE personPE = new PersonPE();
         personPE.setUserId(userId);
         final DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();

@@ -21,6 +21,8 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
@@ -58,12 +60,18 @@ public interface IRoleAssignmentDAO extends IGenericDAO<RoleAssignmentPE>
     public List<RoleAssignmentPE> listRoleAssignmentsByPerson(final PersonPE person);
 
     /**
-     * Returns a {@link RoleAssignmentPE} described by given role, group code and person id.
+     * Returns a {@link RoleAssignmentPE} described by given role, group code and grantee.
      */
-    public RoleAssignmentPE tryFindGroupRoleAssignment(RoleCode role, String group, String person);
+    public RoleAssignmentPE tryFindGroupRoleAssignment(RoleCode role, String group, Grantee grantee);
 
     /**
-     * Returns a {@link RoleAssignmentPE} described by given role and person id.
+     * Returns a {@link RoleAssignmentPE} described by given role and grantee.
      */
-    public RoleAssignmentPE tryFindInstanceRoleAssignment(RoleCode role, String person);
+    public RoleAssignmentPE tryFindInstanceRoleAssignment(RoleCode role, Grantee grantee);
+
+    /**
+     * Lists all role assignments found in the database for given authorization group.
+     */
+    public List<RoleAssignmentPE> listRoleAssignmentsByAuthorizationGroup(
+            AuthorizationGroupPE authGroup);
 }

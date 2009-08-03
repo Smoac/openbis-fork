@@ -20,6 +20,7 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
@@ -268,6 +269,11 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public void disableSecondLevelCacheForSession()
     {
         daoFactory.disableSecondLevelCacheForSession();
+    }
+
+    public IAuthorizationGroupDAO getAuthorizationGroupDAO()
+    {
+        return daoFactory.getAuthorizationGroupDAO();
     }
 
 }

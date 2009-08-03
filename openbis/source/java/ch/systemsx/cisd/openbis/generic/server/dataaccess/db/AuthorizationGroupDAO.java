@@ -19,7 +19,9 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -72,6 +74,14 @@ public class AuthorizationGroupDAO extends AbstractGenericEntityDAO<Authorizatio
         {
             operationLog.info(String.format("SAVE: authorization group '%s'.", authorizationGroup));
         }
+    }
+
+    public AuthorizationGroupPE tryFindByCode(String code)
+    {
+        final Criteria criteria = getSession().createCriteria(AuthorizationGroupPE.class);
+        criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(code)));
+        criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
+        return (AuthorizationGroupPE) criteria.uniqueResult();
     }
 
 }

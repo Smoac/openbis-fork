@@ -712,5 +712,11 @@ public abstract class Dict
 
     public static final String DATA_STORE = "data_store";
 
+    public static final String AUTHORIZATION_GROUP = "authorization_group";
+
+    public static final String AUTHORIZATION_GROUP_BROWSER = "authorization_group_browser";
+
+    public static final String EDIT_PERSONS = "edit_persons";
+
     // ----- end generic ------------------
 }

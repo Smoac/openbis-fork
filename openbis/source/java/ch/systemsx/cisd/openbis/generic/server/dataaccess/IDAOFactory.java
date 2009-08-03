@@ -90,4 +90,7 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
     /** Returns an implementation of {@link IEventDAO}. */
     public IEventDAO getEventDAO();
 
+    /** Returns an implementation of {@link IAuthorizationGroupDAO}. */
+    public IAuthorizationGroupDAO getAuthorizationGroupDAO();
+
 }

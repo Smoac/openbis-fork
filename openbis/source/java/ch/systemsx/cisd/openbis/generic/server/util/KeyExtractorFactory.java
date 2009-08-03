@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.util;
 
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -55,6 +56,9 @@ public final class KeyExtractorFactory
 
     private static final IKeyExtractor<String, PersonPE> PERSON_BY_USER_ID_KEY_EXTRACTOR =
             new PersonByUserIdKeyExtractor();
+
+    private static final IKeyExtractor<String, AuthorizationGroupPE> AUTHORIZATION_GROUP_BY_CODE_KEY_EXTRACTOR =
+            new AuthorizationGroupByCodeKeyExtractor();
 
     private static final IKeyExtractor<String, MaterialPE> MATERIAL_BY_CODE_KEY_EXTRACTOR =
             createCodeKeyExtractor();
@@ -100,8 +104,7 @@ public final class KeyExtractorFactory
     }
 
     /**
-     * Returns an <code>IKeyExtractor</code> for <i>BaseExperimentDTO</i> based on
-     * <code>Id</code>.
+     * Returns an <code>IKeyExtractor</code> for <i>BaseExperimentDTO</i> based on <code>Id</code>.
      */
     public final static IKeyExtractor<Long, ExperimentPE> getBaseExperimentByIdKeyExtractor()
     {
@@ -109,8 +112,8 @@ public final class KeyExtractorFactory
     }
 
     /**
-     * Returns an <code>IKeyExtractor</code> for <i>VocabularyTermDTO</i> based on
-     * <code>code</code>.
+     * Returns an <code>IKeyExtractor</code> for <i>VocabularyTermDTO</i> based on <code>code</code>
+     * .
      */
     public final static IKeyExtractor<String, VocabularyTermPE> getVocabularyTermByCodeKeyExtractor()
     {
@@ -139,6 +142,15 @@ public final class KeyExtractorFactory
     public final static IKeyExtractor<String, PersonPE> getPersonByUserIdKeyExtractor()
     {
         return PERSON_BY_USER_ID_KEY_EXTRACTOR;
+    }
+
+    /**
+     * Returns an <code>IKeyExtractor</code> for authorization group based on
+     * {@link AuthorizationGroupPE#getCode()}.
+     */
+    public final static IKeyExtractor<String, AuthorizationGroupPE> getAuthorizationGroupByCodeKeyExtractor()
+    {
+        return AUTHORIZATION_GROUP_BY_CODE_KEY_EXTRACTOR;
     }
 
     /**
@@ -200,6 +212,20 @@ public final class KeyExtractorFactory
         public final String getKey(final PersonPE e)
         {
             return e.getUserId();
+        }
+    }
+
+    private final static class AuthorizationGroupByCodeKeyExtractor implements
+            IKeyExtractor<String, AuthorizationGroupPE>
+    {
+
+        //
+        // IKeyExtractor
+        //
+
+        public final String getKey(final AuthorizationGroupPE e)
+        {
+            return e.getCode();
         }
     }
 

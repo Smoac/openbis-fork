@@ -222,7 +222,7 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
             person = createPerson(session.getPrincipal(), systemUser);
         } else
         {
-            HibernateUtils.initialize(person.getRoleAssignments());
+            HibernateUtils.initialize(person.getAllPersonRoles());
         }
         if (session.tryGetPerson() == null)
         {

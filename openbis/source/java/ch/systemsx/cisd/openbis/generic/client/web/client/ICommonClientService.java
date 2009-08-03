@@ -45,6 +45,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -55,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
@@ -62,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
@@ -138,27 +142,27 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Registers a new role from given role set code, group code and person code
+     * Registers a new role from given role set code, group code and grantee.
      */
-    public void registerGroupRole(RoleSetCode roleSetCode, String group, String person)
+    public void registerGroupRole(RoleSetCode roleSetCode, String group, Grantee grantee)
             throws UserFailureException;
 
     /**
-     * Deletes the role described by given role set code, group code and person code
+     * Deletes the role described by given role set code, group code and grantee.
      */
-    public void deleteGroupRole(RoleSetCode roleSetCode, String group, String person)
+    public void deleteGroupRole(RoleSetCode roleSetCode, String group, Grantee grantee)
             throws UserFailureException;
 
     /**
-     * Registers a new role from given role set code and person code
+     * Registers a new role from given role set code and grantee.
      */
-    public void registerInstanceRole(RoleSetCode roleSetCode, String person)
+    public void registerInstanceRole(RoleSetCode roleSetCode, Grantee grantee)
             throws UserFailureException;
 
     /**
-     * Deletes the role described by given role set code and person code
+     * Deletes the role described by given role set code and grantee.
      */
-    public void deleteInstanceRole(RoleSetCode roleSetCode, String person)
+    public void deleteInstanceRole(RoleSetCode roleSetCode, Grantee grantee)
             throws UserFailureException;
 
     /**
@@ -644,4 +648,36 @@ public interface ICommonClientService extends IClientService
      */
     public void processDatasets(DatastoreServiceDescription service,
             DisplayedOrSelectedDatasetCriteria criteria) throws UserFailureException;
+
+    /**
+     * Deletes selected authorization groups.
+     */
+    public void deleteAuthorizationGroups(List<TechId> createList, String value);
+
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for AuthorizationGroups.
+     */
+    public String prepareExportAuthorizationGroups(
+            TableExportCriteria<AuthorizationGroup> exportCriteria);
+
+    /**
+     * Returns {@link AuthorizationGroup}s for given criteria.
+     */
+    public ResultSet<AuthorizationGroup> listAuthorizationGroups(
+            DefaultResultSetConfig<String, AuthorizationGroup> resultSetConfig);
+
+    /**
+     * Creates a new authorization group.
+     */
+    public void registerAuthorizationGroup(NewAuthorizationGroup newAuthorizationGroup);
+
+    /**
+     * Returns a list persons belonging to given authorization group.
+     */
+    public List<Person> listPersonsInAuthorizationGroup(TechId group) throws UserFailureException;
+
+    /**
+     * Updates given authorization group.
+     */
+    public void updateAuthorizationGroup(AuthorizationGroupUpdates updates);
 }

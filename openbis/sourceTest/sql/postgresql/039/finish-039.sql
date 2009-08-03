@@ -3,9 +3,7 @@ ALTER TABLE ONLY authorization_groups
 ALTER TABLE ONLY authorization_groups
     ADD CONSTRAINT ag_pk PRIMARY KEY (id);
 ALTER TABLE ONLY authorization_group_persons
-    ADD CONSTRAINT agp_bk_uk UNIQUE (pers_id, ag_id);
-ALTER TABLE ONLY authorization_group_persons
-    ADD CONSTRAINT agp_pk PRIMARY KEY (id);
+    ADD CONSTRAINT agp_pk PRIMARY KEY (pers_id, ag_id);
 ALTER TABLE ONLY attachments
     ADD CONSTRAINT atta_expe_bk_uk UNIQUE (expe_id, file_name, version);
 ALTER TABLE ONLY attachments
@@ -466,4 +464,10 @@ REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM postgres;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
+REVOKE ALL ON SEQUENCE authorization_group_id_seq FROM PUBLIC;
+GRANT SELECT ON SEQUENCE authorization_group_id_seq TO openbis_readonly;
+REVOKE ALL ON TABLE authorization_group_persons FROM PUBLIC;
+GRANT SELECT ON TABLE authorization_group_persons TO openbis_readonly;
+REVOKE ALL ON TABLE authorization_groups FROM PUBLIC;
+GRANT SELECT ON TABLE authorization_groups TO openbis_readonly;
 

@@ -21,7 +21,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
  * @author Piotr Buczek
@@ -33,7 +35,18 @@ public enum RoleAssignmentColDefKind implements IColumnDefinitionKind<RoleAssign
             @Override
             public String tryGetValue(RoleAssignment entity)
             {
-                return entity.getPerson().getUserId();
+                Person person = entity.getPerson();
+                return person == null ? "" : person.getUserId();
+            }
+        }),
+
+    AUTHORIZATION_GROUP(new AbstractColumnDefinitionKind<RoleAssignment>(Dict.AUTHORIZATION_GROUP)
+        {
+            @Override
+            public String tryGetValue(RoleAssignment entity)
+            {
+                AuthorizationGroup group = entity.getAuthorizationGroup();
+                return group == null ? "" : group.getCode();
             }
         }),
 

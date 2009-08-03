@@ -33,6 +33,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
@@ -100,6 +102,8 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     private DatabaseInstancePE databaseInstance;
 
     private Set<RoleAssignmentPE> roleAssignments = new HashSet<RoleAssignmentPE>();
+
+    private Set<AuthorizationGroupPE> authorizationGroups = new HashSet<AuthorizationGroupPE>();
 
     private DisplaySettings displaySettings;
 
@@ -245,6 +249,29 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
         roleAssignment.setPersonInternal(null);
     }
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = TableNames.AUTHORIZATION_GROUP_PERSONS_TABLE, joinColumns =
+        { @JoinColumn(name = ColumnNames.PERSON_ID_COLUMN, updatable = false) }, inverseJoinColumns =
+        { @JoinColumn(name = ColumnNames.AUTHORIZATION_GROUP_ID_COLUMN, updatable = false) })
+    final Set<AuthorizationGroupPE> getAuthorizationGroupsInternal()
+    {
+        return authorizationGroups;
+    }
+
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private final void setAuthorizationGroupsInternal(
+            final Set<AuthorizationGroupPE> authorizationGroups)
+    {
+        this.authorizationGroups = authorizationGroups;
+    }
+
+    @Transient
+    public final Set<AuthorizationGroupPE> getAuthorizationGroups()
+    {
+        return new UnmodifiableSetDecorator<AuthorizationGroupPE>(getAuthorizationGroupsInternal());
+    }
+
     @Transient
     public DisplaySettings getDisplaySettings()
     {
@@ -378,5 +405,16 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
             return 1;
         }
         return userId.compareTo(thatUserID);
+    }
+
+    @Transient
+    public Set<RoleAssignmentPE> getAllPersonRoles()
+    {
+        HashSet<RoleAssignmentPE> result = new HashSet<RoleAssignmentPE>(getRoleAssignments());
+        for (AuthorizationGroupPE ag : getAuthorizationGroups())
+        {
+            result.addAll(ag.getRoleAssignments());
+        }
+        return result;
     }
 }

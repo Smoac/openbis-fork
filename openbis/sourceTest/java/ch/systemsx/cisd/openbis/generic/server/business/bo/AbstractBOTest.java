@@ -22,6 +22,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
@@ -94,6 +95,8 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     IEventDAO eventDAO;
 
+    IAuthorizationGroupDAO authorizationGroupDAO;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -119,6 +122,7 @@ public abstract class AbstractBOTest extends AssertJUnit
         dataStoreDAO = context.mock(IDataStoreDAO.class);
         permIdDAO = context.mock(IPermIdDAO.class);
         eventDAO = context.mock(IEventDAO.class);
+        authorizationGroupDAO = context.mock(IAuthorizationGroupDAO.class);
         context.checking(new Expectations()
             {
                 {
@@ -146,6 +150,8 @@ public abstract class AbstractBOTest extends AssertJUnit
                     will(returnValue(vocabularyDAO));
                     allowing(daoFactory).getEventDAO();
                     will(returnValue(eventDAO));
+                    allowing(daoFactory).getAuthorizationGroupDAO();
+                    will(returnValue(authorizationGroupDAO));
                 }
             });
     }

@@ -36,12 +36,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
@@ -141,16 +144,21 @@ public class RoleAssignmentGrid extends AbstractSimpleBrowserGrid<RoleAssignment
                             }
                         };
 
+            Person person = selectedRoleAssignment.getPerson();
+            Grantee grantee =
+                    (person != null && StringUtils.isBlank(person.getUserId()) == false) ? Grantee
+                            .createPerson(person.getUserId()) : Grantee
+                            .createAuthorizationGroup(selectedRoleAssignment
+                                    .getAuthorizationGroup().getCode());
             if (selectedRoleAssignment.getGroup() == null)
             {
                 viewContext.getService().deleteInstanceRole(
-                        selectedRoleAssignment.getRoleSetCode(),
-                        selectedRoleAssignment.getPerson().getUserId(), roleListRefreshCallback);
+                        selectedRoleAssignment.getRoleSetCode(), grantee, roleListRefreshCallback);
             } else
             {
                 viewContext.getService().deleteGroupRole(selectedRoleAssignment.getRoleSetCode(),
-                        selectedRoleAssignment.getGroup().getCode(),
-                        selectedRoleAssignment.getPerson().getUserId(), roleListRefreshCallback);
+                        selectedRoleAssignment.getGroup().getCode(), grantee,
+                        roleListRefreshCallback);
             }
         }
 

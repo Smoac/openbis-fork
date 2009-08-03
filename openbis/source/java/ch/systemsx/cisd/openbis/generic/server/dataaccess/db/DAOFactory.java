@@ -23,6 +23,7 @@ import org.hibernate.SessionFactory;
 
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
@@ -82,6 +83,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IEventDAO eventDAO;
 
+    private final IAuthorizationGroupDAO authorizationGroupDAO;
+
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory)
     {
@@ -101,6 +104,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         dataStoreDAO = new DataStoreDAO(sessionFactory, databaseInstance);
         permIdDAO = new PermIdDAO(sessionFactory, databaseInstance);
         eventDAO = new EventDAO(sessionFactory, databaseInstance);
+        authorizationGroupDAO = new AuthorizationGroupDAO(sessionFactory, databaseInstance);
         final EntityKind[] entityKinds = EntityKind.values();
         for (final EntityKind entityKind : entityKinds)
         {
@@ -194,5 +198,10 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public IEventDAO getEventDAO()
     {
         return eventDAO;
+    }
+
+    public IAuthorizationGroupDAO getAuthorizationGroupDAO()
+    {
+        return authorizationGroupDAO;
     }
 }

@@ -55,6 +55,8 @@ public final class RoleAssignmentTranslator
         result.setGroup(GroupTranslator.translate(role.getGroup()));
         result.setInstance(DatabaseInstanceTranslator.translate(role.getDatabaseInstance()));
         result.setPerson(PersonTranslator.translate(role.getPerson()));
+        result.setAuthorizationGroup(AuthorizationGroupTranslator.translate(role
+                .getAuthorizationGroup()));
         result.setRoleSetCode(getRoleCode(role));
         return result;
     }

@@ -257,15 +257,7 @@ CREATE SEQUENCE authorization_group_id_seq
     NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('authorization_group_id_seq', 1, false);
-CREATE SEQUENCE authorization_group_person_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MAXVALUE
-    NO MINVALUE
-    CACHE 1;
-SELECT pg_catalog.setval('authorization_group_person_id_seq', 1, false);
 CREATE TABLE authorization_group_persons (
-    id tech_id NOT NULL,
     ag_id tech_id NOT NULL,
     pers_id tech_id NOT NULL
 );

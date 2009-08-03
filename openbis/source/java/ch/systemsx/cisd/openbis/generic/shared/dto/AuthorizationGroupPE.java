@@ -18,7 +18,10 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -26,9 +29,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.Version;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -41,6 +47,7 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
+import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -67,6 +74,10 @@ public class AuthorizationGroupPE extends HibernateAbstractRegistrationHolder im
     private String description;
 
     private Date modificationDate;
+
+    private Set<RoleAssignmentPE> roleAssignments = new HashSet<RoleAssignmentPE>();
+
+    private Set<PersonPE> persons = new HashSet<PersonPE>();
 
     public AuthorizationGroupPE()
     {
@@ -134,6 +145,85 @@ public class AuthorizationGroupPE extends HibernateAbstractRegistrationHolder im
     public void setModificationDate(Date versionDate)
     {
         this.modificationDate = versionDate;
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "authorizationGroupInternal", cascade = CascadeType.ALL)
+    private final Set<RoleAssignmentPE> getRoleAssignmentsInternal()
+    {
+        return roleAssignments;
+    }
+
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private final void setRoleAssignmentsInternal(final Set<RoleAssignmentPE> rolesAssignments)
+    {
+        this.roleAssignments = rolesAssignments;
+    }
+
+    public final void setRoleAssignments(final Set<RoleAssignmentPE> rolesAssignments)
+    {
+        getRoleAssignmentsInternal().clear();
+        for (final RoleAssignmentPE child : rolesAssignments)
+        {
+            addRoleAssignment(child);
+        }
+    }
+
+    @Transient
+    public final Set<RoleAssignmentPE> getRoleAssignments()
+    {
+        return new UnmodifiableSetDecorator<RoleAssignmentPE>(getRoleAssignmentsInternal());
+    }
+
+    public void addRoleAssignment(final RoleAssignmentPE roleAssignment)
+    {
+        final AuthorizationGroupPE authGroup = roleAssignment.getAuthorizationGroup();
+        if (authGroup != null)
+        {
+            authGroup.removeRoleAssigment(roleAssignment);
+        }
+        roleAssignment.setAuthorizationGroupInternal(this);
+        getRoleAssignmentsInternal().add(roleAssignment);
+    }
+
+    public void removeRoleAssigment(final RoleAssignmentPE roleAssignment)
+    {
+        assert roleAssignment != null : "Unspecified role assignment.";
+        getRoleAssignmentsInternal().remove(roleAssignment);
+        roleAssignment.setAuthorizationGroupInternal(null);
+    }
+
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "authorizationGroupsInternal")
+    private final Set<PersonPE> getPersonsInternal()
+    {
+        return persons;
+    }
+
+    @Transient
+    public final Set<PersonPE> getPersons()
+    {
+        return new UnmodifiableSetDecorator<PersonPE>(getPersonsInternal());
+    }
+
+    public void removePerson(final PersonPE person)
+    {
+        assert person != null : "Unspecified person.";
+        getPersonsInternal().remove(person);
+        person.getAuthorizationGroupsInternal().remove(this);
+    }
+
+    public void addPerson(final PersonPE person)
+    {
+        assert person != null : "Unspecified person.";
+        person.getAuthorizationGroupsInternal().add(this);
+        getPersonsInternal().add(person);
+    }
+
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private final void setPersonsInternal(final Set<PersonPE> persons)
+    {
+        this.persons = persons;
     }
 
     @Override

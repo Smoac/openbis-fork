@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -48,12 +49,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -63,6 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
@@ -126,6 +130,24 @@ public interface ICommonServer extends IServer
     public void updateGroup(final String sessionToken, final IGroupUpdates updates);
 
     /**
+     * Registers a new authorization group.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.AUTHORIZATION_GROUP)
+    public void registerAuthorizationGroup(String sessionToken,
+            NewAuthorizationGroup newAuthorizationGroup);
+
+    /**
+     * Deletes selected authorization groups.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.AUTHORIZATION_GROUP)
+    public void deleteAuthorizationGroups(String sessionToken, List<TechId> authGroupIds,
+            String reason);
+
+    /**
      * Returns all persons from current instance.
      * 
      * @return a sorted list of {@link PersonPE}.
@@ -169,7 +191,7 @@ public interface ICommonServer extends IServer
             String sessionToken,
             RoleCode roleCode,
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) GroupIdentifier identifier,
-            String person);
+            Grantee grantee);
 
     /**
      * Registers a new instance role.
@@ -177,7 +199,7 @@ public interface ICommonServer extends IServer
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE_ASSIGNMENT)
-    public void registerInstanceRole(String sessionToken, RoleCode roleCode, String person);
+    public void registerInstanceRole(String sessionToken, RoleCode roleCode, Grantee grantee);
 
     /**
      * Deletes role described by given role code, group identifier and user id.
@@ -189,7 +211,7 @@ public interface ICommonServer extends IServer
             String sessionToken,
             RoleCode roleCode,
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) GroupIdentifier groupIdentifier,
-            String person);
+            Grantee grantee);
 
     /**
      * Deletes role described by given role code and user id.
@@ -197,7 +219,7 @@ public interface ICommonServer extends IServer
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE_ASSIGNMENT)
-    public void deleteInstanceRole(String sessionToken, RoleCode roleCode, String person);
+    public void deleteInstanceRole(String sessionToken, RoleCode roleCode, Grantee grantee);
 
     /**
      * Lists sample types which are appropriate for listing.
@@ -812,4 +834,28 @@ public interface ICommonServer extends IServer
     public void processDatasets(String sessionToken,
             DatastoreServiceDescription serviceDescription,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
+
+    /**
+     * Returns all authorization groups.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<AuthorizationGroupPE> listAuthorizationGroups(String sessionToken);
+
+    /**
+     * Saves changed authorization group.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseUpdateModification(value = ObjectKind.AUTHORIZATION_GROUP)
+    public Date updateAuthorizationGroup(String sessionToken, AuthorizationGroupUpdates updates);
+
+    /**
+     * Returns all persons belonging to given authorization group.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<PersonPE> listPersonInAuthorizationGroup(String sessionToken,
+            TechId authorizatonGroupId);
+
 }

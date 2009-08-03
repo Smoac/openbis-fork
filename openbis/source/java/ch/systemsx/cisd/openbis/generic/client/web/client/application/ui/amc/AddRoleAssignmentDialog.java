@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -28,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.V
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 
 /**
  * {@link Window} containing role assignment registration form.
@@ -52,6 +55,10 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
 
     private final AdapterField roleBox;
 
+    private Radio authGroupRadio;
+
+    private Radio personRadio;
+
     public AddRoleAssignmentDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
             final IDelegatedAction postRegistrationCallback)
     {
@@ -69,7 +76,21 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
         addField(roleBox);
         addField(group);
 
-        user = new VarcharField("Person", true);
+        RadioGroup radioGroup = new RadioGroup();
+        radioGroup.setFieldLabel("Grantee Type");
+        authGroupRadio = new Radio();
+        authGroupRadio.setBoxLabel("Authorization Group");
+
+        personRadio = new Radio();
+        personRadio.setBoxLabel("Person");
+        personRadio.setValue(true);
+
+        radioGroup.add(authGroupRadio);
+        radioGroup.add(personRadio);
+
+        addField(radioGroup);
+
+        user = new VarcharField("Grantee Id", true);
         user.setWidth(100);
         user.setId(PERSON_FIELD_ID);
         addField(user);
@@ -78,16 +99,19 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
     @Override
     protected void register(AsyncCallback<Void> registrationCallback)
     {
+        Grantee grantee =
+                personRadio.getValue() ? Grantee.createPerson(user.getValue()) : Grantee
+                        .createAuthorizationGroup(user.getValue());
+
         if (StringUtils.isBlank(group.getValue()))
         {
             viewContext.getService().registerInstanceRole(
-                    ((RoleListBox) roleBox.getWidget()).getValue(), user.getValue(),
-                    registrationCallback);
+                    ((RoleListBox) roleBox.getWidget()).getValue(), grantee, registrationCallback);
         } else
         {
             viewContext.getService().registerGroupRole(
-                    ((RoleListBox) roleBox.getWidget()).getValue(), group.getValue(),
-                    user.getValue(), registrationCallback);
+                    ((RoleListBox) roleBox.getWidget()).getValue(), group.getValue(), grantee,
+                    registrationCallback);
         }
     }
 }

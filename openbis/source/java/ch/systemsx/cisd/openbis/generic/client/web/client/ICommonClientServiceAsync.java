@@ -42,10 +42,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWithStats;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -56,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
@@ -63,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
@@ -115,20 +120,20 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void prepareExportRoleAssignments(TableExportCriteria<RoleAssignment> exportCriteria,
             AsyncCallback<String> callback);
 
-    /** @see ICommonClientService#registerGroupRole(RoleSetCode, String, String) */
-    public void registerGroupRole(RoleSetCode roleSetCode, String group, String person,
+    /** @see ICommonClientService#registerGroupRole(RoleSetCode, String, Grantee) */
+    public void registerGroupRole(RoleSetCode roleSetCode, String group, Grantee grantee,
             AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#deleteGroupRole(RoleSetCode, String, String) */
-    public void deleteGroupRole(RoleSetCode roleSetCode, String group, String person,
+    /** @see ICommonClientService#deleteGroupRole(RoleSetCode, String, Grantee) */
+    public void deleteGroupRole(RoleSetCode roleSetCode, String group, Grantee grantee,
             AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#registerInstanceRole(RoleSetCode, String) */
-    public void registerInstanceRole(RoleSetCode roleSetCode, String person,
+    /** @see ICommonClientService#registerInstanceRole(RoleSetCode, Grantee) */
+    public void registerInstanceRole(RoleSetCode roleSetCode, Grantee grantee,
             AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#deleteInstanceRole(RoleSetCode, String) */
-    public void deleteInstanceRole(RoleSetCode roleSetCode, String person,
+    /** @see ICommonClientService#deleteInstanceRole(RoleSetCode, Grantee) */
+    public void deleteInstanceRole(RoleSetCode roleSetCode, Grantee grantee,
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#listSampleTypes() */
@@ -560,4 +565,40 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void processDatasets(DatastoreServiceDescription service,
             DisplayedOrSelectedDatasetCriteria criteria, AsyncCallback<Void> callback);
 
+    /**
+     * @see ICommonClientService#deleteAuthorizationGroups(List, String)
+     */
+    public void deleteAuthorizationGroups(List<TechId> createList, String value,
+            AsyncCallback<Void> callback);
+
+    /**
+     * @see ICommonClientService#prepareExportAuthorizationGroups(TableExportCriteria)
+     */
+    public void prepareExportAuthorizationGroups(
+            TableExportCriteria<AuthorizationGroup> exportCriteria, AsyncCallback<String> callback);
+
+    /**
+     * @see ICommonClientService#listAuthorizationGroups(DefaultResultSetConfig)
+     */
+    public void listAuthorizationGroups(
+            DefaultResultSetConfig<String, AuthorizationGroup> resultSetConfig,
+            AsyncCallback<ResultSet<AuthorizationGroup>> callback);
+
+    /**
+     * @see ICommonClientService#registerAuthorizationGroup(NewAuthorizationGroup)
+     */
+    public void registerAuthorizationGroup(NewAuthorizationGroup newAuthGroup,
+            AsyncCallback<Void> registrationCallback);
+
+    /**
+     * @see ICommonClientService#listPersonsInAuthorizationGroup(TechId)
+     */
+    public void listPersonsInAuthorizationGroup(TechId group, AsyncCallback<List<Person>> callback)
+            throws UserFailureException;
+
+    /**
+     * @see ICommonClientService#updateAuthorizationGroup(AuthorizationGroupUpdates)
+     */
+    public void updateAuthorizationGroup(AuthorizationGroupUpdates updates,
+            AsyncCallback<Void> registrationCallback);
 }

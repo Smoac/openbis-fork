@@ -44,7 +44,7 @@ public final class GroupValidator extends AbstractValidator<GroupPE>
     @Override
     public final boolean doValidation(final PersonPE person, final GroupPE value)
     {
-        final Set<RoleAssignmentPE> roleAssignments = person.getRoleAssignments();
+        final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
             final GroupPE group = roleAssignment.getGroup();

@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -36,12 +37,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -51,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
@@ -150,32 +154,32 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public void registerGroupRole(final String sessionToken, final RoleCode roleCode,
-            final GroupIdentifier groupIdentifier, final String person)
+            final GroupIdentifier groupIdentifier, final Grantee grantee)
     {
-        logTracking(sessionToken, "register_role", "ROLE(%s) GROUP(%s) PERSON(%s)", roleCode,
-                groupIdentifier, person);
+        logTracking(sessionToken, "register_role", "ROLE(%s) GROUP(%s) GRANTEE(%s)", roleCode,
+                groupIdentifier, grantee);
 
     }
 
     public void registerInstanceRole(final String sessionToken, final RoleCode roleCode,
-            final String person)
+            final Grantee grantee)
     {
-        logTracking(sessionToken, "register_role", "ROLE(%s)  PERSON(%s)", roleCode, person);
+        logTracking(sessionToken, "register_role", "ROLE(%s)  GRANTEE(%s)", roleCode, grantee);
 
     }
 
     public void deleteGroupRole(final String sessionToken, final RoleCode roleCode,
-            final GroupIdentifier groupIdentifier, final String person)
+            final GroupIdentifier groupIdentifier, final Grantee grantee)
     {
-        logTracking(sessionToken, "delete_role", "ROLE(%s) GROUP(%s) PERSON(%s)", roleCode,
-                groupIdentifier, person);
+        logTracking(sessionToken, "delete_role", "ROLE(%s) GROUP(%s) GRANTEE(%s)", roleCode,
+                groupIdentifier, grantee);
 
     }
 
     public void deleteInstanceRole(final String sessionToken, final RoleCode roleCode,
-            final String person)
+            final Grantee grantee)
     {
-        logTracking(sessionToken, "delete_role", "ROLE(%s) PERSON(%s)", roleCode, person);
+        logTracking(sessionToken, "delete_role", "ROLE(%s) GRANTEE(%s)", roleCode, grantee);
 
     }
 
@@ -663,4 +667,37 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 serviceDescription, datasetCodes.size());
     }
 
+    public void registerAuthorizationGroup(String sessionToken,
+            NewAuthorizationGroup newAuthorizationGroup)
+    {
+        logTracking(sessionToken, "registerAuthorizationGroup", "CODE(%s)", newAuthorizationGroup
+                .getCode());
+
+    }
+
+    public void deleteAuthorizationGroups(String sessionToken, List<TechId> authGroupIds,
+            String reason)
+    {
+        logTracking(sessionToken, "deleteAuthorizationGroups", "TECH_IDS(%s)", StringUtils
+                .join(authGroupIds.toArray(new String[0])));
+    }
+
+    public List<AuthorizationGroupPE> listAuthorizationGroups(String sessionToken)
+    {
+        logAccess(sessionToken, "listAuthorizatonGroups");
+        return null;
+    }
+
+    public Date updateAuthorizationGroup(String sessionToken, AuthorizationGroupUpdates updates)
+    {
+        logTracking(sessionToken, "updateAuthorizationGroup", "TECH_ID(%s)", updates.getId());
+        return null;
+    }
+
+    public List<PersonPE> listPersonInAuthorizationGroup(String sessionToken,
+            TechId authorizatonGroupId)
+    {
+        logAccess(sessionToken, "listPersonInAuthorizationGroup", "ID(%s)", authorizatonGroupId);
+        return null;
+    }
 }

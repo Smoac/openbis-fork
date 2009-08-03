@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
@@ -59,6 +60,11 @@ public interface IPersonDAO extends IGenericDAO<PersonPE>
      * @returns The list of all persons currently present in the database.
      */
     public List<PersonPE> listPersons() throws DataAccessException;
+
+    /**
+     * @returns The list of all persons with specified user ids.
+     */
+    public List<PersonPE> listByCodes(Collection<String> userIds) throws DataAccessException;
 
     /**
      * Updates given <var>PersonPE</var>.

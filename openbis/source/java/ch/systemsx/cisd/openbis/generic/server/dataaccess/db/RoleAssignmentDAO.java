@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
@@ -29,6 +30,9 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee.GranteeType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -42,6 +46,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssignmentPE> implements
         IRoleAssignmentDAO
 {
+    private static final String AUTHORIZATION_GROUP_INTERNAL_CODE =
+            "authorizationGroupInternal.code";
+
+    private static final String PERSON_INTERNAL_USER_ID = "personInternal.userId";
+
     public final static Class<RoleAssignmentPE> ENTITY_CLASS = RoleAssignmentPE.class;
 
     private static final String TABLE_NAME = ENTITY_CLASS.getSimpleName();
@@ -106,10 +115,17 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
     {
         assert roleAssignment != null : "Role assignment unspecified";
 
-        // Remove the role assignment from the person grantee before delete it from the hibernate
+        // Remove the role assignment from the grantee before delete it from the hibernate
         // session. Or you will get an InvalidDataAccessApiUsageException caused by an
         // ObjectDeletedException.
-        roleAssignment.getPerson().removeRoleAssigment(roleAssignment);
+        PersonPE person = roleAssignment.getPerson();
+        if (person != null)
+        {
+            person.removeRoleAssigment(roleAssignment);
+        } else
+        {
+            roleAssignment.getAuthorizationGroup().removeRoleAssigment(roleAssignment);
+        }
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
         hibernateTemplate.delete(roleAssignment);
         hibernateTemplate.flush();
@@ -119,17 +135,31 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
         }
     }
 
-    public final RoleAssignmentPE tryFindGroupRoleAssignment(final RoleCode role,
-            final String group, final String person)
+    private final static String getGranteeHqlParameter(Grantee.GranteeType type)
     {
+        if (type.equals(GranteeType.AUTHORIZATION_GROUP))
+        {
+            return AUTHORIZATION_GROUP_INTERNAL_CODE;
+        } else
+        {
+            return PERSON_INTERNAL_USER_ID;
+        }
+    }
+
+    public final RoleAssignmentPE tryFindGroupRoleAssignment(final RoleCode role,
+            final String group, final Grantee grantee)
+    {
+        assert role != null : "Unspecified role.";
+        assert grantee != null : "Unspecified grantee.";
+
         final List<RoleAssignmentPE> roles =
                 cast(getHibernateTemplate().find(
-                        String.format(
-                                "from %s r where r.personInternal.userId = ? and group.code = ? "
-                                        + "and r.role = ?", TABLE_NAME),
-                        toArray(person, group, role)));
+                        String.format("from %s r where r."
+                                + getGranteeHqlParameter(grantee.getType())
+                                + " = ? and group.code = ? " + "and r.role = ?", TABLE_NAME),
+                        toArray(grantee.getCode(), group, role)));
         final RoleAssignmentPE roleAssignment =
-                tryFindEntity(roles, "role_assignments", role, group, person);
+                tryFindEntity(roles, "role_assignments", role, group, grantee);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("FIND: group role assignment '%s'.", roleAssignment));
@@ -139,18 +169,19 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
     }
 
     public final RoleAssignmentPE tryFindInstanceRoleAssignment(final RoleCode role,
-            final String person)
+            final Grantee grantee)
     {
         assert role != null : "Unspecified role.";
-        assert person != null : "Unspecified person.";
+        assert grantee != null : "Unspecified grantee.";
 
         final List<RoleAssignmentPE> roles =
                 cast(getHibernateTemplate().find(
-                        String.format("from %s r where r.personInternal.userId = ? "
+                        String.format("from %s r where r."
+                                + getGranteeHqlParameter(grantee.getType()) + " = ? "
                                 + "and r.role = ? and r.databaseInstance = ?", TABLE_NAME),
-                        toArray(person, role, getDatabaseInstance())));
+                        toArray(grantee.getCode(), role, getDatabaseInstance())));
         final RoleAssignmentPE roleAssignment =
-                tryFindEntity(roles, "role_assignments", role, person);
+                tryFindEntity(roles, "role_assignments", role, grantee);
         if (operationLog.isInfoEnabled())
         {
             operationLog
@@ -158,6 +189,20 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
         }
         return roleAssignment;
 
+    }
+
+    public List<RoleAssignmentPE> listRoleAssignmentsByAuthorizationGroup(
+            AuthorizationGroupPE authGroup)
+    {
+        final Criteria criteria = getSession().createCriteria(RoleAssignmentPE.class);
+        criteria.add(Restrictions.eq("authorizationGroupInternal", authGroup));
+        List<RoleAssignmentPE> result = cast(criteria.list());
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("LIST: role assignments for authorization group '%s'.",
+                    authGroup));
+        }
+        return result;
     }
 
 }

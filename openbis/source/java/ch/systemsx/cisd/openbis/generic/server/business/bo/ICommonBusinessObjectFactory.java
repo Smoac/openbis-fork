@@ -63,4 +63,6 @@ public interface ICommonBusinessObjectFactory
     public IEntityTypeBO createEntityTypeBO(Session session);
 
     public IMaterialBO createMaterialBO(Session session);
+
+    public IAuthorizationGroupBO createAuthorizationGroupBO(Session session);
 }

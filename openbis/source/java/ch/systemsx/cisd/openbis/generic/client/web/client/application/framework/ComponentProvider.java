@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.widget.Component;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AuthorizationGroupGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RoleAssignmentGrid;
@@ -142,6 +143,23 @@ public final class ComponentProvider
                 public String getId()
                 {
                     return GroupGrid.BROWSER_ID;
+                }
+            };
+    }
+
+    public final ITabItemFactory getAuthorizationGroupBrowser()
+    {
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    IDisposableComponent component = AuthorizationGroupGrid.create(viewContext);
+                    return createTab(Dict.AUTHORIZATION_GROUP_BROWSER, component);
+                }
+
+                public String getId()
+                {
+                    return AuthorizationGroupGrid.BROWSER_ID;
                 }
             };
     }

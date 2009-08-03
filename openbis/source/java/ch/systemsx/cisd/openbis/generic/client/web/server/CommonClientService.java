@@ -70,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDat
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.AttachmentTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.AuthorizationGroupTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.DataSetTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentTranslator;
@@ -94,6 +95,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
@@ -106,6 +109,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
@@ -114,6 +118,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -128,6 +133,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
@@ -326,7 +332,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public final void registerGroupRole(final RoleSetCode roleSetCode, final String group,
-            final String person)
+            final Grantee grantee)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -335,21 +341,21 @@ public final class CommonClientService extends AbstractClientService implements
             final GroupIdentifier groupIdentifier =
                     new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
             commonServer.registerGroupRole(sessionToken, RoleCodeTranslator.translate(roleSetCode),
-                    groupIdentifier, person);
+                    groupIdentifier, grantee);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
-    public final void registerInstanceRole(final RoleSetCode roleSetCode, final String person)
+    public final void registerInstanceRole(final RoleSetCode roleSetCode, final Grantee grantee)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
             commonServer.registerInstanceRole(sessionToken, RoleCodeTranslator
-                    .translate(roleSetCode), person);
+                    .translate(roleSetCode), grantee);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -357,7 +363,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public final void deleteGroupRole(final RoleSetCode roleSetCode, final String group,
-            final String person)
+            final Grantee grantee)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -366,7 +372,7 @@ public final class CommonClientService extends AbstractClientService implements
             final GroupIdentifier groupIdentifier =
                     new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
             commonServer.deleteGroupRole(sessionToken, RoleCodeTranslator.translate(roleSetCode),
-                    groupIdentifier, person);
+                    groupIdentifier, grantee);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -374,14 +380,14 @@ public final class CommonClientService extends AbstractClientService implements
 
     }
 
-    public final void deleteInstanceRole(final RoleSetCode roleSetCode, final String person)
+    public final void deleteInstanceRole(final RoleSetCode roleSetCode, final Grantee grantee)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
             commonServer.deleteInstanceRole(sessionToken,
-                    RoleCodeTranslator.translate(roleSetCode), person);
+                    RoleCodeTranslator.translate(roleSetCode), grantee);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -633,6 +639,21 @@ public final class CommonClientService extends AbstractClientService implements
             final DatabaseInstanceIdentifier identifier = new DatabaseInstanceIdentifier(null);
             final List<GroupPE> groups = commonServer.listGroups(sessionToken, identifier);
             return GroupTranslator.translate(groups);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    private List<AuthorizationGroup> listAuthorizationGroups()
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final List<AuthorizationGroupPE> groups =
+                    commonServer.listAuthorizationGroups(sessionToken);
+            return AuthorizationGroupTranslator.translate(groups);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -1949,5 +1970,78 @@ public final class CommonClientService extends AbstractClientService implements
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
+    }
+
+    public void deleteAuthorizationGroups(List<TechId> groupIds, String reason)
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.deleteAuthorizationGroups(sessionToken, groupIds, reason);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public ResultSet<AuthorizationGroup> listAuthorizationGroups(
+            DefaultResultSetConfig<String, AuthorizationGroup> resultSetConfig)
+    {
+
+        return listEntities(resultSetConfig, new IOriginalDataProvider<AuthorizationGroup>()
+            {
+                public List<AuthorizationGroup> getOriginalData() throws UserFailureException
+                {
+                    return listAuthorizationGroups();
+                }
+            });
+    }
+
+    public String prepareExportAuthorizationGroups(
+            TableExportCriteria<AuthorizationGroup> exportCriteria)
+    {
+        return prepareExportEntities(exportCriteria);
+    }
+
+    public void registerAuthorizationGroup(NewAuthorizationGroup newAuthorizationGroup)
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.registerAuthorizationGroup(sessionToken, newAuthorizationGroup);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+
+    }
+
+    public List<Person> listPersonsInAuthorizationGroup(TechId group)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            return PersonTranslator.translate(commonServer.listPersonInAuthorizationGroup(
+                    sessionToken, group));
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public void updateAuthorizationGroup(AuthorizationGroupUpdates updates)
+    {
+        assert updates != null : "Unspecified updates.";
+
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.updateAuthorizationGroup(sessionToken, updates);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+
     }
 }

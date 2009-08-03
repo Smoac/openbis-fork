@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -35,6 +36,18 @@ public final class RoleAssignment extends Code<RoleAssignment>
     private RoleSetCode roleSetCode;
 
     private Person person;
+
+    private AuthorizationGroup authorizationGroup;
+
+    public AuthorizationGroup getAuthorizationGroup()
+    {
+        return authorizationGroup;
+    }
+
+    public void setAuthorizationGroup(AuthorizationGroup authorizationGroup)
+    {
+        this.authorizationGroup = authorizationGroup;
+    }
 
     private Group group;
 

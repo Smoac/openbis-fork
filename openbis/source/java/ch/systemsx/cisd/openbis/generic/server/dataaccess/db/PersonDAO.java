@@ -16,11 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.JdbcAccessor;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -131,5 +135,14 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
                     .getCurrentMethod().getName(), list.size()));
         }
         return list;
+    }
+
+    public final List<PersonPE> listByCodes(Collection<String> userIds) throws DataAccessException
+    {
+        if (userIds.size() == 0)
+            return new ArrayList<PersonPE>();
+        final Criteria criteria = getSession().createCriteria(PersonPE.class);
+        criteria.add(Restrictions.in("code", userIds));
+        return cast(criteria.list());
     }
 }

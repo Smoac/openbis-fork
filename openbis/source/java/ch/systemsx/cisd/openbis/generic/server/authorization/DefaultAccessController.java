@@ -78,8 +78,15 @@ public final class DefaultAccessController implements IAccessController
 
     private final static List<RoleWithIdentifier> getUserRoles(final PersonPE person)
     {
+        Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
+        return extractRolesWithIdentifiers(roleAssignments);
+    }
+
+    private static List<RoleWithIdentifier> extractRolesWithIdentifiers(
+            Set<RoleAssignmentPE> roleAssignments)
+    {
         final List<RoleWithIdentifier> roles = new ArrayList<RoleWithIdentifier>();
-        for (final RoleAssignmentPE roleAssignment : person.getRoleAssignments())
+        for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
             roles.add(RoleWithIdentifier.createRole(roleAssignment));
         }
@@ -136,7 +143,7 @@ public final class DefaultAccessController implements IAccessController
                 return Status.createError(msg);
             }
             PersonPE person = session.tryGetPerson();
-            if (person == null || person.getRoleAssignments().size() == 0)
+            if (person == null || person.getAllPersonRoles().size() == 0)
             {
                 final String msg =
                         String.format(USER_ROLE_ASSIGNMENTS_NOT_FOUND_TEMPLATE, session

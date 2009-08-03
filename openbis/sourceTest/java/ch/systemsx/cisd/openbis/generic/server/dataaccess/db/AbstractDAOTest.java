@@ -42,6 +42,7 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -361,5 +362,15 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
         {
             fail("At least " + minimalSize + " items expected, but only " + actualSize + " found.");
         }
+    }
+
+    protected AuthorizationGroupPE createAuthorizationGroup(String code, String desc)
+    {
+        AuthorizationGroupPE result = new AuthorizationGroupPE();
+        result.setCode(code);
+        result.setDescription(desc);
+        result.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
+        result.setRegistrator(getSystemPerson());
+        return result;
     }
 }
