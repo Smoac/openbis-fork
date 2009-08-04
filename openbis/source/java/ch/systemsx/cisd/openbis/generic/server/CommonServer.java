@@ -1239,8 +1239,86 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
     }
 
-    public List<String> getTemplateColumns(String sessionToken, EntityKind entityKind, String type,
+    public String getTemplateColumns(String sessionToken, EntityKind entityKind, String type,
             boolean autoGenerate)
+    {
+        List<EntityTypePE> types = new ArrayList<EntityTypePE>();
+        if (entityKind.equals(EntityKind.SAMPLE) && SampleType.isDefinedInFileSampleTypeCode(type))
+        {
+            types.addAll(getDAOFactory().getEntityTypeDAO(entityKind).listEntityTypes());
+        } else
+        {
+            types.add(findEntityType(entityKind, type));
+        }
+        StringBuilder sb = new StringBuilder();
+        boolean firstSection = true;
+        for (EntityTypePE entityType : types)
+        {
+            String section =
+                    createTemplateForType(entityKind, autoGenerate, entityType, firstSection);
+            if (types.size() != 1)
+            {
+                section =
+                        String
+                                .format(
+                                        "[%s]\n%s%s\n",
+                                        entityType.getCode(),
+                                        firstSection ? "# Comments must be located after the type declaration ('[TYPE]').\n"
+                                                : "", section);
+            }
+            sb.append(section);
+            firstSection = false;
+        }
+        return sb.toString();
+    }
+
+    private String createTemplateForType(EntityKind entityKind, boolean autoGenerate,
+            EntityTypePE entityType, boolean addComments)
+    {
+        List<String> columns = new ArrayList<String>();
+        switch (entityKind)
+        {
+            case SAMPLE:
+                if (autoGenerate == false)
+                {
+                    columns.add(NewSample.IDENTIFIER_COLUMN);
+                }
+                columns.add(NewSample.CONTAINER);
+                columns.add(NewSample.PARENT);
+                for (SampleTypePropertyTypePE etpt : ((SampleTypePE) entityType)
+                        .getSampleTypePropertyTypes())
+                {
+                    columns.add(etpt.getPropertyType().getCode());
+                }
+                break;
+            case MATERIAL:
+                columns.add(NewMaterial.CODE);
+                for (MaterialTypePropertyTypePE etpt : ((MaterialTypePE) entityType)
+                        .getMaterialTypePropertyTypes())
+                {
+                    columns.add(etpt.getPropertyType().getCode());
+                }
+                break;
+            default:
+                break;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String column : columns)
+        {
+            if (sb.length() != 0)
+            {
+                sb.append("\t");
+            }
+            sb.append(column);
+        }
+        if (entityKind.equals(EntityKind.SAMPLE) && addComments)
+        {
+            sb.insert(0, NewSample.SAMPLE_REGISTRATION_TEMPLATE_COMMENT);
+        }
+        return sb.toString();
+    }
+
+    private EntityTypePE findEntityType(EntityKind entityKind, String type)
     {
         EntityTypePE typeOrNull =
                 getDAOFactory().getEntityTypeDAO(entityKind).tryToFindEntityTypeByCode(type);
@@ -1248,35 +1326,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         {
             throw new UserFailureException("Unknown " + entityKind.name() + " type '" + type + "'");
         }
-        List<String> result = new ArrayList<String>();
-
-        switch (entityKind)
-        {
-            case SAMPLE:
-                if (autoGenerate == false)
-                {
-                    result.add(NewSample.IDENTIFIER_COLUMN);
-                }
-                result.add(NewSample.CONTAINER);
-                result.add(NewSample.PARENT);
-                for (SampleTypePropertyTypePE etpt : ((SampleTypePE) typeOrNull)
-                        .getSampleTypePropertyTypes())
-                {
-                    result.add(etpt.getPropertyType().getCode());
-                }
-                break;
-            case MATERIAL:
-                result.add(NewMaterial.CODE);
-                for (MaterialTypePropertyTypePE etpt : ((MaterialTypePE) typeOrNull)
-                        .getMaterialTypePropertyTypes())
-                {
-                    result.add(etpt.getPropertyType().getCode());
-                }
-                break;
-            default:
-                break;
-        }
-        return result;
+        return typeOrNull;
     }
 
     public void updateFileFormatType(String sessionToken, AbstractType type)

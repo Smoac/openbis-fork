@@ -119,7 +119,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
@@ -1751,24 +1750,10 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             String sessionToken = getSessionToken();
-            StringBuilder sb = new StringBuilder();
             ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind kind =
                     ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind
                             .valueOf(entityKind.name());
-            for (String column : commonServer.getTemplateColumns(sessionToken, kind, type,
-                    autoGenerate))
-            {
-                if (sb.length() != 0)
-                {
-                    sb.append("\t");
-                }
-                sb.append(column);
-            }
-            if (entityKind.equals(EntityKind.SAMPLE))
-            {
-                sb.insert(0, NewSample.SAMPLE_REGISTRATION_TEMPLATE_COMMENT);
-            }
-            return sb.toString();
+            return commonServer.getTemplateColumns(sessionToken, kind, type, autoGenerate);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

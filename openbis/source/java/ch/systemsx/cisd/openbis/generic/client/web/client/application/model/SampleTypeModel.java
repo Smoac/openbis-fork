@@ -46,7 +46,7 @@ public class SampleTypeModel extends BaseModelData
     }
 
     public final static List<SampleTypeModel> convert(final List<SampleType> sampleTypes,
-            final boolean onlyListable, final boolean withAll)
+            final boolean onlyListable, final boolean withAll, final boolean withTypeInFile)
     {
         final List<SampleTypeModel> result = new ArrayList<SampleTypeModel>();
         final List<SampleType> filteredTypes = filter(sampleTypes, onlyListable);
@@ -58,6 +58,10 @@ public class SampleTypeModel extends BaseModelData
         if (withAll && filteredTypes.size() > 0)
         {
             result.add(0, createAllTypesModel(filteredTypes));
+        }
+        if (withTypeInFile && filteredTypes.size() > 0)
+        {
+            result.add(0, createTypeInFileModel());
         }
         return result;
     }
@@ -95,6 +99,14 @@ public class SampleTypeModel extends BaseModelData
                 allPropertyTypes));
 
         return new SampleTypeModel(allSampleType);
+    }
+
+    private static SampleTypeModel createTypeInFileModel()
+    {
+        final SampleType typeInFile = new SampleType();
+        typeInFile.setCode(SampleType.DEFINED_IN_FILE);
+        typeInFile.setListable(false);
+        return new SampleTypeModel(typeInFile);
     }
 
     private static void setDatabaseInstance(SampleType sampleType, DatabaseInstance instance)

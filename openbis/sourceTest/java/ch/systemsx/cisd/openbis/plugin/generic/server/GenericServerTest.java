@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -221,16 +222,14 @@ public final class GenericServerTest extends AbstractServerTestCase
         boolean fail = true;
         try
         {
-            server.registerSamples(null, null, null);
+            server.registerSamples(null, null);
         } catch (final AssertionError e)
         {
             fail = false;
         }
         assertFalse(fail);
         // Empty collection
-        server
-                .registerSamples(SESSION_TOKEN, new SampleType(), Collections
-                        .<NewSample> emptyList());
+        server.registerSamples(SESSION_TOKEN, Collections.<NewSamplesWithTypes> emptyList());
         context.assertIsSatisfied();
     }
 
@@ -242,9 +241,11 @@ public final class GenericServerTest extends AbstractServerTestCase
         final List<NewSample> newSamples = new ArrayList<NewSample>();
         newSamples.add(createNewSample("same"));
         newSamples.add(createNewSample("same"));
+        List<NewSamplesWithTypes> samplesWithTypes = new ArrayList<NewSamplesWithTypes>();
+        samplesWithTypes.add(new NewSamplesWithTypes(new SampleType(), newSamples));
         try
         {
-            server.registerSamples(SESSION_TOKEN, new SampleType(), newSamples);
+            server.registerSamples(SESSION_TOKEN, samplesWithTypes);
             fail(String.format("'%s' expected.", UserFailureException.class));
         } catch (final UserFailureException ex)
         {
@@ -263,6 +264,8 @@ public final class GenericServerTest extends AbstractServerTestCase
         final List<NewSample> newSamples = new ArrayList<NewSample>();
         newSamples.add(createNewSample("one"));
         newSamples.add(createNewSample("two"));
+        List<NewSamplesWithTypes> samplesWithTypes = new ArrayList<NewSamplesWithTypes>();
+        samplesWithTypes.add(new NewSamplesWithTypes(sampleType, newSamples));
         context.checking(new Expectations()
             {
                 {
@@ -272,7 +275,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(sampleTypeSlaveServerPlugin).registerSamples(SESSION, newSamples);
                 }
             });
-        createServer().registerSamples(SESSION_TOKEN, sampleType, newSamples);
+        createServer().registerSamples(SESSION_TOKEN, samplesWithTypes);
         context.assertIsSatisfied();
     }
 

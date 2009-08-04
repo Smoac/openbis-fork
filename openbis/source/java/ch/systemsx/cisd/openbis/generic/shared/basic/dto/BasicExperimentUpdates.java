@@ -50,7 +50,7 @@ public class BasicExperimentUpdates implements IsSerializable, Serializable
     // all of them will be attached to the experiment.
     private boolean registerSamples;
 
-    private List<NewSample> newSamples;
+    private List<NewSamplesWithTypes> newSamples;
 
     public Date getVersion()
     {
@@ -83,9 +83,9 @@ public class BasicExperimentUpdates implements IsSerializable, Serializable
         this.sampleCodesOrNull = sampleCodes;
     }
 
-    public void setNewSamples(List<NewSample> newSamples)
+    public void setNewSamples(List<NewSamplesWithTypes> list)
     {
-        this.newSamples = newSamples;
+        this.newSamples = list;
     }
 
     public void setRegisterSamples(boolean registerSamples)
@@ -93,7 +93,7 @@ public class BasicExperimentUpdates implements IsSerializable, Serializable
         this.registerSamples = registerSamples;
     }
 
-    public List<NewSample> getNewSamples()
+    public List<NewSamplesWithTypes> getNewSamples()
     {
         return newSamples;
     }

@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
@@ -192,6 +193,22 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     {
         logTracking(sessionToken, "edit_data_set", "DATA_SET(%s)", updates.getDatasetId());
         return null;
+    }
+
+    public void registerSamples(String sessionToken, List<NewSamplesWithTypes> newSamplesWithType)
+            throws UserFailureException
+    {
+        StringBuilder sb = new StringBuilder();
+        for (NewSamplesWithTypes s : newSamplesWithType)
+        {
+            if (sb.length() == 0)
+            {
+                sb.append(",");
+            }
+            sb.append(s.getSampleType().getCode() + ":" + s.getNewSamples().size());
+        }
+        logAccess(sessionToken, "register_samples", sb.toString());
+
     }
 
 }

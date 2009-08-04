@@ -602,7 +602,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     }
 
-    public List<String> getTemplateColumns(String sessionToken, EntityKind entityKind, String type,
+    public String getTemplateColumns(String sessionToken, EntityKind entityKind, String type,
             boolean autoGenerate)
     {
         logAccess(sessionToken, "get_template_columns",

@@ -45,21 +45,24 @@ public final class SampleTypeSelectionWidget extends DropDownList<SampleTypeMode
 
     private final boolean withAll;
 
+    private final boolean withTypeInFile;
+
     public SampleTypeSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
-            final boolean onlyListable, final boolean withAll)
+            final boolean onlyListable, final boolean withAll, final boolean withTypeInFile)
     {
         super(viewContext, SUFFIX + idSuffix, Dict.SAMPLE_TYPE, ModelDataPropertyNames.CODE,
                 "sample type", "sample types");
         this.viewContext = viewContext;
         this.onlyListable = onlyListable;
         this.withAll = withAll;
+        this.withTypeInFile = withTypeInFile;
         setAutoSelectFirst(withAll);
     }
 
     public SampleTypeSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
             final boolean onlyListable)
     {
-        this(viewContext, idSuffix, onlyListable, false);
+        this(viewContext, idSuffix, onlyListable, false, false);
     }
 
     /**
@@ -75,7 +78,7 @@ public final class SampleTypeSelectionWidget extends DropDownList<SampleTypeMode
     @Override
     protected List<SampleTypeModel> convertItems(List<SampleType> result)
     {
-        return SampleTypeModel.convert(result, onlyListable, withAll);
+        return SampleTypeModel.convert(result, onlyListable, withAll, withTypeInFile);
     }
 
     @Override

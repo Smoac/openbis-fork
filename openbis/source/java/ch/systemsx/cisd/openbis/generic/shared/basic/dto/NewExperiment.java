@@ -39,7 +39,7 @@ public final class NewExperiment extends Identifier<NewExperiment>
 
     private boolean registerSamples = false;
 
-    private List<NewSample> newSamples;
+    private List<NewSamplesWithTypes> newSamples;
 
     private List<NewAttachment> attachments;
 
@@ -119,12 +119,12 @@ public final class NewExperiment extends Identifier<NewExperiment>
         return registerSamples;
     }
 
-    public void setNewSamples(List<NewSample> newSamples)
+    public void setNewSamples(List<NewSamplesWithTypes> newSamples)
     {
         this.newSamples = newSamples;
     }
 
-    public List<NewSample> getNewSamples()
+    public List<NewSamplesWithTypes> getNewSamples()
     {
         return newSamples;
     }

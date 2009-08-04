@@ -27,8 +27,8 @@ import ch.systemsx.cisd.common.parser.ParsingException;
 import ch.systemsx.cisd.common.parser.TabFileLoader;
 
 /**
- * A <i>openBIS</i> {@link TabFileLoader} extension which translates a {@link ParsingException}
- * into a more user friendly {@link UserFailureException}.
+ * A <i>openBIS</i> {@link TabFileLoader} extension which translates a {@link ParsingException} into
+ * a more user friendly {@link UserFailureException}.
  * <p>
  * Note that this extension prefers to work with {@link NamedReader}.
  * </p>

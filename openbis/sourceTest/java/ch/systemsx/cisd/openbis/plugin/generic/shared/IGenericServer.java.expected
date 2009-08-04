@@ -32,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetUp
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperimentPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
@@ -43,8 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
@@ -105,16 +103,14 @@ public interface IGenericServer extends IPluginCommonServer
             String filename, int version) throws UserFailureException;
 
     /**
-     * Registers samples in batch.
+     * Registers samples of different types in batches.
      */
     @Transactional
     @RolesAllowed(RoleSet.USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
-    public void registerSamples(
-            final String sessionToken,
-            SampleType sampleType,
-            @AuthorizationGuard(guardClass = NewSamplePredicate.class) final List<NewSample> newSamples)
-            throws UserFailureException;
+    // FIXME: add predicate
+    public void registerSamples(final String sessionToken,
+            final List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException;
 
     /**
      * Registers experiment.

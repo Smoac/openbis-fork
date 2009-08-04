@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -39,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -145,6 +145,11 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
             { createSampleProperty("prop1", "RED"), createSampleProperty("prop2", "1") });
         final SampleType sampleType = createSampleType("MASTER_PLATE");
         final String fileName = "originalFileName.txt";
+
+        final List<NewSamplesWithTypes> samplesWithType = new ArrayList<NewSamplesWithTypes>();
+        List<NewSample> newSamples = new ArrayList<NewSample>();
+        newSamples.add(newSample);
+        samplesWithType.add(new NewSamplesWithTypes(new SampleType(), newSamples));
         context.checking(new Expectations()
             {
                 {
@@ -165,8 +170,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
 
                     one(multipartFile).transferTo(with(any(File.class)));
 
-                    one(genericServer).registerSamples(with(SESSION_TOKEN), with(sampleType),
-                            with(new NewSampleListMatcher(Collections.singletonList(newSample))));
+                    one(genericServer).registerSamples(with(SESSION_TOKEN), with(samplesWithType));
                 }
             });
         uploadedFilesBean.addMultipartFile(multipartFile);
@@ -229,6 +233,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
      * 
      * @author Christian Ribeaud
      */
+    @SuppressWarnings("unused")
     private final static class NewSampleListMatcher extends BaseMatcher<List<NewSample>>
     {
         private final List<NewSample> newSamples;

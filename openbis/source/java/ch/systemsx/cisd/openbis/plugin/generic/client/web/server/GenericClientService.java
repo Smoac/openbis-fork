@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,6 +25,8 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -63,6 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
@@ -167,7 +171,7 @@ public final class GenericClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            genericServer.registerSamples(sessionToken, sampleType, info.getSamples());
+            genericServer.registerSamples(sessionToken, info.getSamples());
             return info.getResultList();
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
@@ -178,13 +182,13 @@ public final class GenericClientService extends AbstractClientService implements
 
     private class SampleExtractor
     {
-        private List<NewSample> samples;
+        private List<NewSamplesWithTypes> samples;
 
         private List<BatchRegistrationResult> resultList;
 
         String[] sampleCodes;
 
-        public List<NewSample> getSamples()
+        public List<NewSamplesWithTypes> getSamples()
         {
             return samples;
         }
@@ -213,13 +217,15 @@ public final class GenericClientService extends AbstractClientService implements
                         .format("No UploadedFilesBean object as session attribute '%s' found.",
                                 sessionKey);
                 uploadedFiles = (UploadedFilesBean) session.getAttribute(sessionKey);
-                final BisTabFileLoader<NewSample> tabFileLoader =
-                        createSampleLoader(sampleType, isAutoGenerateCodes);
-                final List<NewSample> newSamples = new ArrayList<NewSample>();
+                final List<NewSamplesWithTypes> newSamples = new ArrayList<NewSamplesWithTypes>();
                 final List<BatchRegistrationResult> results =
-                        loadSamplesFromFiles(uploadedFiles, tabFileLoader, newSamples);
-                generateIdentifiers(defaultGroupIdentifier, isAutoGenerateCodes, sessionToken,
-                        newSamples);
+                        loadSamplesFromFiles(uploadedFiles, sampleType, isAutoGenerateCodes,
+                                newSamples);
+                for (NewSamplesWithTypes st : newSamples)
+                {
+                    generateIdentifiers(defaultGroupIdentifier, isAutoGenerateCodes, sessionToken,
+                            st.getNewSamples());
+                }
                 fillTheBean(newSamples, results);
                 return this;
             } catch (final UserFailureException e)
@@ -238,18 +244,20 @@ public final class GenericClientService extends AbstractClientService implements
             }
         }
 
-        private void fillTheBean(final List<NewSample> newSamples,
+        private void fillTheBean(final List<NewSamplesWithTypes> newSamples,
                 final List<BatchRegistrationResult> results)
         {
             resultList = results;
             samples = newSamples;
-            sampleCodes = new String[samples.size()];
-            for (int i = 0; i < samples.size(); i++)
+            List<String> codes = new ArrayList<String>();
+            for (NewSamplesWithTypes st : newSamples)
             {
-                sampleCodes[i] =
-                        SampleIdentifierFactory.parse(samples.get(i).getIdentifier())
-                                .getSampleCode();
+                for (NewSample s : st.getNewSamples())
+                {
+                    codes.add(SampleIdentifierFactory.parse(s.getIdentifier()).getSampleCode());
+                }
             }
+            sampleCodes = codes.toArray(new String[0]);
         }
 
         private BisTabFileLoader<NewSample> createSampleLoader(final SampleType sampleType,
@@ -268,21 +276,115 @@ public final class GenericClientService extends AbstractClientService implements
             return tabFileLoader;
         }
 
-        private List<BatchRegistrationResult> loadSamplesFromFiles(UploadedFilesBean uploadedFiles,
-                final BisTabFileLoader<NewSample> tabFileLoader, final List<NewSample> newSamples)
+        class FileSection
         {
+
+            private final String content;
+
+            private final String sectionName;
+
+            public FileSection(String content, String sectionName)
+            {
+                this.sectionName = sectionName;
+                this.content = content;
+            }
+
+            public String getContent()
+            {
+                return content;
+            }
+
+            public String getSectionName()
+            {
+                return sectionName;
+            }
+
+        }
+
+        private List<FileSection> extractSections(IUncheckedMultipartFile multipartFile)
+        {
+            final String beginSection = "[";
+            final String endSection = "]";
+            List<FileSection> sections = new ArrayList<FileSection>();
+            InputStreamReader reader = new InputStreamReader(multipartFile.getInputStream());
+            try
+            {
+                LineIterator it = IOUtils.lineIterator(reader);
+                StringBuilder sb = null;
+                String sectionName = null;
+                while (it.hasNext())
+                {
+                    String line = it.nextLine();
+                    if (line != null && line.startsWith(beginSection) && line.endsWith(endSection))
+                    {
+                        if (sectionName != null && sb != null)
+                            sections.add(new FileSection(sb.toString(), sectionName));
+                        sectionName =
+                                line.substring(line.indexOf(beginSection) + 1, line
+                                        .lastIndexOf(endSection));
+                        sb = new StringBuilder();
+                    } else if (sectionName == null || sb == null)
+                    {
+                        throw new UserFailureException("Discovered the unnamed section in the file");
+                    } else
+                    {
+                        if (sb.length() != 0)
+                        {
+                            sb.append("\n");
+                        }
+                        sb.append(line);
+                    }
+                    if (it.hasNext() == false)
+                    {
+                        sections.add(new FileSection(sb.toString(), sectionName));
+                    }
+                }
+            } finally
+            {
+                IOUtils.closeQuietly(reader);
+            }
+            return sections;
+        }
+
+        private List<BatchRegistrationResult> loadSamplesFromFiles(UploadedFilesBean uploadedFiles,
+                SampleType sampleType, boolean isAutoGenerateCodes,
+                final List<NewSamplesWithTypes> newSamples)
+        {
+
             final List<BatchRegistrationResult> results =
                     new ArrayList<BatchRegistrationResult>(uploadedFiles.size());
+
             for (final IUncheckedMultipartFile multipartFile : uploadedFiles.iterable())
             {
-                final StringReader stringReader =
-                        new StringReader(new String(multipartFile.getBytes()));
-                final List<NewSample> loadedSamples =
-                        tabFileLoader.load(new DelegatedReader(stringReader, multipartFile
-                                .getOriginalFilename()));
-                newSamples.addAll(loadedSamples);
+                List<FileSection> sampleSections = new ArrayList<FileSection>();
+                if (sampleType.isDefinedInFileSampleTypeCode())
+                {
+                    sampleSections.addAll(extractSections(multipartFile));
+                } else
+                {
+                    sampleSections.add(new FileSection(new String(multipartFile.getBytes()),
+                            sampleType.getCode()));
+                }
+                int sampleCounter = 0;
+                for (FileSection fs : sampleSections)
+                {
+                    final StringReader stringReader = new StringReader(fs.getContent());
+                    SampleType typeFromSection = new SampleType();
+                    typeFromSection.setCode(fs.getSectionName());
+                    final BisTabFileLoader<NewSample> tabFileLoader =
+                            createSampleLoader(typeFromSection, isAutoGenerateCodes);
+                    String sectionInFile =
+                            sampleSections.size() == 1 ? "" : " (section:" + fs.getSectionName()
+                                    + ")";
+                    final List<NewSample> loadedSamples =
+                            tabFileLoader.load(new DelegatedReader(stringReader, multipartFile
+                                    .getOriginalFilename()
+                                    + sectionInFile));
+                    newSamples.add(new NewSamplesWithTypes(typeFromSection, loadedSamples));
+                    sampleCounter += loadedSamples.size();
+                }
                 results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
-                        .format("%d sample(s) found and registered.", loadedSamples.size())));
+                        .format("%d sample(s) found and registered.", sampleCounter)));
             }
             return results;
         }

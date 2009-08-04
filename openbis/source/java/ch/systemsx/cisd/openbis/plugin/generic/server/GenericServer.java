@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
@@ -212,10 +213,28 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             final List<NewSample> newSamples) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
+        final Session session = getSessionManager().getSession(sessionToken);
+        registerSamples(session, new NewSamplesWithTypes(sampleType, newSamples));
+    }
+
+    public final void registerSamples(final String sessionToken,
+            final List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        final Session session = getSessionManager().getSession(sessionToken);
+        for (NewSamplesWithTypes samples : newSamplesWithType)
+        {
+            registerSamples(session, samples);
+        }
+    }
+
+    private void registerSamples(final Session session, final NewSamplesWithTypes newSamplesWithType)
+    {
+        final SampleType sampleType = newSamplesWithType.getSampleType();
+        final List<NewSample> newSamples = newSamplesWithType.getNewSamples();
         assert sampleType != null : "Unspecified sample type.";
         assert newSamples != null : "Unspecified new samples.";
 
-        final Session session = getSessionManager().getSession(sessionToken);
         // Does nothing if samples list is empty.
         if (newSamples.size() == 0)
         {
@@ -253,8 +272,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
         if (newExperiment.isRegisterSamples())
         {
-            registerSamples(sessionToken, newExperiment.getSampleType(), newExperiment
-                    .getNewSamples());
+            registerSamples(sessionToken, newExperiment.getNewSamples());
         }
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
         experimentBO.define(newExperiment);
@@ -352,7 +370,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         final Session session = getSessionManager().getSession(sessionToken);
         if (updates.isRegisterSamples())
         {
-            registerSamples(sessionToken, updates.getSampleType(), updates.getNewSamples());
+            registerSamples(sessionToken, updates.getNewSamples());
         }
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
         experimentBO.update(updates);
