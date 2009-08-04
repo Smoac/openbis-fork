@@ -92,7 +92,6 @@ public class SampleCodeUniquenessCheckTrigger implements Trigger
         int idx = 0;
         for (String columnName : columnNames)
         {
-            System.out.println(idx + ": " + columnName + " <" + columnClasses[idx] + ">");
             nameToIdxMap.put(columnName, idx++);
         }
         if (columnClasses[nameToIdxMap.get(SAMP_ID_PART_OF)] != Long.class)
