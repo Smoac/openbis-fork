@@ -579,8 +579,10 @@ public final class GenericClientService extends AbstractClientService implements
         updatesDTO.setDatasetId(updates.getDatasetId());
         updatesDTO.setProperties(updates.getProperties());
         updatesDTO.setVersion(updates.getVersion());
+        updatesDTO.setParentDatasetCodeOrNull(updates.getParentDatasetCodeOrNull());
         updatesDTO
                 .setSampleIdentifier(SampleIdentifierFactory.parse(updates.getSampleIdentifier()));
+        updatesDTO.setFileFormatTypeCode(updates.getFileFormatTypeCode());
         return updatesDTO;
     }
 }

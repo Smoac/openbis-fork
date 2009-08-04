@@ -21,7 +21,6 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicDataSetUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
@@ -34,20 +33,15 @@ public class DataSetUpdates extends BasicDataSetUpdates
 
     private String sampleIdentifier;
 
-    private String parentDatasetCode;
-
-    private FileFormatType fileFormatType;
-
     public DataSetUpdates()
     {
     }
 
     public DataSetUpdates(TechId sampleId, List<IEntityProperty> properties, Date version,
-            String sampleIdentifier, String parentDatasetCode)
+            String sampleIdentifier)
     {
         super(sampleId, properties, version);
         this.sampleIdentifier = sampleIdentifier;
-        this.parentDatasetCode = parentDatasetCode;
     }
 
     public String getSampleIdentifier()
@@ -60,23 +54,4 @@ public class DataSetUpdates extends BasicDataSetUpdates
         this.sampleIdentifier = sampleIdentifier;
     }
 
-    public String getParentDatasetCode()
-    {
-        return parentDatasetCode;
-    }
-
-    public void setParentDatasetCode(String parentDatasetCode)
-    {
-        this.parentDatasetCode = parentDatasetCode;
-    }
-
-    public FileFormatType getFileFormatType()
-    {
-        return fileFormatType;
-    }
-
-    public void setFileFormatType(FileFormatType fileFormatType)
-    {
-        this.fileFormatType = fileFormatType;
-    }
 }

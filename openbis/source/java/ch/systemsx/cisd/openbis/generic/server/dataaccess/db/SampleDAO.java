@@ -178,7 +178,18 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
     public List<SamplePE> listSamplesWithPropertiesByExperiment(final ExperimentPE experiment)
             throws DataAccessException
     {
-        return listSamplesWithPropertiesByCriterion("experimentInternal", experiment);
+        assert experiment != null : "Unspecified experiment.";
+
+        final Criteria criteria = createListAllSamplesCriteria();
+        fetchRelations(criteria, "container", 1);
+        final Criterion criterion = Restrictions.eq("experimentInternal", experiment);
+        final List<SamplePE> list = listSamplesByCriteria(criteria, true, criterion);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%d samples have been found for \"%s\" '%s'.", list
+                    .size(), "experimentItnernal", experiment));
+        }
+        return list;
     }
 
     public List<SamplePE> listSamplesWithPropertiesByContainer(final SamplePE container)

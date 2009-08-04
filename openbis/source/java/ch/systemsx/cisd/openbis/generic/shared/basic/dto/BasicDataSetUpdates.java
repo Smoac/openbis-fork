@@ -37,6 +37,10 @@ public class BasicDataSetUpdates implements IsSerializable, Serializable
 
     // ----- the data which should be changed:
 
+    private String parentDatasetCodeOrNull;
+
+    private String fileFormatTypeCode;
+
     // new set of properties for the data set, they will replace the old set
     private List<IEntityProperty> properties;
 
@@ -79,6 +83,26 @@ public class BasicDataSetUpdates implements IsSerializable, Serializable
     public void setProperties(List<IEntityProperty> properties)
     {
         this.properties = properties;
+    }
+
+    public String getParentDatasetCodeOrNull()
+    {
+        return parentDatasetCodeOrNull;
+    }
+
+    public void setParentDatasetCodeOrNull(String parentDatasetCodeOrNull)
+    {
+        this.parentDatasetCodeOrNull = parentDatasetCodeOrNull;
+    }
+
+    public String getFileFormatTypeCode()
+    {
+        return fileFormatTypeCode;
+    }
+
+    public void setFileFormatTypeCode(String fileFormatTypeCode)
+    {
+        this.fileFormatTypeCode = fileFormatTypeCode;
     }
 
 }

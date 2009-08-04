@@ -27,19 +27,7 @@ public class DataSetUpdatesDTO extends BasicDataSetUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private String parentIdentifierOrNull;
-
     private SampleIdentifier sampleIdentifier;
-
-    public String getParentIdentifierOrNull()
-    {
-        return parentIdentifierOrNull;
-    }
-
-    public void setParentIdentifierOrNull(String parentIdentifierOrNull)
-    {
-        this.parentIdentifierOrNull = parentIdentifierOrNull;
-    }
 
     public SampleIdentifier getSampleIdentifier()
     {

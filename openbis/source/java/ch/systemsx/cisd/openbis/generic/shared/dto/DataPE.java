@@ -347,8 +347,11 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
     public void setParent(final DataPE parent)
     {
         this.parents.clear();
-        this.parents.add(parent);
-        parent.addChild(this);
+        if (parent != null)
+        {
+            this.parents.add(parent);
+            parent.addChild(this);
+        }
     }
 
     @Transient
@@ -491,7 +494,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
     {
         return HibernateUtils.isInitialized(getDataSetProperties());
     }
-    
+
     @Transient
     public EntityKind getEntityKind()
     {

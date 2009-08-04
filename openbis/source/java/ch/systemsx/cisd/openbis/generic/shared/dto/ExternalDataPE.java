@@ -128,7 +128,7 @@ public final class ExternalDataPE extends DataPE
     /** Returns <code>fileFormatType</code>. */
     @ManyToOne(fetch = FetchType.EAGER)
     @NotNull(message = ValidationMessages.FILE_FORMAT_TYPE_NOT_NULL_MESSAGE)
-    @JoinColumn(name = ColumnNames.FILE_FORMAT_TYPE, updatable = false)
+    @JoinColumn(name = ColumnNames.FILE_FORMAT_TYPE, updatable = true)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_FILE_FORMAT_TYPE)
     public FileFormatTypePE getFileFormatType()
     {

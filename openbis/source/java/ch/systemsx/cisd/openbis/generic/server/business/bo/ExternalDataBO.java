@@ -266,6 +266,8 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         }
         updateProperties(updates.getProperties());
         updateSample(updates.getSampleIdentifier());
+        updateParent(updates.getParentDatasetCodeOrNull());
+        updateFileFormatType(updates.getFileFormatTypeCode());
         entityPropertiesConverter.checkMandatoryProperties(externalData.getProperties(),
                 externalData.getDataSetType());
         validateAndSave();
@@ -283,6 +285,21 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         final PersonPE registrator = findRegistrator();
         externalData.setProperties(entityPropertiesConverter.updateProperties(existingProperties,
                 type, properties, registrator));
+    }
+
+    private void updateParent(String parentDatasetCodeOrNull)
+    {
+        DataPE parentOrNull = null;
+        if (parentDatasetCodeOrNull != null)
+        {
+            parentOrNull = getExternalDataDAO().tryToFindDataSetByCode(parentDatasetCodeOrNull);
+            if (parentOrNull == null)
+            {
+                throw new UserFailureException(String.format(
+                        "Data set with code '%s' does not exist.", parentDatasetCodeOrNull));
+            }
+        }
+        externalData.setParent(parentOrNull);
     }
 
     private void updateSample(SampleIdentifier sampleIdentifier)
@@ -309,6 +326,21 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
             externalData.setExperiment(experiment);
         }
         externalData.setSample(sample);
+    }
+
+    private void updateFileFormatType(String fileFormatTypeCode)
+    {
+        System.err.println(fileFormatTypeCode);
+        FileFormatTypePE fileFormatTypeOrNull =
+                getFileFormatTypeDAO().tryToFindFileFormatTypeByCode(fileFormatTypeCode);
+        if (fileFormatTypeOrNull == null)
+        {
+            throw new UserFailureException(String.format("File type '%s' does not exist.",
+                    fileFormatTypeCode));
+        } else
+        {
+            externalData.setFileFormatType(fileFormatTypeOrNull);
+        }
     }
 
     private UserFailureException createWrongSampleException(SamplePE sample, String reason)

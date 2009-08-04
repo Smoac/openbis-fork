@@ -41,7 +41,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
@@ -95,9 +94,9 @@ public final class GenericDataSetEditForm extends
         result.setDatasetId(techIdOrNull);
         result.setProperties(extractProperties());
         result.setVersion(originalDataSet.getModificationDate());
-        result.setParentDatasetCode(extractParentDatasetCode());
+        result.setParentDatasetCodeOrNull(extractParentDatasetCode());
         result.setSampleIdentifier(extractSampleIdentifier());
-        result.setFileFormatType(extractFileFormatType());
+        result.setFileFormatTypeCode(extractFileFormatTypeCode());
         return result;
     }
 
@@ -111,9 +110,9 @@ public final class GenericDataSetEditForm extends
         return parentField.getValue();
     }
 
-    private FileFormatType extractFileFormatType()
+    private String extractFileFormatTypeCode()
     {
-        return fileFormatTypeSelectionWidget.tryGetSelectedFileFormatType();
+        return fileFormatTypeSelectionWidget.tryGetSelectedFileFormatType().getCode();
     }
 
     public final class UpdateDataSetCallback extends
@@ -144,6 +143,8 @@ public final class GenericDataSetEditForm extends
     {
         updatePropertyFieldsOriginalValues();
         sampleField.updateOriginalValue();
+        parentField.updateOriginalValue(parentField.getValue());
+        fileFormatTypeSelectionWidget.updateOriginalValue(fileFormatTypeSelectionWidget.getValue());
     }
 
     @Override
@@ -159,10 +160,10 @@ public final class GenericDataSetEditForm extends
     {
         ArrayList<DatabaseModificationAwareField<?>> fields =
                 new ArrayList<DatabaseModificationAwareField<?>>();
-        // TODO 2009-08-01, Piotr Buczek: uncomment and add other fields specified in LMS-1003
-        // fields.add(wrapUnaware(parentField));
+		// TODO 2009-08-01, Piotr Buczek: add other fields specified in LMS-1003
+        fields.add(wrapUnaware(parentField));
         fields.add(wrapUnaware(sampleField.getField()));
-        // fields.add(wrapUnaware(fileFormatTypeSelectionWidget));
+        fields.add(wrapUnaware(fileFormatTypeSelectionWidget));
         return fields;
     }
 
