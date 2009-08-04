@@ -29,6 +29,7 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.search.annotations.ContainedIn;
 import org.hibernate.validator.NotNull;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -74,6 +75,7 @@ public class MaterialPropertyPE extends EntityPropertyPE
     @NotNull(message = ValidationMessages.MATERIAL_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = ColumnNames.MATERIAL_COLUMN)
+    @ContainedIn
     public MaterialPE getEntity()
     {
         return (MaterialPE) entity;

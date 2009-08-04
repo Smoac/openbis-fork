@@ -176,12 +176,18 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         }
         for (VocabularyTerm termToBeDeleted : termsToBeDeleted)
         {
-            termsMap.remove(termToBeDeleted.getCode()).setVocabulary(null);
+            removeTerm(termsMap, termToBeDeleted.getCode());
         }
         for (VocabularyTermReplacement termToBeReplaced : termsToBeReplaced)
         {
-            termsMap.remove(termToBeReplaced.getTerm().getCode()).setVocabulary(null);
+            removeTerm(termsMap, termToBeReplaced.getTerm().getCode());
         }
+    }
+
+    private void removeTerm(TableMap<String, VocabularyTermPE> termsMap, String termCode)
+    {
+        VocabularyTermPE term = termsMap.remove(termCode);
+        term.setVocabulary(null);
     }
 
     public void save() throws UserFailureException

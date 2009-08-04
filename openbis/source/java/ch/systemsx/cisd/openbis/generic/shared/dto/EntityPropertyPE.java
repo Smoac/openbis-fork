@@ -32,6 +32,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.hibernate.search.annotations.ClassBridge;
 import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.LuceneOptions;
@@ -145,11 +146,11 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     public void setVocabularyTerm(final VocabularyTermPE vt)
     {
         this.vocabularyTerm = vt;
-
     }
-
+    
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.VOCABULARY_TERM_COLUMN)
+    @IndexedEmbedded
     public VocabularyTermPE getVocabularyTerm()
     {
         return vocabularyTerm;

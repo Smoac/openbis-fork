@@ -29,6 +29,7 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.search.annotations.ContainedIn;
 import org.hibernate.validator.NotNull;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -74,6 +75,7 @@ public class ExperimentPropertyPE extends EntityPropertyPE
     @NotNull(message = ValidationMessages.EXPERIMENT_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN)
+    @ContainedIn
     public ExperimentPE getEntity()
     {
         return (ExperimentPE) entity;
