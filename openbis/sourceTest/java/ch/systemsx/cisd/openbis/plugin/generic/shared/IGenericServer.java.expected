@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetUp
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperimentPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplesWithTypePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
@@ -108,9 +109,10 @@ public interface IGenericServer extends IPluginCommonServer
     @Transactional
     @RolesAllowed(RoleSet.USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
-    // FIXME: add predicate
-    public void registerSamples(final String sessionToken,
-            final List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException;
+    public void registerSamples(
+            final String sessionToken,
+            @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class) final List<NewSamplesWithTypes> newSamplesWithType)
+            throws UserFailureException;
 
     /**
      * Registers experiment.
