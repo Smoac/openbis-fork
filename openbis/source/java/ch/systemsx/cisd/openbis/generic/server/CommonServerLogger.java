@@ -680,7 +680,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             String reason)
     {
         logTracking(sessionToken, "deleteAuthorizationGroups", "TECH_IDS(%s)", StringUtils
-                .join(authGroupIds.toArray(new String[0])));
+                .join(authGroupIds.toArray(new TechId[0])));
     }
 
     public List<AuthorizationGroupPE> listAuthorizationGroups(String sessionToken)
