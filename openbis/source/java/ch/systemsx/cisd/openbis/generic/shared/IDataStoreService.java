@@ -35,7 +35,7 @@ public interface IDataStoreService
     /**
      * Every time this interface and related DTO's are changed, we should increment this number.
      */
-    public static final int VERSION = 2; // for release S59
+    public static final int VERSION = 3; // for release S61
 
     /**
      * Returns the version of this service.
