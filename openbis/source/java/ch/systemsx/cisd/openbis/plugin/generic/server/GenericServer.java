@@ -118,6 +118,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(identifier);
         sampleBO.enrichWithAttachments();
+        sampleBO.enrichWithPropertyTypes();
         final SamplePE sample = sampleBO.getSample();
         return getSampleTypeSlaveServerPlugin(sample.getSampleType())
                 .getSampleInfo(session, sample);
@@ -132,6 +133,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadDataByTechId(sampleId);
         sampleBO.enrichWithAttachments();
+        sampleBO.enrichWithPropertyTypes();
         final SamplePE sample = sampleBO.getSample();
         return getSampleTypeSlaveServerPlugin(sample.getSampleType())
                 .getSampleInfo(session, sample);

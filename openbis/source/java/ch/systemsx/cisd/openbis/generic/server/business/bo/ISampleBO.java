@@ -48,6 +48,11 @@ public interface ISampleBO extends IEntityBusinessObject
     void tryToLoadBySampleIdentifier(SampleIdentifier identifier);
 
     /**
+     * Enrich with property types.
+     */
+    public void enrichWithPropertyTypes();
+
+    /**
      * Returns the loaded or defined sample or <code>null</code>.
      */
     SamplePE tryToGetSample();
