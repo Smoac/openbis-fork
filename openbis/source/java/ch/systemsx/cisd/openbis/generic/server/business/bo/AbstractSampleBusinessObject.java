@@ -26,6 +26,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -237,10 +239,15 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     }
 
     protected static void checkBusinessRules(IEntityPropertiesConverter entityPropertiesConverter,
-            SamplePE sample, IExternalDataDAO externalDataDAO)
+            SamplePE sample, IExternalDataDAO externalDataDAO,
+            Map<EntityTypePE, List<EntityTypePropertyTypePE>> cacheOrNull)
     {
-        entityPropertiesConverter.checkMandatoryProperties(sample.getProperties(), sample
-                .getSampleType());
+        if (cacheOrNull != null)
+            entityPropertiesConverter.checkMandatoryProperties(sample.getProperties(), sample
+                    .getSampleType(), cacheOrNull);
+        else
+            entityPropertiesConverter.checkMandatoryProperties(sample.getProperties(), sample
+                    .getSampleType());
         if (hasDatasets(externalDataDAO, sample) && sample.getExperiment() == null)
         {
             throw UserFailureException.fromTemplate(

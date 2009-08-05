@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +30,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
@@ -289,13 +292,11 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
 
     private void checkBusinessRules()
     {
-        // final Map<EntityTypePE, List<EntityTypePropertyTypePE>> cache =
-        // new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
+        final Map<EntityTypePE, List<EntityTypePropertyTypePE>> cache =
+                new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
         for (SamplePE s : samples)
         {
-            checkBusinessRules(entityPropertiesConverter, s, getExternalDataDAO());
-            // entityPropertiesConverter.checkMandatoryProperties(s.getProperties(),
-            // s.getSampleType(), cache);FIXME: use cache
+            checkBusinessRules(entityPropertiesConverter, s, getExternalDataDAO(), cache);
         }
     }
 

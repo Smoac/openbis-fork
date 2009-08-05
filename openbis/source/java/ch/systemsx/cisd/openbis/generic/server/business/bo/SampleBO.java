@@ -198,7 +198,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             }
             attachments.clear();
         }
-        checkBusinessRules(entityPropertiesConverter, sample, getExternalDataDAO());
+        checkBusinessRules(entityPropertiesConverter, sample, getExternalDataDAO(), null);
     }
 
     public void setExperiment(ExperimentPE experiment)
