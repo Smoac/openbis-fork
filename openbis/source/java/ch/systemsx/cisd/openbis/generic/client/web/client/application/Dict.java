@@ -183,6 +183,8 @@ public abstract class Dict
     // Sample Browser
     //
 
+    public static final String SUBCODE = "subcode";
+
     public static final String SAMPLE = "sample";
 
     public static final String SAMPLE_TYPE = "sample_type";

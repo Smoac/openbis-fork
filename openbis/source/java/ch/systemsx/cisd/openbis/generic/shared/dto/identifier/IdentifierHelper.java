@@ -19,12 +19,15 @@ package ch.systemsx.cisd.openbis.generic.shared.dto.identifier;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Some useful methods around identifiers.
@@ -68,18 +71,49 @@ public final class IdentifierHelper
         assert samplePE != null : "Unspecified sample";
         final DatabaseInstancePE databaseInstance = samplePE.getDatabaseInstance();
         final GroupPE group = samplePE.getGroup();
-        final String sampleCode = samplePE.getCode();
+        final String sampleCode = extractCode(samplePE);
         if (databaseInstance != null)
         {
             return new SampleIdentifier(createDatabaseInstanceIdentifier(databaseInstance),
                     sampleCode);
         } else if (group != null)
         {
-            return new SampleIdentifier(createGroupIdentifier(group), samplePE.getCode());
+            return new SampleIdentifier(createGroupIdentifier(group), sampleCode);
         } else
         {
             return SampleIdentifier.createHomeGroup(sampleCode);
         }
+    }
+
+    /**
+     * Extracts "sub" code from {@link SamplePE} that is in exactly the same as the one kept in DB
+     * (so the same one that is mapped with {@link SamplePE#getCode()}).
+     */
+    public final static String extractSubCode(SamplePE samplePE)
+    {
+        return StringEscapeUtils.escapeHtml(samplePE.getCode());
+    }
+
+    /**
+     * Extracts "full" sample code from {@link SamplePE}. For contained samples has a prefix
+     * consisting of container sample DB code and a colon, otherwise it is just sample DB code,
+     * where by "sample DB code" is the code kept in the DB.
+     */
+    public final static String extractCode(SamplePE samplePE)
+    {
+        final String subCode = extractSubCode(samplePE);
+
+        String code = null;
+        if (samplePE.getContainer() != null
+                && HibernateUtils.isInitialized(samplePE.getContainer()))
+        {
+            String containerCode = StringEscapeUtils.escapeHtml(samplePE.getContainer().getCode());
+            code = containerCode + ":" + subCode;
+        } else
+        {
+            code = subCode;
+        }
+        return code;
     }
 
     /**

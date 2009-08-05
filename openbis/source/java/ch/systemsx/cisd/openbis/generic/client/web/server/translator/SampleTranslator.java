@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -68,7 +69,7 @@ public final class SampleTranslator
             final int containerDep, final int generatedFromDep, final boolean withDetails)
     {
         final Sample result = new Sample();
-        result.setCode(StringEscapeUtils.escapeHtml(samplePE.getCode()));
+        setCodes(result, samplePE);
         result.setPermId(StringEscapeUtils.escapeHtml(samplePE.getPermId()));
         result.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL, EntityKind.SAMPLE,
                 samplePE.getPermId()));
@@ -116,6 +117,13 @@ public final class SampleTranslator
         }
         result.setInvalidation(InvalidationTranslator.translate(samplePE.getInvalidation()));
         return result;
+    }
+
+    /** Sets both subcode and "full" code to {@link Sample} translating it from {@link SamplePE}. */
+    public static void setCodes(Sample result, SamplePE samplePE)
+    {
+        result.setSubCode(IdentifierHelper.extractSubCode(samplePE));
+        result.setCode(IdentifierHelper.extractCode(samplePE));
     }
 
     private static void setProperties(final Sample result, final SamplePE samplePE)

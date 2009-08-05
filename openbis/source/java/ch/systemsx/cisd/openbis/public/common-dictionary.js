@@ -124,6 +124,7 @@ var common = {
   // Sample Browser
   //
   
+  subcode: "Subcode",
   sample: "Sample",
   sample_type: "Sample Type",
   database_instance: "Database Instance",

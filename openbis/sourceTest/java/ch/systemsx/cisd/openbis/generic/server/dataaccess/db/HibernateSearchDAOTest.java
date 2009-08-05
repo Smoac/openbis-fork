@@ -54,7 +54,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
@@ -508,9 +507,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
 
     private SamplePE findSample(String sampleCode, GroupPE group)
     {
-        SamplePE sample =
-                daoFactory.getSampleDAO().tryFindByCodeAndGroup(sampleCode, group,
-                        HierarchyType.CHILD);
+        SamplePE sample = daoFactory.getSampleDAO().tryFindByCodeAndGroup(sampleCode, group);
         assert sample != null : "cannot find sample: " + sampleCode;
         return sample;
     }

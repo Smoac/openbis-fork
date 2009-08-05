@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto.identifier;
 
+import static ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING;
+
 import org.apache.commons.lang.ArrayUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -95,14 +97,33 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
         String sampleCode = tokens[tokens.length - 1];
         String[] ownerTokens = (String[]) ArrayUtils.subarray(tokens, 0, tokens.length - 1);
         SampleOwnerIdentifier owner = parseSampleOwner(ownerTokens, text);
+        validateSampleCode(sampleCode, isPattern);
+        return new SampleIdentifierOrPattern(sampleCode, owner);
+    }
+
+    private static void validateSampleCode(String sampleCode, boolean isPattern)
+    {
+        String[] sampleCodeTokens = sampleCode.split(CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING);
+        if (sampleCodeTokens.length > 2)
+        {
+            throw UserFailureException.fromTemplate(
+                    AbstractIdentifierFactory.ILLEGAL_CODE_CHARACTERS_TEMPLATE, sampleCode);
+        }
+        for (String token : sampleCodeTokens)
+        {
+            validateSampleCodeToken(token, isPattern);
+        }
+    }
+
+    private static void validateSampleCodeToken(String token, boolean isPattern)
+    {
         if (isPattern)
         {
-            assertValidPatternCharacters(sampleCode);
+            assertValidPatternCharacters(token);
         } else
         {
-            assertValidCode(sampleCode);
+            assertValidCode(token);
         }
-        return new SampleIdentifierOrPattern(sampleCode, owner);
     }
 
     private static SampleOwnerIdentifier parseSampleOwner(String[] tokens, String originalText)

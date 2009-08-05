@@ -43,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -463,7 +462,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         List<String> missingSamples = new ArrayList<String>();
         for (String code : sampleCodes)
         {
-            SamplePE sample = sampleDAO.tryFindByCodeAndGroup(code, group, HierarchyType.CHILD);
+            SamplePE sample = sampleDAO.tryFindByCodeAndGroup(code, group);
             if (sample == null)
             {
                 missingSamples.add(code);

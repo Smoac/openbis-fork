@@ -67,9 +67,12 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         checkSample.property("Description").asProperty("test control layout");
 
         final CheckTableCommand componentsTable = checkSample.componentsTable().expectedSize(2);
-        String sampleCodeFieldIdent = CommonSampleColDefKind.CODE.id();
-        componentsTable.expectedRow(new Row().withCell(sampleCodeFieldIdent, "A01"));
-        componentsTable.expectedRow(new Row().withCell(sampleCodeFieldIdent, "A03"));
+        final String sampleCodeFieldIdent = CommonSampleColDefKind.CODE.id();
+        final String sampleSubcodeFieldIdent = CommonSampleColDefKind.SUBCODE.id();
+        componentsTable.expectedRow(new Row().withCell(sampleCodeFieldIdent,
+                CONTROL_LAYOUT_EXAMPLE + ":A01").withCell(sampleSubcodeFieldIdent, "A01"));
+        componentsTable.expectedRow(new Row().withCell(sampleCodeFieldIdent,
+                CONTROL_LAYOUT_EXAMPLE + ":A03").withCell(sampleSubcodeFieldIdent, "A03"));
 
         checkSample.dataTable().expectedSize(0);
         remoteConsole.prepare(checkSample);

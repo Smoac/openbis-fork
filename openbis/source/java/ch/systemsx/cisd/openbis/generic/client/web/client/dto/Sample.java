@@ -76,6 +76,18 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
 
     private String permlink;
 
+    private String subCode;
+
+    public String getSubCode()
+    {
+        return subCode;
+    }
+
+    public void setSubCode(String subCode)
+    {
+        this.subCode = subCode;
+    }
+
     public String getPermlink()
     {
         return permlink;

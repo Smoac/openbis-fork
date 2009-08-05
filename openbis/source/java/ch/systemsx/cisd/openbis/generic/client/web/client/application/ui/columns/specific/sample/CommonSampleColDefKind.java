@@ -60,6 +60,15 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
             }
         }),
 
+    SUBCODE(new AbstractColumnDefinitionKind<Sample>(Dict.SUBCODE, true)
+        {
+            @Override
+            public String tryGetValue(Sample entity)
+            {
+                return entity.getSubCode();
+            }
+        }),
+
     SAMPLE_IDENTIFIER(new AbstractColumnDefinitionKind<Sample>(Dict.SAMPLE_IDENTIFIER, 150, true)
         {
             @Override

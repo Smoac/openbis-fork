@@ -39,7 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -96,20 +95,20 @@ public final class SampleDAOTest extends AbstractDAOTest
         final List<SamplePE> samples = listSamplesFromHomeDatabase(type3);
         final SamplePE foundWell = findSample(well, samples);
         assertTrue(HibernateUtils.isInitialized(foundWell.getContainer()));
-        final SamplePE foundContainer = foundWell.getContainer();
-        assertFalse(HibernateUtils.isInitialized(foundContainer.getContainer()));
+        // final SamplePE foundContainer = foundWell.getContainer();
+        // assertFalse(HibernateUtils.isInitialized(foundContainer.getContainer()));
         sampleC = findSample(sampleC, samples);
         assertTrue(HibernateUtils.isInitialized(sampleC.getGeneratedFrom()));
         final SamplePE parent = sampleC.getGeneratedFrom();
         assertFalse(HibernateUtils.isInitialized(parent.getGeneratedFrom()));
     }
-    
+
     @Test
     public void testTryToFindByPermID()
     {
         String permID = "200811050919915-8";
         SamplePE sample = daoFactory.getSampleDAO().tryToFindByPermID(permID);
-        
+
         assertEquals(permID, sample.getPermId());
         Set<SamplePropertyPE> properties = sample.getProperties();
         assertEquals(2, properties.size());
@@ -122,9 +121,11 @@ public final class SampleDAOTest extends AbstractDAOTest
             plateGeometry = description;
             description = p;
         }
-        assertEquals("USER.DESCRIPTION", description.getEntityTypePropertyType().getPropertyType().getCode());
+        assertEquals("USER.DESCRIPTION", description.getEntityTypePropertyType().getPropertyType()
+                .getCode());
         assertEquals("test control layout", description.getValue());
-        assertEquals("PLATE_GEOMETRY", plateGeometry.getEntityTypePropertyType().getPropertyType().getCode());
+        assertEquals("PLATE_GEOMETRY", plateGeometry.getEntityTypePropertyType().getPropertyType()
+                .getCode());
         assertEquals("384_WELLS_16X24", plateGeometry.getVocabularyTerm().getCode());
     }
 
@@ -139,16 +140,15 @@ public final class SampleDAOTest extends AbstractDAOTest
         boolean fail = true;
         try
         {
-            sampleDAO.tryFindByCodeAndDatabaseInstance(null, null, HierarchyType.CHILD);
+            sampleDAO.tryFindByCodeAndDatabaseInstance(null, null);
         } catch (final AssertionError e)
         {
             fail = false;
         }
         assertFalse(fail);
         assertEquals(sample, sampleDAO.tryFindByCodeAndDatabaseInstance(sample.getCode(),
-                homeDatabaseInstance, HierarchyType.CHILD));
-        assertNull(sampleDAO.tryFindByCodeAndDatabaseInstance("", homeDatabaseInstance,
-                HierarchyType.CHILD));
+                homeDatabaseInstance));
+        assertNull(sampleDAO.tryFindByCodeAndDatabaseInstance("", homeDatabaseInstance));
     }
 
     @Test
@@ -159,15 +159,14 @@ public final class SampleDAOTest extends AbstractDAOTest
         boolean fail = true;
         try
         {
-            sampleDAO.tryFindByCodeAndGroup(null, null, HierarchyType.CHILD);
+            sampleDAO.tryFindByCodeAndGroup(null, null);
         } catch (final AssertionError e)
         {
             fail = false;
         }
         assertFalse(fail);
-        assertEquals(sample, sampleDAO.tryFindByCodeAndGroup(sample.getCode(), sample.getGroup(),
-                HierarchyType.CHILD));
-        assertNull(sampleDAO.tryFindByCodeAndGroup("", sample.getGroup(), HierarchyType.CHILD));
+        assertEquals(sample, sampleDAO.tryFindByCodeAndGroup(sample.getCode(), sample.getGroup()));
+        assertNull(sampleDAO.tryFindByCodeAndGroup("", sample.getGroup()));
     }
 
     @Test
@@ -186,8 +185,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         final String masterPlateCode = "MP";
         final DatabaseInstancePE homeInstance = daoFactory.getHomeDatabaseInstance();
         final SamplePE sample =
-                sampleDAO.tryFindByCodeAndDatabaseInstance(masterPlateCode, homeInstance,
-                        HierarchyType.CHILD);
+                sampleDAO.tryFindByCodeAndDatabaseInstance(masterPlateCode, homeInstance);
         assertNotNull(sample);
         final List<SamplePE> samples = sampleDAO.listSamplesWithPropertiesByContainer(sample);
         assertEquals(320, samples.size());
@@ -197,7 +195,7 @@ public final class SampleDAOTest extends AbstractDAOTest
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         final GroupPE group = findGroup("CISD");
-        final SamplePE sample = sampleDAO.tryFindByCodeAndGroup(code, group, HierarchyType.CHILD);
+        final SamplePE sample = sampleDAO.tryFindByCodeAndGroup(code, group);
         assertNotNull(sample);
 
         return sample;
@@ -380,8 +378,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         samplePE.setRegistrator(getSystemPerson());
         sampleDAO.createSample(samplePE);
         // Following line throws a NonUniqueResultException if sample code not unique.
-        sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode, homeDatabaseInstance,
-                HierarchyType.CHILD);
+        sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode, homeDatabaseInstance);
     }
 
     //

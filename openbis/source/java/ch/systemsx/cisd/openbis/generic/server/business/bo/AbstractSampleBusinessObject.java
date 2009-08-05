@@ -110,7 +110,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             }
         }
         final SamplePE samplePE = new SamplePE();
-        samplePE.setCode(sampleIdentifier.getSampleCode());
+        samplePE.setCode(sampleIdentifier.getSampleSubCode());
         samplePE.setRegistrator(findRegistrator());
         samplePE.setSampleType(sampleTypePE);
         samplePE.setGroup(sampleOwner.tryGetGroup());

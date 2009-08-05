@@ -387,9 +387,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     {
         String[] codes = new String[samples.size()];
         int i = 0;
-        for (SamplePE sample : samples)
+        for (SamplePE samplePE : samples)
         {
-            codes[i] = sample.getCode();
+            codes[i] = IdentifierHelper.extractCode(samplePE);
             i++;
         }
         return codes;

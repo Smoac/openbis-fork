@@ -50,7 +50,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -139,8 +138,7 @@ public final class SampleBOTest extends AbstractBOTest
                     will(returnValue(databaseInstance));
 
                     String sampleCode = sampleIdentifier.getSampleCode();
-                    one(sampleDAO).tryFindByCodeAndDatabaseInstance(sampleCode, databaseInstance,
-                            HierarchyType.CHILD);
+                    one(sampleDAO).tryFindByCodeAndDatabaseInstance(sampleCode, databaseInstance);
                     will(returnValue(sample));
                 }
             });
@@ -163,7 +161,7 @@ public final class SampleBOTest extends AbstractBOTest
                     will(returnValue(group));
 
                     String sampleCode = sampleIdentifier.getSampleCode();
-                    one(sampleDAO).tryFindByCodeAndGroup(sampleCode, group, HierarchyType.CHILD);
+                    one(sampleDAO).tryFindByCodeAndGroup(sampleCode, group);
                     will(returnValue(sample));
                 }
             });
@@ -280,7 +278,7 @@ public final class SampleBOTest extends AbstractBOTest
                     groupParent.setGroup(EXAMPLE_GROUP);
                     groupParent.setCode("SAMPLE_GENERATOR");
                     one(sampleDAO).tryFindByCodeAndGroup(parentGroupIdentifier.getSampleCode(),
-                            EXAMPLE_GROUP, HierarchyType.CHILD);
+                            EXAMPLE_GROUP);
                     will(returnValue(groupParent));
 
                     one(sampleTypeDAO).tryFindSampleTypeByCode(DILUTION_PLATE);
@@ -335,7 +333,8 @@ public final class SampleBOTest extends AbstractBOTest
     @Test
     public final void testDefineSampleHappyCase()
     {
-        final SampleIdentifier sampleIdentifier = getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE);
+        final SampleIdentifier sampleIdentifier =
+                getGroupSampleIdentifier("SAMPLE_CONTAINER:" + DEFAULT_SAMPLE_CODE);
         final NewSample newSample = new NewSample();
         newSample.setIdentifier(sampleIdentifier.toString());
         newSample.setSampleType(createSampleType(SampleTypeCode.DILUTION_PLATE));
@@ -378,11 +377,11 @@ public final class SampleBOTest extends AbstractBOTest
                             databaseInstanceDAO);
 
                     one(sampleDAO).tryFindByCodeAndGroup(generatedFromIdentifier.getSampleCode(),
-                            EXAMPLE_GROUP, HierarchyType.CHILD);
+                            EXAMPLE_GROUP);
                     will(returnValue(generatedFrom));
 
                     one(sampleDAO).tryFindByCodeAndGroup(containerIdentifier.getSampleCode(),
-                            EXAMPLE_GROUP, HierarchyType.CHILD);
+                            EXAMPLE_GROUP);
                     will(returnValue(container));
 
                     one(sampleTypeDAO).tryFindSampleTypeByCode(DILUTION_PLATE);
@@ -526,7 +525,7 @@ public final class SampleBOTest extends AbstractBOTest
                             EXAMPLE_PERSON);
 
                     one(sampleDAO).tryFindByCodeAndGroup("DOES_NOT_EXIST",
-                            EXAMPLE_SESSION.tryGetHomeGroup(), HierarchyType.CHILD);
+                            EXAMPLE_SESSION.tryGetHomeGroup());
                     will(returnValue(null));
                 }
             });
@@ -563,7 +562,7 @@ public final class SampleBOTest extends AbstractBOTest
                             EXAMPLE_PERSON);
 
                     one(sampleDAO).tryFindByCodeAndGroup("DOES_NOT_EXIST",
-                            EXAMPLE_SESSION.tryGetHomeGroup(), HierarchyType.CHILD);
+                            EXAMPLE_SESSION.tryGetHomeGroup());
                     will(returnValue(null));
                 }
             });

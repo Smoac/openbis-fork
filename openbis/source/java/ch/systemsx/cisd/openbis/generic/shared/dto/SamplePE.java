@@ -286,7 +286,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         this.controlLayout = controlLayout;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.PART_OF_SAMPLE_COLUMN, updatable = true)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SAMPLE_PART_OF, depth = 1)
     public SamplePE getContainer()
@@ -481,7 +481,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     {
         return HibernateUtils.isInitialized(getSampleProperties());
     }
-    
+
     public void setProperties(final Set<? extends EntityPropertyPE> properties)
     {
         getSampleProperties().clear();

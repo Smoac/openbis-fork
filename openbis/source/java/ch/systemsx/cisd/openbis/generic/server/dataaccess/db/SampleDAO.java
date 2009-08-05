@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * Implementation of {@link ISampleDAO} for databases.
@@ -337,17 +338,14 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
     }
 
     public final SamplePE tryFindByCodeAndDatabaseInstance(final String sampleCode,
-            final DatabaseInstancePE databaseInstance, final HierarchyType hierarchyType)
+            final DatabaseInstancePE databaseInstance)
     {
         assert sampleCode != null : "Unspecified sample code.";
         assert databaseInstance != null : "Unspecified database instance.";
-        assert hierarchyType != null : "Unspecified hierarchy type.";
 
         final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
-        criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(sampleCode)));
+        addSampleCodeCriterion(criteria, sampleCode);
         criteria.add(Restrictions.eq("databaseInstance", databaseInstance));
-        criteria.add(Restrictions.isNull(hierarchyType.getOppositeHierarchyType()
-                .getParentFieldName()));
         criteria.setFetchMode("sampleType.sampleTypePropertyTypesInternal", FetchMode.JOIN);
         final SamplePE sample = (SamplePE) criteria.uniqueResult();
         if (operationLog.isDebugEnabled())
@@ -360,18 +358,14 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         return sample;
     }
 
-    public final SamplePE tryFindByCodeAndGroup(final String sampleCode, final GroupPE group,
-            final HierarchyType hierarchyType)
+    public final SamplePE tryFindByCodeAndGroup(final String sampleCode, final GroupPE group)
     {
         assert sampleCode != null : "Unspecified sample code.";
         assert group != null : "Unspecified group.";
-        assert hierarchyType != null : "Unspecified hierarchy type.";
 
         final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
-        criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(sampleCode)));
+        addSampleCodeCriterion(criteria, sampleCode);
         criteria.add(Restrictions.eq("group", group));
-        criteria.add(Restrictions.isNull(hierarchyType.getOppositeHierarchyType()
-                .getParentFieldName()));
         criteria.setFetchMode("sampleType.sampleTypePropertyTypesInternal", FetchMode.JOIN);
         final SamplePE sample = (SamplePE) criteria.uniqueResult();
         if (operationLog.isDebugEnabled())
@@ -381,6 +375,25 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
                     sampleCode, group));
         }
         return sample;
+    }
+
+    private void addSampleCodeCriterion(Criteria criteria, String sampleCode)
+    {
+        String[] sampleCodeTokens =
+                sampleCode.split(SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING);
+        if (sampleCodeTokens.length > 1)
+        {
+            final String containerCode = sampleCodeTokens[0];
+            final String code = sampleCodeTokens[1];
+            criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(code)));
+            criteria.createAlias("container", "c");
+            criteria.add(Restrictions.eq("c.code", CodeConverter.tryToDatabase(containerCode)));
+        } else
+        {
+            criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(sampleCode)));
+            criteria.add(Restrictions.isNull(HierarchyType.CONTAINED.getParentFieldName()));
+        }
+
     }
 
     public final void createSamples(final List<SamplePE> samples) throws DataAccessException

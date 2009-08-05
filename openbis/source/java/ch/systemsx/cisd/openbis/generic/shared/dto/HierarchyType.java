@@ -25,32 +25,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 // communicate, there is no need to put it in the client-visible DTO package.
 public enum HierarchyType
 {
-    CHILD("generatedFrom")
-    {
-
-        //
-        // HierarchyType
-        //
-
-        @Override
-        public final HierarchyType getOppositeHierarchyType()
-        {
-            return CONTAINED;
-        }
-    },
-    CONTAINED("container")
-    {
-        //
-        // HierarchyType
-        //
-
-        @Override
-        public final HierarchyType getOppositeHierarchyType()
-        {
-            return CHILD;
-        }
-
-    };
+    CHILD("generatedFrom"), CONTAINED("container");
 
     private final String parentFieldName;
 
@@ -67,8 +42,4 @@ public enum HierarchyType
         return parentFieldName;
     }
 
-    /**
-     * Returns the {@link HierarchyType} which is the opposite to this one.
-     */
-    public abstract HierarchyType getOppositeHierarchyType();
 }

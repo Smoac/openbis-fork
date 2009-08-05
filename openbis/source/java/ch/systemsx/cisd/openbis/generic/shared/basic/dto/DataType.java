@@ -37,6 +37,11 @@ public final class DataType implements IsSerializable, Serializable
     {
     }
 
+    public DataType(final DataTypeCode code)
+    {
+        this.code = code;
+    }
+
     public DataTypeCode getCode()
     {
         return code;

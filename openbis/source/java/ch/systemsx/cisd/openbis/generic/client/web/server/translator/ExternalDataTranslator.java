@@ -138,7 +138,7 @@ public class ExternalDataTranslator
     private static Sample fillSample(Sample sample, SamplePE samplePE, boolean loadSampleProperties)
     {
         sample.setId(HibernateUtils.getId(samplePE));
-        sample.setCode(StringEscapeUtils.escapeHtml(samplePE.getCode()));
+        SampleTranslator.setCodes(sample, samplePE);
         sample.setInvalidation(tryToGetInvalidation(samplePE));
         sample.setSampleType(TypeTranslator.translate(samplePE.getSampleType()));
         sample.setIdentifier(StringEscapeUtils

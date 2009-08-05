@@ -64,7 +64,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         checkCommand.expectedColumnHidden(CommonSampleColDefKind.CODE.name(), true);
         checkCommand.expectedColumnWidth(CommonSampleColDefKind.REGISTRATOR.name(),
                 2 * DEFAULT_COLUMN_WIDTH);
-        checkCommand.expectedColumnsNumber(16);
+        checkCommand.expectedColumnsNumber(17);
         remoteConsole.prepare(checkCommand);
 
         launchTest(30000);
@@ -87,7 +87,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         table.expectedRow(new SampleRow("C1", "CONTROL_LAYOUT").identifier("CISD", "CISD")
                 .withInternalPropertyCell("PLATE_GEOMETRY", DEFAULT_PLATE_GEOMETRY_VALUE));
 
-        table.expectedColumnsNumber(19);
+        table.expectedColumnsNumber(20);
         remoteConsole.prepare(table.expectedSize(40));
 
         launchTest(20000);
@@ -101,9 +101,11 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         table.expectedColumnHidden(CommonSampleColDefKind.CODE.name(), false);
         table.expectedColumnWidth(CommonSampleColDefKind.REGISTRATOR.name(), DEFAULT_COLUMN_WIDTH);
         table.expectedRow(new SampleRow("MP001-1").identifier("CISD", "CISD").invalid()
-                .noExperiment().withInternalPropertyCell("PLATE_GEOMETRY", DEFAULT_PLATE_GEOMETRY_VALUE));
+                .noExperiment().withInternalPropertyCell("PLATE_GEOMETRY",
+                        DEFAULT_PLATE_GEOMETRY_VALUE));
         table.expectedRow(new SampleRow("MP002-1").identifier("CISD", "CISD").valid()
-                .noExperiment().withInternalPropertyCell("PLATE_GEOMETRY", DEFAULT_PLATE_GEOMETRY_VALUE));
+                .noExperiment().withInternalPropertyCell("PLATE_GEOMETRY",
+                        DEFAULT_PLATE_GEOMETRY_VALUE));
         remoteConsole.prepare(table.expectedSize(5));
 
         launchTest(20000);
@@ -161,7 +163,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         table.expectedRow(new SampleRow("3VCP1").identifier("CISD", "CISD").invalid().experiment(
                 "CISD", "NEMO", "EXP1").derivedFromAncestor("3V-123", 1).derivedFromAncestor(
                 "MP001-1", 2));
-        table.expectedColumnsNumber(19);
+        table.expectedColumnsNumber(20);
         remoteConsole.prepare(table.expectedSize(15));
 
         launchTest(20000);

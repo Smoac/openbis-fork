@@ -29,15 +29,27 @@ public class SampleIdentifier extends SampleOwnerIdentifier
 {
     private static final long serialVersionUID = IServer.VERSION;
 
+    public static final String CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING = ":";
+
     public static final SampleIdentifier[] EMPTY_ARRAY = new SampleIdentifier[0];
 
     private String sampleCode;
+
+    private String sampleSubCode;
 
     private SampleIdentifier(final DatabaseInstanceIdentifier databaseInstanceIdentOrNull,
             final GroupIdentifier groupIdentOrNull, final String sampleCode)
     {
         super(databaseInstanceIdentOrNull, groupIdentOrNull);
         this.sampleCode = sampleCode;
+        if (sampleCode != null) // for tests
+        {
+            String[] sampleCodeTokens = sampleCode.split(CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING);
+            this.sampleSubCode = sampleCodeTokens[sampleCodeTokens.length - 1];
+        } else
+        {
+            sampleSubCode = sampleCode;
+        }
     }
 
     public static SampleIdentifier createOwnedBy(final SampleOwnerIdentifier owner,
@@ -77,6 +89,11 @@ public class SampleIdentifier extends SampleOwnerIdentifier
     public String getSampleCode()
     {
         return sampleCode;
+    }
+
+    public String getSampleSubCode()
+    {
+        return sampleSubCode;
     }
 
     /**

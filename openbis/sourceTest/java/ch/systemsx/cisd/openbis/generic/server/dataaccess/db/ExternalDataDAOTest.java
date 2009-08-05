@@ -45,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
@@ -235,8 +234,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
     {
         ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         DatabaseInstancePE dbInstance = daoFactory.getHomeDatabaseInstance();
-        SamplePE sample =
-                sampleDAO.tryFindByCodeAndDatabaseInstance("MP", dbInstance, HierarchyType.CHILD);
+        SamplePE sample = sampleDAO.tryFindByCodeAndDatabaseInstance("MP", dbInstance);
         assertNotNull(sample);
         return sample;
     }

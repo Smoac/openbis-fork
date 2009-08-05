@@ -48,7 +48,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -654,7 +653,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(sampleDAO).tryFindByCodeAndGroup(sampleCode, group, HierarchyType.CHILD);
+                    one(sampleDAO).tryFindByCodeAndGroup(sampleCode, group);
                     will(returnValue(foundSample));
                 }
             });

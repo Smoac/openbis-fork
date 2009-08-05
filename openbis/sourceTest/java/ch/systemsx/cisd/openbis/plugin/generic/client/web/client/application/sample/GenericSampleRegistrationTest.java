@@ -127,7 +127,9 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         checkSample.property("Sample").asString(containerCode);
         final CheckTableCommand componentsTable = checkSample.componentsTable().expectedSize(1);
         final String sampleCodeFieldIdent = CommonSampleColDefKind.CODE.id();
-        componentsTable.expectedRow(new Row().withCell(sampleCodeFieldIdent, sampleCode));
+        final String sampleSubcodeFieldIdent = CommonSampleColDefKind.SUBCODE.id();
+        componentsTable.expectedRow(new Row().withCell(sampleCodeFieldIdent,
+                containerCode + ":" + sampleCode).withCell(sampleSubcodeFieldIdent, sampleCode));
         remoteConsole.prepare(checkSample);
         launchTest(60000);
     }
