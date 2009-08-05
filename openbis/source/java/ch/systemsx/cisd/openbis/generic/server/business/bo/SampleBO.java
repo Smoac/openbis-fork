@@ -163,7 +163,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     {
         assert newSample != null : "Unspecified new sample.";
 
-        sample = createSample(newSample, null, null);
+        sample = createSample(newSample, null, null, null);
         dataChanged = true;
     }
 
@@ -198,34 +198,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             }
             attachments.clear();
         }
-        checkBusinessRules();
-    }
-
-    private void checkBusinessRules()
-    {
-        entityPropertiesConverter.checkMandatoryProperties(sample.getProperties(), sample
-                .getSampleType());
-        if (hasDatasets() && sample.getExperiment() == null)
-        {
-            throw UserFailureException.fromTemplate(
-                    "Cannot detach the sample '%s' from the experiment "
-                            + "because there are already datasets attached to the sample.", sample
-                            .getIdentifier());
-        }
-        if (hasDatasets() && sample.getGroup() == null)
-        {
-            throw UserFailureException.fromTemplate("Cannot detach the sample '%s' from the group "
-                    + "because there are already datasets attached to the sample.", sample
-                    .getIdentifier());
-        }
-        if (sample.getExperiment() != null
-                && (sample.getGroup() == null || sample.getExperiment().getProject().getGroup()
-                        .equals(sample.getGroup()) == false))
-        {
-            throw new UserFailureException(
-                    "Sample group must be the same as experiment group. Shared samples cannot be attached to experiments.");
-        }
-        SampleGenericBusinessRules.assertValidParents(sample);
+        checkBusinessRules(entityPropertiesConverter, sample, getExternalDataDAO());
     }
 
     public void setExperiment(ExperimentPE experiment)
@@ -329,7 +302,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
 
     private void removeFromExperiment()
     {
-        if (hasDatasets())
+        if (hasDatasets(getExternalDataDAO(), sample))
         {
             throw UserFailureException.fromTemplate(
                     "Cannot detach the sample '%s' from the experiment "
@@ -381,11 +354,6 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
                             + "because the experiment has been invalidated.", sample
                             .getSampleIdentifier(), identOrNull);
         }
-    }
-
-    private boolean hasDatasets()
-    {
-        return SampleUtils.hasDatasets(getExternalDataDAO(), sample);
     }
 
     private boolean isExperimentUnchanged(ExperimentPE newExperimentOrNull,

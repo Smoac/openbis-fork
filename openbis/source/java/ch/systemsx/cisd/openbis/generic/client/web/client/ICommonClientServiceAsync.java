@@ -520,10 +520,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<IEntityInformationHolder> callback);
 
     /**
-     * @see ICommonClientService#getTemplate(EntityKind, String, boolean)
+     * @see ICommonClientService#getTemplate(EntityKind, String, boolean,boolean)
      */
     public void getTemplate(EntityKind kind, String type, boolean autoGenerate,
-            AsyncCallback<String> callback);
+            boolean withExperiments, AsyncCallback<String> callback);
 
     /**
      * @see ICommonClientService#updateFileFormatType(AbstractType type)

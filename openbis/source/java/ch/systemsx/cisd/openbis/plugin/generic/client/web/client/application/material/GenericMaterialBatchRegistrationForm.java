@@ -183,7 +183,7 @@ public final class GenericMaterialBatchRegistrationForm extends AbstractRegistra
                 public void handleEvent(BaseEvent be)
                 {
                     WindowUtils.openWindow(UrlParamsHelper.createTemplateURL(EntityKind.MATERIAL,
-                            materialType, false));
+                            materialType, false, false));
                 }
             });
         return result;

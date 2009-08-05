@@ -1745,7 +1745,8 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public String getTemplate(EntityKind entityKind, String type, boolean autoGenerate)
+    public String getTemplate(EntityKind entityKind, String type, boolean autoGenerate,
+            boolean withExperiments)
     {
         try
         {
@@ -1753,7 +1754,8 @@ public final class CommonClientService extends AbstractClientService implements
             ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind kind =
                     ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind
                             .valueOf(entityKind.name());
-            return commonServer.getTemplateColumns(sessionToken, kind, type, autoGenerate);
+            return commonServer.getTemplateColumns(sessionToken, kind, type, autoGenerate,
+                    withExperiments);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

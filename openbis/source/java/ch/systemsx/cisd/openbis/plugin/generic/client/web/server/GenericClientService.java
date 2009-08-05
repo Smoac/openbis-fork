@@ -167,7 +167,7 @@ public final class GenericClientService extends AbstractClientService implements
     {
         SampleExtractor info =
                 new SampleExtractor().prepareSamples(sampleType, sessionKey,
-                        defaultGroupIdentifier, defaultGroupIdentifier != null);
+                        defaultGroupIdentifier, defaultGroupIdentifier != null, true);
         try
         {
             final String sessionToken = getSessionToken();
@@ -204,7 +204,8 @@ public final class GenericClientService extends AbstractClientService implements
         }
 
         public SampleExtractor prepareSamples(final SampleType sampleType, final String sessionKey,
-                String defaultGroupIdentifier, final boolean isAutoGenerateCodes)
+                String defaultGroupIdentifier, final boolean isAutoGenerateCodes,
+                final boolean allowExperiments)
         {
             HttpSession session = null;
             UploadedFilesBean uploadedFiles = null;
@@ -220,7 +221,7 @@ public final class GenericClientService extends AbstractClientService implements
                 final List<NewSamplesWithTypes> newSamples = new ArrayList<NewSamplesWithTypes>();
                 final List<BatchRegistrationResult> results =
                         loadSamplesFromFiles(uploadedFiles, sampleType, isAutoGenerateCodes,
-                                newSamples);
+                                newSamples, allowExperiments);
                 for (NewSamplesWithTypes st : newSamples)
                 {
                     generateIdentifiers(defaultGroupIdentifier, isAutoGenerateCodes, sessionToken,
@@ -261,7 +262,7 @@ public final class GenericClientService extends AbstractClientService implements
         }
 
         private BisTabFileLoader<NewSample> createSampleLoader(final SampleType sampleType,
-                final boolean isAutoGenerateCodes)
+                final boolean isAutoGenerateCodes, final boolean allowExperiments)
         {
             final BisTabFileLoader<NewSample> tabFileLoader =
                     new BisTabFileLoader<NewSample>(new IParserObjectFactoryFactory<NewSample>()
@@ -270,7 +271,7 @@ public final class GenericClientService extends AbstractClientService implements
                                     final IPropertyMapper propertyMapper) throws ParserException
                             {
                                 return new NewSampleParserObjectFactory(sampleType, propertyMapper,
-                                        isAutoGenerateCodes == false);
+                                        isAutoGenerateCodes == false, allowExperiments);
                             }
                         });
             return tabFileLoader;
@@ -348,7 +349,7 @@ public final class GenericClientService extends AbstractClientService implements
 
         private List<BatchRegistrationResult> loadSamplesFromFiles(UploadedFilesBean uploadedFiles,
                 SampleType sampleType, boolean isAutoGenerateCodes,
-                final List<NewSamplesWithTypes> newSamples)
+                final List<NewSamplesWithTypes> newSamples, boolean allowExperiments)
         {
 
             final List<BatchRegistrationResult> results =
@@ -372,7 +373,8 @@ public final class GenericClientService extends AbstractClientService implements
                     SampleType typeFromSection = new SampleType();
                     typeFromSection.setCode(fs.getSectionName());
                     final BisTabFileLoader<NewSample> tabFileLoader =
-                            createSampleLoader(typeFromSection, isAutoGenerateCodes);
+                            createSampleLoader(typeFromSection, isAutoGenerateCodes,
+                                    allowExperiments);
                     String sectionInFile =
                             sampleSections.size() == 1 ? "" : " (section:" + fs.getSectionName()
                                     + ")";
@@ -484,7 +486,7 @@ public final class GenericClientService extends AbstractClientService implements
                     new SampleExtractor().prepareSamples(experiment.getSampleType(),
                             samplesSessionKey, new GroupIdentifier(identifier
                                     .getDatabaseInstanceCode(), identifier.getGroupCode())
-                                    .toString(), experiment.isGenerateCodes());
+                                    .toString(), experiment.isGenerateCodes(), false);
             experiment.setNewSamples(extractor.getSamples());
             experiment.setSamples(extractor.getCodes());
         }
@@ -620,7 +622,7 @@ public final class GenericClientService extends AbstractClientService implements
                     new SampleExtractor().prepareSamples(updates.getSampleType(), updates
                             .getSamplesSessionKey(), new GroupIdentifier(newProject
                             .getDatabaseInstanceCode(), newProject.getGroupCode()).toString(),
-                            updates.isGenerateCodes());
+                            updates.isGenerateCodes(), false);
             updates.setNewSamples(extractor.getSamples());
             updates.setSampleCodes(extractor.getCodes());
         }

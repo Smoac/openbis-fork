@@ -226,7 +226,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
                     if (typeSelection.tryGetSelectedSampleType() != null)
                     {
                         WindowUtils.openWindow(UrlParamsHelper.createTemplateURL(EntityKind.SAMPLE,
-                                typeSelection.tryGetSelected(), autoGenerate.getValue()));
+                                typeSelection.tryGetSelected(), autoGenerate.getValue(), false));
                     } else
                     {
                         MessageBox.alert("Sample type not selected.",

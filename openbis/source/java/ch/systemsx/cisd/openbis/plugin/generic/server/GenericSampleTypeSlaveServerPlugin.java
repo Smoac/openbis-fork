@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -84,11 +85,12 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
         daoFactory.disableSecondLevelCacheForSession();
         final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
         final Map<String, SampleTypePE> sampleTypeCache = new HashMap<String, SampleTypePE>();
+        final Map<String, ExperimentPE> experimentCache = new HashMap<String, ExperimentPE>();
         final Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache =
                 new HashMap<SampleOwnerIdentifier, SampleOwner>();
         for (final NewSample newSample : newSamples)
         {
-            sampleTable.add(newSample, sampleTypeCache, sampleOwnerCache);
+            sampleTable.add(newSample, sampleTypeCache, sampleOwnerCache, experimentCache);
         }
         sampleTable.save();
     }

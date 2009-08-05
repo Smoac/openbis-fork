@@ -184,7 +184,8 @@ public final class UrlParamsHelper
         }
     }
 
-    public static final String createTemplateURL(EntityKind kind, EntityType type, boolean withCodes)
+    public static final String createTemplateURL(EntityKind kind, EntityType type,
+            boolean withCodes, boolean withExperiments)
     {
         URLMethodWithParameters methodWithParameters =
                 new URLMethodWithParameters(GenericConstants.TEMPLATE_SERVLET_NAME);
@@ -192,6 +193,7 @@ public final class UrlParamsHelper
         methodWithParameters.addParameter(GenericConstants.ENTITY_TYPE_KEY_PARAMETER, type
                 .getCode());
         methodWithParameters.addParameter(GenericConstants.AUTO_GENERATE, withCodes);
+        methodWithParameters.addParameter(GenericConstants.WITH_EXPERIMENTS, withExperiments);
         return methodWithParameters.toString();
     }
 

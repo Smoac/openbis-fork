@@ -44,12 +44,15 @@ final class NewSampleParserObjectFactory extends AbstractParserObjectFactory<New
 
     private final boolean identifierExpectedInFile;
 
+    private final boolean allowExperiments;
+
     NewSampleParserObjectFactory(final SampleType sampleType, final IPropertyMapper propertyMapper,
-            boolean identifierExpectedInFile)
+            boolean identifierExpectedInFile, boolean allowExperiments)
     {
         super(NewSample.class, propertyMapper);
         this.sampleType = sampleType;
         this.identifierExpectedInFile = identifierExpectedInFile;
+        this.allowExperiments = allowExperiments;
     }
 
     private final PropertyType createPropertyType(final String propertyTypeCode)
@@ -104,11 +107,18 @@ final class NewSampleParserObjectFactory extends AbstractParserObjectFactory<New
             throw new ParserException("Requested automatical generation of codes. Column '"
                     + NewSample.IDENTIFIER_COLUMN + "' should be removed from the file.");
         }
+        if (allowExperiments == false && newSample.getExperimentIdentifier() != null)
+        {
+            throw new ParserException("Column '" + NewSample.EXPERIMENT
+                    + "' should be removed from the file.");
+        }
         newSample.setSampleType(sampleType);
         setProperties(newSample, lineTokens);
         newSample
                 .setContainerIdentifier(StringUtils.trimToNull(newSample.getContainerIdentifier()));
         newSample.setParentIdentifier(StringUtils.trimToNull(newSample.getParentIdentifier()));
+        newSample.setExperimentIdentifier(StringUtils.trimToNull(newSample
+                .getExperimentIdentifier()));
         return newSample;
     }
 }

@@ -93,4 +93,6 @@ public final class GenericConstants
 
     public static final int LABEL_40 = 40;
 
+    public static final String WITH_EXPERIMENTS = "with_experiments";
+
 }

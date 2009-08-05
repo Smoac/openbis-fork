@@ -781,7 +781,7 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public String getTemplateColumns(String sessionToken, EntityKind kind, String type,
-            boolean autoGenerate);
+            boolean autoGenerate, boolean withExperiments);
 
     /**
      * Updates file format type.

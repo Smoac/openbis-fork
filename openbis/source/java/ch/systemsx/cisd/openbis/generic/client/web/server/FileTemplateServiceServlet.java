@@ -47,12 +47,16 @@ public class FileTemplateServiceServlet extends AbstractFileDownloadServlet
         final String kind = request.getParameter(GenericConstants.ENTITY_KIND_KEY_PARAMETER);
         final String type = request.getParameter(GenericConstants.ENTITY_TYPE_KEY_PARAMETER);
         final String autoGenerate = request.getParameter(GenericConstants.AUTO_GENERATE);
-
+        final String withExperimentsParameter =
+                request.getParameter(GenericConstants.WITH_EXPERIMENTS);
+        final boolean withExperiments =
+                withExperimentsParameter != null && Boolean.parseBoolean(withExperimentsParameter) ? true
+                        : false;
         if (StringUtils.isNotBlank(kind) && StringUtils.isNotBlank(type))
         {
             String fileContent =
                     service.getTemplate(EntityKind.valueOf(kind), type, Boolean
-                            .parseBoolean(autoGenerate));
+                            .parseBoolean(autoGenerate), withExperiments);
             byte[] value = fileContent.getBytes();
             String fileName = kind + "-" + type + "-template.tsv";
             return new FileContent(value, fileName);

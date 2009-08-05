@@ -601,8 +601,8 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns example file format of new entities.
      */
-    public String getTemplate(EntityKind kind, String type, boolean autoGenerate)
-            throws UserFailureException;
+    public String getTemplate(EntityKind kind, String type, boolean autoGenerate,
+            boolean withExperiments) throws UserFailureException;
 
     /**
      * Updates the file format.

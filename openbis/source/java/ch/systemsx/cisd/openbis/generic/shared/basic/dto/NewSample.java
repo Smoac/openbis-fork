@@ -32,11 +32,14 @@ public final class NewSample extends Identifier<NewSample>
     public static final String SAMPLE_REGISTRATION_TEMPLATE_COMMENT =
             "# The \"container\" and \"parent\" columns are optional, only one should be specified. They should contain a sample identifier, e.g. /GROUP/SAMPLE_1\n"
                     + "# If \"container\" sample is provided, the registered sample will become a \"component\" of it.\n"
-                    + "# If \"parent\" sample is provided, the registered sample will become a \"child\" of it.\n";
+                    + "# If \"parent\" sample is provided, the registered sample will become a \"child\" of it.\n"
+                    + "# The \"experiment\" column is optional, cannot be specified for shared samples and should contain experiment identifier, e.g. /GROUP/PROJECT/EXP_1\n";
 
     public static final String CONTAINER = "container";
 
     public static final String PARENT = "parent";
+
+    public static final String EXPERIMENT = "experiment";
 
     private SampleType sampleType;
 
@@ -49,6 +52,11 @@ public final class NewSample extends Identifier<NewSample>
      * The container identifier.
      */
     private String containerIdentifier;
+
+    /**
+     * The experiment identifier.
+     */
+    private String experimentIdentifier;
 
     private IEntityProperty[] properties = IEntityProperty.EMPTY_ARRAY;
 
@@ -107,6 +115,17 @@ public final class NewSample extends Identifier<NewSample>
     public final void setContainerIdentifier(final String container)
     {
         this.containerIdentifier = container;
+    }
+
+    public String getExperimentIdentifier()
+    {
+        return experimentIdentifier;
+    }
+
+    @BeanProperty(label = EXPERIMENT, optional = true)
+    public void setExperimentIdentifier(String experimentIdentifier)
+    {
+        this.experimentIdentifier = experimentIdentifier;
     }
 
     public final IEntityProperty[] getProperties()

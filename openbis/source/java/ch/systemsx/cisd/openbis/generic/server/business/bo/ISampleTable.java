@@ -22,6 +22,7 @@ import java.util.Map;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -63,8 +64,8 @@ public interface ISampleTable
      * Adds given <var>newSample</var> sample to this table.
      */
     public void add(final NewSample newSample, final Map<String, SampleTypePE> sampleTypeCache,
-            final Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache)
-            throws UserFailureException;
+            final Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache,
+            Map<String, ExperimentPE> experimentCache) throws UserFailureException;
 
     /**
      * Writes changed are added data to the Data Access Layers.

@@ -47,7 +47,8 @@ public final class NewSampleParserObjectFactoryTest
         final SampleType sampleType = new SampleType();
         sampleType.setCode("SAMPLE_TYPE");
         final NewSampleParserObjectFactory parserObjectFactory =
-                new NewSampleParserObjectFactory(sampleType, propertyMapper, expectIdentifierInFile);
+                new NewSampleParserObjectFactory(sampleType, propertyMapper,
+                        expectIdentifierInFile, true);
         return parserObjectFactory;
     }
 

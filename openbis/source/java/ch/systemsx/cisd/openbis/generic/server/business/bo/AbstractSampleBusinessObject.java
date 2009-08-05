@@ -21,7 +21,9 @@ import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -31,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -77,11 +80,13 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
      * <p>
      * Does not trigger any insert in the database.
      * </p>
+     * 
+     * @param experimentCacheOrNull
      */
     final SamplePE createSample(final NewSample newSample,
             Map<String, SampleTypePE> sampleTypeCacheOrNull,
-            Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCacheOrNull)
-            throws UserFailureException
+            Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCacheOrNull,
+            Map<String, ExperimentPE> experimentCacheOrNull) throws UserFailureException
     {
         final SampleIdentifier sampleIdentifier =
                 SampleIdentifierFactory.parse(newSample.getIdentifier());
@@ -109,7 +114,26 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                 sampleTypeCacheOrNull.put(newSample.getSampleType().getCode(), sampleTypePE);
             }
         }
+        ExperimentPE experimentPE = null;
+        if (newSample.getExperimentIdentifier() != null)
+        {
+            experimentPE =
+                    (experimentCacheOrNull != null) ? experimentCacheOrNull.get(newSample
+                            .getExperimentIdentifier()) : null;
+            if (experimentPE == null)
+            {
+                ExperimentIdentifier expIdent =
+                        new ExperimentIdentifierFactory(newSample.getExperimentIdentifier())
+                                .createIdentifier();
+                experimentPE = findExperiment(expIdent);
+                if (experimentCacheOrNull != null)
+                {
+                    experimentCacheOrNull.put(newSample.getExperimentIdentifier(), experimentPE);
+                }
+            }
+        }
         final SamplePE samplePE = new SamplePE();
+        samplePE.setExperiment(experimentPE);
         samplePE.setCode(sampleIdentifier.getSampleSubCode());
         samplePE.setRegistrator(findRegistrator());
         samplePE.setSampleType(sampleTypePE);
@@ -212,4 +236,36 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         return project;
     }
 
+    protected static void checkBusinessRules(IEntityPropertiesConverter entityPropertiesConverter,
+            SamplePE sample, IExternalDataDAO externalDataDAO)
+    {
+        entityPropertiesConverter.checkMandatoryProperties(sample.getProperties(), sample
+                .getSampleType());
+        if (hasDatasets(externalDataDAO, sample) && sample.getExperiment() == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "Cannot detach the sample '%s' from the experiment "
+                            + "because there are already datasets attached to the sample.", sample
+                            .getIdentifier());
+        }
+        if (hasDatasets(externalDataDAO, sample) && sample.getGroup() == null)
+        {
+            throw UserFailureException.fromTemplate("Cannot detach the sample '%s' from the group "
+                    + "because there are already datasets attached to the sample.", sample
+                    .getIdentifier());
+        }
+        if (sample.getExperiment() != null
+                && (sample.getGroup() == null || sample.getExperiment().getProject().getGroup()
+                        .equals(sample.getGroup()) == false))
+        {
+            throw new UserFailureException(
+                    "Sample group must be the same as experiment group. Shared samples cannot be attached to experiments.");
+        }
+        SampleGenericBusinessRules.assertValidParents(sample);
+    }
+
+    protected static boolean hasDatasets(IExternalDataDAO externalDataDAO, SamplePE sample)
+    {
+        return SampleUtils.hasDatasets(externalDataDAO, sample);
+    }
 }

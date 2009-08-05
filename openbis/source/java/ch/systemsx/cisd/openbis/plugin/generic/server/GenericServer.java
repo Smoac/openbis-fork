@@ -209,14 +209,6 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         return experimentBO.getExperimentFileAttachment(filename, version);
     }
 
-    public final void registerSamples(final String sessionToken, final SampleType sampleType,
-            final List<NewSample> newSamples) throws UserFailureException
-    {
-        assert sessionToken != null : "Unspecified session token.";
-        final Session session = getSessionManager().getSession(sessionToken);
-        registerSamples(session, new NewSamplesWithTypes(sampleType, newSamples));
-    }
-
     public final void registerSamples(final String sessionToken,
             final List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException
     {

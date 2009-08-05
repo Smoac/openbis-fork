@@ -258,7 +258,7 @@ public final class GenericSampleBatchRegistrationForm extends AbstractRegistrati
                 public void handleEvent(BaseEvent be)
                 {
                     WindowUtils.openWindow(UrlParamsHelper.createTemplateURL(EntityKind.SAMPLE,
-                            sampleType, generateCodesCheckbox.getValue()));
+                            sampleType, generateCodesCheckbox.getValue(), true));
                 }
             });
         return result;

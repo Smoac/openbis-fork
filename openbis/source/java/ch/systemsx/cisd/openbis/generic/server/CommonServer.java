@@ -1240,7 +1240,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     public String getTemplateColumns(String sessionToken, EntityKind entityKind, String type,
-            boolean autoGenerate)
+            boolean autoGenerate, boolean withExperiments)
     {
         List<EntityTypePE> types = new ArrayList<EntityTypePE>();
         if (entityKind.equals(EntityKind.SAMPLE) && SampleType.isDefinedInFileSampleTypeCode(type))
@@ -1255,7 +1255,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         for (EntityTypePE entityType : types)
         {
             String section =
-                    createTemplateForType(entityKind, autoGenerate, entityType, firstSection);
+                    createTemplateForType(entityKind, autoGenerate, entityType, firstSection,
+                            withExperiments);
             if (types.size() != 1)
             {
                 section =
@@ -1273,7 +1274,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     private String createTemplateForType(EntityKind entityKind, boolean autoGenerate,
-            EntityTypePE entityType, boolean addComments)
+            EntityTypePE entityType, boolean addComments, boolean withExperiments)
     {
         List<String> columns = new ArrayList<String>();
         switch (entityKind)
@@ -1285,6 +1286,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
                 }
                 columns.add(NewSample.CONTAINER);
                 columns.add(NewSample.PARENT);
+                if (withExperiments)
+                    columns.add(NewSample.EXPERIMENT);
                 for (SampleTypePropertyTypePE etpt : ((SampleTypePE) entityType)
                         .getSampleTypePropertyTypes())
                 {
