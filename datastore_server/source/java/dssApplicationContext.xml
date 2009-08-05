@@ -53,4 +53,17 @@
     
     <bean id="session-token-manager" class="ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager"/>
     
+    
+    <!-- 
+        // This discovers on-the-fly all <code>org.springframework.aop.Advisor</code> implementations.
+    -->
+    <bean id="bean-post-processor"
+        class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
+
+    <!-- 
+        // Logging
+    -->
+
+    <bean class="ch.systemsx.cisd.common.spring.LogAdvisor" />
+    
 </beans>

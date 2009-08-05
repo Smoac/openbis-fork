@@ -125,29 +125,11 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         String remoteHost = session.getRemoteHost();
         int port = info.getPort();
         final String dssURL = "https://" + remoteHost + ":" + port;
+        checkVersion(dssSessionToken, dssURL);
         IDataStoreDAO dataStoreDAO = daoFactory.getDataStoreDAO();
         DataStorePE dataStore = dataStoreDAO.tryToFindDataStoreByCode(info.getDataStoreCode());
         if (dataStore == null)
         {
-            final IDataStoreService service = dssFactory.create(dssURL);
-            if (operationLog.isInfoEnabled())
-            {
-                operationLog.info("Obtain version of Data Store Server at " + dssURL);
-            }
-            int dssVersion = service.getVersion(dssSessionToken);
-            if (IDataStoreService.VERSION != dssVersion)
-            {
-                String msg =
-                        "Data Store Server version is " + dssVersion + " instead of "
-                                + IDataStoreService.VERSION;
-                notificationLog.error(msg);
-                throw new ConfigurationFailureException(msg);
-            }
-            if (operationLog.isInfoEnabled())
-            {
-                operationLog.info("Data Store Server (version " + dssVersion + ") registered for "
-                        + dssURL);
-            }
             dataStore = new DataStorePE();
             dataStore.setDatabaseInstance(getHomeDatabaseInstance(sessionToken));
         }
@@ -157,6 +139,29 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         dataStore.setSessionToken(dssSessionToken);
         setServices(dataStore, info.getServicesDescriptions(), dataStoreDAO);
         dataStoreDAO.createOrUpdateDataStore(dataStore);
+    }
+
+    private void checkVersion(String dssSessionToken, final String dssURL)
+    {
+        final IDataStoreService service = dssFactory.create(dssURL);
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Obtain version of Data Store Server at " + dssURL);
+        }
+        int dssVersion = service.getVersion(dssSessionToken);
+        if (IDataStoreService.VERSION != dssVersion)
+        {
+            String msg =
+                    "Data Store Server version is " + dssVersion + " instead of "
+                            + IDataStoreService.VERSION;
+            notificationLog.error(msg);
+            throw new ConfigurationFailureException(msg);
+        }
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Data Store Server (version " + dssVersion + ") registered for "
+                    + dssURL);
+        }
     }
 
     private void setServices(DataStorePE dataStore, DatastoreServiceDescriptions serviceDescs,
