@@ -34,13 +34,14 @@ public class OccurrencesMarker
     private final char endMarker;
 
     /** Produces an HTML code whih all occurrences properly marked */
-    public static String markOccurrencesWithHtml(String template, List<String> words, int lineLength)
+    public static String markOccurrencesWithHtml(String template, List<String> words,
+            int lineLength, int blockLength)
     {
         char start = '(';
         char end = ')';
         OccurrencesMarker marker = new OccurrencesMarker(start, end);
         String markedTemplate = marker.mark(template, words);
-        markedTemplate = breakLines(markedTemplate, lineLength, "<br>");
+        markedTemplate = marker.breakLines(markedTemplate, lineLength, "<br>", blockLength, " ");
         markedTemplate = marker.replaceTags(markedTemplate, "<font color='red'>", "</font>");
         return markedTemplate;
     }
@@ -55,19 +56,67 @@ public class OccurrencesMarker
     }
 
     /** split lines, so that each line has lineLength characters at most */
-    static String breakLines(String text, int lineLength, String endOfLine)
+    String breakLines(String text, int lineLength, String endOfLine, int blockLength,
+            String endOfBlock)
     {
         StringBuffer sb = new StringBuffer();
         String textToBreak = text;
-        while (textToBreak.length() > lineLength)
+        while (true)
         {
-            String line = textToBreak.substring(0, lineLength);
+            int breakIndex = calcBreakBeforeIndex(textToBreak, lineLength);
+            if (breakIndex == -1 || breakIndex == textToBreak.length())
+            {
+                break;
+            }
+            String line = textToBreak.substring(0, breakIndex);
+            line = separateBlocks(line, lineLength, blockLength, endOfBlock);
             sb.append(line);
             sb.append(endOfLine);
-            textToBreak = textToBreak.substring(lineLength);
+            textToBreak = textToBreak.substring(breakIndex);
         }
-        sb.append(textToBreak);
+        sb.append(separateBlocks(textToBreak, lineLength, blockLength, endOfBlock));
         return sb.toString();
+    }
+
+    private String separateBlocks(String line, int lineLength, int blockLength, String endOfBlock)
+    {
+        if (blockLength < lineLength)
+        {
+            return separateBlocks(line, blockLength, endOfBlock);
+        } else
+        {
+            return line;
+        }
+    }
+
+    private String separateBlocks(String text, int blockLength, String endOfBlock)
+    {
+        // use the same code as for breaking into lines, ensure that no blocks will be separated
+        return breakLines(text, blockLength, endOfBlock, blockLength + 1, "");
+    }
+
+    // -1 if the text is shorter (ignoring the markers) then the line length
+    private int calcBreakBeforeIndex(String textToBreak, int lineLength)
+    {
+        int counter = 0;
+        for (int i = 0; i < textToBreak.length(); i++)
+        {
+            char ch = textToBreak.charAt(i);
+            if (isMarker(ch) == false)
+            {
+                counter++;
+            }
+            if (counter == lineLength)
+            {
+                return i + 1;
+            }
+        }
+        return -1;
+    }
+
+    private boolean isMarker(char ch)
+    {
+        return ch == startMarker || ch == endMarker;
     }
 
     public OccurrencesMarker(char startMarker, char endMarker)

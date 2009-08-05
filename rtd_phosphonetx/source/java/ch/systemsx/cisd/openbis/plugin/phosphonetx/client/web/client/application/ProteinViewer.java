@@ -63,6 +63,8 @@ public class ProteinViewer extends
 {
     private static final int AMINOACIDS_IN_SEQUENCE_PER_LINE = 60;
 
+    private static final int AMINOACIDS_IN_ONE_BLOCK = 10;
+
     private static final String PREFIX = "protein-viewer_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
@@ -219,7 +221,7 @@ public class ProteinViewer extends
         List<String> peptideSequences = extractSequences(peptides);
         String markedSequence =
                 OccurrencesMarker.markOccurrencesWithHtml(sequence, peptideSequences,
-                        AMINOACIDS_IN_SEQUENCE_PER_LINE);
+                        AMINOACIDS_IN_SEQUENCE_PER_LINE, AMINOACIDS_IN_ONE_BLOCK);
         // the letters should have fixed width
         return getFixedWidthHTMLString(markedSequence);
     }

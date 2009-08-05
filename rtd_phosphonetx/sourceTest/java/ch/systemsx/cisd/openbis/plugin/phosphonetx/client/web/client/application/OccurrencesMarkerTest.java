@@ -69,15 +69,29 @@ public class OccurrencesMarkerTest extends AssertJUnit
     @Test
     public void testBreakLinesLastLineNotFull()
     {
-        String lines = OccurrencesMarker.breakLines("1234567", 3, "x");
-        assertEquals("123x456x7", lines);
+        String lines = createMarker().breakLines("1234567", 3, "x", 1, " ");
+        assertEquals("1 2 3x4 5 6x7", lines);
     }
 
     @Test
     public void testBreakLinesLastLineFull()
     {
-        String lines = OccurrencesMarker.breakLines("123456", 3, "x");
-        assertEquals("123x456", lines);
+        String lines = createMarker().breakLines("123456", 3, "x", 2, " ");
+        assertEquals("12 3x45 6", lines);
+    }
+
+    @Test
+    public void testBreakLinesIgnoreMarkers()
+    {
+        String lines = createMarker().breakLines("1<2>3<4><56><7>", 3, "x", 7, "!");
+        assertEquals("1<2>3x<4><56x><7>", lines);
+    }
+
+    @Test
+    public void testBreakLinesEqualBlocks()
+    {
+        String lines = createMarker().breakLines("12345678", 4, "x", 2, " ");
+        assertEquals("12 34x56 78", lines);
     }
 
     @Test
