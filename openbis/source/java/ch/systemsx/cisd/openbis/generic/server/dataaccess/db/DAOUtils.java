@@ -20,8 +20,8 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.Projections;
 
 /**
- * Utility routines for DAOs. 
- *
+ * Utility routines for DAOs.
+ * 
  * @author Bernd Rinn
  */
 final class DAOUtils
@@ -31,11 +31,11 @@ final class DAOUtils
     {
         // Cannot be instantiated
     }
-    
+
     /**
-     * Don't try to get properties for more than 1000 entities.
+     * Don't try to get properties for more than 10000 entities.
      */
-    final static int MAX_COUNT_FOR_PROPERTIES = 1000;
+    final static int MAX_COUNT_FOR_PROPERTIES = 10000;
 
     /**
      * Returns the number of entities that the given <var>critera</var> will return.
@@ -48,5 +48,5 @@ final class DAOUtils
         criteria.setResultTransformer(Criteria.ROOT_ENTITY);
         return count;
     }
-    
+
 }
