@@ -158,6 +158,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testRegisterDataStoreServerAgain()
     {
         prepareGetSession();
+        prepareGetVersion();
         context.checking(new Expectations()
             {
                 {
@@ -203,22 +204,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testRegisterDataStoreServerWithWrongVersion()
     {
         prepareGetSession();
-        context.checking(new Expectations()
-            {
-                {
-                    one(daoFactory).getDataStoreDAO();
-                    will(returnValue(dataStoreDAO));
-
-                    one(dataStoreDAO).tryToFindDataStoreByCode(DSS_CODE);
-                    will(returnValue(null));
-
-                    one(dssfactory).create(URL);
-                    will(returnValue(dataStoreService));
-
-                    one(dataStoreService).getVersion(DSS_SESSION_TOKEN);
-                    will(returnValue(VERSION + 1));
-                }
-            });
+        prepareGetVersion(VERSION + 1);
 
         try
         {
@@ -232,6 +218,25 @@ public class ETLServiceTest extends AbstractServerTestCase
         }
 
         context.assertIsSatisfied();
+    }
+
+    private void prepareGetVersion()
+    {
+        prepareGetVersion(VERSION);
+    }
+
+    private void prepareGetVersion(final int version)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(dssfactory).create(URL);
+                    will(returnValue(dataStoreService));
+
+                    one(dataStoreService).getVersion(DSS_SESSION_TOKEN);
+                    will(returnValue(version));
+                }
+            });
     }
 
     @Test
