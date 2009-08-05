@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -391,7 +390,7 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         } else
         {
             criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(sampleCode)));
-            criteria.add(Restrictions.isNull(HierarchyType.CONTAINED.getParentFieldName()));
+            criteria.add(Restrictions.isNull("container"));
         }
 
     }
