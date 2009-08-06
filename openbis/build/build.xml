@@ -98,6 +98,7 @@
 		<echo file="${server.dist}/tomcat-version.txt">${tomcat.version}</echo>
 		<copy file="${original.openbis.server.dist}/server.xml" todir="${server.dist}" />
 		<copy file="${original.server.dist}/service.properties" todir="${server.dist}" />
+		<copy file="${original.server.dist}/openbis.conf" todir="${server.dist}" />
 		<copy file="${original.openbis.server.dist}/openBIS.keystore" todir="${server.dist}" />
 		<copy file="${original.openbis.server.dist}/passwd.sh" todir="${server.dist}" />
 		<property name="server.dist.file" value="${server.dist}-${version.number}-r${revision.number}.zip" />
