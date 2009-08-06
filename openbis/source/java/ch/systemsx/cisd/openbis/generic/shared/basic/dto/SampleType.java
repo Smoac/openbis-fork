@@ -32,7 +32,7 @@ public final class SampleType extends EntityType implements IsSerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    public static final String DEFINED_IN_FILE = "(defined in the file)";
+    public static final String DEFINED_IN_FILE = "(multiple)";
 
     private int generatedFromHierarchyDepth;
 
