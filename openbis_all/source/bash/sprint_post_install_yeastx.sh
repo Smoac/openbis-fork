@@ -1,5 +1,6 @@
 #!/bin/bash
 # Finishes sprint installation of yeastx software
+# Warning: all changes to this file should be transfered to SVN repository
 
 function copy_or_die {
   SRC=$1
