@@ -3,8 +3,25 @@
 # Restore a snapshot of an openBIS repository
 # 2009, Bernd Rinn, CISD
 
-DB_NAME="openbis_productive"
-BASE_DIR="$HOME/sprint"
+# resolve links - $0 may be a softlink
+PRG="$0"
+
+while [ -h "$PRG" ] ; do
+  ls=`ls -ld "$PRG"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG=`dirname "$PRG"`/"$link"
+  fi
+done
+ 
+PRGDIR=`dirname "$PRG"`
+source ${PRGDIR}/repos.conf
+if [ -z "$BASE_DIR" -o -z "$DB_NAME" ]; then
+  echo "No BASE_DIR or DB_NAME set, check repos.conf"
+  exit 1
+fi
 
 FNAME="$1"
 if [ "$FNAME" = "" ]; then
