@@ -61,6 +61,20 @@ class LogUtils
         datasetMappingError(mapping.getFileName(), errorMessageFormat, arguments);
     }
 
+    /**
+     * Logs exception which occurred while storing one dataset file. Uses user log file and email
+     * notification.
+     */
+    public void datasetFileError(File dataset, Throwable exception)
+    {
+        String message = exception.getMessage();
+        if (message == null)
+        {
+            message = exception.toString();
+        }
+        datasetFileError(dataset, message);
+    }
+
     /** Logs errors about one dataset file. Uses user log file and email notification. */
     public void datasetFileError(File dataset, String errorMessageFormat, Object... arguments)
     {

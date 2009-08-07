@@ -57,7 +57,7 @@ public final class StorageProcessorWithMLUploader extends AbstractDelegatingStor
     {
         super.unstoreData(incomingDataSetDirectory, storedDataDirectory, exception);
         LogUtils log = new LogUtils(incomingDataSetDirectory.getParentFile());
-        log.datasetFileError(incomingDataSetDirectory, exception.getMessage());
+        log.datasetFileError(incomingDataSetDirectory, exception);
         return UnstoreDataAction.LEAVE_UNTOUCHED;
     }
 }
