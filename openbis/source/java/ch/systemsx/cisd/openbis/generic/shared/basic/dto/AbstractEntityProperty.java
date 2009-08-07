@@ -48,13 +48,20 @@ public abstract class AbstractEntityProperty implements IEntityProperty
         {
             return null;
         }
-        switch (propertyType.getDataType().getCode())
+        DataType dataType = propertyType.getDataType();
+        if (dataType == null)
+        {
+            return getValue();
+        }
+        switch (dataType.getCode())
         {
             case CONTROLLEDVOCABULARY:
-                return (getVocabularyTerm() != null) ? getVocabularyTerm().getCode() : getValue();
+                VocabularyTerm vocabularyTerm = getVocabularyTerm();
+                return (vocabularyTerm != null) ? vocabularyTerm.getCode() : getValue();
             case MATERIAL:
-                return (getMaterial() != null) ? MaterialIdentifier.print(getMaterial().getCode(),
-                        getMaterial().getMaterialType().getCode()) : getValue();
+                Material material = getMaterial();
+                return (material != null) ? MaterialIdentifier.print(material.getCode(), material
+                        .getMaterialType().getCode()) : getValue();
             default:
                 return getValue();
         }
