@@ -5,6 +5,7 @@ function copy_or_die {
   SRC=$1
   DEST=$2
 	if [ -f $SRC ]; then
+		echo Copy $SRC to $DEST
 		cp $SRC $DEST
 	else
 		echo Error: cannot copy $SRC to $DEST, because $SRC does not exist
