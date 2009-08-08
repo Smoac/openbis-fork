@@ -53,8 +53,7 @@ public interface IFIAMSRunDAO extends IGenericDAO
     public void addCentroids(long fiaMsRunId, float[] mz, float[] intensity, float[] correlation);
 
     @Update(sql = "insert into FIA_PROFILES (FIA_MS_RUN_ID, LOW_MZ, HIGH_MZ, MZ, INTENSITIES) "
-            + "values (?{1}, ?{2.lowMz}, ?{2.highMz}, ?{2.mz}, ?{2.intensities})", batchUpdate = true, parameterTypes =
-        { Long.class, ProfileDTO.class })
+            + "values (?{1}, ?{2.lowMz}, ?{2.highMz}, ?{2.mz}, ?{2.intensities})", batchUpdate = true)
     public void addProfiles(long fiaMsRunId, Iterable<ProfileDTO> profiles);
 
     @Select(sql = "select FIA_MS_RUNS.*,count(FIA_PROFILES.*) as profileCount from FIA_MS_RUNS "
