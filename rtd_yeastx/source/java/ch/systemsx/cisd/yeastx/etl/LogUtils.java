@@ -46,12 +46,17 @@ class LogUtils
 
     private final File loggingDir;
 
-    private final StringBuffer errorMessages;
+    // error messages which go only to the user
+    private final StringBuffer userErrorMessages;
+
+    // error messages which go only to the admin
+    private final StringBuffer adminErrorMessages;
 
     public LogUtils(File loggingDir)
     {
         this.loggingDir = loggingDir;
-        this.errorMessages = new StringBuffer();
+        this.userErrorMessages = new StringBuffer();
+        this.adminErrorMessages = new StringBuffer();
     }
 
     /** Logs errors about one dataset mapping. Uses user log file and email notification. */
@@ -102,29 +107,39 @@ class LogUtils
     /** Uses user log file and email notification to log an error. */
     public void error(String messageFormat, Object... arguments)
     {
-        logError(loggingDir, messageFormat, arguments);
-        appendNotification(messageFormat, arguments);
+        logError(messageFormat, arguments);
+        appendUserNotification(messageFormat, arguments);
     }
 
     /** Uses user log file and email notification to log a warning. */
     public void warning(String messageFormat, Object... arguments)
     {
-        logWarning(loggingDir, messageFormat, arguments);
-        appendNotification(messageFormat, arguments);
+        logWarning(messageFormat, arguments);
+        appendUserNotification(messageFormat, arguments);
     }
 
-    private void appendNotification(String messageFormat, Object... arguments)
+    private void appendUserNotification(String messageFormat, Object... arguments)
     {
-        errorMessages.append(String.format(messageFormat, arguments));
-        errorMessages.append("\r\n");
+        appendNotification(userErrorMessages, messageFormat, arguments);
     }
 
-    /** has to be called at the end to send all notifications in one email */
+    private void appendNotification(StringBuffer messages, String messageFormat,
+            Object... arguments)
+    {
+        messages.append(String.format(messageFormat, arguments));
+        messages.append("\r\n");
+    }
+
+    /** has to be called at the end to send all notifications in one email to the user and/or admin */
     public void sendNotificationsIfNecessary(IMailClient mailClient, String notificationEmailOrNull)
     {
-        if (notificationEmailOrNull != null && errorMessages.length() > 0)
+        if (notificationEmailOrNull != null && userErrorMessages.length() > 0)
         {
             sendErrorMessage(mailClient, notificationEmailOrNull);
+        }
+        if (adminErrorMessages.length() > 0)
+        {
+            notificationLog.error(adminErrorMessages.toString());
         }
     }
 
@@ -142,7 +157,7 @@ class LogUtils
         sb.append("The upload of some datasets from '");
         sb.append(loggingDir.getName());
         sb.append("' directory has failed.\nThere are following errors:\n");
-        sb.append(errorMessages);
+        sb.append(userErrorMessages);
         sb.append("\n");
         sb.append("If you are not sure how to correct the errors and you cannot find the answer"
                 + " in the documentation, ask for help your openBIS administrator.\n\n");
@@ -151,21 +166,21 @@ class LogUtils
         return sb.toString();
     }
 
-    /** Adds an entry about an error to the user log file. Does not send an email. */
-    private static void logError(File loggingDir, String messageFormat, Object... arguments)
+    /** Adds an entry about an error to the user log file. Does not send an email to the user. */
+    private void logError(String messageFormat, Object... arguments)
     {
         String message = createUserMessage("ERROR", messageFormat, arguments);
-        notifyUserByLogFile(loggingDir, message);
+        notifyUserByLogFile(message);
     }
 
-    /** Adds an entry about a warning to the user log file. Does not send an email. */
-    private static void logWarning(File loggingDir, String messageFormat, Object... arguments)
+    /** Adds an entry about a warning to the user log file. Does not send an email to the user. */
+    private void logWarning(String messageFormat, Object... arguments)
     {
         String message = createUserMessage("WARNING", messageFormat, arguments);
-        notifyUserByLogFile(loggingDir, message);
+        notifyUserByLogFile(message);
     }
 
-    private static void notifyUserByLogFile(File loggingDir, String message)
+    private void notifyUserByLogFile(String message)
     {
         OutputStream output;
         try
@@ -192,9 +207,9 @@ class LogUtils
         return new File(loggingDir, ConstantsYeastX.USER_LOG_FILE);
     }
 
-    public static void adminError(String messageFormat, Object... arguments)
+    public void adminError(String messageFormat, Object... arguments)
     {
-        notificationLog.error(format(messageFormat, arguments));
+        appendNotification(adminErrorMessages, messageFormat, arguments);
     }
 
     public static void adminWarn(String messageFormat, Object... arguments)

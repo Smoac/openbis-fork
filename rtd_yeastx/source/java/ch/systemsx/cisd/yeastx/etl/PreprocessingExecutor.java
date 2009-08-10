@@ -20,13 +20,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.process.CallableExecutor;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
 /**
  * A class which is configured from properties and is able to execute a script from the command line
@@ -43,12 +46,21 @@ public class PreprocessingExecutor
      */
     public final static String PREPROCESSING_SCRIPT_PATH = "preprocessing-script";
 
+    public final static String PREPROCESSING_SCRIPT_RETRIES = "preprocessing-script-max-retries";
+
+    public final static String PREPROCESSING_SCRIPT_FAILURE_INTERVAL_IN_SEC =
+            "preprocessing-script-failure-interval";
+
     public static PreprocessingExecutor create(Properties properties)
     {
         String preprocessingScriptPath = properties.getProperty(PREPROCESSING_SCRIPT_PATH);
+        int maxRetriesOnFailure = PropertyUtils.getInt(properties, PREPROCESSING_SCRIPT_RETRIES, 0);
+        int millisToSleepOnFailure =
+                PropertyUtils.getInt(properties, PREPROCESSING_SCRIPT_FAILURE_INTERVAL_IN_SEC, 0) * 1000;
         if (preprocessingScriptPath != null)
         {
-            return new PreprocessingExecutor(preprocessingScriptPath);
+            return new PreprocessingExecutor(preprocessingScriptPath, maxRetriesOnFailure,
+                    millisToSleepOnFailure);
         } else
         {
             throw EnvironmentFailureException.fromTemplate("Property '%s' is not set!",
@@ -58,14 +70,34 @@ public class PreprocessingExecutor
 
     private final String preprocessingScriptPath;
 
-    private PreprocessingExecutor(String preprocessingScriptPath)
+    private final int maxRetriesOnFailure;
+
+    private final long millisToSleepOnFailure;
+
+    private PreprocessingExecutor(String preprocessingScriptPath, int maxRetriesOnFailure,
+            long millisToSleepOnFailure)
     {
         this.preprocessingScriptPath = preprocessingScriptPath;
+        this.maxRetriesOnFailure = maxRetriesOnFailure;
+        this.millisToSleepOnFailure = millisToSleepOnFailure;
     }
 
-    public boolean execute(String filePath)
+    public boolean execute(final String filePath)
     {
-        return callScript(preprocessingScriptPath, getClass(), filePath);
+        Object result =
+                new CallableExecutor(maxRetriesOnFailure, millisToSleepOnFailure)
+                        .executeCallable(new Callable<Object>()
+                            {
+                                // returns null on error, non-null on success
+                                public Object call() throws Exception
+                                {
+                                    boolean ok =
+                                            callScript(preprocessingScriptPath, getClass(),
+                                                    filePath);
+                                    return ok ? true : null;
+                                }
+                            });
+        return (result != null);
     }
 
     private static boolean callScript(String scriptPath, Class<?> logClass, String... args)

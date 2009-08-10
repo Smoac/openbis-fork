@@ -110,11 +110,12 @@ public class BatchDataSetHandler implements IDataSetHandler
         boolean ok = writeAccessSetter.execute(batchDir.getName());
         if (ok == false)
         {
-            log.error("No datasets from '%s' directory can be processed because "
-                    + "the try to acquire write access by openBIS has failed. "
-                    + "Try again or contact your administrator.", batchDir.getName());
-            LogUtils.adminError("failed to execute the preprocessing script for '%s' directory",
-                    batchDir.getName());
+            String errorMsg =
+                    String.format("No datasets from '%s' directory can be processed because "
+                            + "the try to acquire write access by openBIS has failed.", batchDir
+                            .getName());
+            log.error(errorMsg + " Try again or contact your administrator.");
+            log.adminError(errorMsg);
         }
         return ok;
     }
@@ -132,7 +133,7 @@ public class BatchDataSetHandler implements IDataSetHandler
             unknownMappings.remove(file.getName().toLowerCase());
             // we have already tries to acquire write access to all files in batch directory,
             // but some new files may have appeared since that time.
-            boolean isWritable = acquireWriteAccess(batchDir, file);
+            boolean isWritable = acquireWriteAccess(batchDir, file, log);
             if (isWritable == false)
             {
                 logNonWritable(file, log);
@@ -188,7 +189,7 @@ public class BatchDataSetHandler implements IDataSetHandler
 
     // Acquires write access if the file is not writable.
     // Returns true if file is writable afterwards.
-    private boolean acquireWriteAccess(File batchDir, File file)
+    private boolean acquireWriteAccess(File batchDir, File file, LogUtils log)
     {
         if (isWritable(batchDir) == false)
         {
@@ -197,7 +198,7 @@ public class BatchDataSetHandler implements IDataSetHandler
             boolean ok = writeAccessSetter.execute(path);
             if (ok == false)
             {
-                LogUtils.adminError("Cannot acquire write access to '%s' "
+                log.adminError("Cannot acquire write access to '%s' "
                         + "because write access setter failed", path);
             }
             return isWritable(batchDir);
@@ -293,8 +294,9 @@ public class BatchDataSetHandler implements IDataSetHandler
         }
         if (ok == false)
         {
-            LogUtils.adminError("Could not create an error marker file '%s'.", errorMarkerFile
-                    .getPath());
+            log
+                    .adminError("Could not create an error marker file '%s'.", errorMarkerFile
+                            .getPath());
         } else
         {
             log.warning("Correct the errors and delete the '%s' file to start processing again.",
@@ -333,7 +335,7 @@ public class BatchDataSetHandler implements IDataSetHandler
         boolean ok = dir.delete();
         if (ok == false)
         {
-            LogUtils.adminError(
+            LogUtils.adminWarn(
                     "The directory '%s' cannot be deleted although it seems to be empty.", dir
                             .getPath());
         }
