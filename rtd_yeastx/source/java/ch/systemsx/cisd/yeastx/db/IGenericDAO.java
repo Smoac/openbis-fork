@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.yeastx.db;
 
+import java.util.List;
+
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
+import net.lemnik.eodsql.Update;
 
 /**
  * Interface for the "generic" methods (i.e. experiment, sample and data set).
@@ -58,5 +61,8 @@ public interface IGenericDAO extends TransactionQuery
     @Select("insert into DATA_SETS (PERM_ID, EXPE_ID, SAMP_ID) values "
             + "(?{1.permId}, ?{1.experiment.id}, ?{1.sample.id}) returning ID")
     public long addDataSet(DMDataSetDTO dataSet);
+    
+    @Update(sql = "delete from DATA_SETS where PERM_ID=?{1.permId}", batchUpdate = true)
+    public void deleteDataSets(List<DMDataSetDTO> dataSets);
 
 }
