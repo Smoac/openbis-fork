@@ -247,6 +247,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
 
     public final List<SamplePE> getSamples()
     {
+        editedExistingSamples = true; // As we hand them out, we are out of control on whether they are edited
         return samples;
     }
 
@@ -288,6 +289,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             throwException(ex, String.format("One of samples"));
         }
         dataChanged = false;
+        editedExistingSamples = false;
     }
 
     private void checkBusinessRules()
@@ -296,7 +298,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
                 new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
         for (SamplePE s : samples)
         {
-            checkBusinessRules(entityPropertiesConverter, s, getExternalDataDAO(), cache);
+            checkBusinessRules(s, getExternalDataDAO(), cache);
         }
     }
 

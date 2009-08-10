@@ -74,6 +74,13 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
     // IExternalDataDAO
     //
 
+    public boolean hasExternalData(SamplePE sample) throws DataAccessException
+    {
+        final DetachedCriteria criteria = DetachedCriteria.forClass(ExternalDataPE.class);
+        criteria.add(Restrictions.eq("sampleInternal", sample));
+        return getHibernateTemplate().findByCriteria(criteria, 0, 1).size() > 0;
+    }
+
     public final List<ExternalDataPE> listExternalData(final SamplePE sample)
             throws DataAccessException
     {
@@ -243,4 +250,5 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         }
         super.delete(entity);
     }
+
 }

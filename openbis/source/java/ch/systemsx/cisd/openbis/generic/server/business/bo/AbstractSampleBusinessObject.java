@@ -51,6 +51,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusinessObject
 {
     protected final IEntityPropertiesConverter entityPropertiesConverter;
+    
+    protected boolean editedExistingSamples = false;
 
     AbstractSampleBusinessObject(final IDAOFactory daoFactory, final Session session)
     {
@@ -238,24 +240,26 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         return project;
     }
 
-    protected static void checkBusinessRules(IEntityPropertiesConverter entityPropertiesConverter,
-            SamplePE sample, IExternalDataDAO externalDataDAO,
+    protected void checkBusinessRules(SamplePE sample, IExternalDataDAO externalDataDAO,
             Map<EntityTypePE, List<EntityTypePropertyTypePE>> cacheOrNull)
     {
         if (cacheOrNull != null)
+        {
             entityPropertiesConverter.checkMandatoryProperties(sample.getProperties(), sample
                     .getSampleType(), cacheOrNull);
-        else
+        } else {
             entityPropertiesConverter.checkMandatoryProperties(sample.getProperties(), sample
                     .getSampleType());
-        if (hasDatasets(externalDataDAO, sample) && sample.getExperiment() == null)
+        }
+        final boolean hasDatasets = hasDatasets(externalDataDAO, sample); 
+        if (hasDatasets && sample.getExperiment() == null)
         {
             throw UserFailureException.fromTemplate(
                     "Cannot detach the sample '%s' from the experiment "
                             + "because there are already datasets attached to the sample.", sample
                             .getIdentifier());
         }
-        if (hasDatasets(externalDataDAO, sample) && sample.getGroup() == null)
+        if (hasDatasets && sample.getGroup() == null)
         {
             throw UserFailureException.fromTemplate("Cannot detach the sample '%s' from the group "
                     + "because there are already datasets attached to the sample.", sample
@@ -271,8 +275,9 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         SampleGenericBusinessRules.assertValidParents(sample);
     }
 
-    protected static boolean hasDatasets(IExternalDataDAO externalDataDAO, SamplePE sample)
+    protected boolean hasDatasets(IExternalDataDAO externalDataDAO, SamplePE sample)
     {
-        return SampleUtils.hasDatasets(externalDataDAO, sample);
+        // If we just added new data sets in this BO, they won't have data sets, so no need to check.
+        return editedExistingSamples && SampleUtils.hasDatasets(externalDataDAO, sample);
     }
 }

@@ -16,12 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.util;
 
-import java.util.List;
-
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
@@ -42,14 +39,11 @@ public class SampleUtils
         }
     }
 
-    // TODO 2009-05-08, Piotr Buczek: improve performance
     public static boolean hasDatasets(IExternalDataDAO externalDataDAO, SamplePE sample)
     {
         assert sample != null;
 
-        final List<ExternalDataPE> list = externalDataDAO.listExternalData(sample); 
-        
-        return list.isEmpty() == false;
+        return externalDataDAO.hasExternalData(sample); 
     }
 
     /** for all experiment samples which belonged to a group the specified group will be set */

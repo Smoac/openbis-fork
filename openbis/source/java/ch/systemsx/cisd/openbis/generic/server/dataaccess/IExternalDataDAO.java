@@ -34,6 +34,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public interface IExternalDataDAO extends IGenericDAO<ExternalDataPE>
 {
     /**
+     * Checks whether the <var>sample</var> has external data.
+     * 
+     * @returns list of {@link ExternalDataPE}s that are related to given {@link SamplePE}.
+     */
+    public boolean hasExternalData(final SamplePE sample) throws DataAccessException;
+
+    /**
      * List the {@link ExternalDataPE} for given <var>sample</var>.
      * 
      * @returns list of {@link ExternalDataPE}s that are related to given {@link SamplePE}.
