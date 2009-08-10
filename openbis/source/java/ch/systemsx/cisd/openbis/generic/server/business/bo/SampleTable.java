@@ -112,6 +112,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
 
     public final void loadSamplesByCriteria(final ListSamplesByPropertyCriteria criteria)
     {
+        onlyNewSamples = false;
         GroupPE group = findGroup(criteria.getGroupCode());
         List<SamplePE> foundSamples =
                 getSampleDAO().listSamplesByGroupAndProperty(criteria.getPropertyCode(),
@@ -200,6 +201,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
 
     public final void loadSamplesByCriteria(final ListSampleCriteriaDTO criteria)
     {
+        onlyNewSamples = false;
         final TechId containerSampleId = criteria.getContainerSampleId();
         final TechId experimentId = criteria.getExperimentId();
         if (experimentId != null)
@@ -247,7 +249,6 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
 
     public final List<SamplePE> getSamples()
     {
-        editedExistingSamples = true; // As we hand them out, we are out of control on whether they are edited
         return samples;
     }
 
@@ -289,7 +290,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             throwException(ex, String.format("One of samples"));
         }
         dataChanged = false;
-        editedExistingSamples = false;
+        onlyNewSamples = false;
     }
 
     private void checkBusinessRules()

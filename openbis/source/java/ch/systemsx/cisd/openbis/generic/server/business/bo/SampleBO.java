@@ -108,6 +108,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
 
     public void loadDataByTechId(TechId sampleId)
     {
+        onlyNewSamples = false;
         tryToLoadBySampleTechId(sampleId);
         if (sample == null)
         {
@@ -115,7 +116,6 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
                     sampleId));
         }
         dataChanged = false;
-        editedExistingSamples = false;
     }
 
     public final void loadBySampleIdentifier(final SampleIdentifier identifier)
@@ -166,7 +166,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
 
         sample = createSample(newSample, null, null, null);
         dataChanged = true;
-        editedExistingSamples = false;
+        onlyNewSamples = true;
     }
 
     public final void save()
@@ -182,7 +182,6 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
                 throwException(ex, String.format("Sample '%s'", sample.getSampleIdentifier()));
             }
             dataChanged = false;
-            editedExistingSamples = false;
         }
         if (attachments.isEmpty() == false)
         {
@@ -202,6 +201,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             attachments.clear();
         }
         checkBusinessRules(sample, getExternalDataDAO(), null);
+        onlyNewSamples = false;
     }
 
     public void setExperiment(ExperimentPE experiment)
@@ -277,7 +277,6 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             addAttachment(a);
         }
         dataChanged = true;
-        editedExistingSamples = true;
     }
 
     private void updateGroup(SampleOwnerIdentifier sampleOwnerIdentifier)

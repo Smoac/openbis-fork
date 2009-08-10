@@ -21,7 +21,6 @@ import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.E
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -635,8 +634,8 @@ public final class SampleBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(externalDataDAO).listExternalData(with(sample));
-                    will(returnValue(Arrays.asList(new ExternalDataPE())));
+                    allowing(externalDataDAO).hasExternalData(with(sample));
+                    will(returnValue(true));
                 }
             });
         ExperimentIdentifier experimentIdentifier = null;
@@ -674,8 +673,8 @@ public final class SampleBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(externalDataDAO).listExternalData(with(sample));
-                    will(returnValue(new ArrayList<ExternalDataPE>()));
+                    allowing(externalDataDAO).hasExternalData(with(sample));
+                    will(returnValue(false));
                 }
             });
     }

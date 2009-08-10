@@ -52,7 +52,11 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
 {
     protected final IEntityPropertiesConverter entityPropertiesConverter;
     
-    protected boolean editedExistingSamples = false;
+    /**
+     * Whether this object works with only new samples (that is: not yet saved into the database)
+     * right now.
+     */
+    protected boolean onlyNewSamples = true;
 
     AbstractSampleBusinessObject(final IDAOFactory daoFactory, final Session session)
     {
@@ -278,6 +282,6 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     protected boolean hasDatasets(IExternalDataDAO externalDataDAO, SamplePE sample)
     {
         // If we just added new data sets in this BO, they won't have data sets, so no need to check.
-        return editedExistingSamples && SampleUtils.hasDatasets(externalDataDAO, sample);
+        return (onlyNewSamples == false) && SampleUtils.hasDatasets(externalDataDAO, sample);
     }
 }
