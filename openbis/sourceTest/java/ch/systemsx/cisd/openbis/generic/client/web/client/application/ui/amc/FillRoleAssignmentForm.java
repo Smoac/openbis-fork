@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2009 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,22 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RoleAssignmentGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AuthorizationGroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractSaveDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension for assigning a role to a person.
+ * Wait until all fields are loaded and fill role assignment form.
  * 
- * @author Christian Ribeaud
+ * @author Izabela Adamczyk
  */
-public final class CreateRoleAssignment extends CheckTableCommand
+public class FillRoleAssignmentForm extends AbstractDefaultTestCommand
 {
 
     private final String groupNameOrNull;
@@ -39,40 +40,39 @@ public final class CreateRoleAssignment extends CheckTableCommand
 
     private final String roleNameOrNull;
 
-    public CreateRoleAssignment(final String groupNameOrNull, final String personName,
+    public FillRoleAssignmentForm(final String groupNameOrNull, final String personName,
             final String roleNameOrNull)
     {
-        super(RoleAssignmentGrid.GRID_ID);
+        super(PersonSelectionWidget.ListItemsCallback.class);
         assert groupNameOrNull == null && roleNameOrNull == null || groupNameOrNull != null
                 && roleNameOrNull != null;
+        addCallbackClass(GroupSelectionWidget.ListGroupsCallback.class);
+        addCallbackClass(AuthorizationGroupSelectionWidget.ListItemsCallback.class);
         this.groupNameOrNull = groupNameOrNull;
         this.personName = personName;
         this.roleNameOrNull = roleNameOrNull;
     }
 
-    //
-    // AbstractDefaultTestCommand
-    //
-
-    @Override
-    public final void execute()
+    public void execute()
     {
-        GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, RoleAssignmentGrid.BROWSER_ID
-                + MainTabPanel.TAB_SUFFIX);
-        GWTTestUtil.clickButtonWithID(RoleAssignmentGrid.ASSIGN_BUTTON_ID);
         final RoleListBox listBox =
                 (RoleListBox) GWTTestUtil.getListBoxWithID(AddRoleAssignmentDialog.ROLE_FIELD_ID);
         if (groupNameOrNull != null)
         {
-            GWTTestUtil.getTextFieldWithID(AddRoleAssignmentDialog.GROUP_FIELD_ID).setValue(
+            String groupSelectorId =
+                    GroupSelectionWidget.ID + GroupSelectionWidget.SUFFIX
+                            + AddRoleAssignmentDialog.PREFIX;
+            GWTTestUtil.selectValueInSelectionWidget(groupSelectorId, ModelDataPropertyNames.CODE,
                     groupNameOrNull);
             GWTUtils.setSelectedItem(listBox, roleNameOrNull);
         } else
         {
             GWTUtils.setSelectedItem(listBox, RoleSetCode.INSTANCE_ADMIN.toString());
         }
-        GWTTestUtil.getTextFieldWithID(AddRoleAssignmentDialog.PERSON_FIELD_ID)
-                .setValue(personName);
+        GWTTestUtil.selectValueInSelectionWidget(PersonSelectionWidget.ID
+                + PersonSelectionWidget.SUFFIX + AddRoleAssignmentDialog.PREFIX,
+                ModelDataPropertyNames.CODE, personName);
         GWTTestUtil.clickButtonWithID(AbstractSaveDialog.SAVE_BUTTON_ID);
     }
+
 }

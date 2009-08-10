@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PagingToolBarAdapter;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
 /**
  * Useful static methods for testing.
@@ -92,6 +93,13 @@ public final class GWTTestUtil
         final Button button = (Button) widget;
         assertTrue("Button '" + id + "' is not enabled.", button.isEnabled());
         button.fireEvent(Events.Select);
+    }
+
+    public final static void selectValueInSelectionWidget(String selectionWidgetId,
+            String modelPropertyToSelectBy, String value)
+    {
+        final ComboBox<?> selector = (ComboBox<?>) GWTTestUtil.getWidgetWithID(selectionWidgetId);
+        GWTUtils.setSelectedItem(selector, modelPropertyToSelectBy, value);
     }
 
     /**

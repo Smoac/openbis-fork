@@ -601,4 +601,14 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void updateAuthorizationGroup(AuthorizationGroupUpdates updates,
             AsyncCallback<Void> registrationCallback);
+
+    /**
+     * @see ICommonClientService#listPersons()
+     */
+    public void listPersons(AsyncCallback<List<Person>> callback);
+
+    /**
+     * @see ICommonClientService#listAuthorizationGroups()
+     */
+    public void listAuthorizationGroups(AsyncCallback<List<AuthorizationGroup>> callback);
 }

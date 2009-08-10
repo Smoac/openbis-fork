@@ -89,7 +89,7 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
         this.reloadWhenRendering = reloadWhenRendering;
         this.viewContextOrNull = viewContextOrNull;
 
-        setId(ID + idSuffix);
+        setId(createId(idSuffix));
         setEnabled(true);
         setValidateOnBlur(true);
         setAllowBlank(mandatory == false);
@@ -97,6 +97,11 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
         setDisplayField(displayField);
         setFieldLabel(label);
         setStore(new ListStore<M>());
+    }
+
+    private static String createId(String idSuffix)
+    {
+        return ID + idSuffix;
     }
 
     public DatabaseModificationAwareField<M> asDatabaseModificationAware()
@@ -176,6 +181,7 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
             List<M> convertedItems = convertItems(result);
             updateStore(convertedItems);
         }
+
     }
 
     protected final void updateStore(final List<M> models)

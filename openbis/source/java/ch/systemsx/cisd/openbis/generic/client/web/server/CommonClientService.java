@@ -644,7 +644,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    private List<AuthorizationGroup> listAuthorizationGroups()
+    public List<AuthorizationGroup> listAuthorizationGroups()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try

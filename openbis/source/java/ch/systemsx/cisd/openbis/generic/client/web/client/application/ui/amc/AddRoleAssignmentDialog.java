@@ -16,20 +16,25 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
+import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AuthorizationGroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 
 /**
@@ -41,17 +46,13 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
 {
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private static final String PREFIX = "add-role_";
+    static final String PREFIX = GenericConstants.ID_PREFIX + "add-role_";
 
-    static final String GROUP_FIELD_ID = GenericConstants.ID_PREFIX + PREFIX + "group-field";
+    static final String ROLE_FIELD_ID = PREFIX + "role-field";
 
-    static final String PERSON_FIELD_ID = GenericConstants.ID_PREFIX + PREFIX + "person-field";
+    private final GroupSelectionWidget group;
 
-    static final String ROLE_FIELD_ID = GenericConstants.ID_PREFIX + PREFIX + "role-field";
-
-    private final TextField<String> group;
-
-    private final TextField<String> user;
+    private final PersonSelectionWidget person;
 
     private final AdapterField roleBox;
 
@@ -59,15 +60,16 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
 
     private Radio personRadio;
 
+    private AuthorizationGroupSelectionWidget authGroup;
+
     public AddRoleAssignmentDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
             final IDelegatedAction postRegistrationCallback)
     {
-        super(viewContext, "Assign a Role to a Person", postRegistrationCallback);
+        super(viewContext, "Assign authorization role to the user or the group of users", postRegistrationCallback);
         this.viewContext = viewContext;
 
-        group = new VarcharField("Group", true);
+        group = new GroupSelectionWidget(viewContext, PREFIX, false);
         group.setWidth(100);
-        group.setId(GROUP_FIELD_ID);
 
         roleBox = new AdapterField(new RoleListBox(group));
         roleBox.setFieldLabel("Role");
@@ -79,7 +81,7 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
         RadioGroup radioGroup = new RadioGroup();
         radioGroup.setFieldLabel("Grantee Type");
         authGroupRadio = new Radio();
-        authGroupRadio.setBoxLabel("Authorization Group");
+        authGroupRadio.setBoxLabel("User Group");
 
         personRadio = new Radio();
         personRadio.setBoxLabel("Person");
@@ -90,27 +92,64 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
 
         addField(radioGroup);
 
-        user = new VarcharField("Grantee Id", true);
-        user.setWidth(100);
-        user.setId(PERSON_FIELD_ID);
-        addField(user);
+        person = new PersonSelectionWidget(viewContext, PREFIX);
+        FieldUtil.markAsMandatory(person);
+        addField(person);
+
+        authGroup = new AuthorizationGroupSelectionWidget(viewContext, PREFIX);
+        FieldUtil.markAsMandatory(authGroup);
+        addField(authGroup);
+
+        updateVisibleField(personRadio.getValue(), authGroupRadio.getValue(), person, authGroup);
+
+        radioGroup.addListener(Events.Change, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    updateVisibleField(personRadio.getValue(), authGroupRadio.getValue(), person,
+                            authGroup);
+                }
+            });
+    }
+
+    protected void updateVisibleField(boolean personSelected, boolean authGroupSelected,
+            PersonSelectionWidget personField, AuthorizationGroupSelectionWidget authGroupField)
+    {
+        if (personSelected ^ authGroupSelected)
+        {
+            personField.setEnabled(personSelected);
+            personField.setVisible(personSelected);
+            authGroupField.setEnabled(authGroupSelected);
+            authGroupField.setVisible(authGroupSelected);
+            if (personSelected)
+            {
+                personField.validate();
+                authGroupField.clearInvalid();
+            } else
+            {
+                personField.clearInvalid();
+                authGroupField.validate();
+            }
+        }
     }
 
     @Override
     protected void register(AsyncCallback<Void> registrationCallback)
     {
         Grantee grantee =
-                personRadio.getValue() ? Grantee.createPerson(user.getValue()) : Grantee
-                        .createAuthorizationGroup(user.getValue());
+                personRadio.getValue() ? Grantee.createPerson(person.tryGetSelectedPersonCode())
+                        : Grantee.createAuthorizationGroup(authGroup
+                                .tryGetSelectedAuthorizationGroupCode());
 
-        if (StringUtils.isBlank(group.getValue()))
+        if (((RoleListBox) roleBox.getWidget()).getValue().isGroupLevel() == false)
         {
             viewContext.getService().registerInstanceRole(
                     ((RoleListBox) roleBox.getWidget()).getValue(), grantee, registrationCallback);
         } else
         {
+            Group groupOrNull = group.tryGetSelectedGroup();
             viewContext.getService().registerGroupRole(
-                    ((RoleListBox) roleBox.getWidget()).getValue(), group.getValue(), grantee,
+                    ((RoleListBox) roleBox.getWidget()).getValue(), groupOrNull.getCode(), grantee,
                     registrationCallback);
         }
     }

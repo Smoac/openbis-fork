@@ -16,11 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 
@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
  */
 public class RoleListBox extends ListBox
 {
-    public RoleListBox(final TextField<String> groupField)
+    public RoleListBox(final GroupSelectionWidget group)
     {
         RoleSetCode[] values = RoleSetCode.values();
         for (RoleSetCode visibleRoleCode : values)
@@ -49,8 +49,8 @@ public class RoleListBox extends ListBox
                 public final void onChange(final Widget sender)
                 {
                     boolean groupLevel = RoleSetCode.values()[getSelectedIndex()].isGroupLevel();
-                    FieldUtil.setMandatoryFlag(groupField, groupLevel);
-                    groupField.setVisible(groupLevel);
+                    FieldUtil.setMandatoryFlag(group, groupLevel);
+                    group.setVisible(groupLevel);
                 }
             });
 

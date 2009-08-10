@@ -119,6 +119,11 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
+     * Returns a list of persons registered in given database instance.
+     */
+    public List<Person> listPersons() throws UserFailureException;
+
+    /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for persons.
      */
     public String prepareExportPersons(final TableExportCriteria<Person> criteria)
@@ -665,6 +670,11 @@ public interface ICommonClientService extends IClientService
      */
     public ResultSet<AuthorizationGroup> listAuthorizationGroups(
             DefaultResultSetConfig<String, AuthorizationGroup> resultSetConfig);
+
+    /**
+     * Returns a list of authorization groups registered in given database instance.
+     */
+    public List<AuthorizationGroup> listAuthorizationGroups() throws UserFailureException;
 
     /**
      * Creates a new authorization group.

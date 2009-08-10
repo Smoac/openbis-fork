@@ -23,7 +23,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.Che
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CreateGroup;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CreatePerson;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CreateRoleAssignment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.FillRoleAssignmentForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.OpenRoleAssignmentDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.RoleAssignmentRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GroupColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PersonColDefKind;
@@ -76,7 +77,8 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
     {
         loginAndInvokeAction(ActionMenuKind.AUTHORIZATION_MENU_ROLES);
 
-        remoteConsole.prepare(new CreateRoleAssignment(TEST_GROUP.toUpperCase(), USER_ID,
+        remoteConsole.prepare(new OpenRoleAssignmentDialog());
+        remoteConsole.prepare(new FillRoleAssignmentForm(TEST_GROUP.toUpperCase(), USER_ID,
                 RoleSetCode.OBSERVER.toString()));
         final CheckRoleAssignmentTable table = new CheckRoleAssignmentTable();
         table.expectedRow(new RoleAssignmentRow(TEST_GROUP.toUpperCase(), USER_ID,
