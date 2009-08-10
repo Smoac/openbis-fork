@@ -201,7 +201,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         StringBuilder sb = new StringBuilder();
         for (NewSamplesWithTypes s : newSamplesWithType)
         {
-            if (sb.length() == 0)
+            if (sb.length() > 0)
             {
                 sb.append(",");
             }
