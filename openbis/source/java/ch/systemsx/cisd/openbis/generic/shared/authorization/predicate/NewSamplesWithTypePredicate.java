@@ -45,7 +45,7 @@ public final class NewSamplesWithTypePredicate extends AbstractPredicate<NewSamp
     @Override
     public final Status doEvaluation(final PersonPE person,
             final List<RoleWithIdentifier> allowedRoles, final NewSamplesWithTypes value)
-    {// FIXME : add tests
+    {
         Status s = Status.OK;
         for (NewSample sample : value.getNewSamples())
         {
@@ -58,6 +58,13 @@ public final class NewSamplesWithTypePredicate extends AbstractPredicate<NewSamp
             }
         }
         return s;
+    }
+
+    // for tests only
+    @Deprecated
+    NewSamplesWithTypePredicate(IPredicate<SampleOwnerIdentifier> delegate)
+    {
+        this.delegate = delegate;
     }
 
     public NewSamplesWithTypePredicate()
