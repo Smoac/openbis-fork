@@ -16,18 +16,23 @@
 
 package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+
 final class ProteinDescription
 {
     static final String DESCRIPTION_KEY = "DE";
+
     static final String SEQUENCE_KEY = "SEQ";
-    
+
     static String createKeyValuePair(String key, String value)
     {
         return "\\" + key + "=" + value;
     }
-    
+
     private final String uniprotID;
+
     private final String description;
+
     private final String sequence;
 
     public ProteinDescription(String proteinDescription)
@@ -36,8 +41,19 @@ final class ProteinDescription
         uniprotID = tryToGetUniprotID(items);
         description = tryToGetValue(items, DESCRIPTION_KEY);
         sequence = tryToGetValue(items, SEQUENCE_KEY);
+        if (uniprotID == null)
+        {
+            throw new UserFailureException("Cannot find a uniprotId in a protein description: "
+                    + proteinDescription);
+        }
+        if (sequence == null)
+        {
+            throw new UserFailureException(
+                    "Cannot find a protein sequence in a protein description: "
+                            + proteinDescription);
+        }
     }
-    
+
     public final String getUniprotID()
     {
         return uniprotID;
@@ -55,9 +71,9 @@ final class ProteinDescription
 
     private String tryToGetUniprotID(String[] items)
     {
-        return items == null || items.length == 0 ? null : items[0].trim(); 
+        return items == null || items.length == 0 ? null : items[0].trim();
     }
-    
+
     private String tryToGetValue(String[] items, String key)
     {
         for (String item : items)
