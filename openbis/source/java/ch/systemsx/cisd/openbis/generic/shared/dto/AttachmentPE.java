@@ -287,12 +287,12 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
 
     @Column(name = ColumnNames.DESCRIPTION_COLUMN)
     @Length(max = GenericConstants.DESCRIPTION_1000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
-    public final String getDescription()
+    public String getDescription()
     {
         return description;
     }
 
-    public final void setDescription(final String description)
+    public void setDescription(final String description)
     {
         this.description = description;
     }

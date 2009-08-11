@@ -21,6 +21,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
@@ -33,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
  */
 final class ExperimentSamplesArea extends TextArea
 {
+
     public static final String ID_SUFFIX_SAMPLES = "_samples";
 
     public ExperimentSamplesArea(IMessageProvider messageProvider, String idPrefix)
@@ -59,7 +61,7 @@ final class ExperimentSamplesArea extends TextArea
         String text = getValue();
         if (StringUtils.isBlank(text) == false)
         {
-            return text.split("\n|\r\n|, *");
+            return text.split(GenericConstants.CODES_TEXTAREA_REGEX);
         } else
         {
             return new String[0];

@@ -50,12 +50,12 @@ public abstract class EntityTypePE extends AbstractTypePE
     @ManyToOne(fetch = FetchType.EAGER)
     @NotNull(message = ValidationMessages.DATABASE_INSTANCE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = false)
-    public final DatabaseInstancePE getDatabaseInstance()
+    public DatabaseInstancePE getDatabaseInstance()
     {
         return databaseInstance;
     }
 
-    public final void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
+    public void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
     {
         this.databaseInstance = databaseInstance;
     }

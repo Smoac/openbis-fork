@@ -858,4 +858,20 @@ public interface ICommonServer extends IServer
     public List<PersonPE> listPersonInAuthorizationGroup(String sessionToken,
             TechId authorizatonGroupId);
 
+    /**
+     * Adds specified persons to given authorization group.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    public void addPersonsToAuthorizationGroup(String sessionToken, TechId authorizationGroupId,
+            List<String> personsCodes);
+
+    /**
+     * Removes specified persons from given authorization group.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    public void removePersonsFromAuthorizationGroup(String sessionToken,
+            TechId authorizationGroupId, List<String> personsCodes);
+
 }

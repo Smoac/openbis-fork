@@ -30,7 +30,7 @@ public class CheckPersonTable extends CheckTableCommand
 {
     public CheckPersonTable()
     {
-        super(PersonGrid.GRID_ID);
+        super(PersonGrid.createGridId(null));
     }
 
 }

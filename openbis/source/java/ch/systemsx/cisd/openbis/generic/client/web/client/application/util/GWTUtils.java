@@ -22,6 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -235,6 +236,31 @@ public final class GWTUtils
     public final static String getBaseIndexURL()
     {
         return GWT.getModuleBaseURL() + "index.html";
+    }
+
+    /**
+     * Enables and makes visible the field with appropriate 'on' flag set to true. Performs its work
+     * when one and only one 'on' flag is set to true.
+     */
+    public static final void updateVisibleField(boolean firstOn, boolean secondOn,
+            Field<?> firstField, Field<?> secondField)
+    {
+        if (firstOn ^ secondOn)
+        {
+            firstField.setEnabled(firstOn);
+            firstField.setVisible(firstOn);
+            secondField.setEnabled(secondOn);
+            secondField.setVisible(secondOn);
+            if (firstOn)
+            {
+                firstField.validate();
+                secondField.clearInvalid();
+            } else
+            {
+                firstField.clearInvalid();
+                secondField.validate();
+            }
+        }
     }
 
     //

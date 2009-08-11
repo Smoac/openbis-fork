@@ -722,5 +722,26 @@ public abstract class Dict
 
     public static final String EDIT_PERSONS = "edit_persons";
 
+    public static final String ADD_PERSON_TO_AUTHORIZATION_GROUP_TITLE =
+            "add_person_to_authorization_group_title";
+
+    public static final String PERSONS_IDS_LABEL = "persons_ids_label";
+
+    public static final String PERSON_IDS_LIST = "person_ids_list";
+
+    public static final String AUTHORIZATION_GROUP_USERS = "authorization_group_users";
+
+    public static final String BUTTON_SHOW_USERS = "button_show_users";
+
+    public static final String RADIO_ONE_USER = "radio_one_user";
+
+    public static final String RADIO_MANY_USERS = "radio_many_users";
+
+    public static final String REMOVE_PERSONS_FROM_AUTHORIZATION_GROUP_CONFIRMATION_TITLE =
+            "remove_persons_from_authorization_group_confirmation_title";
+
+    public static final String REMOVE_PERSONS_FROM_AUTHORIZATION_GROUP_CONFIRMATION_MESSAGE =
+            "remove_persons_from_authorization_group_confirmation_message";
+
     // ----- end generic ------------------
 }

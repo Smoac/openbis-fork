@@ -142,7 +142,7 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
         if (userIds.size() == 0)
             return new ArrayList<PersonPE>();
         final Criteria criteria = getSession().createCriteria(PersonPE.class);
-        criteria.add(Restrictions.in("code", userIds));
+        criteria.add(Restrictions.in("userId", userIds));
         return cast(criteria.list());
     }
 }

@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -36,8 +35,6 @@ public class AuthorizationGroupUpdates implements IsSerializable, Serializable
     TechId id;
 
     String description;
-
-    List<String> users;
 
     private Date version;
 
@@ -63,16 +60,6 @@ public class AuthorizationGroupUpdates implements IsSerializable, Serializable
     public void setDescription(String description)
     {
         this.description = description;
-    }
-
-    public List<String> getUsers()
-    {
-        return users;
-    }
-
-    public void setUsers(List<String> users)
-    {
-        this.users = users;
     }
 
     public void setVersion(Date version)

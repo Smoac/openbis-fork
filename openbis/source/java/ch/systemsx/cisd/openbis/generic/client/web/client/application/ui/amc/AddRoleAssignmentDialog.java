@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
@@ -65,7 +66,8 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
     public AddRoleAssignmentDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
             final IDelegatedAction postRegistrationCallback)
     {
-        super(viewContext, "Assign authorization role to the user or the group of users", postRegistrationCallback);
+        super(viewContext, "Assign authorization role to the user or the group of users",
+                postRegistrationCallback);
         this.viewContext = viewContext;
 
         group = new GroupSelectionWidget(viewContext, PREFIX, false);
@@ -100,37 +102,17 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
         FieldUtil.markAsMandatory(authGroup);
         addField(authGroup);
 
-        updateVisibleField(personRadio.getValue(), authGroupRadio.getValue(), person, authGroup);
+        GWTUtils.updateVisibleField(personRadio.getValue(), authGroupRadio.getValue(), person,
+                authGroup);
 
         radioGroup.addListener(Events.Change, new Listener<BaseEvent>()
             {
                 public void handleEvent(BaseEvent be)
                 {
-                    updateVisibleField(personRadio.getValue(), authGroupRadio.getValue(), person,
-                            authGroup);
+                    GWTUtils.updateVisibleField(personRadio.getValue(), authGroupRadio.getValue(),
+                            person, authGroup);
                 }
             });
-    }
-
-    protected void updateVisibleField(boolean personSelected, boolean authGroupSelected,
-            PersonSelectionWidget personField, AuthorizationGroupSelectionWidget authGroupField)
-    {
-        if (personSelected ^ authGroupSelected)
-        {
-            personField.setEnabled(personSelected);
-            personField.setVisible(personSelected);
-            authGroupField.setEnabled(authGroupSelected);
-            authGroupField.setVisible(authGroupSelected);
-            if (personSelected)
-            {
-                personField.validate();
-                authGroupField.clearInvalid();
-            } else
-            {
-                personField.clearInvalid();
-                authGroupField.validate();
-            }
-        }
     }
 
     @Override

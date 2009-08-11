@@ -193,7 +193,7 @@ public final class ComponentProvider
 
                 public String getId()
                 {
-                    return PersonGrid.BROWSER_ID;
+                    return PersonGrid.createBrowserId();
                 }
             };
     }

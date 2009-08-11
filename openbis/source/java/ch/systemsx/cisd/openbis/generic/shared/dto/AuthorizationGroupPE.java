@@ -101,12 +101,12 @@ public class AuthorizationGroupPE extends HibernateAbstractRegistrationHolder im
     @ManyToOne(fetch = FetchType.EAGER)
     @NotNull(message = ValidationMessages.DATABASE_INSTANCE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = false)
-    public final DatabaseInstancePE getDatabaseInstance()
+    public DatabaseInstancePE getDatabaseInstance()
     {
         return databaseInstance;
     }
 
-    public final void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
+    public void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
     {
         this.databaseInstance = databaseInstance;
     }
@@ -115,24 +115,24 @@ public class AuthorizationGroupPE extends HibernateAbstractRegistrationHolder im
     @Length(min = 1, max = 40, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
     @Field(index = Index.TOKENIZED, store = Store.YES, name = SearchFieldConstants.CODE)
-    public final String getCode()
+    public String getCode()
     {
         return code;
     }
 
-    public final void setCode(final String code)
+    public void setCode(final String code)
     {
         this.code = code;
     }
 
     @Column(name = ColumnNames.DESCRIPTION_COLUMN)
     @Length(max = GenericConstants.DESCRIPTION_1000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
-    public final String getDescription()
+    public String getDescription()
     {
         return description;
     }
 
-    public final void setDescription(final String description)
+    public void setDescription(final String description)
     {
         this.description = description;
     }
@@ -150,14 +150,14 @@ public class AuthorizationGroupPE extends HibernateAbstractRegistrationHolder im
     }
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "authorizationGroupInternal", cascade = CascadeType.ALL)
-    private final Set<RoleAssignmentPE> getRoleAssignmentsInternal()
+    private Set<RoleAssignmentPE> getRoleAssignmentsInternal()
     {
         return roleAssignments;
     }
 
     // Required by Hibernate.
     @SuppressWarnings("unused")
-    private final void setRoleAssignmentsInternal(final Set<RoleAssignmentPE> rolesAssignments)
+    private void setRoleAssignmentsInternal(final Set<RoleAssignmentPE> rolesAssignments)
     {
         this.roleAssignments = rolesAssignments;
     }
@@ -196,7 +196,7 @@ public class AuthorizationGroupPE extends HibernateAbstractRegistrationHolder im
     }
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "authorizationGroupsInternal")
-    private final Set<PersonPE> getPersonsInternal()
+    private Set<PersonPE> getPersonsInternal()
     {
         return persons;
     }
@@ -223,7 +223,7 @@ public class AuthorizationGroupPE extends HibernateAbstractRegistrationHolder im
 
     // Required by Hibernate.
     @SuppressWarnings("unused")
-    private final void setPersonsInternal(final Set<PersonPE> persons)
+    private void setPersonsInternal(final Set<PersonPE> persons)
     {
         this.persons = persons;
     }

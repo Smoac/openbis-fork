@@ -21,6 +21,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonGrid.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
@@ -101,8 +102,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#updateGroup(IGroupUpdates) */
     public void updateGroup(final IGroupUpdates updates, final AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#listPersons(DefaultResultSetConfig) */
-    public void listPersons(DefaultResultSetConfig<String, Person> criteria,
+    /** @see ICommonClientService#listPersons(ListPersonsCriteria) */
+    public void listPersons(ListPersonsCriteria criteria,
             AsyncCallback<ResultSet<Person>> asyncCallback);
 
     /** @see ICommonClientService#prepareExportPersons(TableExportCriteria) */
@@ -568,7 +569,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /**
      * @see ICommonClientService#deleteAuthorizationGroups(List, String)
      */
-    public void deleteAuthorizationGroups(List<TechId> createList, String value,
+    public void deleteAuthorizationGroups(List<TechId> createList, String reason,
             AsyncCallback<Void> callback);
 
     /**
@@ -611,4 +612,16 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#listAuthorizationGroups()
      */
     public void listAuthorizationGroups(AsyncCallback<List<AuthorizationGroup>> callback);
+
+    /**
+     * @see ICommonClientService#addPersonsToAuthorizationGroup(TechId, List)
+     */
+    public void addPersonsToAuthorizationGroup(TechId authGroupId, List<String> personsCodes,
+            AsyncCallback<Void> registrationCallback);
+
+    /**
+     * @see ICommonClientService#removePersonsFromAuthorizationGroup(TechId, List)
+     */
+    public void removePersonsFromAuthorizationGroup(TechId create, List<String> extractCodes,
+            AsyncCallback<Void> callback);
 }

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -31,7 +30,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.AuthorizationGroupColDefKind;
@@ -92,6 +95,41 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
     {
         addEntityOperationsLabel();
 
+        Button showDetailsButton =
+                createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_USERS),
+                        new ISelectedEntityInvoker<BaseEntityModel<AuthorizationGroup>>()
+                            {
+                                public void invoke(BaseEntityModel<AuthorizationGroup> selectedItem)
+                                {
+                                    showEntityViewer(selectedItem.getBaseObject(), false);
+                                }
+                            });
+        addButton(showDetailsButton);
+
+        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
+                new ISelectedEntityInvoker<BaseEntityModel<AuthorizationGroup>>()
+                    {
+
+                        public void invoke(BaseEntityModel<AuthorizationGroup> selectedItem)
+                        {
+                            final AuthorizationGroup authGroup = selectedItem.getBaseObject();
+                            createEditDialog(authGroup).show();
+                        }
+                    }));
+
+        Button deleteButton =
+                createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
+                        new AbstractCreateDialogListener()
+                            {
+                                @Override
+                                protected Dialog createDialog(List<AuthorizationGroup> selected,
+                                        IBrowserGridActionInvoker invoker)
+                                {
+                                    return new GroupListDeletionConfirmationDialog(viewContext,
+                                            selected, createDeletionCallback(invoker));
+                                }
+                            });
+        addButton(deleteButton);
         final Button addAuthorizationGroupButton =
                 new Button(viewContext.getMessage(Dict.BUTTON_ADD_GROUP),
                         new SelectionListener<ComponentEvent>()
@@ -113,31 +151,6 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
                             });
         addAuthorizationGroupButton.setId(ADD_BUTTON_ID);
         addButton(addAuthorizationGroupButton);
-
-        Button deleteButton =
-                createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
-                        new AbstractCreateDialogListener()
-                            {
-                                @Override
-                                protected Dialog createDialog(List<AuthorizationGroup> selected,
-                                        IBrowserGridActionInvoker invoker)
-                                {
-                                    return new GroupListDeletionConfirmationDialog(viewContext,
-                                            selected, createDeletionCallback(invoker));
-                                }
-                            });
-        addButton(deleteButton);
-
-        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
-                new ISelectedEntityInvoker<BaseEntityModel<AuthorizationGroup>>()
-                    {
-
-                        public void invoke(BaseEntityModel<AuthorizationGroup> selectedItem)
-                        {
-                            final AuthorizationGroup authGroup = selectedItem.getBaseObject();
-                            createEditDialog(authGroup).show();
-                        }
-                    }));
 
         allowMultipleSelection();
 
@@ -183,7 +196,23 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
     @Override
     protected void showEntityViewer(final AuthorizationGroup group, boolean editMode)
     {
-        assert false : "not implemented";
+        final ITabItemFactory tabFactory = new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    IDisposableComponent component =
+                            PersonGrid.createForAuthorizationGroup(viewContext, group);
+                    String tabTitle =
+                            viewContext.getMessage(Dict.AUTHORIZATION_GROUP_USERS, group.getCode());
+                    return DefaultTabItem.create(tabTitle, component, viewContext);
+                }
+
+                public String getId()
+                {
+                    return PersonGrid.createBrowserId(group);
+                }
+            };
+        DispatcherHelper.dispatchNaviEvent(tabFactory);
     }
 
     public DatabaseModificationKind[] getRelevantModifications()
@@ -247,7 +276,6 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
                     AuthorizationGroupUpdates updates = new AuthorizationGroupUpdates();
                     updates.setDescription(descriptionField.getValue());
                     updates.setId(TechId.create(authGroup));
-                    updates.setUsers(new ArrayList<String>());
                     viewContext.getService()
                             .updateAuthorizationGroup(updates, registrationCallback);
                 }

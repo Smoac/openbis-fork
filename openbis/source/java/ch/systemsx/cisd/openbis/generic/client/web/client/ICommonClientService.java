@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client;
 import java.util.Date;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonGrid.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
@@ -115,8 +116,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of all persons which belong to the current database instance.
      */
-    public ResultSet<Person> listPersons(DefaultResultSetConfig<String, Person> criteria)
-            throws UserFailureException;
+    public ResultSet<Person> listPersons(ListPersonsCriteria criteria) throws UserFailureException;
 
     /**
      * Returns a list of persons registered in given database instance.
@@ -657,7 +657,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Deletes selected authorization groups.
      */
-    public void deleteAuthorizationGroups(List<TechId> createList, String value);
+    public void deleteAuthorizationGroups(List<TechId> createList, String reason);
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for AuthorizationGroups.
@@ -690,4 +690,16 @@ public interface ICommonClientService extends IClientService
      * Updates given authorization group.
      */
     public void updateAuthorizationGroup(AuthorizationGroupUpdates updates);
+
+    /**
+     * Adds persons with specified codes to the authorization group with given tech id.
+     */
+    public void addPersonsToAuthorizationGroup(TechId authorizationGroupId,
+            List<String> personsCodes);
+
+    /**
+     * Removes persons with specified codesfrom the authorization group with given tech id.
+     */
+    public void removePersonsFromAuthorizationGroup(TechId authorizationGroupId,
+            List<String> personsCodes);
 }

@@ -95,4 +95,6 @@ public final class GenericConstants
 
     public static final String WITH_EXPERIMENTS = "with_experiments";
 
+    public static final String CODES_TEXTAREA_REGEX = "\n|\r\n|, *";
+
 }

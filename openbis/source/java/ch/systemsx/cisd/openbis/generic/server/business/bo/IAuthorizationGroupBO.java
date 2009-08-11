@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.List;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
@@ -37,7 +39,7 @@ public interface IAuthorizationGroupBO extends IBusinessObject
     void define(final NewAuthorizationGroup newAuthorizationGroup) throws UserFailureException;
 
     /**
-     * Deletes the authorization group for specified reason.
+     * Deletes the authorization group.
      * 
      * @throws UserFailureException if authorization group with given technical identifier is not
      *             found.
@@ -59,4 +61,14 @@ public interface IAuthorizationGroupBO extends IBusinessObject
      * exists.
      */
     void loadByTechId(TechId authorizatonGroupId);
+
+    /**
+     * Adds persons with given codes to the loaded authorization group.
+     */
+    void addPersons(List<String> personsCodes);
+
+    /**
+     * Removes persons with given codes from the loaded authorization group.
+     */
+    void removePersons(List<String> personsCodes);
 }

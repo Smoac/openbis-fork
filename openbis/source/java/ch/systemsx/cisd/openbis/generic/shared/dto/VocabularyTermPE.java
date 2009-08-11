@@ -103,12 +103,12 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
 
     @Column(name = ColumnNames.LABEL_COLUMN)
     @Length(max = GenericConstants.LABEL_40, message = ValidationMessages.LABEL_LENGTH_MESSAGE)
-    public final String getLabel()
+    public String getLabel()
     {
         return label;
     }
 
-    public final void setLabel(final String label)
+    public void setLabel(final String label)
     {
         this.label = label;
     }

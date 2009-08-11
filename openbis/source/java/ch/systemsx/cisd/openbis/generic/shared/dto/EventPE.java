@@ -86,12 +86,12 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
     @NotNull(message = ValidationMessages.EVENT_TYPE_NOT_NULL_MESSAGE)
     @Column(name = ColumnNames.EVENT_TYPE)
     @Enumerated(EnumType.STRING)
-    public final EventType getEventType()
+    public EventType getEventType()
     {
         return eventType;
     }
 
-    public final void setEventType(final EventType eventType)
+    public void setEventType(final EventType eventType)
     {
         this.eventType = eventType;
     }
@@ -122,23 +122,23 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
     }
 
     @Length(max = GenericConstants.DESCRIPTION_1000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
-    public final String getDescription()
+    public String getDescription()
     {
         return description;
     }
 
-    public final void setDescription(String description)
+    public void setDescription(String description)
     {
         this.description = description;
     }
 
     @Length(max = GenericConstants.DESCRIPTION_1000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
-    public final String getReason()
+    public String getReason()
     {
         return reason;
     }
 
-    public final void setReason(final String reason)
+    public void setReason(final String reason)
     {
         this.reason = reason;
     }

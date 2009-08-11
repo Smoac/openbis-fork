@@ -16,12 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.ObjectRetrievalFailureException;
 
@@ -120,15 +116,14 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
     public void deleteByTechId(TechId authGroupId, String reason)
     {
         loadByTechId(authGroupId);
+        String code = authorizationGroup.getCode();
         try
         {
             getAuthorizationGroupDAO().delete(authorizationGroup);
-            getEventDAO().persist(
-                    createDeletionEvent(authorizationGroup, session.tryGetPerson(), reason));
+            getEventDAO().persist(createDeletionEvent(code, session.tryGetPerson(), reason));
         } catch (final DataAccessException ex)
         {
-            throwException(ex, String.format("Authorization group '%s'", authorizationGroup
-                    .getCode()));
+            throwException(ex, String.format("Authorization group '%s'", code));
         }
 
     }
@@ -146,14 +141,13 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
         dataChanged = false;
     }
 
-    public static EventPE createDeletionEvent(AuthorizationGroupPE group, PersonPE registrator,
-            String reason)
+    public static EventPE createDeletionEvent(String groupCode, PersonPE registrator, String reason)
     {
         EventPE event = new EventPE();
         event.setEventType(EventType.DELETION);
         event.setEntityType(EntityType.AUTHORIZATION_GROUP);
-        event.setIdentifier(group.getCode());
-        event.setDescription(group.getCode());
+        event.setIdentifier(groupCode);
+        event.setDescription(groupCode);
         event.setReason(reason);
         event.setRegistrator(registrator);
         return event;
@@ -169,74 +163,27 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
         // TODO 2009-07-31,IA: add last update date check
         loadByTechId(updates.getId());
         authorizationGroup.setDescription(updates.getDescription());
-        setUsers(updates.getUsers());
         dataChanged = true;
     }
 
-    // changes the users in the group
-    void setUsers(List<String> userIds)
+    public void addPersons(List<String> personsCodes)
     {
-        Set<PersonPE> persons = authorizationGroup.getPersons();
-        Set<String> oldUsers = extractUserIds(persons);
-        Set<String> newUsers = new HashSet<String>(userIds);
-        Set<String> common = intersection(oldUsers, newUsers);
-        oldUsers.removeAll(common);
-        newUsers.removeAll(common);
-        removeUsers(oldUsers);
-        addUsers(newUsers);
-    }
-
-    private void addUsers(Set<String> newUsers)
-    {
-        List<PersonPE> users = findUsers(newUsers);
-        for (PersonPE p : users)
+        assert authorizationGroup != null : "Not initialized";
+        List<PersonPE> users = getPersonDAO().listByCodes(personsCodes);
+        for (PersonPE person : users)
         {
-            authorizationGroup.addPerson(p);
+            authorizationGroup.addPerson(person);
         }
     }
 
-    private void removeUsers(Set<String> oldUsers)
+    public void removePersons(List<String> personsCodes)
     {
-        List<PersonPE> users = findUsers(oldUsers);
-        for (PersonPE p : users)
+        assert authorizationGroup != null : "Not initialized";
+        List<PersonPE> users = getPersonDAO().listByCodes(personsCodes);
+        for (PersonPE person : users)
         {
-            authorizationGroup.removePerson(p);
+            authorizationGroup.removePerson(person);
         }
-
-    }
-
-    private List<PersonPE> findUsers(Set<String> oldUsers)
-    {
-        List<PersonPE> users = getPersonDAO().listByCodes(oldUsers);
-        Set<String> foundUserIds = extractUserIds(users);
-        if (intersection(oldUsers, foundUserIds).size() != oldUsers.size())
-        {
-            oldUsers.removeAll(foundUserIds);
-            throw new UserFailureException(String.format(
-                    "Some users could not be found in the database [%s]", StringUtils.join(oldUsers
-                            .toArray(new String[0]))));
-        }
-        return users;
-    }
-
-    private Set<String> extractUserIds(Collection<PersonPE> persons)
-    {
-        Set<String> result = new HashSet<String>();
-        for (PersonPE p : persons)
-        {
-            result.add(p.getUserId());
-        }
-        return result;
-    }
-
-    /**
-     * Returns a new {@link Set} containing elements from both {@link Set}s.
-     */
-    private static <T> Set<T> intersection(Set<T> setA, Set<T> setB)
-    {
-        Set<T> result = new HashSet<T>(setA);
-        result.retainAll(setB);
-        return result;
     }
 
 }

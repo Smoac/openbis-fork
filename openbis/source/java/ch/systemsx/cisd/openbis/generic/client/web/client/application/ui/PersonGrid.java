@@ -20,7 +20,9 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -29,15 +31,20 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddPersonDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddPersonToAuthorizationGroupDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PersonColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -49,53 +56,128 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  */
 public class PersonGrid extends AbstractSimpleBrowserGrid<Person>
 {
+
     // browser consists of the grid and the paging toolbar
-    public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "person-browser";
+    private static final String BROWSER_ID = GenericConstants.ID_PREFIX + "person-browser";
 
-    public static final String GRID_ID = BROWSER_ID + "_grid";
+    private static final String GRID_SUFFIX = "_grid";
 
-    public static final String ADD_BUTTON_ID = BROWSER_ID + "_add-button";
+    private static final String ADD_BUTTON_SUFFIX = "_add-button";
+
+    private final AuthorizationGroup authorizationGroupOrNull;
 
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        final PersonGrid grid = new PersonGrid(viewContext);
+        final PersonGrid grid = new PersonGrid(viewContext, null);
         grid.extendBottomToolbar();
         return grid.asDisposableWithoutToolbar();
     }
 
-    private PersonGrid(IViewContext<ICommonClientServiceAsync> viewContext)
+    public static IDisposableComponent createForAuthorizationGroup(
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            AuthorizationGroup authorizationGroup)
     {
-        super(viewContext, BROWSER_ID, GRID_ID);
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.PROJECT_BROWSER_GRID);
+        final PersonGrid grid = new PersonGrid(viewContext, authorizationGroup);
+        grid.extendBottomToolbar();
+        return grid.asDisposableWithoutToolbar();
+    }
+
+    private PersonGrid(IViewContext<ICommonClientServiceAsync> viewContext,
+            AuthorizationGroup groupOrNull)
+    {
+        super(viewContext, createBrowserId(groupOrNull), createGridId(groupOrNull));
+        this.authorizationGroupOrNull = groupOrNull;
+        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.PERSON_BROWSER_GRID);
+    }
+
+    public static final String createBrowserId()
+    {
+        TechId nullTechId = null;
+        return createBrowserId(nullTechId);
+    }
+
+    public static final String createBrowserId(AuthorizationGroup group)
+    {
+        return createBrowserId(TechId.create(group));
+    }
+
+    private static final String createBrowserId(TechId id)
+    {
+        return BROWSER_ID + (id != null ? ("_" + id) : "");
+    }
+
+    public static final String createAddButtonId(AuthorizationGroup group)
+    {
+        return createBrowserId(group) + ADD_BUTTON_SUFFIX;
+    }
+
+    public static final String createGridId(AuthorizationGroup group)
+    {
+        return createBrowserId(group) + GRID_SUFFIX;
     }
 
     private void extendBottomToolbar()
     {
         addEntityOperationsLabel();
-
-        final Button addGroupButton =
+        final Button addPersonButton =
                 new Button(viewContext.getMessage(Dict.BUTTON_ADD_PERSON),
                         new SelectionListener<ComponentEvent>()
                             {
                                 @Override
                                 public void componentSelected(ComponentEvent ce)
                                 {
-                                    AddPersonDialog dialog =
-                                            new AddPersonDialog(viewContext, new IDelegatedAction()
-                                                {
-                                                    public void execute()
-                                                    {
-                                                        refresh();
-                                                    }
-                                                });
+                                    AbstractRegistrationDialog dialog =
+                                            authorizationGroupOrNull == null ? createAddPersonDialog()
+                                                    : createAddPersonToAuthoriationGroupDialog();
                                     dialog.show();
                                 }
-                            });
-        addGroupButton.setId(ADD_BUTTON_ID);
-        addButton(addGroupButton);
 
+                            });
+        addPersonButton.setId(createAddButtonId(authorizationGroupOrNull));
+        addButton(addPersonButton);
+
+        if (authorizationGroupOrNull != null)
+        {
+            Button deleteButton =
+                    createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
+                            new AbstractCreateDialogListener()
+                                {
+                                    @Override
+                                    protected Dialog createDialog(List<Person> selected,
+                                            IBrowserGridActionInvoker invoker)
+                                    {
+                                        return new PersonListDeletionConfirmationDialog(
+                                                viewContext, selected, authorizationGroupOrNull,
+                                                createDeletionCallback(invoker));
+                                    }
+                                });
+            addButton(deleteButton);
+            allowMultipleSelection();
+        }
         addEntityOperationsSeparator();
+    }
+
+    private AddPersonToAuthorizationGroupDialog createAddPersonToAuthoriationGroupDialog()
+    {
+        return new AddPersonToAuthorizationGroupDialog(viewContext, authorizationGroupOrNull,
+                createRefreshAction());
+    }
+
+    private AddPersonDialog createAddPersonDialog()
+    {
+        return new AddPersonDialog(viewContext, createRefreshAction());
+    }
+
+    private IDelegatedAction createRefreshAction()
+    {
+        return new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    refresh();
+                }
+            };
     }
 
     @Override
@@ -108,7 +190,9 @@ public class PersonGrid extends AbstractSimpleBrowserGrid<Person>
     protected void listEntities(DefaultResultSetConfig<String, Person> resultSetConfig,
             AbstractAsyncCallback<ResultSet<Person>> callback)
     {
-        viewContext.getService().listPersons(resultSetConfig, callback);
+        ListPersonsCriteria criteria = new ListPersonsCriteria(authorizationGroupOrNull);
+        criteria.copyPagingConfig(resultSetConfig);
+        viewContext.getService().listPersons(criteria, callback);
     }
 
     @Override
@@ -136,6 +220,32 @@ public class PersonGrid extends AbstractSimpleBrowserGrid<Person>
         return new DatabaseModificationKind[]
             { DatabaseModificationKind.createOrDelete(ObjectKind.PERSON),
                     DatabaseModificationKind.edit(ObjectKind.PERSON) };
+    }
+
+    public final static class ListPersonsCriteria extends DefaultResultSetConfig<String, Person>
+            implements IsSerializable
+    {
+        private TechId authorizationGroupId;
+
+        public ListPersonsCriteria()
+        {
+        }
+
+        public ListPersonsCriteria(AuthorizationGroup group)
+        {
+            setAuthorizationGroupId(TechId.create(group));
+        }
+
+        public TechId getAuthorizationGroupId()
+        {
+            return authorizationGroupId;
+        }
+
+        public void setAuthorizationGroupId(TechId authorizationGroupId)
+        {
+            this.authorizationGroupId = authorizationGroupId;
+        }
+
     }
 
 }

@@ -115,12 +115,12 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
     @ManyToOne(fetch = FetchType.EAGER)
     @NotNull(message = ValidationMessages.DATA_STORE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.DATA_STORE_COLUMN, updatable = false)
-    public final DataStorePE getDataStore()
+    public DataStorePE getDataStore()
     {
         return dataStore;
     }
 
-    public final void setDataStore(final DataStorePE dataStorePE)
+    public void setDataStore(final DataStorePE dataStorePE)
     {
         this.dataStore = dataStorePE;
     }

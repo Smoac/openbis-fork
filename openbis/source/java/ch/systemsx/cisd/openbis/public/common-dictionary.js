@@ -465,7 +465,16 @@ incorrect_experiment_syntax: "Incorrect experiment specification. Please provide
  //
  authorization_group_browser: "User Groups Browser",
  edit_persons: "Edit Users",
- 
+ add_person_to_authorization_group_title: "Add person(s) to the user group '{0}'", 
+ persons_ids_label: "Users IDs",
+ person_ids_list: "List of users (IDs) separated by commas (\",\") or one user per line.",
+ authorization_group_users: "Persons from User Group '{0}'",
+ button_show_users: "Users",
+ radio_one_user: "One User",
+ radio_many_users: "Many Users",
+ remove_persons_from_authorization_group_confirmation_title: "Users Removal Confirmation",
+ remove_persons_from_authorization_group_confirmation_message: "Do you really want to remove {0} users ({1}) from the user group '{2}'?",
+
  
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

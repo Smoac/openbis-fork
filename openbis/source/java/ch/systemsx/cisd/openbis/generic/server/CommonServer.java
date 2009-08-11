@@ -1504,4 +1504,24 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         bo.loadByTechId(authorizatonGroupId);
         return new ArrayList<PersonPE>(bo.getAuthorizationGroup().getPersons());
     }
+
+    public void addPersonsToAuthorizationGroup(String sessionToken, TechId authorizationGroupId,
+            List<String> personsCodes)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IAuthorizationGroupBO bo = businessObjectFactory.createAuthorizationGroupBO(session);
+        bo.loadByTechId(authorizationGroupId);
+        bo.addPersons(personsCodes);
+        bo.save();
+    }
+
+    public void removePersonsFromAuthorizationGroup(String sessionToken,
+            TechId authorizationGroupId, List<String> personsCodes)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IAuthorizationGroupBO bo = businessObjectFactory.createAuthorizationGroupBO(session);
+        bo.loadByTechId(authorizationGroupId);
+        bo.removePersons(personsCodes);
+        bo.save();
+    }
 }

@@ -34,7 +34,7 @@ public final class CreatePerson extends CheckTableCommand
 
     public CreatePerson(final String personCode)
     {
-        super(PersonGrid.GRID_ID);
+        super(PersonGrid.createGridId(null));
         this.personCode = personCode;
     }
 
@@ -45,9 +45,9 @@ public final class CreatePerson extends CheckTableCommand
     @Override
     public final void execute()
     {
-        GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, PersonGrid.BROWSER_ID
+        GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, PersonGrid.createBrowserId()
                 + MainTabPanel.TAB_SUFFIX);
-        GWTTestUtil.clickButtonWithID(PersonGrid.ADD_BUTTON_ID);
+        GWTTestUtil.clickButtonWithID(PersonGrid.createAddButtonId(null));
         GWTTestUtil.getTextFieldWithID(AddPersonDialog.CODE_FIELD_ID).setValue(personCode);
         GWTTestUtil.clickButtonWithID(AbstractRegistrationDialog.SAVE_BUTTON_ID);
     }

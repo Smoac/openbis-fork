@@ -42,6 +42,7 @@ import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonGrid.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
@@ -659,14 +660,17 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public ResultSet<Person> listPersons(DefaultResultSetConfig<String, Person> criteria)
+    public ResultSet<Person> listPersons(final ListPersonsCriteria criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return listEntities(criteria, new IOriginalDataProvider<Person>()
             {
                 public List<Person> getOriginalData() throws UserFailureException
                 {
-                    return listPersons();
+                    if (criteria.getAuthorizationGroupId() == null)
+                        return listPersons();
+                    else
+                        return listPersonsInAuthorizationGroup(criteria.getAuthorizationGroupId());
                 }
             });
     }
@@ -2025,6 +2029,35 @@ public final class CommonClientService extends AbstractClientService implements
         {
             final String sessionToken = getSessionToken();
             commonServer.updateAuthorizationGroup(sessionToken, updates);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+
+    }
+
+    public void addPersonsToAuthorizationGroup(TechId authorizationGroupId,
+            List<String> personsCodes)
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.addPersonsToAuthorizationGroup(sessionToken, authorizationGroupId,
+                    personsCodes);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public void removePersonsFromAuthorizationGroup(TechId authorizationGroupId,
+            List<String> personsCodes)
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.removePersonsFromAuthorizationGroup(sessionToken, authorizationGroupId,
+                    personsCodes);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
