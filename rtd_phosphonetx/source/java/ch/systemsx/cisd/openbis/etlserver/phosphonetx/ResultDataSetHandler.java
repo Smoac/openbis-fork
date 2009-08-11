@@ -39,22 +39,25 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummary;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ResultDataSetHandler implements IDataSetHandler
 {
     private static final String DATABASE_ENGINE = "database.engine";
+
     private static final String DATABASE_URL_HOST_PART = "database.url-host-part";
+
     private static final String DATABASE_BASIC_NAME = "database.basic-name";
+
     private static final String DATABASE_KIND = "database.kind";
+
     private static final String DATABASE_OWNER = "database.owner";
+
     private static final String DATABASE_PASSWORD = "database.password";
-    
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, ResultDataSetHandler.class);
-    
+
     private static DataSource createDataSource(Properties properties)
     {
         DatabaseConfigurationContext context = new DatabaseConfigurationContext();
@@ -66,10 +69,13 @@ public class ResultDataSetHandler implements IDataSetHandler
         context.setPassword(properties.getProperty(DATABASE_PASSWORD, ""));
         return context.getDataSource();
     }
-    
+
     private final IDataSetHandler delegator;
+
     private final ProtXMLLoader loader;
+
     private final IEncapsulatedOpenBISService openbisService;
+
     private final DataSource dataSource;
 
     public ResultDataSetHandler(Properties properties, IDataSetHandler delegator,
@@ -102,16 +108,15 @@ public class ResultDataSetHandler implements IDataSetHandler
         }
         if (dataSets.size() != 1)
         {
-            throw new ConfigurationFailureException(
-                    dataSets.size() + " data set registered: " +
-                    "Only data set handlers (like the primary one) " +
-                    "registering exactly one data set are allowed.");
+            throw new ConfigurationFailureException(dataSets.size() + " data set registered: "
+                    + "Only data set handlers (like the primary one) "
+                    + "registering exactly one data set are allowed.");
         }
         DataSetInformation dataSetInformation = dataSets.get(0);
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("Registration at openBIS took "
-                    + (System.currentTimeMillis() - time) + " msec: " + dataSetInformation);
+            operationLog.info("Registration at openBIS took " + (System.currentTimeMillis() - time)
+                    + " msec: " + dataSetInformation);
         }
         time = System.currentTimeMillis();
         Connection connection;
@@ -124,13 +129,15 @@ public class ResultDataSetHandler implements IDataSetHandler
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
         ResultDataSetUploader upLoader = new ResultDataSetUploader(connection, openbisService);
+        // TODO 2009-08-11, Tomasz Pylak: if the uploader fails, the dataset handling by the
+        // delegator should be rollbacked (or maybe xml upload should be the first phase?)
         upLoader.upload(dataSetInformation, summary);
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("Feeding result database took "
-                    + (System.currentTimeMillis() - time) + " msec.");
+            operationLog.info("Feeding result database took " + (System.currentTimeMillis() - time)
+                    + " msec.");
         }
         return dataSets;
     }
-    
+
 }
