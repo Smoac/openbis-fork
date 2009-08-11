@@ -80,8 +80,9 @@ public final class MaterialTranslator
     {
         if (materialPE.isPropertiesInitialized())
         {
-            result.setProperties(MaterialPropertyTranslator.translate(materialPE
-                    .getProperties()));
+            result
+                    .setProperties(EntityPropertyTranslator.translate(materialPE
+                            .getProperties()));
         } else
         {
             result.setProperties(new ArrayList<IEntityProperty>());

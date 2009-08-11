@@ -23,7 +23,7 @@ import net.lemnik.eodsql.DataSet;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SamplePropertyTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.EntityPropertyTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
@@ -95,7 +95,7 @@ class SampleTable extends AbstractBusinessObject implements ISampleTable
     {
         if (samplePE.isPropertiesInitialized())
         {
-            result.setProperties(SamplePropertyTranslator.translate(samplePE.getProperties()));
+            result.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties()));
         } else
         {
             result.setProperties(new ArrayList<IEntityProperty>());

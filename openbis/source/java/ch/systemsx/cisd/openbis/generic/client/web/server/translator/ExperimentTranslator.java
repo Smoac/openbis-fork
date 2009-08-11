@@ -89,7 +89,7 @@ public final class ExperimentTranslator
     {
         if (experiment.isPropertiesInitialized())
         {
-            result.setProperties(ExperimentPropertyTranslator.translate(experiment.getProperties()));
+            result.setProperties(EntityPropertyTranslator.translate(experiment.getProperties()));
         } else
         {
             result.setProperties(new ArrayList<IEntityProperty>());

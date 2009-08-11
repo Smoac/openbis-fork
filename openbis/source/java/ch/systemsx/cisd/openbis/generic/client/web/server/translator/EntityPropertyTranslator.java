@@ -24,54 +24,52 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 
 /**
- * A {@link IEntityProperty} &lt;---&gt; {@link ExperimentPropertyPE} translator.
+ * Translates {@link EntityPropertyPE} to {@link IEntityProperty}.
  * 
  * @author Izabela Adamczyk
  */
-public final class ExperimentPropertyTranslator
+public final class EntityPropertyTranslator
 {
-    private ExperimentPropertyTranslator()
+    private EntityPropertyTranslator()
     {
         // Can not be instantiated.
     }
 
-    public final static IEntityProperty translate(final ExperimentPropertyPE experimentPropertyPE)
+    public final static IEntityProperty translate(final EntityPropertyPE propertyPE)
     {
-        final DataTypeCode typeCode = PropertyTranslatorUtils.getDataTypeCode(experimentPropertyPE);
+        final DataTypeCode typeCode = PropertyTranslatorUtils.getDataTypeCode(propertyPE);
         final IEntityProperty result = PropertyTranslatorUtils.createEntityProperty(typeCode);
-        result.setPropertyType(PropertyTypeTranslator.translate(experimentPropertyPE
+        result.setPropertyType(PropertyTypeTranslator.translate(propertyPE
                 .getEntityTypePropertyType().getPropertyType()));
         switch (typeCode)
         {
             case CONTROLLEDVOCABULARY:
-                result.setVocabularyTerm(VocabularyTermTranslator.translate(experimentPropertyPE
+                result.setVocabularyTerm(VocabularyTermTranslator.translate(propertyPE
                         .getVocabularyTerm()));
                 break;
             case MATERIAL:
-                result.setMaterial(MaterialTranslator.translate(
-                        experimentPropertyPE.getMaterialValue(), false));
+                result.setMaterial(MaterialTranslator.translate(propertyPE.getMaterialValue(),
+                        false));
                 break;
             default:
-                result
-                        .setValue(StringEscapeUtils.escapeHtml(experimentPropertyPE
-                                .tryGetUntypedValue()));
+                result.setValue(StringEscapeUtils.escapeHtml(propertyPE.tryGetUntypedValue()));
         }
         return result;
     }
 
-    public final static List<IEntityProperty> translate(final Set<ExperimentPropertyPE> list)
+    public final static List<IEntityProperty> translate(final Set<? extends EntityPropertyPE> list)
     {
         if (list == null)
         {
             return null;
         }
         final List<IEntityProperty> result = new ArrayList<IEntityProperty>();
-        for (final ExperimentPropertyPE experimentProperty : list)
+        for (final EntityPropertyPE property : list)
         {
-            result.add(translate(experimentProperty));
+            result.add(translate(property));
         }
         return result;
     }

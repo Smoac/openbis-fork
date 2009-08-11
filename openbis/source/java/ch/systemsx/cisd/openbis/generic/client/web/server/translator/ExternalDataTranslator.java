@@ -109,7 +109,7 @@ public class ExternalDataTranslator
     {
         if (HibernateUtils.isInitialized(externalDataPE.getProperties()))
         {
-            externalData.setDataSetProperties(DataSetPropertyTranslator.translate(externalDataPE
+            externalData.setDataSetProperties(EntityPropertyTranslator.translate(externalDataPE
                     .getProperties()));
         } else
         {
@@ -145,7 +145,7 @@ public class ExternalDataTranslator
                 .escapeHtml(samplePE.getSampleIdentifier().toString()));
         if (loadSampleProperties)
         {
-            sample.setProperties(SamplePropertyTranslator.translate(samplePE.getProperties()));
+            sample.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties()));
         }
         return sample;
     }

@@ -21,11 +21,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityPrope
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 
 /**
  * Some utility methods for entity property translations.
@@ -48,35 +45,11 @@ final class PropertyTranslatorUtils
     /**
      * Returns the {@link DataTypeCode} for the given <var>property</var>.
      */
-    static DataTypeCode getDataTypeCode(SamplePropertyPE property)
+    static DataTypeCode getDataTypeCode(EntityPropertyPE property)
     {
         return translateDataTypeCode(property.getEntityTypePropertyType());
     }
-    
-    /**
-     * Returns the {@link DataTypeCode} for the given <var>property</var>.
-     */
-    static DataTypeCode getDataTypeCode(MaterialPropertyPE property)
-    {
-        return translateDataTypeCode(property.getEntityTypePropertyType());
-    }
-    
-    /**
-     * Returns the {@link DataTypeCode} for the given <var>property</var>.
-     */
-    static DataTypeCode getDataTypeCode(ExperimentPropertyPE property)
-    {
-        return translateDataTypeCode(property.getEntityTypePropertyType());
-    }
-    
-    /**
-     * Returns the {@link DataTypeCode} for the given <var>property</var>.
-     */
-    static DataTypeCode getDataTypeCode(DataSetPropertyPE property)
-    {
-        return translateDataTypeCode(property.getEntityTypePropertyType());
-    }
-    
+
     /**
      * Creates an appropriate {@link IEntityProperty} for the given <var>dataTypeCode</var>.
      */

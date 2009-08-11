@@ -130,7 +130,7 @@ public final class SampleTranslator
     {
         if (samplePE.isPropertiesInitialized())
         {
-            result.setProperties(SamplePropertyTranslator.translate(samplePE.getProperties()));
+            result.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties()));
         } else
         {
             result.setProperties(new ArrayList<IEntityProperty>());
