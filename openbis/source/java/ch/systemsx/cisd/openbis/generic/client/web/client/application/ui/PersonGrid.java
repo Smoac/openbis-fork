@@ -22,7 +22,6 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -41,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -220,32 +220,6 @@ public class PersonGrid extends AbstractSimpleBrowserGrid<Person>
         return new DatabaseModificationKind[]
             { DatabaseModificationKind.createOrDelete(ObjectKind.PERSON),
                     DatabaseModificationKind.edit(ObjectKind.PERSON) };
-    }
-
-    public final static class ListPersonsCriteria extends DefaultResultSetConfig<String, Person>
-            implements IsSerializable
-    {
-        private TechId authorizationGroupId;
-
-        public ListPersonsCriteria()
-        {
-        }
-
-        public ListPersonsCriteria(AuthorizationGroup group)
-        {
-            setAuthorizationGroupId(TechId.create(group));
-        }
-
-        public TechId getAuthorizationGroupId()
-        {
-            return authorizationGroupId;
-        }
-
-        public void setAuthorizationGroupId(TechId authorizationGroupId)
-        {
-            this.authorizationGroupId = authorizationGroupId;
-        }
-
     }
 
 }

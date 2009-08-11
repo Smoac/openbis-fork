@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client;
 import java.util.Date;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonGrid.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
@@ -31,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
