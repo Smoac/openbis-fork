@@ -54,8 +54,8 @@ public final class FillProjectRegistrationForm extends AbstractDefaultTestComman
 
     public final void execute()
     {
-        GWTTestUtil.setTextFieldValue(ProjectRegistrationForm.createId() + "_code", code);
-        GWTTestUtil.setTextFieldValue(ProjectRegistrationForm.createId() + "_description",
+        GWTTestUtil.setTextField(ProjectRegistrationForm.createId() + "_code", code);
+        GWTTestUtil.setTextField(ProjectRegistrationForm.createId() + "_description",
                 description);
         final GroupSelectionWidget groupSelector =
                 (GroupSelectionWidget) GWTTestUtil.getWidgetWithID(GroupSelectionWidget.ID

@@ -36,20 +36,35 @@ public class FillRoleAssignmentForm extends AbstractDefaultTestCommand
 
     private final String groupNameOrNull;
 
-    private final String personName;
+    private final String grantee;
 
     private final String roleNameOrNull;
 
-    public FillRoleAssignmentForm(final String groupNameOrNull, final String personName,
-            final String roleNameOrNull)
+    private final boolean personRole;
+
+    public static final FillRoleAssignmentForm fillPersonRole(final String groupNameOrNull,
+            final String grantee, final String roleNameOrNull)
+    {
+        return new FillRoleAssignmentForm(true, groupNameOrNull, grantee, roleNameOrNull);
+    }
+
+    public static final FillRoleAssignmentForm fillAuthorizationGroupRole(
+            final String groupNameOrNull, final String grantee, final String roleNameOrNull)
+    {
+        return new FillRoleAssignmentForm(false, groupNameOrNull, grantee, roleNameOrNull);
+    }
+
+    private FillRoleAssignmentForm(final boolean personRole, final String groupNameOrNull,
+            final String grantee, final String roleNameOrNull)
     {
         super(PersonSelectionWidget.ListItemsCallback.class);
+        this.personRole = personRole;
         assert groupNameOrNull == null && roleNameOrNull == null || groupNameOrNull != null
                 && roleNameOrNull != null;
         addCallbackClass(GroupSelectionWidget.ListGroupsCallback.class);
         addCallbackClass(AuthorizationGroupSelectionWidget.ListItemsCallback.class);
         this.groupNameOrNull = groupNameOrNull;
-        this.personName = personName;
+        this.grantee = grantee;
         this.roleNameOrNull = roleNameOrNull;
     }
 
@@ -69,10 +84,18 @@ public class FillRoleAssignmentForm extends AbstractDefaultTestCommand
         {
             GWTUtils.setSelectedItem(listBox, RoleSetCode.INSTANCE_ADMIN.toString());
         }
-        GWTTestUtil.selectValueInSelectionWidget(PersonSelectionWidget.ID
-                + PersonSelectionWidget.SUFFIX + AddRoleAssignmentDialog.PREFIX,
-                ModelDataPropertyNames.CODE, personName);
+        if (personRole == false)
+        {
+            GWTTestUtil.setRadioValue(AddRoleAssignmentDialog.AUTH_GROUP_RADIO, true);
+            GWTTestUtil.selectValueInSelectionWidget(AuthorizationGroupSelectionWidget.ID
+                    + AuthorizationGroupSelectionWidget.SUFFIX + AddRoleAssignmentDialog.PREFIX,
+                    ModelDataPropertyNames.CODE, grantee);
+        } else
+        {
+            GWTTestUtil.selectValueInSelectionWidget(PersonSelectionWidget.ID
+                    + PersonSelectionWidget.SUFFIX + AddRoleAssignmentDialog.PREFIX,
+                    ModelDataPropertyNames.CODE, grantee);
+        }
         GWTTestUtil.clickButtonWithID(AbstractSaveDialog.SAVE_BUTTON_ID);
     }
-
 }

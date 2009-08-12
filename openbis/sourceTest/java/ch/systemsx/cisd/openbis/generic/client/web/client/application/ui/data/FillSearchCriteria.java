@@ -119,7 +119,7 @@ public final class FillSearchCriteria extends AbstractDefaultTestCommand
                                     + CriteriaWidget.FIRST_ID_SUFFIX + getSuffix(i));
             GWTUtils.setSelectedItem(selector, ModelDataPropertyNames.CODE, criteria.get(i)
                     .getName());
-            GWTTestUtil.setTextFieldValue(CriterionWidget.VALUE_FIELD_ID_PREFIX
+            GWTTestUtil.setTextField(CriterionWidget.VALUE_FIELD_ID_PREFIX
                     + CriteriaWidget.FIRST_ID_SUFFIX + getSuffix(i), criteria.get(i).getValue());
             GWTTestUtil.clickButtonWithID(CriterionWidget.ADD_BUTTON_ID_PREFIX
                     + CriteriaWidget.FIRST_ID_SUFFIX);

@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ProjectReg
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PropertyTypeAssignmentBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PropertyTypeBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PropertyTypeRegistrationTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthorizationGroupsTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SampleBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SearchTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VocabularyBrowserTest;
@@ -52,6 +53,7 @@ public class SystemTestSuite extends GWTTestSuite
     {
         final TestSuite testSuite = new TestSuite("System Tests");
         testSuite.addTestSuite(AuthenticationTest.class);
+        testSuite.addTestSuite(AuthorizationGroupsTest.class);
         testSuite.addTestSuite(VocabularyBrowserTest.class);
         testSuite.addTestSuite(FileFormatTypeGridTest.class);
         testSuite.addTestSuite(DataSetSearchTest.class);

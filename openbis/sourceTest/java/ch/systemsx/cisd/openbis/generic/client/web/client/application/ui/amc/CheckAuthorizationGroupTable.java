@@ -16,27 +16,21 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AuthorizationGroupGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension to check whether a list of persons has been
- * loaded.
+ * A {@link AbstractDefaultTestCommand} extension to check whether a list of authorization groups
+ * has been loaded.
  * 
- * @author Piotr Buczek
+ * @author Izabela Adamczyk
  */
-public class CheckPersonTable extends CheckTableCommand
+public class CheckAuthorizationGroupTable extends CheckTableCommand
 {
-    public CheckPersonTable()
+    public CheckAuthorizationGroupTable()
     {
-        this(null);
-    }
-
-    public CheckPersonTable(AuthorizationGroup authGroup)
-    {
-        super(PersonGrid.createGridId(authGroup));
+        super(AuthorizationGroupGrid.GRID_ID);
     }
 
 }

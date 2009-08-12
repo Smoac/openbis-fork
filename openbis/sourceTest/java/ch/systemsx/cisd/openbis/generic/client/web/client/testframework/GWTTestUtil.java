@@ -35,6 +35,7 @@ import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
+import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -103,12 +104,22 @@ public final class GWTTestUtil
     }
 
     /**
+     * Sets the value of the {@link Radio} with specified id.
+     * 
+     * @throws AssertionError if no widget found for <code>id</code> or isn't a text field.
+     */
+    public static void setRadioValue(final String id, final boolean value)
+    {
+        getRadioWithID(id).setValue(value);
+    }
+
+    /**
      * Sets the value of the {@link TextField} with specified id.
      * 
      * @param valueOrNull If <code>null</code> the text field value will not be changed.
      * @throws AssertionError if no widget found for <code>id</code> or isn't a text field.
      */
-    public static void setTextFieldValue(final String id, final String valueOrNull)
+    public static void setTextField(final String id, final String valueOrNull)
     {
         if (valueOrNull != null)
         {
@@ -128,6 +139,20 @@ public final class GWTTestUtil
         {
             getTextAreaWithId(id).setValue(valueOrNull);
         }
+    }
+
+    /**
+     * Gets the {@link Radio} with specified id.
+     * 
+     * @throws AssertionError if not found or isn't a text field.
+     */
+    public static Radio getRadioWithID(final String id)
+    {
+        final Widget widget = tryToFindByID(id);
+        assertWidgetFound("Radio", id, widget);
+        Assert.assertTrue("Widget '" + id + "' isn't a TextField: " + widget.getClass(),
+                widget instanceof Radio);
+        return (Radio) widget;
     }
 
     /**

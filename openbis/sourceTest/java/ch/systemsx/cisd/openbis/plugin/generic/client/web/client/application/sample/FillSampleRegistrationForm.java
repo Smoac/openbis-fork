@@ -89,7 +89,7 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
 
     public final void execute()
     {
-        GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.ID
+        GWTTestUtil.setTextField(GenericSampleRegistrationForm.ID
                 + AbstractGenericEntityRegistrationForm.ID_SUFFIX_CODE, code);
 
         final GroupSelectionWidget groupSelector =

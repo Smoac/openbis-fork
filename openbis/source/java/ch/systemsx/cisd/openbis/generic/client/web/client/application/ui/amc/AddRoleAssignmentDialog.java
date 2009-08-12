@@ -51,6 +51,8 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
 
     static final String ROLE_FIELD_ID = PREFIX + "role-field";
 
+    static final String AUTH_GROUP_RADIO = PREFIX + "auth-group-rd";
+
     private final GroupSelectionWidget group;
 
     private final PersonSelectionWidget person;
@@ -84,6 +86,7 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
         radioGroup.setFieldLabel("Grantee Type");
         authGroupRadio = new Radio();
         authGroupRadio.setBoxLabel("User Group");
+        authGroupRadio.setId(AUTH_GROUP_RADIO);
 
         personRadio = new Radio();
         personRadio.setBoxLabel("Person");

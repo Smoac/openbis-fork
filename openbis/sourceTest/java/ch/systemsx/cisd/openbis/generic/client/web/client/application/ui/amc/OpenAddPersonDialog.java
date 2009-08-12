@@ -16,27 +16,37 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension to check whether a list of persons has been
- * loaded.
+ * A {@link AbstractDefaultTestCommand} extension opening a dialog allowing to add a person to the
+ * authorization group.
  * 
- * @author Piotr Buczek
+ * @author Izabela Adamczyk
  */
-public class CheckPersonTable extends CheckTableCommand
+public final class OpenAddPersonDialog extends CheckTableCommand
 {
-    public CheckPersonTable()
-    {
-        this(null);
-    }
 
-    public CheckPersonTable(AuthorizationGroup authGroup)
+    private final AuthorizationGroup authGroup;
+
+    public OpenAddPersonDialog(AuthorizationGroup authGroup)
     {
         super(PersonGrid.createGridId(authGroup));
+        assert authGroup != null;
+        this.authGroup = authGroup;
+    }
+
+    @Override
+    public final void execute()
+    {
+        GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, PersonGrid.createBrowserId(authGroup)
+                + MainTabPanel.TAB_SUFFIX);
+        GWTTestUtil.clickButtonWithID(PersonGrid.createAddButtonId(authGroup));
     }
 
 }

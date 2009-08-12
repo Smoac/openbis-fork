@@ -27,12 +27,28 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.RowWithP
 public class RoleAssignmentRow extends RowWithProperties
 {
 
-    public RoleAssignmentRow(final String groupCode, final String userId, final String roleCode)
+    public static final RoleAssignmentRow personRoleRow(final String groupCode,
+            final String userId, final String roleCode)
     {
-        super();
-        withCell(RoleAssignmentColDefKind.GROUP.id(), groupCode);
-        withCell(RoleAssignmentColDefKind.PERSON.id(), userId);
-        withCell(RoleAssignmentColDefKind.ROLE.id(), roleCode);
+        return new RoleAssignmentRow(groupCode, userId, roleCode, null);
     }
 
+    public static final RoleAssignmentRow authorizationGroupRoleRow(final String groupCode,
+            final String authGroupId, final String roleCode)
+    {
+        return new RoleAssignmentRow(groupCode, null, roleCode, authGroupId);
+    }
+
+    private RoleAssignmentRow(final String groupCode, final String userId, final String roleCode,
+            String authGroupId)
+    {
+        super();
+        assert userId == null && authGroupId != null || userId != null && authGroupId == null;
+        withCell(RoleAssignmentColDefKind.GROUP.id(), groupCode);
+        if (userId != null)
+            withCell(RoleAssignmentColDefKind.PERSON.id(), userId);
+        if (authGroupId != null)
+            withCell(RoleAssignmentColDefKind.AUTHORIZATION_GROUP.id(), authGroupId);
+        withCell(RoleAssignmentColDefKind.ROLE.id(), roleCode);
+    }
 }

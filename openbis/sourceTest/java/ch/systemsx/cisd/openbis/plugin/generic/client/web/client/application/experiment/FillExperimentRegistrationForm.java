@@ -74,7 +74,7 @@ public final class FillExperimentRegistrationForm extends AbstractDefaultTestCom
 
     public final void execute()
     {
-        GWTTestUtil.setTextFieldValue(DUMMY_ID
+        GWTTestUtil.setTextField(DUMMY_ID
                 + AbstractGenericEntityRegistrationForm.ID_SUFFIX_CODE, code);
 
         final ProjectSelectionWidget projectSelector =

@@ -42,9 +42,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
 {
 
-    private static final String USER_ID = "o";
-
     private static final String TEST_GROUP = "test-group";
+
+    private static final String ADMINS_GROUP = "admins-group";
 
     public final void testCreateGroup()
     {
@@ -62,7 +62,7 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
     public final void testCreatePerson()
     {
         // This userId must be one of the ones located on 'etc/passwd' (file based authentication).
-        final String userId = USER_ID;
+        final String userId = TestConstants.USER_ID_O;
         loginAndInvokeAction(ActionMenuKind.AUTHORIZATION_MENU_USERS);
 
         remoteConsole.prepare(new CreatePerson(userId));
@@ -78,11 +78,26 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         loginAndInvokeAction(ActionMenuKind.AUTHORIZATION_MENU_ROLES);
 
         remoteConsole.prepare(new OpenRoleAssignmentDialog());
-        remoteConsole.prepare(new FillRoleAssignmentForm(TEST_GROUP.toUpperCase(), USER_ID,
-                RoleSetCode.OBSERVER.toString()));
+        remoteConsole.prepare(FillRoleAssignmentForm.fillPersonRole(TEST_GROUP.toUpperCase(),
+                TestConstants.USER_ID_O, RoleSetCode.OBSERVER.toString()));
         final CheckRoleAssignmentTable table = new CheckRoleAssignmentTable();
-        table.expectedRow(new RoleAssignmentRow(TEST_GROUP.toUpperCase(), USER_ID,
-                RoleSetCode.OBSERVER.toString()));
+        table.expectedRow(RoleAssignmentRow.personRoleRow(TEST_GROUP.toUpperCase(),
+                TestConstants.USER_ID_O, RoleSetCode.OBSERVER.toString()));
+        remoteConsole.prepare(table);
+
+        launchTest(20000);
+    }
+
+    public final void testCreateAuthorizationGroupRoleAssignment()
+    {
+        loginAndInvokeAction(ActionMenuKind.AUTHORIZATION_MENU_ROLES);
+
+        remoteConsole.prepare(new OpenRoleAssignmentDialog());
+        remoteConsole.prepare(FillRoleAssignmentForm.fillAuthorizationGroupRole(TEST_GROUP
+                .toUpperCase(), TestConstants.ADMINS_GROUP, RoleSetCode.OBSERVER.toString()));
+        final CheckRoleAssignmentTable table = new CheckRoleAssignmentTable();
+        table.expectedRow(RoleAssignmentRow.authorizationGroupRoleRow(TEST_GROUP.toUpperCase(),
+                ADMINS_GROUP, RoleSetCode.OBSERVER.toString()));
         remoteConsole.prepare(table);
 
         launchTest(20000);
@@ -105,4 +120,5 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
 
         launchTest(20000);
     }
+
 }

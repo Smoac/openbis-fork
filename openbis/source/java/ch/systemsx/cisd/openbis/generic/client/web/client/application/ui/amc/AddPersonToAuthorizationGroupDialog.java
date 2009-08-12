@@ -50,6 +50,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
  */
 public class AddPersonToAuthorizationGroupDialog extends AbstractRegistrationDialog
 {
+
+    public static final String ID_MULTIPLE_PERSON_RADIO = "multiple-person-rd";
+
+    public static final String ID_MULTIPLE_PERSON_FIELD = "multiple-person-field";
+
+    public static final String ID_SINGLE_PERSON_FIELD = "single-person-field";
+
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private final PersonSelectionWidget singlePersonField;
@@ -75,6 +82,7 @@ public class AddPersonToAuthorizationGroupDialog extends AbstractRegistrationDia
         RadioGroup radioGroup = new RadioGroup();
         radioGroup.setLabelSeparator("");
         multiplePersonsRadio = new Radio();
+        multiplePersonsRadio.setId(createId(authorizationGroupOrNull, ID_MULTIPLE_PERSON_RADIO));
         multiplePersonsRadio.setBoxLabel(viewContext.getMessage(Dict.RADIO_MANY_USERS));
         singlePersonRadio = new Radio();
         singlePersonRadio.setBoxLabel(viewContext.getMessage(Dict.RADIO_ONE_USER));
@@ -83,10 +91,13 @@ public class AddPersonToAuthorizationGroupDialog extends AbstractRegistrationDia
         radioGroup.add(multiplePersonsRadio);
         addField(radioGroup);
 
-        this.singlePersonField = new PersonSelectionWidget(viewContext, getId());
+        this.singlePersonField =
+                new PersonSelectionWidget(viewContext, createId(authorizationGroupOrNull,
+                        ID_SINGLE_PERSON_FIELD));
         FieldUtil.setMandatoryFlag(singlePersonField, true);
         addField(singlePersonField);
         this.multiplePersonsField = new TextArea();
+        multiplePersonsField.setId(createId(authorizationGroupOrNull, ID_MULTIPLE_PERSON_FIELD));
         multiplePersonsField.setHeight("10em");
         multiplePersonsField.setFieldLabel(viewContext.getMessage(Dict.PERSONS_IDS_LABEL));
         multiplePersonsField.setEmptyText(viewContext.getMessage(Dict.PERSON_IDS_LIST));
@@ -104,6 +115,12 @@ public class AddPersonToAuthorizationGroupDialog extends AbstractRegistrationDia
                             .getValue(), singlePersonField, multiplePersonsField);
                 }
             });
+    }
+
+    public static final String createId(AuthorizationGroup authorizationGroupOrNull, String suffix)
+    {
+        return GenericConstants.ID_PREFIX + "_add-person-to-user-group-dialog_"
+                + authorizationGroupOrNull.getId() + "_" + suffix;
     }
 
     public final List<String> getUserCodes()

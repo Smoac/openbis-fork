@@ -63,10 +63,10 @@ public final class FillPropertyTypeRegistrationForm extends AbstractDefaultTestC
 
     public final void execute()
     {
-        GWTTestUtil.setTextFieldValue(PropertyTypeRegistrationForm.ID + "_code", code);
-        GWTTestUtil.setTextFieldValue(PropertyTypeRegistrationForm.ID + "_label", label);
+        GWTTestUtil.setTextField(PropertyTypeRegistrationForm.ID + "_code", code);
+        GWTTestUtil.setTextField(PropertyTypeRegistrationForm.ID + "_label", label);
         GWTTestUtil
-                .setTextFieldValue(PropertyTypeRegistrationForm.ID + "_description", description);
+                .setTextField(PropertyTypeRegistrationForm.ID + "_description", description);
         final Widget widgetWithID =
                 GWTTestUtil.getWidgetWithID(DataTypeSelectionWidget.ID
                         + DataTypeSelectionWidget.SUFFIX);

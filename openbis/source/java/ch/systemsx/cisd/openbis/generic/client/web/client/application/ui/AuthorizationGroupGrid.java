@@ -75,6 +75,8 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
 
     public static final String DELETE_BUTTON_ID = BROWSER_ID + "_delete-button";
 
+    public static final String USERS_BUTTON_ID = BROWSER_ID + "_users-button";
+
     private final IDelegatedAction postRegistrationCallback;
 
     public static IDisposableComponent create(
@@ -105,6 +107,7 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
                                     showEntityViewer(selectedItem.getBaseObject(), false);
                                 }
                             });
+        showDetailsButton.setId(USERS_BUTTON_ID);
         addButton(showDetailsButton);
 
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
@@ -130,6 +133,7 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
                                             selected, createDeletionCallback(invoker));
                                 }
                             });
+        deleteButton.setId(DELETE_BUTTON_ID);
         addButton(deleteButton);
         final Button addAuthorizationGroupButton =
                 new Button(viewContext.getMessage(Dict.BUTTON_ADD_GROUP),

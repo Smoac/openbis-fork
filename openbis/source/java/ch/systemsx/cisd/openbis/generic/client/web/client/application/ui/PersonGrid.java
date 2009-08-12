@@ -65,6 +65,8 @@ public class PersonGrid extends AbstractSimpleBrowserGrid<Person>
 
     private static final String ADD_BUTTON_SUFFIX = "_add-button";
 
+    private static final String REMOVE_BUTTON_SUFFIX = "_remove-button";
+
     private final AuthorizationGroup authorizationGroupOrNull;
 
     public static IDisposableComponent create(
@@ -106,6 +108,11 @@ public class PersonGrid extends AbstractSimpleBrowserGrid<Person>
     private static final String createBrowserId(TechId id)
     {
         return BROWSER_ID + (id != null ? ("_" + id) : "");
+    }
+
+    public static final String createRemoveButtonId(AuthorizationGroup group)
+    {
+        return createBrowserId(group) + REMOVE_BUTTON_SUFFIX;
     }
 
     public static final String createAddButtonId(AuthorizationGroup group)
@@ -153,6 +160,7 @@ public class PersonGrid extends AbstractSimpleBrowserGrid<Person>
                                                 createDeletionCallback(invoker));
                                     }
                                 });
+            deleteButton.setId(createRemoveButtonId(authorizationGroupOrNull));
             addButton(deleteButton);
             allowMultipleSelection();
         }
