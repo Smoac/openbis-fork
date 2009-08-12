@@ -454,7 +454,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                         one(dao).updateProteinReferenceDescription(PROTEIN_REFERENCE_ID, description);
                     }
                     
-                    one(dao).tryToGetSequenceByReferenceAndDatabase(PROTEIN_REFERENCE_ID, DATABASE_ID);
+                    one(dao).tryToGetSequencesByReferenceAndDatabase(PROTEIN_REFERENCE_ID, DATABASE_ID);
                     Sequence seq = new Sequence(sequence);
                     seq.setId(SEQUENCE_ID);
                     if (referenceExist == false)

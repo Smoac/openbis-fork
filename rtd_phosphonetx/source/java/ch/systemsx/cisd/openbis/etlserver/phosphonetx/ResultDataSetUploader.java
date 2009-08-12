@@ -22,6 +22,8 @@ import java.util.List;
 
 import net.lemnik.eodsql.QueryTool;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -47,29 +49,32 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class ResultDataSetUploader extends AbstractHandler
 {
     static final String PARAMETER_TYPE_ABUNDANCE = "abundance";
-    
+
     private final Connection connection;
+
     private final IEncapsulatedOpenBISService openbisService;
-    
+
+    private final StringBuffer errorMessages;
+
     ResultDataSetUploader(Connection connection, IEncapsulatedOpenBISService openbisService)
     {
         this(QueryTool.getQuery(connection, IProtDAO.class), connection, openbisService);
     }
-    
-    ResultDataSetUploader(IProtDAO dao, Connection connection, IEncapsulatedOpenBISService openbisService)
+
+    ResultDataSetUploader(IProtDAO dao, Connection connection,
+            IEncapsulatedOpenBISService openbisService)
     {
         super(dao);
         this.connection = connection;
         this.openbisService = openbisService;
+        this.errorMessages = new StringBuffer();
     }
-    
+
     void upload(DataSetInformation dataSetInfo, ProteinSummary summary)
     {
         try
@@ -78,9 +83,19 @@ class ResultDataSetUploader extends AbstractHandler
             Sample sample = getOrCreateSample(experiment, dataSetInfo.getSample().getPermId());
             String referenceDatabase = summary.getSummaryHeader().getReferenceDatabase();
             Database database = getOrGreateDatabase(referenceDatabase);
-            DataSet ds = getOrCreateDataSet(experiment, sample, database, dataSetInfo.getDataSetCode());
+            DataSet ds =
+                    getOrCreateDataSet(experiment, sample, database, dataSetInfo.getDataSetCode());
             addToDatabase(ds, experiment, dataSetInfo.getSample().getGroup(), summary);
-            connection.commit();
+            if (errorMessages.length() == 0)
+            {
+                connection.commit();
+            } else
+            {
+                throw UserFailureException.fromTemplate(
+                        "Following errors occurred while uploading protein information"
+                                + " to the dataset database from the dataset '%s': %s" + " ",
+                        dataSetInfo.getDataSetCode(), errorMessages.toString());
+            }
         } catch (Throwable throwable)
         {
             try
@@ -94,7 +109,6 @@ class ResultDataSetUploader extends AbstractHandler
         }
     }
 
-    
     private Database getOrGreateDatabase(String databaseNameAndVersion)
     {
         int indexOfLastSlash = databaseNameAndVersion.lastIndexOf('/');
@@ -164,9 +178,30 @@ class ResultDataSetUploader extends AbstractHandler
             if (proteins.isEmpty() == false)
             {
                 // Only the first protein of a ProteinGroup is valid
-                addProtein(proteins.get(0), dataSetID, databaseID, abundanceHandler);
+                Protein protein = proteins.get(0);
+                try
+                {
+                    addProtein(protein, dataSetID, databaseID, abundanceHandler);
+                } catch (Exception e)
+                {
+                    logException(e, "protein", protein.getName());
+                }
             }
         }
+    }
+
+    private void logException(Exception e, String objectType, String instanceDescription)
+    {
+        StringBuffer sb = new StringBuffer();
+        sb.append("Cannot load following '");
+        sb.append(objectType);
+        sb.append("': ");
+        sb.append(instanceDescription);
+        sb.append(" because of the following exception: ");
+        String message = e.getMessage();
+        sb.append(message == null ? e.toString() : message);
+        sb.append("\n");
+        errorMessages.append(sb.toString());
     }
 
     private void addProtein(Protein protein, long dataSetID, Long databaseID,
@@ -188,26 +223,48 @@ class ResultDataSetUploader extends AbstractHandler
         List<Peptide> peptides = protein.getPeptides();
         for (Peptide peptide : peptides)
         {
-            String peptideSequence = peptide.getSequence();
-            int charge = peptide.getCharge();
-            long peptideID = dao.createPeptide(proteinID, peptideSequence, charge);
-            List<PeptideModification> modifications = peptide.getModifications();
-            for (PeptideModification modification : modifications)
+            try
             {
-                double ntermMass = modification.getNTermMass();
-                double ctermMass = modification.getCTermMass();
-                long modPeptideID = dao.createModifiedPeptide(peptideID, ntermMass, ctermMass);
-                List<AminoAcidMass> aminoAcidMasses = modification.getAminoAcidMasses();
-                for (AminoAcidMass aminoAcidMass : aminoAcidMasses)
-                {
-                    double mass = aminoAcidMass.getMass();
-                    int position = aminoAcidMass.getPosition();
-                    dao.createModification(modPeptideID, position, mass);
-                }
+                addPeptide(proteinID, peptide);
+            } catch (Exception e)
+            {
+                logException(e, "peptide", peptide.getSequence().toString());
             }
         }
     }
-    
+
+    private void addPeptide(long proteinID, Peptide peptide)
+    {
+        String peptideSequence = peptide.getSequence();
+        int charge = peptide.getCharge();
+        long peptideID = dao.createPeptide(proteinID, peptideSequence, charge);
+        List<PeptideModification> modifications = peptide.getModifications();
+        for (PeptideModification modification : modifications)
+        {
+            try
+            {
+                addPeptideModification(peptideID, modification);
+            } catch (Exception e)
+            {
+                logException(e, "modification", modification.toString());
+            }
+        }
+    }
+
+    private void addPeptideModification(long peptideID, PeptideModification modification)
+    {
+        double ntermMass = modification.getNTermMass();
+        double ctermMass = modification.getCTermMass();
+        long modPeptideID = dao.createModifiedPeptide(peptideID, ntermMass, ctermMass);
+        List<AminoAcidMass> aminoAcidMasses = modification.getAminoAcidMasses();
+        for (AminoAcidMass aminoAcidMass : aminoAcidMasses)
+        {
+            double mass = aminoAcidMass.getMass();
+            int position = aminoAcidMass.getPosition();
+            dao.createModification(modPeptideID, position, mass);
+        }
+    }
+
     private void createIdentifiedProtein(long proteinID, Long databaseID,
             ProteinAnnotation annotation)
     {
@@ -219,13 +276,13 @@ class ResultDataSetUploader extends AbstractHandler
         {
             proteinReference = new ProteinReference();
             proteinReference.setId(dao.createProteinReference(uniprotID, description));
-        } else if (description.equals(proteinReference.getDescription()) == false)
+        } else if (StringUtils.equals(description, proteinReference.getDescription()) == false)
         {
             dao.updateProteinReferenceDescription(proteinReference.getId(), description);
         }
         Sequence sequence =
-                dao.tryToGetSequenceByReferenceAndDatabase(proteinReference.getId(), databaseID);
-        if (sequence == null || protDesc.getSequence().equals(sequence.getSequence()) == false)
+                tryFindSequence(proteinReference.getId(), databaseID, protDesc.getSequence());
+        if (sequence == null)
         {
             sequence = new Sequence(protDesc.getSequence());
             sequence.setDatabaseID(databaseID);
@@ -233,6 +290,24 @@ class ResultDataSetUploader extends AbstractHandler
             sequence.setId(dao.createSequence(sequence));
         }
         dao.createIdentifiedProtein(proteinID, sequence.getId());
+    }
+
+    private Sequence tryFindSequence(long referenceID, Long databaseID, String sequence)
+    {
+        List<Sequence> sequences =
+                dao.tryToGetSequencesByReferenceAndDatabase(referenceID, databaseID);
+        if (sequences == null || sequences.isEmpty())
+        {
+            return null;
+        }
+        for (Sequence foundSequence : sequences)
+        {
+            if (sequence.equals(foundSequence.getSequence()))
+            {
+                return foundSequence;
+            }
+        }
+        return null;
     }
 
     private void createProbabilityToFDRMapping(long dataSetID, ProteinSummary summary)
@@ -258,6 +333,5 @@ class ResultDataSetUploader extends AbstractHandler
         }
         throw new UserFailureException("Missing Protein Prophet details.");
     }
-    
 
 }
