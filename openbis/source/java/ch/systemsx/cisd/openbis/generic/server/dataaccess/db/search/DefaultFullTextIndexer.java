@@ -71,6 +71,7 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         final Transaction transaction = hibernateSession.beginTransaction();
         final ScrollableResults results =
                 fullTextSession.createCriteria(clazz).scroll(ScrollMode.FORWARD_ONLY);
+        operationLog.info(String.format("Indexing '%s'...", clazz.getSimpleName()));
         int index = 0;
         while (results.next())
         {
@@ -78,9 +79,11 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
             final Object object = results.get(0);
             indexEntity(hibernateSession, fullTextSession, index, object);
         }
+        // TODO 2009-08-12, Piotr Buczek: check whether optimize improves search perfomance
+        // fullTextSession.getSearchFactory().optimize(clazz);
         transaction.commit();
-        operationLog
-                .info(String.format("%d '%s' have been indexed.", index, clazz.getSimpleName()));
+        operationLog.info(String.format("'%s' index complete. %d entities have been indexed.",
+                clazz.getSimpleName(), index));
     }
 
     private <T> void indexEntity(final Session hibernateSession,
@@ -100,6 +103,8 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         }
         if (batchSize > 0 && index % batchSize == 0)
         {
+            operationLog.info(String.format("%d '%s' have been indexed...", index, object
+                    .getClass().getSimpleName()));
             fullTextSession.flushToIndexes();
             hibernateSession.clear();
         }
