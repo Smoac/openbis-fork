@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 nostartup=0
 if [[ "$1" = '-n' || "$1" = '--nostartup' ]]; then
@@ -94,7 +94,7 @@ mkdir  "${tomcat_folder}/etc"
 cp -p "${properties_file}" "${openbis_web_inf}/classes/service.properties"
 echo Given properties file \'${properties_file}\' copied to \'${openbis_web_inf}/classes/service.properties\'
 cp -p "${startup_properties_file}" "${tomcat_folder}/etc/"
-echo Given properties file \'${startup_properties_file}\' copied to \'${startup_properties_file}\'
+echo Given properties file \'${startup_properties_file}\' copied to \'${tomcat_folder}/etc/\'
 
 # Create symlinks for easier access
 
