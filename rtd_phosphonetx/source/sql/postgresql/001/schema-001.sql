@@ -32,7 +32,7 @@ CREATE DOMAIN TECH_ID AS BIGINT;
 
 CREATE DOMAIN SHORT_SEQUENCE AS CHARACTER VARYING(1000);
 
-CREATE DOMAIN UNIPROT_ACCESSION_NUMBER AS CHARACTER VARYING(40);
+CREATE DOMAIN UNIPROT_ACCESSION_NUMBER AS CHARACTER VARYING(256);
 
 /* ---------------------------------------------------------------------- */
 /* Tables                                                                 */
