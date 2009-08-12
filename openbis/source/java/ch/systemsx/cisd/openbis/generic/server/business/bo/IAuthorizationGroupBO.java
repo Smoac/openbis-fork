@@ -60,15 +60,16 @@ public interface IAuthorizationGroupBO extends IBusinessObject
      * Loads authorization group with given technical id or throws exception if no such group
      * exists.
      */
-    void loadByTechId(TechId authorizatonGroupId);
+    public void loadByTechId(TechId authorizatonGroupId);
 
     /**
-     * Adds persons with given codes to the loaded authorization group.
+     * Adds persons with given codes to the loaded authorization group. Returns a list of users
+     * codes not registered in the system.
      */
-    void addPersons(List<String> personsCodes);
+    public List<String> addPersons(List<String> personsCodes);
 
     /**
      * Removes persons with given codes from the loaded authorization group.
      */
-    void removePersons(List<String> personsCodes);
+    public void removePersons(List<String> personsCodes);
 }

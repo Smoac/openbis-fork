@@ -657,19 +657,21 @@ public interface ICommonClientService extends IClientService
     /**
      * Deletes selected authorization groups.
      */
-    public void deleteAuthorizationGroups(List<TechId> createList, String reason);
+    public void deleteAuthorizationGroups(List<TechId> createList, String reason)
+            throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for AuthorizationGroups.
      */
     public String prepareExportAuthorizationGroups(
-            TableExportCriteria<AuthorizationGroup> exportCriteria);
+            TableExportCriteria<AuthorizationGroup> exportCriteria) throws UserFailureException;
 
     /**
      * Returns {@link AuthorizationGroup}s for given criteria.
      */
     public ResultSet<AuthorizationGroup> listAuthorizationGroups(
-            DefaultResultSetConfig<String, AuthorizationGroup> resultSetConfig);
+            DefaultResultSetConfig<String, AuthorizationGroup> resultSetConfig)
+            throws UserFailureException;
 
     /**
      * Returns a list of authorization groups registered in given database instance.
@@ -679,7 +681,8 @@ public interface ICommonClientService extends IClientService
     /**
      * Creates a new authorization group.
      */
-    public void registerAuthorizationGroup(NewAuthorizationGroup newAuthorizationGroup);
+    public void registerAuthorizationGroup(NewAuthorizationGroup newAuthorizationGroup)
+            throws UserFailureException;
 
     /**
      * Returns a list persons belonging to given authorization group.
@@ -689,17 +692,18 @@ public interface ICommonClientService extends IClientService
     /**
      * Updates given authorization group.
      */
-    public void updateAuthorizationGroup(AuthorizationGroupUpdates updates);
+    public void updateAuthorizationGroup(AuthorizationGroupUpdates updates)
+            throws UserFailureException;
 
     /**
      * Adds persons with specified codes to the authorization group with given tech id.
      */
     public void addPersonsToAuthorizationGroup(TechId authorizationGroupId,
-            List<String> personsCodes);
+            List<String> personsCodes) throws UserFailureException;
 
     /**
      * Removes persons with specified codesfrom the authorization group with given tech id.
      */
     public void removePersonsFromAuthorizationGroup(TechId authorizationGroupId,
-            List<String> personsCodes);
+            List<String> personsCodes) throws UserFailureException;
 }

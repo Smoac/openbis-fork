@@ -351,8 +351,8 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(personDAO).tryFindPersonByUserId(CommonTestUtils.USER_ID);
-                    will(returnValue(null));
+                    one(personDAO).listByCodes(Arrays.asList(CommonTestUtils.USER_ID));
+                    will(returnValue(new ArrayList<PersonPE>()));
 
                     final String applicationToken = "application-token";
                     one(authenticationService).authenticateApplication();
@@ -379,8 +379,10 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(personDAO).tryFindPersonByUserId(CommonTestUtils.USER_ID);
-                    will(returnValue(CommonTestUtils.createPersonFromPrincipal(PRINCIPAL)));
+
+                    one(personDAO).listByCodes(Arrays.asList(CommonTestUtils.USER_ID));
+                    will(returnValue(Arrays.asList(CommonTestUtils
+                            .createPersonFromPrincipal(PRINCIPAL))));
                 }
             });
 
@@ -390,7 +392,8 @@ public final class CommonServerTest extends AbstractServerTestCase
             fail("UserFailureException expected");
         } catch (final UserFailureException e)
         {
-            assertEquals("Person '" + CommonTestUtils.USER_ID + "' already exists.", e.getMessage());
+            assertEquals("Following persons already exist: [" + CommonTestUtils.USER_ID + "]", e
+                    .getMessage());
         }
 
         context.assertIsSatisfied();
@@ -403,8 +406,8 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(personDAO).tryFindPersonByUserId(CommonTestUtils.USER_ID);
-                    will(returnValue(null));
+                    one(personDAO).listByCodes(Arrays.asList(CommonTestUtils.USER_ID));
+                    will(returnValue(new ArrayList<PersonPE>()));
 
                     final String applicationToken = "application-token";
                     one(authenticationService).authenticateApplication();
@@ -422,8 +425,8 @@ public final class CommonServerTest extends AbstractServerTestCase
             fail("UserFailureException expected");
         } catch (final UserFailureException e)
         {
-            assertEquals("Person '" + CommonTestUtils.USER_ID
-                    + "' unknown by the authentication service.", e.getMessage());
+            assertEquals("Following persons unknown by the authentication service: ["
+                    + CommonTestUtils.USER_ID + "]", e.getMessage());
         }
 
         context.assertIsSatisfied();

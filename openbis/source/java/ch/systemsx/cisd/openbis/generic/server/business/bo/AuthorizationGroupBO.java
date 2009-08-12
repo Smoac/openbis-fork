@@ -16,10 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.ObjectRetrievalFailureException;
+import org.springframework.dao.DataRetrievalFailureException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -133,7 +134,7 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
         try
         {
             authorizationGroup = getAuthorizationGroupDAO().getByTechId(techId);
-        } catch (ObjectRetrievalFailureException exception)
+        } catch (DataRetrievalFailureException exception)
         {
             throw new UserFailureException(String.format(
                     "Authorization group with ID '%s' does not exist.", techId));
@@ -166,14 +167,17 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
         dataChanged = true;
     }
 
-    public void addPersons(List<String> personsCodes)
+    public List<String> addPersons(List<String> personsCodes)
     {
         assert authorizationGroup != null : "Not initialized";
+        List<String> inexistent = new ArrayList<String>(personsCodes);
         List<PersonPE> users = getPersonDAO().listByCodes(personsCodes);
         for (PersonPE person : users)
         {
+            inexistent.remove(person.getUserId());
             authorizationGroup.addPerson(person);
         }
+        return inexistent;
     }
 
     public void removePersons(List<String> personsCodes)

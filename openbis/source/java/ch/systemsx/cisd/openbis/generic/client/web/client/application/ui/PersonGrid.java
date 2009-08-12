@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -217,9 +218,15 @@ public class PersonGrid extends AbstractSimpleBrowserGrid<Person>
 
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.PERSON),
-                    DatabaseModificationKind.edit(ObjectKind.PERSON) };
+        List<DatabaseModificationKind> databaseModificationKinds =
+                new ArrayList<DatabaseModificationKind>();
+        databaseModificationKinds.add(DatabaseModificationKind.createOrDelete(ObjectKind.PERSON));
+        databaseModificationKinds.add(DatabaseModificationKind.edit(ObjectKind.PERSON));
+        if (authorizationGroupOrNull != null)
+        {
+            databaseModificationKinds.add(DatabaseModificationKind
+                    .createOrDelete(ObjectKind.AUTHORIZATION_GROUP));
+        }
+        return databaseModificationKinds.toArray(new DatabaseModificationKind[0]);
     }
-
 }

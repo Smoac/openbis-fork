@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -227,26 +229,41 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public final void registerPerson(final String sessionToken, final String userID)
     {
+        registerPersons(sessionToken, Arrays.asList(userID));
+    }
+
+    private final void registerPersons(final String sessionToken, final List<String> userIDs)
+    {
         final Session session = getSessionManager().getSession(sessionToken);
-        final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userID);
-        if (person != null)
+        final List<PersonPE> persons = getDAOFactory().getPersonDAO().listByCodes(userIDs);
+        if (persons.size() > 0)
         {
-            throw UserFailureException.fromTemplate("Person '%s' already exists.", userID);
+            throw UserFailureException.fromTemplate("Following persons already exist: [%s]",
+                    StringUtils.join(userIDs, ","));
         }
         final String applicationToken = authenticationService.authenticateApplication();
         if (applicationToken == null)
         {
             throw new EnvironmentFailureException("Authentication service cannot be accessed.");
         }
-        try
+        List<String> unknownUsers = new ArrayList<String>();
+        for (String userID : userIDs)
         {
-            final Principal principal =
-                    authenticationService.getPrincipal(applicationToken, userID);
-            createPerson(principal, session.tryGetPerson());
-        } catch (final IllegalArgumentException e)
+            try
+            {
+                final Principal principal =
+                        authenticationService.getPrincipal(applicationToken, userID);
+                createPerson(principal, session.tryGetPerson());
+            } catch (final IllegalArgumentException e)
+            {
+                unknownUsers.add(userID);
+            }
+        }
+        if (unknownUsers.size() > 0)
         {
-            throw new UserFailureException("Person '" + userID
-                    + "' unknown by the authentication service.");
+            throw UserFailureException.fromTemplate(
+                    "Following persons unknown by the authentication service: [%s]", StringUtils
+                            .join(userIDs, ","));
         }
     }
 
@@ -1508,11 +1525,25 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public void addPersonsToAuthorizationGroup(String sessionToken, TechId authorizationGroupId,
             List<String> personsCodes)
     {
+        List<String> inexistent =
+                addExistingPersonsToAuthorizationGroup(sessionToken, authorizationGroupId,
+                        personsCodes);
+        if (inexistent.size() > 0)
+        {
+            registerPersons(sessionToken, inexistent);
+            addExistingPersonsToAuthorizationGroup(sessionToken, authorizationGroupId, inexistent);
+        }
+    }
+
+    private List<String> addExistingPersonsToAuthorizationGroup(String sessionToken,
+            TechId authorizationGroupId, List<String> personsCodes)
+    {
         final Session session = getSessionManager().getSession(sessionToken);
         final IAuthorizationGroupBO bo = businessObjectFactory.createAuthorizationGroupBO(session);
         bo.loadByTechId(authorizationGroupId);
-        bo.addPersons(personsCodes);
+        List<String> inexistent = bo.addPersons(personsCodes);
         bo.save();
+        return inexistent;
     }
 
     public void removePersonsFromAuthorizationGroup(String sessionToken,
