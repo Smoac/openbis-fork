@@ -167,7 +167,7 @@ public class DataCompletedFilter implements IStoreItemFilter
                 conditionalNotificationLog.log(LogLevel.INFO, message);
             } else
             {
-                conditionalNotificationLog.log(LogLevel.ERROR, message);
+                conditionalNotificationLog.log(LogLevel.WARN, message);
             }
             result.log();
             lastProcessResult = result;
