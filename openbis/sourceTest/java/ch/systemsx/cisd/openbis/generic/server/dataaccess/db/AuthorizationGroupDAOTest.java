@@ -90,4 +90,41 @@ public class AuthorizationGroupDAOTest extends AbstractDAOTest
         daoFactory.getAuthorizationGroupDAO().create(createAuthorizationGroup("***", "desc"));
     }
 
+    @Test
+    public void testDeleteAuthGroup() throws Exception
+    {
+        String code = "code";
+        AuthorizationGroupPE authGroup = createAuthorizationGroup(code, "description");
+        daoFactory.getAuthorizationGroupDAO().create(authGroup);
+        AssertJUnit.assertNotNull(daoFactory.getAuthorizationGroupDAO().tryFindByCode(code));
+        daoFactory.getAuthorizationGroupDAO().delete(authGroup);
+        AssertJUnit.assertNull(daoFactory.getAuthorizationGroupDAO().tryFindByCode(code));
+    }
+
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
+    public void testTryDeleteAuthGroupWithUsers() throws Exception
+    {
+        String code = "code";
+        AuthorizationGroupPE authGroup = createAuthorizationGroup(code, "description");
+        authGroup.addPerson(daoFactory.getPersonDAO().listPersons().get(0));
+        daoFactory.getAuthorizationGroupDAO().create(authGroup);
+        AssertJUnit.assertNotNull(daoFactory.getAuthorizationGroupDAO().tryFindByCode(code));
+        daoFactory.getAuthorizationGroupDAO().delete(authGroup);
+    }
+
+    @Test
+    public void testEditAuthGroup() throws Exception
+    {
+        String code = "code";
+        String oldDescription = "old description";
+        AuthorizationGroupPE authGroup = createAuthorizationGroup(code, oldDescription);
+        daoFactory.getAuthorizationGroupDAO().create(authGroup);
+        AssertJUnit.assertEquals(oldDescription, daoFactory.getAuthorizationGroupDAO()
+                .tryFindByCode(code).getDescription());
+        String newDescription = "new description";
+        authGroup.setDescription(newDescription);
+        AssertJUnit.assertEquals(newDescription, daoFactory.getAuthorizationGroupDAO()
+                .tryFindByCode(code).getDescription());
+    }
+
 }
