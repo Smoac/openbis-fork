@@ -86,7 +86,7 @@ public class ProteinViewer extends
                             new ProteinViewer(viewContext, experimentOrNull, proteinInfo.getId());
                     DatabaseModificationAwareComponent c =
                             new DatabaseModificationAwareComponent(viewer, viewer);
-                    String description = StringUtils.abbreviate(proteinInfo.getDescription(), 30);
+                    String description = getAbbreviatedDescription(proteinInfo);
                     String identifier =
                             experimentOrNull == null ? "?" : experimentOrNull.getIdentifier();
                     return DefaultTabItem.create(viewContext.getMessage(
@@ -94,6 +94,16 @@ public class ProteinViewer extends
                             viewContext, false);
                 }
             };
+    }
+
+    private static String getAbbreviatedDescription(final ProteinInfo proteinInfo)
+    {
+        String info = proteinInfo.getDescription();
+        if (info == null)
+        {
+            info = proteinInfo.getUniprotID();
+        }
+        return StringUtils.abbreviate(info, 30);
     }
 
     static String createWidgetID(TechId proteinReferenceID)
