@@ -706,13 +706,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             List<String> personsCodes)
     {
         logTracking(sessionToken, "addPersonsToAuthorizationGroup", "TECH_ID(%s) PERSONS(%s)",
-                authorizationGroupId, StringUtils.join(personsCodes.toArray(new String[0])));
+                authorizationGroupId, StringUtils.join(personsCodes.toArray(new String[0]), ","));
     }
 
     public void removePersonsFromAuthorizationGroup(String sessionToken,
             TechId authorizationGroupId, List<String> personsCodes)
     {
         logTracking(sessionToken, "removePersonsFromAuthorizationGroup", "TECH_ID(%s) PERSONS(%s)",
-                authorizationGroupId, StringUtils.join(personsCodes.toArray(new String[0])));
+                authorizationGroupId, StringUtils.join(personsCodes.toArray(new String[0]), ","));
     }
 }
