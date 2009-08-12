@@ -52,7 +52,7 @@ ln -s $SERVERS_VER $SERVERS_DIR_ALIAS
 cd $SERVERS_DIR_ALIAS
 unzip ../openBIS-server*$VER*
 cd openBIS-server
-./install.sh --nostartup $PWD ../../service.properties
+./install.sh --nostartup $PWD ../../service.properties ../../openbis.conf
 if [ -f $KEYSTORE ]; then
   cp -p $KEYSTORE apache-tomcat/openBIS.keystore
   sed 's/-Djavax.net.ssl.trustStore=openBIS.keystore //g' apache-tomcat/bin/startup.sh > new-startup.sh
