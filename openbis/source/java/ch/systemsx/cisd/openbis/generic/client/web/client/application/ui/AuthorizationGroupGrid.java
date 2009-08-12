@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.AuthorizationGroupColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GroupColDefKind;
@@ -169,6 +170,7 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
         ColumnDefsAndConfigs<AuthorizationGroup> schema = super.createColumnsDefinition();
         schema.setGridCellRendererFor(GroupColDefKind.DESCRIPTION.id(),
                 createMultilineStringCellRenderer());
+        schema.setGridCellRendererFor(GroupColDefKind.CODE.id(), LinkRenderer.createLinkRenderer());
         return schema;
     }
 
