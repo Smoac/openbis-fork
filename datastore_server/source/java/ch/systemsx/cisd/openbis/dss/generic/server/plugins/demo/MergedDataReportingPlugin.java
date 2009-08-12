@@ -84,7 +84,7 @@ public class MergedDataReportingPlugin extends AbstractDatastorePlugin implement
                                     .getDatasetCode(), StringUtils.join(lines.getHeaderTokens(),
                                     "\t"));
                 }
-                addDataRow(builder, dataset, lines.getDataTokens());
+                addDataRows(builder, dataset, lines.getDataLines());
             }
         }
 
@@ -98,10 +98,19 @@ public class MergedDataReportingPlugin extends AbstractDatastorePlugin implement
         return lines.getHeaderTokens();
     }
 
-    private static void addDataRow(TableModelBuilder builder, DatasetDescription dataset,
-            String[] dataTokens)
+    private static void addDataRows(TableModelBuilder builder, DatasetDescription dataset,
+            List<String[]> dataLines)
     {
         String datasetCode = dataset.getDatasetCode();
+        for (String[] dataTokens : dataLines)
+        {
+            addDataRow(builder, datasetCode, dataTokens);
+        }
+    }
+
+    private static void addDataRow(TableModelBuilder builder, String datasetCode,
+            String[] dataTokens)
+    {
         List<String> row = new ArrayList<String>();
         row.add(datasetCode);
         row.addAll(Arrays.asList(dataTokens));
@@ -205,25 +214,30 @@ public class MergedDataReportingPlugin extends AbstractDatastorePlugin implement
     {
         private final String[] headerTokens;
 
-        private final String[] dataTokens;
+        private final List<String[]> dataLines;
 
         public DatasetFileLines(DatasetDescription dataset, List<String> lines)
         {
             super();
-            if (lines.size() != 2)
+            if (lines.size() < 2)
             {
                 throw UserFailureException.fromTemplate(
-                        "Data Set '%s' file has has wrong number of lines (%s instead of 2).",
-                        dataset.getDatasetCode(), lines.size());
+                        "Data Set '%s' file should have at least 2 lines instead of %s.", dataset
+                                .getDatasetCode(), lines.size());
             }
             this.headerTokens = parseLine(lines.get(0));
-            this.dataTokens = parseLine(lines.get(1));
-            if (headerTokens.length != dataTokens.length)
+            dataLines = new ArrayList<String[]>(lines.size());
+            for (int i = 1; i < lines.size(); i++)
             {
-                throw UserFailureException.fromTemplate(
-                        "Number of columns in header (%s) does not match number of columns "
-                                + "in data row (%s) in Data Set '%s' file.", headerTokens.length,
-                        dataTokens.length, dataset.getDatasetCode());
+                String[] dataTokens = parseLine(lines.get(i));
+                if (headerTokens.length != dataTokens.length)
+                {
+                    throw UserFailureException.fromTemplate(
+                            "Number of columns in header (%s) does not match number of columns "
+                                    + "in %d data row (%s) in Data Set '%s' file.",
+                            headerTokens.length, i, dataTokens.length, dataset.getDatasetCode());
+                }
+                dataLines.add(dataTokens);
             }
         }
 
@@ -239,9 +253,9 @@ public class MergedDataReportingPlugin extends AbstractDatastorePlugin implement
             return headerTokens;
         }
 
-        public String[] getDataTokens()
+        public List<String[]> getDataLines()
         {
-            return dataTokens;
+            return dataLines;
         }
 
     }
