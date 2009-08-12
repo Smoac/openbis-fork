@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.AminoAcidMass;
@@ -61,42 +62,68 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ResultDataSetUploaderTest extends AssertJUnit
 {
     private static final long MOD_PEPTIDE_ID = 101L;
+
     private static final long PEPTIDE_ID = 99L;
+
     private static final long CELL_LYSATE_ID1 = 88L;
+
     private static final String CELL_LYSATE1 = "cell_lysate1";
+
     private static final String CELL_LYSATE_PERM_ID1 = "c1";
+
     private static final long SEQUENCE_ID = 77L;
+
     private static final long PROTEIN_REFERENCE_ID = 66L;
+
     private static final String UNIPROT_ID1 = "unipr1";
+
     private static final String PROTEIN_NAME1 = "my protein";
+
     private static final String SEQUENCE1 = "seq";
+
     private static final String UNIPROT_ID2 = "unipr2";
+
     private static final String PROTEIN_NAME2 = "my 2. protein";
+
     private static final String SEQUENCE2 = "seqe";
+
     private static final long PROTEIN1_ID = 55L;
+
     private static final long DATA_SET_ID = 42L;
+
     private static final String DATA_SET_CODE = "ds1";
+
     private static final long DATABASE_ID = 33l;
+
     private static final String NAME_AND_VERSION = "uniprot.HUMAN.v123.fasta";
+
     private static final String REFERENCE_DATABASE = "/here/and/there/" + NAME_AND_VERSION;
+
     private static final long EXPERIMENT_ID = 11l;
+
     private static final String EXPERIMENT_PERM_ID = "e1234";
+
     private static final long SAMPLE_ID = 22l;
+
     private static final String SAMPLE_PERM_ID = "s1234";
+
     private static final String DB_INSTANCE = "DB";
+
     private static final String GROUP_CODE = "G1";
-    
+
     private Mockery context;
+
     private Connection connection;
+
     private IEncapsulatedOpenBISService service;
+
     private IProtDAO dao;
+
     private ResultDataSetUploader uploader;
 
     @BeforeMethod
@@ -106,10 +133,10 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         connection = context.mock(Connection.class);
         dao = context.mock(IProtDAO.class);
         service = context.mock(IEncapsulatedOpenBISService.class);
-        
+
         uploader = new ResultDataSetUploader(dao, connection, service);
     }
-    
+
     @AfterMethod
     public void afterMethod()
     {
@@ -150,9 +177,9 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                 }
             });
         prepareForCommit();
-        
+
         uploader.upload(createDataSetInfo(), createProteinSummary());
-        
+
         context.assertIsSatisfied();
     }
 
@@ -161,25 +188,25 @@ public class ResultDataSetUploaderTest extends AssertJUnit
     {
         prepareForCreatingExperimentSampleDatabaseAndDataSet();
         prepareForCommit();
-        
+
         uploader.upload(createDataSetInfo(), createProteinSummary());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testEmptyProteinGroup()
     {
         prepareForCreatingExperimentSampleDatabaseAndDataSet();
         prepareForCommit();
-        
+
         ProteinSummary summary = createProteinSummary();
         summary.getProteinGroups().add(createProteinGroup());
         uploader.upload(createDataSetInfo(), summary);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testProteinGroupWithTwoProteins()
     {
@@ -191,14 +218,14 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         ProteinAnnotation a2 = createAnnotation(UNIPROT_ID2, PROTEIN_NAME2, SEQUENCE2);
         prepareForCreatingIdentifiedProtein(a2, true);
         prepareForCommit();
-        
+
         ProteinSummary summary = createProteinSummary();
         Protein p1 = createProtein(probability, a1, a2);
-        p1.setPeptides(Collections.<Peptide>emptyList());
+        p1.setPeptides(Collections.<Peptide> emptyList());
         summary.getProteinGroups().add(createProteinGroup(p1, new Protein()));
-        
+
         uploader.upload(createDataSetInfo(), summary);
-        
+
         context.assertIsSatisfied();
     }
 
@@ -230,12 +257,12 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                     will(returnValue(null));
                     one(dao).createSample(EXPERIMENT_ID, CELL_LYSATE_PERM_ID1);
                     will(returnValue(CELL_LYSATE_ID1));
-                    
+
                     one(dao).createAbundance(PROTEIN1_ID, CELL_LYSATE_ID1, 2.5);
                 }
             });
         p1.setPeptides(Collections.<Peptide> emptyList());
-        
+
         prepareForCreatingProtein(probability);
         summary.getProteinGroups().add(createProteinGroup(p1));
         ProteinAnnotation a2 = createAnnotation(UNIPROT_ID2, PROTEIN_NAME2, SEQUENCE2);
@@ -244,11 +271,11 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         p2.setName(PROTEIN_NAME1);
         p2.getParameters().add(createAbundance(CELL_LYSATE1, 42.5));
         context.checking(new Expectations()
-        {
             {
-                one(dao).createAbundance(PROTEIN1_ID, CELL_LYSATE_ID1, 42.5);
-            }
-        });
+                {
+                    one(dao).createAbundance(PROTEIN1_ID, CELL_LYSATE_ID1, 42.5);
+                }
+            });
         p2.setPeptides(Collections.<Peptide> emptyList());
         summary.getProteinGroups().add(createProteinGroup(p2));
         prepareForCommit();
@@ -257,7 +284,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testAbundancesForNonExistingSample()
     {
@@ -270,8 +297,8 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         p1.getParameters().add(createAbundance(CELL_LYSATE1, 2.5));
         p1.getParameters().add(new Parameter());
         final SampleIdentifier sampleIdentifier =
-            new SampleIdentifier(new GroupIdentifier(DB_INSTANCE, GROUP_CODE), CELL_LYSATE1
-                    .toUpperCase());
+                new SampleIdentifier(new GroupIdentifier(DB_INSTANCE, GROUP_CODE), CELL_LYSATE1
+                        .toUpperCase());
         context.checking(new Expectations()
             {
                 {
@@ -282,21 +309,21 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         p1.setPeptides(Collections.<Peptide> emptyList());
         summary.getProteinGroups().add(createProteinGroup(p1));
         prepareForRollback();
-        
+
         try
         {
             uploader.upload(createDataSetInfo(), summary);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("Protein '" + PROTEIN_NAME1
+            AssertionUtil.assertContains("Protein '" + PROTEIN_NAME1
                     + "' has an abundance value for a non-existing sample: " + sampleIdentifier, ex
                     .getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testProteinWithUnmodifiedPeptide()
     {
@@ -306,7 +333,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         ProteinAnnotation a1 = createAnnotation(UNIPROT_ID1, PROTEIN_NAME1, SEQUENCE1);
         prepareForCreatingIdentifiedProtein(a1, false);
         prepareForCommit();
-        
+
         ProteinSummary summary = createProteinSummary();
         Protein p1 = createProtein(probability, a1);
         final Peptide peptide = new Peptide();
@@ -321,9 +348,9 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                     will(returnValue(PEPTIDE_ID));
                 }
             });
-        
+
         uploader.upload(createDataSetInfo(), summary);
-        
+
         context.assertIsSatisfied();
     }
 
@@ -357,11 +384,11 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                 {
                     one(dao).createPeptide(PROTEIN1_ID, peptide.getSequence(), peptide.getCharge());
                     will(returnValue(PEPTIDE_ID));
-                    
+
                     one(dao).createModifiedPeptide(PEPTIDE_ID, modification.getNTermMass(),
                             modification.getCTermMass());
                     will(returnValue(MOD_PEPTIDE_ID));
-                    
+
                     one(dao).createModification(MOD_PEPTIDE_ID, mass.getPosition(), mass.getMass());
                 }
             });
@@ -370,7 +397,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
 
         context.assertIsSatisfied();
     }
-    
+
     private Parameter createAbundance(String sampleCode, double value)
     {
         Parameter parameter = new Parameter();
@@ -379,7 +406,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         parameter.setType(ResultDataSetUploader.PARAMETER_TYPE_ABUNDANCE);
         return parameter;
     }
-    
+
     private Protein createProtein(double probability, ProteinAnnotation... annotations)
     {
         Protein protein = new Protein();
@@ -398,7 +425,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         protein.setIndistinguishableProteins(indistinguishableProteins);
         return protein;
     }
-    
+
     private ProteinAnnotation createAnnotation(String uniprotID, String description, String sequence)
     {
         ProteinAnnotation proteinAnnotation = new ProteinAnnotation();
@@ -416,7 +443,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         proteinGroup.setProteins(Arrays.asList(proteins));
         return proteinGroup;
     }
-    
+
     private void prepareForCreatingProtein(final double probability)
     {
         context.checking(new Expectations()
@@ -427,7 +454,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                 }
             });
     }
-    
+
     private void prepareForCreatingIdentifiedProtein(ProteinAnnotation annotation,
             final boolean referenceExist)
     {
@@ -442,7 +469,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                     if (referenceExist == false)
                     {
                         will(returnValue(null));
-                        
+
                         one(dao).createProteinReference(uniprotID, description);
                         will(returnValue(PROTEIN_REFERENCE_ID));
                     } else
@@ -450,11 +477,13 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                         ProteinReference proteinReference = new ProteinReference();
                         proteinReference.setId(PROTEIN_REFERENCE_ID);
                         will(returnValue(proteinReference));
-                        
-                        one(dao).updateProteinReferenceDescription(PROTEIN_REFERENCE_ID, description);
+
+                        one(dao).updateProteinReferenceDescription(PROTEIN_REFERENCE_ID,
+                                description);
                     }
-                    
-                    one(dao).tryToGetSequencesByReferenceAndDatabase(PROTEIN_REFERENCE_ID, DATABASE_ID);
+
+                    one(dao).tryToGetSequencesByReferenceAndDatabase(PROTEIN_REFERENCE_ID,
+                            DATABASE_ID);
                     Sequence seq = new Sequence(sequence);
                     seq.setId(SEQUENCE_ID);
                     if (referenceExist == false)
@@ -467,9 +496,9 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                         will(returnValue(SEQUENCE_ID));
                     } else
                     {
-                        will(returnValue(seq));
+                        will(returnValue(Arrays.asList(seq)));
                     }
-                    
+
                     one(dao).createIdentifiedProtein(PROTEIN1_ID, SEQUENCE_ID);
                 }
             });
@@ -518,23 +547,23 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                 }
             });
     }
-    
+
     private void prepareForRollback()
     {
         context.checking(new Expectations()
-        {
             {
-                try
                 {
-                    one(connection).rollback();
-                } catch (SQLException ex)
-                {
-                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                    try
+                    {
+                        one(connection).rollback();
+                    } catch (SQLException ex)
+                    {
+                        throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                    }
                 }
-            }
-        });
+            });
     }
-    
+
     private DataSetInformation createDataSetInfo()
     {
         DataSetInformation info = new DataSetInformation();
@@ -553,7 +582,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         info.setSample(sample);
         return info;
     }
-    
+
     private ProteinSummary createProteinSummary(ProteinSummaryDataFilter... dataFilters)
     {
         ProteinSummary proteinSummary = new ProteinSummary();
@@ -562,11 +591,12 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         ProgramDetails programDetails = new ProgramDetails();
         ProteinProphetDetails proteinProphetDetails = new ProteinProphetDetails();
         proteinProphetDetails.setDataFilters(Arrays.asList(dataFilters));
-        programDetails.setSummary(new Object[] {proteinProphetDetails});
+        programDetails.setSummary(new Object[]
+            { proteinProphetDetails });
         proteinSummaryHeader.setProgramDetails(programDetails);
         proteinSummary.setSummaryHeader(proteinSummaryHeader);
         proteinSummary.setProteinGroups(new ArrayList<ProteinGroup>());
         return proteinSummary;
     }
-    
+
 }
