@@ -33,16 +33,16 @@ public enum ProteinColDefKind implements IColumnDefinitionKind<ProteinInfo>
             {
                 return entity.getUniprotID();
             }
-        }), 
+        }),
+
     DESCRIPTION(new AbstractColumnDefinitionKind<ProteinInfo>(Dict.PROTEIN_DESCRIPTION)
-                {
+        {
             @Override
             public String tryGetValue(ProteinInfo entity)
             {
                 return entity.getDescription();
             }
-                }), 
-    ;
+        }), ;
 
     private final AbstractColumnDefinitionKind<ProteinInfo> columnDefinitionKind;
 
@@ -60,5 +60,5 @@ public enum ProteinColDefKind implements IColumnDefinitionKind<ProteinInfo>
     {
         return columnDefinitionKind;
     }
-    
+
 }
