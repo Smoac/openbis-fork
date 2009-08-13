@@ -81,6 +81,7 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.FILE_FORMAT_TYPE_BROWSER_GRID);
         postRegistrationCallback = createRefreshGridAction();
         extendBottomToolbar();
+        allowMultipleSelection();
     }
 
     private final void extendBottomToolbar()

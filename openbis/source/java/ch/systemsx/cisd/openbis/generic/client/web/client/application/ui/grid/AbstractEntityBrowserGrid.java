@@ -112,6 +112,7 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
         super(viewContext, gridId, showHeader, refreshAutomatically);
         this.criteriaProvider = criteriaProvider;
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
+        allowMultipleSelection();
     }
 
     @Override
