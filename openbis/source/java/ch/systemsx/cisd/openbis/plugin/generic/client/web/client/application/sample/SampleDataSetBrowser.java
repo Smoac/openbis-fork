@@ -26,17 +26,27 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
  * @author Franz-Josef Elmer
  */
 class SampleDataSetBrowser extends AbstractExternalDataGrid
 {
-    static IDisposableComponent create(IViewContext<?> viewContext, TechId sampleId)
+    public static IDisposableComponent create(IViewContext<?> viewContext, TechId sampleId,
+            final SampleType sampleType)
     {
         IViewContext<ICommonClientServiceAsync> commonViewContext =
                 viewContext.getCommonViewContext();
-        return new SampleDataSetBrowser(commonViewContext, sampleId).asDisposableWithoutToolbar();
+        return new SampleDataSetBrowser(commonViewContext, sampleId)
+            {
+                @Override
+                protected String getGridDisplayTypeID()
+                {
+                    return super.getGridDisplayTypeID() + "-" + sampleType.getCode();
+                }
+
+            }.asDisposableWithoutToolbar();
     }
 
     private final TechId sampleId;

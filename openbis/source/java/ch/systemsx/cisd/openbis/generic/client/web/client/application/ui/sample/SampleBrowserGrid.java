@@ -124,7 +124,8 @@ public class SampleBrowserGrid extends
     public static IDisposableComponent createGridForContainerSamples(
             final IViewContext<ICommonClientServiceAsync> viewContext,
             final TechId containerSampleId, final String gridId,
-            final AbstractGridDataRefreshCallback<Sample> refreshCallback)
+            final AbstractGridDataRefreshCallback<Sample> refreshCallback,
+            final SampleType sampleType)
     {
         final ListSampleCriteria criteria =
                 ListSampleCriteria.createForContainer(containerSampleId, getBaseIndexURL());
@@ -135,7 +136,14 @@ public class SampleBrowserGrid extends
         boolean refreshAutomatically = false;
         final SampleBrowserGrid browserGrid =
                 new SampleBrowserGrid(viewContext, criteriaProvider, gridId, false,
-                        refreshAutomatically);
+                        refreshAutomatically)
+                    {
+                        @Override
+                        protected String getGridDisplayTypeID()
+                        {
+                            return super.getGridDisplayTypeID() + "-" + sampleType.getCode();
+                        }
+                    };
         refreshCallback.setGrid(browserGrid);
         browserGrid.setExternalRefreshCallback(refreshCallback);
         browserGrid.updateCriteriaProviderAndRefresh();
@@ -157,7 +165,14 @@ public class SampleBrowserGrid extends
         boolean refreshAutomatically = false;
         final SampleBrowserGrid browserGrid =
                 new SampleBrowserGrid(viewContext, criteriaProvider, gridId, false,
-                        refreshAutomatically);
+                        refreshAutomatically)
+                    {
+                        @Override
+                        protected String getGridDisplayTypeID()
+                        {
+                            return super.getGridDisplayTypeID() + "-" + experimentType.getCode();
+                        }
+                    };
         browserGrid.updateCriteriaProviderAndRefresh();
         browserGrid.setDisplayTypeIDGenerator(DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
         browserGrid.extendBottomToolbar();

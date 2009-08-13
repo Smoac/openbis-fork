@@ -54,7 +54,8 @@ public class ContainerSamplesSection extends SectionPanel
         TechId containerId = TechId.create(container);
         sampleDisposableGrid =
                 SampleBrowserGrid.createGridForContainerSamples(viewContext.getCommonViewContext(),
-                        containerId, createGridId(containerId), refreshCallback);
+                        containerId, createGridId(containerId), refreshCallback, container
+                                .getSampleType());
         add(sampleDisposableGrid.getComponent());
     }
 

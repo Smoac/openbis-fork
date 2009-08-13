@@ -174,7 +174,8 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         // Data Sets
         final ContentPanel externalDataPanel =
                 createContentPanel(viewContext.getMessage(Dict.EXTERNAL_DATA_HEADING));
-        dataSetBrowser = SampleDataSetBrowser.create(viewContext, sampleId);
+        dataSetBrowser =
+                SampleDataSetBrowser.create(viewContext, sampleId, generator.getSampleType());
         externalDataPanel.add(dataSetBrowser.getComponent());
         container.add(externalDataPanel, createBorderLayoutData(LayoutRegion.CENTER));
 

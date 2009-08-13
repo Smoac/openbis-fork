@@ -28,7 +28,8 @@ class ExperimentDataSetSection extends BrowserSectionPanel
 {
     ExperimentDataSetSection(Experiment experiment, IViewContext<?> viewContext)
     {
-        super("Data Sets", ExperimentDataSetBrowser.create(viewContext, TechId.create(experiment)));
+        super("Data Sets", ExperimentDataSetBrowser.create(viewContext, TechId.create(experiment),
+                experiment.getExperimentType()));
     }
 
 }

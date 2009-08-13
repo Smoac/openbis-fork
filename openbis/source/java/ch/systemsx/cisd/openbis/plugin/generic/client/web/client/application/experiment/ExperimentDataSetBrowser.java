@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 
 /**
  * @author Franz-Josef Elmer
@@ -37,12 +38,19 @@ public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    static IDisposableComponent create(IViewContext<?> viewContext, TechId experimentId)
+    static IDisposableComponent create(IViewContext<?> viewContext, TechId experimentId,
+            final ExperimentType experimentType)
     {
         IViewContext<ICommonClientServiceAsync> commonViewContext =
                 viewContext.getCommonViewContext();
         return new ExperimentDataSetBrowser(commonViewContext, experimentId)
-                .asDisposableWithoutToolbar();
+            {
+                @Override
+                protected String getGridDisplayTypeID()
+                {
+                    return super.getGridDisplayTypeID() + "-" + experimentType.getCode();
+                }
+            }.asDisposableWithoutToolbar();
     }
 
     private final TechId experimentId;
