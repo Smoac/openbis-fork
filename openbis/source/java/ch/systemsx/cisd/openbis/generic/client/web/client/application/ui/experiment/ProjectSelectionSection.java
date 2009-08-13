@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
+import com.extjs.gxt.ui.client.Style.Scroll;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPanel;
 
 /**
@@ -28,6 +30,7 @@ public class ProjectSelectionSection extends SectionPanel
     public ProjectSelectionSection(final ProjectSelectionTreeWidget tree)
     {
         super("Project Selection");
+        setScrollMode(Scroll.AUTOY);
         add(tree);
     }
 }
