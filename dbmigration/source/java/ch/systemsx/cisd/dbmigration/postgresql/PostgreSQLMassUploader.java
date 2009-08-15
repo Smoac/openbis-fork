@@ -19,6 +19,7 @@ package ch.systemsx.cisd.dbmigration.postgresql;
 import static ch.systemsx.cisd.dbmigration.MassUploadFileType.CSV;
 import static ch.systemsx.cisd.dbmigration.MassUploadFileType.TSV;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -55,7 +56,9 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, PostgreSQLMassUploader.class);
 
-    private final DataSource dataSource;
+    private final DataSource dataSourceOrNull;
+    
+    private final Connection connectionOrNull;
 
     private CopyManager copyManager;
 
@@ -70,10 +73,25 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
             final ISequenceNameMapper sequenceNameMapper, boolean sequenceUpdateNeeded)
             throws SQLException
     {
-        this.dataSource = dataSource;
+        this.dataSourceOrNull = dataSource;
+        this.connectionOrNull = null;
         this.sequenceNameMapper = sequenceNameMapper;
         this.sequenceUpdateNeeded = sequenceUpdateNeeded;
         setDataSource(dataSource);
+    }
+
+    /**
+     * Creates an instance for the specified data source and sequence mapper.
+     */
+    public PostgreSQLMassUploader(final Connection conn,
+            final ISequenceNameMapper sequenceNameMapper, boolean sequenceUpdateNeeded)
+            throws SQLException
+    {
+        this.dataSourceOrNull = null;
+        this.connectionOrNull = conn;
+        this.sequenceNameMapper = sequenceNameMapper;
+        this.sequenceUpdateNeeded = sequenceUpdateNeeded;
+        setDataSource(dataSourceOrNull);
     }
 
     private final CopyManager getCopyManager() throws SQLException, NoSuchFieldException,
@@ -84,6 +102,40 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
             copyManager = getPGConnection().getCopyAPI();
         }
         return copyManager;
+    }
+
+    public void performMassUpload(String tableName, String data)
+    {
+        performMassUpload(tableName, null, data);
+    }
+
+    public void performMassUpload(String tableName, String[] columnNamesOrNull, String data)
+    {
+        final StringBuilder copySql = new StringBuilder();
+        copySql.append("COPY ");
+        copySql.append(tableName);
+        if (columnNamesOrNull != null)
+        {
+            copySql.append(" (");
+            for (int i = 0; i < columnNamesOrNull.length; ++i)
+            {
+                copySql.append(columnNamesOrNull[i]);
+                if (i < columnNamesOrNull.length - 1)
+                {
+                    copySql.append(',');
+                }
+            }
+            copySql.append(')');
+        }
+        copySql.append(" FROM STDIN");
+        final InputStream is = new ByteArrayInputStream(data.getBytes());
+        try
+        {
+            getCopyManager().copyIn(copySql.toString(), is);
+        } catch (Exception ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
     }
 
     public final void performMassUpload(final File[] massUploadFiles)
@@ -179,7 +231,13 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
     private final PGConnection getPGConnection() throws SQLException, NoSuchFieldException,
             IllegalAccessException
     {
-        return getPGConnection(dataSource.getConnection());
+        if (dataSourceOrNull == null)
+        {
+            return getPGConnection(connectionOrNull);
+        } else
+        {
+            return getPGConnection(dataSourceOrNull.getConnection());
+        }
     }
 
     private final PGConnection getPGConnection(final Connection conn) throws SQLException,

@@ -22,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,7 +30,9 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -74,6 +77,10 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
     {
         final File massUploadFile;
 
+        final String data;
+
+        final String[] columnNamesOrNull;
+
         final String tableName;
 
         final BitSet isBinaryColumn;
@@ -82,8 +89,67 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
                 final BitSet isBinaryColumn)
         {
             this.massUploadFile = massUploadFile;
+            this.data = null;
+            this.columnNamesOrNull = null;
             this.tableName = tableName;
             this.isBinaryColumn = isBinaryColumn;
+        }
+
+        MassUploadRecord(final String data, final String tableName, final BitSet isBinaryColumn)
+        {
+            this(data, tableName, null, isBinaryColumn);
+        }
+
+        MassUploadRecord(final String data, final String tableName,
+                final String[] columnNamesOrNull, final BitSet isBinaryColumn)
+        {
+            this.massUploadFile = null;
+            this.data = data;
+            this.columnNamesOrNull = columnNamesOrNull;
+            this.tableName = tableName;
+            this.isBinaryColumn = isBinaryColumn;
+        }
+    }
+
+    public void performMassUpload(String tableName, String data)
+    {
+        try
+        {
+            final DatabaseMetaData dbMetaData = getConnection().getMetaData();
+            try
+            {
+                final BitSet isBinaryColumn = findBinaryColumns(dbMetaData, tableName);
+                final MassUploadRecord massUploadRecord =
+                        new MassUploadRecord(data, tableName, isBinaryColumn);
+                performMassUpload(massUploadRecord);
+            } finally
+            {
+                dbMetaData.getConnection().close();
+            }
+        } catch (Exception ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    public void performMassUpload(String tableName, String[] columnNames, String data)
+    {
+        try
+        {
+            final DatabaseMetaData dbMetaData = getConnection().getMetaData();
+            try
+            {
+                final BitSet isBinaryColumn = findBinaryColumns(dbMetaData, tableName, columnNames);
+                final MassUploadRecord massUploadRecord =
+                        new MassUploadRecord(data, tableName, isBinaryColumn);
+                performMassUpload(massUploadRecord);
+            } finally
+            {
+                dbMetaData.getConnection().close();
+            }
+        } catch (Exception ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 
@@ -141,12 +207,34 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
                 operationLog.info("Perform mass upload of file '" + record.massUploadFile
                         + "' to table '" + record.tableName + "'.");
             }
-            final List<String[]> rows = readTSVFile(record.massUploadFile);
+            final List<String[]> rows =
+                    (record.data == null) ? readTSVFile(record.massUploadFile)
+                            : readTSVFile(record.data);
             final int numberOfRows = rows.size();
-            final int numberOfColumns = (numberOfRows > 0) ? rows.get(0).length : 0;
+            final int numberOfColumns;
+            if (record.columnNamesOrNull != null)
+            {
+                numberOfColumns = record.columnNamesOrNull.length;
+            } else
+            {
+                numberOfColumns = (numberOfRows > 0) ? rows.get(0).length : 0;
+            }
             final StringBuilder insertSql = new StringBuilder();
             insertSql.append("insert into ");
             insertSql.append(record.tableName);
+            if (record.columnNamesOrNull != null)
+            {
+                insertSql.append(" (");
+                for (int i = 0; i < record.columnNamesOrNull.length; ++i)
+                {
+                    insertSql.append(record.columnNamesOrNull[i]);
+                    if (i < record.columnNamesOrNull.length - 1)
+                    {
+                        insertSql.append(',');
+                    }
+                }
+                insertSql.append(')');
+            }
             insertSql.append(" values (");
             for (int i = 0; i < numberOfColumns; i++)
             {
@@ -208,11 +296,48 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
         return binary;
     }
 
+    private final BitSet findBinaryColumns(final DatabaseMetaData dbMetaData,
+            final String tableName, final String[] columnNames) throws SQLException
+    {
+        final ResultSet rs = dbMetaData.getColumns(null, null, tableName.toUpperCase(), "%");
+        int columnNo = 0;
+        final Map<String, Integer> typeMap = new HashMap<String, Integer>();
+        while (rs.next())
+        {
+            final String colName = rs.getString(4);
+            final int typeCode = rs.getInt(5);
+            typeMap.put(colName, typeCode);
+            ++columnNo;
+        }
+        rs.close();
+        final BitSet binary = new BitSet();
+        for (int i = 0; i < columnNames.length; ++i)
+        {
+            final Integer typeCode = typeMap.get(columnNames[i]);
+            if (typeCode != null)
+            {
+                binary.set(i, typeCode == Types.BINARY || typeCode == Types.VARBINARY);
+            }
+        }
+        return binary;
+    }
+
+    private final List<String[]> readTSVFile(final String data) throws IOException
+    {
+        final BufferedReader reader = new BufferedReader(new StringReader(data));
+        return readTSVFile(reader);
+    }
+
     private final List<String[]> readTSVFile(final File tsvFile) throws IOException
     {
-        final List<String[]> result = new ArrayList<String[]>();
         final BufferedReader reader =
                 new BufferedReader(new InputStreamReader(FileUtils.openInputStream(tsvFile)));
+        return readTSVFile(reader);
+    }
+
+    private final List<String[]> readTSVFile(final BufferedReader reader) throws IOException
+    {
+        final List<String[]> result = new ArrayList<String[]>();
         try
         {
             String line = reader.readLine();
@@ -278,4 +403,5 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
                     + "' of table '" + tableName + "'.", ex);
         }
     }
+
 }
