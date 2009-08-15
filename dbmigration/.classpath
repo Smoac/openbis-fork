@@ -13,7 +13,7 @@
 	<classpathentry kind="lib" path="/libraries/postgresql/postgresql.jar" sourcepath="/libraries/postgresql/postgresql-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-logging/commons-logging.jar" sourcepath="/libraries/commons-logging/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/h2/h2.jar" sourcepath="/libraries/h2/h2-src.zip"/>
+	<classpathentry kind="lib" path="/libraries/h2/h2.jar" sourcepath="/libraries/h2/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-pool/commons-pool.jar"/>
 	<classpathentry kind="lib" path="/libraries/restrictionchecker/restrictions.jar"/>
 	<classpathentry kind="lib" path="/libraries/cglib/cglib-nodep.jar"/>
