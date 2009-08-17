@@ -266,6 +266,11 @@ abstract class AbstractBusinessObject implements IDAOFactory
         return daoFactory.getEventDAO();
     }
 
+    public ISampleListerDAO getSampleListerDAO()
+    {
+        return daoFactory.getSampleListerDAO();
+    }
+
     public void disableSecondLevelCacheForSession()
     {
         daoFactory.disableSecondLevelCacheForSession();

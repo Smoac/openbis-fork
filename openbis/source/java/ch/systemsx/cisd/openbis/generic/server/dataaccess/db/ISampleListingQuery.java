@@ -1,0 +1,453 @@
+/*
+ * Copyright 2009 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Date;
+
+import org.apache.commons.lang.StringEscapeUtils;
+
+import net.lemnik.eodsql.DataIterator;
+import net.lemnik.eodsql.EoDException;
+import net.lemnik.eodsql.Select;
+import net.lemnik.eodsql.TransactionQuery;
+import net.lemnik.eodsql.spi.util.NonUpdateCapableDataObjectBinding;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
+
+/**
+ * A {@link TransactionQuery} interface for obtaining large sets of sample-related entities from the
+ * database.
+ * 
+ * @author Bernd Rinn
+ */
+public interface ISampleListingQuery extends TransactionQuery
+{
+
+    public static final int FETCH_SIZE = 1000;
+
+    /**
+     * A value object for id and code.
+     */
+    public static class CodeVO
+    {
+        public long id;
+
+        public String code;
+    }
+
+    /**
+     * A value object representing one row of the sample table.
+     */
+    // CREATE TABLE SAMPLES (
+    // ID TECH_ID NOT NULL,
+    // PERM_ID CODE NOT NULL,
+    // CODE CODE NOT NULL,
+    // EXPE_ID TECH_ID,
+    // SAMP_ID_TOP TECH_ID,
+    // SAMP_ID_GENERATED_FROM TECH_ID,
+    // SATY_ID TECH_ID NOT NULL,
+    // REGISTRATION_TIMESTAMP TIME_STAMP_DFL NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    // MODIFICATION_TIMESTAMP TIME_STAMP DEFAULT CURRENT_TIMESTAMP,
+    // PERS_ID_REGISTERER TECH_ID NOT NULL,
+    // INVA_ID TECH_ID,
+    // SAMP_ID_CONTROL_LAYOUT TECH_ID,
+    // DBIN_ID TECH_ID,
+    // GROU_ID TECH_ID,
+    // SAMP_ID_PART_OF TECH_ID);
+    public static class SampleRowVO extends CodeVO
+    {
+        public String perm_id;
+
+        public Long expe_id;
+
+        public Long samp_id_generated_from;
+
+        public Long samp_id_part_of;
+
+        public Date registration_timestamp;
+
+        public long pers_id_registerer;
+
+        public Long inva_id;
+
+        public long saty_id;
+    }
+
+    //
+    // Samples by id
+    //
+
+    /**
+     * Returns the total number of all samples in the database.
+     */
+    @Select(sql = "select count(*) from samples s")
+    public long getSampleCount();
+
+    /**
+     * Returns the sample for the given <var>sampleId</var>.
+     */
+    @Select("select s.id, s.perm_id, s.code, s.expe_id, "
+            + "       s.registration_timestamp, s.pers_id_registerer, "
+            + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
+            + "   from samples s where s.id=?{1}")
+    public SampleRowVO getSample(long sampleId);
+
+    /**
+     * Returns all samples in the database.
+     */
+    @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, "
+            + "       s.registration_timestamp, s.pers_id_registerer, "
+            + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
+            + "   from samples s", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRowVO> getSamples();
+
+    //
+    // Samples for group
+    //
+
+    /**
+     * Returns the samples for the given <var>groupCode</var>.
+     */
+    @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, "
+            + "       s.registration_timestamp, s.pers_id_registerer, "
+            + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
+            + "   from samples s join sample_types st on s.saty_id=st.id"
+            + " join groups g on s.grou_id=g.id "
+            + "   where st.is_listable and g.dbin_id=?{1} and g.code=?{2} order by s.code", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRowVO> getGroupSamples(long dbInstanceId, String groupCode);
+
+    /**
+     * Returns the samples for the given <var>groupCode</var> that are assigned to an experiment.
+     */
+    @Select(sql = "select s.id, s.perm_id, s.code, s.saty_id, s.expe_id, "
+            + "       s.samp_id_generated_from, s.registration_timestamp, s.modification_timestamp, "
+            + "       s.pers_id_registerer, s.samp_id_part_of, s.inva_id "
+            + "   from samples s join groups g on s.grou_id=g.id "
+            + "   where s.expe_id is not null and g.dbin_id=?{1} and g.code=?{2} "
+            + "   order by s.code", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRowVO> getGroupSamplesWithExperiment(long dbInstanceId,
+            String groupCode);
+
+    /**
+     * Returns the samples for the given <var>groupCode</var> and <var>sampleTypeId</var>
+     */
+    @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, "
+            + "       s.registration_timestamp, s.pers_id_registerer, "
+            + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
+            + "   from samples s join groups g on s.grou_id=g.id "
+            + "   where g.dbin_id=?{1} and g.code=?{2} and s.saty_id=?{3}"
+            + "      order by s.code", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRowVO> getGroupSamplesForSampleType(long dbInstanceId,
+            String groupCode, long sampleTypeId);
+
+    /**
+     * Returns the samples for the given <var>groupCode</var> and <var>sampleTypeId</var> that are
+     * assigned to an experiment.
+     */
+    @Select(sql = "select s.id, s.perm_id, s.code, s.saty_id, s.expe_id, "
+            + "       s.samp_id_generated_from, s.registration_timestamp, s.modification_timestamp, "
+            + "       s.pers_id_registerer, s.samp_id_part_of, s.inva_id "
+            + "   from samples s  join groups g on s.grou_id=g.id "
+            + "   where s.expe_id is not null and g.dbin_id=?{1} and g.code=?{2}"
+            + " and s.saty_id=?{3} order by s.code", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRowVO> getGroupSamplesForSampleTypeWithExperiment(
+            long dbInstanceId, String groupCode, long sampleTypeId);
+
+    //
+    // Samples for experiment
+    //
+
+    /**
+     * Returns the samples for the given <var>experimentId</var>.
+     */
+    @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, "
+            + "       s.registration_timestamp, s.pers_id_registerer, "
+            + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
+            + "   from samples s where s.expe_id=?{1}", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRowVO> getSamplesForExperiment(long experimentId);
+
+    //
+    // Samples for container
+    //
+
+    /**
+     * Returns the samples for the given <var>sampleContainerId</var>.
+     */
+    @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, "
+            + "       s.registration_timestamp, s.pers_id_registerer, "
+            + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
+            + "   from samples s where s.samp_id_part_of=?{1}", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRowVO> getSamplesForContainer(long sampleContainerId);
+
+    //
+    // Shared samples
+    //
+
+    /**
+     * Returns the shared samples for the given <var>dbInstanceId</var>.
+     */
+    @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, "
+            + "       s.registration_timestamp, s.pers_id_registerer, "
+            + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
+            + "   from samples s join sample_types st on s.saty_id=st.id "
+            + "   where st.is_listable and s.dbin_id=?{1} order by s.code", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRowVO> getSharedSamples(long dbInstanceId);
+
+    /**
+     * Returns the shared samples for the given <var>dbInstanceId</var> and <var>sampleTypeId</var>.
+     */
+    @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, "
+            + "       s.registration_timestamp, s.pers_id_registerer, "
+            + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
+            + "   from samples s where s.dbin_id=?{1} and s.saty_id=?{2} order by s.code", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRowVO> getSharedSamplesForSampleType(long dbInstanceId, long sampleTypeId);
+
+    //
+    // Experiments
+    //
+
+    /**
+     * A DTO representing an experiment, project and group code.
+     */
+    public static class ExperimentProjectGroupCodeVO
+    {
+        public String e_code;
+
+        public String et_code;
+
+        public String p_code;
+
+        public String g_code;
+    }
+
+    /**
+     * Returns the code of an experiment and its project by the experiment <var>id</var>.
+     * 
+     * @param experimentId The id of the experiment to get the code for.
+     */
+    @Select("select e.code as e_code, et.code as et_code, p.code as p_code from experiments e "
+            + "join experiment_types et on e.exty_id=et.id join projects p on e.proj_id=p.id "
+            + "where e.id=?{1}")
+    public ExperimentProjectGroupCodeVO getExperimentAndProjectCodeForId(long experimentId);
+
+    /**
+     * Returns the code of an experiment and its project by the experiment <var>id</var>.
+     * 
+     * @param experimentId The id of the experiment to get the code for.
+     */
+    @Select("select e.code as e_code, et.code as et_code, p.code as p_code, g.code as g_code from experiments e "
+            + "join experiment_types et on e.exty_id=et.id join projects p on e.proj_id=p.id "
+            + "join groups g on p.grou_id=g.id where e.id=?{1}")
+    public ExperimentProjectGroupCodeVO getExperimentAndProjectAndGroupCodeForId(long experimentId);
+
+    //
+    // Persons
+    //
+
+    /**
+     * Returns the person for the given <var>personId</var>
+     * 
+     * @param personId The id of the Person you want to get.
+     */
+    @Select("select first_name as firstName, last_name as lastName, email, user_id as userId from persons where id=?{1}")
+    public Person getPersonById(long personId);
+
+    //
+    // Types
+    //
+
+    /**
+     * A binding for the {@link ISampleListingQuery#getPropertyTypes()} query.
+     */
+    static class SampleTypeDataObjectBinding extends NonUpdateCapableDataObjectBinding<SampleType>
+    {
+        @Override
+        public void unmarshall(ResultSet row, SampleType into) throws SQLException, EoDException
+        {
+            into.setId(row.getLong("id"));
+            into.setCode(StringEscapeUtils.escapeHtml(row.getString("code")));
+            into.setGeneratedFromHierarchyDepth(row.getInt("generated_from_depth"));
+            into.setShowContainer(row.getInt("part_of_depth") > 0);
+        }
+    }
+
+    /**
+     * Returns the sample type for the given <code>sampleCode</code>. Note that the code of the
+     * result is already is already HTML escaped.
+     */
+    @Select(sql = "select id, code, generated_from_depth, part_of_depth from sample_types"
+            + "      where code=?{1}", resultSetBinding = SampleTypeDataObjectBinding.class)
+    public SampleType getSampleType(String sampleCode);
+
+    /**
+     * Returns all sample types.
+     */
+    @Select(sql = "select id, code, generated_from_depth, part_of_depth from sample_types", resultSetBinding = SampleTypeDataObjectBinding.class)
+    public SampleType[] getSampleTypes();
+
+    /**
+     * A binding for the {@link ISampleListingQuery#getPropertyTypes()} query.
+     */
+    static class PropertyTypeDataObjectBinding extends
+            NonUpdateCapableDataObjectBinding<PropertyType>
+    {
+        @Override
+        public void unmarshall(ResultSet row, PropertyType into) throws SQLException, EoDException
+        {
+            into.setId(row.getLong("pt_id"));
+            into.setInternalNamespace(row.getBoolean("is_managed_internally"));
+            into.setSimpleCode(StringEscapeUtils.escapeHtml(row.getString("pt_code")));
+            into.setCode(StringEscapeUtils.escapeHtml(CodeConverter.tryToBusinessLayer(into
+                    .getSimpleCode(), into.isInternalNamespace() == false)));
+            into.setLabel(StringEscapeUtils.escapeHtml(row.getString("pt_label")));
+            final DataType dataType = new DataType();
+            dataType.setCode(DataTypeCode.valueOf(row.getString("dt_code")));
+            into.setDataType(dataType);
+        }
+    }
+
+    /**
+     * Returns all property types. Fills only <code>id</code>, <code>code</code>,
+     * <code>label</var> and <code>DataType</code>. Note that code and label are already HTML
+     * escaped.
+     */
+    @Select(sql = "select pt.id as pt_id, pt.code as pt_code, dt.code as dt_code,"
+            + "      pt.label as pt_label, pt.is_managed_internally"
+            + "    from property_types pt join data_types dt on pt.daty_id=dt.id", resultSetBinding = PropertyTypeDataObjectBinding.class)
+    public PropertyType[] getPropertyTypes();
+
+    /**
+     * Returns id and url template of all vocabularies.
+     */
+    @Select("select id, source_uri as code from controlled_vocabularies")
+    public CodeVO[] getVocabularyURLTemplates();
+
+    /**
+     * Returns id and code of all material types.
+     */
+    @Select("select id, code from material_types")
+    public CodeVO[] getMaterialTypes();
+
+    //
+    // Sample Properties
+    //
+
+    /**
+     * A value object for a sample property.
+     */
+    public static class BaseSamplePropertyVO
+    {
+        public long samp_id;
+
+        public long prty_id;
+    }
+
+    /**
+     * A value object for a generic sample property.
+     */
+    public static class GenericSamplePropertyVO extends BaseSamplePropertyVO
+    {
+        public String value;
+    }
+
+    /**
+     * Returns all generic property values of the sample with <var>sampleId</var>.
+     */
+    @Select("select sp.samp_id, stpt.prty_id, sp.value from sample_properties sp"
+            + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
+            + "   where sp.value is not null and sp.samp_id=?{1}")
+    public DataIterator<GenericSamplePropertyVO> getSamplePropertyGenericValues(long sampleId);
+
+    /**
+     * Returns all generic property values of all samples.
+     */
+    @Select(sql = "select sp.samp_id, stpt.prty_id, sp.value from sample_properties sp"
+            + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
+            + "   where sp.value is not null", fetchSize = FETCH_SIZE)
+    public DataIterator<GenericSamplePropertyVO> getSamplePropertyGenericValues();
+
+    /**
+     * A value object for a generic sample property.
+     */
+    public static class CoVoSamplePropertyVO extends BaseSamplePropertyVO
+    {
+        public long id;
+
+        public long covo_id;
+
+        public String code;
+
+        public String label;
+    }
+
+    /**
+     * Returns all controlled vocabulary property values of the sample with <var>sampleId</var>.
+     */
+    @Select("select sp.samp_id, stpt.prty_id, cvte.id, cvte.covo_id, cvte.code, cvte.label"
+            + "      from sample_properties sp"
+            + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
+            + "      join controlled_vocabulary_terms cvte on sp.cvte_id=cvte.id"
+            + "   where sp.samp_id=?{1}")
+    public DataIterator<CoVoSamplePropertyVO> getSamplePropertyVocabularyTermValues(long sampleId);
+
+    /**
+     * Returns all controlled vocabulary property values of all samples.
+     */
+    @Select(sql = "select sp.samp_id, stpt.prty_id, cvte.id, cvte.covo_id, cvte.code, cvte.label"
+            + "      from sample_properties sp"
+            + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
+            + "      join controlled_vocabulary_terms cvte on sp.cvte_id=cvte.id", fetchSize = FETCH_SIZE)
+    public DataIterator<CoVoSamplePropertyVO> getSamplePropertyVocabularyTermValues();
+
+    /**
+     * A value object for a generic sample property.
+     */
+    public static class MaterialSamplePropertyVO extends BaseSamplePropertyVO
+    {
+        public long id;
+
+        public long maty_id;
+
+        public String code;
+    }
+
+    /**
+     * Returns all material-type property values of the sample with <var>sampleId</var>
+     */
+    @Select("select sp.samp_id, stpt.prty_id, m.id, m.code, m.maty_id"
+            + "      from sample_properties sp"
+            + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
+            + "      join materials m on sp.mate_prop_id=m.id where sp.samp_id=?{1}")
+    public DataIterator<MaterialSamplePropertyVO> getSamplePropertyMaterialValues(long sampleId);
+
+    /**
+     * Returns all material-type property values of all samples.
+     */
+    @Select(sql = "select sp.samp_id, stpt.prty_id, m.id, m.code, m.maty_id"
+            + "      from sample_properties sp"
+            + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
+            + "      join materials m on sp.mate_prop_id=m.id", fetchSize = FETCH_SIZE)
+    public DataIterator<MaterialSamplePropertyVO> getSamplePropertyMaterialValues();
+
+}

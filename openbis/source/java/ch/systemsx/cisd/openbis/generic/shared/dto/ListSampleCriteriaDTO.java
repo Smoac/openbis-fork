@@ -43,6 +43,10 @@ public class ListSampleCriteriaDTO extends AbstractHashable implements Serializa
 
     private TechId experimentId;
 
+    private boolean excludeWithoutExperiment;
+
+    private String baseIndexUrl;
+
     private ListSampleCriteriaDTO()
     {
     }
@@ -89,4 +93,25 @@ public class ListSampleCriteriaDTO extends AbstractHashable implements Serializa
     {
         return experimentId;
     }
+
+    public boolean isExcludeWithoutExperiment()
+    {
+        return excludeWithoutExperiment;
+    }
+
+    public void setExcludeWithoutExperiment(final boolean excludeWithoutExperiment)
+    {
+        this.excludeWithoutExperiment = excludeWithoutExperiment;
+    }
+
+    public String getBaseIndexUrl()
+    {
+        return baseIndexUrl;
+    }
+
+    public void setBaseIndexUrl(String baseIndexUrl)
+    {
+        this.baseIndexUrl = baseIndexUrl;
+    }
+
 }

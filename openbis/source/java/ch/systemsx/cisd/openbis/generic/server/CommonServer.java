@@ -34,6 +34,10 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ListSampleCriteriaTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAttachmentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAuthorizationGroupBO;
@@ -50,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyTermBO;
@@ -388,7 +393,32 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return sampleTypes;
     }
 
-    public final List<SamplePE> listSamples(final String sessionToken,
+    public final List<Sample> listSamples(final String sessionToken,
+            final ListSampleCriteria criteria)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
+        if (sampleLister.canHandle(criteria))
+        {
+            return sampleLister.list(criteria);
+        } else
+        {
+            final List<SamplePE> samples = listSamplesSlow(sessionToken, ListSampleCriteriaTranslator
+                    .translate(criteria));
+            if (criteria.isExcludeWithoutExperiment())
+            {
+                removeWithoutExperiment(samples);
+            }
+            final List<Sample> list = new ArrayList<Sample>(samples.size());
+            for (final SamplePE sample : samples)
+            {
+                list.add(SampleTranslator.translate(sample, criteria.getBaseIndexUrl()));
+            }
+            return list;
+        }
+    }
+
+    private final List<SamplePE> listSamplesSlow(final String sessionToken,
             final ListSampleCriteriaDTO criteria)
     {
         final Session session = getSessionManager().getSession(sessionToken);
@@ -397,6 +427,19 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         final List<SamplePE> samples = sampleTable.getSamples();
         Collections.sort(samples);
         return samples;
+    }
+
+    private void removeWithoutExperiment(final List<SamplePE> samples)
+    {
+        List<SamplePE> samplesWithoutExperiment = new ArrayList<SamplePE>();
+        for (final SamplePE sample : samples)
+        {
+            if (sample.getExperiment() == null)
+            {
+                samplesWithoutExperiment.add(sample);
+            }
+        }
+        samples.removeAll(samplesWithoutExperiment);
     }
 
     public final List<ExternalDataPE> listSampleExternalData(final String sessionToken,

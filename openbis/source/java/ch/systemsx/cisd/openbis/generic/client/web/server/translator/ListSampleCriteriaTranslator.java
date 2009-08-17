@@ -44,19 +44,23 @@ public final class ListSampleCriteriaTranslator
     {
         final TechId containerSampleId = listCriteria.getContainerSampleId();
         final TechId experimentId = listCriteria.getExperimentId();
+        final ListSampleCriteriaDTO criteria;
         if (experimentId != null)
         {
-            return ListSampleCriteriaDTO.createExperimentId(experimentId);
+            criteria = ListSampleCriteriaDTO.createExperimentId(experimentId);
         } else if (containerSampleId != null)
         {
-            return ListSampleCriteriaDTO.createContainerSampleId(containerSampleId);
+            criteria = ListSampleCriteriaDTO.createContainerSampleId(containerSampleId);
         } else
         {
-            List<SampleOwnerIdentifier> ownerIdentifiers =
+            final List<SampleOwnerIdentifier> ownerIdentifiers =
                     ListSampleCriteriaTranslator.createOwnerIdentifiers(listCriteria);
-            SampleTypePE sampleType = SampleTypeTranslator.translate(listCriteria.getSampleType());
-            return ListSampleCriteriaDTO.createOwnerIdentifiers(ownerIdentifiers, sampleType);
+            final SampleTypePE sampleType = SampleTypeTranslator.translate(listCriteria.getSampleType());
+            criteria = ListSampleCriteriaDTO.createOwnerIdentifiers(ownerIdentifiers, sampleType);
         }
+        criteria.setBaseIndexUrl(listCriteria.getBaseIndexUrl());
+        criteria.setExcludeWithoutExperiment(listCriteria.isExcludeWithoutExperiment());
+        return criteria;
     }
 
     private final static List<SampleOwnerIdentifier> createOwnerIdentifiers(

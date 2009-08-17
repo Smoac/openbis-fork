@@ -24,6 +24,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -73,7 +75,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
@@ -189,12 +190,26 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public final List<SamplePE> listSamples(final String sessionToken,
-            final ListSampleCriteriaDTO criteria)
+    public List<Sample> listSamples(String sessionToken, ListSampleCriteria criteria)
     {
-        logAccess(sessionToken, "list_samples", "TYPE(%s) OWNERS(%s) CONTAINER(%s) EXPERIMENT(%s)",
-                criteria.getSampleType(), criteria.getOwnerIdentifiers(), criteria
-                        .getContainerSampleId(), criteria.getExperimentId());
+        if (criteria.isIncludeGroup())
+        {
+            logAccess(sessionToken, "list_samples",
+                    "TYPE(%s) OWNERS(group=%s) CONTAINER(%s) EXPERIMENT(%s)", criteria
+                            .getSampleType(), criteria.getGroupCode(), criteria
+                            .getContainerSampleId(), criteria.getExperimentId());
+        } else if (criteria.isIncludeInstance())
+        {
+            logAccess(sessionToken, "list_samples",
+                    "TYPE(%s) OWNERS(instance=%s) CONTAINER(%s) EXPERIMENT(%s)", criteria
+                            .getSampleType(), criteria.getSampleType().getDatabaseInstance(),
+                    criteria.getContainerSampleId(), criteria.getExperimentId());
+        } else
+        {
+            logAccess(sessionToken, "list_samples", "TYPE(%s) CONTAINER(%s) EXPERIMENT(%s)",
+                    criteria.getSampleType(), criteria.getContainerSampleId(), criteria
+                            .getExperimentId());
+        }
         return null;
     }
 

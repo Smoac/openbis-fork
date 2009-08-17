@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleListerDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ICodeSequenceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -92,5 +93,8 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
 
     /** Returns an implementation of {@link IAuthorizationGroupDAO}. */
     public IAuthorizationGroupDAO getAuthorizationGroupDAO();
+    
+    /** Returns an implementation of the {@link ISampleListerDAO}. */
+    public ISampleListerDAO getSampleListerDAO();
 
 }

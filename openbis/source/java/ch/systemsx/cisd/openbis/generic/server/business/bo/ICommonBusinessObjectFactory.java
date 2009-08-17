@@ -65,4 +65,8 @@ public interface ICommonBusinessObjectFactory
     public IMaterialBO createMaterialBO(Session session);
 
     public IAuthorizationGroupBO createAuthorizationGroupBO(Session session);
+    
+    // Fast listing operations
+    
+    public ISampleLister createSampleLister(Session session);
 }

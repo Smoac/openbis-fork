@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyTermBO;
@@ -54,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.PropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.PropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.RoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.VocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.VocabularyTermBO;
@@ -69,7 +71,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFactory implements
         ICommonBusinessObjectFactory
 {
-
     public CommonBusinessObjectFactory(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory)
     {
         super(daoFactory, dssFactory);
@@ -93,6 +94,11 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     public final ISampleTable createSampleTable(final Session session)
     {
         return new SampleTable(getDaoFactory(), session);
+    }
+
+    public ISampleLister createSampleLister(Session session)
+    {
+        return new SampleLister(getDaoFactory());
     }
 
     public final ISampleBO createSampleBO(final Session session)

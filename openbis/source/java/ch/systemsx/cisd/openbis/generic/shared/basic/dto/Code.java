@@ -90,6 +90,12 @@ public class Code<T extends Code<T>> implements IsSerializable, ICodeProvider, C
         return getCode().hashCode();
     }
 
+    @Override
+    public String toString()
+    {
+        return getCode();
+    }
+
     //
     // Helper classes
     //

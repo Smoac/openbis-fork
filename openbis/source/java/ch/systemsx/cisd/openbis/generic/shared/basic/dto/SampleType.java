@@ -34,6 +34,8 @@ public final class SampleType extends EntityType implements IsSerializable
 
     public static final String DEFINED_IN_FILE = "(multiple)";
 
+    private long id;
+    
     private int generatedFromHierarchyDepth;
 
     private boolean showContainer;
@@ -55,6 +57,16 @@ public final class SampleType extends EntityType implements IsSerializable
     public final int getGeneratedFromHierarchyDepth()
     {
         return generatedFromHierarchyDepth;
+    }
+
+    public long getId()
+    {
+        return id;
+    }
+
+    public void setId(long id)
+    {
+        this.id = id;
     }
 
     public final void setGeneratedFromHierarchyDepth(final int generatedFromHierarchyDepth)

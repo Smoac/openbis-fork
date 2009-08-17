@@ -381,6 +381,14 @@ public final class SampleDAOTest extends AbstractDAOTest
         sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode, homeDatabaseInstance);
     }
 
+    @Test(groups = "broken")
+    public void testSample982Bug()
+    {
+        final SamplePE sample = daoFactory.getSampleDAO().getByTechId(new TechId(982L));
+        // When getGeneratedFrom() is not null, its id must not be null either.
+        assertNotNull(sample.getGeneratedFrom().getId());
+    }
+
     //
     // Private methods
     //
