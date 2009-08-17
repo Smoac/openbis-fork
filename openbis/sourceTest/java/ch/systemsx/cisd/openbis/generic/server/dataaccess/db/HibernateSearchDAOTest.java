@@ -332,7 +332,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC4, DSLoc.LOC5);
     }
 
-    @Test
+    @Test(groups = "broken")
     public final void testSearchForDataSetsComplexGeneric()
     {
         List<String> propertyTypes = fetchPropertyTypeCodes();
@@ -378,7 +378,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         restoreSearchIndex();
     }
 
-    @Test
+    @Test(groups = "broken")
     /*
      * Checks if the dataset search index is properly updated after properties for a connected
      * experiment have changed.
