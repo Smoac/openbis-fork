@@ -22,6 +22,7 @@ import junit.framework.TestSuite;
 import com.google.gwt.junit.tools.GWTTestSuite;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthenticationTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthorizationGroupsTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthorizationManagementConsolTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DataSetSearchTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.EntityTypeBrowserTest;
@@ -33,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ProjectReg
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PropertyTypeAssignmentBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PropertyTypeBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PropertyTypeRegistrationTest;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthorizationGroupsTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SampleBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SearchTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VocabularyBrowserTest;

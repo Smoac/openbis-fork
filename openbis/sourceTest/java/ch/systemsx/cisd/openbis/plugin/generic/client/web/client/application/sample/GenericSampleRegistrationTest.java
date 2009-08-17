@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ShowSample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
@@ -43,6 +44,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Pro
  */
 public class GenericSampleRegistrationTest extends AbstractGWTTestCase
 {
+    private static final String PLATE_GEOMETRY = "$plate_geometry";
+
     private static final String CONTROL_LAYOUT = "CONTROL_LAYOUT";
 
     private static final String DILUTION_PLATE = "DILUTION_PLATE";
@@ -66,8 +69,8 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         final String sampleTypeCode = CONTROL_LAYOUT;
         loginAndPreprareRegistration(sampleTypeCode);
         remoteConsole.prepare(new FillSampleRegistrationForm("CISD", GROUP_CL, true)
-                .addProperty(new PropertyField(GenericSampleRegistrationForm.ID + "plate-geometry",
-                        "1536_WELLS_32X48")));
+                .addProperty(new PropertyField(GenericSampleRegistrationForm.ID
+                        + GWTUtils.escapeToFormId(PLATE_GEOMETRY), "1536_WELLS_32X48")));
         remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE,
                 GenericSampleRegistrationForm.RegisterSampleCallback.class));
         remoteConsole.prepare(new ListSamples("CISD", sampleTypeCode));
@@ -85,8 +88,8 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         loginAndInvokeAction("observer", "observer", ActionMenuKind.SAMPLE_MENU_NEW);
         remoteConsole.prepare(new ChooseTypeOfNewSample(CONTROL_LAYOUT));
         remoteConsole.prepare(new FillSampleRegistrationForm("TESTGROUP", GROUP_CL + "1", true)
-                .addProperty(new PropertyField(GenericSampleRegistrationForm.ID + "plate-geometry",
-                        "1536_WELLS_32X48")));
+                .addProperty(new PropertyField(GenericSampleRegistrationForm.ID
+                        + GWTUtils.escapeToFormId(PLATE_GEOMETRY), "1536_WELLS_32X48")));
         FailureExpectation failureExpectation =
                 new FailureExpectation(GenericSampleRegistrationForm.RegisterSampleCallback.class)
                         .with("Authorization failure: None of method roles "
@@ -142,10 +145,10 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         final String description = "A very nice control layout.";
         remoteConsole.prepare(new FillSampleRegistrationForm(
                 GroupSelectionWidget.SHARED_GROUP_CODE, SHARED_CL, true).addProperty(
-                new PropertyField(GenericSampleRegistrationForm.ID + "user-description",
-                        description)).addProperty(
-                new PropertyField(GenericSampleRegistrationForm.ID + "plate-geometry",
-                        "1536_WELLS_32X48")));
+                new PropertyField(GenericSampleRegistrationForm.ID + "description", description))
+                .addProperty(
+                        new PropertyField(GenericSampleRegistrationForm.ID
+                                + GWTUtils.escapeToFormId(PLATE_GEOMETRY), "1536_WELLS_32X48")));
         remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE,
                 GenericSampleRegistrationForm.RegisterSampleCallback.class));
         remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_GROUP_CODE,

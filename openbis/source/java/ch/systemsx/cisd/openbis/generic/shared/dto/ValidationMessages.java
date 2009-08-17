@@ -121,8 +121,8 @@ public final class ValidationMessages
 
     public static final String LOCATION_NOT_RELATIVE = "Location is not relative";
 
-    public static final String CODE_NOT_USER_NAMESPACE =
-            "Code does not contain '" + BasicConstant.USER_NAMESPACE_PREFIX + "' prefix.";
+    public static final String CODE_IN_INTERNAL_NAMESPACE =
+            "Code contains '" + BasicConstant.INTERNAL_NAMESPACE_PREFIX + "' prefix.";
 
     public static final String LOCATOR_TYPE_NOT_NULL_MESSAGE = "Locator type" + CAN_NOT_BE_NULL;
 

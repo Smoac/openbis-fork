@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
@@ -58,7 +59,8 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         this.viewContext = viewContext;
     }
 
-    public void initWithProperties(final List<S> entityTypesPropertyTypes, final List<IEntityProperty> properties)
+    public void initWithProperties(final List<S> entityTypesPropertyTypes,
+            final List<IEntityProperty> properties)
     {
         assert properties != null : "Undefined properties.";
         assert propertyFields == null : "Already initialized.";
@@ -121,7 +123,7 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
 
     private final static String createFormFieldId(String idPrefix, final String propertyTypeCode)
     {
-        return idPrefix + propertyTypeCode.toLowerCase().replace(".", "-").replace("_", "-");
+        return idPrefix + GWTUtils.escapeToFormId(propertyTypeCode);
     }
 
     /**

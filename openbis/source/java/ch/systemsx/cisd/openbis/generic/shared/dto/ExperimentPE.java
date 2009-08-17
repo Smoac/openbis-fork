@@ -317,7 +317,8 @@ public class ExperimentPE extends AttachmentHolderPE implements IEntityPropertie
     }
 
     @Override
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentParentInternal")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentParentInternal", cascade = CascadeType.ALL)
+    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_EXPERIMENT_ATTACHMENTS)
     protected Set<AttachmentPE> getInternalAttachments()
     {

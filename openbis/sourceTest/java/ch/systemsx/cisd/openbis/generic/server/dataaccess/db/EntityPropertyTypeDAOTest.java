@@ -118,8 +118,7 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
     public final void testCountTermUsageStatistics()
     {
         IEntityPropertyTypeDAO dao = daoFactory.getEntityPropertyTypeDAO(EntityKind.EXPERIMENT);
-        VocabularyPE vocabulary =
-                daoFactory.getVocabularyDAO().tryFindVocabularyByCode("USER.GENDER");
+        VocabularyPE vocabulary = daoFactory.getVocabularyDAO().tryFindVocabularyByCode("GENDER");
         assert vocabulary != null : "gender vocabulary not found";
         VocabularyTermPE term = tryFindTerm(vocabulary, "MALE");
         assert term != null : "term MALE not found in GENDER vocabulary";
@@ -156,7 +155,7 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
     public void testDelete()
     {
         EntityTypePropertyTypePE assignment =
-                tryToGetAssignment(EntityKind.EXPERIMENT, "SIRNA_HCS", "USER.DESCRIPTION");
+                tryToGetAssignment(EntityKind.EXPERIMENT, "SIRNA_HCS", "DESCRIPTION");
         assertEquals(false, assignment.getPropertyValues().isEmpty());
         ExperimentPropertyPE propertyValue =
                 (ExperimentPropertyPE) (assignment.getPropertyValues().iterator().next());
@@ -186,9 +185,9 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
     {
         return new Object[][]
             {
-                { EntityKind.EXPERIMENT, "SIRNA_HCS", "USER.DESCRIPTION" },
-                { EntityKind.SAMPLE, "CONTROL_LAYOUT", "PLATE_GEOMETRY" },
-                { EntityKind.MATERIAL, "BACTERIUM", "USER.DESCRIPTION" } };
+                { EntityKind.EXPERIMENT, "SIRNA_HCS", "DESCRIPTION" },
+                { EntityKind.SAMPLE, "CONTROL_LAYOUT", "$PLATE_GEOMETRY" },
+                { EntityKind.MATERIAL, "BACTERIUM", "DESCRIPTION" } };
     }
 
     @SuppressWarnings("unused")
@@ -197,8 +196,8 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
     {
         return new Object[][]
             {
-                { EntityKind.EXPERIMENT, "SIRNA_HCS", "USER.IS_VALID" },
-                { EntityKind.SAMPLE, "CONTROL_LAYOUT", "USER.IS_VALID" },
-                { EntityKind.MATERIAL, "BACTERIUM", "USER.IS_VALID" }, };
+                { EntityKind.EXPERIMENT, "SIRNA_HCS", "IS_VALID" },
+                { EntityKind.SAMPLE, "CONTROL_LAYOUT", "IS_VALID" },
+                { EntityKind.MATERIAL, "BACTERIUM", "IS_VALID" }, };
     }
 }

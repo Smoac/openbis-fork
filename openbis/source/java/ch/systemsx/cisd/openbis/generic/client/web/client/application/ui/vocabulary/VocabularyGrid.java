@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary;
 
-import static ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant.USER_NAMESPACE_PREFIX;
-
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.Component;
@@ -248,7 +246,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                     setWidth(LABEL_WIDTH + FIELD_WIDTH + 50);
 
                     codeField = createMandatoryCodeField();
-                    codeField.setValue(getOldVocabularyCodeWithoutPrefix());
+                    codeField.setValue(getOldVocabularyCode());
                     addField(codeField);
 
                     descriptionField = createDescriptionField(viewContext);
@@ -269,7 +267,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                 @Override
                 protected void register(AsyncCallback<Void> registrationCallback)
                 {
-                    vocabulary.setCode(getCodePrefix() + codeField.getValue());
+                    vocabulary.setCode(codeField.getValue());
                     vocabulary.setDescription(descriptionField.getValue());
                     vocabulary.setURLTemplate(urlTemplateField.getValue());
                     vocabulary.setChosenFromList(chosenFromList.getValue());
@@ -294,17 +292,9 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                             .createChosenFromListCheckbox(viewContext);
                 }
 
-                private String getOldVocabularyCodeWithoutPrefix()
+                private String getOldVocabularyCode()
                 {
-                    String code = vocabulary.getCode();
-                    String prefix = getCodePrefix();
-                    assert code.startsWith(prefix) : "code does not start with " + prefix;
-                    return StringEscapeUtils.unescapeHtml(code.substring(prefix.length()));
-                }
-
-                private String getCodePrefix()
-                {
-                    return USER_NAMESPACE_PREFIX;
+                    return StringEscapeUtils.unescapeHtml(vocabulary.getCode());
                 }
             };
     }

@@ -243,7 +243,7 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
     }
 
     @Column(name = ColumnNames.IS_INTERNAL_NAMESPACE, nullable = false)
-    @InternalNamespace(message = ValidationMessages.CODE_NOT_USER_NAMESPACE)
+    @InternalNamespace(message = ValidationMessages.CODE_IN_INTERNAL_NAMESPACE)
     public boolean isInternalNamespace()
     {
         return internalNamespace;
@@ -269,7 +269,7 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
     @Transient
     public String getCode()
     {
-        return CodeConverter.tryToBusinessLayer(getSimpleCode(), isInternalNamespace() == false);
+        return CodeConverter.tryToBusinessLayer(getSimpleCode(), isInternalNamespace());
     }
 
     /**

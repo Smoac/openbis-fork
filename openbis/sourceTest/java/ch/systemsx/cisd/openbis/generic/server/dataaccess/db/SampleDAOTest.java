@@ -121,10 +121,10 @@ public final class SampleDAOTest extends AbstractDAOTest
             plateGeometry = description;
             description = p;
         }
-        assertEquals("USER.DESCRIPTION", description.getEntityTypePropertyType().getPropertyType()
+        assertEquals("DESCRIPTION", description.getEntityTypePropertyType().getPropertyType()
                 .getCode());
         assertEquals("test control layout", description.getValue());
-        assertEquals("PLATE_GEOMETRY", plateGeometry.getEntityTypePropertyType().getPropertyType()
+        assertEquals("$PLATE_GEOMETRY", plateGeometry.getEntityTypePropertyType().getPropertyType()
                 .getCode());
         assertEquals("384_WELLS_16X24", plateGeometry.getVocabularyTerm().getCode());
     }
@@ -262,7 +262,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         }
     }
 
-    @Test(expectedExceptions = DataIntegrityViolationException.class)
+    @Test
     public final void testDeleteFailWithAttachments()
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
@@ -336,7 +336,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         GroupPE group = findGroup("CISD");
 
-        List<SamplePE> samples = sampleDAO.listSamplesByGroupAndProperty("USER.SIZE", "321", group);
+        List<SamplePE> samples = sampleDAO.listSamplesByGroupAndProperty("SIZE", "321", group);
 
         assertEquals(1, samples.size());
         assertEquals("CP-TEST-2", samples.get(0).getCode());
@@ -349,7 +349,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         GroupPE group = findGroup("CISD");
 
         List<SamplePE> samples =
-                sampleDAO.listSamplesByGroupAndProperty("USER.ORGANISM", "HUMAN", group);
+                sampleDAO.listSamplesByGroupAndProperty("ORGANISM", "HUMAN", group);
         assertEquals(1, samples.size());
         assertEquals("CP-TEST-1", samples.get(0).getCode());
     }

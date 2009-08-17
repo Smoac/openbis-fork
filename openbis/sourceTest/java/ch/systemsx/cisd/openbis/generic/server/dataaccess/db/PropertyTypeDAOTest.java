@@ -141,16 +141,16 @@ public final class PropertyTypeDAOTest extends AbstractDAOTest
         assertFalse(fail);
         try
         {
-            createPropertyType(entityDataType, "code");
+            createPropertyType(entityDataType, "$code");
             fail(String.format("'%s' expected.", DataIntegrityViolationException.class
                     .getSimpleName()));
         } catch (final DataIntegrityViolationException ex)
         {
             // Nothing to do here.
         }
-        createPropertyType(entityDataType, "user.code");
-        assertNotNull(propertyTypeDAO.tryFindPropertyTypeByCode("user.code"));
-        assertNull(propertyTypeDAO.tryFindPropertyTypeByCode("code"));
+        assertNull(propertyTypeDAO.tryFindPropertyTypeByCode("$code"));
+        createPropertyType(entityDataType, "code");
+        assertNotNull(propertyTypeDAO.tryFindPropertyTypeByCode("code"));
     }
 
     private final void createPropertyType(final EntityDataType entityDataType, final String code)
@@ -185,7 +185,7 @@ public final class PropertyTypeDAOTest extends AbstractDAOTest
     public final void testDeleteFail()
     {
         final IPropertyTypeDAO propertyTypeDAO = daoFactory.getPropertyTypeDAO();
-        final PropertyTypePE deletedPropertyType = findPropertyType("USER.COMMENT");
+        final PropertyTypePE deletedPropertyType = findPropertyType("COMMENT");
 
         // Deleted property type should have at least one connection which prevent it from deletion.
         assertFalse(getConnectionsPreventingDeletion(deletedPropertyType).isEmpty());

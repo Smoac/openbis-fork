@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import static ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant.USER_NAMESPACE_PREFIX;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant.INTERNAL_NAMESPACE_PREFIX;
 
 /**
  * Methods for converter codes from business layer to database and from database to business layer.
@@ -32,29 +32,19 @@ public final class CodeConverter
 
     /**
      * Converts a code from database form to business layer form.
-     * 
-     * @return The code appropriate for the business layer.
-     */
-    public static String tryToBusinessLayer(final String codeFromDatabaseOrNull)
-    {
-        return tryToBusinessLayer(codeFromDatabaseOrNull, false);
-    }
-
-    /**
-     * Converts a code from database form to business layer form.
      * <p>
-     * If <var>userNamespace</var> is <code>true</code>, the prefix 'USER.' will be used, because
-     * user properties will be represented as 'NAME' in the database and as USER.NAME in the
+     * If <var>internalNamespace</var> is <code>true</code>, the prefix '$' will be used, because
+     * internal properties will be represented as 'NAME' in the database and as $NAME in the
      * business layer.
      * 
      * @return The code appropriate for the business layer.
      */
     public static String tryToBusinessLayer(final String codeFromDatabaseOrNull,
-            final boolean userNamespace)
+            final boolean internalNamespace)
     {
-        if (userNamespace && codeFromDatabaseOrNull != null)
+        if (internalNamespace && codeFromDatabaseOrNull != null)
         {
-            return USER_NAMESPACE_PREFIX + codeFromDatabaseOrNull;
+            return INTERNAL_NAMESPACE_PREFIX + codeFromDatabaseOrNull;
         } else
         {
             return codeFromDatabaseOrNull;
@@ -64,8 +54,8 @@ public final class CodeConverter
     /**
      * Converts a property type code from business layer form to database form.
      * <p>
-     * The code will be translated to upper case. User properties will be represented as 'NAME' in
-     * the database and as USER.NAME in the business layer.
+     * The code will be translated to upper case. Internal properties will be represented as 'NAME'
+     * in the database and as $NAME in the business layer.
      * 
      * @return The code appropriate for the database.
      */
@@ -76,9 +66,9 @@ public final class CodeConverter
             return null;
         }
         final String upperCaseCode = codeFromBusinessLayerOrNull.toUpperCase();
-        if (upperCaseCode.startsWith(USER_NAMESPACE_PREFIX))
+        if (upperCaseCode.startsWith(INTERNAL_NAMESPACE_PREFIX))
         {
-            return upperCaseCode.substring(USER_NAMESPACE_PREFIX.length());
+            return upperCaseCode.substring(INTERNAL_NAMESPACE_PREFIX.length());
         } else
         {
             return upperCaseCode;
@@ -86,8 +76,8 @@ public final class CodeConverter
     }
 
     /**
-     * Returns <code>true</code>, if the <var>codeFromBusinessLayerOrNull</var> represents a user
-     * property code.
+     * Returns <code>true</code>, if the <var>codeFromBusinessLayerOrNull</var> represents a
+     * internal property code.
      */
     public static boolean isInternalNamespace(final String codeFromBusinessLayerOrNull)
     {
@@ -96,7 +86,7 @@ public final class CodeConverter
             return false;
         } else
         {
-            return codeFromBusinessLayerOrNull.toUpperCase().startsWith(USER_NAMESPACE_PREFIX) == false;
+            return codeFromBusinessLayerOrNull.toUpperCase().startsWith(INTERNAL_NAMESPACE_PREFIX) == true;
         }
     }
 

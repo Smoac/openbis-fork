@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 public class VocabularyBrowserTest extends AbstractGWTTestCase
 {
 
-    private static final String VOCABULARY_CODE = "USER.ORGANISM";
+    private static final String VOCABULARY_CODE = "ORGANISM";
 
     public final void testListVocabularies()
     {

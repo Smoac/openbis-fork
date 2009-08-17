@@ -48,9 +48,9 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
 
     private static final String HCS_IMAGE = "HCS_IMAGE";
 
-    private static final String USER_COMMENT = "Comment";
+    private static final String COMMENT = "Comment";
 
-    private static final String USER_DESCRIPTION = "Description";
+    private static final String DESCRIPTION = "Description";
 
     private static final String CONTROL_LAYOUT = "CONTROL_LAYOUT";
 
@@ -80,9 +80,9 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
     {
         loginAndInvokeAction(ActionMenuKind.PROPERTY_TYPES_MENU_ASSIGN_TO_EXPERIMENT_TYPE);
         final boolean mandatory = true;
-        remoteConsole.prepare(new FillPropertyTypeAssignmentForm(mandatory, USER_COMMENT,
+        remoteConsole.prepare(new FillPropertyTypeAssignmentForm(mandatory, COMMENT,
                 SIRNA_HCS, "a comment", EXPERIMENT));
-        prepareListingAfterAssignment(USER_COMMENT, SIRNA_HCS, EXPERIMENT, 30, mandatory);
+        prepareListingAfterAssignment(COMMENT, SIRNA_HCS, EXPERIMENT, 30, mandatory);
         launchTest(20000);
     }
 
@@ -90,23 +90,23 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
     {
         loginAndInvokeAction(ActionMenuKind.PROPERTY_TYPES_MENU_ASSIGN_TO_DATA_SET_TYPE);
         final boolean mandatory = false;
-        remoteConsole.prepare(new FillPropertyTypeAssignmentForm(mandatory, USER_DESCRIPTION,
+        remoteConsole.prepare(new FillPropertyTypeAssignmentForm(mandatory, DESCRIPTION,
                 HCS_IMAGE, null, DATA_SET));
-        prepareListingAfterAssignment(USER_DESCRIPTION, HCS_IMAGE, DATA_SET, 31, mandatory);
+        prepareListingAfterAssignment(DESCRIPTION, HCS_IMAGE, DATA_SET, 31, mandatory);
         launchTest(20000);
     }
 
     public final void testGlobalValueAssignmentSamplePropertyType()
     {
         loginAndInvokeAction(ActionMenuKind.PROPERTY_TYPES_MENU_ASSIGN_TO_SAMPLE_TYPE);
-        remoteConsole.prepare(new FillPropertyTypeAssignmentForm(false, USER_COMMENT,
+        remoteConsole.prepare(new FillPropertyTypeAssignmentForm(false, COMMENT,
                 CONTROL_LAYOUT, NO_COMMENT, SAMPLE));
         remoteConsole.prepare(new InvokeActionMenu(ActionMenuKind.SAMPLE_MENU_BROWSE,
                 PropertyTypeAssignmentForm.AssignPropertyTypeCallback.class));
         remoteConsole.prepare(new ListSamples(CISD, CONTROL_LAYOUT));
         CheckSampleTable table = new CheckSampleTable();
         table.expectedRow(new SampleRow(CONTROL_LAYOUT_C1).identifier(CISD, CISD).valid()
-                .withUserPropertyCell(USER_COMMENT, NO_COMMENT));
+                .withUserPropertyCell(COMMENT, NO_COMMENT));
         launchTest(20000);
     }
 }

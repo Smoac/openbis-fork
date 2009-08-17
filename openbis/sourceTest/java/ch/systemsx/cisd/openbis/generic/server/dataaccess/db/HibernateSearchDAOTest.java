@@ -73,6 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 @Friend(toClasses = HibernateSearchDAO.class)
 public final class HibernateSearchDAOTest extends AbstractDAOTest
 {
+
     private final static String LUCENE_INDEX_TEMPLATE_PATH = "./sourceTest/lucene/indices";
 
     @BeforeClass
@@ -302,7 +303,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     {
         String propertyValue = "stuff";
         DataSetSearchCriterion criterion =
-                mkCriterion(DataSetSearchField.createSampleProperty("USER.COMMENT"), propertyValue);
+                mkCriterion(DataSetSearchField.createSampleProperty("COMMENT"), propertyValue);
         DataSetSearchCriteria criteria = createAndDatasetQuery(criterion);
         assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC3);
     }
@@ -345,7 +346,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
                 mkCriterion(DataSetSearchField.createSimpleField(DataSetSearchFieldKind.PROJECT),
                         "NEMO");
         DataSetSearchCriterion criterion4 =
-                mkCriterion(DataSetSearchField.createExperimentProperty("USER.GENDER"), "MALE");
+                mkCriterion(DataSetSearchField.createExperimentProperty("GENDER"), "MALE");
 
         DataSetSearchCriteria criteria =
                 createAndDatasetQuery(criterion1, criterion2, criterion3, criterion4);
@@ -360,7 +361,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     public final void testSearchForDataSetsAfterSamplePropertiesUpdate()
             throws InterruptedException
     {
-        String propertyCode = "USER.COMMENT";
+        String propertyCode = "COMMENT";
         DataSetSearchCriterion criterion =
                 mkCriterion(DataSetSearchField.createSampleProperty(propertyCode), "stuff");
 
@@ -385,7 +386,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     public final void testSearchForDataSetsAfterExperimentPropertiesUpdate()
             throws InterruptedException
     {
-        String propertyCode = "USER.GENDER";
+        String propertyCode = "GENDER";
         DataSetSearchCriterion criterion =
                 mkCriterion(DataSetSearchField.createExperimentProperty(propertyCode), "female");
 

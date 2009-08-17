@@ -21,7 +21,6 @@ import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
 
 import java.util.List;
 
@@ -68,7 +67,7 @@ public final class VocabularyDAOTest extends AbstractDAOTest
         }
         assertFalse(fail);
         assertNull(vocabularyDAO.tryFindVocabularyByCode("DOES_NOT_EXIST"));
-        final VocabularyPE vocabulary = vocabularyDAO.tryFindVocabularyByCode("PLATE_GEOMETRY");
+        final VocabularyPE vocabulary = vocabularyDAO.tryFindVocabularyByCode("$PLATE_GEOMETRY");
         assertNotNull(vocabulary);
         assertEquals(3, vocabulary.getTerms().size());
     }
@@ -96,21 +95,9 @@ public final class VocabularyDAOTest extends AbstractDAOTest
         vocabularyPE.addTerm(createVocabularyTerm("SMALL"));
         vocabularyPE.addTerm(createVocabularyTerm("MEDIUM"));
         vocabularyPE.addTerm(createVocabularyTerm("BIG:.-_-"));
-        try
-        {
-            vocabularyDAO.createOrUpdateVocabulary(vocabularyPE);
-            fail(String.format("'%s' expected.", DataIntegrityViolationException.class
-                    .getSimpleName()));
-        } catch (final DataIntegrityViolationException ex)
-        {
-            // Nothing to do here.
-        }
-        vocabularyPE.setCode("USER.FORMAT");
         vocabularyDAO.createOrUpdateVocabulary(vocabularyPE);
         // Check saved vocabulary.
-        assertNull(vocabularyDAO.tryFindVocabularyByCode(vocabularyCode));
-        final VocabularyPE savedVocabulary =
-                vocabularyDAO.tryFindVocabularyByCode("USER." + vocabularyCode);
+        final VocabularyPE savedVocabulary = vocabularyDAO.tryFindVocabularyByCode(vocabularyCode);
         assertNotNull(savedVocabulary);
         assertNotNull(savedVocabulary.getDescription());
         assertEquals(3, savedVocabulary.getTerms().size());
@@ -120,7 +107,7 @@ public final class VocabularyDAOTest extends AbstractDAOTest
     public final void testFindVocabularyTermByCode()
     {
         final IVocabularyDAO vocabularyDAO = daoFactory.getVocabularyDAO();
-        final String vocabularyCode = "USER.HUMAN";
+        final String vocabularyCode = "HUMAN";
         final String realTermCode = "MAN";
         final String fakeTermCode = "DOG";
         final VocabularyPE vocabularyPE = vocabularyDAO.tryFindVocabularyByCode(vocabularyCode);
@@ -176,7 +163,7 @@ public final class VocabularyDAOTest extends AbstractDAOTest
     public final void testDeleteWithVocabularyTerms()
     {
         final IVocabularyDAO vocabularyDAO = daoFactory.getVocabularyDAO();
-        final VocabularyPE deletedVocabulary = findVocabulary("USER.HUMAN");
+        final VocabularyPE deletedVocabulary = findVocabulary("HUMAN");
 
         // Deleted vocabulary should have all collections which prevent it from deletion empty.
         assertTrue(deletedVocabulary.getPropertyTypes().isEmpty());
@@ -199,7 +186,7 @@ public final class VocabularyDAOTest extends AbstractDAOTest
     public final void testDeleteFail()
     {
         final IVocabularyDAO vocabularyDAO = daoFactory.getVocabularyDAO();
-        final VocabularyPE deletedVocabulary = findVocabulary("USER.ORGANISM");
+        final VocabularyPE deletedVocabulary = findVocabulary("ORGANISM");
 
         // Deleted project should have property types which prevent it from deletion.
         assertFalse(deletedVocabulary.getPropertyTypes().isEmpty());

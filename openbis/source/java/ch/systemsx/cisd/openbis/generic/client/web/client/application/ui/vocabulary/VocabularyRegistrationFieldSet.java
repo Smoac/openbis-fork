@@ -45,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 /**
@@ -147,13 +146,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
 
     private final String getVocabularyCodeValue()
     {
-        final String prepend = PropertyType.USER_NAMESPACE_CODE_PREPEND;
-        final String value = vocabularyCodeField.getValue();
-        if (value.toUpperCase().startsWith(prepend))
-        {
-            return value;
-        }
-        return prepend + value;
+        return vocabularyCodeField.getValue().toUpperCase();
     }
 
     private final String getDescriptionValue()

@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -40,6 +41,7 @@ import javax.persistence.Version;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.search.annotations.ContainedIn;
@@ -319,7 +321,8 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     }
 
     @Override
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "projectParentInternal")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "projectParentInternal", cascade = CascadeType.ALL)
+    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROJECT_ATTACHMENTS)
     protected Set<AttachmentPE> getInternalAttachments()
     {

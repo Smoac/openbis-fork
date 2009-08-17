@@ -151,13 +151,7 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
 
     private final String getPropertyTypeCode()
     {
-        final String prepend = PropertyType.USER_NAMESPACE_CODE_PREPEND;
-        final String value = propertyTypeCodeField.getValue();
-        if (value.toUpperCase().startsWith(prepend))
-        {
-            return value;
-        }
-        return prepend + value;
+        return propertyTypeCodeField.getValue().toUpperCase();
     }
 
     private final PropertyType createPropertyType()

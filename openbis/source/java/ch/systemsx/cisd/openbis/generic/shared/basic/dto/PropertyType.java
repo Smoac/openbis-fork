@@ -33,8 +33,6 @@ public class PropertyType extends Code<PropertyType> implements IPropertyTypeUpd
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    public final static String USER_NAMESPACE_CODE_PREPEND = "USER.";
-
     private Long id;
 
     /**

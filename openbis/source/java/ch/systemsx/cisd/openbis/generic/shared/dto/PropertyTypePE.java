@@ -170,7 +170,7 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
     @Transient
     public String getCode()
     {
-        return CodeConverter.tryToBusinessLayer(getSimpleCode(), isInternalNamespace() == false);
+        return CodeConverter.tryToBusinessLayer(getSimpleCode(), isInternalNamespace());
     }
 
     @NotNull(message = ValidationMessages.DATA_TYPE_NOT_NULL_MESSAGE)
@@ -226,7 +226,7 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
 
     @NotNull
     @Column(name = ColumnNames.IS_INTERNAL_NAMESPACE)
-    @InternalNamespace(message = ValidationMessages.CODE_NOT_USER_NAMESPACE)
+    @InternalNamespace(message = ValidationMessages.CODE_IN_INTERNAL_NAMESPACE)
     public boolean isInternalNamespace()
     {
         return internalNamespace;

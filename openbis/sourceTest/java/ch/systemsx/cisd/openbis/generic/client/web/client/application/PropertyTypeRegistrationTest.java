@@ -25,7 +25,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test <i>Property Type Registration</i>.
@@ -49,11 +48,11 @@ public class PropertyTypeRegistrationTest extends AbstractGWTTestCase
         loginAndInvokeAction(ActionMenuKind.PROPERTY_TYPES_MENU_NEW_PROPERTY_TYPES);
         remoteConsole.prepare(createFillPropertyTypeRegistrationForm());
 
-        remoteConsole.prepare(new InvokeActionMenu(ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES,
+        remoteConsole.prepare(new InvokeActionMenu(
+                ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES,
                 PropertyTypeRegistrationForm.PropertyTypeRegistrationCallback.class));
         final CheckPropertyTypeTable table = new CheckPropertyTypeTable();
-        table.expectedRow(new Row().withCell(PropertyTypeColDefKind.CODE.id(),
-                PropertyType.USER_NAMESPACE_CODE_PREPEND + PROPERTY_TYPE_CODE));
+        table.expectedRow(new Row().withCell(PropertyTypeColDefKind.CODE.id(), PROPERTY_TYPE_CODE));
         remoteConsole.prepare(table.expectedSize(15));
 
         launchTest(20000);

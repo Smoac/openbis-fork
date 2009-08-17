@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
  */
 public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCommand
 {
-    private static final String USER_PROPERTY_PREFIX = "USER.";
+    private static final String INTERNAL_PROPERTY_PREFIX = "$";
 
     private final String entityTypeCode;
 
@@ -179,16 +179,16 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
     {
         if (isInternalNamespace(code))
         {
-            return code;
+            return code.substring(INTERNAL_PROPERTY_PREFIX.length());
         } else
         {
-            return code.substring(USER_PROPERTY_PREFIX.length());
+            return code;
         }
     }
 
     private boolean isInternalNamespace(String code)
     {
-        return code.startsWith(USER_PROPERTY_PREFIX) == false;
+        return code.startsWith(INTERNAL_PROPERTY_PREFIX);
     }
 
 }

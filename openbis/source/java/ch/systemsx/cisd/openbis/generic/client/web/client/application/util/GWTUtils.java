@@ -263,6 +263,12 @@ public final class GWTUtils
         }
     }
 
+    public final static String escapeToFormId(final String original)
+    {
+        return original.toLowerCase().replace(".", "-DOT-").replace("_", "-UNDERSCORE-").replace(
+                "$", "-DOLLAR-");
+    }
+
     //
     // native JavaScript
     //

@@ -68,7 +68,7 @@ public class GenericExperimentEditorTest extends AbstractGWTTestCase
         prepareShowExperimentEditor(CISD, NEMO, SIRNA_HCS, EXP1);
         String description = "description from " + new Date();
         remoteConsole.prepare(new FillExperimentEditForm().addProperty(new PropertyField(
-                "user-description", description)));
+                "description", description)));
         remoteConsole.prepare(new ListExperiments(withGroup(CISD, NEMO), SIRNA_HCS,
                 GenericExperimentEditForm.UpdateExperimentCallback.class));
         CheckExperimentTable table = new CheckExperimentTable();

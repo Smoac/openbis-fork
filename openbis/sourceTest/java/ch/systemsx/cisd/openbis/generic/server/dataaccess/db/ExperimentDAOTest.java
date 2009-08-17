@@ -415,7 +415,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
                 findProject(daoFactory.getHomeDatabaseInstance().getCode(), "CISD", "DEFAULT");
 
         List<ExperimentPE> entities =
-                dao.listExperimentsByProjectAndProperty("USER.DESCRIPTION", "A simple experiment",
+                dao.listExperimentsByProjectAndProperty("DESCRIPTION", "A simple experiment",
                         project);
 
         assertEquals(1, entities.size());
@@ -430,7 +430,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
                 findProject(daoFactory.getHomeDatabaseInstance().getCode(), "CISD", "NEMO");
 
         List<ExperimentPE> entities =
-                dao.listExperimentsByProjectAndProperty("USER.GENDER", "MALE", project);
+                dao.listExperimentsByProjectAndProperty("GENDER", "MALE", project);
 
         assertEquals(3, entities.size());
     }
