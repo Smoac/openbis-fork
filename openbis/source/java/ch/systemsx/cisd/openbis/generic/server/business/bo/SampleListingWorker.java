@@ -543,8 +543,8 @@ final class SampleListingWorker
         }
         final Experiment experiment = new Experiment();
         experiment.setCode(StringEscapeUtils.escapeHtml(codes.e_code));
-        experiment.setIdentifier(new ExperimentIdentifier(databaseInstance.getCode(), group
-                .getCode(), codes.p_code, codes.e_code).toString());
+        experiment.setIdentifier(new ExperimentIdentifier(null, group.getCode(), codes.p_code,
+                codes.e_code).toString());
         final Project project = new Project();
         project.setCode(StringEscapeUtils.escapeHtml(codes.p_code));
         project.setGroup(group);
