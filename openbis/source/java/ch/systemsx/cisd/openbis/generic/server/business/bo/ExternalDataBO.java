@@ -87,7 +87,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         externalData = getExternalDataDAO().tryToFindFullDataSetByCode(dataSetCode, true);
     }
 
-    private static final String PROPERTY_TYPES = "dataSetType.dataSetTypePropertyTypesInternal";
+    static final String PROPERTY_TYPES = "dataSetType.dataSetTypePropertyTypesInternal";
 
     public void loadDataByTechId(TechId datasetId)
     {
@@ -292,11 +292,26 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         DataPE parentOrNull = null;
         if (parentDatasetCodeOrNull != null)
         {
+            if (parentDatasetCodeOrNull.equals(externalData.getCode()))
+            {
+                throw new UserFailureException("Data set '" + parentDatasetCodeOrNull
+                        + "' can not be its own parent.");
+            }
             parentOrNull = getExternalDataDAO().tryToFindDataSetByCode(parentDatasetCodeOrNull);
             if (parentOrNull == null)
             {
                 throw new UserFailureException(String.format(
                         "Data set with code '%s' does not exist.", parentDatasetCodeOrNull));
+            }
+            ExperimentPE parentExperiment = parentOrNull.getExperiment();
+            ExperimentPE experiment = externalData.getExperiment();
+            if (parentExperiment.equals(experiment) == false)
+            {
+                throw new UserFailureException("Parent data set '" + parentDatasetCodeOrNull
+                        + "' has to be assigned to the same experiment as data set '"
+                        + externalData.getCode() + "': Experiment of parent data set is '"
+                        + parentExperiment.getIdentifier() + "', experiment of data set is '"
+                        + experiment.getIdentifier() + "'.");
             }
         }
         externalData.setParent(parentOrNull);
@@ -330,7 +345,6 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
 
     private void updateFileFormatType(String fileFormatTypeCode)
     {
-        System.err.println(fileFormatTypeCode);
         FileFormatTypePE fileFormatTypeOrNull =
                 getFileFormatTypeDAO().tryToFindFileFormatTypeByCode(fileFormatTypeCode);
         if (fileFormatTypeOrNull == null)

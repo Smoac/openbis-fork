@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.E
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 
 import org.hamcrest.BaseMatcher;
@@ -27,13 +28,17 @@ import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
+import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -49,6 +54,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
 
@@ -57,6 +65,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
  */
 public class ExternalDataBOTest extends AbstractBOTest
 {
+    private static final TechId TECH_ID = new TechId(42l);
+    
+    private static final DatabaseInstanceIdentifier DATABASE_INSTANCE_IDENTIFIER =
+            new DatabaseInstanceIdentifier(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE.getCode());
+
+    private static final GroupIdentifier GROUP_IDENTIFIER =
+            new GroupIdentifier(DATABASE_INSTANCE_IDENTIFIER, ManagerTestTool.EXAMPLE_GROUP
+                    .getCode());
+
+    private static final SampleIdentifier SAMPLE_IDENTIFIER =
+            new SampleIdentifier(GROUP_IDENTIFIER, "EXAMPLE_SAMPLE");
+
     private static final String DATA_STORE_CODE = "dss1";
 
     private static final String PARENT_CODE = "parent";
@@ -185,7 +205,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         final DataPE parentData = new DataPE();
         parentData.setCode(PARENT_CODE);
         parentData.setDataSetType(dataSetTypeUnknown);
-        parentData.setExperiment(createExperiment());
+        parentData.setExperiment(createExperiment("EXP1"));
         parentData.setSampleDerivedFrom(sample);
         parentData.setPlaceholder(true);
         context.checking(new Expectations()
@@ -215,7 +235,7 @@ public class ExternalDataBOTest extends AbstractBOTest
     }
 
     @Test
-    public void testDefineWithNonExistingParentDataSetAndNonExsitingExperiment()
+    public void testDefineWithNonExistingParentDataSetAndNonExistingExperiment()
     {
         final DataSetTypePE dataSetType = createDataSetType();
         final FileFormatTypePE fileFormatType = new FileFormatTypePE();
@@ -232,7 +252,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         final DataPE parentData = new DataPE();
         parentData.setCode(PARENT_CODE);
         parentData.setDataSetType(dataSetTypeUnknown);
-        parentData.setExperiment(createExperiment());
+        parentData.setExperiment(createExperiment("EXP1"));
         parentData.setSampleDerivedFrom(data);
         parentData.setPlaceholder(true);
         context.checking(new Expectations()
@@ -261,6 +281,174 @@ public class ExternalDataBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testUpdate()
+    {
+        final SamplePE sample = new SamplePE();
+        sample.setCode(SAMPLE_IDENTIFIER.getSampleCode());
+        final ExternalDataPE dataSet = createDataSet(sample);
+        DataSetUpdatesDTO dataSetUpdatesDTO = createDataSetUpdates(dataSet);
+        prepareForUpdate(dataSet, sample);
+        context.checking(new Expectations()
+            {
+                {
+                    one(fileFormatTypeDAO)
+                            .tryToFindFileFormatTypeByCode(FILE_FORMAT_TYPE.getCode());
+                    FileFormatTypePE fileFormatTypePE = new FileFormatTypePE();
+                    fileFormatTypePE.setCode(FILE_FORMAT_TYPE.getCode());
+                    will(returnValue(fileFormatTypePE));
+
+                    one(propertiesConverter).checkMandatoryProperties(
+                            Collections.<DataSetPropertyPE> emptySet(), null);
+
+                    one(externalDataDAO).validateAndSaveUpdatedEntity(dataSet);
+                }
+            });
+        
+        IExternalDataBO bo = createExternalDataBO();
+        bo.update(dataSetUpdatesDTO);
+        
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdateWithDataSetAsItsOwnParent()
+    {
+        final SamplePE sample = new SamplePE();
+        sample.setCode(SAMPLE_IDENTIFIER.getSampleCode());
+        final ExternalDataPE dataSet = createDataSet(sample);
+        DataSetUpdatesDTO dataSetUpdatesDTO = createDataSetUpdates(dataSet);
+        dataSetUpdatesDTO.setParentDatasetCodeOrNull(dataSet.getCode());
+        prepareForUpdate(dataSet, sample);
+        
+        IExternalDataBO bo = createExternalDataBO();
+        try
+        {
+            bo.update(dataSetUpdatesDTO);
+            fail("UserFailureException expected");
+        } catch (UserFailureException e)
+        {
+            assertEquals("Data set 'DS1' can not be its own parent.", e.getMessage());
+        }
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testUpdateWithNonExistingParentDataSet()
+    {
+        final SamplePE sample = new SamplePE();
+        sample.setCode(SAMPLE_IDENTIFIER.getSampleCode());
+        final ExternalDataPE dataSet = createDataSet(sample);
+        DataSetUpdatesDTO dataSetUpdatesDTO = createDataSetUpdates(dataSet);
+        dataSetUpdatesDTO.setParentDatasetCodeOrNull(PARENT_CODE);
+        prepareForUpdate(dataSet, sample);
+        context.checking(new Expectations()
+            {
+                {
+                    one(externalDataDAO).tryToFindDataSetByCode(PARENT_CODE);
+                    will(returnValue(null));
+                }
+            });
+        
+        IExternalDataBO bo = createExternalDataBO();
+        try
+        {
+            bo.update(dataSetUpdatesDTO);
+            fail("UserFailureException expected");
+        } catch (UserFailureException e)
+        {
+            assertEquals("Data set with code 'parent' does not exist.", e.getMessage());
+        }
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testUpdateWithParentDataSetFromDifferentExperiment()
+    {
+        final SamplePE sample = new SamplePE();
+        sample.setCode(SAMPLE_IDENTIFIER.getSampleCode());
+        final ExternalDataPE dataSet = createDataSet(sample);
+        ExperimentPE experiment = createExperiment("EXP1");
+        dataSet.setExperiment(experiment);
+        DataSetUpdatesDTO dataSetUpdatesDTO = createDataSetUpdates(dataSet);
+        dataSetUpdatesDTO.setParentDatasetCodeOrNull(PARENT_CODE);
+        prepareForUpdate(dataSet, sample);
+        context.checking(new Expectations()
+            {
+                {
+                    one(externalDataDAO).tryToFindDataSetByCode(PARENT_CODE);
+                    ExternalDataPE parentDataSet = new ExternalDataPE();
+                    parentDataSet.setExperiment(createExperiment("EXP2"));
+                    will(returnValue(parentDataSet));
+                }
+            });
+
+        IExternalDataBO bo = createExternalDataBO();
+        try
+        {
+            bo.update(dataSetUpdatesDTO);
+            fail("UserFailureException expected");
+        } catch (UserFailureException e)
+        {
+            assertEquals("Parent data set 'parent' has to be assigned to the same experiment "
+                    + "as data set 'DS1': Experiment of parent data set is 'DB:/G/P/EXP2', "
+                    + "experiment of data set is 'DB:/G/P/EXP1'.", e.getMessage());
+        }
+
+        context.assertIsSatisfied();
+    }
+
+    private void prepareForUpdate(final ExternalDataPE dataSet, final SamplePE sample)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(externalDataDAO).tryGetByTechId(TECH_ID, ExternalDataBO.PROPERTY_TYPES);
+                    will(returnValue(dataSet));
+
+                    one(propertiesConverter).updateProperties(
+                            Collections.<DataSetPropertyPE> emptySet(), null, null,
+                            ManagerTestTool.EXAMPLE_PERSON);
+                    will(returnValue(Collections.emptySet()));
+
+                    one(databaseInstanceDAO).tryFindDatabaseInstanceByCode(
+                            DATABASE_INSTANCE_IDENTIFIER.getDatabaseInstanceCode());
+                    will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
+
+                    one(groupDAO).tryFindGroupByCodeAndDatabaseInstance(
+                            GROUP_IDENTIFIER.getGroupCode(),
+                            ManagerTestTool.EXAMPLE_DATABASE_INSTANCE);
+                    will(returnValue(ManagerTestTool.EXAMPLE_GROUP));
+                    
+                    one(sampleDAO).tryFindByCodeAndGroup(SAMPLE_IDENTIFIER.getSampleCode(),
+                            ManagerTestTool.EXAMPLE_GROUP);
+                    will(returnValue(sample));
+                }
+            });
+    }
+
+    private DataSetUpdatesDTO createDataSetUpdates(final ExternalDataPE dataSet)
+    {
+        DataSetUpdatesDTO dataSetUpdatesDTO = new DataSetUpdatesDTO();
+        dataSetUpdatesDTO.setDatasetId(TECH_ID);
+        dataSetUpdatesDTO.setVersion(dataSet.getModificationDate());
+        dataSetUpdatesDTO.setSampleIdentifier(SAMPLE_IDENTIFIER);
+        dataSetUpdatesDTO.setFileFormatTypeCode(FILE_FORMAT_TYPE.getCode());
+        return dataSetUpdatesDTO;
+    }
+
+    private ExternalDataPE createDataSet(final SamplePE sample)
+    {
+        final ExternalDataPE dataSet = new ExternalDataPE();
+        dataSet.setId(TECH_ID.getId());
+        dataSet.setCode(DATA_SET_CODE);
+        dataSet.setModificationDate(PRODUCTION_DATE);
+        dataSet.setSample(sample);
+        return dataSet;
+    }
+    
     @Test
     public void testSaveNewDataSet()
     {
@@ -355,10 +543,10 @@ public class ExternalDataBOTest extends AbstractBOTest
         return dataSetType;
     }
 
-    private ExperimentPE createExperiment()
+    private ExperimentPE createExperiment(String experimentCode)
     {
         ExperimentPE experiment = new ExperimentPE();
-        experiment.setCode("EXP1");
+        experiment.setCode(experimentCode);
         ProjectPE project = new ProjectPE();
         project.setCode("P");
         GroupPE group = new GroupPE();
