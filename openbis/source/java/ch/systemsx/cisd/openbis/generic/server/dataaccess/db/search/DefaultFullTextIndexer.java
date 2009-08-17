@@ -16,8 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.hibernate.CacheMode;
+import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.FlushMode;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
@@ -29,6 +34,10 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * A default {@link IFullTextIndexer} which knows how to perform an efficient full text index.
@@ -52,10 +61,22 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
      */
     private final int batchSize;
 
+    private Map<Class<?>, String> classProperties;
+
     DefaultFullTextIndexer(final int batchSize)
     {
         assert batchSize > -1 : "Batch size can not be negative.";
         this.batchSize = batchSize;
+        initializeClassProperties();
+    }
+
+    private void initializeClassProperties()
+    {
+        classProperties = new HashMap<Class<?>, String>();
+        classProperties.put(SamplePE.class, "sampleProperties");
+        classProperties.put(MaterialPE.class, "materialProperties");
+        classProperties.put(ExperimentPE.class, "experimentProperties");
+        classProperties.put(ExternalDataPE.class, "dataSetProperties");
     }
 
     //
@@ -70,7 +91,7 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         fullTextSession.setCacheMode(CacheMode.IGNORE);
         final Transaction transaction = hibernateSession.beginTransaction();
         final ScrollableResults results =
-                fullTextSession.createCriteria(clazz).scroll(ScrollMode.FORWARD_ONLY);
+                createCriteria(fullTextSession, clazz).scroll(ScrollMode.FORWARD_ONLY);
         operationLog.info(String.format("Indexing '%s'...", clazz.getSimpleName()));
         int index = 0;
         while (results.next())
@@ -84,6 +105,19 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         transaction.commit();
         operationLog.info(String.format("'%s' index complete. %d entities have been indexed.",
                 clazz.getSimpleName(), index));
+    }
+
+    private <T> Criteria createCriteria(final FullTextSession fullTextSession, final Class<T> clazz)
+    {
+        final Criteria criteria = fullTextSession.createCriteria(clazz);
+        criteria.setFetchSize(batchSize); // if fetch size is not set we get OutOfMemory with big DB
+        // fetching properties in JOIN mode improves performance by a factor of ~10
+        String properties = classProperties.get(clazz);
+        if (properties != null)
+        {
+            criteria.setFetchMode(properties, FetchMode.JOIN);
+        }
+        return criteria;
     }
 
     private <T> void indexEntity(final Session hibernateSession,

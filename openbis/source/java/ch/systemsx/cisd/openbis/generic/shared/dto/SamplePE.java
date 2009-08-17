@@ -288,7 +288,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.PART_OF_SAMPLE_COLUMN, updatable = true)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SAMPLE_PART_OF, depth = 5)
     public SamplePE getContainer()
     {
         return container;
@@ -313,7 +312,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = ColumnNames.GENERATED_FROM_SAMPLE_COLUMN, updatable = true)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SAMPLE_GENERATED_FROM, depth = 5)
     public SamplePE getGeneratedFrom()
     {
         return generatedFrom;
@@ -352,7 +350,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = true)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_EXPERIMENT)
     private ExperimentPE getExperimentInternal()
     {
         return experiment;
@@ -584,7 +581,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     @Private
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "container")
-    @ContainedIn
     public List<SamplePE> getContained()
     {
         return contained;
@@ -598,7 +594,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     @Private
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "generatedFrom")
-    @ContainedIn
     public List<SamplePE> getGenerated()
     {
         return generated;

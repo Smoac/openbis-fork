@@ -288,7 +288,7 @@ public class ExperimentPE extends AttachmentHolderPE implements IEntityPropertie
     {
         return HibernateUtils.isInitialized(getExperimentProperties());
     }
-    
+
     public void setProperties(final Set<? extends EntityPropertyPE> properties)
     {
         getExperimentProperties().clear();
@@ -332,7 +332,6 @@ public class ExperimentPE extends AttachmentHolderPE implements IEntityPropertie
     }
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentInternal")
-    @ContainedIn
     private List<SamplePE> getExperimentSamples()
     {
         return samples;
