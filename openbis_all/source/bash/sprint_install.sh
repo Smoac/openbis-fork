@@ -59,7 +59,7 @@ if [ -f $KEYSTORE ]; then
   mv -f new-startup.sh apache-tomcat/bin/startup.sh
   chmod 744 apache-tomcat/bin/startup.sh
 fi
-apache-tomcat/bin/startup.sh
+#apache-tomcat/bin/startup.sh
 
 echo Installing datastore server...
 cd ..
@@ -74,7 +74,7 @@ if [ -f $KEYSTORE ]; then
 fi
 chmod 744 datastore_server.sh
 export JAVA_HOME=/usr
-./datastore_server.sh start
+#./datastore_server.sh start
 
 echo Doing some cleaning...
 cd
@@ -85,4 +85,4 @@ rm -rf openbis
 alias 'rm=rm -i'
 alias 'cp=cp -ipR'
 
-echo Done!
+echo Done, continue to change properties and start the servers!
