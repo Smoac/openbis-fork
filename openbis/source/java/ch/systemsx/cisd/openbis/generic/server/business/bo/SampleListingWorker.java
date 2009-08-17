@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -171,9 +172,9 @@ final class SampleListingWorker
 
     SampleListingWorker(final ListSampleCriteria criteria, final ISampleListerDAO dao)
     {
-        this(criteria, dao.getDatabaseInstanceId(), dao.getDatabaseInstance(), dao
-                .getQuery(), dao.getIdSetQuery(), new SamplePropertiesEnrichmentWorker(dao
-                .getQuery(), dao.getIdSetQuery()));
+        this(criteria, dao.getDatabaseInstanceId(), dao.getDatabaseInstance(), dao.getQuery(), dao
+                .getIdSetQuery(), new SamplePropertiesEnrichmentWorker(dao.getQuery(), dao
+                .getIdSetQuery()));
     }
 
     // For unit tests
@@ -443,7 +444,8 @@ final class SampleListingWorker
     {
         final Sample sample = new Sample();
         sample.setId(row.id);
-        sample.setCode(StringEscapeUtils.escapeHtml(row.code));
+        sample.setCode(IdentifierHelper.convertCode(row.code, null));
+        sample.setSubCode(IdentifierHelper.convertSubCode(row.code));
         sample.setSampleType(sampleTypes.get(row.saty_id));
         if (primarySample)
         {
@@ -598,6 +600,8 @@ final class SampleListingWorker
             final RelatedSampleRecord record = e.getValue();
             final Sample container = sampleMap.get(record.relatedSampleId);
             record.sample.setContainer(container);
+            record.sample.setCode(IdentifierHelper.convertCode(record.sample.getSubCode(),
+                    container.getCode()));
         }
     }
 }

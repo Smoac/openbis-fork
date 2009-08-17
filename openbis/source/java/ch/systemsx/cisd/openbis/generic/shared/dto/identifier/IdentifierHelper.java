@@ -95,6 +95,15 @@ public final class IdentifierHelper
     }
 
     /**
+     * Converts "sub" code from <var>sampleCode</var> that is in exactly the same as the one kept in
+     * DB.
+     */
+    public final static String convertSubCode(String sampleCode)
+    {
+        return StringEscapeUtils.escapeHtml(sampleCode);
+    }
+
+    /**
      * Extracts "full" sample code from {@link SamplePE}. For contained samples has a prefix
      * consisting of container sample DB code and a colon, otherwise it is just sample DB code,
      * where by "sample DB code" is the code kept in the DB.
@@ -103,11 +112,35 @@ public final class IdentifierHelper
     {
         final String subCode = extractSubCode(samplePE);
 
-        String code = null;
+        final String code;
         if (samplePE.getContainer() != null
                 && HibernateUtils.isInitialized(samplePE.getContainer()))
         {
-            String containerCode = StringEscapeUtils.escapeHtml(samplePE.getContainer().getCode());
+            final String containerCode =
+                    StringEscapeUtils.escapeHtml(samplePE.getContainer().getCode());
+            code = containerCode + ":" + subCode;
+        } else
+        {
+            code = subCode;
+        }
+        return code;
+    }
+
+    /**
+     * Converts "full" sample code from the <var>sampleCode</var> and
+     * <var>containerCodeOrNull</var>. For contained samples (i.e.
+     * <code>containerCodeOrNull != null</code>) has a prefix consisting of container sample DB code
+     * and a colon, otherwise it is just sample DB code, where by "sample DB code" is the code kept
+     * in the DB.
+     */
+    public final static String convertCode(String sampleCode, String containerCodeOrNull)
+    {
+        final String subCode = convertSubCode(sampleCode);
+
+        final String code;
+        if (containerCodeOrNull != null)
+        {
+            final String containerCode = StringEscapeUtils.escapeHtml(containerCodeOrNull);
             code = containerCode + ":" + subCode;
         } else
         {
