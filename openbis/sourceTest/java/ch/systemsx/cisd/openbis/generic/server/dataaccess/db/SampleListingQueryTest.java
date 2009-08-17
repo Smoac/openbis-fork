@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Test cases for {@link ISampleListingQuery}.
@@ -65,9 +66,9 @@ public class SampleListingQueryTest extends AbstractDAOTest
     private SampleTypePE masterPlateType;
 
     private SamplePE firstMasterPlate;
-    
+
     private ExperimentPE firstExperiment;
-    
+
     private PersonPE firstPerson;
 
     private ISampleListingQuery query;
@@ -105,7 +106,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
         return sampleMap;
     }
 
-     @Test(groups = "slow")
+    @Test(groups = "slow")
     public void testQuerySamples()
     {
         final long listableSamplesInTestDB = query.getSampleCount();
@@ -143,12 +144,13 @@ public class SampleListingQueryTest extends AbstractDAOTest
 
             } else
             {
-                // Work around a bug in SamplePE
-                if (samplePE.getGeneratedFrom().getId() != null)
+                // Work around Hibernate peculiarity
+                Long idGeneratedFrom = samplePE.getGeneratedFrom().getId();
+                if (idGeneratedFrom == null)
                 {
-                    assertEquals(msg, samplePE.getGeneratedFrom().getId(),
-                            sample.samp_id_generated_from);
+                    idGeneratedFrom = HibernateUtils.getId(samplePE.getGeneratedFrom());
                 }
+                assertEquals(msg, idGeneratedFrom, sample.samp_id_generated_from);
             }
             if (samplePE.getContainer() == null)
             {
@@ -322,7 +324,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
         }
         assertTrue(sampleCount > 0);
     }
-    
+
     @Test
     // TODO 2009-08-17, Bernd Rinn: This test is a stub!
     public void testGetExperimentAndProjectCode()
