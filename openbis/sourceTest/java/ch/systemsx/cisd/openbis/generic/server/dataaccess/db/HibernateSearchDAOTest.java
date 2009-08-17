@@ -317,7 +317,8 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC3, DSLoc.LOC4, DSLoc.LOC5);
     }
 
-    @Test
+    // TODO 2009-08-17, Piotr Buczek: remove when [LMS-1098] is complete
+    @Test(groups = "broken")
     public final void testSearchForDataSetsAnyProperty()
     {
         List<String> propertyTypes = fetchPropertyTypeCodes();
