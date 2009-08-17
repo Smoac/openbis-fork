@@ -23,14 +23,14 @@ import net.lemnik.eodsql.DataSet;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import ch.systemsx.cisd.openbis.generic.client.web.server.translator.EntityPropertyTranslator;
-import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
