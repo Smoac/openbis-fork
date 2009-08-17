@@ -72,6 +72,7 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends
 
         postRegistrationCallback = createRefreshGridAction();
         extendBottomToolbar();
+        allowMultipleSelection();
     }
 
     @Override
