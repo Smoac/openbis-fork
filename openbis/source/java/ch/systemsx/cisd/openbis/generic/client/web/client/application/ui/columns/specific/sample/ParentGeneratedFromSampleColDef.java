@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 public class ParentGeneratedFromSampleColDef extends AbstractParentSampleColDef
 {

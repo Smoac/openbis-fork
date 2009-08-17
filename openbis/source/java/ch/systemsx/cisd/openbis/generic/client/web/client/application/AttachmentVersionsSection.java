@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.attachment.AttachmentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IAttachmentHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
 
 /**
  * {@link SectionPanel} containing a list of {@link AttachmentVersions}.

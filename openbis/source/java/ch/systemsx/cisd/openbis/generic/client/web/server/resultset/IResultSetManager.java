@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IResultSetConfig;
 
 /**
  * A result set manager.

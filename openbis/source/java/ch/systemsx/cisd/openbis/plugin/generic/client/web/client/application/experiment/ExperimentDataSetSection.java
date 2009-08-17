@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ex
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.BrowserSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 
 /**
  * @author Franz-Josef Elmer

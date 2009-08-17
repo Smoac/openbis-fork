@@ -23,7 +23,7 @@ import junit.framework.Assert;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 
 /**
  * Tests of {@link TSVRenderer}

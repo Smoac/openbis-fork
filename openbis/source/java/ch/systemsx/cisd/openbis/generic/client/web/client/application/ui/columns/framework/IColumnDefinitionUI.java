@@ -1,6 +1,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 
 /**
  * Describes column's metadata and UI.

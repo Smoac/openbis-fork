@@ -83,16 +83,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IResultUpdater;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilterInfo;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo.SortDir;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridFilterInfo;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
 
 /**
  * @author Tomasz Pylak

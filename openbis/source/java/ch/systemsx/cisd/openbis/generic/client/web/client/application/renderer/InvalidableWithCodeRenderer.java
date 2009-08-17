@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IInvalidationProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
 
 /**
  * Renders code and marks if the entity (e.g. sample or experiment) is invalid

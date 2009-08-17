@@ -2,10 +2,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.server;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
  * A {@link IOriginalDataProvider} implementation for listing samples.

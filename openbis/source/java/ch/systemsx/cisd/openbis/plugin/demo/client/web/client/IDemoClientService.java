@@ -17,10 +17,10 @@
 package ch.systemsx.cisd.openbis.plugin.demo.client.web.client;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleGeneration;
 
 /**
  * Service interface for the <i>demo</i> <i>GWT</i> client.

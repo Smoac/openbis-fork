@@ -30,11 +30,11 @@ import org.apache.log4j.Logger;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilterInfo;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo.SortDir;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridFilterInfo;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
 
 /**
  * A {@link IResultSetManager} implementation which caches the full data retrieved using

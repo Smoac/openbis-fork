@@ -18,11 +18,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
 import junit.framework.Assert;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IInvalidationProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 
 /**
  * Abstract superclass of a generic {@link IProperty} which implements convenient property value

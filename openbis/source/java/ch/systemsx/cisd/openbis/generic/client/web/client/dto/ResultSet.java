@@ -21,6 +21,7 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IResultSetConfig;
 
 /**
  * A result set that has been returned by the server.

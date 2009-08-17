@@ -6,9 +6,9 @@ import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.BeanUtils.Converter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.server.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 
 /**
  * A {@link IOriginalDataProvider} implementation for listing matching entities.

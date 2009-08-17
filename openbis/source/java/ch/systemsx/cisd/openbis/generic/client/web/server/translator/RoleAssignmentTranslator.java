@@ -22,6 +22,9 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 
 /**
  * A {@link RoleAssignment} &lt;---&gt; {@link RoleAssignmentPE} translator.
