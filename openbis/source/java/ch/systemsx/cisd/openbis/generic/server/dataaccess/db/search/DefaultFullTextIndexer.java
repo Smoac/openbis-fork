@@ -61,22 +61,28 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
      */
     private final int batchSize;
 
-    private Map<Class<?>, String> classProperties;
+    private Map<Class<?>, String[]> joinedProperties;
 
     DefaultFullTextIndexer(final int batchSize)
     {
         assert batchSize > -1 : "Batch size can not be negative.";
         this.batchSize = batchSize;
-        initializeClassProperties();
+        initializeJoinedProperties();
     }
 
-    private void initializeClassProperties()
+    private void initializeJoinedProperties()
     {
-        classProperties = new HashMap<Class<?>, String>();
-        classProperties.put(SamplePE.class, "sampleProperties");
-        classProperties.put(MaterialPE.class, "materialProperties");
-        classProperties.put(ExperimentPE.class, "experimentProperties");
-        classProperties.put(ExternalDataPE.class, "dataSetProperties");
+        joinedProperties = new HashMap<Class<?>, String[]>();
+        joinedProperties.put(SamplePE.class, new String[]
+            { "sampleProperties", "internalAttachments" });
+        joinedProperties.put(MaterialPE.class, new String[]
+            { "materialProperties" });
+        joinedProperties.put(ExperimentPE.class,
+                new String[]
+                    { "experimentProperties", "internalAttachments",
+                            "projectInternal.internalAttachments" });
+        joinedProperties.put(ExternalDataPE.class, new String[]
+            { "dataSetProperties" });
     }
 
     //
@@ -112,10 +118,13 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         final Criteria criteria = fullTextSession.createCriteria(clazz);
         criteria.setFetchSize(batchSize); // if fetch size is not set we get OutOfMemory with big DB
         // fetching properties in JOIN mode improves performance by a factor of ~10
-        String properties = classProperties.get(clazz);
+        String[] properties = joinedProperties.get(clazz);
         if (properties != null)
         {
-            criteria.setFetchMode(properties, FetchMode.JOIN);
+            for (String property : properties)
+            {
+                criteria.setFetchMode(property, FetchMode.JOIN);
+            }
         }
         return criteria;
     }
