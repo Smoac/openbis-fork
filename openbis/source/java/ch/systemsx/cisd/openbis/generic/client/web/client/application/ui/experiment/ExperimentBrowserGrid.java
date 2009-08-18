@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
@@ -81,7 +81,7 @@ public class ExperimentBrowserGrid extends
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final ProjectSelectionTreeWidget tree = new ProjectSelectionTreeWidget(viewContext);
-        final SectionPanel treeSection = new ProjectSelectionSection(tree);
+        final SingleSectionPanel treeSection = new ProjectSelectionSection(tree);
         final ExperimentBrowserToolbar toolbar = new ExperimentBrowserToolbar(viewContext, tree);
         final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar)
             {
@@ -100,7 +100,7 @@ public class ExperimentBrowserGrid extends
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final ProjectSelectionTreeWidget tree = new ProjectSelectionTreeWidget(viewContext);
-        final SectionPanel treeSection = new ProjectSelectionSection(tree);
+        final SingleSectionPanel treeSection = new ProjectSelectionSection(tree);
         final ExperimentBrowserToolbar toolbar = new ExperimentBrowserToolbar(viewContext, tree);
         final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar);
         browserGrid.addGridRefreshListener(toolbar);

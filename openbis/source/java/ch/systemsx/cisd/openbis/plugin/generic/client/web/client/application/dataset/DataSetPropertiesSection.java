@@ -24,7 +24,7 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
@@ -43,11 +43,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
 
 /**
- * {@link SectionPanel} containing dataset properties.
+ * {@link SingleSectionPanel} containing dataset properties.
  * 
  * @author Piotr Buczek
  */
-public class DataSetPropertiesSection extends SectionPanel
+public class DataSetPropertiesSection extends SingleSectionPanel
 {
     public static final String PROPERTIES_ID_PREFIX =
             GenericConstants.ID_PREFIX + "dataset-properties-section_";

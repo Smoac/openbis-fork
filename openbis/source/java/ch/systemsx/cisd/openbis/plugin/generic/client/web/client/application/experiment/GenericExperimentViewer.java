@@ -16,10 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
-import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -30,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentListDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -179,22 +178,25 @@ public final class GenericExperimentViewer extends
     public Component createRightPanel(Experiment result,
             CompositeDatabaseModificationObserverWithMainObserver observer)
     {
-        final LayoutContainer container = new LayoutContainer();
-        container.setLayout(new BorderLayout());
+        final SectionsPanel container = new SectionsPanel();
 
-        AttachmentVersionsSection<Experiment> attachmentsSection = createAttachmentsSection(result);
-        container.add(attachmentsSection, createBorderLayoutData(LayoutRegion.NORTH));
+        final AttachmentVersionsSection<Experiment> attachmentsSection =
+                createAttachmentsSection(result);
+        container.addPanel(attachmentsSection);
         observer.addObserver(attachmentsSection.getDatabaseModificationObserver());
 
-        ExperimentSamplesSection sampleSection = new ExperimentSamplesSection(viewContext, result);
-        container.add(sampleSection, createBorderLayoutData(LayoutRegion.SOUTH));
+        final ExperimentSamplesSection sampleSection =
+                new ExperimentSamplesSection(viewContext, result);
+        container.addPanel(sampleSection);
         observer.addObserver(sampleSection.getDatabaseModificationObserver());
 
-        ExperimentDataSetSection dataSection = new ExperimentDataSetSection(result, viewContext);
-        container.add(dataSection, createBorderLayoutData(LayoutRegion.CENTER));
+        final ExperimentDataSetSection dataSection =
+                new ExperimentDataSetSection(result, viewContext);
+        container.addPanel(dataSection);
         observer.addObserver(dataSection.getDatabaseModificationObserver());
 
         container.layout();
         return container;
     }
+
 }

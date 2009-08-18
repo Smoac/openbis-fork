@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ex
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
@@ -26,11 +26,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 
 /**
- * {@link SectionPanel} containing experiment samples.
+ * {@link SingleSectionPanel} containing experiment samples.
  * 
  * @author Izabela Adamczyk
  */
-public class ExperimentSamplesSection extends SectionPanel
+public class ExperimentSamplesSection extends SingleSectionPanel
 {
     private static final String PREFIX = "experiment-samples-section_";
 

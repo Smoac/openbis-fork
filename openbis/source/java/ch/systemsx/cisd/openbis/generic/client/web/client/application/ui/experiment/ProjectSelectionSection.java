@@ -18,14 +18,14 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experi
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 
 /**
- * {@link SectionPanel} containing {@link ProjectSelectionTreeWidget}.
+ * {@link SingleSectionPanel} containing {@link ProjectSelectionTreeWidget}.
  * 
  * @author Piotr Buczek
  */
-public class ProjectSelectionSection extends SectionPanel
+public class ProjectSelectionSection extends SingleSectionPanel
 {
     public ProjectSelectionSection(final ProjectSelectionTreeWidget tree)
     {

@@ -24,9 +24,9 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
  * 
  * @author Izabela Adamczyk
  */
-public class SectionPanel extends ContentPanel
+public class SingleSectionPanel extends ContentPanel
 {
-    public SectionPanel(final String header)
+    public SingleSectionPanel(final String header)
     {
         setHeaderVisible(true);
         setHeading(header);

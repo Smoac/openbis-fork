@@ -22,11 +22,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -34,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Attachment
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractDatabaseModificationObserverWithCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserverWithMainObserver;
@@ -47,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractGridDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
@@ -142,20 +141,18 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     {
         final Sample generator = sampleGeneration.getGenerator();
 
-        final LayoutContainer container = new LayoutContainer();
-        container.setLayout(new BorderLayout());
+        final SectionsPanel container = new SectionsPanel();
 
         // Attachments
         attachmentsSection = createAttachmentsSection(generator);
-        container.add(attachmentsSection, createBorderLayoutData(LayoutRegion.NORTH));
+        container.addPanel(attachmentsSection);
         // 'Part of' samples
         containerSamplesSection = new ContainerSamplesSection(viewContext);
         IDelegatedAction showContainerSamplesSectionAction = new IDelegatedAction()
             {
                 public void execute()
                 {
-                    container.add(containerSamplesSection,
-                            createBorderLayoutData(LayoutRegion.SOUTH));
+                    container.addPanel(containerSamplesSection);
                 }
             };
         IDelegatedAction hideContainerSamplesSectionAction = new IDelegatedAction()
@@ -164,7 +161,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
                 {
                     if (container.getItemByItemId(containerSamplesSection.getId()) != null)
                     {
-                        container.remove(containerSamplesSection);
+                        container.removePanel(containerSamplesSection);
                     }
                 }
             };
@@ -177,7 +174,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         dataSetBrowser =
                 SampleDataSetBrowser.create(viewContext, sampleId, generator.getSampleType());
         externalDataPanel.add(dataSetBrowser.getComponent());
-        container.add(externalDataPanel, createBorderLayoutData(LayoutRegion.CENTER));
+        container.addPanel(externalDataPanel);
 
         container.setLayoutOnChange(true);
         container.layout();
@@ -201,7 +198,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
     private final static ContentPanel createContentPanel(final String heading)
     {
-        return new SectionPanel(heading);
+        return new SingleSectionPanel(heading);
     }
 
     private final static Map<String, Object> createProperties(

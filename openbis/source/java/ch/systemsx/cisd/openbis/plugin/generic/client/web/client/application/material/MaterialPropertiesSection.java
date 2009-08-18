@@ -24,7 +24,7 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
@@ -40,11 +40,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
 
 /**
- * {@link SectionPanel} containing material properties.
+ * {@link SingleSectionPanel} containing material properties.
  * 
  * @author Piotr Buczek
  */
-public class MaterialPropertiesSection extends SectionPanel
+public class MaterialPropertiesSection extends SingleSectionPanel
 {
     public static final String PROPERTIES_ID_PREFIX =
             GenericConstants.ID_PREFIX + "material-properties-section_";
