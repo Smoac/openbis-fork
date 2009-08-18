@@ -16,8 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search;
 
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -105,7 +106,7 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         operationLog.info(String.format("Indexing '%s'...", clazz.getSimpleName()));
         int index = 0;
         // need to distinct manually from outer join because we scroll through results
-        Set<Long> indexedIds = new HashSet<Long>();
+        Set<Long> indexedIds = new LongOpenHashSet();
         while (results.next())
         {
             final Object object = results.get(0);
