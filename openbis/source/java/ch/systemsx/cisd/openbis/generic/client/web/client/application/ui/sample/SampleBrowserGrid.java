@@ -50,6 +50,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.en
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractGridDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
@@ -57,7 +59,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -75,7 +76,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * @author Tomasz Pylak
  */
 public class SampleBrowserGrid extends
-        AbstractEntityBrowserGrid<Sample, BaseEntityModel<Sample>, ListSampleCriteria>
+        AbstractEntityBrowserGrid<Sample, BaseEntityModel<Sample>, ListSampleDisplayCriteria>
 {
     private static final String PREFIX = GenericConstants.ID_PREFIX + "sample-browser";
 
@@ -127,8 +128,8 @@ public class SampleBrowserGrid extends
             final AbstractGridDataRefreshCallback<Sample> refreshCallback,
             final SampleType sampleType)
     {
-        final ListSampleCriteria criteria =
-                ListSampleCriteria.createForContainer(containerSampleId, getBaseIndexURL());
+        final ListSampleDisplayCriteria criteria =
+                ListSampleDisplayCriteria.createForContainer(containerSampleId, getBaseIndexURL());
         ISampleCriteriaProvider criteriaProvider =
                 new SampleCriteriaProvider(viewContext, criteria);
         // we do not refresh the grid, the criteria provider will do this when property types will
@@ -156,8 +157,8 @@ public class SampleBrowserGrid extends
             final IViewContext<ICommonClientServiceAsync> viewContext, final TechId experimentId,
             final String gridId, final ExperimentType experimentType)
     {
-        final ListSampleCriteria criteria =
-                ListSampleCriteria.createForExperiment(experimentId, getBaseIndexURL());
+        final ListSampleDisplayCriteria criteria =
+                ListSampleDisplayCriteria.createForExperiment(experimentId, getBaseIndexURL());
         ISampleCriteriaProvider criteriaProvider =
                 new SampleCriteriaProvider(viewContext, criteria);
         // we do not refresh the grid, the criteria provider will do this when property types will
@@ -179,8 +180,8 @@ public class SampleBrowserGrid extends
         return browserGrid.asDisposableWithoutToolbar();
     }
 
-    public static interface ISampleCriteriaProvider extends ICriteriaProvider<ListSampleCriteria>,
-            IPropertyTypesProvider
+    public static interface ISampleCriteriaProvider extends
+            ICriteriaProvider<ListSampleDisplayCriteria>, IPropertyTypesProvider
     {
     }
 
@@ -198,9 +199,10 @@ public class SampleBrowserGrid extends
     {
         private final ICriteriaProvider<PropertyTypesCriteria> propertyTypeProvider;
 
-        private final ListSampleCriteria criteria;
+        private final ListSampleDisplayCriteria criteria;
 
-        public SampleCriteriaProvider(IViewContext<?> viewContext, ListSampleCriteria criteria)
+        public SampleCriteriaProvider(IViewContext<?> viewContext,
+                ListSampleDisplayCriteria criteria)
         {
             this.propertyTypeProvider =
                     new PropertyTypesCriteriaProvider(viewContext, EntityKind.SAMPLE);
@@ -219,7 +221,7 @@ public class SampleBrowserGrid extends
             }
         }
 
-        public ListSampleCriteria tryGetCriteria()
+        public ListSampleDisplayCriteria tryGetCriteria()
         {
             return criteria;
         }
@@ -355,7 +357,7 @@ public class SampleBrowserGrid extends
     @Override
     protected final String createHeader()
     {
-        return doCreateHeader(criteria);
+        return doCreateHeader(criteria.getCriteria());
     }
 
     private static final String doCreateHeader(ListSampleCriteria criteria)
@@ -412,7 +414,7 @@ public class SampleBrowserGrid extends
     }
 
     @Override
-    protected boolean hasColumnsDefinitionChanged(ListSampleCriteria newCriteria)
+    protected boolean hasColumnsDefinitionChanged(ListSampleDisplayCriteria newCriteria)
     {
         List<PropertyType> newPropertyTypes = propertyTypesProvider.tryGetPropertyTypes();
         if (newPropertyTypes == null)

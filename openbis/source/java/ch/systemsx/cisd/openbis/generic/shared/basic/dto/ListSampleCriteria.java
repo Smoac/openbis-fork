@@ -31,8 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
  * @author Tomasz Pylak
  * @author Piotr Buczek
  */
-public final class ListSampleCriteria extends DefaultResultSetConfig<String, Sample> implements
-        IsSerializable
+public final class ListSampleCriteria implements IsSerializable
 {
     // --------- filter 1 fields
     private SampleType sampleType;

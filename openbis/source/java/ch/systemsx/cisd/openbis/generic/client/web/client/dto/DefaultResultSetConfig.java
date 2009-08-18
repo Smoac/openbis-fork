@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridFilterInfo;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 
 /**
  * A default {@link IResultSetConfig} implementation.

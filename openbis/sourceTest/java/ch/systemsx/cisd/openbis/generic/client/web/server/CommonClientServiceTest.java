@@ -26,7 +26,9 @@ import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
@@ -41,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
@@ -80,13 +81,13 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
 
     private ICommonServer commonServer;
 
-    private final static ListSampleCriteria createListCriteria()
+    private final static ListSampleDisplayCriteria createListCriteria()
     {
         final ListSampleCriteria criteria = new ListSampleCriteria();
         final SampleType sampleType = createSampleType("MASTER_PLATE", "DB1");
         criteria.setSampleType(sampleType);
         criteria.setBaseIndexUrl("base-url.ch");
-        return criteria;
+        return new ListSampleDisplayCriteria(criteria);
     }
 
     private final static SampleType createSampleType(final String code, final String dbCode)
@@ -145,7 +146,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     public final void testListSamples()
     {
         List<Sample> entities = Arrays.asList(new Sample());
-        final ListSampleCriteria criteria = createListCriteria();
+        final ListSampleDisplayCriteria criteria = createListCriteria();
         prepareListEntities(entities, criteria);
 
         final ResultSet<Sample> resultSet = commonClientService.listSamples(criteria);

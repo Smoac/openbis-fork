@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.en
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid.ISampleCriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -77,7 +78,7 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
         display();
     }
 
-    public ListSampleCriteria tryGetCriteria()
+    public ListSampleDisplayCriteria tryGetCriteria()
     {
         final SampleType selectedType = tryGetSelectedSampleType();
         if (selectedType == null)
@@ -99,7 +100,7 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
         criteria.setIncludeInstance(includeInstance);
         criteria.setExcludeWithoutExperiment(excludeWithoutExperiment);
         criteria.setBaseIndexUrl(GWTUtils.getBaseIndexURL());
-        return criteria;
+        return new ListSampleDisplayCriteria(criteria);
     }
 
     private SampleType tryGetSelectedSampleType()
