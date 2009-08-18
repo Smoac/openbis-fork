@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hibernate.CacheMode;
@@ -34,10 +36,12 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * A default {@link IFullTextIndexer} which knows how to perform an efficient full text index.
@@ -100,11 +104,17 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
                 createCriteria(fullTextSession, clazz).scroll(ScrollMode.FORWARD_ONLY);
         operationLog.info(String.format("Indexing '%s'...", clazz.getSimpleName()));
         int index = 0;
+        // need to distinct manually from outer join because we scroll through results
+        Set<Long> indexedIds = new HashSet<Long>();
         while (results.next())
         {
-            index++;
             final Object object = results.get(0);
-            indexEntity(hibernateSession, fullTextSession, index, object);
+            Long id = HibernateUtils.getId((IIdHolder) object);
+            if (indexedIds.add(id))
+            {
+                index++;
+                indexEntity(hibernateSession, fullTextSession, index, object);
+            }
         }
         // TODO 2009-08-12, Piotr Buczek: check whether optimize improves search perfomance
         // fullTextSession.getSearchFactory().optimize(clazz);
