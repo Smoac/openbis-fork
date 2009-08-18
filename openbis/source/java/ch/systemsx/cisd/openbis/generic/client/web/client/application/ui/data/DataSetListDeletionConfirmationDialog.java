@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid.SelectedAndDisplayedItems;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
@@ -100,10 +101,10 @@ public final class DataSetListDeletionConfirmationDialog extends
     }
 
     private final RadioGroup createDataSetsRadio()
-    {// FIXME: externalize strings
+    {
         return WidgetUtils.createAllOrSelectedRadioGroup(onlySelectedRadio =
-                WidgetUtils.createRadio("selected (" + data.size() + ")"), WidgetUtils
-                .createRadio("all"), "Data Sets", data.size());
+                WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO, data
+                        .size())), WidgetUtils.createRadio(viewContext.getMessage(Dict.ALL_RADIO)),
+                viewContext.getMessage(Dict.DATA_SETS_RADIO_GROUP_LABEL), data.size());
     }
-
 }

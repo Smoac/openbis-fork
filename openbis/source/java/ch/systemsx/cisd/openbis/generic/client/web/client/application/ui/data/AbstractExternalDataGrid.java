@@ -174,8 +174,10 @@ public abstract class AbstractExternalDataGrid
         private final RadioGroup createDataSetsRadio()
         {
             return WidgetUtils.createAllOrSelectedRadioGroup(uploadSelectedRadio =
-                    WidgetUtils.createRadio("selected (" + data.size() + ")"), WidgetUtils
-                    .createRadio("all"), "Data Sets", data.size());
+                    WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO, data
+                            .size())), WidgetUtils.createRadio(viewContext
+                    .getMessage(Dict.ALL_RADIO)), viewContext
+                    .getMessage(Dict.DATA_SETS_RADIO_GROUP_LABEL), data.size());
         }
 
         private boolean getUploadSelected()
@@ -240,7 +242,7 @@ public abstract class AbstractExternalDataGrid
                         protected Dialog createDialog(List<ExternalData> dataSets,
                                 IBrowserGridActionInvoker invoker)
                         {
-                            return new DataSetListDeletionConfirmationDialog(viewContext, 
+                            return new DataSetListDeletionConfirmationDialog(viewContext,
                                     createDeletionCallback(invoker),
                                     getSelectedAndDisplayedItemsAction().execute());
                         }

@@ -743,5 +743,11 @@ public abstract class Dict
     public static final String REMOVE_PERSONS_FROM_AUTHORIZATION_GROUP_CONFIRMATION_MESSAGE =
             "remove_persons_from_authorization_group_confirmation_message";
 
+    public static final String ALL_RADIO = "all_radio";
+
+    public static final String DATA_SETS_RADIO_GROUP_LABEL = "data_sets_radio_group_label";
+
+    public static final String ONLY_SELECTED_RADIO = "only_selected_radio";
+
     // ----- end generic ------------------
 }

@@ -475,6 +475,11 @@ incorrect_experiment_syntax: "Incorrect experiment specification. Please provide
  remove_persons_from_authorization_group_confirmation_title: "Users Removal Confirmation",
  remove_persons_from_authorization_group_confirmation_message: "Do you really want to remove {0} users ({1}) from the user group '{2}'?",
 
+
+all_radio: "all",
+data_sets_radio_group_label: "Data Sets",
+only_selected_radio: "selected ({0})",
+
  
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
