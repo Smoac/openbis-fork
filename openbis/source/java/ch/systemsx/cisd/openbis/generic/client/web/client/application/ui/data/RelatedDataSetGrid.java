@@ -21,7 +21,6 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
@@ -30,69 +29,62 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
 
 /**
- * Grid with data set search results.
+ * Grid with data sets related with specified entities.
  * 
- * @author Izabela Adamczyk
+ * @author Piotr Buczek
  */
-public class DataSetSearchHitGrid extends AbstractExternalDataGrid
+public class RelatedDataSetGrid extends AbstractExternalDataGrid
 {
 
     // browser consists of the grid and the paging toolbar
-    public static final String BROWSER_ID =
-            GenericConstants.ID_PREFIX + "data-set-search-hit-browser";
+    public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "related-data-set-browser";
 
     public static final String GRID_ID = BROWSER_ID + "-grid";
 
     public static IDisposableComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            final RelatedDataSetCriteria relatedCriteria)
     {
-        DataSetSearchHitGrid grid = new DataSetSearchHitGrid(viewContext);
-        final DataSetSearchWindow searchWindow = new DataSetSearchWindow(viewContext);
-        final DataSetSearchToolbar toolbar =
-                new DataSetSearchToolbar(grid, viewContext.getMessage(Dict.BUTTON_CHANGE_QUERY),
-                        searchWindow);
-        searchWindow.setUpdateListener(toolbar);
-        return grid.asDisposableWithToolbar(toolbar);
+        RelatedDataSetGrid grid = new RelatedDataSetGrid(viewContext, relatedCriteria);
+        return grid.asDisposableWithoutToolbar();
     }
 
-    private DataSetSearchCriteria chosenSearchCriteria;
+    private RelatedDataSetCriteria relatedCriteria;
 
-    private DataSetSearchHitGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
+    private RelatedDataSetGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
+            final RelatedDataSetCriteria relatedCriteria)
     {
         super(viewContext, BROWSER_ID, GRID_ID, false);
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.DATA_SET_SEARCH_RESULT_GRID);
+        this.relatedCriteria = relatedCriteria;
+        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.RELATED_DATA_SET_GRID);
     }
 
     @Override
     protected void listEntities(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
             AbstractAsyncCallback<ResultSet<ExternalData>> callback)
     {
-        viewContext.getService().searchForDataSets(getBaseIndexURL(), chosenSearchCriteria,
+        viewContext.getService().searchForDataSets(getBaseIndexURL(), relatedCriteria,
                 resultSetConfig, callback);
-    }
-
-    public void refresh(DataSetSearchCriteria newCriteria, List<PropertyType> propertyTypes)
-    {
-        chosenSearchCriteria = newCriteria;
-        if (criteria != null)
-        {
-            criteria.setPropertyTypes(propertyTypes);
-        }
-        refresh();
     }
 
     @Override
     protected void refresh()
     {
-        if (chosenSearchCriteria == null)
+        if (relatedCriteria == null)
         {
             return;
         }
         super.refresh();
+    }
+
+    @Override
+    protected DataSetSearchHitModel createModel(ExternalData entity)
+    {
+        return new DataSetSearchHitModel(entity);
     }
 
     @Override

@@ -119,7 +119,8 @@ var common = {
   matching_text: "Matching Text",
   matching_field: "Matching Field",
   too_generic: "Query string '{0}' is too generic.",
-
+  show_related_datasets: "Show Related Data Sets",
+  
   //
   // Sample Browser
   //
@@ -388,7 +389,8 @@ var common = {
  // Data Set Browser
  //
  location: "Location",
- external_data_sample: "Sample",
+ external_data_sample_identifier: "Sample Identifier",
+ external_data_experiment_identifier: "Experiment Identifier",
  source_type: "Source Type",
  is_complete: "Complete?",
  complete: "Complete",
@@ -475,7 +477,7 @@ incorrect_experiment_syntax: "Incorrect experiment specification. Please provide
  remove_persons_from_authorization_group_confirmation_title: "Users Removal Confirmation",
  remove_persons_from_authorization_group_confirmation_message: "Do you really want to remove {0} users ({1}) from the user group '{2}'?",
 
-
+ 
 all_radio: "all",
 data_sets_radio_group_label: "Data Sets",
 only_selected_radio: "selected ({0})",

@@ -381,7 +381,10 @@ public abstract class Dict
 
     public static final String DATA_SET_TYPE = "data_set_type";
 
-    public static final String EXTERNAL_DATA_SAMPLE = "external_data_sample";
+    public static final String EXTERNAL_DATA_EXPERIMENT_IDENTIFIER =
+            "external_data_experiment_identifier";
+
+    public static final String EXTERNAL_DATA_SAMPLE_IDENTIFIER = "external_data_sample_identifier";
 
     public static final String SOURCE_TYPE = "source_type";
 
@@ -710,6 +713,8 @@ public abstract class Dict
     public static final String DATA_SET_UPLOAD = "data_set_upload";
 
     public static final String BUTTON_UPLOAD_DATA_VIA_CIFEX = "button_upload_data_via_cifex";
+
+    public static final String BUTTON_SHOW_RELATED_DATASETS = "show_related_datasets";
 
     public static final String MESSAGE_NO_EXTERNAL_UPLOAD_SERVICE =
             "message_no_external_upload_service";

@@ -65,19 +65,9 @@ public final class FillSearchCriteria extends AbstractDefaultTestCommand
         return addCriterion(name, null, value);
     }
 
-    public FillSearchCriteria addSamplePropertyCriterion(String name, String value)
-    {
-        return addCriterion(DataSetSearchFieldKind.SAMPLE_PROPERTY, name, value);
-    }
-
     public FillSearchCriteria addDataSetPropertyCriterion(String name, String value)
     {
         return addCriterion(DataSetSearchFieldKind.DATA_SET_PROPERTY, name, value);
-    }
-
-    public FillSearchCriteria addExperimentPropertyCriterion(String name, String value)
-    {
-        return addCriterion(DataSetSearchFieldKind.EXPERIMENT_PROPERTY, name, value);
     }
 
     private FillSearchCriteria addCriterion(DataSetSearchFieldKind fieldKind,

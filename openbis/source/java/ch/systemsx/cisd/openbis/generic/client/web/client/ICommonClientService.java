@@ -69,6 +69,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -475,6 +476,14 @@ public interface ICommonClientService extends IClientService
      */
     public ResultSet<ExternalData> searchForDataSets(final String baseIndexURL,
             DataSetSearchCriteria criteria,
+            final IResultSetConfig<String, ExternalData> resultSetConfig)
+            throws UserFailureException;
+
+    /**
+     * Returns {@link ExternalData} fulfilling given {@link RelatedDataSetCriteria}.
+     */
+    public ResultSet<ExternalData> searchForDataSets(final String baseIndexURL,
+            RelatedDataSetCriteria criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig)
             throws UserFailureException;
 

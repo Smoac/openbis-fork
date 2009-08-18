@@ -186,20 +186,14 @@ public final class DataSetSearchFieldsSelectionWidget extends
             addFieldComboModel(result, simpleField);
         }
         Collections.sort(types);
-        List<String> allExpProps = addExperimentPropertyTypes(result, types);
-        List<String> allSampleProps = addSamplePropertyTypes(result, types);
+
         List<String> allDataSetProps = addDataSetPropertyTypes(result, types);
 
-        DataSetSearchField anyExperimentProperty =
-                DataSetSearchField.createAnyExperimentProperty(allExpProps);
-        addFieldComboModel(result, anyExperimentProperty);
+        DataSetSearchField anyDataSetProperty =
+                DataSetSearchField.createAnyDataSetProperty(allDataSetProps);
+        addFieldComboModel(result, anyDataSetProperty);
 
-        DataSetSearchField anySampleProperty =
-                DataSetSearchField.createAnySampleProperty(allSampleProps);
-        addFieldComboModel(result, anySampleProperty);
-
-        DataSetSearchField anyField =
-                DataSetSearchField.createAnyField(allExpProps, allSampleProps, allDataSetProps);
+        DataSetSearchField anyField = DataSetSearchField.createAnyField(allDataSetProps);
         addFieldComboModel(result, anyField);
 
         return result;
@@ -216,28 +210,12 @@ public final class DataSetSearchFieldsSelectionWidget extends
         return new DataSetSearchFieldComboModel(getDisplayName(simpleField.getKind()), simpleField);
     }
 
-    private static List<String> addSamplePropertyTypes(
-            final List<DataSetSearchFieldComboModel> result, List<PropertyType> propertyTypes)
-    {
-        List<PropertyType> relevantPropertyTypes =
-                PropertyTypesFilterUtil.filterSamplePropertyTypes(propertyTypes);
-        return addPropertyTypes(result, relevantPropertyTypes, EntityKind.SAMPLE);
-    }
-
     private static List<String> addDataSetPropertyTypes(
             final List<DataSetSearchFieldComboModel> result, List<PropertyType> propertyTypes)
     {
         List<PropertyType> relevantPropertyTypes =
                 PropertyTypesFilterUtil.filterDataSetPropertyTypes(propertyTypes);
         return addPropertyTypes(result, relevantPropertyTypes, EntityKind.DATA_SET);
-    }
-
-    private static List<String> addExperimentPropertyTypes(
-            final List<DataSetSearchFieldComboModel> result, List<PropertyType> propertyTypes)
-    {
-        List<PropertyType> relevantPropertyTypes =
-                PropertyTypesFilterUtil.filterExperimentPropertyTypes(propertyTypes);
-        return addPropertyTypes(result, relevantPropertyTypes, EntityKind.EXPERIMENT);
     }
 
     // returns codes of added properties
@@ -252,12 +230,6 @@ public final class DataSetSearchFieldsSelectionWidget extends
             DataSetSearchField field;
             switch (kind)
             {
-                case EXPERIMENT:
-                    field = DataSetSearchField.createExperimentProperty(code);
-                    break;
-                case SAMPLE:
-                    field = DataSetSearchField.createSampleProperty(code);
-                    break;
                 case DATA_SET:
                     field = DataSetSearchField.createDataSetProperty(code);
                     break;

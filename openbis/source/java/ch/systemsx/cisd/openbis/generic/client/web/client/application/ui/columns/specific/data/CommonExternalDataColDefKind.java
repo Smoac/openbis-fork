@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 
 /**
  * @author Franz-Josef Elmer
@@ -46,8 +47,17 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             }
         }),
 
-    SAMPLE_IDENTIFIER(new AbstractColumnDefinitionKind<ExternalData>(Dict.EXTERNAL_DATA_SAMPLE,
-            200, false)
+    SAMPLE(new AbstractColumnDefinitionKind<ExternalData>(Dict.SAMPLE, 100, true)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                return entity.getSampleCode();
+            }
+        }),
+
+    SAMPLE_IDENTIFIER(new AbstractColumnDefinitionKind<ExternalData>(
+            Dict.EXTERNAL_DATA_SAMPLE_IDENTIFIER, 200)
         {
             @Override
             public String tryGetValue(ExternalData entity)
@@ -62,6 +72,49 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             public String tryGetValue(ExternalData entity)
             {
                 return entity.getSampleType().getCode();
+            }
+        }),
+
+    EXPERIMENT(new AbstractColumnDefinitionKind<ExternalData>(Dict.EXPERIMENT, 100, true)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                final Experiment exp = entity.getExperiment();
+                if (exp == null)
+                {
+                    return null;
+                }
+                return exp.getCode();
+            }
+        }),
+
+    EXPERIMENT_IDENTIFIER(new AbstractColumnDefinitionKind<ExternalData>(
+            Dict.EXTERNAL_DATA_EXPERIMENT_IDENTIFIER, 100, true)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                final Experiment exp = entity.getExperiment();
+                if (exp == null)
+                {
+                    return null;
+                }
+                return exp.getIdentifier();
+            }
+        }),
+
+    EXPERIMENT_TYPE(new AbstractColumnDefinitionKind<ExternalData>(Dict.EXPERIMENT_TYPE, 120, true)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                final Experiment experimentOrNull = entity.getExperiment();
+                if (experimentOrNull == null)
+                {
+                    return null;
+                }
+                return experimentOrNull.getExperimentType().getCode();
             }
         }),
 

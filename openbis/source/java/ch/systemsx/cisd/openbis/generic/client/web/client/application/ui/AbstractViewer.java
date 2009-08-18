@@ -46,8 +46,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
@@ -78,7 +78,8 @@ public abstract class AbstractViewer<T extends IClientServiceAsync, D extends IE
         this(viewContext, null, id, true); // title is set later with updateTitle method
     }
 
-    public AbstractViewer(final IViewContext<T> viewContext, String title, String id, boolean withToolBar)
+    public AbstractViewer(final IViewContext<T> viewContext, String title, String id,
+            boolean withToolBar)
     {
         this.viewContext = viewContext;
         setId(id);
@@ -158,7 +159,7 @@ public abstract class AbstractViewer<T extends IClientServiceAsync, D extends IE
         showEntityEditor(originalData.getEntityKind(), originalData.getEntityType(), originalData);
     }
 
-    private final void showEntityEditor(EntityKind entityKind, EntityType type,
+    private final void showEntityEditor(EntityKind entityKind, BasicEntityType type,
             IIdentifiable identifiable)
     {
         assert type != null : "entity type is not provided";

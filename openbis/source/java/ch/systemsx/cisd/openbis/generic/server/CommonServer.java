@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyTermBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
@@ -88,6 +90,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -403,8 +406,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             return sampleLister.list(criteria);
         } else
         {
-            final List<SamplePE> samples = listSamplesSlow(sessionToken, ListSampleCriteriaTranslator
-                    .translate(criteria));
+            final List<SamplePE> samples =
+                    listSamplesSlow(sessionToken, ListSampleCriteriaTranslator.translate(criteria));
             if (criteria.isExcludeWithoutExperiment())
             {
                 removeWithoutExperiment(samples);
@@ -739,6 +742,50 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
+        }
+    }
+
+    public List<ExternalDataPE> listRelatedDataSets(String sessionToken,
+            RelatedDataSetCriteria criteria)
+    {
+        checkSession(sessionToken);
+        try
+        {
+			final Set<ExternalDataPE> resultSet = new LinkedHashSet<ExternalDataPE>();
+            // TODO 2009-08-17, Piotr Buczek: optimize performance
+            addRelatedDataSets(resultSet, criteria.getEntities());
+            return new ArrayList<ExternalDataPE>(resultSet);
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
+    private void addRelatedDataSets(final Set<ExternalDataPE> resultSet,
+            final List<? extends IEntityInformationHolder> entities)
+    {
+        final IExternalDataDAO externalDataDAO = getDAOFactory().getExternalDataDAO();
+        for (IEntityInformationHolder entity : entities)
+        {
+            if (isEntityKindRelatedWithDataSets(entity.getEntityKind()))
+            {
+                List<ExternalDataPE> relatedDataSets =
+                        externalDataDAO.listRelatedExternalData(entity);
+                resultSet.addAll(relatedDataSets);
+            }
+        }
+    }
+
+    private boolean isEntityKindRelatedWithDataSets(
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind)
+    {
+        switch (entityKind)
+        {
+            case EXPERIMENT:
+            case SAMPLE:
+                return true;
+            default:
+                return false;
         }
     }
 

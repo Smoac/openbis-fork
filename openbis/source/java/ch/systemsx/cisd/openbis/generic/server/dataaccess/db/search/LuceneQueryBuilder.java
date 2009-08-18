@@ -17,12 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search;
 
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.CODE;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PREFIX_EXPERIMENT;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PREFIX_EXPERIMENT_TYPE;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PREFIX_GROUP;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PREFIX_PROJECT;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PREFIX_SAMPLE;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PREFIX_SAMPLE_TYPE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -96,16 +90,10 @@ public class LuceneQueryBuilder
         DataSetSearchFieldKind fieldKind = searchField.getKind();
         switch (fieldKind)
         {
-            case ANY_SAMPLE_PROPERTY:
-                return getSamplePropertyIndexFields(searchField);
-            case ANY_EXPERIMENT_PROPERTY:
-                return getExperimentPropertyIndexFields(searchField);
             case ANY_DATA_SET_PROPERTY:
                 return getDataSetPropertyIndexFields(searchField);
             case ANY_FIELD:
                 List<String> fields = new ArrayList<String>();
-                fields.addAll(getSamplePropertyIndexFields(searchField));
-                fields.addAll(getExperimentPropertyIndexFields(searchField));
                 fields.addAll(getDataSetPropertyIndexFields(searchField));
                 fields.addAll(getAllIndexSimpleFieldNames());
                 return fields;
@@ -133,22 +121,10 @@ public class LuceneQueryBuilder
         return fields;
     }
 
-    private static List<String> getExperimentPropertyIndexFields(DataSetSearchField searchField)
-    {
-        return getPropertyIndexFields(searchField.getAllExperimentPropertyCodes(),
-                EntityKind.EXPERIMENT);
-    }
-
     private static List<String> getDataSetPropertyIndexFields(DataSetSearchField searchField)
     {
         return getPropertyIndexFields(searchField.getAllDataSetPropertyCodesOrNull(),
                 EntityKind.DATA_SET);
-    }
-
-    private static List<String> getSamplePropertyIndexFields(DataSetSearchField searchField)
-    {
-        return getPropertyIndexFields(searchField.getAllSamplePropertyCodesOrNull(),
-                EntityKind.SAMPLE);
     }
 
     private static List<String> getPropertyIndexFields(List<String> allPropertyCodes,
@@ -161,12 +137,6 @@ public class LuceneQueryBuilder
             DataSetSearchField searchField;
             switch (kind)
             {
-                case EXPERIMENT:
-                    searchField = DataSetSearchField.createExperimentProperty(propertyCode);
-                    break;
-                case SAMPLE:
-                    searchField = DataSetSearchField.createSampleProperty(propertyCode);
-                    break;
                 case DATA_SET:
                     searchField = DataSetSearchField.createDataSetProperty(propertyCode);
                     break;
@@ -183,7 +153,6 @@ public class LuceneQueryBuilder
     private static String tryGetIndexFieldName(DataSetSearchField searchField)
     {
         DataSetSearchFieldKind fieldKind = searchField.getKind();
-        String experimentField = PREFIX_EXPERIMENT;
         switch (fieldKind)
         {
             case DATA_SET_CODE:
@@ -194,24 +163,6 @@ public class LuceneQueryBuilder
                 return getPropertyIndexField(searchField.getPropertyCode());
             case FILE_TYPE:
                 return SearchFieldConstants.PREFIX_FILE_FORMAT_TYPE + CODE;
-            case GROUP:
-                return experimentField + PREFIX_PROJECT + PREFIX_GROUP + CODE;
-            case PROJECT:
-                return experimentField + PREFIX_PROJECT + CODE;
-            case EXPERIMENT:
-                return experimentField + CODE;
-            case EXPERIMENT_TYPE:
-                return experimentField + PREFIX_EXPERIMENT_TYPE + CODE;
-            case EXPERIMENT_PROPERTY:
-                return experimentField + getPropertyIndexField(searchField.getPropertyCode());
-            case SAMPLE:
-                return PREFIX_SAMPLE + CODE;
-            case SAMPLE_TYPE:
-                return PREFIX_SAMPLE + PREFIX_SAMPLE_TYPE + CODE;
-            case SAMPLE_PROPERTY:
-                return PREFIX_SAMPLE + getPropertyIndexField(searchField.getPropertyCode());
-            case ANY_SAMPLE_PROPERTY:
-            case ANY_EXPERIMENT_PROPERTY:
             case ANY_DATA_SET_PROPERTY:
             case ANY_FIELD:
                 return null;

@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -478,6 +479,15 @@ public interface ICommonServer extends IServer
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
     public List<ExternalDataPE> searchForDataSets(String sessionToken,
             DataSetSearchCriteria criteria);
+
+    /**
+     * Returns all data sets related with entities specified in given criteria.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
+    public List<ExternalDataPE> listRelatedDataSets(String sessionToken,
+            RelatedDataSetCriteria criteria);
 
     /**
      * List material types.

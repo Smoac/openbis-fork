@@ -50,7 +50,6 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
-import org.hibernate.search.annotations.ContainedIn;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
@@ -166,7 +165,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     }
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "sampleInternal")
-    @ContainedIn
     private Set<DataPE> getDatasetsInternal()
     {
         return datasets;

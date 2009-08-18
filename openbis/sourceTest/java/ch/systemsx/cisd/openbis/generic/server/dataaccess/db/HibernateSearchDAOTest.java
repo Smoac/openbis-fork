@@ -49,18 +49,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 
 /**
@@ -285,121 +282,180 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
 
     private static DataSetSearchField createAnySearchField(List<String> propertyTypes)
     {
-        return DataSetSearchField.createAnyField(propertyTypes, propertyTypes, propertyTypes);
+        return DataSetSearchField.createAnyField(propertyTypes);
+    }
+
+    private DataSetSearchCriterion createAnyFieldCriterion()
+    {
+        List<String> propertyTypes = fetchPropertyTypeCodes();
+        return mkCriterion(createAnySearchField(propertyTypes), "*3*");
+    }
+
+    private DataSetSearchCriterion createSimpleFieldCriterion()
+    {
+        return mkCriterion(DataSetSearchField.createSimpleField(DataSetSearchFieldKind.FILE_TYPE),
+                "TIFF");
     }
 
     @Test
     public final void testSearchForDataSetsAnyField()
     {
-        List<String> propertyTypes = fetchPropertyTypeCodes();
-        DataSetSearchCriterion criterion1 =
-                mkCriterion(createAnySearchField(propertyTypes), "stuff");
-        DataSetSearchCriteria criteria = createAndDatasetQuery(criterion1);
-        assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC3);
-    }
-
-    @Test
-    public final void testSearchForDataSetsSpecificSampleProperty()
-    {
-        String propertyValue = "stuff";
-        DataSetSearchCriterion criterion =
-                mkCriterion(DataSetSearchField.createSampleProperty("COMMENT"), propertyValue);
+        DataSetSearchCriterion criterion = createAnyFieldCriterion();
         DataSetSearchCriteria criteria = createAndDatasetQuery(criterion);
-        assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC3);
+        assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC4, DSLoc.LOC5);
     }
 
     @Test
     public final void testSearchForDataSetsSimpleField()
     {
-        DataSetSearchCriterion criterion =
-                mkCriterion(DataSetSearchField.createSimpleField(DataSetSearchFieldKind.PROJECT),
-                        "NEMO");
+        DataSetSearchCriterion criterion = createSimpleFieldCriterion();
         DataSetSearchCriteria criteria = createAndDatasetQuery(criterion);
-        assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC3, DSLoc.LOC4, DSLoc.LOC5);
-    }
-
-    // TODO 2009-08-17, Piotr Buczek: remove when [LMS-1098] is complete
-    @Test(groups = "broken")
-    public final void testSearchForDataSetsAnyProperty()
-    {
-        List<String> propertyTypes = fetchPropertyTypeCodes();
-        DataSetSearchCriterion criterion1 =
-                mkCriterion(DataSetSearchField.createAnyExperimentProperty(propertyTypes), "male");
-        DataSetSearchCriterion criterion2 =
-                mkCriterion(DataSetSearchField.createAnySampleProperty(propertyTypes), "fly");
-
-        DataSetSearchCriteria criteria = createOrDatasetQuery(criterion1, criterion2);
-        assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC4, DSLoc.LOC5);
-    }
-
-    @Test(groups = "broken")
-    public final void testSearchForDataSetsComplexGeneric()
-    {
-        List<String> propertyTypes = fetchPropertyTypeCodes();
-        DataSetSearchCriterion criterion1 =
-                mkCriterion(createAnySearchField(propertyTypes), "3VCP1");
-        String propertyValue = "\"simple experiment\"";
-        DataSetSearchCriterion criterion2 =
-                mkCriterion(DataSetSearchField.createAnyExperimentProperty(propertyTypes),
-                        propertyValue);
-        DataSetSearchCriterion criterion3 =
-                mkCriterion(DataSetSearchField.createSimpleField(DataSetSearchFieldKind.PROJECT),
-                        "NEMO");
-        DataSetSearchCriterion criterion4 =
-                mkCriterion(DataSetSearchField.createExperimentProperty("GENDER"), "MALE");
-
-        DataSetSearchCriteria criteria =
-                createAndDatasetQuery(criterion1, criterion2, criterion3, criterion4);
-        assertCorrectDatasetsFound(criteria, DSLoc.LOC4, DSLoc.LOC5);
+        assertCorrectDatasetsFound(criteria, DSLoc.LOC3, DSLoc.LOC4);
     }
 
     @Test
+    public final void testSearchForDataSetsComplexAndQuery()
+    {
+        DataSetSearchCriterion criterion1 = createAnyFieldCriterion();
+        DataSetSearchCriterion criterion2 = createSimpleFieldCriterion();
+        DataSetSearchCriteria criteria = createAndDatasetQuery(criterion1, criterion2);
+        assertCorrectDatasetsFound(criteria, DSLoc.LOC4);
+    }
+
+    @Test
+    public final void testSearchForDataSetsComplexOrQuery()
+    {
+        DataSetSearchCriterion criterion1 = createAnyFieldCriterion();
+        DataSetSearchCriterion criterion2 = createSimpleFieldCriterion();
+        DataSetSearchCriteria criteria = createOrDatasetQuery(criterion1, criterion2);
+        assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC3, DSLoc.LOC4,
+                DSLoc.LOC5);
+    }
+
+    // @Test
+    // public final void testSearchForDataSetsComplexGeneric()
+    // {
+    // List<String> propertyTypes = fetchPropertyTypeCodes();
+    // DataSetSearchCriterion criterion1 =
+    // mkCriterion(createAnySearchField(propertyTypes), "3VCP1");
+    // String propertyValue = "\"simple experiment\"";
+    // DataSetSearchCriterion criterion2 =
+    // mkCriterion(DataSetSearchField.createAnyExperimentProperty(propertyTypes),
+    // propertyValue);
+    // DataSetSearchCriterion criterion3 =
+    // mkCriterion(DataSetSearchField.createSimpleField(DataSetSearchFieldKind.PROJECT),
+    // "NEMO");
+    // DataSetSearchCriterion criterion4 =
+    // mkCriterion(DataSetSearchField.createExperimentProperty("GENDER"), "MALE");
+    //
+    // DataSetSearchCriteria criteria =
+    // createAndDatasetQuery(criterion1, criterion2, criterion3, criterion4);
+    // assertCorrectDatasetsFound(criteria, DSLoc.LOC4, DSLoc.LOC5);
+    // }
+
+    // TODO 2009-08-17, Piotr Buczek: write tests for related data sets with similar use cases
+
+    // @Test
+    // public final void testSearchForDataSetsSimpleField()
+    // {
+    // DataSetSearchCriterion criterion =
+    // mkCriterion(DataSetSearchField.createSimpleField(DataSetSearchFieldKind.PROJECT),
+    // "NEMO");
+    // DataSetSearchCriteria criteria = createAndDatasetQuery(criterion);
+    // assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC3, DSLoc.LOC4, DSLoc.LOC5);
+    // }
+
+    // @Test
+    // public final void testSearchForDataSetsSpecificSampleProperty()
+    // {
+    // String propertyValue = "stuff";
+    // DataSetSearchCriterion criterion =
+    // mkCriterion(DataSetSearchField.createSampleProperty("COMMENT"), propertyValue);
+    // DataSetSearchCriteria criteria = createAndDatasetQuery(criterion);
+    // assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC3);
+    // }
+
+    // @Test(groups = "broken")
+    // public final void testSearchForDataSetsAnyProperty()
+    // {
+    // List<String> propertyTypes = fetchPropertyTypeCodes();
+    // DataSetSearchCriterion criterion1 =
+    // mkCriterion(DataSetSearchField.createAnyExperimentProperty(propertyTypes), "male");
+    // DataSetSearchCriterion criterion2 =
+    // mkCriterion(DataSetSearchField.createAnySampleProperty(propertyTypes), "fly");
+    //
+    // DataSetSearchCriteria criteria = createOrDatasetQuery(criterion1, criterion2);
+    // assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC4, DSLoc.LOC5);
+    // }
+
+    // @Test
+    // public final void testSearchForDataSetsComplexGeneric()
+    // {
+    // List<String> propertyTypes = fetchPropertyTypeCodes();
+    // DataSetSearchCriterion criterion1 =
+    // mkCriterion(createAnySearchField(propertyTypes), "3VCP1");
+    // String propertyValue = "\"simple experiment\"";
+    // DataSetSearchCriterion criterion2 =
+    // mkCriterion(DataSetSearchField.createAnyExperimentProperty(propertyTypes),
+    // propertyValue);
+    // DataSetSearchCriterion criterion3 =
+    // mkCriterion(DataSetSearchField.createSimpleField(DataSetSearchFieldKind.PROJECT),
+    // "NEMO");
+    // DataSetSearchCriterion criterion4 =
+    // mkCriterion(DataSetSearchField.createExperimentProperty("GENDER"), "MALE");
+    //
+    // DataSetSearchCriteria criteria =
+    // createAndDatasetQuery(criterion1, criterion2, criterion3, criterion4);
+    // assertCorrectDatasetsFound(criteria, DSLoc.LOC4, DSLoc.LOC5);
+    // }
+
+    // @Test
+    // /*
+    // * Checks if the dataset search index is properly updated after properties for a connected
+    // * sample have changed.
+    // */
+    // public final void testSearchForDataSetsAfterSamplePropertiesUpdate()
+    // throws InterruptedException
+    // {
+    // String propertyCode = "COMMENT";
+    // DataSetSearchCriterion criterion =
+    // mkCriterion(DataSetSearchField.createSampleProperty(propertyCode), "stuff");
+    //
+    // DataSetSearchCriteria criteria = createAndDatasetQuery(criterion);
+    // assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC3);
+    //
+    // SamplePE sample = findSample("CP-TEST-3", "CISD");
+    //
+    // String newValue = "Bonanza";
+    // changeSampleProperty(sample, propertyCode, newValue);
+    //
+    // flushSearchIndices();
+    // assertCorrectDatasetsFound(criteria, DSLoc.LOC2, DSLoc.LOC3);
+    // restoreSearchIndex();
+    // }
+
+    @Test
     /*
-     * Checks if the dataset search index is properly updated after properties for a connected
-     * sample have changed.
+     * Checks if the dataset search index is properly updated after properties of a dataset have
+     * changed.
      */
-    public final void testSearchForDataSetsAfterSamplePropertiesUpdate()
-            throws InterruptedException
+    public final void testSearchForDataSetsAfterPropertiesUpdate() throws InterruptedException
     {
         String propertyCode = "COMMENT";
         DataSetSearchCriterion criterion =
-                mkCriterion(DataSetSearchField.createSampleProperty(propertyCode), "stuff");
+                mkCriterion(DataSetSearchField.createDataSetProperty(propertyCode), "no comment");
 
         DataSetSearchCriteria criteria = createAndDatasetQuery(criterion);
-        assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC3);
+        assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC3, DSLoc.LOC4,
+                DSLoc.LOC5);
 
-        SamplePE sample = findSample("CP-TEST-3", "CISD");
-
-        String newValue = "Bonanza";
-        changeSampleProperty(sample, propertyCode, newValue);
-
+        // This data set has "no comment" value as a COMMENT property.
+        // We change it and check if it is removed from results.
+        ExternalDataPE externalData = findExternalData("20081105092159111-1");
+        String newValue = "sth";
+        changeExternalDataProperty(externalData, propertyCode, newValue);
         flushSearchIndices();
-        assertCorrectDatasetsFound(criteria, DSLoc.LOC2, DSLoc.LOC3);
-        restoreSearchIndex();
-    }
-
-    @Test(groups = "broken")
-    /*
-     * Checks if the dataset search index is properly updated after properties for a connected
-     * experiment have changed.
-     */
-    public final void testSearchForDataSetsAfterExperimentPropertiesUpdate()
-            throws InterruptedException
-    {
-        String propertyCode = "GENDER";
-        DataSetSearchCriterion criterion =
-                mkCriterion(DataSetSearchField.createExperimentProperty(propertyCode), "female");
-
-        DataSetSearchCriteria criteria = createAndDatasetQuery(criterion);
-        assertCorrectDatasetsFound(criteria, DSLoc.LOC1);
-
-        // This experiment has two datasets. Each of them has "male" value as a gender property.
-        // We change it to "female" and check, if 2 new search results appear.
-        ExperimentPE exp = findExperiment("EXP-TEST-2", "NEMO", "CISD");
-        String newValue = "male";
-        changeExperimentProperty(exp, propertyCode, newValue);
-        flushSearchIndices();
-        assertCorrectDatasetsFound(criteria);
+        assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC4, DSLoc.LOC5);
         restoreSearchIndex();
     }
 
@@ -415,29 +471,17 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         sessionFactory.getCurrentSession().flush();
     }
 
-    private void changeExperimentProperty(ExperimentPE exp, String propertyCode, String newValue)
+    private void changeExternalDataProperty(ExternalDataPE externalData, String propertyCode,
+            String newValue)
     {
-        EntityPropertyPE property = findProperty(exp, propertyCode);
+        EntityPropertyPE property = findProperty(externalData, propertyCode);
 
-        removeProperty(exp, property);
+        removeProperty(externalData, property);
         flushSession();
 
-        ExperimentPropertyPE newProperty = new ExperimentPropertyPE();
+        DataSetPropertyPE newProperty = new DataSetPropertyPE();
         copyPropertyWithNewValue(newValue, property, newProperty);
-        addProperty(exp, newProperty);
-        flushSession();
-    }
-
-    private void changeSampleProperty(SamplePE sample, String propertyCode, String newValue)
-    {
-        EntityPropertyPE property = findProperty(sample, propertyCode);
-
-        removeProperty(sample, property);
-        flushSession();
-
-        SamplePropertyPE newProperty = new SamplePropertyPE();
-        copyPropertyWithNewValue(newValue, property, newProperty);
-        addProperty(sample, newProperty);
+        addProperty(externalData, newProperty);
         flushSession();
     }
 
@@ -487,48 +531,4 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         return null; // never happens
     }
 
-    private ExperimentPE findExperiment(String code, String projectCode, String groupCode)
-    {
-        ProjectPE project = findProject(projectCode, groupCode);
-        return findExperiment(code, project);
-    }
-
-    private ExperimentPE findExperiment(String code, ProjectPE project)
-    {
-        ExperimentPE exp = daoFactory.getExperimentDAO().tryFindByCodeAndProject(project, code);
-        assert exp != null : "cannot find experiment: " + code;
-        return exp;
-    }
-
-    private SamplePE findSample(String sampleCode, String groupCode)
-    {
-        GroupPE group = findGroup(groupCode);
-        SamplePE sample = findSample(sampleCode, group);
-        return sample;
-    }
-
-    private SamplePE findSample(String sampleCode, GroupPE group)
-    {
-        SamplePE sample = daoFactory.getSampleDAO().tryFindByCodeAndGroup(sampleCode, group);
-        assert sample != null : "cannot find sample: " + sampleCode;
-        return sample;
-    }
-
-    private ProjectPE findProject(String code, String groupCode)
-    {
-        ProjectPE result =
-                daoFactory.getProjectDAO().tryFindProject(
-                        daoFactory.getHomeDatabaseInstance().getCode(), groupCode, code);
-        assert result != null : "cannot find the project: " + code;
-        return result;
-    }
-
-    private GroupPE findGroup(String groupCode)
-    {
-        GroupPE group =
-                daoFactory.getGroupDAO().tryFindGroupByCodeAndDatabaseInstance(groupCode,
-                        daoFactory.getHomeDatabaseInstance());
-        assert group != null : "cannot find the group: " + groupCode;
-        return group;
-    }
 }

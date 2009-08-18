@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetSearchHitColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FillSearchCriteria;
@@ -34,28 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchFieldKind;
 public class DataSetSearchTest extends AbstractGWTTestCase
 {
 
-    private static final int TOTAL_NUM_OF_COLUMNS = 27;
-
-    public final void testSearch()
-    {
-        loginAndGotoTab();
-        FillSearchCriteria fillCriteriaCmd = new FillSearchCriteria();
-        fillCriteriaCmd.addSimpleCriterion(DataSetSearchFieldKind.EXPERIMENT, "exp");
-        fillCriteriaCmd.addSimpleCriterion(DataSetSearchFieldKind.PROJECT, "nemo");
-        fillCriteriaCmd.addSamplePropertyCriterion("Comment", "*stuff*");
-        remoteConsole.prepare(fillCriteriaCmd);
-
-        final CheckTableCommand checkResultTableCmd = createCheckSearchGridCmd();
-        checkResultTableCmd.expectedSize(2);
-        DataSetSearchRow row = new DataSetSearchRow();
-        row.withCell(DataSetSearchHitColDefKind.LOCATION.id(), "a/3");
-        row.withPropertyCell("comment", "no comment");
-        checkResultTableCmd.expectedRow(row);
-        checkResultTableCmd.expectedColumnsNumber(TOTAL_NUM_OF_COLUMNS);
-        remoteConsole.prepare(checkResultTableCmd);
-
-        launchTest(30000);
-    }
+    private static final int TOTAL_NUM_OF_COLUMNS = 21;
 
     public final void testSearchByDataSetProperty()
     {
@@ -67,24 +46,10 @@ public class DataSetSearchTest extends AbstractGWTTestCase
         final CheckTableCommand checkResultTableCmd = createCheckSearchGridCmd();
         checkResultTableCmd.expectedSize(5);
         DataSetSearchRow row = new DataSetSearchRow();
-        row.withCell(DataSetSearchHitColDefKind.LOCATION.id(), "a/1");
+        row.withCell(CommonExternalDataColDefKind.LOCATION.id(), "a/1");
         row.withPropertyCell("comment", "no comment");
         checkResultTableCmd.expectedRow(row);
         checkResultTableCmd.expectedColumnsNumber(TOTAL_NUM_OF_COLUMNS);
-        remoteConsole.prepare(checkResultTableCmd);
-
-        launchTest(20000);
-    }
-
-    public final void testSearchUnknownGroup()
-    {
-        loginAndGotoTab();
-        FillSearchCriteria fillCriteriaCmd = new FillSearchCriteria();
-        fillCriteriaCmd.addSimpleCriterion(DataSetSearchFieldKind.GROUP, "koko");
-        remoteConsole.prepare(fillCriteriaCmd);
-
-        final CheckTableCommand checkResultTableCmd = createCheckSearchGridCmd();
-        checkResultTableCmd.expectedSize(0);
         remoteConsole.prepare(checkResultTableCmd);
 
         launchTest(20000);
@@ -94,7 +59,6 @@ public class DataSetSearchTest extends AbstractGWTTestCase
     {
         loginAndGotoTab();
         FillSearchCriteria fillCriteriaCmd = new FillSearchCriteria();
-        fillCriteriaCmd.addSimpleCriterion(DataSetSearchFieldKind.GROUP, "cisd");
         fillCriteriaCmd.addSimpleCriterion(DataSetSearchFieldKind.FILE_TYPE, "tiff");
 
         remoteConsole.prepare(fillCriteriaCmd);
@@ -102,9 +66,9 @@ public class DataSetSearchTest extends AbstractGWTTestCase
         final CheckTableCommand checkResultTableCmd = createCheckSearchGridCmd();
         checkResultTableCmd.expectedSize(2);
         Row row1 =
-                createTiffRow().withCell(DataSetSearchHitColDefKind.LOCATION.id(), "xxx/yyy/zzz");
+                createTiffRow().withCell(CommonExternalDataColDefKind.LOCATION.id(), "xxx/yyy/zzz");
         checkResultTableCmd.expectedRow(row1);
-        Row row2 = createTiffRow().withCell(DataSetSearchHitColDefKind.LOCATION.id(), "a/1");
+        Row row2 = createTiffRow().withCell(CommonExternalDataColDefKind.LOCATION.id(), "a/1");
         checkResultTableCmd.expectedRow(row2);
 
         remoteConsole.prepare(checkResultTableCmd);
@@ -114,7 +78,7 @@ public class DataSetSearchTest extends AbstractGWTTestCase
 
     private Row createTiffRow()
     {
-        return new Row().withCell(DataSetSearchHitColDefKind.FILE_TYPE.id(), "TIFF");
+        return new Row().withCell(CommonExternalDataColDefKind.FILE_FORMAT_TYPE.id(), "TIFF");
     }
 
     private static CheckTableCommand createCheckSearchGridCmd()

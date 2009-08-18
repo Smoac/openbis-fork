@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -391,6 +392,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             DataSetSearchCriteria criteria)
     {
         logAccess(sessionToken, "search_for_datasets");
+        return null;
+    }
+
+    public List<ExternalDataPE> listRelatedDataSets(String sessionToken,
+            RelatedDataSetCriteria criteria)
+    {
+        logAccess(sessionToken, "list_related_datasets");
         return null;
     }
 

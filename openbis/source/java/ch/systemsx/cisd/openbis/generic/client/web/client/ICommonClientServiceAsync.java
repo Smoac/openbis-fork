@@ -71,6 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -401,6 +402,13 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<ResultSet<ExternalData>> callback);
 
     /**
+     * @see ICommonClientService#searchForDataSets(String, RelatedDataSetCriteria, IResultSetConfig)
+     */
+    public void searchForDataSets(final String baseIndexURL, RelatedDataSetCriteria criteria,
+            final IResultSetConfig<String, ExternalData> resultSetConfig,
+            final AsyncCallback<ResultSet<ExternalData>> callback);
+
+    /**
      * @see ICommonClientService#listMaterialTypes()
      */
     public void listMaterialTypes(AsyncCallback<List<MaterialType>> callback);
@@ -449,7 +457,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteExperiments(List, String) */
-    public void deleteExperiments(List<TechId> sampleIds, String value,
+    public void deleteExperiments(List<TechId> experimentIds, String value,
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteProjects(List, String) */
@@ -628,5 +636,4 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void removePersonsFromAuthorizationGroup(TechId create, List<String> extractCodes,
             AsyncCallback<Void> callback);
-
 }

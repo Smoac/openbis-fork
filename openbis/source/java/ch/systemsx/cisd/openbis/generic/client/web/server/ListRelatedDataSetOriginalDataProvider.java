@@ -7,26 +7,27 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
 
 /**
- * A {@link IOriginalDataProvider} implementation for search data sets.
+ * A {@link IOriginalDataProvider} implementation for data sets related to other entities.
  * 
- * @author Izbaela Adamczyk
+ * @author Piotr Buczek
  */
-final class ListDataSetsOriginalDataProvider extends AbstractOriginalDataProvider<ExternalData>
+final class ListRelatedDataSetOriginalDataProvider extends
+        AbstractOriginalDataProvider<ExternalData>
 {
 
-    private final DataSetSearchCriteria criteria;
+    private final RelatedDataSetCriteria criteria;
 
     private final String dataStoreBaseURL;
 
     private final String baseIndexURL;
 
-    ListDataSetsOriginalDataProvider(final ICommonServer commonServer, final String sessionToken,
-            final DataSetSearchCriteria criteria, String dataStoreBaseURL, String baseIndexURL)
+    ListRelatedDataSetOriginalDataProvider(final ICommonServer commonServer,
+            final String sessionToken, final RelatedDataSetCriteria criteria,
+            String dataStoreBaseURL, String baseIndexURL)
     {
         super(commonServer, sessionToken);
         this.criteria = criteria;
@@ -40,12 +41,11 @@ final class ListDataSetsOriginalDataProvider extends AbstractOriginalDataProvide
 
     public final List<ExternalData> getOriginalData()
     {
-        final List<ExternalDataPE> hits = commonServer.searchForDataSets(sessionToken, criteria);
+        final List<ExternalDataPE> hits = commonServer.listRelatedDataSets(sessionToken, criteria);
         final List<ExternalData> list = new ArrayList<ExternalData>(hits.size());
         for (final ExternalDataPE hit : hits)
         {
-            list.add(ExternalDataTranslator.translate(hit, dataStoreBaseURL, baseIndexURL, true,
-                    LoadableFields.PROPERTIES));
+            list.add(ExternalDataTranslator.translate(hit, dataStoreBaseURL, baseIndexURL, false));
         }
         return list;
     }

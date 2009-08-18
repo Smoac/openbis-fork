@@ -60,7 +60,7 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
             List<PropertyType> propertyTypesOrNull)
     {
         this(propertyType, isDisplayedByDefault, PROPERTY_COLUMN_WIDTH, getDisplayName(
-                propertyType, propertyTypesOrNull), "");
+                propertyType, propertyTypesOrNull));
     }
 
     private static String getDisplayName(PropertyType propertyType,
@@ -76,11 +76,10 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
     }
 
     public EntityPropertyColDef(PropertyType propertyType, boolean isDisplayedByDefault, int width,
-            String displayName, String identifierPrefix)
+            String displayName)
     {
         this(propertyType.getSimpleCode(), isDisplayedByDefault, width, propertyType
-                .isInternalNamespace(), displayName, PROPERTY_PREFIX + identifierPrefix,
-                propertyType);
+                .isInternalNamespace(), displayName, PROPERTY_PREFIX, propertyType);
     }
 
     private EntityPropertyColDef(String propertyTypeCode, boolean isDisplayedByDefault, int width,

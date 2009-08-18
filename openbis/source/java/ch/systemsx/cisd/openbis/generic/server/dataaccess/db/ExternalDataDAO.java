@@ -25,6 +25,7 @@ import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -34,6 +35,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -78,7 +80,33 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(ExternalDataPE.class);
         criteria.add(Restrictions.eq("sampleInternal", sample));
-        return getHibernateTemplate().findByCriteria(criteria, 0, 1).size() > 0;
+        criteria.setProjection(Projections.rowCount());
+        Integer count = (Integer) getHibernateTemplate().findByCriteria(criteria).get(0);
+        return count > 0;
+    }
+
+    public final List<ExternalDataPE> listRelatedExternalData(final IEntityInformationHolder entity)
+            throws DataAccessException
+    {
+        assert entity != null : "Unspecified entity.";
+
+        final String entityName = entity.getEntityKind().toString().toLowerCase();
+        final String query =
+                String.format("from %s e " + "left join fetch e.experimentInternal "
+                        + "left join fetch e.sampleInternal " + "left join fetch e.parents "
+                        + "left join fetch e.dataSetProperties " + "where e.%sInternal.id = ?",
+                        TABLE_NAME, entityName);
+        final List<ExternalDataPE> list =
+                cast(getHibernateTemplate().find(query, toArray(entity.getId())));
+
+        // distinct does not work properly in HQL for left joins
+        distinct(list);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%d external data have been found for [entity=%s].",
+                    list.size(), entity));
+        }
+        return list;
     }
 
     public final List<ExternalDataPE> listExternalData(final SamplePE sample)

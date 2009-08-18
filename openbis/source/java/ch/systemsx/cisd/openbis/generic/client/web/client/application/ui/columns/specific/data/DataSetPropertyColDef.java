@@ -25,8 +25,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 public final class DataSetPropertyColDef extends EntityPropertyColDef<ExternalData>
 {
-    private static final String ID_PREFIX = "ds";
-
     // GWT only
     public DataSetPropertyColDef()
     {
@@ -35,7 +33,7 @@ public final class DataSetPropertyColDef extends EntityPropertyColDef<ExternalDa
     public DataSetPropertyColDef(PropertyType propertyType, boolean isDisplayedByDefault,
             int width, String propertyTypeLabel)
     {
-        super(propertyType, isDisplayedByDefault, width, propertyTypeLabel, ID_PREFIX);
+        super(propertyType, isDisplayedByDefault, width, propertyTypeLabel);
     }
 
     @Override

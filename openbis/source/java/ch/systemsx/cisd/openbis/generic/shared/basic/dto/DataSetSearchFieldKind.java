@@ -30,36 +30,15 @@ public enum DataSetSearchFieldKind implements IsSerializable
 {
     ANY_FIELD("Any Field", true),
 
-    ANY_EXPERIMENT_PROPERTY("Any Experiment Property", true),
-
-    ANY_SAMPLE_PROPERTY("Any Sample Property", true),
-    
     ANY_DATA_SET_PROPERTY("Any Data Set Property", true),
 
-    DATA_SET_CODE("Data Set Code"),
+    DATA_SET_CODE("Code"),
 
     DATA_SET_TYPE("Data Set Type"),
 
-    EXPERIMENT("Experiment Code"),
-
-    EXPERIMENT_TYPE("Experiment Type"),
-
     FILE_TYPE("File Type"),
 
-    GROUP("Group Code"),
-
-    PROJECT("Project Code"),
-
-    SAMPLE("Sample Code"),
-
-    SAMPLE_TYPE("Sample Type"),
-
-    EXPERIMENT_PROPERTY("Experiment Property", true),
-    
-    DATA_SET_PROPERTY("Data Set Property", true),
-
-    SAMPLE_PROPERTY("Sample Property", true);
-    
+    DATA_SET_PROPERTY("Property", true);
 
     private final String description;
 

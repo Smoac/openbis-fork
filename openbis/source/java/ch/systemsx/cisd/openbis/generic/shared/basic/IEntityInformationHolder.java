@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 
@@ -29,7 +30,7 @@ public interface IEntityInformationHolder extends IIdentifiable
     /**
      * Returns the entity type of this matching entity.
      */
-    public EntityType getEntityType();
+    public BasicEntityType getEntityType();
 
     /**
      * Return the entity kind of this matching entity.

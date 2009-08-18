@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -30,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
  * 
  * @author Christian Ribeaud
  */
-public final class MatchingEntity implements IsSerializable
+public final class MatchingEntity implements IsSerializable, IEntityInformationHolder
 {
     private Long id;
 

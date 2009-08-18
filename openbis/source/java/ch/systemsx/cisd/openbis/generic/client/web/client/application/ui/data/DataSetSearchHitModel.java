@@ -22,10 +22,8 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetExperimentPropertyColDef;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetPropertyColDef;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetSamplePropertyColDef;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetSearchHitColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -42,12 +40,6 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
 
     private static final int PROPERTY_COLUMN_WIDTH = 150;
 
-    private static final String LABEL_EXPERIMENT_PROPERTY_PREFIX = "Exp. ";
-
-    private static final String LABEL_SAMPLE_PROPERTY_PREFIX = "Sample ";
-
-    private static final String LABEL_DATA_SET_PROPERTY_PREFIX = "Data Set ";
-
     public DataSetSearchHitModel(final ExternalData entity)
     {
         super(entity, createColumnsSchema(entity));
@@ -63,15 +55,6 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
                 extractPropertyTypes(DataSetPropertyColDef.getDataSetProperties(entity));
         list.addAll(createDatasetPropertyTypeColDefs(datasetProperties));
 
-        List<PropertyType> experimentProperties =
-                extractPropertyTypes(DataSetExperimentPropertyColDef
-                        .getExperimentProperties(entity));
-        list.addAll(createExperimentPropertyTypeColDefs(experimentProperties));
-
-        List<PropertyType> sampleProperties =
-                extractPropertyTypes(DataSetSamplePropertyColDef.getSampleProperties(entity));
-        list.addAll(createSamplePropertyTypeColDefs(sampleProperties));
-
         return list;
     }
 
@@ -82,28 +65,6 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
         for (PropertyType prop : propertyTypes)
         {
             list.add(createDatasetPropertyTypeColDef(prop, propertyTypes));
-        }
-        return list;
-    }
-
-    private static List<IColumnDefinitionUI<ExternalData>> createExperimentPropertyTypeColDefs(
-            List<PropertyType> propertyTypes)
-    {
-        List<IColumnDefinitionUI<ExternalData>> list = createEmptyList();
-        for (PropertyType prop : propertyTypes)
-        {
-            list.add(createExperimentPropertyTypeColDef(prop, propertyTypes));
-        }
-        return list;
-    }
-
-    private static List<IColumnDefinitionUI<ExternalData>> createSamplePropertyTypeColDefs(
-            List<PropertyType> propertyTypes)
-    {
-        List<IColumnDefinitionUI<ExternalData>> list = createEmptyList();
-        for (PropertyType prop : propertyTypes)
-        {
-            list.add(createSamplePropertyTypeColDef(prop, propertyTypes));
         }
         return list;
     }
@@ -138,15 +99,6 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
             List<PropertyType> datasetProperties =
                     PropertyTypesFilterUtil.filterDataSetPropertyTypes(mergedPropertyTypesOrNull);
             columns.addColumns(createDatasetPropertyTypeColDefs(datasetProperties));
-
-            List<PropertyType> experimentProperties =
-                    PropertyTypesFilterUtil
-                            .filterExperimentPropertyTypes(mergedPropertyTypesOrNull);
-            columns.addColumns(createExperimentPropertyTypeColDefs(experimentProperties));
-
-            List<PropertyType> sampleProperties =
-                    PropertyTypesFilterUtil.filterSamplePropertyTypes(mergedPropertyTypesOrNull);
-            columns.addColumns(createSamplePropertyTypeColDefs(sampleProperties));
         }
         return columns;
     }
@@ -154,33 +106,13 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
     private static IColumnDefinitionUI<ExternalData> createDatasetPropertyTypeColDef(
             PropertyType propertyType, List<PropertyType> propertyTypes)
     {
-        String label =
-                LABEL_DATA_SET_PROPERTY_PREFIX
-                        + PropertyTypeRenderer.getDisplayName(propertyType, propertyTypes);
+        String label = PropertyTypeRenderer.getDisplayName(propertyType, propertyTypes);
         return new DataSetPropertyColDef(propertyType, true, PROPERTY_COLUMN_WIDTH, label);
-    }
-
-    private static IColumnDefinitionUI<ExternalData> createSamplePropertyTypeColDef(
-            PropertyType propertyType, List<PropertyType> propertyTypes)
-    {
-        String label =
-                LABEL_SAMPLE_PROPERTY_PREFIX
-                        + PropertyTypeRenderer.getDisplayName(propertyType, propertyTypes);
-        return new DataSetSamplePropertyColDef(propertyType, true, PROPERTY_COLUMN_WIDTH, label);
-    }
-
-    private static IColumnDefinitionUI<ExternalData> createExperimentPropertyTypeColDef(
-            PropertyType propertyType, List<PropertyType> propertyTypes)
-    {
-        String label =
-                LABEL_EXPERIMENT_PROPERTY_PREFIX
-                        + PropertyTypeRenderer.getDisplayName(propertyType, propertyTypes);
-        return new DataSetExperimentPropertyColDef(propertyType, true, PROPERTY_COLUMN_WIDTH, label);
     }
 
     private static List<IColumnDefinitionUI<ExternalData>> createCommonColumnsSchema(
             IMessageProvider msgProviderOrNull)
     {
-        return createColumnsDefinition(DataSetSearchHitColDefKind.values(), msgProviderOrNull);
+        return createColumnsDefinition(CommonExternalDataColDefKind.values(), msgProviderOrNull);
     }
 }

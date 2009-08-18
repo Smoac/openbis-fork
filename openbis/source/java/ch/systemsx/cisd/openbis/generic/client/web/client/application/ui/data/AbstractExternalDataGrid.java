@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
+
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -27,6 +29,7 @@ import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -264,18 +267,47 @@ public abstract class AbstractExternalDataGrid
         allowMultipleSelection();
 
         registerLinkClickListenerFor(CommonExternalDataColDefKind.PARENT.id(),
-                new ICellListener<ExternalData>()
+                new OpenEntityDetailsTabCellClickListener()
                     {
-                        public void handle(ExternalData rowItem)
+                        @Override
+                        protected IEntityInformationHolder getEntity(ExternalData rowItem)
                         {
-                            // don't need to check whether the value is null
-                            // because there will not be a link for null value
-                            final ExternalData parent = rowItem.getParent();
-
-                            final IEntityInformationHolder entity = parent;
-                            new OpenEntityDetailsTabAction(entity, viewContext).execute();
+                            return rowItem.getParent();
                         }
                     });
+        registerLinkClickListenerFor(CommonExternalDataColDefKind.EXPERIMENT.id(),
+                new OpenEntityDetailsTabCellClickListener()
+                    {
+                        @Override
+                        protected IEntityInformationHolder getEntity(ExternalData rowItem)
+                        {
+                            return rowItem.getExperiment();
+                        }
+                    });
+        ICellListener<ExternalData> sampleClickListener =
+                new OpenEntityDetailsTabCellClickListener()
+                    {
+                        @Override
+                        protected IEntityInformationHolder getEntity(ExternalData rowItem)
+                        {
+                            return rowItem.getSample();
+                        }
+                    };
+        registerLinkClickListenerFor(CommonExternalDataColDefKind.SAMPLE.id(), sampleClickListener);
+        registerLinkClickListenerFor(CommonExternalDataColDefKind.SAMPLE_IDENTIFIER.id(),
+                sampleClickListener);
+    }
+
+    private abstract class OpenEntityDetailsTabCellClickListener implements
+            ICellListener<ExternalData>
+    {
+        protected abstract IEntityInformationHolder getEntity(ExternalData rowItem);
+
+        public final void handle(ExternalData rowItem)
+        {
+            final IEntityInformationHolder entity = getEntity(rowItem);
+            new OpenEntityDetailsTabAction(entity, viewContext).execute();
+        }
 
     }
 
@@ -370,24 +402,29 @@ public abstract class AbstractExternalDataGrid
     @Override
     protected BaseEntityModel<ExternalData> createModel(ExternalData entity)
     {
-        BaseEntityModel<ExternalData> model = getColumnsFactory().createModel(entity);
-        model.renderAsLinkWithAnchor(CommonExternalDataColDefKind.PARENT.id());
-        renderShowDetailsLinkAsLink(model);
-        return model;
+        return getColumnsFactory().createModel(entity);
     }
 
-    private void renderShowDetailsLinkAsLink(ModelData model)
+    protected ColumnDefsAndConfigs<ExternalData> createColumnsSchema()
     {
-        String showDetailsLinkID = CommonExternalDataColDefKind.SHOW_DETAILS_LINK.id();
-        String originalValue = model.get(showDetailsLinkID);
-        model.set(showDetailsLinkID, LinkRenderer.renderAsLinkWithAnchor(viewContext
-                .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE), originalValue, true));
+        return getColumnsFactory().createColumnsSchema(viewContext, criteria.tryGetPropertyTypes());
     }
 
     @Override
     protected ColumnDefsAndConfigs<ExternalData> createColumnsDefinition()
     {
-        return getColumnsFactory().createColumnsSchema(viewContext, criteria.tryGetPropertyTypes());
+        ColumnDefsAndConfigs<ExternalData> schema = createColumnsSchema();
+        GridCellRenderer<BaseEntityModel<?>> linkRenderer = LinkRenderer.createLinkRenderer();
+        schema.setGridCellRendererFor(CommonExternalDataColDefKind.PARENT.id(), linkRenderer);
+        schema.setGridCellRendererFor(CommonExternalDataColDefKind.SAMPLE.id(), linkRenderer);
+        schema.setGridCellRendererFor(CommonExternalDataColDefKind.SAMPLE_IDENTIFIER.id(),
+                linkRenderer);
+        schema.setGridCellRendererFor(CommonExternalDataColDefKind.EXPERIMENT.id(), linkRenderer);
+        schema.setGridCellRendererFor(CommonExternalDataColDefKind.EXPERIMENT_IDENTIFIER.id(),
+                linkRenderer);
+        schema.setGridCellRendererFor(CommonExternalDataColDefKind.SHOW_DETAILS_LINK.id(),
+                createShowDetailsLinkCellRenderer());
+        return schema;
     }
 
     private EntityGridModelFactory<ExternalData> getColumnsFactory()
@@ -418,7 +455,13 @@ public abstract class AbstractExternalDataGrid
     @Override
     public Set<DatabaseModificationKind> getGridRelevantModifications()
     {
-        return getGridRelevantModifications(ObjectKind.DATA_SET);
+        final Set<DatabaseModificationKind> relevantMods =
+                getGridRelevantModifications(ObjectKind.DATA_SET);
+        relevantMods.add(edit(ObjectKind.EXPERIMENT));
+        relevantMods.add(edit(ObjectKind.SAMPLE));
+        relevantMods.add(edit(ObjectKind.VOCABULARY_TERM));
+        relevantMods.add(createOrDelete(ObjectKind.VOCABULARY_TERM));
+        return relevantMods;
     }
 
     @Override

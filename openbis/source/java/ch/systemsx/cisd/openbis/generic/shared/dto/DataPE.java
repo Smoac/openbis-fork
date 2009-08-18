@@ -238,7 +238,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
     @ManyToOne(fetch = FetchType.EAGER)
     @NotNull(message = ValidationMessages.SAMPLE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.SAMPLE_COLUMN)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SAMPLE)
     private SamplePE getSampleInternal()
     {
         return sample;
@@ -428,7 +427,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull(message = ValidationMessages.EXPERIMENT_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = true)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_EXPERIMENT)
     private ExperimentPE getExperimentInternal()
     {
         return experiment;

@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -39,6 +40,15 @@ public interface IExternalDataDAO extends IGenericDAO<ExternalDataPE>
      * @returns list of {@link ExternalDataPE}s that are related to given {@link SamplePE}.
      */
     public boolean hasExternalData(final SamplePE sample) throws DataAccessException;
+
+    /**
+     * List the {@link ExternalDataPE} related to given <var>entity</var>.
+     * 
+     * @returns list of {@link ExternalDataPE}s that are related to given
+     *          {@link IEntityInformationHolder}.
+     */
+    public List<ExternalDataPE> listRelatedExternalData(final IEntityInformationHolder entity)
+            throws DataAccessException;
 
     /**
      * List the {@link ExternalDataPE} for given <var>sample</var>.

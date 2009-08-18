@@ -111,6 +111,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -536,8 +537,18 @@ public final class CommonClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
-        return listEntities(resultSetConfig, new ListDataSetsOriginalDataProvider(commonServer,
-                sessionToken, criteria, getDataStoreBaseURL(), baseIndexURL));
+        return listEntities(resultSetConfig, new ListDataSetSearchOriginalDataProvider(
+                commonServer, sessionToken, criteria, getDataStoreBaseURL(), baseIndexURL));
+    }
+
+    public ResultSet<ExternalData> searchForDataSets(final String baseIndexURL,
+            RelatedDataSetCriteria criteria,
+            final IResultSetConfig<String, ExternalData> resultSetConfig)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+        return listEntities(resultSetConfig, new ListRelatedDataSetOriginalDataProvider(
+                commonServer, sessionToken, criteria, getDataStoreBaseURL(), baseIndexURL));
     }
 
     public final ResultSet<Experiment> listExperiments(final ListExperimentsCriteria listCriteria)
