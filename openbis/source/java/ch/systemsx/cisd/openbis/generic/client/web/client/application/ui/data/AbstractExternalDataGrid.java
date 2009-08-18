@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -54,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
@@ -110,8 +110,6 @@ public abstract class AbstractExternalDataGrid
         private TextField<String> userField;
 
         private Radio uploadSelectedRadio;
-
-        private Radio uploadAllRadio;
 
         public UploadConfirmationDialog(List<ExternalData> dataSets)
         {
@@ -175,40 +173,14 @@ public abstract class AbstractExternalDataGrid
 
         private final RadioGroup createDataSetsRadio()
         {
-            final RadioGroup result = new RadioGroup();
-            result.setFieldLabel("Data Sets");
-            result.setSelectionRequired(true);
-            result.setOrientation(Orientation.HORIZONTAL);
-            int selectedSize = data.size();
-            uploadSelectedRadio = createRadio("selected (" + data.size() + ")");
-            uploadAllRadio = createRadio("all");
-            if (selectedSize > 0)
-            {
-                result.add(uploadSelectedRadio);
-            }
-            result.add(uploadAllRadio);
-            result.setValue(selectedSize > 0 ? uploadSelectedRadio : uploadAllRadio);
-            result.setAutoHeight(true);
-
-            return result;
-        }
-
-        private final Radio createRadio(final String label)
-        {
-            Radio result = new Radio();
-            result.setBoxLabel(label);
-            return result;
+            return WidgetUtils.createAllOrSelectedRadioGroup(uploadSelectedRadio =
+                    WidgetUtils.createRadio("selected (" + data.size() + ")"), WidgetUtils
+                    .createRadio("all"), "Data Sets", data.size());
         }
 
         private boolean getUploadSelected()
         {
-            if (uploadSelectedRadio == null)
-            {
-                return false;
-            } else
-            {
-                return uploadSelectedRadio.getValue();
-            }
+            return WidgetUtils.isSelected(uploadSelectedRadio);
         }
 
         @Override
@@ -268,8 +240,9 @@ public abstract class AbstractExternalDataGrid
                         protected Dialog createDialog(List<ExternalData> dataSets,
                                 IBrowserGridActionInvoker invoker)
                         {
-                            return new DataSetListDeletionConfirmationDialog(viewContext, dataSets,
-                                    createDeletionCallback(invoker));
+                            return new DataSetListDeletionConfirmationDialog(viewContext, 
+                                    createDeletionCallback(invoker),
+                                    getSelectedAndDisplayedItemsAction().execute());
                         }
                     }));
         Button uploadButton =

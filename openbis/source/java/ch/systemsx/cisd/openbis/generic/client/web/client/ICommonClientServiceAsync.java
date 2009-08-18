@@ -436,16 +436,20 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void updateEntityType(EntityKind entityKind, EntityType entityType,
             AsyncCallback<Void> callback);
 
-    /** @see ICommonClientService#deleteDataSets(List, String) */
-    public void deleteDataSets(List<String> dataSetCodes, String reason,
+    /** @see ICommonClientService#deleteDataSets(DisplayedOrSelectedDatasetCriteria, String) */
+    public void deleteDataSets(
+            DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria, String reason,
             AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#deleteDataSet(String, String) */
+    public void deleteDataSet(String singleData, String reason, AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteSamples(List, String) */
     public void deleteSamples(List<TechId> sampleIds, String value,
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteExperiments(List, String) */
-    public void deleteExperiments(List<TechId> experimentIds, String value,
+    public void deleteExperiments(List<TechId> sampleIds, String value,
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteProjects(List, String) */
@@ -624,4 +628,5 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void removePersonsFromAuthorizationGroup(TechId create, List<String> extractCodes,
             AsyncCallback<Void> callback);
+
 }

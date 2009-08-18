@@ -18,13 +18,14 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
  * Stores properties of the entity.
  * 
  * @author Tomasz Pylak
  */
-public interface IEntityPropertiesHolder
+public interface IEntityPropertiesHolder extends IIdHolder
 {
     List<? extends IEntityProperty> getProperties();
 }

@@ -516,8 +516,12 @@ public interface ICommonClientService extends IClientService
     public Date updateProject(ProjectUpdates updates) throws UserFailureException;
 
     /** Deletes the specified data sets. */
-    public void deleteDataSets(List<String> dataSetCodes, String reason)
+    public void deleteDataSets(
+            DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria, String reason)
             throws UserFailureException;
+
+    /** Deletes the specified data set. */
+    public void deleteDataSet(String singleData, String reason) throws UserFailureException;
 
     /** Deletes the specified samples. */
     public void deleteSamples(List<TechId> sampleIds, String reason) throws UserFailureException;

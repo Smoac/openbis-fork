@@ -43,7 +43,7 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
     }
 
     @Override
-    protected final void extendForm()
+    protected void extendForm()
     {
         formPanel.setLabelWidth(LABEL_WIDTH);
         formPanel.setFieldWidth(FIELD_WIDTH);

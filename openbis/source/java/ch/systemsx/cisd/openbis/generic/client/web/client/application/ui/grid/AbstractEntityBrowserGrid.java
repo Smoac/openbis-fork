@@ -286,4 +286,5 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
     {
         return GWTUtils.getBaseIndexURL();
     }
+
 }

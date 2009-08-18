@@ -16,13 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
+
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid.SelectedAndDisplayedItems;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
@@ -34,20 +39,50 @@ public final class DataSetListDeletionConfirmationDialog extends
 
     private final AbstractAsyncCallback<Void> callback;
 
+    private Radio onlySelectedRadio;
+
+    private final SelectedAndDisplayedItems selectedAndDisplayedItemsOrNull;
+
+    private final ExternalData singleData;
+
     public DataSetListDeletionConfirmationDialog(
-            IViewContext<ICommonClientServiceAsync> viewContext, List<ExternalData> data,
-            AbstractAsyncCallback<Void> callback)
+            IViewContext<ICommonClientServiceAsync> viewContext,
+            AbstractAsyncCallback<Void> callback,
+            SelectedAndDisplayedItems selectedAndDisplayedItems)
     {
-        super(viewContext, data);
+        super(viewContext, selectedAndDisplayedItems.getSelectedItems());
         this.viewContext = viewContext;
         this.callback = callback;
+        singleData = null;
+        this.selectedAndDisplayedItemsOrNull = selectedAndDisplayedItems;
+    }
+
+    public DataSetListDeletionConfirmationDialog(
+            IViewContext<ICommonClientServiceAsync> viewContext, ExternalData data,
+            AbstractAsyncCallback<Void> callback)
+    {
+        super(viewContext, Collections.singletonList(data));
+        this.viewContext = viewContext;
+        this.callback = callback;
+        singleData = data;
+        selectedAndDisplayedItemsOrNull = null;
     }
 
     @Override
     protected void executeConfirmedAction()
     {
-        viewContext.getCommonService().deleteDataSets(getDataSetCodes(data), reason.getValue(),
-                callback);
+        if (selectedAndDisplayedItemsOrNull != null)
+        {
+            final boolean onlySelected = WidgetUtils.isSelected(onlySelectedRadio);
+            final DisplayedOrSelectedDatasetCriteria uploadCriteria =
+                    selectedAndDisplayedItemsOrNull.createCriteria(onlySelected);
+            viewContext.getCommonService().deleteDataSets(uploadCriteria, reason.getValue(),
+                    callback);
+        } else
+        {
+            viewContext.getCommonService().deleteDataSet(singleData.getCode(), reason.getValue(),
+                    callback);
+        }
     }
 
     @Override
@@ -56,14 +91,19 @@ public final class DataSetListDeletionConfirmationDialog extends
         return EntityKind.DATA_SET.getDescription();
     }
 
-    private List<String> getDataSetCodes(List<ExternalData> dataSets)
+    @Override
+    protected void extendForm()
     {
-        List<String> dataSetCodes = new ArrayList<String>();
-        for (ExternalData externalData : dataSets)
-        {
-            dataSetCodes.add(externalData.getCode());
-        }
-        return dataSetCodes;
+        super.extendForm();
+        if (selectedAndDisplayedItemsOrNull != null)
+            formPanel.add(createDataSetsRadio());
+    }
+
+    private final RadioGroup createDataSetsRadio()
+    {// FIXME: externalize strings
+        return WidgetUtils.createAllOrSelectedRadioGroup(onlySelectedRadio =
+                WidgetUtils.createRadio("selected (" + data.size() + ")"), WidgetUtils
+                .createRadio("all"), "Data Sets", data.size());
     }
 
 }

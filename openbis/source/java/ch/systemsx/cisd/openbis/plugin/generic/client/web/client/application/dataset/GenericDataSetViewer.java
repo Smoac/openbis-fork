@@ -90,7 +90,7 @@ public final class GenericDataSetViewer extends
                 public void execute()
                 {
                     new DataSetListDeletionConfirmationDialog(viewContext.getCommonViewContext(),
-                            getOriginalDataAsSingleton(), createDeletionCallback()).show();
+                            getOriginalData(), createDeletionCallback()).show();
                 }
 
             }));
