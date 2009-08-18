@@ -1,6 +1,5 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -97,7 +96,8 @@ public abstract class AttachmentRegistrationHelper
 
     private String getFileName(String filePath)
     {
-        return new File(filePath).getName();
+        int lastIndexOfSeparator = filePath.replace('\\', '/').lastIndexOf('/');
+        return lastIndexOfSeparator < 0 ? filePath : filePath.substring(lastIndexOfSeparator + 1);
     }
 
     private final AttachmentPE createAttachmentPE(final NewAttachment attachment,
