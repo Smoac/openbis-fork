@@ -87,7 +87,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         table.expectedRow(new SampleRow("C1", "CONTROL_LAYOUT").identifier("CISD", "CISD")
                 .withInternalPropertyCell("PLATE_GEOMETRY", DEFAULT_PLATE_GEOMETRY_VALUE));
 
-        table.expectedColumnsNumber(20);
+        table.expectedColumnsNumber(22);
         remoteConsole.prepare(table.expectedSize(40));
 
         launchTest(20000);
@@ -163,7 +163,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         table.expectedRow(new SampleRow("3VCP1").identifier("CISD", "CISD").invalid().experiment(
                 "CISD", "NEMO", "EXP1").derivedFromAncestor("3V-123", 1).derivedFromAncestor(
                 "MP001-1", 2));
-        table.expectedColumnsNumber(20);
+        table.expectedColumnsNumber(22);
         remoteConsole.prepare(table.expectedSize(15));
 
         launchTest(20000);

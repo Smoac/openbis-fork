@@ -80,13 +80,19 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
         final SampleTypePE cellPlateType =
                 daoFactory.getSampleTypeDAO().tryFindSampleTypeByCode(SAMPLE_TYPE_CODE_CELL_PLATE);
         final List<SamplePE> cellPlates =
-                daoFactory.getSampleDAO().listSamplesWithPropertiesByTypeAndGroup(cellPlateType, group);
+                daoFactory.getSampleDAO().listSamplesWithPropertiesByTypeAndGroup(cellPlateType,
+                        group);
         cellPlateIds = new LongOpenHashSet(cellPlates.size());
         for (SamplePE sample : cellPlates)
         {
             cellPlateIds.add(sample.getId());
         }
         query = daoFactory.getSampleListerDAO().getIdSetQuery();
+    }
+
+    private static LongSet createSet(long... values)
+    {
+        return new LongOpenHashSet(values);
     }
 
     @Test
@@ -108,8 +114,7 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
     {
         int sampleCount = 0;
         for (@SuppressWarnings("unused")
-        GenericSamplePropertyVO sampleProperty : query
-                .getSamplePropertyGenericValues(cellPlateIds))
+        GenericSamplePropertyVO sampleProperty : query.getSamplePropertyGenericValues(cellPlateIds))
         {
             ++sampleCount;
         }

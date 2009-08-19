@@ -53,7 +53,7 @@ public class PropertyTypeRegistrationTest extends AbstractGWTTestCase
                 PropertyTypeRegistrationForm.PropertyTypeRegistrationCallback.class));
         final CheckPropertyTypeTable table = new CheckPropertyTypeTable();
         table.expectedRow(new Row().withCell(PropertyTypeColDefKind.CODE.id(), PROPERTY_TYPE_CODE));
-        remoteConsole.prepare(table.expectedSize(15));
+        remoteConsole.prepare(table.expectedSize(17));
 
         launchTest(20000);
     }

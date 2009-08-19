@@ -21,22 +21,42 @@ import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import net.lemnik.eodsql.DataIterator;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ISampleListingQuery.BaseSamplePropertyVO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ISampleListingQuery.CoVoSamplePropertyVO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ISampleListingQuery.CodeVO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ISampleListingQuery.ExperimentProjectGroupCodeVO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ISampleListingQuery.GenericSamplePropertyVO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ISampleListingQuery.MaterialSamplePropertyVO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ISampleListingQuery.SampleRowVO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -51,7 +71,15 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public class SampleListingQueryTest extends AbstractDAOTest
 {
 
+    private static final String MATERIAL_TYPE_CODE = "GENE";
+
+    private static final String SHARED_MASTER_PLATE_CODE = "MP";
+
+    private static final int SHARED_MASTER_PLATE_ID = 646;
+
     private static final String SAMPLE_TYPE_CODE_MASTER_PLATE = "MASTER_PLATE";
+
+    private static final String SAMPLE_TYPE_CODE_CELL_PLATE = "CELL_PLATE";
 
     private long dbInstanceId;
 
@@ -78,7 +106,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     {
         dbInstanceId = daoFactory.getSampleListerDAO().getDatabaseInstanceId();
         dbInstance = daoFactory.getDatabaseInstanceDAO().getByTechId(new TechId(dbInstanceId));
-        group = daoFactory.getGroupDAO().listGroups().get(0);
+        group = daoFactory.getGroupDAO().tryFindGroupByCodeAndDatabaseInstance("CISD", dbInstance);
         groupId = group.getId();
         groupCode = group.getCode();
         masterPlateType =
@@ -188,18 +216,52 @@ public class SampleListingQueryTest extends AbstractDAOTest
     }
 
     @Test
-    // TODO 2009-08-17, Bernd Rinn: This test is a stub!
     public void testQueryGroupSamplesBySampleType()
     {
-        int sampleCount = 0;
-        for (@SuppressWarnings("unused")
-        SampleRowVO sample : query.getGroupSamplesForSampleType(dbInstanceId, groupCode,
-                masterPlateType.getId()))
+        long sampleTypeId = getSampleTypeId(SAMPLE_TYPE_CODE_CELL_PLATE);
+        List<SampleRowVO> samples =
+                asList(query.getGroupSamplesForSampleType(dbInstanceId, groupCode, sampleTypeId));
+        assertTrue(samples.size() >= 15);
+        SampleRowVO sample = findCode(samples, "CP-TEST-1");
+        assertEquals(18, sample.expe_id.longValue());
+        assertEquals(1042, sample.id);
+        assertEquals(2, sample.pers_id_registerer);
+        assertEquals(sampleTypeId, sample.saty_id);
+        assertNotNull(sample.perm_id);
+        assertNull(sample.samp_id_generated_from);
+        assertNull(sample.samp_id_part_of);
+
+        SampleRowVO sample2 = findCode(samples, "3VCP1");
+        assertNotNull(sample2.samp_id_generated_from);
+        assertNull(sample2.samp_id_part_of);
+    }
+
+    private static <T> List<T> asList(DataIterator<T> items)
+    {
+        List<T> result = new ArrayList<T>();
+        for (T item : items)
         {
-            // final String msg = "id: " + sample.id;
-            ++sampleCount;
+            result.add(item);
         }
-        assertTrue(sampleCount > 0);
+        return result;
+    }
+
+    private static <T extends CodeVO> T findCode(Iterable<T> items, String code)
+    {
+        for (T item : items)
+        {
+            if (item.code.equals(code))
+            {
+                return item;
+            }
+        }
+        fail("Code not found " + code);
+        return null; // for compiler
+    }
+
+    private Long getSampleTypeId(String sampleTypeCode)
+    {
+        return daoFactory.getSampleTypeDAO().tryFindSampleTypeByCode(sampleTypeCode).getId();
     }
 
     @Test
@@ -282,145 +344,207 @@ public class SampleListingQueryTest extends AbstractDAOTest
     }
 
     @Test
-    // TODO 2009-08-17, Bernd Rinn: This test is a stub!
-    public void testQueryGroupSampleForSampleType()
-    {
-        int sampleCount = 0;
-        for (@SuppressWarnings("unused")
-        SampleRowVO sample : query.getGroupSamplesForSampleType(dbInstanceId, groupCode,
-                masterPlateType.getId()))
-        {
-            // final String msg = "id: " + sample.id;
-            ++sampleCount;
-        }
-        assertTrue(sampleCount > 0);
-    }
-
-    @Test
-    // TODO 2009-08-17, Bernd Rinn: This test is a stub!
     public void testQuerySharedSamples()
     {
-        int sampleCount = 0;
-        for (@SuppressWarnings("unused")
-        SampleRowVO sample : query.getSharedSamples(dbInstanceId))
-        {
-            // final String msg = "id: " + sample.id;
-            ++sampleCount;
-        }
-        assertTrue(sampleCount > 0);
+        List<SampleRowVO> samples = asList(query.getSharedSamples(dbInstanceId));
+        assertTrue(samples.size() > 0);
+        SampleRowVO sample = findCode(samples, SHARED_MASTER_PLATE_CODE);
+        assertEquals(SHARED_MASTER_PLATE_ID, sample.id);
     }
 
     @Test
-    // TODO 2009-08-17, Bernd Rinn: This test is a stub!
     public void testQuerySharedSamplesBySampleType()
     {
-        int sampleCount = 0;
-        for (@SuppressWarnings("unused")
-        SampleRowVO sample : query.getSharedSamplesForSampleType(dbInstanceId, masterPlateType
-                .getId()))
-        {
-            // final String msg = "id: " + sample.id;
-            ++sampleCount;
-        }
-        assertTrue(sampleCount > 0);
+        List<SampleRowVO> samples =
+                asList(query.getSharedSamplesForSampleType(dbInstanceId, masterPlateType.getId()));
+        assertTrue(samples.size() > 0);
+        SampleRowVO sample = findCode(samples, SHARED_MASTER_PLATE_CODE);
+        assertEquals(SHARED_MASTER_PLATE_ID, sample.id);
     }
 
     @Test
-    // TODO 2009-08-17, Bernd Rinn: This test is a stub!
-    public void testGetExperimentAndProjectCode()
+    public void testGetExperiment()
     {
-        query.getExperimentAndProjectCodeForId(firstExperiment.getId());
+        ExperimentProjectGroupCodeVO expFull =
+                query.getExperimentAndProjectAndGroupCodeForId(firstExperiment.getId());
+        assertEquals(firstExperiment.getCode(), expFull.e_code);
+        ProjectPE project = firstExperiment.getProject();
+        assertEquals(project.getCode(), expFull.p_code);
+        assertEquals(project.getGroup().getCode(), expFull.g_code);
+        assertEquals(firstExperiment.getEntityType().getCode(), expFull.et_code);
+
+        ExperimentProjectGroupCodeVO expNoGroup =
+                query.getExperimentAndProjectCodeForId(firstExperiment.getId());
+        assertNull(expNoGroup.g_code);
+        expFull.g_code = null;
+        assertTrue(EqualsBuilder.reflectionEquals(expNoGroup, expFull));
     }
 
     @Test
-    // TODO 2009-08-17, Bernd Rinn: This test is a stub!
-    public void testGetExperimentAndProjectAndGroupCode()
-    {
-        query.getExperimentAndProjectAndGroupCodeForId(firstExperiment.getId());
-    }
-
-    @Test
-    // TODO 2009-08-17, Bernd Rinn: This test is a stub!
     public void testPerson()
     {
-        query.getPersonById(firstPerson.getId());
+        Person person = query.getPersonById(firstPerson.getId());
+        assertEquals(firstPerson.getFirstName(), person.getFirstName());
     }
 
     @Test
-    // TODO 2009-08-17, Bernd Rinn: This test is a stub!
     public void testSampleType()
     {
-        query.getSampleType(SAMPLE_TYPE_CODE_MASTER_PLATE);
+        SampleType sampleType = query.getSampleType(SAMPLE_TYPE_CODE_MASTER_PLATE);
+        assertEquals(SAMPLE_TYPE_CODE_MASTER_PLATE, sampleType.getCode());
     }
 
     @Test
-    // TODO 2009-08-17, Bernd Rinn: This test is a stub!
     public void testSampleTypes()
     {
-        query.getSampleTypes();
+        List<SampleType> sampleTypes = Arrays.asList(query.getSampleTypes());
+        findCode(sampleTypes, SAMPLE_TYPE_CODE_MASTER_PLATE);
+        findCode(sampleTypes, SAMPLE_TYPE_CODE_CELL_PLATE);
+    }
+
+    private static <T extends Code<?>> T findCode(List<T> items, String code)
+    {
+        for (T item : items)
+        {
+            if (item.getCode().equals(code))
+            {
+                return item;
+            }
+        }
+        fail("No sample type with the given code found " + code);
+        return null; // for compiler
     }
 
     @Test
-    // TODO 2009-08-17, Bernd Rinn: This test is a stub!
     public void testMaterialTypes()
     {
-        query.getMaterialTypes();
+        CodeVO[] materialTypes = query.getMaterialTypes();
+        findCode(Arrays.asList(materialTypes), MATERIAL_TYPE_CODE);
     }
 
     @Test
-    // TODO 2009-08-17, Bernd Rinn: This test is a stub!
     public void testPropertyTypes()
     {
-        query.getPropertyTypes();
+        PropertyType[] propertyTypes = query.getPropertyTypes();
+        PropertyType propertyType = findCode(Arrays.asList(propertyTypes), "COMMENT");
+        assertEquals(propertyType.getDataType().getCode(), DataTypeCode.VARCHAR);
+        assertEquals(propertyType.getLabel(), "Comment");
     }
 
     @Test
-    // TODO 2009-08-17, Bernd Rinn: This test is a stub!
     public void testVocabuaryURLTemplates()
     {
-        query.getVocabularyURLTemplates();
+        CodeVO[] vocabularyURLTemplates = query.getVocabularyURLTemplates();
+        findCode(Arrays.asList(vocabularyURLTemplates), "GENDER");
     }
 
     @Test
-    // TODO 2009-08-17, Bernd Rinn: This test is a stub!
     public void testSamplePropertiesGenericValues()
     {
-        query.getSamplePropertyGenericValues();
+        List<GenericSamplePropertyVO> properties = asList(query.getSamplePropertyGenericValues());
+        assertCorrectSampleAndPropertyTypeReferences(properties);
+        for (GenericSamplePropertyVO property : properties)
+        {
+            assertNotNull(property.value);
+        }
+        checkSamplePropertiesGenericValuesForSample(properties.iterator().next().samp_id);
     }
 
-    @Test
-    // TODO 2009-08-17, Bernd Rinn: This test is a stub!
-    public void testSamplePropertiesGenericValuesForSample()
+    private void assertCorrectSampleAndPropertyTypeReferences(
+            List<? extends BaseSamplePropertyVO> properties)
     {
-        query.getSamplePropertyGenericValues(firstMasterPlate.getId());
+        assertTrue(properties.size() > 0);
+        Set<Long> propertyTypesIds = extractIds(Arrays.asList(query.getPropertyTypes()));
+        Set<Long> sampleIds = extractVOIds(asList(query.getSamples()));
+        for (BaseSamplePropertyVO property : properties)
+        {
+            assertTrue("Property type not found " + property.prty_id, propertyTypesIds
+                    .contains(property.prty_id));
+            assertTrue("Sample not found " + property.samp_id, sampleIds.contains(property.samp_id));
+        }
+    }
+
+    private static <T extends CodeVO> Set<Long> extractVOIds(List<T> items)
+    {
+        Set<Long> ids = new HashSet<Long>();
+        for (T item : items)
+        {
+            ids.add(item.id);
+        }
+        return ids;
+    }
+
+    private static <T extends IIdHolder> Set<Long> extractIds(List<T> items)
+    {
+        Set<Long> ids = new HashSet<Long>();
+        for (T item : items)
+        {
+            ids.add(item.getId());
+        }
+        return ids;
+    }
+
+    // entityId - id of a sample which has a property
+    private void checkSamplePropertiesGenericValuesForSample(long entityId)
+    {
+        DataIterator<GenericSamplePropertyVO> properties =
+                query.getSamplePropertyGenericValues(entityId);
+        assertTrue("no generic properties found", properties.hasNext());
+        for (GenericSamplePropertyVO property : properties)
+        {
+            assertNotNull(property.value);
+            assertEquals(entityId, property.samp_id);
+        }
     }
 
     @Test
-    // TODO 2009-08-17, Bernd Rinn: This test is a stub!
     public void testSamplePropertiesMaterialValues()
     {
-        query.getSamplePropertyMaterialValues();
+        List<MaterialSamplePropertyVO> properties = asList(query.getSamplePropertyMaterialValues());
+        assertCorrectSampleAndPropertyTypeReferences(properties);
+        for (MaterialSamplePropertyVO property : properties)
+        {
+            assertNotNull(property.code);
+        }
+        checkSamplePropertiesMaterialValuesForSample(properties.iterator().next().samp_id);
     }
 
-    @Test
-    // TODO 2009-08-17, Bernd Rinn: This test is a stub!
-    public void testSamplePropertiesMaterialValuesForSample()
+    private void checkSamplePropertiesMaterialValuesForSample(long entityId)
     {
-        query.getSamplePropertyMaterialValues(firstMasterPlate.getId());
+        DataIterator<MaterialSamplePropertyVO> properties =
+                query.getSamplePropertyMaterialValues(entityId);
+        assertTrue("no material properties found", properties.hasNext());
+        for (MaterialSamplePropertyVO property : properties)
+        {
+            assertNotNull(property.code);
+            assertEquals(entityId, property.samp_id);
+        }
     }
 
     @Test
-    // TODO 2009-08-17, Bernd Rinn: This test is a stub!
     public void testSamplePropertiesVocabularyTermValues()
     {
-        query.getSamplePropertyVocabularyTermValues();
+        List<CoVoSamplePropertyVO> properties =
+                asList(query.getSamplePropertyVocabularyTermValues());
+        assertCorrectSampleAndPropertyTypeReferences(properties);
+        for (CoVoSamplePropertyVO property : properties)
+        {
+            assertNotNull(property.code);
+        }
+        checkSamplePropertiesVocabularyTermValuesForSample(properties.iterator().next().samp_id);
     }
 
-    @Test
-    // TODO 2009-08-17, Bernd Rinn: This test is a stub!
-    public void testSamplePropertiesVocabularyTermValuesForSample()
+    private void checkSamplePropertiesVocabularyTermValuesForSample(long entityId)
     {
-        query.getSamplePropertyVocabularyTermValues(firstMasterPlate.getId());
+        DataIterator<CoVoSamplePropertyVO> properties =
+                query.getSamplePropertyVocabularyTermValues(entityId);
+        assertTrue("no vocabulary properties found", properties.hasNext());
+        for (CoVoSamplePropertyVO property : properties)
+        {
+            assertNotNull(property.code);
+            assertEquals(entityId, property.samp_id);
+        }
+
     }
 
 }

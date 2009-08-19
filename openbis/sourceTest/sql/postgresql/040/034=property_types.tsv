@@ -12,3 +12,5 @@
 13	GENDER	The gender of the living organism	Gender	6	2008-11-05 09:18:31.545+01	2	4	f	f	1	\N
 14	COMMENT	Any other comments	Comment	1	2008-11-05 09:18:31.545+01	2	\N	f	f	1	\N
 15	ORGANISM	The organism from which cells come	Organism	6	2008-11-05 09:18:31.545+01	2	3	f	f	1	\N
+25	BACTERIUM	bacterium	bacterium	7	2009-08-18 17:52:05.435021+02	2	\N	f	f	1	6
+26	ANY_MATERIAL	any_material	any_material	7	2009-08-18 17:52:47.771005+02	2	\N	f	f	1	\N
