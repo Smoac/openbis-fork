@@ -32,12 +32,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -173,8 +175,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
     {
         final IEntityPropertiesConverter entityPropertiesConverter =
                 createEntityPropertiesConverter(EntityKind.SAMPLE);
-        final PropertyTypePE propertyTypePE = new PropertyTypePE();
-        propertyTypePE.setCode(VARCHAR_PROPERTY_TYPE_CODE);
+        final PropertyTypePE propertyTypePE = createPropertyType();
         context.checking(new Expectations()
             {
                 {
@@ -199,8 +200,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
     {
         final IEntityPropertiesConverter entityPropertiesConverter =
                 createEntityPropertiesConverter(EntityKind.SAMPLE);
-        final PropertyTypePE propertyTypePE = new PropertyTypePE();
-        propertyTypePE.setCode(VARCHAR_PROPERTY_TYPE_CODE.toLowerCase());
+        final PropertyTypePE propertyTypePE = createPropertyType();
         context.checking(new Expectations()
             {
                 {
@@ -220,12 +220,22 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
+    private PropertyTypePE createPropertyType()
+    {
+        final PropertyTypePE propertyTypePE = new PropertyTypePE();
+        propertyTypePE.setCode(VARCHAR_PROPERTY_TYPE_CODE.toLowerCase());
+        DataTypePE type = new DataTypePE();
+        type.setCode(EntityDataType.VARCHAR);
+        propertyTypePE.setType(type);
+        return propertyTypePE;
+    }
+
     @Test
     public void testCreateProperty() throws Exception
     {
         final IEntityPropertiesConverter entityPropertiesConverter =
                 createEntityPropertiesConverter(EntityKind.SAMPLE);
-        final PropertyTypePE propertyType = new PropertyTypePE();
+        final PropertyTypePE propertyType = createPropertyType();
         EntityKind entityKind = EntityKind.EXPERIMENT;
         EntityTypePropertyTypePE assignment =
                 EntityTypePropertyTypePE.createEntityTypePropertyType(entityKind);
