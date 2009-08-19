@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
@@ -76,6 +77,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
@@ -1490,12 +1492,28 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void deleteExperiments(List<TechId> experimentIds, String reason)
+    public void deleteExperiment(TechId experimentId, String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
+            commonServer.deleteExperiments(sessionToken, Collections.singletonList(experimentId),
+                    reason);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public void deleteExperiments(DisplayedOrSelectedIdHolderCriteria<Experiment> criteria,
+            String reason)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            List<TechId> experimentIds = extractTechIds(criteria);
             commonServer.deleteExperiments(sessionToken, experimentIds, reason);
         } catch (final UserFailureException e)
         {
@@ -2091,5 +2109,21 @@ public final class CommonClientService extends AbstractClientService implements
             throw UserFailureExceptionTranslator.translate(e);
         }
 
+    }
+
+    private <T extends IIdHolder> List<TechId> extractTechIds(
+            DisplayedOrSelectedIdHolderCriteria<T> displayedOrSelectedEntitiesCriteria)
+    {
+        if (displayedOrSelectedEntitiesCriteria.tryGetSelectedItems() != null)
+        {
+            return displayedOrSelectedEntitiesCriteria.tryGetSelectedItems();
+        } else
+        {
+            TableExportCriteria<T> displayedItemsCriteria =
+                    displayedOrSelectedEntitiesCriteria.tryGetDisplayedItems();
+            assert displayedItemsCriteria != null : "displayedItemsCriteria is null";
+            List<T> entities = fetchCachedEntities(displayedItemsCriteria);
+            return TechId.createList(entities);
+        }
     }
 }

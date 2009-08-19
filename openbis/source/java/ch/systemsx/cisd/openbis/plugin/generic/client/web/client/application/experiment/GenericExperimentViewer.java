@@ -76,8 +76,8 @@ public final class GenericExperimentViewer extends
                 public void execute()
                 {
                     new ExperimentListDeletionConfirmationDialog(
-                            viewContext.getCommonViewContext(), getOriginalDataAsSingleton(),
-                            createDeletionCallback()).show();
+                            viewContext.getCommonViewContext(), createDeletionCallback(),
+                            getOriginalData()).show();
                 }
             }));
     }

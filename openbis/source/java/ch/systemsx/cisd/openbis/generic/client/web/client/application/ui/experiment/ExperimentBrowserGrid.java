@@ -22,6 +22,7 @@ import java.util.Set;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -42,7 +43,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -138,7 +141,8 @@ public class ExperimentBrowserGrid extends
                                 IBrowserGridActionInvoker invoker)
                         {
                             return new ExperimentListDeletionConfirmationDialog(viewContext,
-                                    experiments, createDeletionCallback(invoker));
+                                    createDeletionCallback(invoker),
+                                    getDisplayedAndSelectedItemsAction().execute());
                         }
                     }));
         allowMultipleSelection(); // we allow deletion of multiple samples
@@ -262,6 +266,56 @@ public class ExperimentBrowserGrid extends
     protected EntityKind getEntityKind()
     {
         return EntityKind.EXPERIMENT;
+    }
+
+    public final class DisplayedAndSelectedExperiments implements IsSerializable
+    {
+
+        private TableExportCriteria<Experiment> displayedItemsConfig;
+
+        private List<Experiment> selectedItems;
+
+        public DisplayedAndSelectedExperiments(
+                TableExportCriteria<Experiment> displayedItemsConfig, List<Experiment> selectedItems)
+        {
+            this.displayedItemsConfig = displayedItemsConfig;
+            this.selectedItems = selectedItems;
+        }
+
+        public List<Experiment> getSelectedItems()
+        {
+            return selectedItems;
+        }
+
+        public TableExportCriteria<Experiment> getDisplayedItemsConfig()
+        {
+            return displayedItemsConfig;
+        }
+
+        public DisplayedOrSelectedIdHolderCriteria<Experiment> createCriteria(boolean selected)
+        {
+            if (selected)
+            {
+                return DisplayedOrSelectedIdHolderCriteria.createSelectedItems(getSelectedItems());
+            } else
+            {
+                return DisplayedOrSelectedIdHolderCriteria
+                        .createDisplayedItems(getDisplayedItemsConfig());
+            }
+        }
+
+    }
+
+    protected final IDelegatedActionWithResult<DisplayedAndSelectedExperiments> getDisplayedAndSelectedItemsAction()
+    {
+        return new IDelegatedActionWithResult<DisplayedAndSelectedExperiments>()
+            {
+                public DisplayedAndSelectedExperiments execute()
+                {
+                    return new DisplayedAndSelectedExperiments(createTableExportCriteria(),
+                            getSelectedBaseObjects());
+                }
+            };
     }
 
 }

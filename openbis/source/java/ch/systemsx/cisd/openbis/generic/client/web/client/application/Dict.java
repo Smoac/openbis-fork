@@ -754,5 +754,7 @@ public abstract class Dict
 
     public static final String ONLY_SELECTED_RADIO = "only_selected_radio";
 
+    public static final String EXPERIMENTS_RADIO_GROUP_LABEL = "experiments_radio_group_label";
+
     // ----- end generic ------------------
 }

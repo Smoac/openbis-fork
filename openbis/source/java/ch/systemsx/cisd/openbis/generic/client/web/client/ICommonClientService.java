@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
@@ -536,8 +537,11 @@ public interface ICommonClientService extends IClientService
     public void deleteSamples(List<TechId> sampleIds, String reason) throws UserFailureException;
 
     /** Deletes the specified experiments. */
-    public void deleteExperiments(List<TechId> experimentIds, String reason)
-            throws UserFailureException;
+    public void deleteExperiments(DisplayedOrSelectedIdHolderCriteria<Experiment> criteria,
+            String reason) throws UserFailureException;
+
+    /** Deletes the specified experiment. */
+    public void deleteExperiment(TechId experimentId, String reason) throws UserFailureException;
 
     /** Deletes the specified projects. */
     public void deleteProjects(List<TechId> projectIds, String reason) throws UserFailureException;

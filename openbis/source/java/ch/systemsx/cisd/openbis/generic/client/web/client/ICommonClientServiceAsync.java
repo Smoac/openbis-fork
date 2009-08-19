@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
@@ -456,8 +457,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void deleteSamples(List<TechId> sampleIds, String value,
             AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#deleteExperiments(List, String) */
-    public void deleteExperiments(List<TechId> experimentIds, String value,
+    /** @see ICommonClientService#deleteExperiments(DisplayedOrSelectedIdHolderCriteria, String) */
+    public void deleteExperiments(DisplayedOrSelectedIdHolderCriteria<Experiment> criteria,
+            String value, AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#deleteExperiment(TechId, String) */
+    public void deleteExperiment(TechId experimentId, String value,
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteProjects(List, String) */
