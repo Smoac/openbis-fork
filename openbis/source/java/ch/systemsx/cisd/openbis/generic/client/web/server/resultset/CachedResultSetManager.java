@@ -102,7 +102,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
     private static boolean isMatching(String value, String filterPattern)
     {
-        return value.toLowerCase().startsWith(filterPattern.toLowerCase());
+        return value.toLowerCase().contains(filterPattern.toLowerCase());
     }
 
     private final <T> void sortData(final List<T> data, final SortInfo<T> sortInfo)
@@ -205,7 +205,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         {
             debug(String.format("Data for result set key '%s' already cached.", dataKey));
             data = cast(results.get(dataKey));
-            if (data == null) {
+            if (data == null)
+            {
                 debug(String.format("Invalid result set key '%s'.", dataKey));
             }
         }
