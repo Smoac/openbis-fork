@@ -37,11 +37,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -127,8 +127,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
 
     private MaterialPE tryGetMaterial(String value, PropertyTypePE propertyType)
     {
-        MaterialTypePE materialType = propertyType.getMaterialType();
-        if (materialType == null)
+        if (propertyType.getType().getCode() != EntityDataType.MATERIAL)
         {
             return null; // this is not a property of MATERIAL type
         }

@@ -147,7 +147,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     {
         this.vocabularyTerm = vt;
     }
-    
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.VOCABULARY_TERM_COLUMN)
     @IndexedEmbedded
@@ -176,6 +176,9 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
             final VocabularyTermPE vocabularyTermOrNull, MaterialPE materialOrNull)
     {
         assert valueOrNull != null || vocabularyTermOrNull != null || materialOrNull != null : "Either value, vocabulary term or material should not be null.";
+        setVocabularyTerm(null);
+        setMaterialValue(null);
+        setValue(null);
         if (vocabularyTermOrNull != null)
         {
             assert materialOrNull == null;
