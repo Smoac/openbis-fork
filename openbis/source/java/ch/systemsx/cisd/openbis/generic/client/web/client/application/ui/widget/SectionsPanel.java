@@ -19,22 +19,29 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
  */
 public class SectionsPanel extends ContentPanel
 {
-
     List<SectionElement> elements = new ArrayList<SectionElement>();
 
     private ToolBar toolbar;
 
+    private final boolean withShowHide;
+
     public SectionsPanel()
     {
+        this(true);
+    }
+
+    public SectionsPanel(boolean withShowHide)
+    {
+        this.withShowHide = withShowHide;
         setLayout(new FillLayout());
         toolbar = new ToolBar();
-        setBottomComponent(toolbar);
         setHeaderVisible(false);
+        setTopComponent(toolbar);
     }
 
     public void addPanel(final ContentPanel panel)
     {
-        final SectionElement element = new SectionElement(panel);
+        final SectionElement element = new SectionElement(panel, withShowHide);
         element.getButton().addSelectionListener(new SelectionListener<ComponentEvent>()
             {
                 @Override
@@ -102,19 +109,19 @@ public class SectionsPanel extends ContentPanel
         return super.add(item);
     }
 
-    private class SectionElement
+    private static class SectionElement
     {
 
         private ToggleToolItem button;
 
         private ContentPanel panel;
 
-        public SectionElement(ContentPanel panel)
+        public SectionElement(ContentPanel panel, boolean withShowHide)
         {
             panel.setCollapsible(false);
             this.setPanel(panel);
-            setButton(new ToggleToolItem(panel.getHeading()));
-            getButton().pressed = true;
+            String heading = panel.getHeading();
+            setButton(createButton(heading, withShowHide));
         }
 
         public void setButton(ToggleToolItem button)
@@ -135,6 +142,29 @@ public class SectionsPanel extends ContentPanel
         ContentPanel getPanel()
         {
             return panel;
+        }
+
+        private static ToggleToolItem createButton(String heading, boolean withShowHide)
+        {
+            final String showHeading = withShowHide ? ("Show " + heading) : heading;
+            final String hideHeading = withShowHide ? ("Hide " + heading) : heading;
+            final ToggleToolItem result = new ToggleToolItem(hideHeading);
+            result.pressed = true;
+            result.addSelectionListener(new SelectionListener<ComponentEvent>()
+                {
+                    @Override
+                    public void componentSelected(ComponentEvent ce)
+                    {
+                        if (result.isPressed())
+                        {
+                            result.setText(hideHeading);
+                        } else
+                        {
+                            result.setText(showHeading);
+                        }
+                    }
+                });
+            return result;
         }
     }
 }
