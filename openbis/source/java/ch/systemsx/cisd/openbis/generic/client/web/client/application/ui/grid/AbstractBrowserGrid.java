@@ -795,8 +795,14 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 {
                     pagingToolbar.disableExportButton();
                     pagingToolbar.updateDefaultConfigButton(false);
-                    refresh();
                     // export and config buttons are enabled when ListEntitiesCallback is complete
+                    refresh();
+                    // Workaround for the problem of incorrect column header widths if column is very long  
+                    ColumnModel columnModel = grid.getColumnModel();
+                    if (columnModel.getColumnCount() > 0)
+                    {
+                        columnModel.setColumnWidth(0, columnModel.getColumnWidth(0));
+                    }
                 }
             };
     }
@@ -872,6 +878,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private void changeColumnModel(ColumnModel columnModel)
     {
+        System.out.println("AbstractBrowserGrid.changeColumnModel()");
         grid.reconfigure(grid.getStore(), columnModel);
         registerGridSettingsChangesListener();
     }
