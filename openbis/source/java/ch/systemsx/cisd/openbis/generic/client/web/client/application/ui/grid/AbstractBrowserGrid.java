@@ -837,6 +837,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
         reloadData();
         
+        refreshColumnHeaderWidths();
+    }
+
+    private void refreshColumnHeaderWidths()
+    {
         // Workaround for the problem of incorrect column header widths if column header is very long  
         ColumnModel columnModel = grid.getColumnModel();
         if (columnModel.getColumnCount() > 0)
@@ -1079,6 +1084,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     }
                     updateColumnsSettingsModel(getColumnModel(), result);
                     refreshColumnsSettings();
+                    refreshColumnHeaderWidths();
                     viewContext.getDisplaySettingsManager().storeSettings(getGridDisplayTypeID(),
                             createDisplaySettingsUpdater());
                 }
