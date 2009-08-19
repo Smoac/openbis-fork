@@ -25,7 +25,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.hibernate.CacheMode;
 import org.hibernate.Criteria;
-import org.hibernate.FetchMode;
 import org.hibernate.FlushMode;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
@@ -127,15 +126,20 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
     private <T> Criteria createCriteria(final FullTextSession fullTextSession, final Class<T> clazz)
     {
         final Criteria criteria = fullTextSession.createCriteria(clazz);
-        criteria.setFetchSize(batchSize); // if fetch size is not set we get OutOfMemory with big DB
+
+        // TODO 2009-08-09, Piotr Buczek: uncomment when fixed loading all properties
+        // criteria.setFetchSize(batchSize);
+
+        // if fetch size is not set we get OutOfMemory with big DB
         // fetching properties in JOIN mode improves performance by a factor of ~10
         String[] properties = joinedProperties.get(clazz);
         if (properties != null)
         {
-            for (String property : properties)
-            {
-                criteria.setFetchMode(property, FetchMode.JOIN);
-            }
+            // TODO 2009-08-09, Piotr Buczek: uncomment when fixed loading all properties
+            // for (String property : properties)
+            // {
+            // criteria.setFetchMode(property, FetchMode.JOIN);
+            // }
         }
         return criteria;
     }
