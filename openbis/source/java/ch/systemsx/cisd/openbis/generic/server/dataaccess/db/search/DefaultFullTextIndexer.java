@@ -103,10 +103,12 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
                 clazz.getSimpleName(), index));
     }
 
-    private <T> long getMaxId(final FullTextSession fullTextSession, final Class<T> clazz)
+    private <T> Long getMaxId(final FullTextSession fullTextSession, final Class<T> clazz)
     {
-        return (Long) createCriteria(fullTextSession, clazz).setProjection(
-                Projections.max(ID_PROPERTY_NAME)).uniqueResult();
+        Object result =
+                createCriteria(fullTextSession, clazz).setProjection(
+                        Projections.max(ID_PROPERTY_NAME)).uniqueResult();
+        return (result == null) ? 0 : (Long) result;
     }
 
     private <T> Criteria createCriteria(final FullTextSession fullTextSession, final Class<T> clazz)
