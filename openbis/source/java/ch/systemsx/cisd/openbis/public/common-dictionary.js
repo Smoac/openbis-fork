@@ -471,13 +471,13 @@ incorrect_experiment_syntax: "Incorrect experiment specification. Please provide
  persons_ids_label: "Users IDs",
  person_ids_list: "List of users (IDs) separated by commas (\",\") or one user per line.",
  authorization_group_users: "Persons from User Group '{0}'",
- button_show_users: "Users",
+ button_show_users: "Show Users",
  radio_one_user: "One User",
  radio_many_users: "Many Users",
  remove_persons_from_authorization_group_confirmation_title: "Users Removal Confirmation",
  remove_persons_from_authorization_group_confirmation_message: "Do you really want to remove {0} users ({1}) from the user group '{2}'?",
 
-
+ 
 all_radio: "all",
 data_sets_radio_group_label: "Data Sets",
 only_selected_radio: "selected ({0})",
