@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import static ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SampleListingTestUtils.asList;
+import static ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SampleListingTestUtils.findCode;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,7 +47,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ISampleListingQuery
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ISampleListingQuery.SampleRowVO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -236,28 +235,6 @@ public class SampleListingQueryTest extends AbstractDAOTest
         assertNull(sample2.samp_id_part_of);
     }
 
-    private static <T> List<T> asList(DataIterator<T> items)
-    {
-        List<T> result = new ArrayList<T>();
-        for (T item : items)
-        {
-            result.add(item);
-        }
-        return result;
-    }
-
-    private static <T extends CodeVO> T findCode(Iterable<T> items, String code)
-    {
-        for (T item : items)
-        {
-            if (item.code.equals(code))
-            {
-                return item;
-            }
-        }
-        fail("Code not found " + code);
-        return null; // for compiler
-    }
 
     private Long getSampleTypeId(String sampleTypeCode)
     {
@@ -400,19 +377,6 @@ public class SampleListingQueryTest extends AbstractDAOTest
         List<SampleType> sampleTypes = Arrays.asList(query.getSampleTypes());
         findCode(sampleTypes, SAMPLE_TYPE_CODE_MASTER_PLATE);
         findCode(sampleTypes, SAMPLE_TYPE_CODE_CELL_PLATE);
-    }
-
-    private static <T extends Code<?>> T findCode(List<T> items, String code)
-    {
-        for (T item : items)
-        {
-            if (item.getCode().equals(code))
-            {
-                return item;
-            }
-        }
-        fail("No sample type with the given code found " + code);
-        return null; // for compiler
     }
 
     @Test
