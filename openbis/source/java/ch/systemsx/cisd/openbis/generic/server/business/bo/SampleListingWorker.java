@@ -542,6 +542,7 @@ final class SampleListingWorker
             group.setInstance(databaseInstance);
         }
         final Experiment experiment = new Experiment();
+        experiment.setId(experimentId);
         experiment.setCode(StringEscapeUtils.escapeHtml(codes.e_code));
         experiment.setIdentifier(new ExperimentIdentifier(null, group.getCode(), codes.p_code,
                 codes.e_code).toString());
