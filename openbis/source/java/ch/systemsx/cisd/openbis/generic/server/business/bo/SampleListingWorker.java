@@ -216,8 +216,7 @@ final class SampleListingWorker
             final String baseIndexURL = criteria.getBaseIndexUrl();
             loadSampleTypes();
             retrievePrimaryBasicSamples(tryGetIteratorForGroupSamples(), groupOrNull, baseIndexURL);
-            retrievePrimaryBasicSamples(tryGetIteratorForSharedSamples(), groupOrNull, criteria
-                    .getBaseIndexUrl());
+            retrievePrimaryBasicSamples(tryGetIteratorForSharedSamples(), groupOrNull, baseIndexURL);
             retrievePrimaryBasicSamples(tryGetIteratorForExperimentSamples(), groupOrNull,
                     baseIndexURL);
             retrievePrimaryBasicSamples(tryGetIteratorForContainedSamples(), groupOrNull,

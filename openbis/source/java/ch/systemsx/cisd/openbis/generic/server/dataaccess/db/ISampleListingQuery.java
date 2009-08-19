@@ -171,8 +171,8 @@ public interface ISampleListingQuery extends TransactionQuery
             + "   from samples s  join groups g on s.grou_id=g.id "
             + "   where s.expe_id is not null and g.dbin_id=?{1} and g.code=?{2}"
             + " and s.saty_id=?{3} order by s.code", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRowVO> getGroupSamplesForSampleTypeWithExperiment(
-            long dbInstanceId, String groupCode, long sampleTypeId);
+    public DataIterator<SampleRowVO> getGroupSamplesForSampleTypeWithExperiment(long dbInstanceId,
+            String groupCode, long sampleTypeId);
 
     //
     // Samples for experiment
@@ -221,7 +221,8 @@ public interface ISampleListingQuery extends TransactionQuery
             + "       s.registration_timestamp, s.pers_id_registerer, "
             + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
             + "   from samples s where s.dbin_id=?{1} and s.saty_id=?{2} order by s.code", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRowVO> getSharedSamplesForSampleType(long dbInstanceId, long sampleTypeId);
+    public DataIterator<SampleRowVO> getSharedSamplesForSampleType(long dbInstanceId,
+            long sampleTypeId);
 
     //
     // Experiments
@@ -319,7 +320,7 @@ public interface ISampleListingQuery extends TransactionQuery
             into.setInternalNamespace(row.getBoolean("is_managed_internally"));
             into.setSimpleCode(StringEscapeUtils.escapeHtml(row.getString("pt_code")));
             into.setCode(StringEscapeUtils.escapeHtml(CodeConverter.tryToBusinessLayer(into
-                    .getSimpleCode(), into.isInternalNamespace() == false)));
+                    .getSimpleCode(), into.isInternalNamespace())));
             into.setLabel(StringEscapeUtils.escapeHtml(row.getString("pt_label")));
             final DataType dataType = new DataType();
             dataType.setCode(DataTypeCode.valueOf(row.getString("dt_code")));
@@ -340,7 +341,8 @@ public interface ISampleListingQuery extends TransactionQuery
     /**
      * Returns id and url template of all vocabularies.
      */
-    @Select("select id, source_uri as code from controlled_vocabularies")
+    @Select("select id, code from controlled_vocabularies")
+    // TODO 2009-08-18, Tomasz Pylak: add support for internal vocabularies
     public CodeVO[] getVocabularyURLTemplates();
 
     /**
