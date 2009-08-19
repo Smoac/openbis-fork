@@ -797,12 +797,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     pagingToolbar.updateDefaultConfigButton(false);
                     // export and config buttons are enabled when ListEntitiesCallback is complete
                     refresh();
-                    // Workaround for the problem of incorrect column header widths if column is very long  
-                    ColumnModel columnModel = grid.getColumnModel();
-                    if (columnModel.getColumnCount() > 0)
-                    {
-                        columnModel.setColumnWidth(0, columnModel.getColumnWidth(0));
-                    }
                 }
             };
     }
@@ -825,7 +819,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     /**
-     * @externalRefreshCallbackOrNull external class can define it's own refresh callback method. It
+     * @param externalRefreshCallbackOrNull external class can define it's own refresh callback method. It
      *                                will be merged with the internal one.
      */
     protected final void refresh(final IDataRefreshCallback externalRefreshCallbackOrNull,
@@ -842,6 +836,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
 
         reloadData();
+        
+        // Workaround for the problem of incorrect column header widths if column header is very long  
+        ColumnModel columnModel = grid.getColumnModel();
+        if (columnModel.getColumnCount() > 0)
+        {
+            columnModel.setColumnWidth(0, columnModel.getColumnWidth(0));
+        }
     }
 
     private void refreshColumnsAndFilters()
