@@ -879,7 +879,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private void changeColumnModel(ColumnModel columnModel)
     {
-        System.out.println("AbstractBrowserGrid.changeColumnModel()");
         grid.reconfigure(grid.getStore(), columnModel);
         registerGridSettingsChangesListener();
     }
