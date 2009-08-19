@@ -110,6 +110,28 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
         showDetailsButton.setId(USERS_BUTTON_ID);
         addButton(showDetailsButton);
 
+        final Button addAuthorizationGroupButton =
+                new Button(viewContext.getMessage(Dict.BUTTON_ADD_GROUP),
+                        new SelectionListener<ComponentEvent>()
+                            {
+                                @Override
+                                public void componentSelected(ComponentEvent ce)
+                                {
+                                    AddAuthorizationGroupDialog dialog =
+                                            new AddAuthorizationGroupDialog(viewContext,
+                                                    new IDelegatedAction()
+                                                        {
+                                                            public void execute()
+                                                            {
+                                                                refresh();
+                                                            }
+                                                        });
+                                    dialog.show();
+                                }
+                            });
+        addAuthorizationGroupButton.setId(ADD_BUTTON_ID);
+        addButton(addAuthorizationGroupButton);
+
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
                 new ISelectedEntityInvoker<BaseEntityModel<AuthorizationGroup>>()
                     {
@@ -135,27 +157,6 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
                             });
         deleteButton.setId(DELETE_BUTTON_ID);
         addButton(deleteButton);
-        final Button addAuthorizationGroupButton =
-                new Button(viewContext.getMessage(Dict.BUTTON_ADD_GROUP),
-                        new SelectionListener<ComponentEvent>()
-                            {
-                                @Override
-                                public void componentSelected(ComponentEvent ce)
-                                {
-                                    AddAuthorizationGroupDialog dialog =
-                                            new AddAuthorizationGroupDialog(viewContext,
-                                                    new IDelegatedAction()
-                                                        {
-                                                            public void execute()
-                                                            {
-                                                                refresh();
-                                                            }
-                                                        });
-                                    dialog.show();
-                                }
-                            });
-        addAuthorizationGroupButton.setId(ADD_BUTTON_ID);
-        addButton(addAuthorizationGroupButton);
 
         allowMultipleSelection();
 
