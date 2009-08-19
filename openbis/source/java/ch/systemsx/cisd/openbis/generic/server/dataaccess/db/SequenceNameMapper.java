@@ -59,6 +59,7 @@ public final class SequenceNameMapper extends StandardSequenceNameMapper
         map.put(TableNames.CONTROLLED_VOCABULARY_TERM_TABLE,
                 SequenceNames.CONTROLLED_VOCABULARY_TERM_SEQUENCE);
         map.put(TableNames.DATA_SET_PROPERTIES_TABLE, SequenceNames.DATA_SET_PROPERTY_SEQUENCE);
+        map.put(TableNames.DATA_STORE_SERVICES_TABLE, SequenceNames.DATA_STORE_SERVICE_SEQUENCE);
         // legacy code to make migration tests from db version 018 work
         map.put("sample_component_materials", "SCMA_ID_SEQ");
         return Collections.unmodifiableMap(map);
@@ -67,12 +68,18 @@ public final class SequenceNameMapper extends StandardSequenceNameMapper
     private static final Set<String> createTableSetWithoutSequencers()
     {
         final HashSet<String> set = new HashSet<String>();
-        set.add(DatabaseVersionLogDAO.DB_VERSION_LOG);
-        set.add(TableNames.EXTERNAL_DATA_TABLE);
-        set.add(TableNames.SAMPLE_INPUTS_TABLE);
-        set.add(TableNames.SAMPLE_MATERIAL_BATCHES_TABLE);
-        set.add(TableNames.DATA_SET_RELATIONSHIPS_TABLE);
+        add(set, DatabaseVersionLogDAO.DB_VERSION_LOG);
+        add(set, TableNames.EXTERNAL_DATA_TABLE);
+        add(set, TableNames.SAMPLE_INPUTS_TABLE);
+        add(set, TableNames.SAMPLE_MATERIAL_BATCHES_TABLE);
+        add(set, TableNames.DATA_SET_RELATIONSHIPS_TABLE);
+        add(set, TableNames.DATA_STORE_SERVICES_DATASET_TYPES_TABLE);
         return Collections.unmodifiableSet(set);
+    }
+
+    private static void add(HashSet<String> set, String tableName)
+    {
+        set.add(tableName.toLowerCase());
     }
 
     public SequenceNameMapper()
