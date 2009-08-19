@@ -16,32 +16,22 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search;
 
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.CacheMode;
 import org.hibernate.Criteria;
 import org.hibernate.FlushMode;
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * A default {@link IFullTextIndexer} which knows how to perform an efficient full text index.
@@ -56,6 +46,8 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DefaultFullTextIndexer.class);
 
+    private static String ID_PROPERTY_NAME = "id";
+
     /**
      * It is critical that <code>batchSize</code> matches
      * <code>hibernate.search.worker.batch_size</code>.
@@ -65,28 +57,10 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
      */
     private final int batchSize;
 
-    private Map<Class<?>, String[]> joinedProperties;
-
     DefaultFullTextIndexer(final int batchSize)
     {
         assert batchSize > -1 : "Batch size can not be negative.";
         this.batchSize = batchSize;
-        initializeJoinedProperties();
-    }
-
-    private void initializeJoinedProperties()
-    {
-        joinedProperties = new HashMap<Class<?>, String[]>();
-        joinedProperties.put(SamplePE.class, new String[]
-            { "sampleProperties", "internalAttachments" });
-        joinedProperties.put(MaterialPE.class, new String[]
-            { "materialProperties" });
-        joinedProperties.put(ExperimentPE.class,
-                new String[]
-                    { "experimentProperties", "internalAttachments",
-                            "projectInternal.internalAttachments" });
-        joinedProperties.put(ExternalDataPE.class, new String[]
-            { "dataSetProperties" });
     }
 
     //
@@ -96,25 +70,31 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
     public final <T> void doFullTextIndex(final Session hibernateSession, final Class<T> clazz)
             throws DataAccessException
     {
+        operationLog.info(String.format("Indexing '%s'...", clazz.getSimpleName()));
         final FullTextSession fullTextSession = Search.getFullTextSession(hibernateSession);
         fullTextSession.setFlushMode(FlushMode.MANUAL);
         fullTextSession.setCacheMode(CacheMode.IGNORE);
         final Transaction transaction = hibernateSession.beginTransaction();
-        final ScrollableResults results =
-                createCriteria(fullTextSession, clazz).scroll(ScrollMode.FORWARD_ONLY);
-        operationLog.info(String.format("Indexing '%s'...", clazz.getSimpleName()));
+        // we index entities in batches loading them in groups restricted by id:
+        // (currentMinId,currentMinId+batchSize]
+        long minId = 0;
+        long maxId = getMaxId(fullTextSession, clazz);
+        long currentMinId = minId;
         int index = 0;
-        // need to distinct manually from outer join because we scroll through results
-        Set<Long> indexedIds = new LongOpenHashSet();
-        while (results.next())
+        while (currentMinId < maxId)
         {
-            final Object object = results.get(0);
-            Long id = HibernateUtils.getId((IIdHolder) object);
-            if (indexedIds.add(id))
+            final List<?> results =
+                    createCriteriaWithRestrictedId(fullTextSession, clazz, currentMinId).list();
+            for (Object object : results)
             {
+                indexEntity(hibernateSession, fullTextSession, object);
                 index++;
-                indexEntity(hibernateSession, fullTextSession, index, object);
             }
+            operationLog.info(String.format("%d '%s' have been indexed...", index, clazz
+                    .getSimpleName()));
+            fullTextSession.flushToIndexes();
+            hibernateSession.clear();
+            currentMinId += batchSize;
         }
         // TODO 2009-08-12, Piotr Buczek: check whether optimize improves search perfomance
         // fullTextSession.getSearchFactory().optimize(clazz);
@@ -123,29 +103,26 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
                 clazz.getSimpleName(), index));
     }
 
+    private <T> long getMaxId(final FullTextSession fullTextSession, final Class<T> clazz)
+    {
+        return (Long) createCriteria(fullTextSession, clazz).setProjection(
+                Projections.max(ID_PROPERTY_NAME)).uniqueResult();
+    }
+
     private <T> Criteria createCriteria(final FullTextSession fullTextSession, final Class<T> clazz)
     {
-        final Criteria criteria = fullTextSession.createCriteria(clazz);
+        return fullTextSession.createCriteria(clazz);
+    }
 
-        // TODO 2009-08-09, Piotr Buczek: uncomment when fixed loading all properties
-        // criteria.setFetchSize(batchSize);
-
-        // if fetch size is not set we get OutOfMemory with big DB
-        // fetching properties in JOIN mode improves performance by a factor of ~10
-        String[] properties = joinedProperties.get(clazz);
-        if (properties != null)
-        {
-            // TODO 2009-08-09, Piotr Buczek: uncomment when fixed loading all properties
-            // for (String property : properties)
-            // {
-            // criteria.setFetchMode(property, FetchMode.JOIN);
-            // }
-        }
-        return criteria;
+    private <T> Criteria createCriteriaWithRestrictedId(final FullTextSession fullTextSession,
+            final Class<T> clazz, final long minId)
+    {
+        return createCriteria(fullTextSession, clazz).add(Restrictions.gt(ID_PROPERTY_NAME, minId))
+                .add(Restrictions.le(ID_PROPERTY_NAME, minId + batchSize));
     }
 
     private <T> void indexEntity(final Session hibernateSession,
-            final FullTextSession fullTextSession, int index, T object)
+            final FullTextSession fullTextSession, T object)
     {
         if (operationLog.isDebugEnabled())
         {
@@ -158,13 +135,6 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         {
             operationLog.error("Error while indexing the object " + object + ": " + e.getMessage()
                     + ". Indexing will be continued.");
-        }
-        if (batchSize > 0 && index % batchSize == 0)
-        {
-            operationLog.info(String.format("%d '%s' have been indexed...", index, object
-                    .getClass().getSimpleName()));
-            fullTextSession.flushToIndexes();
-            hibernateSession.clear();
         }
     }
 

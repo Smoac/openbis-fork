@@ -42,6 +42,8 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.search.annotations.ContainedIn;
@@ -324,6 +326,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "projectParentInternal", cascade = CascadeType.ALL)
     @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROJECT_ATTACHMENTS)
+    @Fetch(FetchMode.SUBSELECT)
     protected Set<AttachmentPE> getInternalAttachments()
     {
         return attachments;

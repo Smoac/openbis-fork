@@ -549,6 +549,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "sampleParentInternal", cascade = CascadeType.ALL)
     @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SAMPLE_ATTACHMENTS)
+    @Fetch(FetchMode.SUBSELECT)
     protected Set<AttachmentPE> getInternalAttachments()
     {
         return attachments;
