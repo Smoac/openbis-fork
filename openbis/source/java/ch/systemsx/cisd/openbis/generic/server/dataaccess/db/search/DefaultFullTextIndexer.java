@@ -24,6 +24,7 @@ import org.hibernate.Criteria;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.search.FullTextSession;
@@ -74,17 +75,23 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         final FullTextSession fullTextSession = Search.getFullTextSession(hibernateSession);
         fullTextSession.setFlushMode(FlushMode.MANUAL);
         fullTextSession.setCacheMode(CacheMode.IGNORE);
-        final Transaction transaction = hibernateSession.beginTransaction();
+
         // we index entities in batches loading them in groups restricted by id:
-        // (currentMinId,currentMinId+batchSize]
-        long minId = 0;
-        long maxId = getMaxId(fullTextSession, clazz);
-        long currentMinId = minId;
+        // ( ids[index],ids[min(index+batchSize, maxIndex))] ]
+        final Transaction transaction = hibernateSession.beginTransaction();
+        final List<Long> ids = getAllIds(fullTextSession, clazz);
+        operationLog.info(String
+                .format("... got %d '%s' ids...", ids.size(), clazz.getSimpleName()));
+
         int index = 0;
-        while (currentMinId < maxId)
+        final int maxIndex = ids.size() - 1;
+        while (index < maxIndex)
         {
+            final int nextIndex = getNextIndex(index, maxIndex);
+            final long minId = ids.get(index);
+            final long maxId = ids.get(nextIndex);
             final List<?> results =
-                    createCriteriaWithRestrictedId(fullTextSession, clazz, currentMinId).list();
+                    createCriteriaWithRestrictedId(fullTextSession, clazz, minId, maxId).list();
             for (Object object : results)
             {
                 indexEntity(hibernateSession, fullTextSession, object);
@@ -94,7 +101,6 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
                     .getSimpleName()));
             fullTextSession.flushToIndexes();
             hibernateSession.clear();
-            currentMinId += batchSize;
         }
         // TODO 2009-08-12, Piotr Buczek: check whether optimize improves search perfomance
         // fullTextSession.getSearchFactory().optimize(clazz);
@@ -103,24 +109,39 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
                 clazz.getSimpleName(), index));
     }
 
-    private <T> Long getMaxId(final FullTextSession fullTextSession, final Class<T> clazz)
+    private int getNextIndex(int index, int maxIndex)
     {
-        Object result =
-                createCriteria(fullTextSession, clazz).setProjection(
-                        Projections.max(ID_PROPERTY_NAME)).uniqueResult();
-        return (result == null) ? 0 : (Long) result;
+        int result = index + batchSize;
+        if (result < maxIndex)
+        {
+            return result;
+        } else
+        {
+            return maxIndex;
+        }
+    }
+
+    @SuppressWarnings(
+        { "cast", "unchecked" })
+    private <T> List<Long> getAllIds(final FullTextSession fullTextSession, final Class<T> clazz)
+    {
+        List<Long> result =
+                (List<Long>) createCriteria(fullTextSession, clazz).setProjection(
+                        Projections.property(ID_PROPERTY_NAME)).addOrder(
+                        Order.asc(ID_PROPERTY_NAME)).list();
+        return result;
+    }
+
+    private <T> Criteria createCriteriaWithRestrictedId(final FullTextSession fullTextSession,
+            final Class<T> clazz, final long minId, final long maxId)
+    {
+        return createCriteria(fullTextSession, clazz).add(Restrictions.gt(ID_PROPERTY_NAME, minId))
+                .add(Restrictions.le(ID_PROPERTY_NAME, maxId));
     }
 
     private <T> Criteria createCriteria(final FullTextSession fullTextSession, final Class<T> clazz)
     {
         return fullTextSession.createCriteria(clazz);
-    }
-
-    private <T> Criteria createCriteriaWithRestrictedId(final FullTextSession fullTextSession,
-            final Class<T> clazz, final long minId)
-    {
-        return createCriteria(fullTextSession, clazz).add(Restrictions.gt(ID_PROPERTY_NAME, minId))
-                .add(Restrictions.le(ID_PROPERTY_NAME, minId + batchSize));
     }
 
     private <T> void indexEntity(final Session hibernateSession,
