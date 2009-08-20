@@ -134,7 +134,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -694,8 +693,8 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            final List<PersonPE> persons = commonServer.listPersons(sessionToken);
-            return PersonTranslator.translate(persons);
+            final List<Person> persons = commonServer.listPersons(sessionToken);
+            return persons;
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -151,11 +152,11 @@ public interface ICommonServer extends IServer
     /**
      * Returns all persons from current instance.
      * 
-     * @return a sorted list of {@link PersonPE}.
+     * @return a sorted list of {@link Person}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<PersonPE> listPersons(String sessionToken);
+    public List<Person> listPersons(String sessionToken);
 
     /**
      * Returns all projects.

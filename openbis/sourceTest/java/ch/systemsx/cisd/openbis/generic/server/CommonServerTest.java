@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -71,6 +72,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 
 /**
  * Test cases for corresponding {@link CommonServer} class.
@@ -326,19 +328,23 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public void testListPersons()
     {
-        final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
+        final PersonPE personPE = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
+        final Person person = PersonTranslator.translate(personPE);
         prepareGetSession();
         context.checking(new Expectations()
             {
                 {
                     one(personDAO).listPersons();
-                    will(returnValue(Arrays.asList(person)));
+                    will(returnValue(Arrays.asList(personPE)));
                 }
             });
 
-        final List<PersonPE> persons = createServer().listPersons(SESSION_TOKEN);
+        final List<Person> persons = createServer().listPersons(SESSION_TOKEN);
 
-        assertSame(person, persons.get(0));
+        assertEquals(person.getUserId(), persons.get(0).getUserId());
+        assertEquals(person.getFirstName(), persons.get(0).getFirstName());
+        assertEquals(person.getLastName(), persons.get(0).getLastName());
+        assertEquals(person.getEmail(), persons.get(0).getEmail());
         assertEquals(1, persons.size());
 
         context.assertIsSatisfied();

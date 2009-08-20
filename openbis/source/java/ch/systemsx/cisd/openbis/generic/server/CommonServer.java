@@ -89,6 +89,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -138,6 +139,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ListSampleCriteriaTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -372,12 +374,12 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         roleAssignmentDAO.deleteRoleAssignment(roleAssignment);
     }
 
-    public final List<PersonPE> listPersons(final String sessionToken)
+    public final List<Person> listPersons(final String sessionToken)
     {
         checkSession(sessionToken);
         final List<PersonPE> persons = getDAOFactory().getPersonDAO().listPersons();
         Collections.sort(persons);
-        return persons;
+        return PersonTranslator.translate(persons);
     }
 
     public final List<ProjectPE> listProjects(final String sessionToken)

@@ -5,7 +5,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
@@ -48,9 +48,9 @@ public class OpenbisClientTest
 
         + commonServerPath, 5);
         Session sessionCommon = commonServer.tryToAuthenticate(userId, userPassword);
-        List<PersonPE> persons = commonServer.listPersons(sessionCommon.getSessionToken());
+        List<Person> persons = commonServer.listPersons(sessionCommon.getSessionToken());
 
-        for (PersonPE p : persons)
+        for (Person p : persons)
         {
 
             System.out.println(p.getUserId());
