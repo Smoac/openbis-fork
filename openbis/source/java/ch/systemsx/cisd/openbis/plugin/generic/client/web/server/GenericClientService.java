@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,8 +24,6 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -61,7 +58,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -84,6 +80,10 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.NewMaterialParserObjectFactory;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.SampleUploadSectionsParser;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.SampleUploadSectionsParser.BatchSamplesRegistration;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.SampleUploadSectionsParser.SampleCodeGenerator;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
@@ -165,9 +165,9 @@ public final class GenericClientService extends AbstractClientService implements
             final String sessionKey, String defaultGroupIdentifier)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        SampleExtractor info =
-                new SampleExtractor().prepareSamples(sampleType, sessionKey,
-                        defaultGroupIdentifier, defaultGroupIdentifier != null, true);
+        BatchSamplesRegistration info =
+                parseSamples(sampleType, sessionKey, defaultGroupIdentifier,
+                        defaultGroupIdentifier != null, true);
         try
         {
             final String sessionToken = getSessionToken();
@@ -176,234 +176,6 @@ public final class GenericClientService extends AbstractClientService implements
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
-        }
-
-    }
-
-    private class SampleExtractor
-    {
-        private List<NewSamplesWithTypes> samples;
-
-        private List<BatchRegistrationResult> resultList;
-
-        String[] sampleCodes;
-
-        public List<NewSamplesWithTypes> getSamples()
-        {
-            return samples;
-        }
-
-        public List<BatchRegistrationResult> getResultList()
-        {
-            return resultList;
-        }
-
-        public String[] getCodes()
-        {
-            return sampleCodes;
-        }
-
-        public SampleExtractor prepareSamples(final SampleType sampleType, final String sessionKey,
-                String defaultGroupIdentifier, final boolean isAutoGenerateCodes,
-                final boolean allowExperiments)
-        {
-            HttpSession session = null;
-            UploadedFilesBean uploadedFiles = null;
-            try
-            {
-                final String sessionToken = getSessionToken();
-                session = getHttpSession();
-                assert session.getAttribute(sessionKey) != null
-                        && session.getAttribute(sessionKey) instanceof UploadedFilesBean : String
-                        .format("No UploadedFilesBean object as session attribute '%s' found.",
-                                sessionKey);
-                uploadedFiles = (UploadedFilesBean) session.getAttribute(sessionKey);
-                final List<NewSamplesWithTypes> newSamples = new ArrayList<NewSamplesWithTypes>();
-                final List<BatchRegistrationResult> results =
-                        loadSamplesFromFiles(uploadedFiles, sampleType, isAutoGenerateCodes,
-                                newSamples, allowExperiments);
-                for (NewSamplesWithTypes st : newSamples)
-                {
-                    generateIdentifiers(defaultGroupIdentifier, isAutoGenerateCodes, sessionToken,
-                            st.getNewSamples());
-                }
-                fillTheBean(newSamples, results);
-                return this;
-            } catch (final UserFailureException e)
-            {
-                throw UserFailureExceptionTranslator.translate(e);
-            } finally
-            {
-                if (uploadedFiles != null)
-                {
-                    uploadedFiles.deleteTransferredFiles();
-                }
-                if (session != null)
-                {
-                    session.removeAttribute(sessionKey);
-                }
-            }
-        }
-
-        private void fillTheBean(final List<NewSamplesWithTypes> newSamples,
-                final List<BatchRegistrationResult> results)
-        {
-            resultList = results;
-            samples = newSamples;
-            List<String> codes = new ArrayList<String>();
-            for (NewSamplesWithTypes st : newSamples)
-            {
-                for (NewSample s : st.getNewSamples())
-                {
-                    codes.add(SampleIdentifierFactory.parse(s.getIdentifier()).getSampleCode());
-                }
-            }
-            sampleCodes = codes.toArray(new String[0]);
-        }
-
-        private BisTabFileLoader<NewSample> createSampleLoader(final SampleType sampleType,
-                final boolean isAutoGenerateCodes, final boolean allowExperiments)
-        {
-            final BisTabFileLoader<NewSample> tabFileLoader =
-                    new BisTabFileLoader<NewSample>(new IParserObjectFactoryFactory<NewSample>()
-                        {
-                            public final IParserObjectFactory<NewSample> createFactory(
-                                    final IPropertyMapper propertyMapper) throws ParserException
-                            {
-                                return new NewSampleParserObjectFactory(sampleType, propertyMapper,
-                                        isAutoGenerateCodes == false, allowExperiments);
-                            }
-                        });
-            return tabFileLoader;
-        }
-
-        class FileSection
-        {
-
-            private final String content;
-
-            private final String sectionName;
-
-            public FileSection(String content, String sectionName)
-            {
-                this.sectionName = sectionName;
-                this.content = content;
-            }
-
-            public String getContent()
-            {
-                return content;
-            }
-
-            public String getSectionName()
-            {
-                return sectionName;
-            }
-
-        }
-
-        private List<FileSection> extractSections(IUncheckedMultipartFile multipartFile)
-        {
-            final String beginSection = "[";
-            final String endSection = "]";
-            List<FileSection> sections = new ArrayList<FileSection>();
-            InputStreamReader reader = new InputStreamReader(multipartFile.getInputStream());
-            try
-            {
-                LineIterator it = IOUtils.lineIterator(reader);
-                StringBuilder sb = null;
-                String sectionName = null;
-                while (it.hasNext())
-                {
-                    String line = it.nextLine();
-                    if (line != null && line.startsWith(beginSection) && line.endsWith(endSection))
-                    {
-                        if (sectionName != null && sb != null)
-                            sections.add(new FileSection(sb.toString(), sectionName));
-                        sectionName =
-                                line.substring(line.indexOf(beginSection) + 1, line
-                                        .lastIndexOf(endSection));
-                        sb = new StringBuilder();
-                    } else if (sectionName == null || sb == null)
-                    {
-                        throw new UserFailureException("Discovered the unnamed section in the file");
-                    } else
-                    {
-                        if (sb.length() != 0)
-                        {
-                            sb.append("\n");
-                        }
-                        sb.append(line);
-                    }
-                    if (it.hasNext() == false)
-                    {
-                        sections.add(new FileSection(sb.toString(), sectionName));
-                    }
-                }
-            } finally
-            {
-                IOUtils.closeQuietly(reader);
-            }
-            return sections;
-        }
-
-        private List<BatchRegistrationResult> loadSamplesFromFiles(UploadedFilesBean uploadedFiles,
-                SampleType sampleType, boolean isAutoGenerateCodes,
-                final List<NewSamplesWithTypes> newSamples, boolean allowExperiments)
-        {
-
-            final List<BatchRegistrationResult> results =
-                    new ArrayList<BatchRegistrationResult>(uploadedFiles.size());
-
-            for (final IUncheckedMultipartFile multipartFile : uploadedFiles.iterable())
-            {
-                List<FileSection> sampleSections = new ArrayList<FileSection>();
-                if (sampleType.isDefinedInFileSampleTypeCode())
-                {
-                    sampleSections.addAll(extractSections(multipartFile));
-                } else
-                {
-                    sampleSections.add(new FileSection(new String(multipartFile.getBytes()),
-                            sampleType.getCode()));
-                }
-                int sampleCounter = 0;
-                for (FileSection fs : sampleSections)
-                {
-                    final StringReader stringReader = new StringReader(fs.getContent());
-                    SampleType typeFromSection = new SampleType();
-                    typeFromSection.setCode(fs.getSectionName());
-                    final BisTabFileLoader<NewSample> tabFileLoader =
-                            createSampleLoader(typeFromSection, isAutoGenerateCodes,
-                                    allowExperiments);
-                    String sectionInFile =
-                            sampleSections.size() == 1 ? "" : " (section:" + fs.getSectionName()
-                                    + ")";
-                    final List<NewSample> loadedSamples =
-                            tabFileLoader.load(new DelegatedReader(stringReader, multipartFile
-                                    .getOriginalFilename()
-                                    + sectionInFile));
-                    newSamples.add(new NewSamplesWithTypes(typeFromSection, loadedSamples));
-                    sampleCounter += loadedSamples.size();
-                }
-                results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
-                        .format("%d sample(s) found and registered.", sampleCounter)));
-            }
-            return results;
-        }
-
-        private void generateIdentifiers(String defaultGroupIdentifier,
-                final boolean isAutoGenerateCodes, final String sessionToken,
-                final List<NewSample> newSamples)
-        {
-            if (isAutoGenerateCodes)
-            {
-                List<String> codes =
-                        genericServer.generateCodes(sessionToken, "S", newSamples.size());
-                for (int i = 0; i < newSamples.size(); i++)
-                {
-                    newSamples.get(i).setIdentifier(defaultGroupIdentifier + "/" + codes.get(i));
-                }
-            }
         }
 
     }
@@ -482,13 +254,13 @@ public final class GenericClientService extends AbstractClientService implements
         {
             final ExperimentIdentifier identifier =
                     new ExperimentIdentifierFactory(experiment.getIdentifier()).createIdentifier();
-            SampleExtractor extractor =
-                    new SampleExtractor().prepareSamples(experiment.getSampleType(),
-                            samplesSessionKey, new GroupIdentifier(identifier
-                                    .getDatabaseInstanceCode(), identifier.getGroupCode())
-                                    .toString(), experiment.isGenerateCodes(), false);
-            experiment.setNewSamples(extractor.getSamples());
-            experiment.setSamples(extractor.getCodes());
+            BatchSamplesRegistration result =
+                    parseSamples(experiment.getSampleType(), samplesSessionKey,
+                            new GroupIdentifier(identifier.getDatabaseInstanceCode(), identifier
+                                    .getGroupCode()).toString(), experiment.isGenerateCodes(),
+                            false);
+            experiment.setNewSamples(result.getSamples());
+            experiment.setSamples(result.getCodes());
         }
         new AttachmentRegistrationHelper()
             {
@@ -500,21 +272,62 @@ public final class GenericClientService extends AbstractClientService implements
             }.process(attachmentsSessionKey, getHttpSession(), experiment.getAttachments());
     }
 
+    private BatchSamplesRegistration parseSamples(final SampleType sampleType,
+            final String sessionKey, String defaultGroupIdentifier,
+            final boolean isAutoGenerateCodes, final boolean allowExperiments)
+    {
+        HttpSession httpSession = getHttpSession();
+        UploadedFilesBean uploadedFiles = null;
+        try
+        {
+            SampleCodeGenerator sampleCodeGeneratorOrNull =
+                    tryGetSampleCodeGenerator(isAutoGenerateCodes);
+            uploadedFiles = getUploadedFiles(sessionKey, httpSession);
+            return SampleUploadSectionsParser.prepareSamples(sampleType, uploadedFiles,
+                    defaultGroupIdentifier, sampleCodeGeneratorOrNull, allowExperiments);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        } finally
+        {
+            cleanUploadedFiles(sessionKey, httpSession, uploadedFiles);
+        }
+    }
+
+    private SampleCodeGenerator tryGetSampleCodeGenerator(boolean isAutoGenerateCodes)
+    {
+        if (isAutoGenerateCodes)
+        {
+            return new SampleCodeGenerator()
+                {
+                    public List<String> generateCodes(int size)
+                    {
+                        return genericServer.generateCodes(getSessionToken(), "S", size);
+                    }
+                };
+        } else
+        {
+            return null;
+        }
+    }
+
+    private UploadedFilesBean getUploadedFiles(String sessionKey, HttpSession session)
+    {
+        assert session.getAttribute(sessionKey) != null
+                && session.getAttribute(sessionKey) instanceof UploadedFilesBean : String.format(
+                "No UploadedFilesBean object as session attribute '%s' found.", sessionKey);
+        return (UploadedFilesBean) session.getAttribute(sessionKey);
+    }
+
     public final List<BatchRegistrationResult> registerMaterials(final MaterialType materialType,
             final String sessionKey)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        HttpSession session = null;
+        HttpSession session = getHttpSession();
         UploadedFilesBean uploadedFiles = null;
         try
         {
-            final String sessionToken = getSessionToken();
-            session = getHttpSession();
-            assert session.getAttribute(sessionKey) != null
-                    && session.getAttribute(sessionKey) instanceof UploadedFilesBean : String
-                    .format("No UploadedFilesBean object as session attribute '%s' found.",
-                            sessionKey);
-            uploadedFiles = (UploadedFilesBean) session.getAttribute(sessionKey);
+            uploadedFiles = getUploadedFiles(sessionKey, session);
             final BisTabFileLoader<NewMaterial> tabFileLoader =
                     new BisTabFileLoader<NewMaterial>(
                             new IParserObjectFactoryFactory<NewMaterial>()
@@ -540,21 +353,28 @@ public final class GenericClientService extends AbstractClientService implements
                 results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
                         .format("%d material(s) found and registered.", loadedMaterials.size())));
             }
-            genericServer.registerMaterials(sessionToken, materialType.getCode(), newMaterials);
+            genericServer
+                    .registerMaterials(getSessionToken(), materialType.getCode(), newMaterials);
             return results;
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         } finally
         {
-            if (uploadedFiles != null)
-            {
-                uploadedFiles.deleteTransferredFiles();
-            }
-            if (session != null)
-            {
-                session.removeAttribute(sessionKey);
-            }
+            cleanUploadedFiles(sessionKey, session, uploadedFiles);
+        }
+    }
+
+    private void cleanUploadedFiles(final String sessionKey, HttpSession session,
+            UploadedFilesBean uploadedFiles)
+    {
+        if (uploadedFiles != null)
+        {
+            uploadedFiles.deleteTransferredFiles();
+        }
+        if (session != null)
+        {
+            session.removeAttribute(sessionKey);
         }
     }
 
@@ -618,13 +438,12 @@ public final class GenericClientService extends AbstractClientService implements
         {
             final ProjectIdentifier newProject =
                     new ProjectIdentifierFactory(updates.getProjectIdentifier()).createIdentifier();
-            SampleExtractor extractor =
-                    new SampleExtractor().prepareSamples(updates.getSampleType(), updates
-                            .getSamplesSessionKey(), new GroupIdentifier(newProject
-                            .getDatabaseInstanceCode(), newProject.getGroupCode()).toString(),
-                            updates.isGenerateCodes(), false);
-            updates.setNewSamples(extractor.getSamples());
-            updates.setSampleCodes(extractor.getCodes());
+            BatchSamplesRegistration info =
+                    parseSamples(updates.getSampleType(), updates.getSamplesSessionKey(),
+                            new GroupIdentifier(newProject.getDatabaseInstanceCode(), newProject
+                                    .getGroupCode()).toString(), updates.isGenerateCodes(), false);
+            updates.setNewSamples(info.getSamples());
+            updates.setSampleCodes(info.getCodes());
         }
         new AttachmentRegistrationHelper()
             {

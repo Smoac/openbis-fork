@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
+package ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,9 +36,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
  * @author Christian Ribeaud
  * @author Izabela Adamczyk
  */
-final class NewMaterialParserObjectFactory extends AbstractParserObjectFactory<NewMaterial>
+public final class NewMaterialParserObjectFactory extends AbstractParserObjectFactory<NewMaterial>
 {
-    NewMaterialParserObjectFactory(final IPropertyMapper propertyMapper)
+    public NewMaterialParserObjectFactory(final IPropertyMapper propertyMapper)
     {
         super(NewMaterial.class, propertyMapper);
     }
