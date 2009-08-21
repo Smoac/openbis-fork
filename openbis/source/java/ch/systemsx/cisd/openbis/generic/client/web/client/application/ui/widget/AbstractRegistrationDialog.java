@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField.CodeFieldKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
@@ -81,8 +82,14 @@ abstract public class AbstractRegistrationDialog extends AbstractSaveDialog
 
     public static TextField<String> createCodeField(IMessageProvider messageProvider)
     {
+        return createCodeField(messageProvider, CodeFieldKind.BASIC_CODE);
+    }
+
+    public static TextField<String> createCodeField(IMessageProvider messageProvider,
+            CodeFieldKind fieldKind)
+    {
         final TextField<String> codeField =
-                new CodeField(messageProvider, messageProvider.getMessage(Dict.CODE));
+                new CodeField(messageProvider, messageProvider.getMessage(Dict.CODE), fieldKind);
         codeField.setWidth(100);
         codeField.setId(CODE_FIELD_ID);
         return codeField;

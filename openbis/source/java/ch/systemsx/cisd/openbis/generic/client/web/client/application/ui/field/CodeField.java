@@ -28,19 +28,24 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  */
 public class CodeField extends TriggerField<String>
 {
-    public static final String CODE_CHARS_OR_EMPTY = "[a-zA-Z0-9_\\-\\.]";
+    private static final String CODE_CHAR_PATTERN = "a-zA-Z0-9_\\-\\.";
 
-    public static final String CODE_CHARS = CODE_CHARS_OR_EMPTY + "+";
+    public static final String CODE_CHARS = "[" + CODE_CHAR_PATTERN + "]+";
 
     public final static String CODE_PATTERN = "^" + CODE_CHARS + "$";
 
     private final static String CODE_PATTERN_ALLOWED_CHARACTERS =
             "letters, numbers, \"-\", \"_\", " + "\".\"";
 
-    public final static String CODE_PATTERN_WITH_COLON = "^[a-zA-Z0-9_\\-\\.:]+$";
+    public final static String CODE_PATTERN_WITH_COLON = "^[" + CODE_CHAR_PATTERN + ":]+$";
 
     private final static String CODE_PATTERN_WITH_COLON_ALLOWED_CHARACTERS =
             CODE_PATTERN_ALLOWED_CHARACTERS + ", \":\"";
+
+    public final static String CODE_OR_EMAIL_PATTERN = "^[" + CODE_CHAR_PATTERN + "@]+$";
+
+    private final static String CODE_OR_EMAIL_PATTERN_ALLOWED_CHARACTERS =
+            CODE_PATTERN_ALLOWED_CHARACTERS + "@";
 
     public enum CodeFieldKind
     {
@@ -51,6 +56,11 @@ public class CodeField extends TriggerField<String>
          * </p>
          */
         BASIC_CODE(CODE_PATTERN, CODE_PATTERN_ALLOWED_CHARACTERS),
+
+        /**
+         * Field with a basic code pattern which accepts also email addresses.
+         */
+        CODE_OR_EMAIL(CODE_OR_EMAIL_PATTERN, CODE_OR_EMAIL_PATTERN_ALLOWED_CHARACTERS),
 
         /**
          * Field with a basic code pattern extended by ':'.
