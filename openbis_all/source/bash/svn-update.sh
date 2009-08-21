@@ -11,7 +11,10 @@ for f in *.sh; do
     echo Synchronizing $f...
     mv $f $TMP
     wget $SVN/$f
-  fi
+    if [ $? -ne 0 ]; then
+      mv $TMP/$f .
+    fi   
+fi
 done
 chmod 700 *.sh
 rm -fr $TMP
