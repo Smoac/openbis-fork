@@ -7,10 +7,13 @@ PCE_DIR=/localhome/openbis/sprint/datastore_server/data/incoming/transcriptomics
 TSU1_DIR=/localhome/openbis/sprint/datastore_server/data/incoming/transcriptomics/tsu1
 TSU2P1_DIR=/localhome/openbis/sprint/datastore_server/data/incoming/transcriptomics/tsu2p1
 TSU2P2_DIR=/localhome/openbis/sprint/datastore_server/data/incoming/transcriptomics/tsu2p2
-
+MFS_DIR=/local0/localhome/openbis/sprint/datastore_server/data/incoming/METABOLITE_FEATURE_SET
+ITRAQ_DIR=/local0/localhome/openbis/sprint/datastore_server/data/incoming/proteomics/itraq
 
 [ -d $PFS_DIR ] || mkdir -p $PFS_DIR
 [ -d $PCE_DIR ] || mkdir -p $PCE_DIR
 [ -d $TSU1_DIR ] || mkdir -p $TSU1_DIR
 [ -d $TSU2P1_DIR ] || mkdir -p $TSU2P1_DIR
 [ -d $TSU2P2_DIR ] || mkdir -p $TSU2P2_DIR
+[ -d $MFS_DIR ] || mkdir -p $MFS_DIR
+[ -d $ITRAQ_DIR ] || mkdir -p $ITRAQ_DIR
