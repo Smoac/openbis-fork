@@ -43,8 +43,8 @@ public class DataSetInfoFileNameDecorator
 
     public DataSetInfoFileNameDecorator(Properties localProperties)
     {
-        String code = PropertyUtils.getMandatoryProperty(localProperties, FILE_NAME_PROPERTY_NAME);
-        this.fileNamePropertyCode = DatasetMappingResolver.adaptPropertyCode(code);
+        this.fileNamePropertyCode =
+                PropertyUtils.getMandatoryProperty(localProperties, FILE_NAME_PROPERTY_NAME);
     }
 
     public DataSetInformation enrich(DataSetInformation info, File incomingDataSetPath)

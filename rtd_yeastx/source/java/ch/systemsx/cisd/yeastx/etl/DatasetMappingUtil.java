@@ -185,7 +185,6 @@ class DatasetMappingUtil
                 DataSetMappingInformationParser.tryParse(mappingFile, log);
         if (list != null)
         {
-            DatasetMappingResolver.adaptPropertyCodes(list);
             mappingsOrNull = tryAsFileMap(list, log, mappingFile);
         }
         return new DataSetMappingInformationFile(mappingsOrNull, notificationEmail);

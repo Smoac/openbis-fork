@@ -26,7 +26,6 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.LocalExperimentIdentifier;
@@ -53,8 +52,6 @@ class DatasetMappingResolver
      */
     private final static String UNIQUE_EXPERIMENT_NAME_PROPERTY =
             "unique-experiment-name-property-code";
-
-    private static final String PROPERTIES_PREFIX = "USER.";
 
     public static String getUniqueSampleNamePropertyCode(Properties properties)
     {
@@ -89,14 +86,7 @@ class DatasetMappingResolver
 
     private static String tryGetUniqueNamePropertyCode(Properties properties, String propertyName)
     {
-        String code = properties.getProperty(propertyName);
-        if (code != null)
-        {
-            return adaptPropertyCode(code);
-        } else
-        {
-            return null;
-        }
+        return properties.getProperty(propertyName);
     }
 
     // ---------------
@@ -318,34 +308,5 @@ class DatasetMappingResolver
             return false;
         }
         return true;
-    }
-
-    public static void adaptPropertyCodes(List<DataSetMappingInformation> list)
-    {
-        for (DataSetMappingInformation mapping : list)
-        {
-            adaptPropertyCodes(mapping.getProperties());
-        }
-    }
-
-    private static List<NewProperty> adaptPropertyCodes(List<NewProperty> properties)
-    {
-        for (NewProperty prop : properties)
-        {
-            String propertyCode = adaptPropertyCode(prop.getPropertyCode());
-            prop.setPropertyCode(propertyCode);
-        }
-        return properties;
-    }
-
-    public static String adaptPropertyCode(String propertyCode)
-    {
-        if (propertyCode.toLowerCase().startsWith(PROPERTIES_PREFIX.toLowerCase()) == false)
-        {
-            return PROPERTIES_PREFIX + propertyCode;
-        } else
-        {
-            return propertyCode;
-        }
     }
 }
