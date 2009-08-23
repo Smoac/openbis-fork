@@ -38,6 +38,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     private static final class BasicDataSourceFactory implements IDataSourceFactory
     {
 
+        private final int MAX_ACTIVE_NO_LIMIT = -1;
+        
         //
         // IDataSourceFactory
         //
@@ -52,6 +54,7 @@ public class DatabaseConfigurationContext implements DisposableBean
             dataSource.setPassword(password);
             dataSource.setMinIdle(0);
             dataSource.setMaxIdle(0);
+            dataSource.setMaxActive(MAX_ACTIVE_NO_LIMIT);
             return dataSource;
         }
     }
