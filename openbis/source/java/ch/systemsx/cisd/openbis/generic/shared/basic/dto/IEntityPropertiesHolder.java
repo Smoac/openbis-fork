@@ -27,5 +27,5 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
  */
 public interface IEntityPropertiesHolder extends IIdHolder
 {
-    List<? extends IEntityProperty> getProperties();
+    List<IEntityProperty> getProperties();
 }

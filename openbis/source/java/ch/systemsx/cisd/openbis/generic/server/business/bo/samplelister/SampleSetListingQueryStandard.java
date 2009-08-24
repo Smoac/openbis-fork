@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.CoVoSamplePropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.GenericSamplePropertyVO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.GenericEntityPropertyVO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.MaterialSamplePropertyVO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.SampleRowVO;
 
@@ -39,7 +39,7 @@ class SampleSetListingQueryStandard implements ISampleSetListingQuery
         this.delegate = query;
     }
 
-    public Iterable<GenericSamplePropertyVO> getSamplePropertyGenericValues(LongSet sampleIds)
+    public Iterable<GenericEntityPropertyVO> getSamplePropertyGenericValues(LongSet sampleIds)
     {
         return delegate.getSamplePropertyGenericValues(sampleIds);
     }

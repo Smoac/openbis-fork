@@ -41,20 +41,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
  * 
  * @author Bernd Rinn
  */
-interface ISampleListingQuery extends TransactionQuery
+interface ISampleListingQuery extends TransactionQuery, IPropertyListingQuery
 {
 
     public static final int FETCH_SIZE = 1000;
-
-    /**
-     * A value object for id and code.
-     */
-    public static class CodeVO
-    {
-        public long id;
-
-        public String code;
-    }
 
     /**
      * A value object representing one row of the sample table.
@@ -329,70 +319,43 @@ interface ISampleListingQuery extends TransactionQuery
     }
 
     /**
-     * Returns all property types. Fills only <code>id</code>, <code>code</code>,
-     * <code>label</var> and <code>DataType</code>. Note that code and label are already HTML
-     * escaped.
-     */
-    @Select(sql = "select pt.id as pt_id, pt.code as pt_code, dt.code as dt_code,"
-            + "      pt.label as pt_label, pt.is_managed_internally"
-            + "    from property_types pt join data_types dt on pt.daty_id=dt.id", resultSetBinding = PropertyTypeDataObjectBinding.class)
-    public PropertyType[] getPropertyTypes();
-
-    /**
-     * Returns id and url template of all vocabularies.
-     */
-    @Select("select id, code from controlled_vocabularies")
-    // TODO 2009-08-18, Tomasz Pylak: add support for internal vocabularies
-    public CodeVO[] getVocabularyURLTemplates();
-
-    /**
-     * Returns id and code of all material types.
-     */
-    @Select("select id, code from material_types")
-    public CodeVO[] getMaterialTypes();
-
-    //
-    // Sample Properties
-    //
-
-    /**
      * A value object for a sample property.
      */
-    public static class BaseSamplePropertyVO
+    public static class BaseEntityPropertyVO
     {
-        public long samp_id;
+        public long entity_id;
 
         public long prty_id;
     }
 
     /**
-     * A value object for a generic sample property.
+     * A value object for a generic entity property.
      */
-    public static class GenericSamplePropertyVO extends BaseSamplePropertyVO
+    public static class GenericEntityPropertyVO extends BaseEntityPropertyVO
     {
         public String value;
     }
 
     /**
-     * Returns all generic property values of the sample with <var>sampleId</var>.
+     * Returns all generic property values of the sample with <var>entityId</var>.
      */
-    @Select("select sp.samp_id, stpt.prty_id, sp.value from sample_properties sp"
+    @Select("select sp.samp_id as entity_id, stpt.prty_id, sp.value from sample_properties sp"
             + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
             + "   where sp.value is not null and sp.samp_id=?{1}")
-    public DataIterator<GenericSamplePropertyVO> getSamplePropertyGenericValues(long sampleId);
+    public DataIterator<GenericEntityPropertyVO> getEntityPropertyGenericValues(long entityId);
 
     /**
      * Returns all generic property values of all samples.
      */
-    @Select(sql = "select sp.samp_id, stpt.prty_id, sp.value from sample_properties sp"
+    @Select(sql = "select sp.samp_id as entity_id, stpt.prty_id, sp.value from sample_properties sp"
             + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
             + "   where sp.value is not null", fetchSize = FETCH_SIZE)
-    public DataIterator<GenericSamplePropertyVO> getSamplePropertyGenericValues();
+    public DataIterator<GenericEntityPropertyVO> getSamplePropertyGenericValues();
 
     /**
      * A value object for a generic sample property.
      */
-    public static class CoVoSamplePropertyVO extends BaseSamplePropertyVO
+    public static class CoVoSamplePropertyVO extends BaseEntityPropertyVO
     {
         public long id;
 
@@ -406,7 +369,7 @@ interface ISampleListingQuery extends TransactionQuery
     /**
      * Returns all controlled vocabulary property values of the sample with <var>sampleId</var>.
      */
-    @Select("select sp.samp_id, stpt.prty_id, cvte.id, cvte.covo_id, cvte.code, cvte.label"
+    @Select("select sp.samp_id as entity_id, stpt.prty_id, cvte.id, cvte.covo_id, cvte.code, cvte.label"
             + "      from sample_properties sp"
             + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
             + "      join controlled_vocabulary_terms cvte on sp.cvte_id=cvte.id"
@@ -416,7 +379,7 @@ interface ISampleListingQuery extends TransactionQuery
     /**
      * Returns all controlled vocabulary property values of all samples.
      */
-    @Select(sql = "select sp.samp_id, stpt.prty_id, cvte.id, cvte.covo_id, cvte.code, cvte.label"
+    @Select(sql = "select sp.samp_id as entity_id, stpt.prty_id, cvte.id, cvte.covo_id, cvte.code, cvte.label"
             + "      from sample_properties sp"
             + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
             + "      join controlled_vocabulary_terms cvte on sp.cvte_id=cvte.id", fetchSize = FETCH_SIZE)
@@ -425,7 +388,7 @@ interface ISampleListingQuery extends TransactionQuery
     /**
      * A value object for a generic sample property.
      */
-    public static class MaterialSamplePropertyVO extends BaseSamplePropertyVO
+    public static class MaterialSamplePropertyVO extends BaseEntityPropertyVO
     {
         public long id;
 
@@ -437,7 +400,7 @@ interface ISampleListingQuery extends TransactionQuery
     /**
      * Returns all material-type property values of the sample with <var>sampleId</var>
      */
-    @Select("select sp.samp_id, stpt.prty_id, m.id, m.code, m.maty_id"
+    @Select("select sp.samp_id as entity_id, stpt.prty_id, m.id, m.code, m.maty_id"
             + "      from sample_properties sp"
             + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
             + "      join materials m on sp.mate_prop_id=m.id where sp.samp_id=?{1}")
@@ -446,7 +409,7 @@ interface ISampleListingQuery extends TransactionQuery
     /**
      * Returns all material-type property values of all samples.
      */
-    @Select(sql = "select sp.samp_id, stpt.prty_id, m.id, m.code, m.maty_id"
+    @Select(sql = "select sp.samp_id as entity_id, stpt.prty_id, m.id, m.code, m.maty_id"
             + "      from sample_properties sp"
             + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
             + "      join materials m on sp.mate_prop_id=m.id", fetchSize = FETCH_SIZE)

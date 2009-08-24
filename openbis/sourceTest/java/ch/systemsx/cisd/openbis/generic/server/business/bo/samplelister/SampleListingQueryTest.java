@@ -39,11 +39,10 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.BaseSamplePropertyVO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.BaseEntityPropertyVO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.CoVoSamplePropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.CodeVO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.ExperimentProjectGroupCodeVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.GenericSamplePropertyVO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.GenericEntityPropertyVO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.MaterialSamplePropertyVO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.SampleRowVO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
@@ -408,26 +407,26 @@ public class SampleListingQueryTest extends AbstractDAOTest
     @Test
     public void testSamplePropertiesGenericValues()
     {
-        List<GenericSamplePropertyVO> properties = asList(query.getSamplePropertyGenericValues());
+        List<GenericEntityPropertyVO> properties = asList(query.getSamplePropertyGenericValues());
         assertCorrectSampleAndPropertyTypeReferences(properties);
-        for (GenericSamplePropertyVO property : properties)
+        for (GenericEntityPropertyVO property : properties)
         {
             assertNotNull(property.value);
         }
-        checkSamplePropertiesGenericValuesForSample(properties.iterator().next().samp_id);
+        checkSamplePropertiesGenericValuesForSample(properties.iterator().next().entity_id);
     }
 
     private void assertCorrectSampleAndPropertyTypeReferences(
-            List<? extends BaseSamplePropertyVO> properties)
+            List<? extends BaseEntityPropertyVO> properties)
     {
         assertTrue(properties.size() > 0);
         Set<Long> propertyTypesIds = extractIds(Arrays.asList(query.getPropertyTypes()));
         Set<Long> sampleIds = extractVOIds(asList(query.getSamples()));
-        for (BaseSamplePropertyVO property : properties)
+        for (BaseEntityPropertyVO property : properties)
         {
             assertTrue("Property type not found " + property.prty_id, propertyTypesIds
                     .contains(property.prty_id));
-            assertTrue("Sample not found " + property.samp_id, sampleIds.contains(property.samp_id));
+            assertTrue("Sample not found " + property.entity_id, sampleIds.contains(property.entity_id));
         }
     }
 
@@ -454,13 +453,13 @@ public class SampleListingQueryTest extends AbstractDAOTest
     // entityId - id of a sample which has a property
     private void checkSamplePropertiesGenericValuesForSample(long entityId)
     {
-        DataIterator<GenericSamplePropertyVO> properties =
-                query.getSamplePropertyGenericValues(entityId);
+        DataIterator<GenericEntityPropertyVO> properties =
+                query.getEntityPropertyGenericValues(entityId);
         assertTrue("no generic properties found", properties.hasNext());
-        for (GenericSamplePropertyVO property : properties)
+        for (GenericEntityPropertyVO property : properties)
         {
             assertNotNull(property.value);
-            assertEquals(entityId, property.samp_id);
+            assertEquals(entityId, property.entity_id);
         }
     }
 
@@ -473,7 +472,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
         {
             assertNotNull(property.code);
         }
-        checkSamplePropertiesMaterialValuesForSample(properties.iterator().next().samp_id);
+        checkSamplePropertiesMaterialValuesForSample(properties.iterator().next().entity_id);
     }
 
     private void checkSamplePropertiesMaterialValuesForSample(long entityId)
@@ -484,7 +483,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
         for (MaterialSamplePropertyVO property : properties)
         {
             assertNotNull(property.code);
-            assertEquals(entityId, property.samp_id);
+            assertEquals(entityId, property.entity_id);
         }
     }
 
@@ -498,7 +497,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
         {
             assertNotNull(property.code);
         }
-        checkSamplePropertiesVocabularyTermValuesForSample(properties.iterator().next().samp_id);
+        checkSamplePropertiesVocabularyTermValuesForSample(properties.iterator().next().entity_id);
     }
 
     private void checkSamplePropertiesVocabularyTermValuesForSample(long entityId)
@@ -509,7 +508,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
         for (CoVoSamplePropertyVO property : properties)
         {
             assertNotNull(property.code);
-            assertEquals(entityId, property.samp_id);
+            assertEquals(entityId, property.entity_id);
         }
 
     }

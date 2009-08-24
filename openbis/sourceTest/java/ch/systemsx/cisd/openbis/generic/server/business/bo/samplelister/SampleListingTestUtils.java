@@ -21,7 +21,6 @@ import static org.testng.AssertJUnit.fail;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.CodeVO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 

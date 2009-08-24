@@ -24,7 +24,7 @@ import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.CoVoSamplePropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.GenericSamplePropertyVO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.GenericEntityPropertyVO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.MaterialSamplePropertyVO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.SampleRowVO;
 
@@ -42,16 +42,16 @@ class SampleSetListingQueryOneByOne implements ISampleSetListingQuery
         this.query = query;
     }
 
-    public Iterable<GenericSamplePropertyVO> getSamplePropertyGenericValues(final LongSet sampleIds)
+    public Iterable<GenericEntityPropertyVO> getSamplePropertyGenericValues(final LongSet sampleIds)
     {
-        return new Iterable<GenericSamplePropertyVO>()
+        return new Iterable<GenericEntityPropertyVO>()
             {
-                public Iterator<GenericSamplePropertyVO> iterator()
+                public Iterator<GenericEntityPropertyVO> iterator()
                 {
                     final LongIterator outerIt = sampleIds.iterator();
-                    return new Iterator<GenericSamplePropertyVO>()
+                    return new Iterator<GenericEntityPropertyVO>()
                         {
-                            DataIterator<GenericSamplePropertyVO> innerIt = null;
+                            DataIterator<GenericEntityPropertyVO> innerIt = null;
 
                             public boolean hasNext()
                             {
@@ -60,13 +60,13 @@ class SampleSetListingQueryOneByOne implements ISampleSetListingQuery
                                 {
                                     innerIt =
                                             query
-                                                    .getSamplePropertyGenericValues(outerIt
+                                                    .getEntityPropertyGenericValues(outerIt
                                                             .nextLong());
                                 }
                                 return (innerIt != null && innerIt.isClosed() == false);
                             }
 
-                            public GenericSamplePropertyVO next()
+                            public GenericEntityPropertyVO next()
                             {
                                 return innerIt.next();
                             }

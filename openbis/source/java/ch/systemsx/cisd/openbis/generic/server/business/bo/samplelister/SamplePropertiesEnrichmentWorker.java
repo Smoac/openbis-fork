@@ -23,18 +23,17 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.CoVoSamplePropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.CodeVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.GenericSamplePropertyVO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.GenericEntityPropertyVO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.MaterialSamplePropertyVO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.SampleListingWorker.ISampleResolver;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
 
@@ -46,11 +45,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEnti
 final class SamplePropertiesEnrichmentWorker implements
         SampleListingWorker.ISamplePropertiesEnricher
 {
-    private final ISampleListingQuery query;
+    private final IPropertyListingQuery query;
     
     private final ISampleSetListingQuery setQuery;
 
-    SamplePropertiesEnrichmentWorker(final ISampleListingQuery query,
+    SamplePropertiesEnrichmentWorker(final IPropertyListingQuery query,
             final ISampleSetListingQuery setQuery)
     {
         this.query = query;
@@ -65,9 +64,9 @@ final class SamplePropertiesEnrichmentWorker implements
     {
         final Long2ObjectMap<PropertyType> propertyTypes = getPropertyTypes();
         // Generic properties
-        for (GenericSamplePropertyVO val : setQuery.getSamplePropertyGenericValues(sampleIds))
+        for (GenericEntityPropertyVO val : setQuery.getSamplePropertyGenericValues(sampleIds))
         {
-            final Sample sample = samples.get(val.samp_id);
+            final IEntityPropertiesHolder sample = samples.get(val.entity_id);
             final IEntityProperty property = new GenericValueEntityProperty();
             property.setValue(StringEscapeUtils.escapeHtml(val.value));
             property.setPropertyType(propertyTypes.get(val.prty_id));
@@ -82,7 +81,7 @@ final class SamplePropertiesEnrichmentWorker implements
             {
                 vocabularyURLMap = getVocabularyURLs();
             }
-            final Sample sample = samples.get(val.samp_id);
+            final IEntityPropertiesHolder sample = samples.get(val.entity_id);
             final IEntityProperty property = new VocabularyTermValueEntityProperty();
             VocabularyTerm vocabularyTerm = terms.get(val.id);
             if (vocabularyTerm == null)
@@ -111,7 +110,7 @@ final class SamplePropertiesEnrichmentWorker implements
             {
                 materialTypes = getMaterialTypes();
             }
-            final Sample sample = samples.get(val.samp_id);
+            final IEntityPropertiesHolder sample = samples.get(val.entity_id);
             final IEntityProperty property = new MaterialValueEntityProperty();
             Material material = materials.get(val.id);
             if (material == null)

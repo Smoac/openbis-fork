@@ -23,9 +23,9 @@ import java.util.Iterator;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.iterators.FilterIterator;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.BaseSamplePropertyVO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.BaseEntityPropertyVO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.CoVoSamplePropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.GenericSamplePropertyVO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.GenericEntityPropertyVO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.MaterialSamplePropertyVO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.SampleRowVO;
 
@@ -46,19 +46,19 @@ class SampleSetListingQueryFullTableScan implements ISampleSetListingQuery
         this.query = query;
     }
 
-    public Iterable<GenericSamplePropertyVO> getSamplePropertyGenericValues(final LongSet sampleIds)
+    public Iterable<GenericEntityPropertyVO> getSamplePropertyGenericValues(final LongSet sampleIds)
     {
-        return new Iterable<GenericSamplePropertyVO>()
+        return new Iterable<GenericEntityPropertyVO>()
             {
-                public Iterator<GenericSamplePropertyVO> iterator()
+                public Iterator<GenericEntityPropertyVO> iterator()
                 {
-                    return new FilterIterator<GenericSamplePropertyVO>(query
+                    return new FilterIterator<GenericEntityPropertyVO>(query
                             .getSamplePropertyGenericValues(),
-                            new Predicate<BaseSamplePropertyVO>()
+                            new Predicate<BaseEntityPropertyVO>()
                                 {
-                                    public boolean evaluate(BaseSamplePropertyVO baseSample)
+                                    public boolean evaluate(BaseEntityPropertyVO baseSample)
                                     {
-                                        return sampleIds.contains(baseSample.samp_id);
+                                        return sampleIds.contains(baseSample.entity_id);
                                     }
                                 });
                 }
@@ -74,11 +74,11 @@ class SampleSetListingQueryFullTableScan implements ISampleSetListingQuery
                 {
                     return new FilterIterator<MaterialSamplePropertyVO>(query
                             .getSamplePropertyMaterialValues(),
-                            new Predicate<BaseSamplePropertyVO>()
+                            new Predicate<BaseEntityPropertyVO>()
                                 {
-                                    public boolean evaluate(BaseSamplePropertyVO baseSample)
+                                    public boolean evaluate(BaseEntityPropertyVO baseSample)
                                     {
-                                        return sampleIds.contains(baseSample.samp_id);
+                                        return sampleIds.contains(baseSample.entity_id);
                                     }
                                 });
                 }
@@ -94,11 +94,11 @@ class SampleSetListingQueryFullTableScan implements ISampleSetListingQuery
                 {
                     return new FilterIterator<CoVoSamplePropertyVO>(query
                             .getSamplePropertyVocabularyTermValues(),
-                            new Predicate<BaseSamplePropertyVO>()
+                            new Predicate<BaseEntityPropertyVO>()
                                 {
-                                    public boolean evaluate(BaseSamplePropertyVO baseSample)
+                                    public boolean evaluate(BaseEntityPropertyVO baseSample)
                                     {
-                                        return sampleIds.contains(baseSample.samp_id);
+                                        return sampleIds.contains(baseSample.entity_id);
                                     }
                                 });
                 }

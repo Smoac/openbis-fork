@@ -32,9 +32,9 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleSetListingQuery;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.BaseSamplePropertyVO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.BaseEntityPropertyVO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.CoVoSamplePropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.GenericSamplePropertyVO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.GenericEntityPropertyVO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.MaterialSamplePropertyVO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.SampleRowVO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
@@ -134,31 +134,31 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
         LongSet ids = createSet(CELL_PLATE_ID_CP_TEST_1, CELL_PLATE_ID_CP_TEST_2);
         PropertyType propertyType =
                 SampleListingTestUtils.findPropertyType(query.getPropertyTypes(), "comment");
-        Iterable<GenericSamplePropertyVO> properties = setQuery.getSamplePropertyGenericValues(ids);
-        List<GenericSamplePropertyVO> comments = findProperties(properties, propertyType.getId());
+        Iterable<GenericEntityPropertyVO> properties = setQuery.getSamplePropertyGenericValues(ids);
+        List<GenericEntityPropertyVO> comments = findProperties(properties, propertyType.getId());
         assertEquals("There should be exactly one comment for each sample", ids.size(), comments
                 .size());
         findExactlyOneProperty(comments, propertyType.getId(), CELL_PLATE_ID_CP_TEST_1);
         findExactlyOneProperty(comments, propertyType.getId(), CELL_PLATE_ID_CP_TEST_2);
-        for (GenericSamplePropertyVO comment : comments)
+        for (GenericEntityPropertyVO comment : comments)
         {
-            if (comment.samp_id == CELL_PLATE_ID_CP_TEST_1)
+            if (comment.entity_id == CELL_PLATE_ID_CP_TEST_1)
             {
                 assertEquals(comment.value, "very advanced stuff");
-            } else if (comment.samp_id == CELL_PLATE_ID_CP_TEST_2)
+            } else if (comment.entity_id == CELL_PLATE_ID_CP_TEST_2)
             {
                 assertEquals(comment.value, "extremely simple stuff");
             }
         }
     }
 
-    private static <T extends BaseSamplePropertyVO> T findExactlyOneProperty(
+    private static <T extends BaseEntityPropertyVO> T findExactlyOneProperty(
             Iterable<T> properties, long propertyTypeId, long sampleId)
     {
         List<T> found = new ArrayList<T>();
         for (T property : properties)
         {
-            if (property.prty_id == propertyTypeId && property.samp_id == sampleId)
+            if (property.prty_id == propertyTypeId && property.entity_id == sampleId)
             {
                 found.add(property);
             }
@@ -173,7 +173,7 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
         return found.get(0);
     }
 
-    private static <T extends BaseSamplePropertyVO> List<T> findProperties(Iterable<T> properties,
+    private static <T extends BaseEntityPropertyVO> List<T> findProperties(Iterable<T> properties,
             long propertyTypeId)
     {
         List<T> found = new ArrayList<T>();

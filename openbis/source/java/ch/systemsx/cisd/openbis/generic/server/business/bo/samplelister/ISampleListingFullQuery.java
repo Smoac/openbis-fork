@@ -29,7 +29,7 @@ import net.lemnik.eodsql.Select;
  * 
  * @author Bernd Rinn
  */
-interface ISampleListingFullQuery extends ISampleListingQuery
+public interface ISampleListingFullQuery extends ISampleListingQuery
 {
 
     //
@@ -59,11 +59,11 @@ interface ISampleListingFullQuery extends ISampleListingQuery
      * 
      * @param sampleIds The set of sample ids to get the property values for.
      */
-    @Select(sql = "select sp.samp_id, stpt.prty_id, sp.value from sample_properties sp"
+    @Select(sql = "select sp.samp_id as entity_id, stpt.prty_id, sp.value from sample_properties sp"
             + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
             + "   where sp.value is not null and sp.samp_id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<GenericSamplePropertyVO> getSamplePropertyGenericValues(LongSet sampleIds);
+    public DataIterator<GenericEntityPropertyVO> getSamplePropertyGenericValues(LongSet sampleIds);
 
     /**
      * Returns all controlled vocabulary property values of all samples specified by
@@ -73,7 +73,7 @@ interface ISampleListingFullQuery extends ISampleListingQuery
      * 
      * @param sampleIds The set of sample ids to get the property values for.
      */
-    @Select(sql = "select sp.samp_id, stpt.prty_id, cvte.id, cvte.covo_id, cvte.code, cvte.label"
+    @Select(sql = "select sp.samp_id as entity_id, stpt.prty_id, cvte.id, cvte.covo_id, cvte.code, cvte.label"
             + "      from sample_properties sp"
             + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
             + "      join controlled_vocabulary_terms cvte on sp.cvte_id=cvte.id"
@@ -89,7 +89,7 @@ interface ISampleListingFullQuery extends ISampleListingQuery
      * 
      * @param sampleIds The set of sample ids to get the property values for.
      */
-    @Select(sql = "select sp.samp_id, stpt.prty_id, m.id, m.code, m.maty_id"
+    @Select(sql = "select sp.samp_id as entity_id, stpt.prty_id, m.id, m.code, m.maty_id"
             + "      from sample_properties sp"
             + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
             + "      join materials m on sp.mate_prop_id=m.id where sp.samp_id = any(?{1})", parameterBindings =
