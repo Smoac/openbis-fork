@@ -10,5 +10,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/openbis"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/datastore_server"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/rtd_phosphonetx"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/eu_agronomics"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/rtd_yeastx"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
