@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
@@ -491,7 +491,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         final ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
         SamplePE sample = createSampleWithExperiment(experiment);
         prepareTryToLoadSample(sampleIdentifier, sample);
-        final ExternalData externalData = new ExternalData();
+        final NewExternalData externalData = new NewExternalData();
         externalData.setCode("dc");
         externalData.setMeasured(true);
         prepareRegisterDataSet(sampleIdentifier, sample.getExperiment(), SourceType.MEASUREMENT,
@@ -504,7 +504,7 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private void prepareRegisterDataSet(final SampleIdentifier sampleIdentifier,
             final ExperimentPE experiment, final SourceType sourceType,
-            final ExternalData externalData)
+            final NewExternalData externalData)
     {
         context.checking(new Expectations()
             {

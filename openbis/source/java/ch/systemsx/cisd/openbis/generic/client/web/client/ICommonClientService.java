@@ -24,13 +24,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParam
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
@@ -54,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
@@ -62,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
@@ -380,14 +380,14 @@ public interface ICommonClientService extends IClientService
      * For given <var>sampleId</var> returns corresponding list of {@link ExternalData}.
      */
     public ResultSet<ExternalData> listSampleDataSets(final TechId sampleId,
-            final String baseIndexURL, DefaultResultSetConfig<String, ExternalData> criteria)
+            DefaultResultSetConfig<String, ExternalData> criteria)
             throws UserFailureException;
 
     /**
      * For given <var>experimentId</var> returns corresponding list of {@link ExternalData}.
      */
     public ResultSet<ExternalData> listExperimentDataSets(final TechId experimentId,
-            final String baseIndexURL, DefaultResultSetConfig<String, ExternalData> criteria)
+            DefaultResultSetConfig<String, ExternalData> criteria)
             throws UserFailureException;
 
     /**
@@ -475,16 +475,14 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns {@link ExternalData} fulfilling given {@link DataSetSearchCriteria}.
      */
-    public ResultSet<ExternalData> searchForDataSets(final String baseIndexURL,
-            DataSetSearchCriteria criteria,
+    public ResultSet<ExternalData> searchForDataSets(DataSetSearchCriteria criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig)
             throws UserFailureException;
 
     /**
      * Returns {@link ExternalData} fulfilling given {@link RelatedDataSetCriteria}.
      */
-    public ResultSet<ExternalData> searchForDataSets(final String baseIndexURL,
-            RelatedDataSetCriteria criteria,
+    public ResultSet<ExternalData> searchForDataSets(RelatedDataSetCriteria criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig)
             throws UserFailureException;
 

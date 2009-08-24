@@ -29,8 +29,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 public final class DataSetListDeletionConfirmationDialog extends
         AbstractDataListDeletionConfirmationDialog<ExternalData>

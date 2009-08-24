@@ -16,18 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * A {@link IValidator} implementation suitable for {@link ExternalDataPE}.
+ * A {@link IValidator} implementation suitable for {@link ExternalData}.
  * 
  * @author Tomasz Pylak
  */
-public final class ExternalDataValidator extends AbstractValidator<ExternalDataPE>
+public final class ExternalDataValidator extends AbstractValidator<ExternalData>
 {
-    private final IValidator<GroupPE> groupValidator;
+    private final IValidator<Group> groupValidator;
 
     public ExternalDataValidator()
     {
@@ -39,9 +39,9 @@ public final class ExternalDataValidator extends AbstractValidator<ExternalDataP
     //
 
     @Override
-    public final boolean doValidation(final PersonPE person, final ExternalDataPE value)
+    public final boolean doValidation(final PersonPE person, final ExternalData value)
     {
-        final GroupPE group = value.getExperiment().getProject().getGroup();
+        final Group group = value.getExperiment().getProject().getGroup();
         return groupValidator.isValid(person, group);
     }
 }

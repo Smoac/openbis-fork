@@ -20,6 +20,8 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+
 /**
  * Defines a set of datasets by either enumerating their codes or providing the grid configuration
  * for it (together with the cache identifier).

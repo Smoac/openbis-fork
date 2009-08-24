@@ -14,17 +14,26 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * The <i>GWT</i> equivalent to {@link LocatorType}.
- * 
- * @author Christian Ribeaud
+ * @author Izabela Adamczyk
  */
-public final class LocatorType extends AbstractType
+public class DataStore extends Code<DataStore>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+    private String downloadUrl;
+
+    public String getDownloadUrl()
+    {
+        return downloadUrl;
+    }
+
+    public void setDownloadUrl(String downloadUrl)
+    {
+        this.downloadUrl = downloadUrl;
+    }
+
 }

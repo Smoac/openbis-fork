@@ -16,23 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * A {@link IValidator} implementation suitable for {@link IMatchingEntity}.
  * 
  * @author Christian Ribeaud
  */
-public final class MatchingEntityValidator extends AbstractValidator<SearchHit>
+public final class MatchingEntityValidator extends AbstractValidator<MatchingEntity>
 {
-    private final IValidator<GroupPE> groupValidator;
+    private final IValidator<Group> groupValidator;
 
     public MatchingEntityValidator()
     {
@@ -44,28 +40,15 @@ public final class MatchingEntityValidator extends AbstractValidator<SearchHit>
     //
 
     @Override
-    public final boolean doValidation(final PersonPE person, final SearchHit hit)
+    public boolean doValidation(final PersonPE person, final MatchingEntity entity)
     {
-        return doValidation(person, hit.getEntity());
-    }
-
-    private boolean doValidation(final PersonPE person, final IMatchingEntity entity)
-    {
-        final EntityKind entityKind = entity.getEntityKind();
-        if (entityKind == EntityKind.EXPERIMENT)
+        final Group groupOrNull = entity.tryGetGroup();
+        if (groupOrNull != null)
         {
-            final ExperimentPE experiment = (ExperimentPE) entity;
-            return groupValidator.isValid(person, experiment.getProject().getGroup());
-        } else if (entityKind == EntityKind.SAMPLE)
+            return groupValidator.isValid(person, groupOrNull);
+        } else
         {
-            final SamplePE sample = (SamplePE) entity;
-            final SampleIdentifier sampleIdentifier = sample.getSampleIdentifier();
-            // Everyone can read from the database instance level.
-            if (sampleIdentifier.isGroupLevel())
-            {
-                return groupValidator.isValid(person, sample.getGroup());
-            }
+            return true;
         }
-        return true;
     }
 }

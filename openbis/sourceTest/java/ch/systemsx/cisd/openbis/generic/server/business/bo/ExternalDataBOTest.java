@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
@@ -587,9 +587,9 @@ public class ExternalDataBOTest extends AbstractBOTest
             });
     }
 
-    private ExternalData createData(String parentDataSetCodeOrNull)
+    private NewExternalData createData(String parentDataSetCodeOrNull)
     {
-        ExternalData data = new ExternalData();
+        NewExternalData data = new NewExternalData();
         data.setCode(DATA_SET_CODE);
         data.setParentDataSetCode(parentDataSetCodeOrNull);
         data.setDataProducerCode(DATA_PRODUCER_CODE);

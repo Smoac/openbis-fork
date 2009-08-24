@@ -53,7 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
@@ -384,7 +384,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     }
 
     public void registerDataSet(String sessionToken, SampleIdentifier sampleIdentifier,
-            ExternalData externalData) throws UserFailureException
+            NewExternalData externalData) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         assert sampleIdentifier != null : "Unspecified sample identifier.";

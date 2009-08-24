@@ -18,19 +18,20 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 
 /**
- * A {@link IValidator} implementation suitable for {@link GroupPE}.
+ * A {@link IValidator} implementation suitable for {@link Group}.
  * 
  * @author Christian Ribeaud
  */
-public final class GroupValidator extends AbstractValidator<GroupPE>
+public final class GroupValidator extends AbstractValidator<Group>
 {
-    private final IValidator<DatabaseInstancePE> databaseInstanceValidator;
+    private final IValidator<DatabaseInstance> databaseInstanceValidator;
 
     public GroupValidator()
     {
@@ -42,17 +43,18 @@ public final class GroupValidator extends AbstractValidator<GroupPE>
     //
 
     @Override
-    public final boolean doValidation(final PersonPE person, final GroupPE value)
+    public final boolean doValidation(final PersonPE person, final Group value)
     {
         final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
             final GroupPE group = roleAssignment.getGroup();
-            if (group != null && group.equals(value))
+            if (group != null && group.getCode().equals(value.getCode())
+                    && group.getDatabaseInstance().getUuid().equals(value.getInstance().getUuid()))
             {
                 return true;
             }
         }
-        return databaseInstanceValidator.isValid(person, value.getDatabaseInstance());
+        return databaseInstanceValidator.isValid(person, value.getInstance());
     }
 }

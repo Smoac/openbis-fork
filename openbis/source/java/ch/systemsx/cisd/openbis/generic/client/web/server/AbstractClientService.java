@@ -290,6 +290,19 @@ public abstract class AbstractClientService implements IClientService
         }
     }
 
+    public void setBaseURL(String baseURL)
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            IServer server = getServer();
+            server.setBaseIndexURL(sessionToken, baseURL);
+        } catch (InvalidSessionException e)
+        {
+            // ignored
+        }
+    }
+
     public void updateDisplaySettings(DisplaySettings displaySettings)
     {
         try

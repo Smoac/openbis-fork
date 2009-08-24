@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.Role.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -234,6 +235,9 @@ public class AuthorizationTestCase extends AssertJUnit
     protected ExperimentPE createExperiment(GroupPE group)
     {
         final ExperimentPE experiment = new ExperimentPE();
+        final ExperimentTypePE experimentType = new ExperimentTypePE();
+        experimentType.setCode("XXX");
+        experiment.setExperimentType(experimentType);
         experiment.setProject(createProject(group));
         return experiment;
     }

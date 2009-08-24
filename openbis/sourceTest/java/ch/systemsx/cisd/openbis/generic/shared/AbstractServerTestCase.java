@@ -238,7 +238,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(sessionManager).getSession(SESSION_TOKEN);
+                    allowing(sessionManager).getSession(SESSION_TOKEN);
                     will(returnValue(SESSION));
                 }
             });

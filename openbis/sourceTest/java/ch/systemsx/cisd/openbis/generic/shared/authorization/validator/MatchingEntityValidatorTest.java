@@ -20,12 +20,14 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SearchHitTranslator;
 
 /**
  * Test cases for corresponding {@link MatchingEntityValidator} class.
@@ -35,11 +37,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 @Friend(toClasses = MatchingEntityValidator.class)
 public final class MatchingEntityValidatorTest extends AuthorizationTestCase
 {
-    private static SearchHit asHit(IMatchingEntity matchingEntity)
+    private static MatchingEntity asHit(IMatchingEntity matchingEntity)
     {
-        return new SearchHit(matchingEntity, "unimportant", "?");
+        return SearchHitTranslator.translate(new SearchHit(matchingEntity,
+                "unimportant", "?"));
     }
-    
+
     @Test
     public final void testIsValidFailed()
     {
@@ -55,10 +58,19 @@ public final class MatchingEntityValidatorTest extends AuthorizationTestCase
     }
 
     @Test
-    public final void testWithExperimentInTheRightGroup()
+    public final void testWithExperimentInTheRightDatabase()
     {
         final PersonPE person = createPersonWithRoleAssignments();
         final ExperimentPE experiment = createExperiment(createGroup());
+        final MatchingEntityValidator validator = new MatchingEntityValidator();
+        assertEquals(true, validator.isValid(person, asHit(experiment)));
+    }
+
+    @Test
+    public final void testWithExperimentInTheRightGroup()
+    {
+        final PersonPE person = createPersonWithRoleAssignments();
+        final ExperimentPE experiment = createExperiment(createAnotherGroup());
         final MatchingEntityValidator validator = new MatchingEntityValidator();
         assertEquals(true, validator.isValid(person, asHit(experiment)));
     }
@@ -72,7 +84,7 @@ public final class MatchingEntityValidatorTest extends AuthorizationTestCase
         final MatchingEntityValidator validator = new MatchingEntityValidator();
         assertEquals(false, validator.isValid(person, asHit(experiment)));
     }
-    
+
     @Test
     public final void testWithSampleInTheRightGroup()
     {
@@ -91,7 +103,7 @@ public final class MatchingEntityValidatorTest extends AuthorizationTestCase
         final MatchingEntityValidator validator = new MatchingEntityValidator();
         assertEquals(false, validator.isValid(person, asHit(sample)));
     }
-    
+
     @Test
     public final void testWithInstanceSample()
     {
@@ -100,5 +112,5 @@ public final class MatchingEntityValidatorTest extends AuthorizationTestCase
         final MatchingEntityValidator validator = new MatchingEntityValidator();
         assertEquals(true, validator.isValid(person, asHit(sample)));
     }
-    
+
 }

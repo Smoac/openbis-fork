@@ -155,4 +155,8 @@ public abstract class AbstractServerLogger implements IServer
         logTracking(sessionToken, "change_user_home_group (%s)", groupId);
     }
 
+    public void setBaseIndexURL(String sessionToken, String baseURL)
+    {
+        logAccess(sessionToken, "set_base_url", "BASE_URL(%s)", baseURL);
+    }
 }

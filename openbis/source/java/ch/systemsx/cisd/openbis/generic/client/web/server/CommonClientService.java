@@ -47,13 +47,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParam
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
@@ -66,12 +64,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDat
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.AuthorizationGroupTranslator;
-import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.RoleAssignmentTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.RoleCodeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SearchableEntityTranslator;
-import ch.systemsx.cisd.openbis.generic.client.web.server.translator.TypeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -96,6 +92,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
@@ -104,6 +101,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
@@ -130,9 +128,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
@@ -149,12 +145,12 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PropertyTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.TypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
 
 /**
@@ -532,24 +528,22 @@ public final class CommonClientService extends AbstractClientService implements
                 sessionToken, listCriteria.getCriteria()));
     }
 
-    public ResultSet<ExternalData> searchForDataSets(final String baseIndexURL,
-            DataSetSearchCriteria criteria,
+    public ResultSet<ExternalData> searchForDataSets(DataSetSearchCriteria criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         return listEntities(resultSetConfig, new ListDataSetSearchOriginalDataProvider(
-                commonServer, sessionToken, criteria, getDataStoreBaseURL(), baseIndexURL));
+                commonServer, sessionToken, criteria));
     }
 
-    public ResultSet<ExternalData> searchForDataSets(final String baseIndexURL,
-            RelatedDataSetCriteria criteria,
+    public ResultSet<ExternalData> searchForDataSets(RelatedDataSetCriteria criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         return listEntities(resultSetConfig, new ListRelatedDataSetOriginalDataProvider(
-                commonServer, sessionToken, criteria, getDataStoreBaseURL(), baseIndexURL));
+                commonServer, sessionToken, criteria));
     }
 
     public final ResultSet<Experiment> listExperiments(final ListExperimentsCriteria listCriteria)
@@ -649,8 +643,8 @@ public final class CommonClientService extends AbstractClientService implements
         {
             final String sessionToken = getSessionToken();
             final DatabaseInstanceIdentifier identifier = new DatabaseInstanceIdentifier(null);
-            final List<GroupPE> groups = commonServer.listGroups(sessionToken, identifier);
-            return GroupTranslator.translate(groups);
+            final List<Group> groups = commonServer.listGroups(sessionToken, identifier);
+            return groups;
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -746,8 +740,8 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            final List<ProjectPE> projects = commonServer.listProjects(sessionToken);
-            return ProjectTranslator.translate(projects);
+            final List<Project> projects = commonServer.listProjects(sessionToken);
+            return projects;
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -863,7 +857,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public ResultSet<ExternalData> listSampleDataSets(final TechId sampleId,
-            final String baseIndexURL, DefaultResultSetConfig<String, ExternalData> criteria)
+            DefaultResultSetConfig<String, ExternalData> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return listEntities(criteria, new IOriginalDataProvider<ExternalData>()
@@ -871,16 +865,15 @@ public final class CommonClientService extends AbstractClientService implements
                 public List<ExternalData> getOriginalData() throws UserFailureException
                 {
                     final String sessionToken = getSessionToken();
-                    final List<ExternalDataPE> externalData =
+                    final List<ExternalData> externalData =
                             commonServer.listSampleExternalData(sessionToken, sampleId);
-                    return ExternalDataTranslator.translate(externalData, getDataStoreBaseURL(),
-                            baseIndexURL);
+                    return externalData;
                 }
             });
     }
 
     public ResultSet<ExternalData> listExperimentDataSets(final TechId experimentId,
-            final String baseIndexURL, DefaultResultSetConfig<String, ExternalData> criteria)
+            DefaultResultSetConfig<String, ExternalData> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return listEntities(criteria, new IOriginalDataProvider<ExternalData>()
@@ -889,10 +882,9 @@ public final class CommonClientService extends AbstractClientService implements
                 public List<ExternalData> getOriginalData() throws UserFailureException
                 {
                     final String sessionToken = getSessionToken();
-                    final List<ExternalDataPE> externalData =
+                    final List<ExternalData> externalData =
                             commonServer.listExperimentExternalData(sessionToken, experimentId);
-                    return ExternalDataTranslator.translate(externalData, getDataStoreBaseURL(),
-                            baseIndexURL);
+                    return externalData;
                 }
 
             });

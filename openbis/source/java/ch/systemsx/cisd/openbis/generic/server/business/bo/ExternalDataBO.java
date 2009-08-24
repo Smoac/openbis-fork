@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
@@ -125,7 +125,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         }
     }
 
-    public void define(ExternalData data, SamplePE sample, SourceType sourceType)
+    public void define(NewExternalData data, SamplePE sample, SourceType sourceType)
     {
         assert data != null : "Undefined data.";
         final DataSetType dataSetType = data.getDataSetType();

@@ -51,6 +51,11 @@ public interface IClientService extends RemoteService
     public SessionContext tryToLogin(String userID, String password) throws UserFailureException;
 
     /**
+     * Sets the base URL that the client uses to connect the web server. 
+     */
+    public void setBaseURL(String baseURL);
+    
+    /**
      * Updates display settings on the server.
      */
     public void updateDisplaySettings(DisplaySettings displaySettings);

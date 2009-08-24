@@ -24,17 +24,21 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.BeanUtils.Converter;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -99,6 +103,7 @@ public class DtoConverters
      * @author Christian Ribeaud
      */
     // Note: the convertToXXX() methods will be used by reflection
+    @SuppressWarnings("unused")
     private final static class MatchingEntityConverter implements BeanUtils.Converter
     {
 
@@ -116,7 +121,7 @@ public class DtoConverters
         {
             // SearchHit.entity may be a proxy which always returns null when we want to get 'id'.
             // HibernateUtils.getId(entity) could be used in SearchHit.getId() instead of this code,
-            // but it is better to keep it undependent of Hibernate (at least until the getter 
+            // but it is better to keep it undependent of Hibernate (at least until the getter
             // is used somewhere else). SearchHit.entity could also be unproxied with
             // HibernateUtils.unproxy(T) e.g. in HibernateSearchDAO.
             return HibernateUtils.getId(matchingEntity.getEntity());
@@ -137,6 +142,33 @@ public class DtoConverters
             return StringEscapeUtils.escapeHtml(matchingEntity.getTextFragment());
         }
 
+        public final Group convertToGroup(final SearchHit matchingEntity)
+        {
+            final IMatchingEntity entity = matchingEntity.getEntity();
+            final ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind entityKind =
+                    entity.getEntityKind();
+            if (entityKind == ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.EXPERIMENT)
+            {
+                final ExperimentPE experiment = (ExperimentPE) entity;
+                return GroupTranslator.translate(experiment.getProject().getGroup());
+            } else if (entityKind == ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.SAMPLE)
+            {
+                final SamplePE sample = (SamplePE) entity;
+                final SampleIdentifier sampleIdentifier = sample.getSampleIdentifier();
+                // Everyone can read from the database instance level.
+                if (sampleIdentifier.isGroupLevel())
+                {
+                    return GroupTranslator.translate(sample.getGroup());
+                } else
+                {
+                    return null;
+                }
+            } else
+            {
+                return null;
+            }
+        }
+
     }
 
     /**
@@ -145,6 +177,7 @@ public class DtoConverters
      * @author Christian Ribeaud
      */
     // Note: the convertToXXX() methods will be used by reflection
+    @SuppressWarnings("unused")
     private final static class DataTypeConverter implements BeanUtils.Converter
     {
         static final DataTypeConverter INSTANCE = new DataTypeConverter();
@@ -169,6 +202,7 @@ public class DtoConverters
      * @author Christian Ribeaud
      */
     // Note: the convertToXXX() methods will be used by reflection
+    @SuppressWarnings("unused")
     private final static class VocabularyConverter implements BeanUtils.Converter
     {
         static final VocabularyConverter INSTANCE = new VocabularyConverter();

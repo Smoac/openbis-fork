@@ -20,6 +20,10 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
 
 /**
  * Test cases for corresponding {@link GroupValidator} class.
@@ -47,8 +51,11 @@ public final class GroupValidatorTest extends AuthorizationTestCase
     public final void testIsValidForAPersonWithoutAccessRights()
     {
         final GroupValidator groupValidator = new GroupValidator();
+        final PersonPE personPE = createPerson();
+        final GroupPE groupPE = createGroup();
+        final Group group = GroupTranslator.translate(groupPE);
         
-        assertFalse(groupValidator.isValid(createPerson(), createGroup()));
+        assertFalse(groupValidator.isValid(personPE, group));
 
         context.assertIsSatisfied();
     }
@@ -57,7 +64,10 @@ public final class GroupValidatorTest extends AuthorizationTestCase
     public final void testIsValidWithMatchingRoleAssignmentOnGroupLevel()
     {
         final GroupValidator groupValidator = new GroupValidator();
-        assertTrue(groupValidator.isValid(createPersonWithRoleAssignments(), createAnotherGroup()));
+        final PersonPE personPE = createPersonWithRoleAssignments();
+        final GroupPE groupPE = createAnotherGroup();
+        final Group group = GroupTranslator.translate(groupPE);
+        assertTrue(groupValidator.isValid(personPE, group));
         context.assertIsSatisfied();
     }
     
@@ -65,7 +75,10 @@ public final class GroupValidatorTest extends AuthorizationTestCase
     public final void testIsValidWithMatchingRoleAssignmentOnDatabaseinstanceLevel()
     {
         final GroupValidator groupValidator = new GroupValidator();
-        assertTrue(groupValidator.isValid(createPersonWithRoleAssignments(), createGroup()));
+        final PersonPE personPE = createPersonWithRoleAssignments();
+        final GroupPE groupPE = createGroup();
+        final Group group = GroupTranslator.translate(groupPE);
+        assertTrue(groupValidator.isValid(personPE, group));
         context.assertIsSatisfied();
     }
     

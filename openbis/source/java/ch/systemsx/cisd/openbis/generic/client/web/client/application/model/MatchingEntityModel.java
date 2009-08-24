@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 
 /**
  * A {@link ModelData} implementation for {@link MatchingEntity}.

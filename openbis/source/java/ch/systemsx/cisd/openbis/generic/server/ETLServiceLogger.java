@@ -22,7 +22,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
@@ -72,7 +72,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     }
 
     public void registerDataSet(String sessionToken, SampleIdentifier sampleIdentifier,
-            ExternalData externalData) throws UserFailureException
+            NewExternalData externalData) throws UserFailureException
     {
         logTracking(sessionToken, "register_data_set", "SAMPLE(%s) DATA_SET(%s)", sampleIdentifier,
                 externalData);

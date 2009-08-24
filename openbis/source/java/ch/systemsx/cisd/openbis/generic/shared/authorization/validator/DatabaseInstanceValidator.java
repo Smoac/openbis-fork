@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 
 import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -27,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
  * 
  * @author Christian Ribeaud
  */
-public final class DatabaseInstanceValidator extends AbstractValidator<DatabaseInstancePE>
+public final class DatabaseInstanceValidator extends AbstractValidator<DatabaseInstance>
 {
 
     //
@@ -35,13 +36,13 @@ public final class DatabaseInstanceValidator extends AbstractValidator<DatabaseI
     //
 
     @Override
-    public final boolean doValidation(final PersonPE person, final DatabaseInstancePE value)
+    public final boolean doValidation(final PersonPE person, final DatabaseInstance value)
     {
         final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
             final DatabaseInstancePE databaseInstance = roleAssignment.getDatabaseInstance();
-            if (databaseInstance != null && databaseInstance.equals(value))
+            if (databaseInstance != null && databaseInstance.getUuid().equals(value.getUuid()))
             {
                 return true;
             }

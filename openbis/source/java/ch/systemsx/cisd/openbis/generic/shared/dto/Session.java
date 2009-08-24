@@ -28,6 +28,8 @@ import ch.systemsx.cisd.authentication.Principal;
  */
 public final class Session extends BasicSession implements IAuthSession
 {
+    private static final String BASE_URL_FALLBACK = "http://localhost/openbis/index.html";
+
     final private static long serialVersionUID = 1L;
 
     /**
@@ -35,6 +37,11 @@ public final class Session extends BasicSession implements IAuthSession
      * not defined.
      */
     private PersonPE personOrNull;
+    
+    /**
+     * The base URL that the web server is reachable at.
+     */
+    private String baseIndexURL;
 
     @Deprecated
     public Session()
@@ -88,6 +95,28 @@ public final class Session extends BasicSession implements IAuthSession
         return homeGroup.getCode();
     }
 
+    /**
+     * Returns the base URL that the web server is reachable at (including "index.html")
+     */
+    public final String getBaseIndexURL()
+    {
+        return (baseIndexURL != null) ? baseIndexURL : BASE_URL_FALLBACK;
+    }
+
+    /**
+     * Sets the base URL that the web server is reachable at.
+     */
+    public final void setBaseIndexURL(String baseIndexURL)
+    {
+        this.baseIndexURL = baseIndexURL;
+    }
+
+    @Deprecated
+    public PersonPE getPerson()
+    {
+        return personOrNull;
+    }
+
     //
     // Object
     //
@@ -100,9 +129,4 @@ public final class Session extends BasicSession implements IAuthSession
                 + "}";
     }
 
-	@Deprecated
-    public PersonPE getPerson()
-    {
-        return personOrNull;
-    }
 }

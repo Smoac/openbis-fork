@@ -36,19 +36,23 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -64,9 +68,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
@@ -79,7 +81,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
@@ -113,7 +114,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     // IGenericServer
     //
 
-    public List<GroupPE> listGroups(final String sessionToken,
+    public List<Group> listGroups(final String sessionToken,
             final DatabaseInstanceIdentifier identifier)
     {
         final String command = "list_groups";
@@ -230,21 +231,21 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public final List<ExternalDataPE> listSampleExternalData(final String sessionToken,
+    public final List<ExternalData> listSampleExternalData(final String sessionToken,
             final TechId sampleId)
     {
         logAccess(sessionToken, "list_external_data", "ID(%s)", sampleId);
         return null;
     }
 
-    public List<ExternalDataPE> listExperimentExternalData(final String sessionToken,
+    public List<ExternalData> listExperimentExternalData(final String sessionToken,
             final TechId experimentId)
     {
         logAccess(sessionToken, "list_external_data", "ID(%s)", experimentId);
         return null;
     }
 
-    public final List<SearchHit> listMatchingEntities(final String sessionToken,
+    public final List<MatchingEntity> listMatchingEntities(final String sessionToken,
             final SearchableEntity[] searchableEntities, final String queryText)
     {
         logAccess(sessionToken, "list_matching_entities", "SEARCHABLE-ENTITIES(%s) QUERY-TEXT(%s)",
@@ -265,7 +266,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public List<ProjectPE> listProjects(final String sessionToken)
+    public List<Project> listProjects(final String sessionToken)
     {
         logAccess(sessionToken, "list_projects");
         return null;
@@ -389,14 +390,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 projectIdentifier, attachments.size());
     }
 
-    public List<ExternalDataPE> searchForDataSets(String sessionToken,
+    public List<ExternalData> searchForDataSets(String sessionToken,
             DataSetSearchCriteria criteria)
     {
         logAccess(sessionToken, "search_for_datasets");
         return null;
     }
 
-    public List<ExternalDataPE> listRelatedDataSets(String sessionToken,
+    public List<ExternalData> listRelatedDataSets(String sessionToken,
             RelatedDataSetCriteria criteria)
     {
         logAccess(sessionToken, "list_related_datasets");
@@ -739,4 +740,5 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logTracking(sessionToken, "removePersonsFromAuthorizationGroup", "TECH_ID(%s) PERSONS(%s)",
                 authorizationGroupId, StringUtils.join(personsCodes.toArray(new String[0]), ","));
     }
+
 }

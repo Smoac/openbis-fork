@@ -24,9 +24,9 @@ import ch.systemsx.cisd.common.annotation.CollectionMapping;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
- * A basic {@link ExternalData} object.
+ * A basic {@link NewExternalData} object.
  * <p>
- * {@link ExternalData} extends this class and completes it with additional fields.
+ * {@link NewExternalData} extends this class and completes it with additional fields.
  * </p>
  * 
  * @author Christian Ribeaud

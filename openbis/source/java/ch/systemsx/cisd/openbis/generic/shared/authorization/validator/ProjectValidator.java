@@ -16,18 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
- * A {@link IValidator} implementation suitable for {@link ProjectPE}.
+ * A {@link IValidator} implementation suitable for {@link Project}.
  * 
  * @author Izabela Adamczyk
  */
-public final class ProjectValidator extends AbstractValidator<ProjectPE>
+public final class ProjectValidator extends AbstractValidator<Project>
 {
-    private final IValidator<GroupPE> groupValidator;
+    private final IValidator<Group> groupValidator;
 
     public ProjectValidator()
     {
@@ -39,9 +39,10 @@ public final class ProjectValidator extends AbstractValidator<ProjectPE>
     //
 
     @Override
-    public final boolean doValidation(final PersonPE person, final ProjectPE value)
+    public final boolean doValidation(final PersonPE person, final Project value)
     {
-        final GroupPE group = value.getGroup();
+        final Group group = value.getGroup();
         return groupValidator.isValid(person, group);
     }
+    
 }

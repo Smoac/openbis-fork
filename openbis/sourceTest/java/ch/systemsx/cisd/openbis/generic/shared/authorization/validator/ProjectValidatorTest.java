@@ -21,10 +21,9 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ProjectValidatorTest extends AuthorizationTestCase
@@ -34,23 +33,26 @@ public class ProjectValidatorTest extends AuthorizationTestCase
     {
         ProjectValidator validator = new ProjectValidator();
         PersonPE person = createPersonWithRoleAssignments();
-        assertEquals(true, validator.isValid(person, createProject(createAnotherGroup())));
+        assertEquals(true, validator.isValid(person, ProjectTranslator
+                .translate(createProject(createAnotherGroup()))));
     }
-    
+
     @Test
     public void testIsValidWithProjectInTheRightDatabaseInstance()
     {
         ProjectValidator validator = new ProjectValidator();
         PersonPE person = createPersonWithRoleAssignments();
-        assertEquals(true, validator.isValid(person, createProject(createGroup())));
+        assertEquals(true, validator.isValid(person, ProjectTranslator
+                .translate(createProject(createGroup()))));
     }
-    
+
     @Test
     public void testIsValidWithProjectInTheWrongGroup()
     {
         ProjectValidator validator = new ProjectValidator();
         PersonPE person = createPersonWithRoleAssignments();
         GroupPE group = createGroup("blabla", createAnotherDatabaseInstance());
-        assertEquals(false, validator.isValid(person, createProject(group)));
+        assertEquals(false, validator.isValid(person, ProjectTranslator
+                .translate(createProject(group))));
     }
 }

@@ -76,20 +76,24 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -138,9 +142,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ListSampleCriteriaTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SearchHitTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -202,7 +210,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     // IGenericServer
     //
 
-    public final List<GroupPE> listGroups(final String sessionToken,
+    public final List<Group> listGroups(final String sessionToken,
             final DatabaseInstanceIdentifier identifier)
     {
         final Session session = getSessionManager().getSession(sessionToken);
@@ -215,7 +223,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             group.setHome(group.equals(homeGroupOrNull));
         }
         Collections.sort(groups);
-        return groups;
+        return GroupTranslator.translate(groups);
     }
 
     public final void registerGroup(final String sessionToken, final String groupCode,
@@ -382,12 +390,12 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return PersonTranslator.translate(persons);
     }
 
-    public final List<ProjectPE> listProjects(final String sessionToken)
+    public final List<Project> listProjects(final String sessionToken)
     {
         checkSession(sessionToken);
         final List<ProjectPE> projects = getDAOFactory().getProjectDAO().listProjects();
         Collections.sort(projects);
-        return projects;
+        return ProjectTranslator.translate(projects);
     }
 
     public final List<SampleTypePE> listSampleTypes(final String sessionToken)
@@ -447,32 +455,33 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         samples.removeAll(samplesWithoutExperiment);
     }
 
-    public final List<ExternalDataPE> listSampleExternalData(final String sessionToken,
+    public final List<ExternalData> listSampleExternalData(final String sessionToken,
             final TechId sampleId)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
         externalDataTable.loadBySampleTechId(sampleId);
-        return getSortedExternalDataFrom(externalDataTable);
+        return getSortedExternalDataFrom(externalDataTable, session.getBaseIndexURL());
     }
 
-    public final List<ExternalDataPE> listExperimentExternalData(final String sessionToken,
+    public final List<ExternalData> listExperimentExternalData(final String sessionToken,
             final TechId experimentId)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
         externalDataTable.loadByExperimentTechId(experimentId);
-        return getSortedExternalDataFrom(externalDataTable);
+        return getSortedExternalDataFrom(externalDataTable, session.getBaseIndexURL());
     }
 
-    private List<ExternalDataPE> getSortedExternalDataFrom(
-            final IExternalDataTable externalDataTable)
+    private List<ExternalData> getSortedExternalDataFrom(
+            final IExternalDataTable externalDataTable, final String baseIndexURL)
     {
         final List<ExternalDataPE> externalData = externalDataTable.getExternalData();
         Collections.sort(externalData);
-        return externalData;
+        return ExternalDataTranslator.translate(externalData, getDataStoreBaseURL(),
+                baseIndexURL);
     }
 
     public final List<PropertyTypePE> listPropertyTypes(final String sessionToken,
@@ -490,11 +499,11 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return propertyTypes;
     }
 
-    public final List<SearchHit> listMatchingEntities(final String sessionToken,
+    public final List<MatchingEntity> listMatchingEntities(final String sessionToken,
             final SearchableEntity[] searchableEntities, final String queryText)
     {
         checkSession(sessionToken);
-        final List<SearchHit> list = new ArrayList<SearchHit>();
+        final List<MatchingEntity> list = new ArrayList<MatchingEntity>();
         try
         {
             for (final SearchableEntity searchableEntity : searchableEntities)
@@ -502,7 +511,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
                 final List<SearchHit> entities =
                         getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(
                                 searchableEntity.getMatchingEntityClass(), queryText);
-                list.addAll(entities);
+                list.addAll(SearchHitTranslator.translate(entities));
             }
         } catch (final DataAccessException ex)
         {
@@ -733,30 +742,42 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     }
 
-    public List<ExternalDataPE> searchForDataSets(String sessionToken,
-            DataSetSearchCriteria criteria)
+    public List<ExternalData> searchForDataSets(String sessionToken, DataSetSearchCriteria criteria)
     {
-        checkSession(sessionToken);
+        final Session session = getSessionManager().getSession(sessionToken);
         try
         {
             IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
-            return searchDAO.searchForDataSets(criteria);
+            final List<ExternalDataPE> searchHits = searchDAO.searchForDataSets(criteria);
+            final List<ExternalData> list = new ArrayList<ExternalData>(searchHits.size());
+            for (final ExternalDataPE hit : searchHits)
+            {
+                list.add(ExternalDataTranslator.translate(hit, getDataStoreBaseURL(), session
+                        .getBaseIndexURL(), false));
+            }
+            return list;
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
         }
     }
 
-    public List<ExternalDataPE> listRelatedDataSets(String sessionToken,
+    public List<ExternalData> listRelatedDataSets(String sessionToken,
             RelatedDataSetCriteria criteria)
     {
-        checkSession(sessionToken);
+        final Session session = getSessionManager().getSession(sessionToken);
         try
         {
-			final Set<ExternalDataPE> resultSet = new LinkedHashSet<ExternalDataPE>();
+            final Set<ExternalDataPE> resultSet = new LinkedHashSet<ExternalDataPE>();
             // TODO 2009-08-17, Piotr Buczek: optimize performance
             addRelatedDataSets(resultSet, criteria.getEntities());
-            return new ArrayList<ExternalDataPE>(resultSet);
+            final List<ExternalData> list = new ArrayList<ExternalData>(resultSet.size());
+            for (final ExternalDataPE hit : resultSet)
+            {
+                list.add(ExternalDataTranslator.translate(hit, getDataStoreBaseURL(), session
+                        .getBaseIndexURL(), false));
+            }
+            return list;
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
@@ -1647,4 +1668,5 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         bo.removePersons(personsCodes);
         bo.save();
     }
+
 }

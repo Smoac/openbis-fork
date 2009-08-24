@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -66,6 +68,8 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
 
     @Resource(name = ComponentNames.DAO_FACTORY)
     private IDAOFactory daoFactory;
+
+    private String dataStoreBaseURL;
 
     protected AbstractServer()
     {
@@ -178,6 +182,16 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         return daoFactory;
     }
 
+    public String getDataStoreBaseURL()
+    {
+        return this.dataStoreBaseURL;
+    }
+
+    public final void setDataStoreBaseURL(String dataStoreBaseURL)
+    {
+        this.dataStoreBaseURL = dataStoreBaseURL + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
+    }
+
     //
     // IServer
     //
@@ -214,11 +228,11 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         final List<PersonPE> persons = daoFactory.getPersonDAO().listPersons();
         assert persons.size() > 0 : "At least system user should be in the database";
         // If only one user (system user), then this is the first logged user.
-        final boolean isFirstLoggedUser = persons.size() == 1;
-        final PersonPE systemUser = getSystemUser(persons);
+        final boolean isFirstLoggedUser = (persons.size() == 1);
         PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(user);
         if (person == null)
         {
+            final PersonPE systemUser = getSystemUser(persons);
             person = createPerson(session.getPrincipal(), systemUser);
         } else
         {
@@ -232,6 +246,7 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         {
             // First logged user does have any role assignment yet. Make him database instance
             // administrator.
+            final PersonPE systemUser = getSystemUser(persons);
             final RoleAssignmentPE roleAssignment = createRoleAssigment(systemUser, person);
             person.setRoleAssignments(Collections.singleton(roleAssignment));
             daoFactory.getPersonDAO().updatePerson(person);
@@ -262,5 +277,11 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
             person.setHomeGroup(homeGroup);
             // don't need to updatePerson(person) with DAO because it is attached to a session
         }
+    }
+
+    public void setBaseIndexURL(String sessionToken, String baseIndexURL)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        session.setBaseIndexURL(baseIndexURL);
     }
 }

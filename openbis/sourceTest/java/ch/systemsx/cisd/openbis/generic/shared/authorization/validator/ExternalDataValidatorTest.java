@@ -19,9 +19,10 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 
 /**
  * 
@@ -30,10 +31,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  */
 public class ExternalDataValidatorTest extends AuthorizationTestCase
 {
-    private ExternalDataPE createData(GroupPE group)
+    private ExternalData createData(GroupPE group)
     {
-        ExternalDataPE data = new ExternalDataPE();
-        data.setExperiment(createExperiment(group));
+        ExternalData data = new ExternalData();
+        data.setExperiment(ExperimentTranslator.translate(createExperiment(group), "http://someURL"));
         return data;
     }
     

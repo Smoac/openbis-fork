@@ -27,8 +27,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
 
@@ -67,8 +67,8 @@ public class RelatedDataSetGrid extends AbstractExternalDataGrid
     protected void listEntities(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
             AbstractAsyncCallback<ResultSet<ExternalData>> callback)
     {
-        viewContext.getService().searchForDataSets(getBaseIndexURL(), relatedCriteria,
-                resultSetConfig, callback);
+        viewContext.getService().searchForDataSets(relatedCriteria, resultSetConfig,
+                callback);
     }
 
     @Override

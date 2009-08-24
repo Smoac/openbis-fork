@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.jmock.Expectations;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.BeforeMethod;
@@ -38,7 +39,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
@@ -49,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
@@ -60,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -72,6 +77,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 
 /**
@@ -81,6 +88,10 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
  */
 public final class CommonServerTest extends AbstractServerTestCase
 {
+
+    private final static String DATA_STORE_BASE_URL = "dataStoreBaseURL";
+
+    private final static String BASE_INDEX_URL = "baseIndexURL";
 
     private static final class MockExperimentTypePropertyType extends ExperimentTypePropertyTypePE
     {
@@ -106,6 +117,8 @@ public final class CommonServerTest extends AbstractServerTestCase
                         commonBusinessObjectFactory, new LastModificationState());
         server.setSampleTypeSlaveServerPlugin(sampleTypeSlaveServerPlugin);
         server.setDataSetTypeSlaveServerPlugin(dataSetTypeSlaveServerPlugin);
+        server.setDataStoreBaseURL(DATA_STORE_BASE_URL);
+        server.setBaseIndexURL(SESSION_TOKEN, BASE_INDEX_URL);
         return server;
     }
 
@@ -133,9 +146,12 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public void testLogout()
     {
+        final Session session = createSession();
         context.checking(new Expectations()
             {
                 {
+                    allowing(sessionManager).getSession(SESSION_TOKEN);
+                    will(returnValue(session));
                     one(sessionManager).closeSession(SESSION_TOKEN);
                 }
             });
@@ -149,9 +165,14 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final String user = "user";
         final String password = "password";
+        final Session session = createSession();
         context.checking(new Expectations()
             {
                 {
+                    // Artefact of our test code
+                    allowing(sessionManager).getSession(SESSION_TOKEN);
+                    will(returnValue(session));
+
                     one(sessionManager).tryToOpenSession(user, password);
                     will(returnValue(null));
                 }
@@ -181,7 +202,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(sessionManager).tryToOpenSession(user, password);
                     will(returnValue(SESSION_TOKEN));
 
-                    one(sessionManager).getSession(SESSION_TOKEN);
+                    allowing(sessionManager).getSession(SESSION_TOKEN);
                     will(returnValue(session));
 
                     one(personDAO).listPersons();
@@ -217,7 +238,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(sessionManager).tryToOpenSession(user, password);
                     will(returnValue(SESSION_TOKEN));
 
-                    one(sessionManager).getSession(SESSION_TOKEN);
+                    allowing(sessionManager).getSession(SESSION_TOKEN);
                     will(returnValue(session));
 
                     one(personDAO).listPersons();
@@ -251,7 +272,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(sessionManager).tryToOpenSession(user, password);
                     will(returnValue(SESSION_TOKEN));
 
-                    one(sessionManager).getSession(SESSION_TOKEN);
+                    allowing(sessionManager).getSession(SESSION_TOKEN);
                     will(returnValue(session));
 
                     one(personDAO).listPersons();
@@ -285,17 +306,17 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(sessionManager).getSession(SESSION_TOKEN);
+                    allowing(sessionManager).getSession(SESSION_TOKEN);
                     will(returnValue(session));
                     one(groupDAO).listGroups(homeDatabaseInstance);
                     will(returnValue(Arrays.asList(g1, g2)));
                 }
             });
 
-        final List<GroupPE> groups = createServer().listGroups(SESSION_TOKEN, identifier);
+        final List<Group> groups = createServer().listGroups(SESSION_TOKEN, identifier);
 
-        assertSame(g1, groups.get(0));
-        assertSame(g2, groups.get(1));
+        assertEquals(GroupTranslator.translate(g1), groups.get(0));
+        assertEquals(GroupTranslator.translate(g2), groups.get(1));
         assertEquals(2, groups.size());
         assertEquals(true, g1.isHome().booleanValue());
         assertEquals(false, g2.isHome().booleanValue());
@@ -464,6 +485,18 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final TechId sampleId = CommonTestUtils.TECH_ID;
         final ExternalDataPE externalDataPE = new ExternalDataPE();
+        final FileFormatTypePE fileFormatType = new FileFormatTypePE();
+        fileFormatType.setCode("FFT");
+        externalDataPE.setFileFormatType(fileFormatType);
+        final LocatorTypePE locatorType = new LocatorTypePE();
+        locatorType.setCode("LT");
+        externalDataPE.setLocatorType(locatorType);
+        final DataStorePE dataStorePE = new DataStorePE();
+        dataStorePE.setCode("DST");
+        externalDataPE.setDataStore(dataStorePE);
+        final ExternalData externalData =
+                ExternalDataTranslator.translate(externalDataPE, DATA_STORE_BASE_URL,
+                        BASE_INDEX_URL);
         prepareGetSession();
         context.checking(new Expectations()
             {
@@ -478,10 +511,11 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
 
-        List<ExternalDataPE> list = createServer().listSampleExternalData(SESSION_TOKEN, sampleId);
+        final List<ExternalData> list =
+                createServer().listSampleExternalData(SESSION_TOKEN, sampleId);
 
         assertEquals(1, list.size());
-        assertSame(externalDataPE, list.get(0));
+        assertTrue(equals(externalData, list.get(0)));
 
         context.assertIsSatisfied();
     }
@@ -491,6 +525,18 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final TechId experimentId = CommonTestUtils.TECH_ID;
         final ExternalDataPE externalDataPE = new ExternalDataPE();
+        final FileFormatTypePE fileFormatType = new FileFormatTypePE();
+        fileFormatType.setCode("FFT");
+        externalDataPE.setFileFormatType(fileFormatType);
+        final LocatorTypePE locatorType = new LocatorTypePE();
+        locatorType.setCode("LT");
+        externalDataPE.setLocatorType(locatorType);
+        final DataStorePE dataStorePE = new DataStorePE();
+        dataStorePE.setCode("DST");
+        externalDataPE.setDataStore(dataStorePE);
+        final ExternalData externalData =
+                ExternalDataTranslator.translate(externalDataPE, DATA_STORE_BASE_URL,
+                        BASE_INDEX_URL);
         prepareGetSession();
         context.checking(new Expectations()
             {
@@ -505,13 +551,18 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
 
-        List<ExternalDataPE> list =
+        final List<ExternalData> list =
                 createServer().listExperimentExternalData(SESSION_TOKEN, experimentId);
 
         assertEquals(1, list.size());
-        assertSame(externalDataPE, list.get(0));
+        assertTrue(equals(externalData, list.get(0)));
 
         context.assertIsSatisfied();
+    }
+    
+    private boolean equals(ExternalData data1, ExternalData data2)
+    {
+        return EqualsBuilder.reflectionEquals(data1, data2);
     }
 
     @Test
@@ -1247,7 +1298,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(sessionManager).getSession(SESSION_TOKEN);
+                    allowing(sessionManager).getSession(SESSION_TOKEN);
                     Session session = createSession();
                     session.setPerson(person);
                     will(returnValue(session));
@@ -1273,7 +1324,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(sessionManager).getSession(SESSION_TOKEN);
+                    allowing(sessionManager).getSession(SESSION_TOKEN);
                     Session session = createSession();
                     session.setPerson(person);
                     will(returnValue(session));
@@ -1302,7 +1353,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(sessionManager).getSession(SESSION_TOKEN);
+                    allowing(sessionManager).getSession(SESSION_TOKEN);
                     Session session = createSession();
                     session.setPerson(person);
                     will(returnValue(session));

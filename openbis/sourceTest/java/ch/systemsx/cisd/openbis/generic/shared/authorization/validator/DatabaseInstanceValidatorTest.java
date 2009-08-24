@@ -20,10 +20,9 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DatabaseInstanceValidatorTest extends AuthorizationTestCase
@@ -33,15 +32,17 @@ public class DatabaseInstanceValidatorTest extends AuthorizationTestCase
     {
         PersonPE person = createPersonWithRoleAssignments();
         DatabaseInstanceValidator validator = new DatabaseInstanceValidator();
-        assertEquals(true, validator.isValid(person, createDatabaseInstance()));
+        assertEquals(true, validator.isValid(person, DatabaseInstanceTranslator
+                .translate(createDatabaseInstance())));
     }
-    
+
     @Test
     public void testIsValidWithTheWrongDatabaseInstance()
     {
         PersonPE person = createPersonWithRoleAssignments();
         DatabaseInstanceValidator validator = new DatabaseInstanceValidator();
-        assertEquals(false, validator.isValid(person, createDatabaseInstance("blabla")));
+        assertEquals(false, validator.isValid(person, DatabaseInstanceTranslator
+                .translate(createDatabaseInstance("blabla"))));
     }
 
 }

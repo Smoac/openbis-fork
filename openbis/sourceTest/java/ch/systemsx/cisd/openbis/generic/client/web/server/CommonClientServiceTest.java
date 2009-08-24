@@ -27,7 +27,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -44,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 
 /**
@@ -321,11 +322,16 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     {
         final TechId experimentId = CommonTestUtils.TECH_ID;
         final ExternalDataPE externalDataPE = new ExternalDataPE();
-        externalDataPE.setDataStore(new DataStorePE());
+        final DataStorePE dataStorePE = new DataStorePE();
+        dataStorePE.setDownloadUrl(DATA_STORE_BASE_URL);
+        externalDataPE.setDataStore(dataStorePE);
         FileFormatTypePE fileFormatTypePE = new FileFormatTypePE();
         fileFormatTypePE.setCode("PNG");
         fileFormatTypePE.setDescription("Portable Network Graphics");
         externalDataPE.setFileFormatType(fileFormatTypePE);
+        final ExternalData externalData =
+                ExternalDataTranslator.translate(externalDataPE, "§SHOULDN'T BE USED",
+                        BASE_INDEX_URL, false);
         context.checking(new Expectations()
             {
                 {
@@ -335,12 +341,12 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                             new TokenBasedResultSetKeyGenerator())));
 
                     one(commonServer).listExperimentExternalData(SESSION_TOKEN, experimentId);
-                    will(returnValue(Collections.singletonList(externalDataPE)));
+                    will(returnValue(Collections.singletonList(externalData)));
                 }
             });
 
         ResultSet<ExternalData> resultSet =
-                commonClientService.listExperimentDataSets(experimentId, BASE_INDEX_URL,
+                commonClientService.listExperimentDataSets(experimentId,
                         new DefaultResultSetConfig<String, ExternalData>());
         List<ExternalData> list = resultSet.getList();
         assertEquals(1, list.size());

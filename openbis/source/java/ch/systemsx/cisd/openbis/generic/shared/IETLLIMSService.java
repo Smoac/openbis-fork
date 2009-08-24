@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSampl
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -106,7 +106,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     public void registerDataSet(
             final String sessionToken,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) final SampleIdentifier sampleIdentifier,
-            final ExternalData externalData) throws UserFailureException;
+            final NewExternalData externalData) throws UserFailureException;
 
     /**
      * Tries to return the data set specified by its code.

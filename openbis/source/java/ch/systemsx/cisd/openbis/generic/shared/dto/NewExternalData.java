@@ -25,12 +25,11 @@ import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
- * Kind of <i>Java Bean</i> or <i>Value Object</i> which transports through Web Service any
- * information we would like to know about external data.
+ * Information given to openBIS when registering a new external data set.
  * 
  * @author Christian Ribeaud
  */
-public final class ExternalData extends ExtractableData
+public final class NewExternalData extends ExtractableData
 {
     private static final long serialVersionUID = IServer.VERSION;
 
@@ -192,11 +191,11 @@ public final class ExternalData extends ExtractableData
         {
             return true;
         }
-        if (obj instanceof ExternalData == false)
+        if (obj instanceof NewExternalData == false)
         {
             return false;
         }
-        final ExternalData that = (ExternalData) obj;
+        final NewExternalData that = (NewExternalData) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(that.location, location);
         return builder.isEquals();
@@ -220,7 +219,7 @@ public final class ExternalData extends ExtractableData
     @Override
     public final int compareTo(final ExtractableData o)
     {
-        final String thatLocation = ((ExternalData) o).location;
+        final String thatLocation = ((NewExternalData) o).location;
         if (location == null)
         {
             return thatLocation == null ? 0 : -1;

@@ -228,6 +228,14 @@ public class LoginWidget extends VerticalPanel
                     });
             } else
             {
+                viewContext.getService().setBaseURL(GWTUtils.getBaseIndexURL(),
+                        new AbstractAsyncCallback<SessionContext>(viewContext)
+                            {
+                                @Override
+                                protected void process(SessionContext result)
+                                {
+                                }
+                            });
                 viewContext.getPageController().reload(false);
             }
         }

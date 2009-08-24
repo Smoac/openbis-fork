@@ -38,6 +38,9 @@ public interface IClientServiceAsync
     /** @see IClientService#tryToLogin(String, String) */
     public void tryToLogin(String userID, String password, AsyncCallback<SessionContext> callback);
 
+    /** @see IClientService#setBaseURL(String) */
+    public void setBaseURL(String baseURL, AsyncCallback<SessionContext> callback);
+    
     /** @see IClientService#updateDisplaySettings(DisplaySettings) */
     public void updateDisplaySettings(DisplaySettings displaySettings, AsyncCallback<Void> callback);
 

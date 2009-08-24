@@ -51,6 +51,12 @@ public interface IServer extends ISessionProvider
     @Transactional
     public Session tryToAuthenticate(final String user, final String password);
 
+    /**
+     * Sets the base URL (including "index.html") that the web server is reachable at for this client.
+     */
+    @Transactional
+    public void setBaseIndexURL(String sessionToken, String baseIndexURL);
+
     @Transactional
     public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings);
 

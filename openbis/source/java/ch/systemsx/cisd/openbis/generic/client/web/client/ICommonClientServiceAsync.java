@@ -26,13 +26,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParam
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
@@ -56,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
@@ -64,6 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
@@ -313,16 +313,16 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void removeResultSet(final String resultSetKey, final AsyncCallback<Void> asyncCallback);
 
     /**
-     * @see ICommonClientService#listSampleDataSets(TechId, String, DefaultResultSetConfig)
+     * @see ICommonClientService#listSampleDataSets(TechId, DefaultResultSetConfig)
      */
-    public void listSampleDataSets(TechId sampleId, String baseIndexURL,
+    public void listSampleDataSets(TechId sampleId,
             DefaultResultSetConfig<String, ExternalData> criteria,
             AsyncCallback<ResultSet<ExternalData>> asyncCallback);
 
     /**
-     * @see ICommonClientService#listExperimentDataSets(TechId, String, DefaultResultSetConfig)
+     * @see ICommonClientService#listExperimentDataSets(TechId, DefaultResultSetConfig)
      */
-    public void listExperimentDataSets(TechId experimentId, String baseIndexURL,
+    public void listExperimentDataSets(TechId experimentId,
             DefaultResultSetConfig<String, ExternalData> criteria,
             AsyncCallback<ResultSet<ExternalData>> asyncCallback);
 
@@ -396,16 +396,16 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<Void> projectRegistrationCallback);
 
     /**
-     * @see ICommonClientService#searchForDataSets(String, DataSetSearchCriteria, IResultSetConfig)
+     * @see ICommonClientService#searchForDataSets(DataSetSearchCriteria, IResultSetConfig)
      */
-    public void searchForDataSets(final String baseIndexURL, DataSetSearchCriteria criteria,
+    public void searchForDataSets(DataSetSearchCriteria criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig,
             final AsyncCallback<ResultSet<ExternalData>> callback);
 
     /**
-     * @see ICommonClientService#searchForDataSets(String, RelatedDataSetCriteria, IResultSetConfig)
+     * @see ICommonClientService#searchForDataSets(RelatedDataSetCriteria, IResultSetConfig)
      */
-    public void searchForDataSets(final String baseIndexURL, RelatedDataSetCriteria criteria,
+    public void searchForDataSets(RelatedDataSetCriteria criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig,
             final AsyncCallback<ResultSet<ExternalData>> callback);
 
