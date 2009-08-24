@@ -88,25 +88,31 @@
       // Makes a distribution file.
       -->
 
-	<target name="dist" description="Makes a distribution file." depends="clean, war">
-		<copy file="${lib}/tomcat5/apache-tomcat.zip" todir="${server.dist}" />
-		<loadfile property="tomcat.version" srcFile="${lib}/tomcat5/version.txt">
-			<filterchain>
-				<striplinebreaks />
-			</filterchain>
-		</loadfile>
-		<echo file="${server.dist}/tomcat-version.txt">${tomcat.version}</echo>
-		<copy file="${original.openbis.server.dist}/server.xml" todir="${server.dist}" />
-		<copy file="${original.server.dist}/service.properties" todir="${server.dist}" />
-		<copy file="${original.server.dist}/openbis.conf" todir="${server.dist}" />
-		<copy file="${original.openbis.server.dist}/openBIS.keystore" todir="${server.dist}" />
-		<copy file="${original.openbis.server.dist}/passwd.sh" todir="${server.dist}" />
-		<property name="server.dist.file" value="${server.dist}-${version.number}-r${revision.number}.zip" />
-		<zip basedir="${dist}" destfile="${server.dist.file}" excludes="*.zip">
-			<zipfileset file="${original.openbis.server.dist}/install.sh" filemode="777" prefix="${server.folder.name}" />
-		</zip>
-		<delete dir="${server.dist}" />
+	<target name="dist" description="Makes a distribution file.">
+		<antcall target="make-dist">
+		        <param name="variant" value="" />
+		</antcall>
 	</target>
+
+        <target name="make-dist" description="Makes a distribution file." depends="clean, war">
+                <copy file="${lib}/tomcat5/apache-tomcat.zip" todir="${server.dist}" />
+                <loadfile property="tomcat.version" srcFile="${lib}/tomcat5/version.txt">
+                        <filterchain>
+                                <striplinebreaks />
+                        </filterchain>
+                </loadfile>
+                <echo file="${server.dist}/tomcat-version.txt">${tomcat.version}</echo>
+                <copy file="${original.openbis.server.dist}/server.xml" todir="${server.dist}" />
+                <copy file="${original.server.dist}/service.properties" todir="${server.dist}" />
+                <copy file="${original.server.dist}/openbis.conf" todir="${server.dist}" />
+                <copy file="${original.openbis.server.dist}/openBIS.keystore" todir="${server.dist}" />
+                <copy file="${original.openbis.server.dist}/passwd.sh" todir="${server.dist}" />
+                <property name="server.dist.file" value="${server.dist}${variant}-${version.number}-r${revision.number}.zip" />
+                <zip basedir="${dist}" destfile="${server.dist.file}" excludes="*.zip">
+                        <zipfileset file="${original.openbis.server.dist}/install.sh" filemode="777" prefix="${server.folder.name}" />
+                </zip>
+                <delete dir="${server.dist}" />
+        </target>
 
 	<!--
       // Task for continuous integration server.
