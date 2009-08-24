@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
@@ -55,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -66,8 +68,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -76,11 +76,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
@@ -151,7 +149,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     }
 
-    public List<RoleAssignmentPE> listRoleAssignments(final String sessionToken)
+    public List<RoleAssignment> listRoleAssignments(final String sessionToken)
     {
         logAccess(sessionToken, "list_roles");
         return null;
@@ -187,7 +185,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     }
 
-    public final List<SampleTypePE> listSampleTypes(final String sessionToken)
+    public final List<SampleType> listSampleTypes(final String sessionToken)
     {
         logAccess(sessionToken, "list_sample_types");
         return null;
@@ -259,8 +257,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 .getSampleType(), newSample.getIdentifier());
     }
 
-    public List<ExperimentPE> listExperiments(final String sessionToken,
-            final ExperimentTypePE experimentType, final ProjectIdentifier project)
+    public List<Experiment> listExperiments(final String sessionToken,
+            final ExperimentType experimentType, final ProjectIdentifier project)
     {
         logAccess(sessionToken, "list_experiments", "TYPE(%s) PROJECT(%s)", experimentType, project);
         return null;
@@ -272,7 +270,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public List<ExperimentTypePE> listExperimentTypes(final String sessionToken)
+    public List<ExperimentType> listExperimentTypes(final String sessionToken)
     {
         logAccess(sessionToken, "list_experiment_types");
         return null;

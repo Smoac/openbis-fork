@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -85,6 +86,17 @@ public final class ExperimentTranslator
         return result;
     }
 
+    public final static List<Experiment> translate(final List<ExperimentPE> experiments,
+            String baseIndexURL, final LoadableFields... withFields)
+    {
+        final List<Experiment> result = new ArrayList<Experiment>(experiments.size());
+        for (final ExperimentPE experiment : experiments)
+        {
+            result.add(ExperimentTranslator.translate(experiment, baseIndexURL, withFields));
+        }
+        return result;
+    }
+
     private static void setProperties(final ExperimentPE experiment, final Experiment result)
     {
         if (experiment.isPropertiesInitialized())
@@ -115,6 +127,16 @@ public final class ExperimentTranslator
         result.setDescription(StringEscapeUtils.escapeHtml(experimentType.getDescription()));
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentType
                 .getDatabaseInstance()));
+        return result;
+    }
+    
+    public final static List<ExperimentType> translate(final List<ExperimentTypePE> experimentTypes)
+    {
+        final List<ExperimentType> result = new ArrayList<ExperimentType>(experimentTypes.size());
+        for (final ExperimentTypePE experimentType : experimentTypes)
+        {
+            result.add(translate(experimentType));
+        }
         return result;
     }
 

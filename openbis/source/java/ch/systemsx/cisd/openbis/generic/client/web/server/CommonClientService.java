@@ -53,7 +53,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriter
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
@@ -63,9 +62,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
-import ch.systemsx.cisd.openbis.generic.client.web.server.translator.AuthorizationGroupTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator;
-import ch.systemsx.cisd.openbis.generic.client.web.server.translator.RoleAssignmentTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.RoleCodeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SearchableEntityTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
@@ -112,6 +109,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -127,14 +125,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -142,14 +137,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.AuthorizationGroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
-import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PropertyTypeTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.TypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
 
@@ -399,13 +393,8 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            final List<SampleTypePE> sampleTypes = commonServer.listSampleTypes(sessionToken);
-            final List<SampleType> result = new ArrayList<SampleType>();
-            for (final SampleTypePE sampleTypePE : sampleTypes)
-            {
-                result.add(SampleTypeTranslator.translate(sampleTypePE));
-            }
-            return result;
+            final List<SampleType> sampleTypes = commonServer.listSampleTypes(sessionToken);
+            return sampleTypes;
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -714,8 +703,8 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            final List<RoleAssignmentPE> roles = commonServer.listRoleAssignments(sessionToken);
-            return RoleAssignmentTranslator.translate(roles);
+            final List<RoleAssignment> roles = commonServer.listRoleAssignments(sessionToken);
+            return roles;
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -917,14 +906,9 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            final List<ExperimentType> result = new ArrayList<ExperimentType>();
-            final List<ExperimentTypePE> experiments =
+            final List<ExperimentType> experimentTypes =
                     commonServer.listExperimentTypes(sessionToken);
-            for (final ExperimentTypePE expType : experiments)
-            {
-                result.add(ExperimentTranslator.translate(expType));
-            }
-            return result;
+            return experimentTypes;
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

@@ -75,6 +75,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
@@ -96,6 +97,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -142,12 +144,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ListSampleCriteriaTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.RoleAssignmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SearchHitTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -285,10 +290,12 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
     }
 
-    public final List<RoleAssignmentPE> listRoleAssignments(final String sessionToken)
+    public final List<RoleAssignment> listRoleAssignments(final String sessionToken)
     {
         checkSession(sessionToken);
-        return getDAOFactory().getRoleAssignmentDAO().listRoleAssignments();
+        final List<RoleAssignmentPE> roles =
+                getDAOFactory().getRoleAssignmentDAO().listRoleAssignments();
+        return RoleAssignmentTranslator.translate(roles);
     }
 
     public final void registerGroupRole(final String sessionToken, final RoleCode roleCode,
@@ -398,12 +405,12 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return ProjectTranslator.translate(projects);
     }
 
-    public final List<SampleTypePE> listSampleTypes(final String sessionToken)
+    public final List<SampleType> listSampleTypes(final String sessionToken)
     {
         checkSession(sessionToken);
         final List<SampleTypePE> sampleTypes = getDAOFactory().getSampleTypeDAO().listSampleTypes();
         Collections.sort(sampleTypes);
-        return sampleTypes;
+        return SampleTypeTranslator.translate(sampleTypes);
     }
 
     public final List<Sample> listSamples(final String sessionToken,
@@ -480,8 +487,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     {
         final List<ExternalDataPE> externalData = externalDataTable.getExternalData();
         Collections.sort(externalData);
-        return ExternalDataTranslator.translate(externalData, getDataStoreBaseURL(),
-                baseIndexURL);
+        return ExternalDataTranslator.translate(externalData, getDataStoreBaseURL(), baseIndexURL);
     }
 
     public final List<PropertyTypePE> listPropertyTypes(final String sessionToken,
@@ -520,8 +526,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return list;
     }
 
-    public final List<ExperimentPE> listExperiments(final String sessionToken,
-            final ExperimentTypePE experimentType, final ProjectIdentifier projectIdentifier)
+    public final List<Experiment> listExperiments(final String sessionToken,
+            final ExperimentType experimentType, final ProjectIdentifier projectIdentifier)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IExperimentTable experimentTable =
@@ -529,12 +535,15 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         experimentTable.load(experimentType.getCode(), projectIdentifier);
         final List<ExperimentPE> experiments = experimentTable.getExperiments();
         Collections.sort(experiments);
-        return experiments;
+        return ExperimentTranslator.translate(experiments, session.getBaseIndexURL(),
+                ExperimentTranslator.LoadableFields.PROPERTIES);
     }
 
-    public final List<ExperimentTypePE> listExperimentTypes(final String sessionToken)
+    public final List<ExperimentType> listExperimentTypes(final String sessionToken)
     {
-        return listEntityTypes(sessionToken, EntityKind.EXPERIMENT);
+        final List<ExperimentTypePE> experimentTypes =
+                listEntityTypes(sessionToken, EntityKind.EXPERIMENT);
+        return ExperimentTranslator.translate(experimentTypes);
     }
 
     public List<MaterialTypePE> listMaterialTypes(String sessionToken)

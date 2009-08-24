@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
@@ -66,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -78,20 +80,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
@@ -111,7 +108,7 @@ public interface ICommonServer extends IServer
     /**
      * Returns all groups which belong to the specified database instance. *
      * 
-     * @return a sorted list of {@link GroupPE}.
+     * @return a sorted list of {@link Group}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
@@ -164,7 +161,7 @@ public interface ICommonServer extends IServer
     /**
      * Returns all projects.
      * 
-     * @return a sorted list of {@link ProjectPE}.
+     * @return a sorted list of {@link Project}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
@@ -184,7 +181,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.GROUP_ADMIN)
-    public List<RoleAssignmentPE> listRoleAssignments(String sessionToken);
+    public List<RoleAssignment> listRoleAssignments(String sessionToken);
 
     /**
      * Registers a new group role.
@@ -229,11 +226,11 @@ public interface ICommonServer extends IServer
     /**
      * Lists sample types which are appropriate for listing.
      * 
-     * @return a sorted list of {@link SampleTypePE}.
+     * @return a sorted list of {@link SampleType}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<SampleTypePE> listSampleTypes(String sessionToken);
+    public List<SampleType> listSampleTypes(String sessionToken);
 
     /**
      * Lists samples using given configuration.
@@ -247,13 +244,13 @@ public interface ICommonServer extends IServer
     /**
      * Lists experiments.
      * 
-     * @return a sorted list of {@link ExperimentPE}.
+     * @return a sorted list of {@link Experiment}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<ExperimentPE> listExperiments(
+    public List<Experiment> listExperiments(
             final String sessionToken,
-            ExperimentTypePE experimentType,
+            ExperimentType experimentType,
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier project);
 
     /**
@@ -289,11 +286,11 @@ public interface ICommonServer extends IServer
     /**
      * List experiment types.
      * 
-     * @return a sorted list of {@link ExperimentTypePE}.
+     * @return a sorted list of {@link ExperimentType}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<ExperimentTypePE> listExperimentTypes(String sessionToken);
+    public List<ExperimentType> listExperimentTypes(String sessionToken);
 
     /**
      * List property types.

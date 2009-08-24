@@ -47,6 +47,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
@@ -77,6 +79,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
@@ -463,18 +466,20 @@ public final class CommonServerTest extends AbstractServerTestCase
     public void testListRoles()
     {
         prepareGetSession();
-        final RoleAssignmentPE role = new RoleAssignmentPE();
+        final RoleAssignmentPE rolePE = new RoleAssignmentPE();
+        rolePE.setRole(RoleCode.ETL_SERVER);
+        rolePE.setDatabaseInstance(new DatabaseInstancePE());
         context.checking(new Expectations()
             {
                 {
                     one(roleAssignmentDAO).listRoleAssignments();
-                    will(returnValue(Arrays.asList(role)));
+                    will(returnValue(Arrays.asList(rolePE)));
                 }
             });
 
-        final List<RoleAssignmentPE> roles = createServer().listRoleAssignments(SESSION_TOKEN);
+        final List<RoleAssignment> roles = createServer().listRoleAssignments(SESSION_TOKEN);
 
-        assertSame(role, roles.get(0));
+        assertEquals(RoleSetCode.INSTANCE_ETL_SERVER, roles.get(0).getRoleSetCode());
         assertEquals(1, roles.size());
 
         context.assertIsSatisfied();
@@ -559,7 +564,7 @@ public final class CommonServerTest extends AbstractServerTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     private boolean equals(ExternalData data1, ExternalData data2)
     {
         return EqualsBuilder.reflectionEquals(data1, data2);
@@ -569,7 +574,8 @@ public final class CommonServerTest extends AbstractServerTestCase
     public void testListExperiments()
     {
         final ProjectIdentifier projectIdentifier = CommonTestUtils.createProjectIdentifier();
-        final ExperimentTypePE experimentType = CommonTestUtils.createExperimentType();
+        final ExperimentType experimentType =
+                ExperimentTranslator.translate(CommonTestUtils.createExperimentType());
         prepareGetSession();
         context.checking(new Expectations()
             {
@@ -592,7 +598,9 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         prepareGetSession();
         final List<EntityTypePE> types = new ArrayList<EntityTypePE>();
-        types.add(CommonTestUtils.createExperimentType());
+        final ExperimentTypePE experimentTypePE = CommonTestUtils.createExperimentType();
+        final ExperimentType experimentType = ExperimentTranslator.translate(experimentTypePE);
+        types.add(experimentTypePE);
         context.checking(new Expectations()
             {
                 {
@@ -603,7 +611,10 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(types));
                 }
             });
-        assertEquals(types, createServer().listExperimentTypes(SESSION_TOKEN));
+        final List<ExperimentType> experimentTypes =
+                createServer().listExperimentTypes(SESSION_TOKEN);
+        assertEquals(1, experimentTypes.size());
+        assertEquals(experimentType, experimentTypes.get(0));
         context.assertIsSatisfied();
     }
 

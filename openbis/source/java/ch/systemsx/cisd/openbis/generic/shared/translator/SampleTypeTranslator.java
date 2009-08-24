@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -49,6 +52,16 @@ public class SampleTypeTranslator
 
     }
 
+    public static List<SampleType> translate(final List<SampleTypePE> sampleTypes)
+    {
+        final List<SampleType> result = new ArrayList<SampleType>();
+        for (final SampleTypePE sampleTypePE : sampleTypes)
+        {
+            result.add(SampleTypeTranslator.translate(sampleTypePE));
+        }
+        return result;
+    }
+    
     public static SampleTypePE translate(final SampleType sampleType)
     {
         final SampleTypePE result = new SampleTypePE();

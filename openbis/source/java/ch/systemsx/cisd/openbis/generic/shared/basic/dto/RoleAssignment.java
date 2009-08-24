@@ -14,19 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
- * The <i>GWT</i> equivalent to {@link ProjectPE}.
+ * The DTO for authorization role assignments.
  * 
  * @author Izabela Adamczyk
  */
