@@ -86,6 +86,25 @@ layer generic.server.6 = [generic.server-subpackages]
 
 check layeringOf generic.server.1 generic.server.2 generic.server.3 generic.server.4 \
                  generic.server.5 generic.server.6 
+                 
+#--------- BO ------------------------------
+
+{bo} = ${generic.server}.business.bo
+[bo.common] = ${bo}.common.* 
+check sets [bo.common]
+
+[bo.samplelister] = ${bo}.samplelister.*
+check sets [bo.samplelister]
+
+[not-referring-bo.common] = * excluding [bo.samplelister]
+check sets [not-referring-bo.common]
+
+check [not-referring-bo.common] independentOf [bo.common]
+
+layer bo.1 = [bo.common]
+layer bo.2 = [bo.samplelister]
+
+check layeringOf bo.1 bo.2
 
 ##########################################
 # Plugins

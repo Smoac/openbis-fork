@@ -21,7 +21,6 @@ import javax.sql.DataSource;
 import net.lemnik.eodsql.QueryTool;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;

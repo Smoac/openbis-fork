@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import java.util.List;
 

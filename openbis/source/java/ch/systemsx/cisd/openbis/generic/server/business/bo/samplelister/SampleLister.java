@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 

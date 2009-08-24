@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
 
-import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntitySetPropertyListingQuery;
 
 /**
@@ -29,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntitySetProp
  * 
  * @author Bernd Rinn
  */
-@Friend(toClasses=IEntitySetPropertyListingQuery.class)
 interface ISampleSetListingQuery extends IEntitySetPropertyListingQuery
 {
     //

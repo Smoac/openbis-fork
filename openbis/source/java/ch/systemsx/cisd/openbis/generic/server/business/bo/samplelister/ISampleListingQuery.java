@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * 
  * @author Bernd Rinn
  */
-@Friend(toClasses={ExperimentProjectGroupCodeRecord.class, IPropertyListingQuery.class})
+@Friend(toClasses={ExperimentProjectGroupCodeRecord.class})
 @Private
 public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQuery
 {

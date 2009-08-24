@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.common;
 
-import ch.rinn.restrictions.Private;
-
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 /**
@@ -25,7 +23,6 @@ import it.unimi.dsi.fastutil.longs.LongSet;
  *
  * @author Franz-Josef Elmer
  */
-@Private
 public interface IEntitySetPropertyListingQuery
 {
 

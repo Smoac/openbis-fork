@@ -16,19 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.common;
 
-import ch.rinn.restrictions.Friend;
-import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-
 import net.lemnik.eodsql.Select;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
  * Query methods for retrieving property types, material types, and vocabulary URL templates.
  *
  * @author Bernd Rinn
  */
-@Friend(toClasses=PropertyTypeDataObjectBinding.class)
-@Private
 public interface IPropertyListingQuery
 {
     /**

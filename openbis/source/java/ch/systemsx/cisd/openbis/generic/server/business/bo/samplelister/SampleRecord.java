@@ -2,7 +2,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import java.util.Date;
 
-import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 
@@ -25,7 +24,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 // DBIN_ID TECH_ID,
 // GROU_ID TECH_ID,
 // SAMP_ID_PART_OF TECH_ID);
-@Friend(toClasses=CodeRecord.class)
 @Private
 public class SampleRecord extends CodeRecord
 {
