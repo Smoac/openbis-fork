@@ -73,7 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Bernd Rinn
  */
-@Friend(toClasses=ISampleSetListingQuery.class)
+@Friend(toClasses={ExperimentProjectGroupCodeRecord.class, ISampleSetListingQuery.class})
 final class SampleListingWorker
 {
     private final static Logger operationLog =

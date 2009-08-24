@@ -1,9 +1,12 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
+import ch.rinn.restrictions.Private;
+
 /**
  * A r representing an experiment, project and group code.
  */
-class ExperimentProjectGroupCodeRecord
+@Private
+public class ExperimentProjectGroupCodeRecord
 {
     public String e_code;
 
