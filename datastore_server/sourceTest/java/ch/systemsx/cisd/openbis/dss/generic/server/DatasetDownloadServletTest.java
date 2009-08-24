@@ -49,7 +49,7 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;
@@ -256,7 +256,7 @@ public class DatasetDownloadServletTest
                     will(returnValue(httpSession));
 
                     one(httpSession).getAttribute(DatasetDownloadServlet.DATA_SET_KEY);
-                    Map<String, ExternalData> map = new HashMap<String, ExternalData>();
+                    Map<String, NewExternalData> map = new HashMap<String, NewExternalData>();
                     will(returnValue(map));
 
                     one(request).getRequestURI();

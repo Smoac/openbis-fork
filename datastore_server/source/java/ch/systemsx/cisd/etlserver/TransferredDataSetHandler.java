@@ -60,7 +60,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExtractableData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -506,7 +506,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                 }
                 final StopWatch watch = new StopWatch();
                 watch.start();
-                ExternalData data = createExternalData();
+                NewExternalData data = createExternalData();
                 File dataFile =
                         storageProcessor.storeData(sample, dataSetInformation, typeExtractor,
                                 mailClient, incomingDataSetFile, baseDirectoryHolder
@@ -630,7 +630,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             }
         }
 
-        private final void plainRegisterDataSet(ExternalData data, final String relativePath,
+        private final void plainRegisterDataSet(NewExternalData data, final String relativePath,
                 final StorageFormat storageFormat, final BooleanOrUnknown isCompleteFlag)
         {
             updateExternalData(data, relativePath, storageFormat, isCompleteFlag);
@@ -783,7 +783,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             return null;
         }
 
-        private final ExternalData updateExternalData(ExternalData data, final String relativePath,
+        private final NewExternalData updateExternalData(NewExternalData data, final String relativePath,
                 final StorageFormat storageFormat, final BooleanOrUnknown isCompleteFlag)
         {
             data.setComplete(isCompleteFlag);
@@ -792,10 +792,10 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             return data;
         }
 
-        private ExternalData createExternalData()
+        private NewExternalData createExternalData()
         {
             final ExtractableData extractableData = dataSetInformation.getExtractableData();
-            final ExternalData data = BeanUtils.createBean(ExternalData.class, extractableData);
+            final NewExternalData data = BeanUtils.createBean(NewExternalData.class, extractableData);
             data.setLocatorType(typeExtractor.getLocatorType(incomingDataSetFile));
             data.setDataSetType(typeExtractor.getDataSetType(incomingDataSetFile));
             data.setFileFormatType(typeExtractor.getFileFormatType(incomingDataSetFile));

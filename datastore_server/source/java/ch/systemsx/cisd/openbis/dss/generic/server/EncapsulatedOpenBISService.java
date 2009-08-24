@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -181,7 +181,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     private final void primRegisterDataSet(final DataSetInformation dataSetInformation,
-            final ExternalData data)
+            final NewExternalData data)
     {
         service.registerDataSet(sessionToken, dataSetInformation.getSampleIdentifier(), data);
     }
@@ -224,7 +224,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     synchronized public final void registerDataSet(final DataSetInformation dataSetInformation,
-            final ExternalData data)
+            final NewExternalData data)
     {
         assert dataSetInformation != null : "missing sample identifier";
         assert data != null : "missing data";

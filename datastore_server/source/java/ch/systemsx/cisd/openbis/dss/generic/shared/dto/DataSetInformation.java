@@ -26,7 +26,7 @@ import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExtractableData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -75,7 +75,7 @@ public class DataSetInformation implements Serializable
     private BooleanOrUnknown isCompleteFlag = BooleanOrUnknown.U;
 
     /**
-     * A subset of {@link ExternalData} which gets set by the code extractor.
+     * A subset of {@link NewExternalData} which gets set by the code extractor.
      * <p>
      * Initialized with <code>new ExtractableData()</code>.
      * </p>

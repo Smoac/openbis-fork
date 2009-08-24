@@ -22,7 +22,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -60,7 +60,7 @@ public interface IEncapsulatedOpenBISService
      * As side effect, sets <i>data set code</i> in {@link DataSetInformation#getExtractableData()}.
      * </p>
      */
-    public void registerDataSet(final DataSetInformation dataSetInformation, final ExternalData data)
+    public void registerDataSet(final DataSetInformation dataSetInformation, final NewExternalData data)
             throws UserFailureException;
 
     /**

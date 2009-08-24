@@ -64,7 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;
@@ -118,11 +118,11 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
     private static final String EXAMPLE_PROCESSOR_ID = ProcedureTypeCode.DATA_ACQUISITION.getCode();
 
-    private static final class ExternalDataMatcher extends BaseMatcher<ExternalData>
+    private static final class ExternalDataMatcher extends BaseMatcher<NewExternalData>
     {
-        private final ExternalData expectedData;
+        private final NewExternalData expectedData;
 
-        public ExternalDataMatcher(final ExternalData externalData)
+        public ExternalDataMatcher(final NewExternalData externalData)
         {
             this.expectedData = externalData;
         }
@@ -134,11 +134,11 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
         public boolean matches(final Object item)
         {
-            if (item instanceof ExternalData == false)
+            if (item instanceof NewExternalData == false)
             {
                 return false;
             }
-            final ExternalData data = (ExternalData) item;
+            final NewExternalData data = (NewExternalData) item;
             assertEquals(expectedData.getCode(), data.getCode());
             assertEquals(expectedData.getDataProducerCode(), data.getDataProducerCode());
             assertEquals(expectedData.getLocation(), data.getLocation());
@@ -203,7 +203,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
     private File targetFolder;
 
-    private ExternalData targetData1;
+    private NewExternalData targetData1;
 
     private File folder;
 
@@ -320,9 +320,9 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 workingDirectory.getPath(), "<wd>").replace('\\', '/');
     }
 
-    private final ExternalData createTargetData(final File dataSet)
+    private final NewExternalData createTargetData(final File dataSet)
     {
-        final ExternalData data = new ExternalData();
+        final NewExternalData data = new NewExternalData();
         data.setLocation(getRelativeTargetFolder() + File.separator + dataSet.getName());
         data.setLocatorType(LOCATOR_TYPE);
         data.setDataSetType(DATA_SET_TYPE);
@@ -418,7 +418,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
     }
 
     private final void prepareForStrategyIDENTIFIED(final File dataSet,
-            final ExternalData targetData, final SamplePE samplePE)
+            final NewExternalData targetData, final SamplePE samplePE)
     {
         prepareForStrategy(dataSet, samplePE);
         context.checking(new Expectations()

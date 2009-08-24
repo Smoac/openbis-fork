@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PluginUtilTest;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -177,7 +177,7 @@ public class EncapsulatedOpenBISServiceTest
     public final void testRegisterDataSet()
     {
         final DataSetInformation dataSetInfo = createDataSetInformation();
-        final ExternalData data = new ExternalData();
+        final NewExternalData data = new NewExternalData();
         context.checking(new Expectations()
             {
                 {
