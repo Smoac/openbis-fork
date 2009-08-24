@@ -26,7 +26,6 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.SampleRowVO;
 
 /**
  * An implementation of {@link ISampleSetListingQuery} that gets the samples one by one.
@@ -156,21 +155,21 @@ class SampleSetListingQueryOneByOne implements ISampleSetListingQuery
             };
     }
 
-    public Iterable<SampleRowVO> getSamples(final LongSet sampleIds)
+    public Iterable<SampleRecord> getSamples(final LongSet sampleIds)
     {
-        return new Iterable<SampleRowVO>()
+        return new Iterable<SampleRecord>()
             {
-                public Iterator<SampleRowVO> iterator()
+                public Iterator<SampleRecord> iterator()
                 {
                     final LongIterator it = sampleIds.iterator();
-                    return new Iterator<SampleRowVO>()
+                    return new Iterator<SampleRecord>()
                         {
                             public boolean hasNext()
                             {
                                 return it.hasNext();
                             }
 
-                            public SampleRowVO next()
+                            public SampleRecord next()
                             {
                                 return query.getSample(it.nextLong());
                             }

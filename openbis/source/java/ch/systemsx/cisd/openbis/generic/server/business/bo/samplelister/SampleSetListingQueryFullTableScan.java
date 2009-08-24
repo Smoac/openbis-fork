@@ -27,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.BaseEntityProp
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.SampleRowVO;
 
 /**
  * An implementation of {@link ISampleSetListingQuery} which gets all all rows and then filters them
@@ -105,16 +104,16 @@ class SampleSetListingQueryFullTableScan implements ISampleSetListingQuery
             };
     }
 
-    public Iterable<SampleRowVO> getSamples(final LongSet sampleIds)
+    public Iterable<SampleRecord> getSamples(final LongSet sampleIds)
     {
-        return new Iterable<SampleRowVO>()
+        return new Iterable<SampleRecord>()
             {
-                public Iterator<SampleRowVO> iterator()
+                public Iterator<SampleRecord> iterator()
                 {
-                    return new FilterIterator<SampleRowVO>(query.getSamples(),
-                            new Predicate<SampleRowVO>()
+                    return new FilterIterator<SampleRecord>(query.getSamples(),
+                            new Predicate<SampleRecord>()
                                 {
-                                    public boolean evaluate(SampleRowVO sample)
+                                    public boolean evaluate(SampleRecord sample)
                                     {
                                         return sampleIds.contains(sample.id);
                                     }

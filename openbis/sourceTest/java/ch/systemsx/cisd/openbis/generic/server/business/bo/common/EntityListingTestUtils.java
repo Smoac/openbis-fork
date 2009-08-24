@@ -21,6 +21,7 @@ import static org.testng.AssertJUnit.fail;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -28,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 /**
  * @author Tomasz Pylak
  */
+@Friend(toClasses=CodeRecord.class)
 public class EntityListingTestUtils
 {
     public static PropertyType findPropertyType(PropertyType[] propertyTypes,

@@ -21,7 +21,6 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.SampleRowVO;
 
 /**
  * A fallback implementation of {@link ISampleSetListingQuery} for database engines who don't
@@ -97,7 +96,7 @@ class SampleSetListingQueryFallback implements ISampleSetListingQuery
         }
     }
 
-    public Iterable<SampleRowVO> getSamples(final LongSet sampleIds)
+    public Iterable<SampleRecord> getSamples(final LongSet sampleIds)
     {
         if (sampleIds.size() >= getNumberOfSamples() * FULL_TABLE_SCAN_THRESHOLD)
         {

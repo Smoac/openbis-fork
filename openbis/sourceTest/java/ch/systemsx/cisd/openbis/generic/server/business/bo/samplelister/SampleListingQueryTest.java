@@ -44,8 +44,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTerm
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.ExperimentProjectGroupCodeVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.SampleRowVO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -142,10 +140,10 @@ public class SampleListingQueryTest extends AbstractDAOTest
         final long listableSamplesInTestDB = query.getSampleCount();
         assertTrue(listableSamplesInTestDB > 0);
         int sampleCount = 0;
-        for (SampleRowVO sample : query.getSamples())
+        for (SampleRecord sample : query.getSamples())
         {
             final String msg = "id: " + sample.id;
-            final SampleRowVO sample2 = query.getSample(sample.id);
+            final SampleRecord sample2 = query.getSample(sample.id);
             assertTrue(msg, EqualsBuilder.reflectionEquals(sample, sample2));
             final SamplePE samplePE = daoFactory.getSampleDAO().getByTechId(new TechId(sample.id));
             assertEquals(msg, samplePE.getCode(), sample.code);
@@ -203,10 +201,10 @@ public class SampleListingQueryTest extends AbstractDAOTest
         assertFalse(sampleMap.isEmpty());
 
         int sampleCount = 0;
-        for (SampleRowVO sample : query.getGroupSamples(dbInstanceId, groupCode))
+        for (SampleRecord sample : query.getGroupSamples(dbInstanceId, groupCode))
         {
             final String msg = "id: " + sample.id;
-            final SampleRowVO sample2 = query.getSample(sample.id);
+            final SampleRecord sample2 = query.getSample(sample.id);
             assertTrue(msg, EqualsBuilder.reflectionEquals(sample, sample2));
             // We have to go the d-tour via samplePE as the sample doesn't contain the group id,
             // and no, we don't want to add it just for the test
@@ -221,10 +219,10 @@ public class SampleListingQueryTest extends AbstractDAOTest
     public void testQueryGroupSamplesBySampleType()
     {
         long sampleTypeId = getSampleTypeId(SAMPLE_TYPE_CODE_CELL_PLATE);
-        List<SampleRowVO> samples =
+        List<SampleRecord> samples =
                 asList(query.getGroupSamplesForSampleType(dbInstanceId, groupCode, sampleTypeId));
         assertTrue(samples.size() >= 15);
-        SampleRowVO sample = findCode(samples, "CP-TEST-1");
+        SampleRecord sample = findCode(samples, "CP-TEST-1");
         assertEquals(18, sample.expe_id.longValue());
         assertEquals(1042, sample.id);
         assertEquals(2, sample.pers_id_registerer);
@@ -233,7 +231,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
         assertNull(sample.samp_id_generated_from);
         assertNull(sample.samp_id_part_of);
 
-        SampleRowVO sample2 = findCode(samples, "3VCP1");
+        SampleRecord sample2 = findCode(samples, "3VCP1");
         assertNotNull(sample2.samp_id_generated_from);
         assertNull(sample2.samp_id_part_of);
     }
@@ -255,10 +253,10 @@ public class SampleListingQueryTest extends AbstractDAOTest
         assertFalse(sampleMap.isEmpty());
 
         int sampleCount = 0;
-        for (SampleRowVO sample : query.getSamplesForExperiment(experimentId))
+        for (SampleRecord sample : query.getSamplesForExperiment(experimentId))
         {
             final String msg = "id: " + sample.id;
-            final SampleRowVO sample2 = query.getSample(sample.id);
+            final SampleRecord sample2 = query.getSample(sample.id);
             assertTrue(msg, EqualsBuilder.reflectionEquals(sample, sample2));
             assertEquals(msg, experimentId, sample.expe_id.longValue());
             ++sampleCount;
@@ -275,10 +273,10 @@ public class SampleListingQueryTest extends AbstractDAOTest
         assertFalse(sampleMap.isEmpty());
 
         int sampleCount = 0;
-        for (SampleRowVO sample : query.getGroupSamplesWithExperiment(dbInstanceId, groupCode))
+        for (SampleRecord sample : query.getGroupSamplesWithExperiment(dbInstanceId, groupCode))
         {
             final String msg = "id: " + sample.id;
-            final SampleRowVO sample2 = query.getSample(sample.id);
+            final SampleRecord sample2 = query.getSample(sample.id);
             assertTrue(msg, EqualsBuilder.reflectionEquals(sample, sample2));
             // We have to go the d-tour via samplePE as the sample doesn't contain the group id,
             // and no, we don't want to add it just for the test
@@ -312,10 +310,10 @@ public class SampleListingQueryTest extends AbstractDAOTest
         assertFalse(sampleMap.isEmpty());
 
         int sampleCount = 0;
-        for (SampleRowVO sample : query.getSamplesForContainer(firstMasterPlate.getId()))
+        for (SampleRecord sample : query.getSamplesForContainer(firstMasterPlate.getId()))
         {
             final String msg = "id: " + sample.id;
-            final SampleRowVO sample2 = query.getSample(sample.id);
+            final SampleRecord sample2 = query.getSample(sample.id);
             assertTrue(msg, EqualsBuilder.reflectionEquals(sample, sample2));
             assertEquals(msg, firstMasterPlate.getId(), sample.samp_id_part_of);
             ++sampleCount;
@@ -326,26 +324,26 @@ public class SampleListingQueryTest extends AbstractDAOTest
     @Test
     public void testQuerySharedSamples()
     {
-        List<SampleRowVO> samples = asList(query.getSharedSamples(dbInstanceId));
+        List<SampleRecord> samples = asList(query.getSharedSamples(dbInstanceId));
         assertTrue(samples.size() > 0);
-        SampleRowVO sample = findCode(samples, SHARED_MASTER_PLATE_CODE);
+        SampleRecord sample = findCode(samples, SHARED_MASTER_PLATE_CODE);
         assertEquals(SHARED_MASTER_PLATE_ID, sample.id);
     }
 
     @Test
     public void testQuerySharedSamplesBySampleType()
     {
-        List<SampleRowVO> samples =
+        List<SampleRecord> samples =
                 asList(query.getSharedSamplesForSampleType(dbInstanceId, masterPlateType.getId()));
         assertTrue(samples.size() > 0);
-        SampleRowVO sample = findCode(samples, SHARED_MASTER_PLATE_CODE);
+        SampleRecord sample = findCode(samples, SHARED_MASTER_PLATE_CODE);
         assertEquals(SHARED_MASTER_PLATE_ID, sample.id);
     }
 
     @Test
     public void testGetExperiment()
     {
-        ExperimentProjectGroupCodeVO expFull =
+        ExperimentProjectGroupCodeRecord expFull =
                 query.getExperimentAndProjectAndGroupCodeForId(firstExperiment.getId());
         assertEquals(firstExperiment.getCode(), expFull.e_code);
         ProjectPE project = firstExperiment.getProject();
@@ -353,7 +351,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
         assertEquals(project.getGroup().getCode(), expFull.g_code);
         assertEquals(firstExperiment.getEntityType().getCode(), expFull.et_code);
 
-        ExperimentProjectGroupCodeVO expNoGroup =
+        ExperimentProjectGroupCodeRecord expNoGroup =
                 query.getExperimentAndProjectCodeForId(firstExperiment.getId());
         assertNull(expNoGroup.g_code);
         expFull.g_code = null;

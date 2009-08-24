@@ -30,13 +30,12 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesHolderResolver;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.ExperimentProjectGroupCodeVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.SampleRowVO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -74,6 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Bernd Rinn
  */
+@Friend(toClasses=ISampleSetListingQuery.class)
 final class SampleListingWorker
 {
     private final static Logger operationLog =
@@ -255,7 +255,7 @@ final class SampleListingWorker
             return null;
         }
         final long id = experimentTechId.getId();
-        final ExperimentProjectGroupCodeVO codes =
+        final ExperimentProjectGroupCodeRecord codes =
                 query.getExperimentAndProjectAndGroupCodeForId(id);
         final Experiment experiment = createExperiment(id, codes, null);
         experiments.put(id, experiment);
@@ -316,7 +316,7 @@ final class SampleListingWorker
                 : sampleTypeOrNull.getCode();
     }
 
-    private DataIterator<SampleRowVO> tryGetIteratorForGroupSamples()
+    private DataIterator<SampleRecord> tryGetIteratorForGroupSamples()
     {
         if (criteria.isIncludeGroup() == false)
         {
@@ -350,7 +350,7 @@ final class SampleListingWorker
         }
     }
 
-    private DataIterator<SampleRowVO> tryGetIteratorForExperimentSamples()
+    private DataIterator<SampleRecord> tryGetIteratorForExperimentSamples()
     {
         final TechId experimentTechId = criteria.getExperimentId();
         if (experimentTechId == null)
@@ -360,7 +360,7 @@ final class SampleListingWorker
         return query.getSamplesForExperiment(experimentTechId.getId());
     }
 
-    private DataIterator<SampleRowVO> tryGetIteratorForContainedSamples()
+    private DataIterator<SampleRecord> tryGetIteratorForContainedSamples()
     {
         final TechId containerTechId = criteria.getContainerSampleId();
         if (containerTechId == null)
@@ -370,7 +370,7 @@ final class SampleListingWorker
         return query.getSamplesForContainer(containerTechId.getId());
     }
 
-    private DataIterator<SampleRowVO> tryGetIteratorForSharedSamples()
+    private DataIterator<SampleRecord> tryGetIteratorForSharedSamples()
     {
         if (criteria.isIncludeInstance() == false)
         {
@@ -387,7 +387,7 @@ final class SampleListingWorker
         }
     }
 
-    private void retrievePrimaryBasicSamples(final DataIterator<SampleRowVO> sampleIteratorOrNull,
+    private void retrievePrimaryBasicSamples(final DataIterator<SampleRecord> sampleIteratorOrNull,
             final Group groupOrNull, final String baseIndexURL)
     {
         assert baseIndexURL != null;
@@ -396,12 +396,12 @@ final class SampleListingWorker
         retrieveBasicSamples(sampleIteratorOrNull, groupOrNull, baseIndexURL, sampleList);
     }
 
-    private void retrieveDependentBasicSamples(final Iterable<SampleRowVO> sampleIteratorOrNull)
+    private void retrieveDependentBasicSamples(final Iterable<SampleRecord> sampleIteratorOrNull)
     {
         retrieveBasicSamples(sampleIteratorOrNull, null, null, null);
     }
 
-    private void retrieveBasicSamples(final Iterable<SampleRowVO> sampleIteratorOrNull,
+    private void retrieveBasicSamples(final Iterable<SampleRecord> sampleIteratorOrNull,
             final Group groupOrNull, final String baseIndexURLOrNull,
             final List<Sample> sampleListOrNull)
     {
@@ -410,7 +410,7 @@ final class SampleListingWorker
             return;
         }
         final boolean primarySample = (sampleListOrNull != null);
-        for (SampleRowVO row : sampleIteratorOrNull)
+        for (SampleRecord row : sampleIteratorOrNull)
         {
             final Sample sample = createSample(row, groupOrNull, baseIndexURLOrNull, primarySample);
             sampleMap.put(sample.getId(), sample);
@@ -421,7 +421,7 @@ final class SampleListingWorker
         }
     }
 
-    private Sample createSample(SampleRowVO row, final Group groupOrNull,
+    private Sample createSample(SampleRecord row, final Group groupOrNull,
             final String baseIndexURLOrNull, final boolean primarySample)
     {
         final Sample sample = new Sample();
@@ -498,12 +498,12 @@ final class SampleListingWorker
         }
     }
 
-    private Experiment getOrCreateExperiment(SampleRowVO row, final Group groupOrNull)
+    private Experiment getOrCreateExperiment(SampleRecord row, final Group groupOrNull)
     {
         Experiment experiment = experiments.get(row.expe_id);
         if (experiment == null)
         {
-            final ExperimentProjectGroupCodeVO codes =
+            final ExperimentProjectGroupCodeRecord codes =
                     query.getExperimentAndProjectCodeForId(row.expe_id);
             experiment = createExperiment(row.expe_id, codes, groupOrNull);
         }
@@ -511,7 +511,7 @@ final class SampleListingWorker
     }
 
     private Experiment createExperiment(final long experimentId,
-            final ExperimentProjectGroupCodeVO codes, final Group groupOrNull)
+            final ExperimentProjectGroupCodeRecord codes, final Group groupOrNull)
     {
         final Group group;
         if (groupOrNull != null)
@@ -538,7 +538,7 @@ final class SampleListingWorker
         return experiment;
     }
 
-    private Person getOrCreateRegistrator(SampleRowVO row)
+    private Person getOrCreateRegistrator(SampleRecord row)
     {
         Person registrator = persons.get(row.pers_id_registerer);
         if (registrator == null)

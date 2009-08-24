@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntitySetPropertyListingQuery;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.SampleRowVO;
 
 /**
  * A DAO query interface for obtaining sets of samples or sample-related entities based on a set of
@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleL
  * 
  * @author Bernd Rinn
  */
+@Friend(toClasses=IEntitySetPropertyListingQuery.class)
 interface ISampleSetListingQuery extends IEntitySetPropertyListingQuery
 {
     //
@@ -38,6 +39,6 @@ interface ISampleSetListingQuery extends IEntitySetPropertyListingQuery
     /**
      * Returns the samples for the given <var>sampleIds</var>.
      */
-    public Iterable<SampleRowVO> getSamples(LongSet sampleIds);
+    public Iterable<SampleRecord> getSamples(LongSet sampleIds);
 
 }

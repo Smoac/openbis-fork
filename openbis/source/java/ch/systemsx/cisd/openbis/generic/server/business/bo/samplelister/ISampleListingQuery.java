@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -28,8 +27,8 @@ import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
 import net.lemnik.eodsql.spi.util.NonUpdateCapableDataObjectBinding;
 
+import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListingQuery;
@@ -46,53 +45,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * 
  * @author Bernd Rinn
  */
+@Friend(toClasses=IPropertyListingQuery.class)
 @Private
 public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQuery
 {
 
     public static final int FETCH_SIZE = 1000;
-
-    /**
-     * A value object representing one row of the sample table.
-     */
-    // CREATE TABLE SAMPLES (
-    // ID TECH_ID NOT NULL,
-    // PERM_ID CODE NOT NULL,
-    // CODE CODE NOT NULL,
-    // EXPE_ID TECH_ID,
-    // SAMP_ID_TOP TECH_ID,
-    // SAMP_ID_GENERATED_FROM TECH_ID,
-    // SATY_ID TECH_ID NOT NULL,
-    // REGISTRATION_TIMESTAMP TIME_STAMP_DFL NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    // MODIFICATION_TIMESTAMP TIME_STAMP DEFAULT CURRENT_TIMESTAMP,
-    // PERS_ID_REGISTERER TECH_ID NOT NULL,
-    // INVA_ID TECH_ID,
-    // SAMP_ID_CONTROL_LAYOUT TECH_ID,
-    // DBIN_ID TECH_ID,
-    // GROU_ID TECH_ID,
-    // SAMP_ID_PART_OF TECH_ID);
-    public static class SampleRowVO extends CodeRecord
-    {
-        public String perm_id;
-
-        public Long expe_id;
-
-        public Long samp_id_generated_from;
-
-        public Long samp_id_part_of;
-
-        public Date registration_timestamp;
-
-        public long pers_id_registerer;
-
-        public Long inva_id;
-
-        public long saty_id;
-    }
-
-    //
-    // Samples by id
-    //
 
     /**
      * Returns the total number of all samples in the database.
@@ -107,7 +65,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             + "       s.registration_timestamp, s.pers_id_registerer, "
             + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
             + "   from samples s where s.id=?{1}")
-    public SampleRowVO getSample(long sampleId);
+    public SampleRecord getSample(long sampleId);
 
     /**
      * Returns all samples in the database.
@@ -116,7 +74,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             + "       s.registration_timestamp, s.pers_id_registerer, "
             + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
             + "   from samples s", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRowVO> getSamples();
+    public DataIterator<SampleRecord> getSamples();
 
     //
     // Samples for group
@@ -131,7 +89,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             + "   from samples s join sample_types st on s.saty_id=st.id"
             + " join groups g on s.grou_id=g.id "
             + "   where st.is_listable and g.dbin_id=?{1} and g.code=?{2} order by s.code", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRowVO> getGroupSamples(long dbInstanceId, String groupCode);
+    public DataIterator<SampleRecord> getGroupSamples(long dbInstanceId, String groupCode);
 
     /**
      * Returns the samples for the given <var>groupCode</var> that are assigned to an experiment.
@@ -142,7 +100,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             + "   from samples s join groups g on s.grou_id=g.id "
             + "   where s.expe_id is not null and g.dbin_id=?{1} and g.code=?{2} "
             + "   order by s.code", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRowVO> getGroupSamplesWithExperiment(long dbInstanceId,
+    public DataIterator<SampleRecord> getGroupSamplesWithExperiment(long dbInstanceId,
             String groupCode);
 
     /**
@@ -154,7 +112,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             + "   from samples s join groups g on s.grou_id=g.id "
             + "   where g.dbin_id=?{1} and g.code=?{2} and s.saty_id=?{3}"
             + "      order by s.code", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRowVO> getGroupSamplesForSampleType(long dbInstanceId,
+    public DataIterator<SampleRecord> getGroupSamplesForSampleType(long dbInstanceId,
             String groupCode, long sampleTypeId);
 
     /**
@@ -167,7 +125,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             + "   from samples s  join groups g on s.grou_id=g.id "
             + "   where s.expe_id is not null and g.dbin_id=?{1} and g.code=?{2}"
             + " and s.saty_id=?{3} order by s.code", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRowVO> getGroupSamplesForSampleTypeWithExperiment(long dbInstanceId,
+    public DataIterator<SampleRecord> getGroupSamplesForSampleTypeWithExperiment(long dbInstanceId,
             String groupCode, long sampleTypeId);
 
     //
@@ -181,7 +139,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             + "       s.registration_timestamp, s.pers_id_registerer, "
             + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
             + "   from samples s where s.expe_id=?{1}", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRowVO> getSamplesForExperiment(long experimentId);
+    public DataIterator<SampleRecord> getSamplesForExperiment(long experimentId);
 
     //
     // Samples for container
@@ -194,7 +152,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             + "       s.registration_timestamp, s.pers_id_registerer, "
             + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
             + "   from samples s where s.samp_id_part_of=?{1}", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRowVO> getSamplesForContainer(long sampleContainerId);
+    public DataIterator<SampleRecord> getSamplesForContainer(long sampleContainerId);
 
     //
     // Shared samples
@@ -208,7 +166,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
             + "   from samples s join sample_types st on s.saty_id=st.id "
             + "   where st.is_listable and s.dbin_id=?{1} order by s.code", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRowVO> getSharedSamples(long dbInstanceId);
+    public DataIterator<SampleRecord> getSharedSamples(long dbInstanceId);
 
     /**
      * Returns the shared samples for the given <var>dbInstanceId</var> and <var>sampleTypeId</var>.
@@ -217,26 +175,12 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             + "       s.registration_timestamp, s.pers_id_registerer, "
             + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
             + "   from samples s where s.dbin_id=?{1} and s.saty_id=?{2} order by s.code", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRowVO> getSharedSamplesForSampleType(long dbInstanceId,
+    public DataIterator<SampleRecord> getSharedSamplesForSampleType(long dbInstanceId,
             long sampleTypeId);
 
     //
     // Experiments
     //
-
-    /**
-     * A DTO representing an experiment, project and group code.
-     */
-    public static class ExperimentProjectGroupCodeVO
-    {
-        public String e_code;
-
-        public String et_code;
-
-        public String p_code;
-
-        public String g_code;
-    }
 
     /**
      * Returns the code of an experiment and its project by the experiment <var>id</var>.
@@ -246,7 +190,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     @Select("select e.code as e_code, et.code as et_code, p.code as p_code from experiments e "
             + "join experiment_types et on e.exty_id=et.id join projects p on e.proj_id=p.id "
             + "where e.id=?{1}")
-    public ExperimentProjectGroupCodeVO getExperimentAndProjectCodeForId(long experimentId);
+    public ExperimentProjectGroupCodeRecord getExperimentAndProjectCodeForId(long experimentId);
 
     /**
      * Returns the code of an experiment and its project by the experiment <var>id</var>.
@@ -256,7 +200,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     @Select("select e.code as e_code, et.code as et_code, p.code as p_code, g.code as g_code from experiments e "
             + "join experiment_types et on e.exty_id=et.id join projects p on e.proj_id=p.id "
             + "join groups g on p.grou_id=g.id where e.id=?{1}")
-    public ExperimentProjectGroupCodeVO getExperimentAndProjectAndGroupCodeForId(long experimentId);
+    public ExperimentProjectGroupCodeRecord getExperimentAndProjectAndGroupCodeForId(long experimentId);
 
     //
     // Persons

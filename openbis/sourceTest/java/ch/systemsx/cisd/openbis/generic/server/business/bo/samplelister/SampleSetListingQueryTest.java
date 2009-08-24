@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityP
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleSetListingQuery;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.SampleRowVO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -119,12 +118,12 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
     public void testQuerySamples()
     {
         LongSet ids = createSet(CELL_PLATE_ID_CP_TEST_1, CELL_PLATE_ID_CP_TEST_2);
-        List<SampleRowVO> samples = asList(setQuery.getSamples(ids));
+        List<SampleRecord> samples = asList(setQuery.getSamples(ids));
         assertEquals(ids.size(), samples.size());
-        for (SampleRowVO sampleRowVO : samples)
+        for (SampleRecord sampleRowVO : samples)
         {
             assertTrue(ids.contains(sampleRowVO.id));
-            SampleRowVO sameSample = query.getSample(sampleRowVO.id);
+            SampleRecord sameSample = query.getSample(sampleRowVO.id);
             assertTrue(EqualsBuilder.reflectionEquals(sampleRowVO, sameSample));
         }
     }

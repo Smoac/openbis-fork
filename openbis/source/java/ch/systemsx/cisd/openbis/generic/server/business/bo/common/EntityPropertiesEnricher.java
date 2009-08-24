@@ -22,6 +22,7 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
@@ -38,6 +39,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEnti
  * 
  * @author Bernd Rinn
  */
+@Friend(toClasses =
+    { CodeRecord.class, GenericEntityPropertyRecord.class, VocabularyTermRecord.class,
+            MaterialEntityPropertyRecord.class, IPropertyListingQuery.class,
+            IEntitySetPropertyListingQuery.class })
 public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
 {
     private final IPropertyListingQuery query;

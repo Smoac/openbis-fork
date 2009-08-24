@@ -21,7 +21,6 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.SampleRowVO;
 
 /**
  * The standard implementation of {@link ISampleSetListingQuery} for database engines that support
@@ -54,7 +53,7 @@ class SampleSetListingQueryStandard implements ISampleSetListingQuery
         return delegate.getSamplePropertyVocabularyTermValues(entityIDs);
     }
 
-    public Iterable<SampleRowVO> getSamples(LongSet sampleIds)
+    public Iterable<SampleRecord> getSamples(LongSet sampleIds)
     {
         return delegate.getSamples(sampleIds);
     }

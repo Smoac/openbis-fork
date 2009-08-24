@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
+import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
@@ -36,6 +37,7 @@ import net.lemnik.eodsql.Select;
  * 
  * @author Bernd Rinn
  */
+@Friend(toClasses=ISampleListingQuery.class)
 @Private
 public interface ISampleListingFullQuery extends ISampleListingQuery
 {
@@ -54,7 +56,7 @@ public interface ISampleListingFullQuery extends ISampleListingQuery
             + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
             + "   from samples s where s.id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRowVO> getSamples(LongSet sampleIds);
+    public DataIterator<SampleRecord> getSamples(LongSet sampleIds);
 
     //
     // Sample Properties
