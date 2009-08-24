@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import it.unimi.dsi.fastutil.longs.Long2IntMap;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
@@ -33,11 +33,8 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleListerDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ISampleListingQuery;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ISampleSetListingQuery;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ISampleListingQuery.ExperimentProjectGroupCodeVO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ISampleListingQuery.SampleRowVO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.ExperimentProjectGroupCodeVO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.SampleRowVO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -171,7 +168,7 @@ final class SampleListingWorker
     // Constructors
     //
 
-    SampleListingWorker(final ListSampleCriteria criteria, final ISampleListerDAO dao)
+    SampleListingWorker(final ListSampleCriteria criteria, final SampleListerDAO dao)
     {
         this(criteria, dao.getDatabaseInstanceId(), dao.getDatabaseInstance(), dao.getQuery(), dao
                 .getIdSetQuery(), new SamplePropertiesEnrichmentWorker(dao.getQuery(), dao

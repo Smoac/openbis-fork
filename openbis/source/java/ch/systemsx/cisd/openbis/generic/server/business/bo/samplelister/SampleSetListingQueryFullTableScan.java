@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
 
@@ -23,11 +23,11 @@ import java.util.Iterator;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.iterators.FilterIterator;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ISampleListingQuery.BaseSamplePropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ISampleListingQuery.CoVoSamplePropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ISampleListingQuery.GenericSamplePropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ISampleListingQuery.MaterialSamplePropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ISampleListingQuery.SampleRowVO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.BaseSamplePropertyVO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.CoVoSamplePropertyVO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.GenericSamplePropertyVO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.MaterialSamplePropertyVO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.SampleRowVO;
 
 /**
  * An implementation of {@link ISampleSetListingQuery} which gets all all rows and then filters them
@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ISampleListingQuery
  * 
  * @author Bernd Rinn
  */
-public class SampleSetListingQueryFullTableScan implements ISampleSetListingQuery
+class SampleSetListingQueryFullTableScan implements ISampleSetListingQuery
 {
     private final ISampleListingQuery query;
 

@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import javax.sql.DataSource;
 
 import net.lemnik.eodsql.QueryTool;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleLister;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleListerDAO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;
 
 /**
- * The DAO for {@link SampleLister} objects.
+ * The DAO for business objects implementing {@link ISampleLister}. 
+ * Note: Even though this class and its main constructor are public all methods have to be
+ * package protected.
  * 
  * @author Bernd Rinn
  */
-public final class SampleListerDAO implements ISampleListerDAO
+public final class SampleListerDAO
 {
     private final boolean enabled;
 
@@ -68,27 +69,27 @@ public final class SampleListerDAO implements ISampleListerDAO
         }
     }
 
-    public boolean isEnabled()
+    boolean isEnabled()
     {
         return enabled;
     }
 
-    public long getDatabaseInstanceId()
+    long getDatabaseInstanceId()
     {
         return databaseInstanceId;
     }
 
-    public DatabaseInstance getDatabaseInstance()
+    DatabaseInstance getDatabaseInstance()
     {
         return databaseInstance;
     }
 
-    public ISampleListingQuery getQuery()
+    ISampleListingQuery getQuery()
     {
         return query;
     }
 
-    public ISampleSetListingQuery getIdSetQuery()
+    ISampleSetListingQuery getIdSetQuery()
     {
         return idSetQuery;
     }

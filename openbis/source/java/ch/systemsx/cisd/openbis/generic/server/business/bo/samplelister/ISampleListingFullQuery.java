@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
+
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.lemnik.eodsql.DataIterator;
@@ -27,7 +29,7 @@ import net.lemnik.eodsql.Select;
  * 
  * @author Bernd Rinn
  */
-public interface ISampleListingFullQuery extends ISampleListingQuery
+interface ISampleListingFullQuery extends ISampleListingQuery
 {
 
     //

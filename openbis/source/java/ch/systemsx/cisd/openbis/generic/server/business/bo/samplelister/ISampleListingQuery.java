@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
  * 
  * @author Bernd Rinn
  */
-public interface ISampleListingQuery extends TransactionQuery
+interface ISampleListingQuery extends TransactionQuery
 {
 
     public static final int FETCH_SIZE = 1000;

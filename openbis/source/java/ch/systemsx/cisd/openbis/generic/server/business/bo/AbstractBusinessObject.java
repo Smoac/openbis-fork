@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.SampleListerDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -40,7 +41,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleListerDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
@@ -267,7 +267,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
         return daoFactory.getEventDAO();
     }
 
-    public ISampleListerDAO getSampleListerDAO()
+    public SampleListerDAO getSampleListerDAO()
     {
         return daoFactory.getSampleListerDAO();
     }
