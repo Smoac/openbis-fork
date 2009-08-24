@@ -25,9 +25,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityPropertyUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
@@ -39,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
 
@@ -76,12 +79,15 @@ public class DataSetPropertiesSection extends SingleSectionPanel
                 .createDataSetTypePropertyValueRenderer(viewContext));
         propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
                 .createInvalidationPropertyValueRenderer(viewContext));
-        final IPropertyValueRenderer<IEntityProperty> propertyRenderer = PropertyValueRenderers
-                .createEntityPropertyPropertyValueRenderer(viewContext);
+        final IPropertyValueRenderer<IEntityProperty> propertyRenderer =
+                PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
         propertyGrid.registerPropertyValueRenderer(EntityProperty.class, propertyRenderer);
-        propertyGrid.registerPropertyValueRenderer(GenericValueEntityProperty.class, propertyRenderer);
-        propertyGrid.registerPropertyValueRenderer(VocabularyTermValueEntityProperty.class, propertyRenderer);
-        propertyGrid.registerPropertyValueRenderer(MaterialValueEntityProperty.class, propertyRenderer);
+        propertyGrid.registerPropertyValueRenderer(GenericValueEntityProperty.class,
+                propertyRenderer);
+        propertyGrid.registerPropertyValueRenderer(VocabularyTermValueEntityProperty.class,
+                propertyRenderer);
+        propertyGrid.registerPropertyValueRenderer(MaterialValueEntityProperty.class,
+                propertyRenderer);
         propertyGrid.registerPropertyValueRenderer(Sample.class, PropertyValueRenderers
                 .createSamplePropertyValueRenderer(viewContext, true));
         propertyGrid.registerPropertyValueRenderer(Experiment.class, PropertyValueRenderers
@@ -138,11 +144,12 @@ public class DataSetPropertiesSection extends SingleSectionPanel
 
         final List<IEntityProperty> datasetProperties = dataset.getProperties();
         Collections.sort(datasetProperties);
+        List<PropertyType> types = EntityPropertyUtils.extractTypes(datasetProperties);
         for (final IEntityProperty property : datasetProperties)
         {
-            final String simpleCode =
-                    property.getPropertyType().getLabel();
-            properties.put(simpleCode, property);
+            final String label =
+                    PropertyTypeRenderer.getDisplayName(property.getPropertyType(), types);
+            properties.put(label, property);
         }
         return properties;
     }

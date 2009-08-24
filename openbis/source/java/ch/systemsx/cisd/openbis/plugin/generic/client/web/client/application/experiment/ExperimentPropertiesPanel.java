@@ -30,9 +30,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractDatabaseModificationObserverWithCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserverWithCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityPropertyUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -45,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -94,11 +97,12 @@ public class ExperimentPropertiesPanel extends ContentPanel
                 .createExperimentTypePropertyValueRenderer(messageProvider));
         propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
                 .createInvalidationPropertyValueRenderer(messageProvider));
-        final IPropertyValueRenderer<IEntityProperty> renderer = PropertyValueRenderers
-                .createEntityPropertyPropertyValueRenderer(viewContext);
+        final IPropertyValueRenderer<IEntityProperty> renderer =
+                PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
         propertyGrid.registerPropertyValueRenderer(EntityProperty.class, renderer);
         propertyGrid.registerPropertyValueRenderer(GenericValueEntityProperty.class, renderer);
-        propertyGrid.registerPropertyValueRenderer(VocabularyTermValueEntityProperty.class, renderer);
+        propertyGrid.registerPropertyValueRenderer(VocabularyTermValueEntityProperty.class,
+                renderer);
         propertyGrid.registerPropertyValueRenderer(MaterialValueEntityProperty.class, renderer);
         propertyGrid.setProperties(properties);
         return propertyGrid;
@@ -118,13 +122,13 @@ public class ExperimentPropertiesPanel extends ContentPanel
         {
             properties.put(messageProvider.getMessage(Dict.INVALIDATION), invalidation);
         }
-
         final List<IEntityProperty> experimentProperties = experiment.getProperties();
         Collections.sort(experimentProperties);
+        List<PropertyType> types = EntityPropertyUtils.extractTypes(experimentProperties);
         for (final IEntityProperty property : experimentProperties)
         {
-            final String simpleCode = property.getPropertyType().getLabel();
-            properties.put(simpleCode, property);
+            properties.put(PropertyTypeRenderer.getDisplayName(property.getPropertyType(), types),
+                    property);
         }
         return properties;
     }

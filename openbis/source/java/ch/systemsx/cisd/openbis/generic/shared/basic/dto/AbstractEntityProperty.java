@@ -103,7 +103,15 @@ public abstract class AbstractEntityProperty implements IEntityProperty
 
     public int compareTo(IEntityProperty o)
     {
-        return this.getPropertyType().getLabel().compareTo(o.getPropertyType().getLabel());
+        PropertyType thisPropertyType = this.getPropertyType();
+        PropertyType otherPropertyType = o.getPropertyType();
+        if (thisPropertyType.getLabel().equals(otherPropertyType.getLabel()))
+        {
+            return thisPropertyType.getCode().compareTo(otherPropertyType.getCode());
+        } else
+        {
+            return thisPropertyType.getLabel().compareTo(otherPropertyType.getLabel());
+        }
     }
 
 }
