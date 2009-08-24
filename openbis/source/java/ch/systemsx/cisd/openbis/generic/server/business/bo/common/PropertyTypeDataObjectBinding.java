@@ -8,6 +8,7 @@ import net.lemnik.eodsql.spi.util.NonUpdateCapableDataObjectBinding;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -16,7 +17,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 /**
  * A binding for the {@link IPropertyListingQuery#getPropertyTypes()} query.
  */
-class PropertyTypeDataObjectBinding extends
+@Private
+public class PropertyTypeDataObjectBinding extends
         NonUpdateCapableDataObjectBinding<PropertyType>
 {
     @Override
