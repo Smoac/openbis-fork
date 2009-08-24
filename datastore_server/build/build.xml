@@ -63,7 +63,13 @@
 		</jar>
 	</target>
 
-	<target name="dist" depends="dss-jar">
+	<target name="dist">
+		<antcall target="make-dist">
+                        <param name="variant" value="" />
+		</antcall>
+	</target>
+
+	<target name="make-dist" depends="dss-jar">
 		<copy file="${dss-jar.file}" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/cisd-base/cisd-base.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/cisd-args4j/cisd-args4j.jar" todir="${dist.datastore_server.lib}" />
@@ -90,7 +96,7 @@
 		<copy file="${lib}/spring/spring.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/fast-md5/fast-md5.jar" todir="${dist.datastore_server.lib}" />
 		<property name="dist.file"
-		          value="${dist.file.prefix}-${version.number}-r${revision.number}.zip" />
+		          value="${dist.file.prefix}${variant}-${version.number}-r${revision.number}.zip" />
 		<zip basedir="${dist}" destfile="${dist.file}" excludes="*.zip *.jar">
 			<zipfileset dir="${dss.original.dist}" 
 				    excludes="**/datastore_server.sh, **/service.properties, **/log.xml" 
