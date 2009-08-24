@@ -22,8 +22,6 @@ import java.util.Map;
 import org.hibernate.SessionFactory;
 
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
-import ch.systemsx.cisd.dbmigration.DatabaseEngine;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.SampleListerDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -87,8 +85,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IAuthorizationGroupDAO authorizationGroupDAO;
 
-    private final SampleListerDAO sampleListerDAO;
-
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory)
     {
@@ -118,12 +114,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
             entityPropertyTypeDAOs.put(entityKind, new EntityPropertyTypeDAO(entityKind,
                     sessionFactory, databaseInstance));
         }
-        // H2 does not support set queries ("=ANY()" operator)
-        final boolean supportsSetQuery =
-                (DatabaseEngine.H2.getCode().equals(context.getDatabaseEngineCode()) == false);
-        this.sampleListerDAO =
-                new SampleListerDAO(true, supportsSetQuery, context.getDataSource(),
-                        databaseInstance);
     }
 
     //
@@ -213,10 +203,5 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public IAuthorizationGroupDAO getAuthorizationGroupDAO()
     {
         return authorizationGroupDAO;
-    }
-
-    public SampleListerDAO getSampleListerDAO()
-    {
-        return sampleListerDAO;
     }
 }

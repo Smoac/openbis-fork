@@ -105,7 +105,8 @@ public class SampleListingQueryTest extends AbstractDAOTest
     @BeforeClass(alwaysRun = true)
     public void init()
     {
-        dbInstanceId = daoFactory.getSampleListerDAO().getDatabaseInstanceId();
+        SampleListerDAO sampleListerDAO = SampleListerDAOFactory.createSampleListerDAO(daoFactory);
+        dbInstanceId = sampleListerDAO.getDatabaseInstanceId();
         dbInstance = daoFactory.getDatabaseInstanceDAO().getByTechId(new TechId(dbInstanceId));
         group = daoFactory.getGroupDAO().tryFindGroupByCodeAndDatabaseInstance("CISD", dbInstance);
         groupId = group.getId();
@@ -118,7 +119,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
                         masterPlateType, dbInstance).get(0);
         firstExperiment = daoFactory.getExperimentDAO().listExperiments().get(0);
         firstPerson = daoFactory.getPersonDAO().getPerson(1);
-        query = daoFactory.getSampleListerDAO().getQuery();
+        query = sampleListerDAO.getQuery();
     }
 
     private Map<Long, SamplePE> createIdMap(final List<SamplePE> sampleList, boolean dropNonListable)

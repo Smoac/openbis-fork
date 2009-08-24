@@ -59,6 +59,8 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.VocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.VocabularyTermBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.SampleLister;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.SampleListerDAO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.SampleListerDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -71,9 +73,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFactory implements
         ICommonBusinessObjectFactory
 {
+    private SampleListerDAO sampleListerDAO;
+
     public CommonBusinessObjectFactory(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory)
     {
         super(daoFactory, dssFactory);
+        sampleListerDAO = SampleListerDAOFactory.createSampleListerDAO(daoFactory);
     }
 
     public final IAttachmentBO createAttachmentBO(final Session session)
@@ -98,7 +103,7 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
 
     public ISampleLister createSampleLister(Session session)
     {
-        return new SampleLister(getDaoFactory());
+        return new SampleLister(sampleListerDAO);
     }
 
     public final ISampleBO createSampleBO(final Session session)

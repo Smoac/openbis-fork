@@ -80,7 +80,8 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
     @BeforeClass(alwaysRun = true)
     public void init()
     {
-        dbInstanceId = daoFactory.getSampleListerDAO().getDatabaseInstanceId();
+        SampleListerDAO sampleListerDAO = SampleListerDAOFactory.createSampleListerDAO(daoFactory);
+        dbInstanceId = sampleListerDAO.getDatabaseInstanceId();
         dbInstance = daoFactory.getDatabaseInstanceDAO().getByTechId(new TechId(dbInstanceId));
         group = daoFactory.getGroupDAO().listGroups().get(0);
         final SampleTypePE masterPlateType =
@@ -104,8 +105,8 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
         {
             cellPlateIds.add(sample.getId());
         }
-        setQuery = daoFactory.getSampleListerDAO().getIdSetQuery();
-        query = daoFactory.getSampleListerDAO().getQuery();
+        setQuery = sampleListerDAO.getIdSetQuery();
+        query = sampleListerDAO.getQuery();
     }
 
     private static LongSet createSet(long... values)

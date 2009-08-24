@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
 
@@ -67,12 +68,12 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
 
     private final ISampleDAO sampleDAO;
 
-    private final SessionFactory sessionFactory;
+    private final PersistencyResources persistencyResources;
 
     public AuthorizationDAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory)
     {
-        this.sessionFactory = sessionFactory;
+        persistencyResources = new PersistencyResources(context, sessionFactory);
         databaseInstancesDAO = new DatabaseInstanceDAO(sessionFactory);
         homeDatabaseInstance = getDatabaseInstanceId(context.getDatabaseInstance());
         personDAO = new PersonDAO(sessionFactory, homeDatabaseInstance);
@@ -84,9 +85,14 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         sampleDAO = new SampleDAO(sessionFactory, homeDatabaseInstance);
     }
 
+    public final PersistencyResources getPersistencyResources()
+    {
+        return persistencyResources;
+    }
+
     protected SessionFactory getSessionFactory()
     {
-        return sessionFactory;
+        return persistencyResources.getSessionFactoryOrNull();
     }
 
     private final DatabaseInstancePE getDatabaseInstanceId(final String databaseInstanceCode)
@@ -195,6 +201,7 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
 
     public void disableSecondLevelCacheForSession()
     {
+        SessionFactory sessionFactory = persistencyResources.getSessionFactoryOrNull();
         sessionFactory.getCurrentSession().setCacheMode(CacheMode.IGNORE);
     }
 

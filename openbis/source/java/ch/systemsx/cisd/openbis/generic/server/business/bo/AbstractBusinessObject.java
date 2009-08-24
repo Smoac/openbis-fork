@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.SampleListerDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -44,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ICodeSequenceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
@@ -267,11 +267,6 @@ abstract class AbstractBusinessObject implements IDAOFactory
         return daoFactory.getEventDAO();
     }
 
-    public SampleListerDAO getSampleListerDAO()
-    {
-        return daoFactory.getSampleListerDAO();
-    }
-
     public void disableSecondLevelCacheForSession()
     {
         daoFactory.disableSecondLevelCacheForSession();
@@ -280,6 +275,11 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public IAuthorizationGroupDAO getAuthorizationGroupDAO()
     {
         return daoFactory.getAuthorizationGroupDAO();
+    }
+
+    public PersistencyResources getPersistencyResources()
+    {
+        return daoFactory.getPersistencyResources();
     }
 
 }

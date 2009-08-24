@@ -25,7 +25,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
  */
 public interface IAuthorizationDAOFactory
 {
-
+    /** Returns the persistency resources used to create DAO's. */
+    public PersistencyResources getPersistencyResources();
+    
     /**
      * Returns the current {@link DatabaseInstancePE}.
      */

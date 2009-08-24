@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleLister;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
@@ -34,9 +33,9 @@ public class SampleLister implements ISampleLister
 {
     private final SampleListerDAO dao;
 
-    public SampleLister(final IDAOFactory daoFactory)
+    public SampleLister(SampleListerDAO dao)
     {
-        this.dao = daoFactory.getSampleListerDAO();
+        this.dao = dao;
     }
 
     public boolean canHandle(final ListSampleCriteria criteria)
