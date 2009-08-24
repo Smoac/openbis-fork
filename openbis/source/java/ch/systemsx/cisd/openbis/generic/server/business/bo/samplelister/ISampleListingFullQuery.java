@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
+import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
@@ -26,9 +30,13 @@ import net.lemnik.eodsql.Select;
  * This extension of {@link ISampleListingQuery} provides set-based query methods. As not all
  * database engines support this, it shouldn't be called directly in a BO but only via
  * {@link ISampleSetListingQuery} implementation.
+ * <p>
+ * This interface is intended to be used only in this package. The <code>public</code> modifier
+ * is needed for creating a dynamic proxy by the EOD SQL library.
  * 
  * @author Bernd Rinn
  */
+@Private
 public interface ISampleListingFullQuery extends ISampleListingQuery
 {
 
@@ -63,7 +71,7 @@ public interface ISampleListingFullQuery extends ISampleListingQuery
             + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
             + "   where sp.value is not null and sp.samp_id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<GenericEntityPropertyVO> getSamplePropertyGenericValues(LongSet sampleIds);
+    public DataIterator<GenericEntityPropertyRecord> getSamplePropertyGenericValues(LongSet sampleIds);
 
     /**
      * Returns all controlled vocabulary property values of all samples specified by
@@ -79,7 +87,7 @@ public interface ISampleListingFullQuery extends ISampleListingQuery
             + "      join controlled_vocabulary_terms cvte on sp.cvte_id=cvte.id"
             + "   where sp.samp_id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<CoVoSamplePropertyVO> getSamplePropertyVocabularyTermValues(
+    public DataIterator<VocabularyTermRecord> getSamplePropertyVocabularyTermValues(
             LongSet sampleIds);
 
     /**
@@ -94,6 +102,6 @@ public interface ISampleListingFullQuery extends ISampleListingQuery
             + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
             + "      join materials m on sp.mate_prop_id=m.id where sp.samp_id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<MaterialSamplePropertyVO> getSamplePropertyMaterialValues(LongSet sampleIds);
+    public DataIterator<MaterialEntityPropertyRecord> getSamplePropertyMaterialValues(LongSet sampleIds);
 
 }

@@ -23,9 +23,9 @@ import net.lemnik.eodsql.DataIterator;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.CoVoSamplePropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.GenericEntityPropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.MaterialSamplePropertyVO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.SampleRowVO;
 
 /**
@@ -42,16 +42,16 @@ class SampleSetListingQueryOneByOne implements ISampleSetListingQuery
         this.query = query;
     }
 
-    public Iterable<GenericEntityPropertyVO> getSamplePropertyGenericValues(final LongSet sampleIds)
+    public Iterable<GenericEntityPropertyRecord> getEntityPropertyGenericValues(final LongSet entityIDs)
     {
-        return new Iterable<GenericEntityPropertyVO>()
+        return new Iterable<GenericEntityPropertyRecord>()
             {
-                public Iterator<GenericEntityPropertyVO> iterator()
+                public Iterator<GenericEntityPropertyRecord> iterator()
                 {
-                    final LongIterator outerIt = sampleIds.iterator();
-                    return new Iterator<GenericEntityPropertyVO>()
+                    final LongIterator outerIt = entityIDs.iterator();
+                    return new Iterator<GenericEntityPropertyRecord>()
                         {
-                            DataIterator<GenericEntityPropertyVO> innerIt = null;
+                            DataIterator<GenericEntityPropertyRecord> innerIt = null;
 
                             public boolean hasNext()
                             {
@@ -66,7 +66,7 @@ class SampleSetListingQueryOneByOne implements ISampleSetListingQuery
                                 return (innerIt != null && innerIt.isClosed() == false);
                             }
 
-                            public GenericEntityPropertyVO next()
+                            public GenericEntityPropertyRecord next()
                             {
                                 return innerIt.next();
                             }
@@ -80,17 +80,17 @@ class SampleSetListingQueryOneByOne implements ISampleSetListingQuery
             };
     }
 
-    public Iterable<MaterialSamplePropertyVO> getSamplePropertyMaterialValues(
-            final LongSet sampleIds)
+    public Iterable<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
+            final LongSet entityIDs)
     {
-        return new Iterable<MaterialSamplePropertyVO>()
+        return new Iterable<MaterialEntityPropertyRecord>()
             {
-                public Iterator<MaterialSamplePropertyVO> iterator()
+                public Iterator<MaterialEntityPropertyRecord> iterator()
                 {
-                    final LongIterator outerIt = sampleIds.iterator();
-                    return new Iterator<MaterialSamplePropertyVO>()
+                    final LongIterator outerIt = entityIDs.iterator();
+                    return new Iterator<MaterialEntityPropertyRecord>()
                         {
-                            DataIterator<MaterialSamplePropertyVO> innerIt = null;
+                            DataIterator<MaterialEntityPropertyRecord> innerIt = null;
 
                             public boolean hasNext()
                             {
@@ -104,7 +104,7 @@ class SampleSetListingQueryOneByOne implements ISampleSetListingQuery
                                 return (innerIt != null && innerIt.isClosed() == false);
                             }
 
-                            public MaterialSamplePropertyVO next()
+                            public MaterialEntityPropertyRecord next()
                             {
                                 return innerIt.next();
                             }
@@ -118,17 +118,17 @@ class SampleSetListingQueryOneByOne implements ISampleSetListingQuery
             };
     }
 
-    public Iterable<CoVoSamplePropertyVO> getSamplePropertyVocabularyTermValues(
-            final LongSet sampleIds)
+    public Iterable<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
+            final LongSet entityIDs)
     {
-        return new Iterable<CoVoSamplePropertyVO>()
+        return new Iterable<VocabularyTermRecord>()
             {
-                public Iterator<CoVoSamplePropertyVO> iterator()
+                public Iterator<VocabularyTermRecord> iterator()
                 {
-                    final LongIterator outerIt = sampleIds.iterator();
-                    return new Iterator<CoVoSamplePropertyVO>()
+                    final LongIterator outerIt = entityIDs.iterator();
+                    return new Iterator<VocabularyTermRecord>()
                         {
-                            DataIterator<CoVoSamplePropertyVO> innerIt = null;
+                            DataIterator<VocabularyTermRecord> innerIt = null;
 
                             public boolean hasNext()
                             {
@@ -142,7 +142,7 @@ class SampleSetListingQueryOneByOne implements ISampleSetListingQuery
                                 return (innerIt != null && innerIt.isClosed() == false);
                             }
 
-                            public CoVoSamplePropertyVO next()
+                            public VocabularyTermRecord next()
                             {
                                 return innerIt.next();
                             }

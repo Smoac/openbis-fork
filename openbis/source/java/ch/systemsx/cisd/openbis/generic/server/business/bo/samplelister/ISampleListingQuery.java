@@ -28,20 +28,26 @@ import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
 import net.lemnik.eodsql.spi.util.NonUpdateCapableDataObjectBinding;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListingQuery;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 
 /**
  * A {@link TransactionQuery} interface for obtaining large sets of sample-related entities from the
  * database.
+ * <p>
+ * This interface is intended to be used only in this package. The <code>public</code> modifier
+ * is needed for creating a dynamic proxy by the EOD SQL library.
  * 
  * @author Bernd Rinn
  */
-interface ISampleListingQuery extends TransactionQuery, IPropertyListingQuery
+@Private
+public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQuery
 {
 
     public static final int FETCH_SIZE = 1000;
@@ -65,7 +71,7 @@ interface ISampleListingQuery extends TransactionQuery, IPropertyListingQuery
     // DBIN_ID TECH_ID,
     // GROU_ID TECH_ID,
     // SAMP_ID_PART_OF TECH_ID);
-    public static class SampleRowVO extends CodeVO
+    public static class SampleRowVO extends CodeRecord
     {
         public String perm_id;
 
@@ -298,51 +304,12 @@ interface ISampleListingQuery extends TransactionQuery, IPropertyListingQuery
     public SampleType[] getSampleTypes();
 
     /**
-     * A binding for the {@link ISampleListingQuery#getPropertyTypes()} query.
-     */
-    static class PropertyTypeDataObjectBinding extends
-            NonUpdateCapableDataObjectBinding<PropertyType>
-    {
-        @Override
-        public void unmarshall(ResultSet row, PropertyType into) throws SQLException, EoDException
-        {
-            into.setId(row.getLong("pt_id"));
-            into.setInternalNamespace(row.getBoolean("is_managed_internally"));
-            into.setSimpleCode(StringEscapeUtils.escapeHtml(row.getString("pt_code")));
-            into.setCode(StringEscapeUtils.escapeHtml(CodeConverter.tryToBusinessLayer(into
-                    .getSimpleCode(), into.isInternalNamespace())));
-            into.setLabel(StringEscapeUtils.escapeHtml(row.getString("pt_label")));
-            final DataType dataType = new DataType();
-            dataType.setCode(DataTypeCode.valueOf(row.getString("dt_code")));
-            into.setDataType(dataType);
-        }
-    }
-
-    /**
-     * A value object for a sample property.
-     */
-    public static class BaseEntityPropertyVO
-    {
-        public long entity_id;
-
-        public long prty_id;
-    }
-
-    /**
-     * A value object for a generic entity property.
-     */
-    public static class GenericEntityPropertyVO extends BaseEntityPropertyVO
-    {
-        public String value;
-    }
-
-    /**
      * Returns all generic property values of the sample with <var>entityId</var>.
      */
     @Select("select sp.samp_id as entity_id, stpt.prty_id, sp.value from sample_properties sp"
             + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
             + "   where sp.value is not null and sp.samp_id=?{1}")
-    public DataIterator<GenericEntityPropertyVO> getEntityPropertyGenericValues(long entityId);
+    public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(long entityId);
 
     /**
      * Returns all generic property values of all samples.
@@ -350,21 +317,7 @@ interface ISampleListingQuery extends TransactionQuery, IPropertyListingQuery
     @Select(sql = "select sp.samp_id as entity_id, stpt.prty_id, sp.value from sample_properties sp"
             + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
             + "   where sp.value is not null", fetchSize = FETCH_SIZE)
-    public DataIterator<GenericEntityPropertyVO> getSamplePropertyGenericValues();
-
-    /**
-     * A value object for a generic sample property.
-     */
-    public static class CoVoSamplePropertyVO extends BaseEntityPropertyVO
-    {
-        public long id;
-
-        public long covo_id;
-
-        public String code;
-
-        public String label;
-    }
+    public DataIterator<GenericEntityPropertyRecord> getSamplePropertyGenericValues();
 
     /**
      * Returns all controlled vocabulary property values of the sample with <var>sampleId</var>.
@@ -374,7 +327,7 @@ interface ISampleListingQuery extends TransactionQuery, IPropertyListingQuery
             + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
             + "      join controlled_vocabulary_terms cvte on sp.cvte_id=cvte.id"
             + "   where sp.samp_id=?{1}")
-    public DataIterator<CoVoSamplePropertyVO> getSamplePropertyVocabularyTermValues(long sampleId);
+    public DataIterator<VocabularyTermRecord> getSamplePropertyVocabularyTermValues(long sampleId);
 
     /**
      * Returns all controlled vocabulary property values of all samples.
@@ -383,19 +336,7 @@ interface ISampleListingQuery extends TransactionQuery, IPropertyListingQuery
             + "      from sample_properties sp"
             + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
             + "      join controlled_vocabulary_terms cvte on sp.cvte_id=cvte.id", fetchSize = FETCH_SIZE)
-    public DataIterator<CoVoSamplePropertyVO> getSamplePropertyVocabularyTermValues();
-
-    /**
-     * A value object for a generic sample property.
-     */
-    public static class MaterialSamplePropertyVO extends BaseEntityPropertyVO
-    {
-        public long id;
-
-        public long maty_id;
-
-        public String code;
-    }
+    public DataIterator<VocabularyTermRecord> getSamplePropertyVocabularyTermValues();
 
     /**
      * Returns all material-type property values of the sample with <var>sampleId</var>
@@ -404,7 +345,7 @@ interface ISampleListingQuery extends TransactionQuery, IPropertyListingQuery
             + "      from sample_properties sp"
             + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
             + "      join materials m on sp.mate_prop_id=m.id where sp.samp_id=?{1}")
-    public DataIterator<MaterialSamplePropertyVO> getSamplePropertyMaterialValues(long sampleId);
+    public DataIterator<MaterialEntityPropertyRecord> getSamplePropertyMaterialValues(long sampleId);
 
     /**
      * Returns all material-type property values of all samples.
@@ -413,6 +354,6 @@ interface ISampleListingQuery extends TransactionQuery, IPropertyListingQuery
             + "      from sample_properties sp"
             + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
             + "      join materials m on sp.mate_prop_id=m.id", fetchSize = FETCH_SIZE)
-    public DataIterator<MaterialSamplePropertyVO> getSamplePropertyMaterialValues();
+    public DataIterator<MaterialEntityPropertyRecord> getSamplePropertyMaterialValues();
 
 }

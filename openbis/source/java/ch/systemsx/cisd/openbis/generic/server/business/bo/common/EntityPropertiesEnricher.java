@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.common;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -22,10 +22,6 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.CoVoSamplePropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.GenericEntityPropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.MaterialSamplePropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.SampleListingWorker.ISampleResolver;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
@@ -38,50 +34,50 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
 
 /**
- * A class that can enrich a set of samples with its sample properties.
+ * A class that can enrich a set of entities with its entity properties.
  * 
  * @author Bernd Rinn
  */
-final class SamplePropertiesEnrichmentWorker implements
-        SampleListingWorker.ISamplePropertiesEnricher
+public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
 {
     private final IPropertyListingQuery query;
     
-    private final ISampleSetListingQuery setQuery;
+    private final IEntitySetPropertyListingQuery setQuery;
 
-    SamplePropertiesEnrichmentWorker(final IPropertyListingQuery query,
-            final ISampleSetListingQuery setQuery)
+    public EntityPropertiesEnricher(final IPropertyListingQuery query,
+            final IEntitySetPropertyListingQuery setQuery)
     {
         this.query = query;
         this.setQuery = setQuery;
     }
 
     /**
-     * Enriches the samples with given <var>sampleIds</var> with its properties. The samples will be
-     * resolved by the {@link ISampleResolver} and will be enriched in place.
+     * Enriches the entities with given <var>entityIDs</var> with its properties. The entities will
+     * be resolved by the {@link IEntityPropertiesHolderResolver} and will be enriched in place.
      */
-    public void enrich(final LongSet sampleIds, final ISampleResolver samples)
+    public void enrich(final LongSet entityIDs, final IEntityPropertiesHolderResolver entities)
     {
         final Long2ObjectMap<PropertyType> propertyTypes = getPropertyTypes();
         // Generic properties
-        for (GenericEntityPropertyVO val : setQuery.getSamplePropertyGenericValues(sampleIds))
+        for (GenericEntityPropertyRecord val : setQuery.getEntityPropertyGenericValues(entityIDs))
         {
-            final IEntityPropertiesHolder sample = samples.get(val.entity_id);
+            final IEntityPropertiesHolder entity = entities.get(val.entity_id);
             final IEntityProperty property = new GenericValueEntityProperty();
             property.setValue(StringEscapeUtils.escapeHtml(val.value));
             property.setPropertyType(propertyTypes.get(val.prty_id));
-            sample.getProperties().add(property);
+            entity.getProperties().add(property);
         }
         // Controlled vocabulary properties
         Long2ObjectMap<String> vocabularyURLMap = null;
         Long2ObjectMap<VocabularyTerm> terms = new Long2ObjectOpenHashMap<VocabularyTerm>();
-        for (CoVoSamplePropertyVO val : setQuery.getSamplePropertyVocabularyTermValues(sampleIds))
+        for (VocabularyTermRecord val : setQuery
+                .getEntityPropertyVocabularyTermValues(entityIDs))
         {
             if (vocabularyURLMap == null)
             {
                 vocabularyURLMap = getVocabularyURLs();
             }
-            final IEntityPropertiesHolder sample = samples.get(val.entity_id);
+            final IEntityPropertiesHolder entity = entities.get(val.entity_id);
             final IEntityProperty property = new VocabularyTermValueEntityProperty();
             VocabularyTerm vocabularyTerm = terms.get(val.id);
             if (vocabularyTerm == null)
@@ -99,18 +95,18 @@ final class SamplePropertiesEnrichmentWorker implements
             }
             property.setVocabularyTerm(vocabularyTerm);
             property.setPropertyType(propertyTypes.get(val.prty_id));
-            sample.getProperties().add(property);
+            entity.getProperties().add(property);
         }
         // Material-type properties
         Long2ObjectMap<MaterialType> materialTypes = null;
         Long2ObjectMap<Material> materials = new Long2ObjectOpenHashMap<Material>();
-        for (MaterialSamplePropertyVO val : setQuery.getSamplePropertyMaterialValues(sampleIds))
+        for (MaterialEntityPropertyRecord val : setQuery.getEntityPropertyMaterialValues(entityIDs))
         {
             if (materialTypes == null)
             {
                 materialTypes = getMaterialTypes();
             }
-            final IEntityPropertiesHolder sample = samples.get(val.entity_id);
+            final IEntityPropertiesHolder entity = entities.get(val.entity_id);
             final IEntityProperty property = new MaterialValueEntityProperty();
             Material material = materials.get(val.id);
             if (material == null)
@@ -122,7 +118,7 @@ final class SamplePropertiesEnrichmentWorker implements
             }
             property.setMaterial(material);
             property.setPropertyType(propertyTypes.get(val.prty_id));
-            sample.getProperties().add(property);
+            entity.getProperties().add(property);
         }
     }
 
@@ -141,10 +137,10 @@ final class SamplePropertiesEnrichmentWorker implements
 
     private Long2ObjectMap<String> getVocabularyURLs()
     {
-        final CodeVO[] vocabURLs = query.getVocabularyURLTemplates();
+        final CodeRecord[] vocabURLs = query.getVocabularyURLTemplates();
         final Long2ObjectOpenHashMap<String> vocabularyURLMap =
                 new Long2ObjectOpenHashMap<String>(vocabURLs.length);
-        for (CodeVO vocabURL : vocabURLs)
+        for (CodeRecord vocabURL : vocabURLs)
         {
             vocabularyURLMap.put(vocabURL.id, vocabURL.code);
         }
@@ -154,10 +150,10 @@ final class SamplePropertiesEnrichmentWorker implements
 
     private Long2ObjectMap<MaterialType> getMaterialTypes()
     {
-        final CodeVO[] typeCodes = query.getMaterialTypes();
+        final CodeRecord[] typeCodes = query.getMaterialTypes();
         final Long2ObjectOpenHashMap<MaterialType> materialTypeMap =
                 new Long2ObjectOpenHashMap<MaterialType>(typeCodes.length);
-        for (CodeVO t : typeCodes)
+        for (CodeRecord t : typeCodes)
         {
             final MaterialType type = new MaterialType();
             type.setCode(StringEscapeUtils.escapeHtml(t.code));

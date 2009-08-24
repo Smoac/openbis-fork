@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.common;
 
 import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
  * @author Tomasz Pylak
  */
-public class SampleListingTestUtils
+public class EntityListingTestUtils
 {
     public static PropertyType findPropertyType(PropertyType[] propertyTypes,
             String propertyTypeCode)
@@ -53,7 +54,7 @@ public class SampleListingTestUtils
         return result;
     }
 
-    public static <T extends CodeVO> T findCode(Iterable<T> items, String code)
+    public static <T extends CodeRecord> T findCode(Iterable<T> items, String code)
     {
         for (T item : items)
         {

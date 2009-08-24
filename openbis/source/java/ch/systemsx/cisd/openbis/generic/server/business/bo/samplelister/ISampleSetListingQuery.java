@@ -18,9 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.CoVoSamplePropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.GenericEntityPropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.MaterialSamplePropertyVO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntitySetPropertyListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.SampleRowVO;
 
 /**
@@ -31,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleL
  * 
  * @author Bernd Rinn
  */
-interface ISampleSetListingQuery
+interface ISampleSetListingQuery extends IEntitySetPropertyListingQuery
 {
     //
     // Samples by id
@@ -41,31 +39,5 @@ interface ISampleSetListingQuery
      * Returns the samples for the given <var>sampleIds</var>.
      */
     public Iterable<SampleRowVO> getSamples(LongSet sampleIds);
-
-    //
-    // Sample Properties
-    //
-
-    /**
-     * Returns all generic property values of all samples specified by <var>sampleIds</var>.
-     * 
-     * @param sampleIds The set of sample ids to get the property values for.
-     */
-    public Iterable<GenericEntityPropertyVO> getSamplePropertyGenericValues(LongSet sampleIds);
-
-    /**
-     * Returns all controlled vocabulary property values of all samples specified by
-     * <var>sampleIds</var>.
-     * 
-     * @param sampleIds The set of sample ids to get the property values for.
-     */
-    public Iterable<CoVoSamplePropertyVO> getSamplePropertyVocabularyTermValues(LongSet sampleIds);
-
-    /**
-     * Returns all material-type property values of all samples specified by <var>sampleIds</var>.
-     * 
-     * @param sampleIds The set of sample ids to get the property values for.
-     */
-    public Iterable<MaterialSamplePropertyVO> getSamplePropertyMaterialValues(LongSet sampleIds);
 
 }

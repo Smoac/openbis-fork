@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.CoVoSamplePropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.GenericEntityPropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.MaterialSamplePropertyVO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.SampleRowVO;
 
 /**
@@ -62,38 +62,38 @@ class SampleSetListingQueryFallback implements ISampleSetListingQuery
         return numberOfSamples;
     }
 
-    public Iterable<GenericEntityPropertyVO> getSamplePropertyGenericValues(final LongSet sampleIds)
+    public Iterable<GenericEntityPropertyRecord> getEntityPropertyGenericValues(final LongSet entityIDs)
     {
-        if (sampleIds.size() >= getNumberOfSamples() * FULL_TABLE_SCAN_THRESHOLD)
+        if (entityIDs.size() >= getNumberOfSamples() * FULL_TABLE_SCAN_THRESHOLD)
         {
-            return fullTableScanDelegate.getSamplePropertyGenericValues(sampleIds);
+            return fullTableScanDelegate.getEntityPropertyGenericValues(entityIDs);
         } else
         {
-            return oneByOneDelegate.getSamplePropertyGenericValues(sampleIds);
+            return oneByOneDelegate.getEntityPropertyGenericValues(entityIDs);
         }
     }
 
-    public Iterable<MaterialSamplePropertyVO> getSamplePropertyMaterialValues(
-            final LongSet sampleIds)
+    public Iterable<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
+            final LongSet entityIDs)
     {
-        if (sampleIds.size() >= getNumberOfSamples() * FULL_TABLE_SCAN_THRESHOLD)
+        if (entityIDs.size() >= getNumberOfSamples() * FULL_TABLE_SCAN_THRESHOLD)
         {
-            return fullTableScanDelegate.getSamplePropertyMaterialValues(sampleIds);
+            return fullTableScanDelegate.getEntityPropertyMaterialValues(entityIDs);
         } else
         {
-            return oneByOneDelegate.getSamplePropertyMaterialValues(sampleIds);
+            return oneByOneDelegate.getEntityPropertyMaterialValues(entityIDs);
         }
     }
 
-    public Iterable<CoVoSamplePropertyVO> getSamplePropertyVocabularyTermValues(
-            final LongSet sampleIds)
+    public Iterable<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
+            final LongSet entityIDs)
     {
-        if (sampleIds.size() >= getNumberOfSamples() * FULL_TABLE_SCAN_THRESHOLD)
+        if (entityIDs.size() >= getNumberOfSamples() * FULL_TABLE_SCAN_THRESHOLD)
         {
-            return fullTableScanDelegate.getSamplePropertyVocabularyTermValues(sampleIds);
+            return fullTableScanDelegate.getEntityPropertyVocabularyTermValues(entityIDs);
         } else
         {
-            return oneByOneDelegate.getSamplePropertyVocabularyTermValues(sampleIds);
+            return oneByOneDelegate.getEntityPropertyVocabularyTermValues(entityIDs);
         }
     }
 

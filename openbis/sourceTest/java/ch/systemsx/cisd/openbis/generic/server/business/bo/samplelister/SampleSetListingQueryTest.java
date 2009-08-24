@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
-import static ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.SampleListingTestUtils.asList;
+import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.asList;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
@@ -30,12 +30,13 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.BaseEntityPropertyRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleSetListingQuery;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.BaseEntityPropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.CoVoSamplePropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.GenericEntityPropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.MaterialSamplePropertyVO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.SampleRowVO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -133,14 +134,14 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
     {
         LongSet ids = createSet(CELL_PLATE_ID_CP_TEST_1, CELL_PLATE_ID_CP_TEST_2);
         PropertyType propertyType =
-                SampleListingTestUtils.findPropertyType(query.getPropertyTypes(), "comment");
-        Iterable<GenericEntityPropertyVO> properties = setQuery.getSamplePropertyGenericValues(ids);
-        List<GenericEntityPropertyVO> comments = findProperties(properties, propertyType.getId());
+                EntityListingTestUtils.findPropertyType(query.getPropertyTypes(), "comment");
+        Iterable<GenericEntityPropertyRecord> properties = setQuery.getEntityPropertyGenericValues(ids);
+        List<GenericEntityPropertyRecord> comments = findProperties(properties, propertyType.getId());
         assertEquals("There should be exactly one comment for each sample", ids.size(), comments
                 .size());
         findExactlyOneProperty(comments, propertyType.getId(), CELL_PLATE_ID_CP_TEST_1);
         findExactlyOneProperty(comments, propertyType.getId(), CELL_PLATE_ID_CP_TEST_2);
-        for (GenericEntityPropertyVO comment : comments)
+        for (GenericEntityPropertyRecord comment : comments)
         {
             if (comment.entity_id == CELL_PLATE_ID_CP_TEST_1)
             {
@@ -152,7 +153,7 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
         }
     }
 
-    private static <T extends BaseEntityPropertyVO> T findExactlyOneProperty(
+    private static <T extends BaseEntityPropertyRecord> T findExactlyOneProperty(
             Iterable<T> properties, long propertyTypeId, long sampleId)
     {
         List<T> found = new ArrayList<T>();
@@ -173,7 +174,7 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
         return found.get(0);
     }
 
-    private static <T extends BaseEntityPropertyVO> List<T> findProperties(Iterable<T> properties,
+    private static <T extends BaseEntityPropertyRecord> List<T> findProperties(Iterable<T> properties,
             long propertyTypeId)
     {
         List<T> found = new ArrayList<T>();
@@ -192,19 +193,19 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
     {
         LongSet ids = createSet(CELL_PLATE_ID_CP_TEST_1, CELL_PLATE_ID_CP_TEST_2);
         PropertyType[] propertyTypes = query.getPropertyTypes();
-        List<MaterialSamplePropertyVO> allProperties =
-                asList(setQuery.getSamplePropertyMaterialValues(ids));
+        List<MaterialEntityPropertyRecord> allProperties =
+                asList(setQuery.getEntityPropertyMaterialValues(ids));
 
         ensureSamplesHaveProperties("bacterium", propertyTypes, allProperties);
         ensureSamplesHaveProperties("any_material", propertyTypes, allProperties);
     }
 
-    private List<MaterialSamplePropertyVO> ensureSamplesHaveProperties(String propertyCode,
-            PropertyType[] propertyTypes, List<MaterialSamplePropertyVO> allProperties)
+    private List<MaterialEntityPropertyRecord> ensureSamplesHaveProperties(String propertyCode,
+            PropertyType[] propertyTypes, List<MaterialEntityPropertyRecord> allProperties)
     {
         PropertyType propertyType =
-                SampleListingTestUtils.findPropertyType(propertyTypes, propertyCode);
-        List<MaterialSamplePropertyVO> properties =
+                EntityListingTestUtils.findPropertyType(propertyTypes, propertyCode);
+        List<MaterialEntityPropertyRecord> properties =
                 findProperties(allProperties, propertyType.getId());
         assertEquals("There should be exactly one property for each sample", 2, properties.size());
         findExactlyOneProperty(properties, propertyType.getId(), CELL_PLATE_ID_CP_TEST_1);
@@ -217,10 +218,10 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
     public void testSamplePropertyVocabularyTermValues()
     {
         int sampleCount = 0;
-        for (@SuppressWarnings("unused")
-        CoVoSamplePropertyVO sampleProperty : setQuery
-                .getSamplePropertyVocabularyTermValues(masterPlateIds))
+        for (VocabularyTermRecord sampleProperty : setQuery
+                .getEntityPropertyVocabularyTermValues(masterPlateIds))
         {
+            System.out.println(sampleProperty.code);
             ++sampleCount;
         }
         assertTrue(sampleCount > 0);

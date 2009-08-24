@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.common;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.PropertyTypeDataObjectBinding;
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 import net.lemnik.eodsql.Select;
 
 /**
- * 
+ * Query methods for retrieving property types, material types, and vocabulary URL templates.
  *
- * @author Franz-Josef Elmer
+ * @author Bernd Rinn
  */
+@Private
 public interface IPropertyListingQuery
 {
     /**
@@ -44,12 +45,12 @@ public interface IPropertyListingQuery
      */
     @Select("select id, code from controlled_vocabularies")
     // TODO 2009-08-18, Tomasz Pylak: add support for internal vocabularies
-    public CodeVO[] getVocabularyURLTemplates();
+    public CodeRecord[] getVocabularyURLTemplates();
 
     /**
      * Returns id and code of all material types.
      */
     @Select("select id, code from material_types")
-    public CodeVO[] getMaterialTypes();
+    public CodeRecord[] getMaterialTypes();
 
 }

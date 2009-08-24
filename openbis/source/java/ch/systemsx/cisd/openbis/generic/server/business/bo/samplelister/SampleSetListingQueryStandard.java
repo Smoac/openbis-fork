@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.CoVoSamplePropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.GenericEntityPropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.MaterialSamplePropertyVO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.SampleRowVO;
 
 /**
@@ -39,19 +39,19 @@ class SampleSetListingQueryStandard implements ISampleSetListingQuery
         this.delegate = query;
     }
 
-    public Iterable<GenericEntityPropertyVO> getSamplePropertyGenericValues(LongSet sampleIds)
+    public Iterable<GenericEntityPropertyRecord> getEntityPropertyGenericValues(LongSet entityIDs)
     {
-        return delegate.getSamplePropertyGenericValues(sampleIds);
+        return delegate.getSamplePropertyGenericValues(entityIDs);
     }
 
-    public Iterable<MaterialSamplePropertyVO> getSamplePropertyMaterialValues(LongSet sampleIds)
+    public Iterable<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(LongSet entityIDs)
     {
-        return delegate.getSamplePropertyMaterialValues(sampleIds);
+        return delegate.getSamplePropertyMaterialValues(entityIDs);
     }
 
-    public Iterable<CoVoSamplePropertyVO> getSamplePropertyVocabularyTermValues(LongSet sampleIds)
+    public Iterable<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(LongSet entityIDs)
     {
-        return delegate.getSamplePropertyVocabularyTermValues(sampleIds);
+        return delegate.getSamplePropertyVocabularyTermValues(entityIDs);
     }
 
     public Iterable<SampleRowVO> getSamples(LongSet sampleIds)

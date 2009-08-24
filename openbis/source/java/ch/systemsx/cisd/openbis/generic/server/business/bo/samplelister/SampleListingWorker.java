@@ -20,7 +20,6 @@ import it.unimi.dsi.fastutil.longs.Long2IntMap;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +32,9 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityPropertiesEnricher;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesEnricher;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesHolderResolver;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.ExperimentProjectGroupCodeVO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.SampleRowVO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
@@ -65,7 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * <li>sample relationships (parent-child and contained-container)</li>
  * </ul>
  * It delegates the work of enriching the samples with properties to an implementation of a
- * {@link ISamplePropertiesEnricher}. The worker follows the logic that only the samples specified
+ * {@link IEntityPropertiesEnricher}. The worker follows the logic that only the samples specified
  * by the {@link ListSampleCriteria}, the <i>primary samples</i>, should be enriched with properties
  * (as only primary samples are shown in a separate row of the list). From <i>dependent samples</i>,
  * only basic information is obtained.
@@ -97,29 +99,11 @@ final class SampleListingWorker
     // Working interfaces
     //
 
-    interface ISampleResolver
-    {
-        Sample get(long id);
-    }
-
-    interface ISamplePropertiesEnricher
-    {
-        /**
-         * Enriches the samples with given <var>sampleIds</var> with its properties. The samples
-         * will be retrieved by the {@link ISampleResolver} and will be enriched "in place".
-         */
-        void enrich(final LongSet sampleIds, final ISampleResolver samples);
-    }
-
-    //
-    // Worker objects
-    //
-
     private final ISampleListingQuery query;
 
     private final ISampleSetListingQuery setQuery;
 
-    private final ISamplePropertiesEnricher samplePropertiesEnricherOrNull;
+    private final IEntityPropertiesEnricher samplePropertiesEnricherOrNull;
 
     //
     // Working data structures
@@ -171,7 +155,7 @@ final class SampleListingWorker
     SampleListingWorker(final ListSampleCriteria criteria, final SampleListerDAO dao)
     {
         this(criteria, dao.getDatabaseInstanceId(), dao.getDatabaseInstance(), dao.getQuery(), dao
-                .getIdSetQuery(), new SamplePropertiesEnrichmentWorker(dao.getQuery(), dao
+                .getIdSetQuery(), new EntityPropertiesEnricher(dao.getQuery(), dao
                 .getIdSetQuery()));
     }
 
@@ -179,7 +163,7 @@ final class SampleListingWorker
     SampleListingWorker(final ListSampleCriteria criteria, final long databaseInstanceId,
             final DatabaseInstance databaseInstance, final ISampleListingQuery query,
             final ISampleSetListingQuery setQuery,
-            ISamplePropertiesEnricher samplePropertiesEnricherOrNull)
+            IEntityPropertiesEnricher samplePropertiesEnricherOrNull)
     {
         assert criteria != null;
         assert databaseInstance != null;
@@ -231,13 +215,14 @@ final class SampleListingWorker
             // dependent samples.
             if (samplePropertiesEnricherOrNull != null)
             {
-                samplePropertiesEnricherOrNull.enrich(sampleMap.keySet(), new ISampleResolver()
-                    {
-                        public Sample get(long id)
-                        {
-                            return sampleMap.get(id);
-                        }
-                    });
+                samplePropertiesEnricherOrNull.enrich(sampleMap.keySet(),
+                        new IEntityPropertiesHolderResolver()
+                            {
+                                public Sample get(long id)
+                                {
+                                    return sampleMap.get(id);
+                                }
+                            });
                 if (operationLog.isDebugEnabled())
                 {
                     watch.stop();

@@ -23,10 +23,10 @@ import java.util.Iterator;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.iterators.FilterIterator;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.BaseEntityPropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.CoVoSamplePropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.GenericEntityPropertyVO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.MaterialSamplePropertyVO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.BaseEntityPropertyRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery.SampleRowVO;
 
 /**
@@ -46,59 +46,59 @@ class SampleSetListingQueryFullTableScan implements ISampleSetListingQuery
         this.query = query;
     }
 
-    public Iterable<GenericEntityPropertyVO> getSamplePropertyGenericValues(final LongSet sampleIds)
+    public Iterable<GenericEntityPropertyRecord> getEntityPropertyGenericValues(final LongSet entityIDs)
     {
-        return new Iterable<GenericEntityPropertyVO>()
+        return new Iterable<GenericEntityPropertyRecord>()
             {
-                public Iterator<GenericEntityPropertyVO> iterator()
+                public Iterator<GenericEntityPropertyRecord> iterator()
                 {
-                    return new FilterIterator<GenericEntityPropertyVO>(query
+                    return new FilterIterator<GenericEntityPropertyRecord>(query
                             .getSamplePropertyGenericValues(),
-                            new Predicate<BaseEntityPropertyVO>()
+                            new Predicate<BaseEntityPropertyRecord>()
                                 {
-                                    public boolean evaluate(BaseEntityPropertyVO baseSample)
+                                    public boolean evaluate(BaseEntityPropertyRecord baseSample)
                                     {
-                                        return sampleIds.contains(baseSample.entity_id);
+                                        return entityIDs.contains(baseSample.entity_id);
                                     }
                                 });
                 }
             };
     }
 
-    public Iterable<MaterialSamplePropertyVO> getSamplePropertyMaterialValues(
-            final LongSet sampleIds)
+    public Iterable<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
+            final LongSet entityIDs)
     {
-        return new Iterable<MaterialSamplePropertyVO>()
+        return new Iterable<MaterialEntityPropertyRecord>()
             {
-                public Iterator<MaterialSamplePropertyVO> iterator()
+                public Iterator<MaterialEntityPropertyRecord> iterator()
                 {
-                    return new FilterIterator<MaterialSamplePropertyVO>(query
+                    return new FilterIterator<MaterialEntityPropertyRecord>(query
                             .getSamplePropertyMaterialValues(),
-                            new Predicate<BaseEntityPropertyVO>()
+                            new Predicate<BaseEntityPropertyRecord>()
                                 {
-                                    public boolean evaluate(BaseEntityPropertyVO baseSample)
+                                    public boolean evaluate(BaseEntityPropertyRecord baseSample)
                                     {
-                                        return sampleIds.contains(baseSample.entity_id);
+                                        return entityIDs.contains(baseSample.entity_id);
                                     }
                                 });
                 }
             };
     }
 
-    public Iterable<CoVoSamplePropertyVO> getSamplePropertyVocabularyTermValues(
-            final LongSet sampleIds)
+    public Iterable<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
+            final LongSet entityIDs)
     {
-        return new Iterable<CoVoSamplePropertyVO>()
+        return new Iterable<VocabularyTermRecord>()
             {
-                public Iterator<CoVoSamplePropertyVO> iterator()
+                public Iterator<VocabularyTermRecord> iterator()
                 {
-                    return new FilterIterator<CoVoSamplePropertyVO>(query
+                    return new FilterIterator<VocabularyTermRecord>(query
                             .getSamplePropertyVocabularyTermValues(),
-                            new Predicate<BaseEntityPropertyVO>()
+                            new Predicate<BaseEntityPropertyRecord>()
                                 {
-                                    public boolean evaluate(BaseEntityPropertyVO baseSample)
+                                    public boolean evaluate(BaseEntityPropertyRecord baseSample)
                                     {
-                                        return sampleIds.contains(baseSample.entity_id);
+                                        return entityIDs.contains(baseSample.entity_id);
                                     }
                                 });
                 }
