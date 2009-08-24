@@ -19,20 +19,22 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.TriggerField;
 
-public abstract class ChosenEntitySetter<T> extends TextField<String>
+public abstract class ChosenEntitySetter<T> extends TriggerField<String>
 {
     private static final int TEXT_CHOOSER_FIELD_WIDTH = 342;
-    
+
     private final Set<IChosenEntityListener<T>> listeners =
             new LinkedHashSet<IChosenEntityListener<T>>();
 
     protected ChosenEntitySetter()
     {
         setWidth(TEXT_CHOOSER_FIELD_WIDTH);
+        setTriggerStyle("x-form-trigger-generate");
+        setHideTrigger(false);
     }
-    
+
     public void addChosenEntityListener(IChosenEntityListener<T> listener)
     {
         listeners.add(listener);
@@ -49,6 +51,6 @@ public abstract class ChosenEntitySetter<T> extends TextField<String>
             listener.entityChosen(entityOrNull);
         }
     }
-    
+
     abstract String renderEntity(T entity);
 }

@@ -16,13 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
-import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.MultiField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -40,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
  * 
  * @author Tomasz Pylak
  */
-public final class ExperimentChooserField extends ChosenEntitySetter<Experiment>
+public class ExperimentChooserField extends ChosenEntitySetter<Experiment>
 {
 
     public interface ExperimentChooserFieldAdaptor
@@ -48,8 +43,6 @@ public final class ExperimentChooserField extends ChosenEntitySetter<Experiment>
         Field<?> getField();
 
         ExperimentChooserField getChooserField();
-
-        Button getChooseButton();
 
         /** @return the experiment identifier which is set as a field value */
         ExperimentIdentifier tryToGetValue();
@@ -68,30 +61,22 @@ public final class ExperimentChooserField extends ChosenEntitySetter<Experiment>
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final ExperimentChooserField chooserField =
-                new ExperimentChooserField(mandatory, initialValueOrNull, viewContext);
+                new ExperimentChooserField(mandatory, initialValueOrNull, viewContext)
+                    {
+                        @Override
+                        protected void onTriggerClick(ComponentEvent ce)
+                        {
+                            super.onTriggerClick(ce);
+                            browse(viewContext, this);
+                        }
+                    };
 
-        final Button chooseButton = new Button(viewContext.getMessage(Dict.BUTTON_BROWSE));
-        chooseButton.addSelectionListener(new SelectionListener<ComponentEvent>()
-            {
-                @Override
-                public void componentSelected(ComponentEvent ce)
-                {
-                    browse(viewContext, chooserField);
-                }
-            });
-        final Field<?> field =
-                new MultiField<Field<?>>(labelField, chooserField, new AdapterField(chooseButton));
-        FieldUtil.setMandatoryFlag(field, mandatory);
+        chooserField.setFieldLabel(labelField);
         return new ExperimentChooserFieldAdaptor()
             {
                 public Field<?> getField()
                 {
-                    return field;
-                }
-
-                public Button getChooseButton()
-                {
-                    return chooseButton;
+                    return chooserField;
                 }
 
                 public ExperimentChooserField getChooserField()
@@ -141,8 +126,6 @@ public final class ExperimentChooserField extends ChosenEntitySetter<Experiment>
             "(" + EXPERIMENT_IDENTIFIER_WITH_GROUP_PATTERN + ")|("
                     + EXPERIMENT_IDENTIFIER_WITHOUT_GROUP_PATTERN + ")";
 
-    private final boolean mandatory;
-
     @Override
     public String renderEntity(Experiment entity)
     {
@@ -169,8 +152,7 @@ public final class ExperimentChooserField extends ChosenEntitySetter<Experiment>
     private ExperimentChooserField(boolean mandatory, ExperimentIdentifier initialValueOrNull,
             IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        this.mandatory = mandatory;
-
+        FieldUtil.setMandatoryFlag(this, mandatory);
         setValidateOnBlur(true);
         setAutoValidate(true);
 
@@ -185,23 +167,6 @@ public final class ExperimentChooserField extends ChosenEntitySetter<Experiment>
         {
             super.setValue(print(initialValueOrNull));
         }
-    }
-
-    @Override
-    protected boolean validateValue(String val)
-    {
-        boolean valid = super.validateValue(val);
-        if (valid == false)
-        {
-            return false;
-        }
-        if (mandatory && getValue() == null)
-        {
-            forceInvalid(GXT.MESSAGES.textField_blankText());
-            return false;
-        }
-        clearInvalid();
-        return true;
     }
 
 }

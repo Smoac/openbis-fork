@@ -16,13 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
-import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.MultiField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -37,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  * 
  * @author Piotr Buczek
  */
-public final class SampleChooserField extends ChosenEntitySetter<Sample>
+public class SampleChooserField extends ChosenEntitySetter<Sample>
 {
     public interface SampleChooserFieldAdaptor
     {
@@ -50,7 +45,6 @@ public final class SampleChooserField extends ChosenEntitySetter<Sample>
 
         void updateValue(String identifierOrNull);
     }
-
 
     /**
      * Creates a text field with the additional browse button which allow to choose a sample from
@@ -72,35 +66,31 @@ public final class SampleChooserField extends ChosenEntitySetter<Sample>
             final IViewContext<ICommonClientServiceAsync> viewContext, String idOrNull)
     {
         final SampleChooserField chooserField =
-                new SampleChooserField(mandatory, initialValueOrNull, viewContext);
+                new SampleChooserField(mandatory, initialValueOrNull, viewContext)
+                    {
+                        @Override
+                        protected void onTriggerClick(ComponentEvent ce)
+                        {
+                            super.onTriggerClick(ce);
+                            browse(viewContext, this, addShared, excludeWithoutExperiment);
+                        }
+                    };
         if (idOrNull != null)
         {
             chooserField.setId(idOrNull);
         }
-
-        Button chooseButton = new Button(viewContext.getMessage(Dict.BUTTON_BROWSE));
-        chooseButton.addSelectionListener(new SelectionListener<ComponentEvent>()
-            {
-                @Override
-                public void componentSelected(ComponentEvent ce)
-                {
-                    browse(viewContext, chooserField, addShared, excludeWithoutExperiment);
-                }
-            });
-        final Field<?> field =
-                new MultiField<Field<?>>(labelField, chooserField, new AdapterField(chooseButton));
-        FieldUtil.setMandatoryFlag(field, mandatory);
-        return asSampleChooserFieldAdaptor(chooserField, field);
+        chooserField.setFieldLabel(labelField);
+        return asSampleChooserFieldAdaptor(chooserField);
     }
 
     private static SampleChooserFieldAdaptor asSampleChooserFieldAdaptor(
-            final SampleChooserField chooserField, final Field<?> field)
+            final SampleChooserField chooserField)
     {
         return new SampleChooserFieldAdaptor()
             {
                 public Field<?> getField()
                 {
-                    return field;
+                    return chooserField;
                 }
 
                 public String getValue()
@@ -134,8 +124,6 @@ public final class SampleChooserField extends ChosenEntitySetter<Sample>
 
     // ------------------
 
-    private final boolean mandatory;
-
     @Override
     public String renderEntity(Sample entityOrNull)
     {
@@ -145,8 +133,7 @@ public final class SampleChooserField extends ChosenEntitySetter<Sample>
     public SampleChooserField(boolean mandatory, String initialValueOrNull,
             IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        this.mandatory = mandatory;
-
+        FieldUtil.setMandatoryFlag(this, mandatory);
         setValidateOnBlur(true);
         setAutoValidate(true);
 
@@ -162,23 +149,6 @@ public final class SampleChooserField extends ChosenEntitySetter<Sample>
         {
             setValue(valueOrNull);
         }
-    }
-
-    @Override
-    protected boolean validateValue(String val)
-    {
-        boolean valid = super.validateValue(val);
-        if (valid == false)
-        {
-            return false;
-        }
-        if (mandatory && getValue() == null)
-        {
-            forceInvalid(GXT.MESSAGES.textField_blankText());
-            return false;
-        }
-        clearInvalid();
-        return true;
     }
 
 }

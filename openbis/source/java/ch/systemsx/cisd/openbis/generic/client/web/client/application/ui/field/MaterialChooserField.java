@@ -16,13 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
-import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.MultiField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -38,8 +33,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
  * A field for selecting a material from a list or by specifying code and type.
  * 
  * @author Tomasz Pylak
+ * @author Izabela Adamczyk
  */
-public final class MaterialChooserField extends ChosenEntitySetter<Material>
+public class MaterialChooserField extends ChosenEntitySetter<Material>
 {
     public static Field<?> create(final String labelField, final boolean mandatory,
             final MaterialType materialTypeOrNull, String initialValueOrNull,
@@ -47,22 +43,18 @@ public final class MaterialChooserField extends ChosenEntitySetter<Material>
     {
         final MaterialChooserField chosenMaterialField =
                 new MaterialChooserField(mandatory, materialTypeOrNull, initialValueOrNull,
-                        viewContext);
+                        viewContext)
+                    {
+                        @Override
+                        protected void onTriggerClick(ComponentEvent ce)
+                        {
+                            super.onTriggerClick(ce);
+                            browseMaterials(viewContext, this, materialTypeOrNull);
+                        }
+                    };
 
-        Button chooseButton = new Button(viewContext.getMessage(Dict.BUTTON_BROWSE));
-        chooseButton.addSelectionListener(new SelectionListener<ComponentEvent>()
-            {
-                @Override
-                public void componentSelected(ComponentEvent ce)
-                {
-                    browseMaterials(viewContext, chosenMaterialField, materialTypeOrNull);
-                }
-            });
-        final Field<?> field =
-                new MultiField<Field<?>>(labelField, chosenMaterialField, new AdapterField(
-                        chooseButton));
-        FieldUtil.setMandatoryFlag(field, mandatory);
-        return field;
+        chosenMaterialField.setFieldLabel(labelField);
+        return chosenMaterialField;
     }
 
     private static void browseMaterials(final IViewContext<ICommonClientServiceAsync> viewContext,
@@ -80,8 +72,6 @@ public final class MaterialChooserField extends ChosenEntitySetter<Material>
     // the pattern used to validate material identifier expression
     private final static String CODE_AND_TYPE_PATTERN =
             CodeField.CODE_CHARS + " " + "\\(" + CodeField.CODE_CHARS + "\\)";
-
-    private final boolean mandatory;
 
     @Override
     public String renderEntity(Material materialOrNull)
@@ -101,34 +91,15 @@ public final class MaterialChooserField extends ChosenEntitySetter<Material>
     private MaterialChooserField(boolean mandatory, MaterialType materialTypeOrNull,
             String initialValueOrNull, IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        this.mandatory = mandatory;
-
+        FieldUtil.setMandatoryFlag(this, mandatory);
         setValidateOnBlur(true);
         setAutoValidate(true);
-
         setRegex(CODE_AND_TYPE_PATTERN);
         getMessages().setRegexText(viewContext.getMessage(Dict.INCORRECT_MATERIAL_SYNTAX));
         if (initialValueOrNull != null)
         {
             setValue(initialValueOrNull);
         }
-    }
-
-    @Override
-    protected boolean validateValue(String val)
-    {
-        boolean valid = super.validateValue(val);
-        if (valid == false)
-        {
-            return false;
-        }
-        if (mandatory && getValue() == null)
-        {
-            forceInvalid(GXT.MESSAGES.textField_blankText());
-            return false;
-        }
-        clearInvalid();
-        return true;
     }
 
 }
