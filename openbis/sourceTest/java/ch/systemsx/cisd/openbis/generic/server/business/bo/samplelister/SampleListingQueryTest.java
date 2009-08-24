@@ -38,6 +38,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.BaseEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
@@ -65,6 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * 
  * @author Bernd Rinn
  */
+@Friend(toClasses={SampleRecord.class, ExperimentProjectGroupCodeRecord.class, ISampleListingQuery.class})
 @Test(groups =
     { "db", "sample" })
 public class SampleListingQueryTest extends AbstractDAOTest

@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
  * 
  * @author Bernd Rinn
  */
-@Friend(toClasses=ISampleSetListingQuery.class)
+@Friend(toClasses={ISampleListingQuery.class, ISampleSetListingQuery.class})
 @Private
 public interface ISampleListingFullQuery extends ISampleListingQuery
 {

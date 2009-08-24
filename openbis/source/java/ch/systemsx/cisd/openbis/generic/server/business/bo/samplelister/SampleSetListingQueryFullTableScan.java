@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntity
  * 
  * @author Bernd Rinn
  */
-@Friend(toClasses=ISampleListingQuery.class)
+@Friend(toClasses={SampleRecord.class, ISampleListingQuery.class})
 class SampleSetListingQueryFullTableScan implements ISampleSetListingQuery
 {
     private final ISampleListingQuery query;
