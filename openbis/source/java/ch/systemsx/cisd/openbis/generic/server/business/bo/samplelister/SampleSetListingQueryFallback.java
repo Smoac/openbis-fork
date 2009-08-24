@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
@@ -28,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntity
  * 
  * @author Bernd Rinn
  */
+@Friend(toClasses=ISampleListingQuery.class)
 class SampleSetListingQueryFallback implements ISampleSetListingQuery
 {
     private final long UPDATE_INTERVAL = 10 * 60 * 1000L; // 10 minutes

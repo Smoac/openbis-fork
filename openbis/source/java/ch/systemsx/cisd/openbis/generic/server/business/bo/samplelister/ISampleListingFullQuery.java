@@ -20,6 +20,7 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
 
+import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
@@ -36,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
  * 
  * @author Bernd Rinn
  */
+@Friend(toClasses=ISampleSetListingQuery.class)
 @Private
 public interface ISampleListingFullQuery extends ISampleListingQuery
 {

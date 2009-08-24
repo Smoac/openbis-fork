@@ -23,6 +23,7 @@ import java.util.Iterator;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.iterators.FilterIterator;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.BaseEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
@@ -36,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntity
  * 
  * @author Bernd Rinn
  */
+@Friend(toClasses=ISampleListingQuery.class)
 class SampleSetListingQueryFullTableScan implements ISampleSetListingQuery
 {
     private final ISampleListingQuery query;
