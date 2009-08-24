@@ -42,11 +42,11 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNet
 class ProteinByExperimentBrowerToolBar extends ToolBar
 {
     private static final String FDR_COMBO_BOX_PROPERTY = "FDR";
-    
+
     private static final class FalseDiscoveryRate extends BaseModelData
     {
         private static final long serialVersionUID = 1L;
-        
+
         private final double falseDiscoveryRate;
 
         FalseDiscoveryRate(double falseDiscoveryRate)
@@ -66,11 +66,13 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
             return Integer.toString((int) (100 * falseDiscoveryRate)) + "%";
         }
     }
-    
+
     private final ComboBox<FalseDiscoveryRate> fdrComboBox;
+
     private final ExperimentChooserFieldAdaptor chooser;
-    
+
     private ProteinByExperimentBrowserGrid browserGrid;
+
     private Experiment experiment;
 
     ProteinByExperimentBrowerToolBar(IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
@@ -78,7 +80,8 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
         setBorders(true);
         add(new LabelToolItem(viewContext.getMessage(Dict.SELECTED_EXPERIMENT_LABEL)
                 + GenericConstants.LABEL_SEPARATOR));
-        chooser = ExperimentChooserField.create("", false, null, viewContext.getCommonViewContext());
+        chooser =
+                ExperimentChooserField.create("", false, null, viewContext.getCommonViewContext());
         ExperimentChooserField chooserField = chooser.getChooserField();
         chooserField.setReadOnly(true);
         chooserField.addChosenEntityListener(new IChosenEntityListener<Experiment>()
@@ -93,8 +96,7 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
                 }
             });
         add(new AdapterToolItem(chooserField));
-        add(new AdapterToolItem(chooser.getChooseButton()));
-        
+
         add(new LabelToolItem(viewContext.getMessage(Dict.FDR_FILTER_LABEL)));
         fdrComboBox = new ComboBox<FalseDiscoveryRate>();
         ListStore<FalseDiscoveryRate> listStore = new ListStore<FalseDiscoveryRate>();
@@ -119,7 +121,7 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
             });
         add(new AdapterToolItem(fdrComboBox));
     }
-    
+
     Experiment getExperimentOrNull()
     {
         return experiment;
