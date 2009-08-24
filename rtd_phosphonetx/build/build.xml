@@ -5,6 +5,7 @@
 
 	<property name="original.dist" value="dist" />
 	<property name="mainfolder" value="rtd_phosphonetx" />
+	<property name="variant" value="-phosphonetx"/>
 
 	<target name="compile" depends="build-common.compile, clean" />
 
@@ -17,7 +18,7 @@
         <!--
         // Task for creating distributions
         -->
-        <target name="dist" depends="openbis.dist, datastore_server.dist"/>
+        <target name="dist" depends="openbis.make-dist, datastore_server.make-dist"/>
 	
         <!--
         // Task for continuous integration server.
