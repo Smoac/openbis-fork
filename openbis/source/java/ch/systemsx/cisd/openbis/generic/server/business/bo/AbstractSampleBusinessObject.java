@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusinessObject
 {
     protected final IEntityPropertiesConverter entityPropertiesConverter;
-    
+
     /**
      * Whether this object works with only new samples (that is: not yet saved into the database)
      * right now.
@@ -122,24 +122,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                 sampleTypeCacheOrNull.put(newSample.getSampleType().getCode(), sampleTypePE);
             }
         }
-        ExperimentPE experimentPE = null;
-        if (newSample.getExperimentIdentifier() != null)
-        {
-            experimentPE =
-                    (experimentCacheOrNull != null) ? experimentCacheOrNull.get(newSample
-                            .getExperimentIdentifier()) : null;
-            if (experimentPE == null)
-            {
-                ExperimentIdentifier expIdent =
-                        new ExperimentIdentifierFactory(newSample.getExperimentIdentifier())
-                                .createIdentifier();
-                experimentPE = findExperiment(expIdent);
-                if (experimentCacheOrNull != null)
-                {
-                    experimentCacheOrNull.put(newSample.getExperimentIdentifier(), experimentPE);
-                }
-            }
-        }
+        String experimentIdentifier = newSample.getExperimentIdentifier();
+        ExperimentPE experimentPE = tryFindExperiment(experimentCacheOrNull, experimentIdentifier);
         final SamplePE samplePE = new SamplePE();
         samplePE.setExperiment(experimentPE);
         samplePE.setCode(sampleIdentifier.getSampleSubCode());
@@ -155,6 +139,30 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         samplePE.setPermId(getPermIdDAO().createPermId());
         SampleGenericBusinessRules.assertValidParents(samplePE);
         return samplePE;
+    }
+
+    private ExperimentPE tryFindExperiment(Map<String, ExperimentPE> experimentCacheOrNull,
+            String experimentIdentifier)
+    {
+        ExperimentPE experimentPE = null;
+        if (experimentIdentifier != null)
+        {
+            experimentPE =
+                    (experimentCacheOrNull != null) ? experimentCacheOrNull
+                            .get(experimentIdentifier) : null;
+            if (experimentPE == null)
+            {
+                ExperimentIdentifier expIdent =
+                        new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
+                fillGroupIdentifier(expIdent);
+                experimentPE = findExperiment(expIdent);
+                if (experimentCacheOrNull != null)
+                {
+                    experimentCacheOrNull.put(experimentIdentifier, experimentPE);
+                }
+            }
+        }
+        return experimentPE;
     }
 
     protected void setContainer(final SampleIdentifier sampleIdentifier, final SamplePE samplePE,
@@ -251,11 +259,12 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         {
             entityPropertiesConverter.checkMandatoryProperties(sample.getProperties(), sample
                     .getSampleType(), cacheOrNull);
-        } else {
+        } else
+        {
             entityPropertiesConverter.checkMandatoryProperties(sample.getProperties(), sample
                     .getSampleType());
         }
-        final boolean hasDatasets = hasDatasets(externalDataDAO, sample); 
+        final boolean hasDatasets = hasDatasets(externalDataDAO, sample);
         if (hasDatasets && sample.getExperiment() == null)
         {
             throw UserFailureException.fromTemplate(
@@ -281,7 +290,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
 
     protected boolean hasDatasets(IExternalDataDAO externalDataDAO, SamplePE sample)
     {
-        // If we just added new data sets in this BO, they won't have data sets, so no need to check.
+        // If we just added new data sets in this BO, they won't have data sets, so no need to
+        // check.
         return (onlyNewSamples == false) && SampleUtils.hasDatasets(externalDataDAO, sample);
     }
 }

@@ -51,6 +51,8 @@ public class ManagerTestTool
 
     public static final GroupPE EXAMPLE_GROUP = createGroup();
 
+    public static final GroupPE EXAMPLE_GROUP2 = createGroup2();
+
     public static final PersonPE EXAMPLE_PERSON = createPerson();
 
     public static final Session EXAMPLE_SESSION = createSession();
@@ -192,6 +194,15 @@ public class ManagerTestTool
         group.setDatabaseInstance(EXAMPLE_DATABASE_INSTANCE);
         group.setCode("MY_GROUP");
         group.setId(4242L);
+        return group;
+    }
+
+    public final static GroupPE createGroup2()
+    {
+        final GroupPE group = new GroupPE();
+        group.setDatabaseInstance(EXAMPLE_DATABASE_INSTANCE);
+        group.setCode("MY_GROUP2");
+        group.setId(1984L);
         return group;
     }
 

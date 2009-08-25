@@ -88,7 +88,6 @@ public final class GenericSampleRegistrationForm extends AbstractGenericSampleRe
     protected void initializeFormFields()
     {
         propertiesEditor.initWithoutProperties(sampleType.getAssignedPropertyTypes());
-        experimentField.getField().setVisible(false);
     }
 
     @Override
@@ -100,12 +99,17 @@ public final class GenericSampleRegistrationForm extends AbstractGenericSampleRe
     @Override
     protected void save()
     {
+        String experimentIdentifier =
+                (experimentField != null && experimentField.tryToGetValue() != null) ? experimentField
+                        .tryToGetValue().getIdentifier()
+                        : null;
         final NewSample newSample =
                 new NewSample(createSampleIdentifier(), sampleType, StringUtils.trimToNull(parent
                         .getValue()), StringUtils.trimToNull(container.getValue()));
         final List<IEntityProperty> properties = extractProperties();
         newSample.setProperties(properties.toArray(IEntityProperty.EMPTY_ARRAY));
         newSample.setAttachments(attachmentsManager.extractAttachments());
+        newSample.setExperimentIdentifier(experimentIdentifier);
         viewContext.getService().registerSample(attachmentsSessionKey, newSample,
                 new RegisterSampleCallback(viewContext));
     }
