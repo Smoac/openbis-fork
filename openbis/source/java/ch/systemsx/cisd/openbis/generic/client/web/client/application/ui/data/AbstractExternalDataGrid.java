@@ -111,7 +111,7 @@ public abstract class AbstractExternalDataGrid
                                 protected Dialog createDialog(List<ExternalData> dataSets,
                                         IBrowserGridActionInvoker invoker)
                                 {
-                                    return new UploadConfirmationDialog(dataSets,
+                                    return new DataSetUploadConfirmationDialog(dataSets,
                                             getSelectedAndDisplayedItemsAction(), viewContext);
                                 }
                             });
