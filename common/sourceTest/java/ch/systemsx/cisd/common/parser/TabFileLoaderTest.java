@@ -128,6 +128,32 @@ public final class TabFileLoaderTest
     }
 
     @Test
+    public void testSkipAdditionalLineSeparators()
+    {
+        TabFileLoader<ABC> loader = new TabFileLoader<ABC>(new ABCFactoryFactory());
+        String additionalSeparators = "\t\t\t";
+        String header = "A\tB\tC" + additionalSeparators;
+        String values = header;
+        List<ABC> list = loader.load(new StringReader(header + "\n" + values));
+
+        assertEquals(list.toString(), 1, list.size());
+        ABC row = list.get(0);
+        assertEquals("A", row.getA());
+        assertEquals("B", row.getB());
+        assertEquals("C", row.getC());
+    }
+
+    @Test(expectedExceptions = ParsingException.class)
+    public void testDifferentNumberOfAdditionalLineSeparatorsFails()
+    {
+        TabFileLoader<ABC> loader = new TabFileLoader<ABC>(new ABCFactoryFactory());
+        String additionalSeparators = "\t\t\t";
+        String header = "A\tB\tC" + additionalSeparators;
+        String values = header + "\t";
+        loader.load(new StringReader(header + "\n" + values));
+    }
+
+    @Test
     public void testFirstLineHasHeadersWithoutHashSymbol()
     {
         loadAndCheck("");

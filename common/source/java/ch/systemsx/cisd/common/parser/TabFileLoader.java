@@ -21,7 +21,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +31,7 @@ import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 
@@ -68,6 +68,8 @@ import ch.systemsx.cisd.common.parser.filter.ILineFilter;
  */
 public class TabFileLoader<T>
 {
+
+    private static final String TOKENS_SEPARATOR = "\t";
 
     public static final String COMMENT_PREFIX = "#";
 
@@ -135,10 +137,9 @@ public class TabFileLoader<T>
                 break;
             }
         }
-        final List<T> result = new ArrayList<T>();
         if (line == null) // no lines present
         {
-            return result;
+            return new ArrayList<T>();
         }
 
         final String headerLine;
@@ -151,18 +152,119 @@ public class TabFileLoader<T>
         }
 
         final DefaultParser<T> parser = new DefaultParser<T>();
-        final String[] tokens = StringUtils.split(headerLine, "\t");
+        final String[] tokens = StringUtils.split(headerLine, TOKENS_SEPARATOR);
+        int lastEmptyHeadersToSkip = countLastEmptyTokens(headerLine);
         final int headerLength = tokens.length;
         notUnique(tokens);
+
         final IPropertyMapper propertyMapper = new DefaultPropertyMapper(tokens);
         parser.setObjectFactory(factory.createFactory(propertyMapper));
+
+        Line firstContentLine = previousLineHasColumnHeaders ? line : null;
+        Iterator<Line> contentLineIterator =
+                createContentIterator(firstContentLine, lineIterator, lastEmptyHeadersToSkip);
         final ILineFilter filter = AlwaysAcceptLineFilter.INSTANCE;
-        if (previousLineHasColumnHeaders)
+        return parser.parse(contentLineIterator, filter, headerLength);
+    }
+
+    /**
+     * @param firstContentLineOrNull if not null, it will be returned as the first iterator element,
+     *            followed by all iterator elements from the second parameter
+     * @param lastEmptyTokensToSkip the number of token separators which will be removed form the
+     *            end of each iterated line
+     */
+    private static Iterator<Line> createContentIterator(final Line firstContentLineOrNull,
+            final Iterator<Line> lineIterator, final int lastEmptyTokensToSkip)
+    {
+
+        final String suffixToDelete = multiply(lastEmptyTokensToSkip, TOKENS_SEPARATOR);
+        return new Iterator<Line>()
+            {
+                private Line firstLineOrNull = firstContentLineOrNull;
+
+                public boolean hasNext()
+                {
+                    return firstLineOrNull != null || lineIterator.hasNext();
+                }
+
+                public Line next()
+                {
+                    return trim(nextUntrimmed());
+                }
+
+                private Line trim(Line line)
+                {
+                    if (lastEmptyTokensToSkip == 0)
+                    {
+                        return line;
+                    }
+                    String text = trim(line.getText(), line.getNumber());
+                    return new Line(line.getNumber(), text);
+                }
+
+                private String trim(String text, int lineNumber)
+                {
+                    if (text.endsWith(suffixToDelete))
+                    {
+                        return text.substring(0, text.length() - suffixToDelete.length());
+                    } else
+                    {
+                        throw new ParsingException(new String[]
+                            { text }, lineNumber)
+                            {
+                                private static final long serialVersionUID = 1L;
+
+                                @Override
+                                public final String getMessage()
+                                {
+                                    return super.getMessage()
+                                            + " The line was expected to be followed by as many separators as the header.";
+                                }
+                            };
+                    }
+                }
+
+                private Line nextUntrimmed()
+                {
+                    if (firstLineOrNull != null)
+                    {
+                        Line line = firstLineOrNull;
+                        firstLineOrNull = null;
+                        return line;
+                    } else
+                    {
+                        return lineIterator.next();
+                    }
+                }
+
+                public void remove()
+                {
+                    throw new NotImplementedException();
+                }
+            };
+    }
+
+    private static String multiply(int number, String text)
+    {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < number; i++)
         {
-            result.addAll(parser.parse(Arrays.asList(line).iterator(), filter, headerLength));
+            sb.append(text);
         }
-        result.addAll(parser.parse(lineIterator, filter, headerLength));
-        return result;
+        return sb.toString();
+    }
+
+    // how many tokens at the end of the array are blank?
+    private static int countLastEmptyTokens(String text)
+    {
+        String rest = text;
+        int counter = 0;
+        while (rest.endsWith(TOKENS_SEPARATOR))
+        {
+            rest = rest.substring(0, rest.length() - TOKENS_SEPARATOR.length());
+            counter++;
+        }
+        return counter;
     }
 
     private Iterator<Line> createLineIterator(final Reader reader)

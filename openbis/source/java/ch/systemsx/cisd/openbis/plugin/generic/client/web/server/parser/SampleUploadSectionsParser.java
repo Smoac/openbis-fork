@@ -153,8 +153,6 @@ public class SampleUploadSectionsParser
 
     private static List<FileSection> extractSections(IUncheckedMultipartFile multipartFile)
     {
-        final String beginSection = "[";
-        final String endSection = "]";
         List<FileSection> sections = new ArrayList<FileSection>();
         InputStreamReader reader = new InputStreamReader(multipartFile.getInputStream());
         try
@@ -165,13 +163,14 @@ public class SampleUploadSectionsParser
             while (it.hasNext())
             {
                 String line = it.nextLine();
-                if (line != null && line.startsWith(beginSection) && line.endsWith(endSection))
+                String newSectionName = tryGetSectionName(line);
+                if (newSectionName != null)
                 {
                     if (sectionName != null && sb != null)
+                    {
                         sections.add(new FileSection(sb.toString(), sectionName));
-                    sectionName =
-                            line.substring(line.indexOf(beginSection) + 1, line
-                                    .lastIndexOf(endSection));
+                    }
+                    sectionName = newSectionName;
                     sb = new StringBuilder();
                 } else if (sectionName == null || sb == null)
                 {
@@ -194,6 +193,24 @@ public class SampleUploadSectionsParser
             IOUtils.closeQuietly(reader);
         }
         return sections;
+    }
+
+    private static String tryGetSectionName(String line)
+    {
+        final String beginSection = "[";
+        final String endSection = "]";
+        if (line == null)
+        {
+            return null;
+        }
+        String trimmedLine = line.trim();
+        if (trimmedLine.startsWith(beginSection) && trimmedLine.endsWith(endSection))
+        {
+            return trimmedLine.substring(1, trimmedLine.length() - 1);
+        } else
+        {
+            return null;
+        }
     }
 
     private static List<BatchRegistrationResult> loadSamplesFromFiles(
