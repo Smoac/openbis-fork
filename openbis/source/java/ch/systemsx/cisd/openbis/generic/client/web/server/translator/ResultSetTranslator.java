@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 
@@ -38,7 +36,7 @@ public final class ResultSetTranslator
         final ResultSet<T> resultSet = new ResultSet<T>();
         resultSet.setList(result.getList());
         resultSet.setTotalLength(result.getTotalLength());
-        resultSet.setResultSetKey(StringEscapeUtils.escapeHtml(result.getResultSetKey()));
+        resultSet.setResultSetKey(result.getResultSetKey());
         return resultSet;
     }
 }
