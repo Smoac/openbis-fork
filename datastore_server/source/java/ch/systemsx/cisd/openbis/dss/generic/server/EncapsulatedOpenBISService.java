@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -327,6 +328,13 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             authenticate();
             return primListDataSets();
         }
+    }
+
+    synchronized public SamplePE tryToGetSampleWithProperty(String string, GroupIdentifier groupIdentifier,
+            String parameterName)
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     private List<SimpleDataSetInformationDTO> primListDataSets()
