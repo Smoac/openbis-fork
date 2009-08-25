@@ -23,12 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.Radio;
-import com.extjs.gxt.ui.client.widget.form.RadioGroup;
-import com.extjs.gxt.ui.client.widget.form.TextArea;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolItem;
 
@@ -52,15 +47,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
@@ -78,143 +68,6 @@ public abstract class AbstractExternalDataGrid
         extends
         AbstractEntityBrowserGrid<ExternalData, BaseEntityModel<ExternalData>, PropertyTypesCriteria>
 {
-    static final class UploadCallback extends AbstractAsyncCallback<String>
-    {
-        private UploadCallback(IViewContext<?> viewContext)
-        {
-            super(viewContext);
-        }
-
-        @Override
-        protected void process(String message)
-        {
-            if (message.length() > 0)
-            {
-                MessageBox.alert("Warning", message, null);
-            }
-        }
-    }
-
-    private final class UploadConfirmationDialog extends
-            AbstractDataConfirmationDialog<List<ExternalData>>
-    {
-        private static final int FIELD_WIDTH_IN_UPLOAD_DIALOG = 200;
-
-        private static final int LABEL_WIDTH_IN_UPLOAD_DIALOG = 120;
-
-        private String cifexURL;
-
-        private TextField<String> passwordField;
-
-        private TextField<String> fileNameField;
-
-        private TextArea commentField;
-
-        private TextField<String> userField;
-
-        private Radio uploadSelectedRadio;
-
-        public UploadConfirmationDialog(List<ExternalData> dataSets)
-        {
-            super(viewContext, dataSets, viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_TITLE));
-            cifexURL = viewContext.getModel().getApplicationInfo().getCIFEXURL();
-            addText(viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_MSG, dataSets.size(),
-                    cifexURL));
-            setWidth(LABEL_WIDTH_IN_UPLOAD_DIALOG + FIELD_WIDTH_IN_UPLOAD_DIALOG + 50);
-        }
-
-        @Override
-        protected String createMessage()
-        {
-            return viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_MSG, cifexURL);
-        }
-
-        @Override
-        protected final void extendForm()
-        {
-            formPanel.setLabelWidth(LABEL_WIDTH_IN_UPLOAD_DIALOG);
-            formPanel.setFieldWidth(FIELD_WIDTH_IN_UPLOAD_DIALOG);
-            formPanel.setBodyBorder(false);
-            formPanel.setHeaderVisible(false);
-
-            formPanel.add(createDataSetsRadio());
-
-            fileNameField = new TextField<String>();
-            fileNameField.setFieldLabel(viewContext
-                    .getMessage(Dict.CONFIRM_DATASET_UPLOAD_FILE_NAME_FIELD));
-            fileNameField.setSelectOnFocus(true);
-            fileNameField.setMaxLength(BasicConstant.MAX_LENGTH_OF_FILE_NAME + ".zip".length());
-            fileNameField.setAutoValidate(true);
-            fileNameField.addKeyListener(keyListener);
-            formPanel.add(fileNameField);
-
-            commentField = new TextArea();
-            commentField.setMaxLength(BasicConstant.MAX_LENGTH_OF_CIFEX_COMMENT);
-            commentField.setFieldLabel(viewContext
-                    .getMessage(Dict.CONFIRM_DATASET_UPLOAD_COMMENT_FIELD));
-            commentField.addKeyListener(keyListener);
-            commentField.setAutoValidate(true);
-            formPanel.add(commentField);
-
-            userField = new TextField<String>();
-            userField.setFieldLabel(viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_USER_FIELD));
-            userField.setValue(viewContext.getModel().getSessionContext().getUser().getUserName());
-            FieldUtil.setMandatoryFlag(userField, true);
-            userField.addKeyListener(keyListener);
-            userField.setAutoValidate(true);
-            formPanel.add(userField);
-
-            passwordField = new TextField<String>();
-            passwordField.setPassword(true);
-            passwordField.setFieldLabel(viewContext
-                    .getMessage(Dict.CONFIRM_DATASET_UPLOAD_PASSWORD_FIELD));
-            FieldUtil.setMandatoryFlag(passwordField, true);
-            passwordField.addKeyListener(keyListener);
-            passwordField.setAutoValidate(true);
-            formPanel.add(passwordField);
-        }
-
-        private final RadioGroup createDataSetsRadio()
-        {
-            return WidgetUtils.createAllOrSelectedRadioGroup(uploadSelectedRadio =
-                    WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO, data
-                            .size())), WidgetUtils.createRadio(viewContext
-                    .getMessage(Dict.ALL_RADIO)), viewContext
-                    .getMessage(Dict.DATA_SETS_RADIO_GROUP_LABEL), data.size());
-        }
-
-        private boolean getUploadSelected()
-        {
-            return WidgetUtils.isSelected(uploadSelectedRadio);
-        }
-
-        @Override
-        protected void executeConfirmedAction()
-        {
-            DataSetUploadParameters parameters = new DataSetUploadParameters();
-            parameters.setCifexURL(cifexURL);
-            parameters.setFileName(fileNameField.getValue());
-            parameters.setComment(commentField.getValue());
-            parameters.setUserID(userField.getValue());
-            parameters.setPassword(passwordField.getValue());
-
-            final boolean uploadSelected = getUploadSelected();
-            final SelectedAndDisplayedItems selectedAndDisplayedItems =
-                    getSelectedAndDisplayedItemsAction().execute();
-            final DisplayedOrSelectedDatasetCriteria uploadCriteria =
-                    createCriteria(selectedAndDisplayedItems, uploadSelected);
-
-            viewContext.getCommonService().uploadDataSets(uploadCriteria, parameters,
-                    new UploadCallback(viewContext));
-        }
-
-        private DisplayedOrSelectedDatasetCriteria createCriteria(
-                SelectedAndDisplayedItems selectedAndDisplayedItems, boolean uploadSelected)
-        {
-            return selectedAndDisplayedItems.createCriteria(uploadSelected);
-        }
-    }
-
     public static final String SHOW_DETAILS_BUTTON_ID_SUFFIX = "_show-details-button";
 
     /**
@@ -258,7 +111,8 @@ public abstract class AbstractExternalDataGrid
                                 protected Dialog createDialog(List<ExternalData> dataSets,
                                         IBrowserGridActionInvoker invoker)
                                 {
-                                    return new UploadConfirmationDialog(dataSets);
+                                    return new UploadConfirmationDialog(dataSets,
+                                            getSelectedAndDisplayedItemsAction(), viewContext);
                                 }
                             });
         addButton(uploadButton);
