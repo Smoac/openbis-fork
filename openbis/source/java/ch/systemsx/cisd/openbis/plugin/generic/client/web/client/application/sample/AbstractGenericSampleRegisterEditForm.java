@@ -59,6 +59,8 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     public static final String ID_SUFFIX_PARENT = "parent";
 
+    public static final String ID_SUFFIX_EXPERIMENT = "experiment";
+
     protected AttachmentsFileFieldManager attachmentsManager;
 
     protected String attachmentsSessionKey;
@@ -177,6 +179,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                         true, false, viewContext.getCommonViewContext(), getId()
                                 + ID_SUFFIX_CONTAINER);
         experimentField = createExperimentField();
+        experimentField.getChooserField().setId(getId() + ID_SUFFIX_EXPERIMENT);
         attachmentsManager = new AttachmentsFileFieldManager(attachmentsSessionKey, viewContext);
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {

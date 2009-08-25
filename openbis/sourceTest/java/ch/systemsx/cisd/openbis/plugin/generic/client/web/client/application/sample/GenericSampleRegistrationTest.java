@@ -114,6 +114,21 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         launchTest(20000);
     }
 
+    public final void testRegisterGroupSampleWithExperiment()
+    {
+        final String sampleCode = "cp-with-exp";
+        final String sampleTypeCode = CELL_PLATE;
+        loginAndPreprareRegistration(sampleTypeCode);
+        remoteConsole.prepare(new FillSampleRegistrationForm("CISD", sampleCode, false)
+                .experiment("/CISD/NEMO/EXP1"));
+        remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE,
+                GenericSampleRegistrationForm.RegisterSampleCallback.class));
+        remoteConsole.prepare(new ListSamples("CISD", sampleTypeCode));
+        remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(sampleCode
+                .toUpperCase()).identifier("CISD", "CISD").experiment("CISD", "NEMO", "EXP1")));
+        launchTest(20000);
+    }
+
     public final void testRegisterGroupSampleWithContainer()
     {
         final String sampleCode = "W12";
