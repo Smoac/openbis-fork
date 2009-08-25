@@ -61,21 +61,27 @@ class AbundanceHandler extends AbstractHandler
         }
     }
 
-    private Sample getOrCreateSample(String sampleCode, String proteinName)
+    private Sample getOrCreateSample(String parameterName, String proteinName)
     {
-        Sample sample = samples.get(sampleCode);
+        Sample sample = samples.get(parameterName);
         if (sample == null)
         {
             SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(groupIdentifier, sampleCode);
+                new SampleIdentifier(groupIdentifier, parameterName);
             SamplePE samplePE = openbisService.tryGetSampleWithExperiment(sampleIdentifier);
             if (samplePE == null)
             {
-                throw new UserFailureException("Protein '" + proteinName
-                        + "' has an abundance value for a non-existing sample: " + sampleIdentifier);
+                samplePE =
+                        openbisService.tryToGetSampleWithProperty("MZXML_FILENAME",
+                                groupIdentifier, parameterName);
+                if (samplePE == null)
+                {
+                    throw new UserFailureException("Protein '" + proteinName
+                            + "' has an abundance value for a non-existing sample: " + sampleIdentifier);
+                }
             }
             sample = getOrCreateSample(experiment, samplePE.getPermId());
-            samples.put(sampleCode, sample);
+            samples.put(parameterName, sample);
         }
         return sample;
     }

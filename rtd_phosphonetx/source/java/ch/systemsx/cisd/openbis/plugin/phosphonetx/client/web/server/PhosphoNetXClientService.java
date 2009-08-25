@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailure
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientService;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.AggregateFunction;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentAndReferenceCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinSequenceCriteria;
@@ -71,8 +72,11 @@ public class PhosphoNetXClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
+        TechId experimentID = criteria.getExperimentID();
+        double fdr = criteria.getFalseDiscoveryRate();
+        AggregateFunction aggregateFunction = criteria.getAggregateFunction();
         return listEntities(criteria, new ListProteinOriginalDataProvider(server, sessionToken,
-                criteria.getExperimentID(), criteria.getFalseDiscoveryRate()));
+                experimentID, fdr, aggregateFunction));
     }
 
     public String prepareExportProteins(TableExportCriteria<ProteinInfo> exportCriteria)

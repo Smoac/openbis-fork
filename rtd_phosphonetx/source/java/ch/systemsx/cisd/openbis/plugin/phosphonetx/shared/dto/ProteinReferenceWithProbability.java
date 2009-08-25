@@ -30,6 +30,12 @@ public class ProteinReferenceWithProbability extends ProteinReference
     
     @ResultColumn("probability")
     private double probability;
+    
+    @ResultColumn("value")
+    private double abundance;
+    
+    @ResultColumn("sample_id")
+    private Long sampleID;
 
     public final long getDataSetID()
     {
@@ -50,5 +56,25 @@ public class ProteinReferenceWithProbability extends ProteinReference
     {
         this.probability = probability;
     }
-    
+
+    public final double getAbundance()
+    {
+        return abundance;
+    }
+
+    public final void setAbundance(double abundance)
+    {
+        this.abundance = abundance;
+    }
+
+    public final Long getSampleID()
+    {
+        return sampleID;
+    }
+
+    public final void setSampleID(Long sampleID)
+    {
+        this.sampleID = sampleID;
+    }
+
 }

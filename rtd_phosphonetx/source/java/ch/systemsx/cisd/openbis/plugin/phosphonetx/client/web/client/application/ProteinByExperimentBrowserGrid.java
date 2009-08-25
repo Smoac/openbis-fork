@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.columns.ProteinColDefKind;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.AggregateFunction;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
 
@@ -86,11 +87,12 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
                     });
     }
 
-    void update(TechId experimentID, double falseDiscoveryRate)
+    void update(TechId experimentID, double falseDiscoveryRate, AggregateFunction aggregateFunction)
     {
         criteria = new ListProteinByExperimentCriteria();
         criteria.setExperimentID(experimentID);
         criteria.setFalseDiscoveryRate(falseDiscoveryRate);
+        criteria.setAggregateFunction(aggregateFunction);
         refresh();
     }
 

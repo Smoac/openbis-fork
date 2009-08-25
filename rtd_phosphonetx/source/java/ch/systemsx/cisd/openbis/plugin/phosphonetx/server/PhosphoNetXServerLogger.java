@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
+import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
@@ -28,7 +29,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProte
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
 
 /**
  * @author Franz-Josef Elmer
@@ -41,7 +42,7 @@ public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPh
         super(sessionManager, invocationSuccessful, elapsedTime);
     }
 
-    public List<ProteinReference> listProteinsByExperiment(String sessionToken,
+    public Collection<ProteinWithAbundances> listProteinsByExperiment(String sessionToken,
             TechId experimentId, double falseDiscoveryRate) throws UserFailureException
     {
         logAccess(sessionToken, "list_proteins_by_experiment", "ID(%s) FDR(%s)", experimentId,

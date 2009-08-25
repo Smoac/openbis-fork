@@ -16,18 +16,22 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Set;
 
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IProteinReferenceTable
+public interface IProteinWithAbundancesTable
 {
     public void load(String experimentPermID, double falseDiscoveryRate);
     
-    public List<ProteinReference> getProteinReferences();
+    public Collection<ProteinWithAbundances> getProteinsWithAbundances();
+
+    public Set<Long> getSampleIDs();
+
 }

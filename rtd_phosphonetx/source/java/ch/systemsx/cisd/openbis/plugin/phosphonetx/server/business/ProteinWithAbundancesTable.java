@@ -17,8 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 
 import net.lemnik.eodsql.DataSet;
@@ -27,25 +26,27 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-class ProteinReferenceTable extends AbstractBusinessObject implements IProteinReferenceTable
+class ProteinWithAbundancesTable extends AbstractBusinessObject implements
+        IProteinWithAbundancesTable
 {
-    private List<ProteinReference> proteins;
+    private Collection<ProteinWithAbundances> proteins;
+    private Set<Long> sampleIDs;
 
-    public ProteinReferenceTable(IDAOFactory daoFactory,
-            IPhosphoNetXDAOFactory specificDAOFactory, Session session)
+    ProteinWithAbundancesTable(IDAOFactory daoFactory, IPhosphoNetXDAOFactory specificDAOFactory,
+            Session session)
     {
         super(daoFactory, specificDAOFactory, session);
     }
 
-    public List<ProteinReference> getProteinReferences()
+    public Collection<ProteinWithAbundances> getProteinsWithAbundances()
     {
         if (proteins == null)
         {
@@ -56,25 +57,31 @@ class ProteinReferenceTable extends AbstractBusinessObject implements IProteinRe
 
     public void load(String experimentPermID, double falseDiscoveryRate)
     {
-        proteins = new ArrayList<ProteinReference>();
+        AbundanceManager abundanceManager = new AbundanceManager();
+        proteins = new ArrayList<ProteinWithAbundances>();
         IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
         DataSet<ProteinReferenceWithProbability> resultSet =
             dao.listProteinsByExperiment(experimentPermID);
         ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
-        Set<String> idsOfPassedProteins = new HashSet<String>();
         for (ProteinReferenceWithProbability protein : resultSet)
         {
             if (errorModel.passProtein(protein, falseDiscoveryRate))
             {
-                String uniprotID = protein.getUniprotID();
-                if (idsOfPassedProteins.contains(uniprotID) == false)
-                {
-                    idsOfPassedProteins.add(uniprotID);
-                    proteins.add(protein);
-                }
+                abundanceManager.handle(protein);
             }
         }
         resultSet.close();
+        proteins = abundanceManager.getProteinsWithAbundances();
+        sampleIDs = abundanceManager.getSampleIDs();
+    }
+    
+    public Set<Long> getSampleIDs()
+    {
+        if (sampleIDs == null)
+        {
+            throw new IllegalStateException("No proteins loaded.");
+        }
+        return sampleIDs;
     }
 
 }

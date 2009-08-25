@@ -30,6 +30,7 @@ public class ListProteinByExperimentCriteria extends DefaultResultSetConfig<Stri
 {
     private TechId experimentID;
     private double falseDiscoveryRate;
+    private AggregateFunction aggregateFunction;
 
     public final TechId getExperimentID()
     {
@@ -49,6 +50,16 @@ public class ListProteinByExperimentCriteria extends DefaultResultSetConfig<Stri
     public final void setFalseDiscoveryRate(double falseDiscoveryRate)
     {
         this.falseDiscoveryRate = falseDiscoveryRate;
+    }
+    
+    public final AggregateFunction getAggregateFunction()
+    {
+        return aggregateFunction;
+    }
+
+    public void setAggregateFunction(AggregateFunction aggregateFunction)
+    {
+        this.aggregateFunction = aggregateFunction;
     }
     
 }

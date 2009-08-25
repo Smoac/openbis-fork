@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto;
 
+import java.util.Map;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -37,7 +39,7 @@ public class ProteinInfo implements IsSerializable
     
     private String description;
     
-    private double falseDiscoveryRate;
+    private Map<Long, Double> abundances;
 
     public final TechId getId()
     {
@@ -69,16 +71,6 @@ public class ProteinInfo implements IsSerializable
         this.dataSetPermID = dataSetPermID;
     }
 
-    public final double getFalseDiscoveryRate()
-    {
-        return falseDiscoveryRate;
-    }
-
-    public final void setFalseDiscoveryRate(double falseDiscoveryRate)
-    {
-        this.falseDiscoveryRate = falseDiscoveryRate;
-    }
-
     public final String getUniprotID()
     {
         return uniprotID;
@@ -99,5 +91,14 @@ public class ProteinInfo implements IsSerializable
         this.description = description;
     }
 
+    public final Map<Long, Double> getAbundances()
+    {
+        return abundances;
+    }
+
+    public final void setAbundances(Map<Long, Double> abundances)
+    {
+        this.abundances = abundances;
+    }
 
 }

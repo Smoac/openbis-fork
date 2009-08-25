@@ -26,6 +26,8 @@ public class Dict
     public static final String SELECTED_EXPERIMENT_LABEL = "selected_experiment_label";
 
     public static final String FDR_FILTER_LABEL = "false_discovery_rate_filter_label";
+    
+    public static final String AGGREGATE_FUNCTION_LABEL = "aggregate_function_label";
 
     public static final String UNIPROT_ID = "uniprot_id";
 

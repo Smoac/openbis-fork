@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +32,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProte
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
 
 /**
  * 
@@ -42,7 +43,7 @@ public interface IPhosphoNetXServer extends IServer
 {
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<ProteinReference> listProteinsByExperiment(String sessionToken,
+    public Collection<ProteinWithAbundances> listProteinsByExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
             TechId experimentId, double falseDiscoveryRate) throws UserFailureException;
     

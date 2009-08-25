@@ -17,14 +17,19 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.AggregateFunction;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
 
 /**
  * 
@@ -37,28 +42,41 @@ class ListProteinOriginalDataProvider implements IOriginalDataProvider<ProteinIn
     private final String sessionToken;
     private final TechId experimentID;
     private final double falseDiscoveryRate;
+    private final AggregateFunction aggregateFunction;
 
     ListProteinOriginalDataProvider(IPhosphoNetXServer server, String sessionToken,
-            TechId experimentID, double falseDiscoveryRate)
+            TechId experimentID, double falseDiscoveryRate, AggregateFunction function)
     {
         this.server = server;
         this.sessionToken = sessionToken;
         this.experimentID = experimentID;
         this.falseDiscoveryRate = falseDiscoveryRate;
+        this.aggregateFunction = function;
     }
     
     public List<ProteinInfo> getOriginalData() throws UserFailureException
     {
-        List<ProteinReference> proteins =
+        Collection<ProteinWithAbundances> proteins =
                 server.listProteinsByExperiment(sessionToken, experimentID, falseDiscoveryRate);
         List<ProteinInfo> infos = new ArrayList<ProteinInfo>(proteins.size());
-        for (ProteinReference protein : proteins)
+        for (ProteinWithAbundances protein : proteins)
         {
             ProteinInfo proteinInfo = new ProteinInfo();
             proteinInfo.setId(new TechId(protein.getId()));
             proteinInfo.setUniprotID(protein.getUniprotID());
             proteinInfo.setDescription(protein.getDescription());
             proteinInfo.setExperimentID(experimentID);
+            Map<Long, Double> abundances = new HashMap<Long, Double>();
+            Set<Long> sampleIDs = protein.getSampleIDs();
+            for (Long id : sampleIDs)
+            {
+                double[] abundanceValues = protein.getAbundancesForSample(id);
+                if (abundanceValues.length > 0)
+                {
+                    abundances.put(id, aggregateFunction.aggregate(abundanceValues));
+                }
+            }
+            proteinInfo.setAbundances(abundances);
             infos.add(proteinInfo);
         }
         return infos;

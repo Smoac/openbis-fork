@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -35,8 +36,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IDataSetProteinTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinDetailsBO;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinReferenceTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinSequenceTable;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinWithAbundancesTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
@@ -47,6 +48,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExp
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
 
 /**
  * @author Franz-Josef Elmer
@@ -83,14 +85,14 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         return new PhosphoNetXServerLogger(getSessionManager(), invocationSuccessful, elapsedTime);
     }
 
-    public List<ProteinReference> listProteinsByExperiment(String sessionToken,
+    public Collection<ProteinWithAbundances> listProteinsByExperiment(String sessionToken,
             TechId experimentId, double falseDiscoveryRate) throws UserFailureException
     {
         final Session session = getSessionManager().getSession(sessionToken);
-        IProteinReferenceTable table = specificBOFactory.createProteinReferenceTable(session);
+        IProteinWithAbundancesTable table = specificBOFactory.createProteinWithAbundancesTable(session);
         String experimentPermId = getExperimentPermIDFor(experimentId);
         table.load(experimentPermId, falseDiscoveryRate);
-        return table.getProteinReferences();
+        return table.getProteinsWithAbundances();
     }
 
     public ProteinByExperiment getProteinByExperiment(String sessionToken, TechId experimentID,

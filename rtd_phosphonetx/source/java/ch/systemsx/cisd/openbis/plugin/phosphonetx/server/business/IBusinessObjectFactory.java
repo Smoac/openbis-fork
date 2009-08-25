@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  */
 public interface IBusinessObjectFactory
 {
-    public IProteinReferenceTable createProteinReferenceTable(Session session);
+    public IProteinWithAbundancesTable createProteinWithAbundancesTable(Session session);
     
     public IProteinSequenceTable createProteinSequenceTable(Session session);
     
