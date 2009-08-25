@@ -296,14 +296,18 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         p1.setName(PROTEIN_NAME1);
         p1.getParameters().add(createAbundance(CELL_LYSATE1, 2.5));
         p1.getParameters().add(new Parameter());
+        final GroupIdentifier groupIdentifier = new GroupIdentifier(DB_INSTANCE, GROUP_CODE);
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new GroupIdentifier(DB_INSTANCE, GROUP_CODE), CELL_LYSATE1
+                new SampleIdentifier(groupIdentifier, CELL_LYSATE1
                         .toUpperCase());
         context.checking(new Expectations()
             {
                 {
                     one(service).tryGetSampleWithExperiment(sampleIdentifier);
                     will(returnValue(null));
+                    
+                    one(service).tryToGetSampleWithProperty("MZXML_FILENAME", groupIdentifier, CELL_LYSATE1
+                            .toUpperCase());
                 }
             });
         p1.setPeptides(Collections.<Peptide> emptyList());
