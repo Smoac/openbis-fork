@@ -121,30 +121,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.AuthorizationGroupTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
-import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.PropertyTypeTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.TypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
 
 /**
@@ -646,9 +630,9 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            final List<AuthorizationGroupPE> groups =
+            final List<AuthorizationGroup> authGroups =
                     commonServer.listAuthorizationGroups(sessionToken);
-            return AuthorizationGroupTranslator.translate(groups);
+            return authGroups;
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -756,10 +740,9 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            final List<VocabularyPE> vocabularies =
+            final List<Vocabulary> vocabularies =
                     commonServer.listVocabularies(sessionToken, withTerms, excludeInternal);
-            return BeanUtils.createBeanList(Vocabulary.class, vocabularies, DtoConverters
-                    .getVocabularyConverter());
+            return vocabularies;
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -921,9 +904,9 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            final List<PropertyTypePE> propertyTypes =
+            final List<PropertyType> propertyTypes =
                     commonServer.listPropertyTypes(sessionToken, withRelations);
-            return PropertyTypeTranslator.translate(propertyTypes);
+            return propertyTypes;
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -936,9 +919,8 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            final List<DataTypePE> dataTypes = commonServer.listDataTypes(sessionToken);
-            return BeanUtils.createBeanList(DataType.class, dataTypes, DtoConverters
-                    .getDataTypeConverter());
+            final List<DataType> dataTypes = commonServer.listDataTypes(sessionToken);
+            return dataTypes;
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -1222,9 +1204,9 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            Set<VocabularyTermPE> terms =
+            final Set<VocabularyTerm> terms =
                     commonServer.listVocabularyTerms(sessionToken, vocabulary);
-            return VocabularyTermTranslator.translateTerms(terms);
+            return new ArrayList<VocabularyTerm>(terms);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -1266,13 +1248,8 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            final List<MaterialType> result = new ArrayList<MaterialType>();
-            final List<MaterialTypePE> projects = commonServer.listMaterialTypes(sessionToken);
-            for (final MaterialTypePE expType : projects)
-            {
-                result.add(MaterialTypeTranslator.translate(expType));
-            }
-            return result;
+            final List<MaterialType> materialTypes = commonServer.listMaterialTypes(sessionToken);
+            return materialTypes;
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -1285,13 +1262,8 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            final List<DataSetType> result = new ArrayList<DataSetType>();
-            final List<DataSetTypePE> types = commonServer.listDataSetTypes(sessionToken);
-            for (final DataSetTypePE type : types)
-            {
-                result.add(DataSetTypeTranslator.translate(type));
-            }
-            return result;
+            final List<DataSetType> types = commonServer.listDataSetTypes(sessionToken);
+            return types;
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -1661,8 +1633,8 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            final ProjectPE project = commonServer.getProjectInfo(sessionToken, projectId);
-            return ProjectTranslator.translate(project);
+            final Project project = commonServer.getProjectInfo(sessionToken, projectId);
+            return project;
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -1777,13 +1749,8 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            final List<FileFormatType> result = new ArrayList<FileFormatType>();
-            final List<FileFormatTypePE> types = commonServer.listFileFormatTypes(sessionToken);
-            for (final FileFormatTypePE type : types)
-            {
-                result.add(TypeTranslator.translate(type));
-            }
-            return result;
+            final List<FileFormatType> types = commonServer.listFileFormatTypes(sessionToken);
+            return types;
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -2019,8 +1986,7 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            return PersonTranslator.translate(commonServer.listPersonInAuthorizationGroup(
-                    sessionToken, group));
+            return commonServer.listPersonInAuthorizationGroup(sessionToken, group);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

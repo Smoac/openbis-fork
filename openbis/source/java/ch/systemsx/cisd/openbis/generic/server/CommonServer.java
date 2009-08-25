@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -35,6 +36,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAttachmentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAuthorizationGroupBO;
@@ -69,10 +71,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -88,6 +92,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -138,22 +143,29 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.translator.AuthorizationGroupTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ListSampleCriteriaTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.PropertyTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.RoleAssignmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SearchHitTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.TypeTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -490,7 +502,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return ExternalDataTranslator.translate(externalData, getDataStoreBaseURL(), baseIndexURL);
     }
 
-    public final List<PropertyTypePE> listPropertyTypes(final String sessionToken,
+    public final List<PropertyType> listPropertyTypes(final String sessionToken,
             boolean withRelations)
     {
         final Session session = getSessionManager().getSession(sessionToken);
@@ -502,7 +514,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             propertyTypeTable.load();
         final List<PropertyTypePE> propertyTypes = propertyTypeTable.getPropertyTypes();
         Collections.sort(propertyTypes);
-        return propertyTypes;
+        return PropertyTypeTranslator.translate(propertyTypes);
     }
 
     public final List<MatchingEntity> listMatchingEntities(final String sessionToken,
@@ -546,9 +558,11 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return ExperimentTranslator.translate(experimentTypes);
     }
 
-    public List<MaterialTypePE> listMaterialTypes(String sessionToken)
+    public List<MaterialType> listMaterialTypes(String sessionToken)
     {
-        return listEntityTypes(sessionToken, EntityKind.MATERIAL);
+        final List<MaterialTypePE> materialTypes =
+                listEntityTypes(sessionToken, EntityKind.MATERIAL);
+        return MaterialTypeTranslator.translate(materialTypes);
     }
 
     private <T extends EntityTypePE> List<T> listEntityTypes(String sessionToken,
@@ -560,26 +574,41 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return types;
     }
 
-    public final List<DataTypePE> listDataTypes(final String sessionToken)
+    public final List<DataType> listDataTypes(final String sessionToken)
     {
         assert sessionToken != null : "Unspecified session token";
         checkSession(sessionToken);
-        final List<DataTypePE> dataTypes = getDAOFactory().getPropertyTypeDAO().listDataTypes();
-        Collections.sort(dataTypes);
+        final List<DataTypePE> dataTypePEs = getDAOFactory().getPropertyTypeDAO().listDataTypes();
+        final List<DataType> dataTypes = BeanUtils.createBeanList(DataType.class, dataTypePEs, DtoConverters
+                .getDataTypeConverter());
+        Collections.sort(dataTypes, new Comparator<DataType>()
+            {
+                public int compare(DataType o1, DataType o2)
+                {
+                    return o1.getCode().name().compareTo(o2.getCode().name());
+                }
+            });
         return dataTypes;
     }
 
-    public List<FileFormatTypePE> listFileFormatTypes(String sessionToken)
+    public List<FileFormatType> listFileFormatTypes(String sessionToken)
     {
         assert sessionToken != null : "Unspecified session token";
         checkSession(sessionToken);
-        List<FileFormatTypePE> fileFormatTypes =
+        final List<FileFormatTypePE> fileFormatTypePEs =
                 getDAOFactory().getFileFormatTypeDAO().listFileFormatTypes();
-        Collections.sort(fileFormatTypes);
+        final List<FileFormatType> fileFormatTypes = TypeTranslator.translate(fileFormatTypePEs); 
+        Collections.sort(fileFormatTypes, new Comparator<FileFormatType>()
+            {
+                public int compare(FileFormatType o1, FileFormatType o2)
+                {
+                    return o1.getCode().compareTo(o2.getCode());
+                }
+            });
         return fileFormatTypes;
     }
 
-    public final List<VocabularyPE> listVocabularies(final String sessionToken,
+    public final List<Vocabulary> listVocabularies(final String sessionToken,
             final boolean withTerms, boolean excludeInternal)
     {
         assert sessionToken != null : "Unspecified session token";
@@ -594,7 +623,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             }
         }
         Collections.sort(vocabularies);
-        return vocabularies;
+        return BeanUtils.createBeanList(Vocabulary.class, vocabularies, DtoConverters
+                .getVocabularyConverter());
     }
 
     private void enrichWithTerms(final VocabularyPE vocabularyPE)
@@ -821,14 +851,14 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
     }
 
-    public List<MaterialPE> listMaterials(String sessionToken, MaterialTypePE materialType)
+    public List<Material> listMaterials(String sessionToken, MaterialType materialType)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IMaterialTable materialTable = businessObjectFactory.createMaterialTable(session);
         materialTable.load(materialType.getCode());
         final List<MaterialPE> materials = materialTable.getMaterials();
         Collections.sort(materials);
-        return materials;
+        return MaterialTranslator.translate(materials);
     }
 
     public void registerSampleType(String sessionToken, SampleType entityType)
@@ -1226,17 +1256,18 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return vocabularyBO.countTermsUsageStatistics();
     }
 
-    public Set<VocabularyTermPE> listVocabularyTerms(String sessionToken, Vocabulary vocabulary)
+    public Set<VocabularyTerm> listVocabularyTerms(String sessionToken, Vocabulary vocabulary)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
         vocabularyBO.loadDataByTechId(TechId.create(vocabulary));
-        return vocabularyBO.enrichWithTerms();
+        return VocabularyTermTranslator.translateTerms(vocabularyBO.enrichWithTerms());
     }
 
-    public List<DataSetTypePE> listDataSetTypes(String sessionToken)
+    public List<DataSetType> listDataSetTypes(String sessionToken)
     {
-        return listEntityTypes(sessionToken, EntityKind.DATA_SET);
+        final List<DataSetTypePE> dataSetTypes = listEntityTypes(sessionToken, EntityKind.DATA_SET);
+        return DataSetTypeTranslator.translate(dataSetTypes);
     }
 
     public LastModificationState getLastModificationState(String sessionToken)
@@ -1245,14 +1276,14 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return lastModificationState;
     }
 
-    public ProjectPE getProjectInfo(String sessionToken, TechId projectId)
+    public Project getProjectInfo(String sessionToken, TechId projectId)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IProjectBO bo = businessObjectFactory.createProjectBO(session);
         bo.loadDataByTechId(projectId);
         bo.enrichWithAttachments();
         final ProjectPE project = bo.getProject();
-        return project;
+        return ProjectTranslator.translate(project);
     }
 
     public IEntityInformationHolder getEntityInformationHolder(String sessionToken,
@@ -1617,13 +1648,13 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
     }
 
-    public List<AuthorizationGroupPE> listAuthorizationGroups(String sessionToken)
+    public List<AuthorizationGroup> listAuthorizationGroups(String sessionToken)
     {
         checkSession(sessionToken);
         final List<AuthorizationGroupPE> persons =
                 getDAOFactory().getAuthorizationGroupDAO().list();
         Collections.sort(persons);
-        return persons;
+        return AuthorizationGroupTranslator.translate(persons);
     }
 
     public Date updateAuthorizationGroup(String sessionToken, AuthorizationGroupUpdates updates)
@@ -1635,13 +1666,13 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return bo.getAuthorizationGroup().getModificationDate();
     }
 
-    public List<PersonPE> listPersonInAuthorizationGroup(String sessionToken,
+    public List<Person> listPersonInAuthorizationGroup(String sessionToken,
             TechId authorizatonGroupId)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         IAuthorizationGroupBO bo = businessObjectFactory.createAuthorizationGroupBO(session);
         bo.loadByTechId(authorizatonGroupId);
-        return new ArrayList<PersonPE>(bo.getAuthorizationGroup().getPersons());
+        return PersonTranslator.translate(bo.getAuthorizationGroup().getPersons());
     }
 
     public void addPersonsToAuthorizationGroup(String sessionToken, TechId authorizationGroupId,

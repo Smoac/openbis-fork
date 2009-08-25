@@ -37,6 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -50,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
@@ -75,13 +78,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 
 /**
@@ -660,6 +664,8 @@ public final class CommonServerTest extends AbstractServerTestCase
     public final void testListDataTypes()
     {
         prepareGetSession();
+        final DataTypePE dataTypePE = new DataTypePE();
+        dataTypePE.setCode(EntityDataType.HYPERLINK);
         context.checking(new Expectations()
             {
                 {
@@ -667,11 +673,12 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(propertyTypeDAO));
 
                     one(propertyTypeDAO).listDataTypes();
-                    will(returnValue(Collections.emptyList()));
+                    will(returnValue(Collections.singletonList(dataTypePE)));
                 }
             });
-        final List<DataTypePE> dataTypes = createServer().listDataTypes(SESSION_TOKEN);
-        assertEquals(0, dataTypes.size());
+        final List<DataType> dataTypes = createServer().listDataTypes(SESSION_TOKEN);
+        assertEquals(1, dataTypes.size());
+        assertEquals(DataTypeCode.HYPERLINK, dataTypes.get(0).getCode());
         context.assertIsSatisfied();
     }
 
@@ -679,7 +686,9 @@ public final class CommonServerTest extends AbstractServerTestCase
     public final void testFileFormatTypes()
     {
         prepareGetSession();
-        final List<FileFormatTypePE> list = Collections.<FileFormatTypePE> emptyList();
+        final FileFormatTypePE fileFormatTypePE = new FileFormatTypePE();
+        fileFormatTypePE.setCode("FFT");
+        final List<FileFormatTypePE> list = Collections.singletonList(fileFormatTypePE);
         context.checking(new Expectations()
             {
                 {
@@ -689,9 +698,10 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
 
-        List<FileFormatTypePE> types = createServer().listFileFormatTypes(SESSION_TOKEN);
+        List<FileFormatType> types = createServer().listFileFormatTypes(SESSION_TOKEN);
 
-        assertSame(list, types);
+        assertEquals(1, types.size());
+        assertEquals(fileFormatTypePE.getCode(), types.get(0).getCode());
         context.assertIsSatisfied();
     }
 
@@ -824,7 +834,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(Collections.emptyList()));
                 }
             });
-        final List<VocabularyPE> vocabularies =
+        final List<Vocabulary> vocabularies =
                 createServer().listVocabularies(SESSION_TOKEN, true, excludeInternal);
         assertEquals(0, vocabularies.size());
         context.assertIsSatisfied();
@@ -1201,7 +1211,8 @@ public final class CommonServerTest extends AbstractServerTestCase
     public void testListMaterials()
     {
         prepareGetSession();
-        final MaterialTypePE materialType = CommonTestUtils.createMaterialType();
+        final MaterialType materialType =
+                MaterialTypeTranslator.translate(CommonTestUtils.createMaterialType());
         context.checking(new Expectations()
             {
                 {
@@ -1234,7 +1245,9 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(types));
                 }
             });
-        assertEquals(types, createServer().listMaterialTypes(SESSION_TOKEN));
+        final List<MaterialType> materialTypes = createServer().listMaterialTypes(SESSION_TOKEN);
+        assertEquals(1, materialTypes.size());
+        assertEquals(types.get(0).getCode(), materialTypes.get(0).getCode());
         context.assertIsSatisfied();
     }
 

@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -49,6 +52,16 @@ public class DataSetTypeTranslator
         return result;
     }
 
+    public static List<DataSetType> translate(List<DataSetTypePE> dataSetTypes)
+    {
+        final List<DataSetType> result = new ArrayList<DataSetType>();
+        for (final DataSetTypePE dataSetType : dataSetTypes)
+        {
+            result.add(DataSetTypeTranslator.translate(dataSetType));
+        }
+        return result;
+    }
+    
     public static DataSetTypePE translate(DataSetType type)
     {
         final DataSetTypePE result = new DataSetTypePE();

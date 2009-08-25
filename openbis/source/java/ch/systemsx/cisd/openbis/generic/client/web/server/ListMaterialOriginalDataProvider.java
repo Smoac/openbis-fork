@@ -16,16 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
-import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
 
 /**
  * A {@link IOriginalDataProvider} implementation for listing materials.
@@ -49,11 +45,8 @@ final class ListMaterialOriginalDataProvider extends AbstractOriginalDataProvide
 
     public final List<Material> getOriginalData()
     {
-        final List<MaterialPE> materials =
-                commonServer.listMaterials(sessionToken, MaterialTypeTranslator
-                        .translate(listCriteria.getMaterialType()));
-        final List<Material> list = new ArrayList<Material>(materials.size());
-        list.addAll(MaterialTranslator.translate(materials));
-        return list;
+        final List<Material> materials =
+                commonServer.listMaterials(sessionToken, listCriteria.getMaterialType());
+        return materials;
     }
 }

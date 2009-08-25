@@ -41,10 +41,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -60,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
@@ -76,22 +79,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
@@ -295,38 +288,38 @@ public interface ICommonServer extends IServer
     /**
      * List property types.
      * 
-     * @return a sorted list of {@link PropertyTypePE}.
+     * @return a sorted list of {@link PropertyType}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<PropertyTypePE> listPropertyTypes(final String sessionToken, boolean withRelations);
+    public List<PropertyType> listPropertyTypes(final String sessionToken, boolean withRelations);
 
     /**
      * Lists data types.
      * 
-     * @return a sorted list of {@link DataTypePE}.
+     * @return a sorted list of {@link DataType}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<DataTypePE> listDataTypes(final String sessionToken);
+    public List<DataType> listDataTypes(final String sessionToken);
 
     /**
      * Lists file format types.
      * 
-     * @return a sorted list of {@link FileFormatTypePE}.
+     * @return a sorted list of {@link FileFormatType}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<FileFormatTypePE> listFileFormatTypes(String sessionToken);
+    public List<FileFormatType> listFileFormatTypes(String sessionToken);
 
     /**
      * Lists vocabularies.
      * 
-     * @return a sorted list of {@link VocabularyPE}.
+     * @return a sorted list of {@link Vocabulary}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<VocabularyPE> listVocabularies(final String sessionToken, final boolean withTerms,
+    public List<Vocabulary> listVocabularies(final String sessionToken, final boolean withTerms,
             boolean excludeInternal);
 
     /**
@@ -493,20 +486,20 @@ public interface ICommonServer extends IServer
     /**
      * List material types.
      * 
-     * @return a sorted list of {@link MaterialTypePE}.
+     * @return a sorted list of {@link MaterialType}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<MaterialTypePE> listMaterialTypes(String sessionToken);
+    public List<MaterialType> listMaterialTypes(String sessionToken);
 
     /**
      * Lists materials.
      * 
-     * @return a sorted list of {@link MaterialPE}.
+     * @return a sorted list of {@link Material}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<MaterialPE> listMaterials(String sessionToken, MaterialTypePE materialType);
+    public List<Material> listMaterials(String sessionToken, MaterialType materialType);
 
     /**
      * Creates a new material type.
@@ -688,7 +681,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public Set<VocabularyTermPE> listVocabularyTerms(String sessionToken, Vocabulary vocabulary);
+    public Set<VocabularyTerm> listVocabularyTerms(String sessionToken, Vocabulary vocabulary);
 
     /**
      * List data set types.
@@ -697,7 +690,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<DataSetTypePE> listDataSetTypes(String sessionToken);
+    public List<DataSetType> listDataSetTypes(String sessionToken);
 
     /**
      * @return Information about the time and kind of the last modification, separately for each
@@ -707,11 +700,11 @@ public interface ICommonServer extends IServer
     public LastModificationState getLastModificationState(String sessionToken);
 
     /**
-     * For given {@link TechId} returns the corresponding {@link ProjectPE}.
+     * For given {@link TechId} returns the corresponding {@link Project}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public ProjectPE getProjectInfo(String sessionToken,
+    public Project getProjectInfo(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId);
 
     /**
@@ -850,7 +843,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<AuthorizationGroupPE> listAuthorizationGroups(String sessionToken);
+    public List<AuthorizationGroup> listAuthorizationGroups(String sessionToken);
 
     /**
      * Saves changed authorization group.
@@ -865,7 +858,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<PersonPE> listPersonInAuthorizationGroup(String sessionToken,
+    public List<Person> listPersonInAuthorizationGroup(String sessionToken,
             TechId authorizatonGroupId);
 
     /**

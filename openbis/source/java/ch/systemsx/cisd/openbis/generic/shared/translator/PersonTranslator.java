@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -36,7 +37,7 @@ public class PersonTranslator
         // Can not be instantiated.
     }
 
-    public final static List<Person> translate(final List<PersonPE> persons)
+    public final static List<Person> translate(final Collection<PersonPE> persons)
     {
         final List<Person> result = new ArrayList<Person>();
         for (final PersonPE person : persons)

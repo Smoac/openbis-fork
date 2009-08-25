@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
@@ -38,6 +41,16 @@ public class TypeTranslator
     {
         FileFormatType result = new FileFormatType();
         fill(result, fileFormatType);
+        return result;
+    }
+
+    public static List<FileFormatType> translate(List<FileFormatTypePE> fileFormatTypes)
+    {
+        final List<FileFormatType> result = new ArrayList<FileFormatType>();
+        for (final FileFormatTypePE type : fileFormatTypes)
+        {
+            result.add(TypeTranslator.translate(type));
+        }
         return result;
     }
     

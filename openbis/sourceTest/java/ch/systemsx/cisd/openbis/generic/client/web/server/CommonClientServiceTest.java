@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -52,12 +53,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 
@@ -99,11 +98,11 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         return sampleType;
     }
 
-    private final static void assertDataTypeEquals(final DataTypePE dataTypePE,
-            final DataType dataType)
+    private final static void assertDataTypeEquals(final DataType dataType1,
+            final DataType dataType2)
     {
-        assertEquals(dataTypePE.getCode().name(), dataType.getCode().name());
-        assertEquals(dataTypePE.getDescription(), dataType.getDescription());
+        assertEquals(dataType1.getCode().name(), dataType2.getCode().name());
+        assertEquals(dataType1.getDescription(), dataType2.getDescription());
     }
 
     private final static VocabularyPE createVocabulary()
@@ -221,21 +220,21 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     @Test
     public final void testListDataTypes()
     {
-        final DataTypePE dataTypePE = new DataTypePE();
-        dataTypePE.setCode(EntityDataType.INTEGER);
-        dataTypePE.setDescription("The description");
+        final DataType dataType = new DataType();
+        dataType.setCode(DataTypeCode.INTEGER);
+        dataType.setDescription("The description");
         context.checking(new Expectations()
             {
                 {
                     prepareGetSessionToken(this);
 
                     one(commonServer).listDataTypes(SESSION_TOKEN);
-                    will(returnValue(Collections.singletonList(dataTypePE)));
+                    will(returnValue(Collections.singletonList(dataType)));
                 }
             });
         final List<DataType> dataTypes = commonClientService.listDataTypes();
         assertEquals(1, dataTypes.size());
-        assertDataTypeEquals(dataTypePE, dataTypes.get(0));
+        assertDataTypeEquals(dataType, dataTypes.get(0));
         context.assertIsSatisfied();
     }
 

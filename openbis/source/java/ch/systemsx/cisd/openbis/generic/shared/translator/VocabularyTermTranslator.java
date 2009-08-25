@@ -18,7 +18,9 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -51,9 +53,19 @@ public class VocabularyTermTranslator
         return result;
     }
 
-    public static List<VocabularyTerm> translateTerms(Collection<VocabularyTermPE> terms)
+    public static List<VocabularyTerm> translateTerms(List<VocabularyTermPE> terms)
     {
-        List<VocabularyTerm> result = new ArrayList<VocabularyTerm>();
+        final List<VocabularyTerm> result = new ArrayList<VocabularyTerm>();
+        for (VocabularyTermPE term : terms)
+        {
+            result.add(translate(term));
+        }
+        return result;
+    }
+
+    public static Set<VocabularyTerm> translateTerms(Set<VocabularyTermPE> terms)
+    {
+        final Set<VocabularyTerm> result = new HashSet<VocabularyTerm>();
         for (VocabularyTermPE term : terms)
         {
             result.add(translate(term));

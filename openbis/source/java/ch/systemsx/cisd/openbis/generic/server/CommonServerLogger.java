@@ -29,10 +29,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -48,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -64,16 +67,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
@@ -81,8 +76,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
@@ -276,25 +269,25 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public List<PropertyTypePE> listPropertyTypes(final String sessionToken, boolean withRelations)
+    public List<PropertyType> listPropertyTypes(final String sessionToken, boolean withRelations)
     {
         logAccess(sessionToken, "list_property_types", withRelations ? "WITH_RELATIONS" : "");
         return null;
     }
 
-    public final List<DataTypePE> listDataTypes(final String sessionToken)
+    public final List<DataType> listDataTypes(final String sessionToken)
     {
         logAccess(sessionToken, "list_data_types");
         return null;
     }
 
-    public List<FileFormatTypePE> listFileFormatTypes(String sessionToken)
+    public List<FileFormatType> listFileFormatTypes(String sessionToken)
     {
         logAccess(sessionToken, "list_file_format_types");
         return null;
     }
 
-    public final List<VocabularyPE> listVocabularies(final String sessionToken, boolean withTerms,
+    public final List<Vocabulary> listVocabularies(final String sessionToken, boolean withTerms,
             boolean excludeInternal)
     {
         logAccess(sessionToken, "list_vocabularies");
@@ -402,13 +395,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public List<MaterialTypePE> listMaterialTypes(String sessionToken)
+    public List<MaterialType> listMaterialTypes(String sessionToken)
     {
         logAccess(sessionToken, "list_material_types");
         return null;
     }
 
-    public List<MaterialPE> listMaterials(String sessionToken, MaterialTypePE materialType)
+    public List<Material> listMaterials(String sessionToken, MaterialType materialType)
     {
         logAccess(sessionToken, "list_materials", "TYPE(%s)", materialType);
         return null;
@@ -551,13 +544,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public Set<VocabularyTermPE> listVocabularyTerms(String sessionToken, Vocabulary vocabulary)
+    public Set<VocabularyTerm> listVocabularyTerms(String sessionToken, Vocabulary vocabulary)
     {
         logAccess(sessionToken, "list_vocabulary_terms", "VOCABULARY(%s)", vocabulary.getCode());
         return null;
     }
 
-    public List<DataSetTypePE> listDataSetTypes(String sessionToken)
+    public List<DataSetType> listDataSetTypes(String sessionToken)
     {
         logAccess(sessionToken, "list_data_set_types");
         return null;
@@ -568,7 +561,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public ProjectPE getProjectInfo(String sessionToken, TechId projectId)
+    public Project getProjectInfo(String sessionToken, TechId projectId)
     {
         logAccess(sessionToken, "get_project_info", "ID(%s)", projectId);
         return null;
@@ -706,7 +699,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 .join(authGroupIds.toArray(new TechId[0])));
     }
 
-    public List<AuthorizationGroupPE> listAuthorizationGroups(String sessionToken)
+    public List<AuthorizationGroup> listAuthorizationGroups(String sessionToken)
     {
         logAccess(sessionToken, "listAuthorizatonGroups");
         return null;
@@ -718,7 +711,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public List<PersonPE> listPersonInAuthorizationGroup(String sessionToken,
+    public List<Person> listPersonInAuthorizationGroup(String sessionToken,
             TechId authorizatonGroupId)
     {
         logAccess(sessionToken, "listPersonInAuthorizationGroup", "ID(%s)", authorizatonGroupId);

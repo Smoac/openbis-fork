@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -69,6 +71,16 @@ public class MaterialTypeTranslator
             {
                 mtpt.getPropertyType().setMaterialType(null);
             }
+    }
+
+    public final static List<MaterialType> translate(final List<MaterialTypePE> materialTypes)
+    {
+        final List<MaterialType> result = new ArrayList<MaterialType>(materialTypes.size());
+        for (final MaterialTypePE materialType : materialTypes)
+        {
+            result.add(translate(materialType));
+        }
+        return result;
     }
 
     public static MaterialTypePE translate(MaterialType type)
