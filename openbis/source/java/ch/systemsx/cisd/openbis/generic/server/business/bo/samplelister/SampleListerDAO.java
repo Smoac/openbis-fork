@@ -21,13 +21,18 @@ import javax.sql.DataSource;
 import net.lemnik.eodsql.QueryTool;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.dbmigration.DatabaseEngine;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;
 
 /**
  * The DAO for business objects implementing {@link ISampleLister}. 
- * Note: Even though this class and its main constructor are public all methods have to be
+ * Note: Even though this class is public its constructors and instance methods have to be
  * package protected.
  * 
  * @author Bernd Rinn
@@ -35,6 +40,26 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTransl
 @Friend(toClasses=ISampleListingFullQuery.class)
 public final class SampleListerDAO
 {
+    /**
+     * Creates a new instance based on {@link PersistencyResources} and home
+     * {@link DatabaseInstancePE} of specified DAO factory.
+     */
+    public static SampleListerDAO createDAO(IDAOFactory daoFactory)
+    {
+        PersistencyResources persistencyResources = daoFactory.getPersistencyResources();
+        DatabaseConfigurationContext context = persistencyResources.getContextOrNull();
+        if (context == null)
+        {
+            throw new ConfigurationFailureException("Missing database configuration context.");
+        }
+        // H2 does not support set queries ("=ANY()" operator)
+        final boolean supportsSetQuery =
+            (DatabaseEngine.H2.getCode().equals(context.getDatabaseEngineCode()) == false);
+        DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
+        return new SampleListerDAO(true, supportsSetQuery, context.getDataSource(),
+                homeDatabaseInstance);
+    }
+    
     private final boolean enabled;
 
     private final ISampleListingFullQuery query;
@@ -45,7 +70,7 @@ public final class SampleListerDAO
 
     private final DatabaseInstance databaseInstance;
 
-    public SampleListerDAO(final boolean enabled, final boolean supportsSetQuery,
+    SampleListerDAO(final boolean enabled, final boolean supportsSetQuery,
             final DataSource dataSource, final DatabaseInstancePE databaseInstance)
     {
         this.enabled = enabled;

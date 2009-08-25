@@ -60,7 +60,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.VocabularyTermBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.SampleLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.SampleListerDAO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.SampleListerDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -78,7 +77,7 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     public CommonBusinessObjectFactory(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory)
     {
         super(daoFactory, dssFactory);
-        sampleListerDAO = SampleListerDAOFactory.createSampleListerDAO(daoFactory);
+        sampleListerDAO = SampleListerDAO.createDAO(daoFactory);
     }
 
     public final IAttachmentBO createAttachmentBO(final Session session)
